@@ -17,6 +17,9 @@ def test_sparql_list_query_keeps_graph_braces() -> None:
     assert "SAMPLE(?fdkIdRaw) AS ?fdkId" in query
     assert query.count("{") == query.count("}")
     assert "{limit}" not in query
+    full = list_query()
+    assert "LIMIT" not in full
+    assert "OFFSET" not in full
 
 
 class _FakeHttp:

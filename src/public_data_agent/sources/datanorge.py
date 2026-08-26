@@ -35,12 +35,17 @@ WHERE {{
 }}
 GROUP BY ?dataset
 ORDER BY ?dataset
-LIMIT {limit} OFFSET {offset}
 """
 
+LIST_QUERY_PAGE = LIST_QUERY + "LIMIT {limit} OFFSET {offset}\n"
 
-def list_query(*, limit: int, offset: int) -> str:
-    return LIST_QUERY.format(limit=int(limit), offset=int(offset))
+
+def list_query(*, limit: int | None = None, offset: int = 0) -> str:
+    if limit is None and offset == 0:
+        return LIST_QUERY
+    if limit is None:
+        raise ValueError("offset without limit is not supported")
+    return LIST_QUERY_PAGE.format(limit=int(limit), offset=int(offset))
 
 
 class DataNorgeSource(SourceBase):
@@ -69,33 +74,47 @@ class DataNorgeSource(SourceBase):
         self.resource_url = resource_url.rstrip("/")
         self.page_size = page_size
         self.batch_size = batch_size
-        self.http = http or HttpClient(limiter=RateLimiter(RESOURCE_RPS, RESOURCE_BURST))
+        self.http = http or HttpClient(
+            limiter=RateLimiter(RESOURCE_RPS, RESOURCE_BURST),
+            timeout=60.0,
+        )
         # SPARQL has no published rps. Keep it well below the Resource Service.
-        self.sparql_http = sparql_http or HttpClient(limiter=RateLimiter(2.0, 4))
+        # A full-catalog GROUP BY is ~2s / ~3.5MB today; give it more room.
+        self.sparql_http = sparql_http or HttpClient(
+            limiter=RateLimiter(2.0, 4),
+            timeout=180.0,
+        )
 
     def list_dataset_refs(self, *, limit: int | None = None, offset: int = 0) -> list[DatasetRef]:
         refs: list[DatasetRef] = []
+        if limit is None and offset == 0:
+            return self._refs_from_rows(self._sparql(list_query()))
         remaining = limit
         page_offset = offset
         while remaining is None or remaining > 0:
             page = self.page_size if remaining is None else min(self.page_size, remaining)
             rows = self._sparql(list_query(limit=page, offset=page_offset))
-            for row in rows:
-                dataset = _binding(row, "dataset")
-                if not dataset:
-                    continue
-                refs.append(
-                    DatasetRef(
-                        source_native_uri=dataset,
-                        source_native_id=_binding(row, "fdkId"),
-                        catalog_modified=_binding(row, "catalogModified"),
-                    )
-                )
+            refs.extend(self._refs_from_rows(rows))
             if remaining is not None:
                 remaining -= len(rows)
             page_offset += len(rows)
             if len(rows) < page:
                 break
+        return refs
+
+    def _refs_from_rows(self, rows: list[dict[str, Any]]) -> list[DatasetRef]:
+        refs: list[DatasetRef] = []
+        for row in rows:
+            dataset = _binding(row, "dataset")
+            if not dataset:
+                continue
+            refs.append(
+                DatasetRef(
+                    source_native_uri=dataset,
+                    source_native_id=_binding(row, "fdkId"),
+                    catalog_modified=_binding(row, "catalogModified"),
+                )
+            )
         return refs
 
     def fetch_dataset(self, ref: DatasetRef) -> HarvestedRecord:

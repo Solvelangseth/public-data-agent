@@ -87,6 +87,39 @@ def test_changed_payload_updates_row_and_leaves_others(tmp_path: Path) -> None:
     registry.close()
 
 
+def test_partial_batch_failure_leaves_rows_for_resume(tmp_path: Path) -> None:
+    payloads = _payloads()
+    source = FixtureSource(payloads)
+
+    class BoomOnSecondBatch(FixtureSource):
+        def __init__(self) -> None:
+            super().__init__(payloads)
+
+        def fetch_dataset(self, ref):
+            if ref.source_native_uri != payloads[0]["uri"]:
+                raise RuntimeError("resource service dropped")
+            return super().fetch_dataset(ref)
+
+        def fetch_many(self, refs):
+            refs = list(refs)
+            if any(ref.source_native_uri != payloads[0]["uri"] for ref in refs):
+                raise RuntimeError("resource service dropped")
+            return super().fetch_many(refs)
+
+    db = tmp_path / "registry.sqlite"
+    registry = Registry(db)
+    first = harvest(registry, BoomOnSecondBatch(), batch_size=1)
+    assert first.inserted == 1
+    assert first.failed == 2
+    assert registry.dataset_count() == 1
+
+    second = harvest(registry, source, batch_size=1)
+    assert second.inserted == 2
+    assert second.failed == 0
+    assert registry.dataset_count() == 3
+    registry.close()
+
+
 def test_cli_fixture_ingest_writes_registry(tmp_path: Path) -> None:
     db = tmp_path / "registry.sqlite"
     code = main(["ingest", "--source", "fixture", "--fixtures", str(FIXTURES), "--db", str(db)])

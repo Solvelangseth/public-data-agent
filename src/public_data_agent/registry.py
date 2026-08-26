@@ -26,6 +26,7 @@ class Registry:
         self.conn.row_factory = sqlite3.Row
         self.conn.execute("PRAGMA foreign_keys = ON")
         self.conn.execute("PRAGMA journal_mode = WAL")
+        self.conn.execute("PRAGMA busy_timeout = 5000")
         self._apply_schema()
 
     def close(self) -> None:
@@ -93,6 +94,59 @@ class Registry:
             ),
         )
         self.conn.commit()
+
+    def checkpoint_run(self, run_id: int, counts: HarvestCounts) -> None:
+        """Write live counts while status is still running."""
+
+        self.conn.execute(
+            """
+            UPDATE harvest_runs
+            SET listed = ?, inserted = ?, updated = ?, unchanged = ?,
+                failed = ?, errors_json = ?
+            WHERE id = ?
+            """,
+            (
+                counts.listed,
+                counts.inserted,
+                counts.updated,
+                counts.unchanged,
+                counts.failed,
+                json.dumps(counts.errors, ensure_ascii=False),
+                run_id,
+            ),
+        )
+        self.conn.commit()
+
+    def missing_field_stats(self) -> dict[str, Any]:
+        rows = self.conn.execute("SELECT missing_fields_json FROM datasets").fetchall()
+        total = len(rows)
+        keys = (
+            "publisher",
+            "license",
+            "access_path",
+            "issued",
+            "modified",
+            "temporal",
+            "spatial",
+            "structure",
+            "title",
+            "description",
+            "original_source",
+        )
+        counts = {key: 0 for key in keys}
+        for row in rows:
+            missing = json.loads(row["missing_fields_json"] or "{}")
+            for key in keys:
+                if key in missing:
+                    counts[key] += 1
+        rates = {
+            key: {
+                "count": counts[key],
+                "percent": round((counts[key] / total) * 100, 2) if total else 0.0,
+            }
+            for key in keys
+        }
+        return {"datasets": total, "missing": rates}
 
     def get_dataset(self, dataset_id: str) -> dict[str, Any] | None:
         row = self.conn.execute("SELECT * FROM datasets WHERE id = ?", (dataset_id,)).fetchone()
