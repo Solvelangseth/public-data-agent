@@ -34,13 +34,15 @@
         "relevance": 17,
         "title": "IUA - Interkommunale utvalg mot akutt forurensning",
         "why": "title matched forurensning; keyword matched forurensning; description matched forurensning",
-        "publisher": "Kystverket"
+        "publisher": "Kystverket",
+        "matched_query_tokens": ["forurensning"]
       },
       {
         "relevance": 17,
         "title": "Prioriteringskart - akutt forurensning",
         "why": "title matched forurensning; keyword matched forurensning; description matched forurensning",
-        "publisher": "Miljødirektoratet"
+        "publisher": "Miljødirektoratet",
+        "matched_query_tokens": ["forurensning"]
       },
       {
         "relevance": 15,
