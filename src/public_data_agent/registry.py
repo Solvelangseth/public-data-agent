@@ -192,6 +192,16 @@ class Registry:
         rows = self.conn.execute("SELECT * FROM harvest_runs ORDER BY id").fetchall()
         return [dict(row) for row in rows]
 
+    def iter_search_rows(self) -> list[dict[str, Any]]:
+        rows = self.conn.execute(
+            """
+            SELECT d.*, p.payload_json
+            FROM datasets d
+            LEFT JOIN harvested_payloads p ON p.dataset_id = d.id
+            """
+        ).fetchall()
+        return [dict(row) for row in rows]
+
     def upsert(self, dataset: NormalizedDataset, run_id: int, *, now: str | None = None) -> str:
         """Insert or update by stable id. Never deletes other rows."""
 
