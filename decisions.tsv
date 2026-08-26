@@ -23,3 +23,4 @@ ts	phase	decision	why	evidence	result
 2026-08-26T21:50:16Z	enrich	leave fields null on every live row	no payload stored variables/variableList/variable_list; do not invent measures	data/enrich_proof.json live_enrich.nonempty.fields=0 missing.fields=9120	honest nulls
 2026-08-26T21:50:16Z	enrich	copy stored spatial as geography, do not guess places	geography nonempty must match harvest spatial presence	nonempty geography=877; harvest spatial missing=8243	aligned
 2026-08-26T21:50:16Z	trail	commit live enrich counts on the M3 branch	morning review needs the same proof shape as M2 search_proof.json	data/enrich_proof.json	pending commit
+2026-08-26T21:51:00Z	trail	committed enrich_proof.json on the M3 branch	replace the pending-commit cell with a SHA a reviewer can open	commit 07f2ab9 data/enrich_proof.json	on cursor/milestone-3-metadata-enrichment-4a96
