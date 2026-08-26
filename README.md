@@ -12,10 +12,13 @@ system finds the right data for you.
 
 ## Current status
 
-Milestone 1 through 5 are in this repo: a local SQLite dataset registry, ingest from
+Milestone 1 through 6 are in this repo: a local SQLite dataset registry, ingest from
 Data.norge / Felles datakatalog, token-overlap search over that file, deterministic
-enrichment in a separate `enrichments` table, a sourced search benchmark, and
-AND-decomposition of multi-token queries.
+enrichment in a separate `enrichments` table, a sourced search benchmark,
+AND-decomposition of multi-token queries, and a coverage report after retrieval.
+
+Discovery MVP stops here. Data retrieval, connectors, observation rows, joins,
+and MCP are later.
 
 Data.norge is the first ingest source, not the product. UI, joins, charts,
 observation-row loading, and MCP are later.
@@ -394,6 +397,31 @@ q045 `forurensning oslo`: Recall@10 0.00 to 1.00. The three gold rows are the to
 | indirect | 0.33 | 0.33 | 0.33 | 0.33 |
 
 Indirect did not move. Theme strings that never appear in title, keyword, or description still miss. That is logged. The token-overlap weights were not changed.
+
+## Milestone 6: coverage checker
+
+After retrieval, `pda search` reports which decomposed requirements the
+retrieved rows cover. Coverage is computed from stored title, keyword,
+description, and publisher_name. Theme is not a retrieval field.
+
+```bash
+pda search "forurensning oslo" --db data/registry.sqlite
+pda search "strandsone sparse" --db data/registry.sqlite --no-decompose
+```
+
+The JSON includes `coverage.requirements`, `covered`, `missing`, and
+`confidence` (covered / requirements). If confidence is below 1.0, one
+follow-up search runs per missing requirement. New hits are merged and
+re-ranked. A follow-up that would repeat the same query is skipped.
+
+`pda benchmark` uses the same path. Each question row stores coverage and
+whether follow-up ran.
+
+This milestone does not add theme to the scorer. Indirect theme-only
+questions still miss when the theme string is not in title, keyword, or
+description. Single-token publisher queries such as `AtB` still miss.
+Those gaps stay logged. Discovery MVP does not load observation rows,
+join sources, or expose MCP.
 
 ```bash
 pda ingest --source datanorge --db data/registry.sqlite

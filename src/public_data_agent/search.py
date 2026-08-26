@@ -105,6 +105,37 @@ class SearchHit:
         }
 
 
+@dataclass
+class Coverage:
+    requirements: list[str]
+    covered: list[str]
+    missing: list[str]
+    confidence: float
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "requirements": self.requirements,
+            "covered": self.covered,
+            "missing": self.missing,
+            "confidence": self.confidence,
+        }
+
+
+@dataclass
+class SearchReport:
+    hits: list[SearchHit]
+    coverage: Coverage
+    follow_up: dict[str, Any] | None
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "returned": len(self.hits),
+            "results": [hit.to_dict() for hit in self.hits],
+            "coverage": self.coverage.to_dict(),
+            "follow_up": self.follow_up,
+        }
+
+
 def tokenize(text: str | None) -> list[str]:
     if not text:
         return []
@@ -202,6 +233,120 @@ def search(
     if not query_tokens:
         return []
     return _rank_rows(registry, query_tokens, limit=limit)
+
+
+def search_report(
+    registry: Registry,
+    query: str,
+    *,
+    limit: int = 10,
+    decompose_query: bool = True,
+    follow_up: bool = True,
+) -> SearchReport:
+    """Search, then report which requirements the retrieved rows cover.
+
+    Coverage uses stored title, keyword, description, and publisher_name.
+    Theme is not a retrieval field. If any requirement is missing, one
+    follow-up search runs per missing requirement and new hits are merged.
+    """
+
+    requirements = _coverage_requirements(query, decompose_query=decompose_query)
+    hits = search(registry, query, limit=limit, decompose_query=decompose_query)
+    coverage = assess_coverage(registry, hits, requirements)
+    follow: dict[str, Any] | None = None
+    if follow_up and coverage.missing:
+        added: list[SearchHit] = []
+        queries: list[str] = []
+        seen = {hit.dataset_id for hit in hits}
+        original_tokens = tokenize(query)
+        for text in coverage.missing:
+            if tokenize(text) == original_tokens:
+                continue
+            queries.append(text)
+            for extra in search(registry, text, limit=limit, decompose_query=False):
+                if extra.dataset_id in seen:
+                    continue
+                seen.add(extra.dataset_id)
+                added.append(extra)
+                hits.append(extra)
+        kept_ids = set()
+        if added:
+            hits.sort(key=lambda hit: (-hit.relevance, hit.title or "", hit.dataset_id))
+            hits = hits[:limit]
+            kept_ids = {hit.dataset_id for hit in hits}
+        coverage_after = assess_coverage(registry, hits, requirements)
+        if queries:
+            follow = {
+                "ran": True,
+                "reason": "confidence below 1.0 on stored fields of the first-pass hits",
+                "queries": queries,
+                "added": [
+                    {"id": hit.dataset_id, "title": hit.title}
+                    for hit in added
+                    if hit.dataset_id in kept_ids
+                ],
+                "skipped_same_query": [
+                    text for text in coverage.missing if tokenize(text) == original_tokens
+                ],
+                "confidence_before": coverage.confidence,
+                "confidence_after": coverage_after.confidence,
+            }
+        else:
+            follow = {
+                "ran": False,
+                "reason": "missing requirement is the same query; a second pass would repeat it",
+                "queries": [],
+                "added": [],
+            }
+        coverage = coverage_after
+    return SearchReport(hits=hits, coverage=coverage, follow_up=follow)
+
+
+def assess_coverage(
+    registry: Registry,
+    hits: list[SearchHit],
+    requirements: list[Requirement],
+) -> Coverage:
+    texts = [req.text for req in requirements]
+    covered: list[str] = []
+    missing: list[str] = []
+    for req in requirements:
+        if any(_hit_covers(registry, hit.dataset_id, req) for hit in hits):
+            covered.append(req.text)
+        else:
+            missing.append(req.text)
+    confidence = (len(covered) / len(requirements)) if requirements else 0.0
+    return Coverage(
+        requirements=texts,
+        covered=covered,
+        missing=missing,
+        confidence=confidence,
+    )
+
+
+def _coverage_requirements(query: str, *, decompose_query: bool) -> list[Requirement]:
+    if decompose_query:
+        reqs = decompose(query)
+        if reqs:
+            return reqs
+    tokens = tokenize(query)
+    return [Requirement(text=token, tokens=(token,)) for token in tokens]
+
+
+def _hit_covers(registry: Registry, dataset_id: str, req: Requirement) -> bool:
+    row = registry.get_dataset(dataset_id)
+    if row is None:
+        return False
+    payload = registry.get_payload(dataset_id) or {}
+    keywords = keywords_from_payload(payload)
+    title_i18n = _json_obj(row.get("title_i18n_json"))
+    description_i18n = _json_obj(row.get("description_i18n_json"))
+    fields = {
+        "title": tokenize(" ".join([row.get("title") or "", *title_i18n.values()])),
+        "keyword": tokenize(" ".join(keywords)),
+        "description": tokenize(" ".join([row.get("description") or "", *description_i18n.values()])),
+    }
+    return _requirement_matches(req.tokens, fields, row.get("publisher_name")) is not None
 
 
 def _search_requirements(

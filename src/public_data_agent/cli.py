@@ -9,7 +9,7 @@ from public_data_agent.benchmark import DEFAULT_QUESTIONS, load_questions, run_b
 from public_data_agent.enrich import enrich
 from public_data_agent.harvest import harvest, stderr_progress
 from public_data_agent.registry import Registry
-from public_data_agent.search import search
+from public_data_agent.search import search_report
 from public_data_agent.sources import SOURCE_IDS, build_source
 
 DEFAULT_DB = Path("data/registry.sqlite")
@@ -231,7 +231,7 @@ def _search(args: argparse.Namespace) -> int:
         return 1
     registry = Registry(args.db)
     try:
-        hits = search(
+        report = search_report(
             registry,
             args.query,
             limit=args.limit,
@@ -246,8 +246,7 @@ def _search(args: argparse.Namespace) -> int:
                 "query": args.query,
                 "limit": args.limit,
                 "decompose": args.decompose,
-                "returned": len(hits),
-                "results": [hit.to_dict() for hit in hits],
+                **report.to_dict(),
             },
             ensure_ascii=False,
             indent=2,
