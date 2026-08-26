@@ -46,8 +46,30 @@
         "relevance": 15,
         "title": "Ortofoto Oslo - Bekkelaget 1977",
         "why": "title matched oslo; keyword matched oslo",
-        "publisher": "Norge i bilder"
+        "publisher": "Norge i bilder",
+        "matched_query_tokens": ["oslo"]
+      },
+      {
+        "relevance": 15,
+        "title": "Ortofoto Oslo - Follo - Romerike SV 1956",
+        "why": "title matched oslo; keyword matched oslo",
+        "publisher": "Norge i bilder",
+        "matched_query_tokens": ["oslo"]
+      },
+      {
+        "relevance": 15,
+        "title": "Ortofoto Oslo - Furuset 1977",
+        "why": "title matched oslo; keyword matched oslo",
+        "publisher": "Norge i bilder",
+        "matched_query_tokens": ["oslo"]
       }
-    ]
+    ],
+    "ranking_note": "Hits 1-2 match only forurensning (score 17). Hits 3-5 match only oslo (score 15). No top-5 hit matches both tokens."
+  },
+  "pytest": {
+    "command": "python3 -m pytest",
+    "passed": 21,
+    "deselected": 1,
+    "note": "fixture tests; live mark deselected"
   }
 }
