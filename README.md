@@ -12,8 +12,9 @@ system finds the right data for you.
 
 ## Current status
 
-Milestone 1 and 2 are in this repo: a local SQLite dataset registry, ingest from
-Data.norge / Felles datakatalog, and token-overlap search over that file.
+Milestone 1, 2, and 3 are in this repo: a local SQLite dataset registry, ingest from
+Data.norge / Felles datakatalog, token-overlap search over that file, and deterministic
+enrichment in a separate `enrichments` table.
 
 Data.norge is the first ingest source, not the product. UI, joins, charts,
 observation-row loading, and MCP are later.
@@ -246,6 +247,32 @@ Inspect without extra tools:
 sqlite3 data/registry.sqlite "SELECT id, title, publisher_name, license, access_path FROM datasets LIMIT 10;"
 sqlite3 data/registry.sqlite "SELECT id, status, listed, inserted, updated, unchanged, failed FROM harvest_runs;"
 ```
+
+## Milestone 3: metadata enrichment
+
+`pda enrich` reads stored harvest rows and writes one system-generated
+`enrichments` row per dataset. It does not write `datasets` or
+`harvested_payloads`.
+
+```bash
+pda enrich --db data/registry.sqlite
+```
+
+`--limit` and `--offset` page the work. `--quiet` hides progress on stderr.
+The command prints JSON counts: listed, inserted, updated, unchanged, failed.
+
+Enrichment never overwrites harvest columns. It stores topics, aliases,
+geography, time coverage, fields, and template `can_answer` questions.
+Topics and aliases are copied from stored theme, losTheme, keyword, and
+other-language titles. Geography, time coverage, and fields stay null with
+a reason when the harvest row has nothing to copy. `can_answer` uses only
+those templates, filled with stored title, publisher, topic, geography, or
+temporal start. No LLM, and no invented numbers.
+
+A second run is incremental. The fingerprint is the harvest `payload_hash`.
+If it still matches, the enrichment row is counted unchanged and left alone.
+
+This milestone does not add a UI, joins, MCP, or a search rewrite.
 
 ## Architecture (long term)
 

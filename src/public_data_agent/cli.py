@@ -5,6 +5,7 @@ import json
 import sys
 from pathlib import Path
 
+from public_data_agent.enrich import enrich
 from public_data_agent.harvest import harvest, stderr_progress
 from public_data_agent.registry import Registry
 from public_data_agent.search import search
@@ -47,6 +48,12 @@ def main(argv: list[str] | None = None) -> int:
     search_cmd.add_argument("--db", type=Path, default=DEFAULT_DB)
     search_cmd.add_argument("--limit", type=int, default=10)
 
+    enrich_cmd = sub.add_parser("enrich", help="Project stored harvest fields into enrichments")
+    enrich_cmd.add_argument("--db", type=Path, default=DEFAULT_DB)
+    enrich_cmd.add_argument("--limit", type=int, default=None)
+    enrich_cmd.add_argument("--offset", type=int, default=0)
+    enrich_cmd.add_argument("--quiet", action="store_true", help="Do not print progress on stderr")
+
     args = parser.parse_args(argv)
     if args.command == "ingest":
         return _ingest(args)
@@ -56,6 +63,8 @@ def main(argv: list[str] | None = None) -> int:
         return _stats(args)
     if args.command == "search":
         return _search(args)
+    if args.command == "enrich":
+        return _enrich(args)
     parser.error(f"unknown command {args.command}")
     return 2
 
@@ -134,6 +143,37 @@ def _stats(args: argparse.Namespace) -> int:
         args.out.write_text(text + "\n", encoding="utf-8")
     print(text)
     return 0
+
+
+def _enrich(args: argparse.Namespace) -> int:
+    if not Path(args.db).exists() and str(args.db) != ":memory:":
+        print(f"no registry at {args.db}", file=sys.stderr)
+        return 1
+    registry = Registry(args.db)
+    try:
+        counts = enrich(
+            registry,
+            limit=args.limit,
+            offset=args.offset,
+            progress=None if args.quiet else stderr_progress,
+        )
+    finally:
+        registry.close()
+    print(
+        json.dumps(
+            {
+                "db": str(args.db),
+                "listed": counts.listed,
+                "inserted": counts.inserted,
+                "updated": counts.updated,
+                "unchanged": counts.unchanged,
+                "failed": counts.failed,
+            },
+            ensure_ascii=False,
+            indent=2,
+        )
+    )
+    return 1 if counts.failed else 0
 
 
 def _search(args: argparse.Namespace) -> int:
