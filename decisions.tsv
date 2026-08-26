@@ -25,3 +25,8 @@ ts	phase	decision	why	evidence	result
 2026-08-26T21:50:16Z	trail	commit live enrich counts on the M3 branch	morning review needs the same proof shape as M2 search_proof.json	data/enrich_proof.json	pending commit
 2026-08-26T21:51:00Z	trail	committed enrich_proof.json on the M3 branch	replace the pending-commit cell with a SHA a reviewer can open	commit 07f2ab9 data/enrich_proof.json	on cursor/milestone-3-metadata-enrichment-4a96
 2026-08-26T21:52:00Z	pr	open Milestone 3 PR, do not merge, do not start M4	sequence ends at a reviewable PR after live enrich proof	https://github.com/Solvelangseth/public-data-agent/pull/3	OPEN
+2026-08-26T21:53:59Z	merge	treat PR 3 as merged on main	gh pr view is the required proof	https://github.com/Solvelangseth/public-data-agent/pull/3 mergeCommit f935a8a3d48033846423598f71a18780220f8e56	MERGED 2026-08-26T21:53:59Z
+2026-08-26T21:54:00Z	merge	confirm origin/main holds enrich.py	M4 starts from merged main	git ls-tree origin/main src/public_data_agent/enrich.py blob 1fed156	enrich.py on main
+2026-08-26T21:57:46Z	bench	source 65 gold questions from the live registry	do not invent labels; every id and reason must resolve	tools/build_benchmark_questions.py wrote data/benchmark_questions.json; validate_questions passed	65 questions
+2026-08-26T21:57:46Z	bench	leave fields=0 logged, do not invent variable lists	upstream harvest has no variables/variableList	data/enrich_proof.json fields=0	logged, no change
+2026-08-26T21:57:46Z	bench	score with one CLI over search(), not a new platform	smallest change that reruns	pda benchmark --db data/registry.sqlite	pending live run

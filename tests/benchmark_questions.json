@@ -1,0 +1,78 @@
+{
+  "version": 1,
+  "rule": "Fixture gold set. Every expected id exists after fixture ingest.",
+  "questions": [
+    {
+      "id": "fx-simple",
+      "kind": "simple",
+      "query": "strandsone",
+      "expected": [
+        {
+          "dataset_id": "fixture:b2864e84-b474-31ae-97b1-8b94a71f5b0f",
+          "reasons": [
+            {
+              "field": "title",
+              "stored": "Potensielt tilgjengelig strandsone"
+            }
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "id": "strandsone",
+          "kind": "token",
+          "field": "title",
+          "token": "strandsone"
+        }
+      ]
+    },
+    {
+      "id": "fx-synonym",
+      "kind": "synonym",
+      "query": "friluftsliv",
+      "expected": [
+        {
+          "dataset_id": "fixture:b2864e84-b474-31ae-97b1-8b94a71f5b0f",
+          "reasons": [
+            {
+              "field": "keyword",
+              "stored": "Friluftsliv"
+            }
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "id": "friluftsliv",
+          "kind": "token",
+          "field": "keyword",
+          "token": "friluftsliv"
+        }
+      ]
+    },
+    {
+      "id": "fx-hard",
+      "kind": "hard",
+      "query": "missing-publisher-token",
+      "expected": [
+        {
+          "dataset_id": "fixture:00000000-0000-4000-8000-000000000001",
+          "reasons": [
+            {
+              "field": "title",
+              "stored": "Sparse fixture"
+            }
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "id": "missing",
+          "kind": "token",
+          "field": "publisher_name",
+          "token": "ssb"
+        }
+      ]
+    }
+  ]
+}
