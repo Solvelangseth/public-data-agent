@@ -322,6 +322,21 @@ practical.
 pda benchmark --db data/registry.sqlite --questions data/benchmark_questions.json --out data/benchmark_results.json --baseline datanorge
 ```
 
+### Production scores (2026-08-26)
+
+Ran on the local 9120-row registry. 65 sourced questions.
+
+| System | Recall@5 | Recall@10 | MRR | req. cov@5 | req. cov@10 |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| ours (`pda search`) | 0.769 | 0.800 | 0.702 | 0.869 | 0.885 |
+| Data.norge Search API | 0.733 | 0.779 | 0.689 | 0.885 | 0.900 |
+
+By kind, ours: simple Recall@5 1.00, synonym 0.91, multi 0.90, hard 0.36, indirect 0.33.
+
+`forurensning oslo` (q045) is the known one-token gap. The three datasets that store both tokens have Recall@10 0. Requirement coverage is 1.0 because single-token hits still cover each word. The scorer was not rewritten.
+
+Data.norge baseline used `POST https://search.api.fellesdatakatalog.digdir.no/search/datasets` with no auth, 10 requests per minute, 65 of 65 completed. Full rows are in `data/benchmark_results.json`.
+
 `fields=0` from Milestone 3 stays an upstream gap. This milestone does not
 invent variable lists. It does not rewrite the scorer. It does not add a
 benchmark platform.

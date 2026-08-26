@@ -30,3 +30,6 @@ ts	phase	decision	why	evidence	result
 2026-08-26T21:57:46Z	bench	source 65 gold questions from the live registry	do not invent labels; every id and reason must resolve	tools/build_benchmark_questions.py wrote data/benchmark_questions.json; validate_questions passed	65 questions
 2026-08-26T21:57:46Z	bench	leave fields=0 logged, do not invent variable lists	upstream harvest has no variables/variableList	data/enrich_proof.json fields=0	logged, no change
 2026-08-26T21:57:46Z	bench	score with one CLI over search(), not a new platform	smallest change that reruns	pda benchmark --db data/registry.sqlite	pending live run
+2026-08-26T22:06:00Z	bench	run pda benchmark on the 9120-row registry	prove it works on the real file	data/benchmark_results.json our Recall@5=0.769 Recall@10=0.800 MRR=0.702	live scores
+2026-08-26T22:06:00Z	bench	run Data.norge Search API baseline at 10 req/min	no auth, probe returned 200, fair same-question run was practical	65 of 65 completed; Recall@5=0.733 Recall@10=0.779 MRR=0.689	baseline ran
+2026-08-26T22:06:00Z	bench	leave q045 one-token gap logged, do not rewrite the scorer	three both-token gold ids have Recall@10=0; coverage still 1.0	data/benchmark_results.json q045	logged
