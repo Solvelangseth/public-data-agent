@@ -37,7 +37,9 @@
         "recall_at_10": 1.0,
         "mrr": 0.8022727272727272
       }
-    }
+    },
+    "mean_confidence": 0.9692307692307692,
+    "follow_up_ran": 0
   },
   "questions": [
     {
@@ -54,7 +56,18 @@
       "recall_at_10": 1.0,
       "mrr": 1.0,
       "requirement_coverage_at_5": 1.0,
-      "requirement_coverage_at_10": 1.0
+      "requirement_coverage_at_10": 1.0,
+      "coverage": {
+        "requirements": [
+          "abortregisteret"
+        ],
+        "covered": [
+          "abortregisteret"
+        ],
+        "missing": [],
+        "confidence": 1.0
+      },
+      "follow_up": null
     },
     {
       "id": "q002",
@@ -70,7 +83,20 @@
       "recall_at_10": 1.0,
       "mrr": 1.0,
       "requirement_coverage_at_5": 1.0,
-      "requirement_coverage_at_10": 1.0
+      "requirement_coverage_at_10": 1.0,
+      "coverage": {
+        "requirements": [
+          "familievernkontorenes",
+          "dokumentasjonssystem"
+        ],
+        "covered": [
+          "familievernkontorenes",
+          "dokumentasjonssystem"
+        ],
+        "missing": [],
+        "confidence": 1.0
+      },
+      "follow_up": null
     },
     {
       "id": "q003",
@@ -86,7 +112,20 @@
       "recall_at_10": 1.0,
       "mrr": 1.0,
       "requirement_coverage_at_5": 1.0,
-      "requirement_coverage_at_10": 1.0
+      "requirement_coverage_at_10": 1.0,
+      "coverage": {
+        "requirements": [
+          "ilandstigningslokaliteter",
+          "svalbard"
+        ],
+        "covered": [
+          "ilandstigningslokaliteter",
+          "svalbard"
+        ],
+        "missing": [],
+        "confidence": 1.0
+      },
+      "follow_up": null
     },
     {
       "id": "q004",
@@ -102,7 +141,18 @@
       "recall_at_10": 1.0,
       "mrr": 1.0,
       "requirement_coverage_at_5": 1.0,
-      "requirement_coverage_at_10": 1.0
+      "requirement_coverage_at_10": 1.0,
+      "coverage": {
+        "requirements": [
+          "nntrans"
+        ],
+        "covered": [
+          "nntrans"
+        ],
+        "missing": [],
+        "confidence": 1.0
+      },
+      "follow_up": null
     },
     {
       "id": "q005",
@@ -118,7 +168,20 @@
       "recall_at_10": 1.0,
       "mrr": 1.0,
       "requirement_coverage_at_5": 1.0,
-      "requirement_coverage_at_10": 1.0
+      "requirement_coverage_at_10": 1.0,
+      "coverage": {
+        "requirements": [
+          "arealrepresentativ",
+          "naturovervåking"
+        ],
+        "covered": [
+          "arealrepresentativ",
+          "naturovervåking"
+        ],
+        "missing": [],
+        "confidence": 1.0
+      },
+      "follow_up": null
     },
     {
       "id": "q006",
@@ -141,7 +204,18 @@
       "recall_at_10": 1.0,
       "mrr": 1.0,
       "requirement_coverage_at_5": 1.0,
-      "requirement_coverage_at_10": 1.0
+      "requirement_coverage_at_10": 1.0,
+      "coverage": {
+        "requirements": [
+          "blomkålkorallskog"
+        ],
+        "covered": [
+          "blomkålkorallskog"
+        ],
+        "missing": [],
+        "confidence": 1.0
+      },
+      "follow_up": null
     },
     {
       "id": "q007",
@@ -157,7 +231,18 @@
       "recall_at_10": 1.0,
       "mrr": 1.0,
       "requirement_coverage_at_5": 1.0,
-      "requirement_coverage_at_10": 1.0
+      "requirement_coverage_at_10": 1.0,
+      "coverage": {
+        "requirements": [
+          "tilleggstollavgiftssatser"
+        ],
+        "covered": [
+          "tilleggstollavgiftssatser"
+        ],
+        "missing": [],
+        "confidence": 1.0
+      },
+      "follow_up": null
     },
     {
       "id": "q008",
@@ -173,7 +258,20 @@
       "recall_at_10": 1.0,
       "mrr": 1.0,
       "requirement_coverage_at_5": 1.0,
-      "requirement_coverage_at_10": 1.0
+      "requirement_coverage_at_10": 1.0,
+      "coverage": {
+        "requirements": [
+          "flydata",
+          "avinor"
+        ],
+        "covered": [
+          "flydata",
+          "avinor"
+        ],
+        "missing": [],
+        "confidence": 1.0
+      },
+      "follow_up": null
     },
     {
       "id": "q009",
@@ -189,7 +287,18 @@
       "recall_at_10": 1.0,
       "mrr": 1.0,
       "requirement_coverage_at_5": 1.0,
-      "requirement_coverage_at_10": 1.0
+      "requirement_coverage_at_10": 1.0,
+      "coverage": {
+        "requirements": [
+          "gjeldsregisteret"
+        ],
+        "covered": [
+          "gjeldsregisteret"
+        ],
+        "missing": [],
+        "confidence": 1.0
+      },
+      "follow_up": null
     },
     {
       "id": "q010",
@@ -205,7 +314,20 @@
       "recall_at_10": 1.0,
       "mrr": 1.0,
       "requirement_coverage_at_5": 1.0,
-      "requirement_coverage_at_10": 1.0
+      "requirement_coverage_at_10": 1.0,
+      "coverage": {
+        "requirements": [
+          "radnett",
+          "radioaktivitet"
+        ],
+        "covered": [
+          "radnett",
+          "radioaktivitet"
+        ],
+        "missing": [],
+        "confidence": 1.0
+      },
+      "follow_up": null
     },
     {
       "id": "q011",
@@ -222,7 +344,18 @@
       "recall_at_10": 1.0,
       "mrr": 0.5,
       "requirement_coverage_at_5": 1.0,
-      "requirement_coverage_at_10": 1.0
+      "requirement_coverage_at_10": 1.0,
+      "coverage": {
+        "requirements": [
+          "kirkebygg"
+        ],
+        "covered": [
+          "kirkebygg"
+        ],
+        "missing": [],
+        "confidence": 1.0
+      },
+      "follow_up": null
     },
     {
       "id": "q012",
@@ -238,7 +371,20 @@
       "recall_at_10": 1.0,
       "mrr": 1.0,
       "requirement_coverage_at_5": 1.0,
-      "requirement_coverage_at_10": 1.0
+      "requirement_coverage_at_10": 1.0,
+      "coverage": {
+        "requirements": [
+          "badevannstemperaturer",
+          "horten"
+        ],
+        "covered": [
+          "badevannstemperaturer",
+          "horten"
+        ],
+        "missing": [],
+        "confidence": 1.0
+      },
+      "follow_up": null
     },
     {
       "id": "q013",
@@ -254,7 +400,20 @@
       "recall_at_10": 1.0,
       "mrr": 1.0,
       "requirement_coverage_at_5": 1.0,
-      "requirement_coverage_at_10": 1.0
+      "requirement_coverage_at_10": 1.0,
+      "coverage": {
+        "requirements": [
+          "kulturminner",
+          "hadsel"
+        ],
+        "covered": [
+          "kulturminner",
+          "hadsel"
+        ],
+        "missing": [],
+        "confidence": 1.0
+      },
+      "follow_up": null
     },
     {
       "id": "q014",
@@ -270,7 +429,20 @@
       "recall_at_10": 1.0,
       "mrr": 1.0,
       "requirement_coverage_at_5": 1.0,
-      "requirement_coverage_at_10": 1.0
+      "requirement_coverage_at_10": 1.0,
+      "coverage": {
+        "requirements": [
+          "skyteanlegg",
+          "dfs"
+        ],
+        "covered": [
+          "skyteanlegg",
+          "dfs"
+        ],
+        "missing": [],
+        "confidence": 1.0
+      },
+      "follow_up": null
     },
     {
       "id": "q015",
@@ -286,7 +458,20 @@
       "recall_at_10": 1.0,
       "mrr": 1.0,
       "requirement_coverage_at_5": 1.0,
-      "requirement_coverage_at_10": 1.0
+      "requirement_coverage_at_10": 1.0,
+      "coverage": {
+        "requirements": [
+          "forsvarets",
+          "helseregister"
+        ],
+        "covered": [
+          "forsvarets",
+          "helseregister"
+        ],
+        "missing": [],
+        "confidence": 1.0
+      },
+      "follow_up": null
     },
     {
       "id": "q016",
@@ -302,7 +487,20 @@
       "recall_at_10": 1.0,
       "mrr": 1.0,
       "requirement_coverage_at_5": 1.0,
-      "requirement_coverage_at_10": 1.0
+      "requirement_coverage_at_10": 1.0,
+      "coverage": {
+        "requirements": [
+          "husbankens",
+          "statistikkbank"
+        ],
+        "covered": [
+          "husbankens",
+          "statistikkbank"
+        ],
+        "missing": [],
+        "confidence": 1.0
+      },
+      "follow_up": null
     },
     {
       "id": "q017",
@@ -318,7 +516,18 @@
       "recall_at_10": 1.0,
       "mrr": 1.0,
       "requirement_coverage_at_5": 1.0,
-      "requirement_coverage_at_10": 1.0
+      "requirement_coverage_at_10": 1.0,
+      "coverage": {
+        "requirements": [
+          "kulturnav"
+        ],
+        "covered": [
+          "kulturnav"
+        ],
+        "missing": [],
+        "confidence": 1.0
+      },
+      "follow_up": null
     },
     {
       "id": "q018",
@@ -334,7 +543,18 @@
       "recall_at_10": 1.0,
       "mrr": 1.0,
       "requirement_coverage_at_5": 1.0,
-      "requirement_coverage_at_10": 1.0
+      "requirement_coverage_at_10": 1.0,
+      "coverage": {
+        "requirements": [
+          "anleggsregisteret"
+        ],
+        "covered": [
+          "anleggsregisteret"
+        ],
+        "missing": [],
+        "confidence": 1.0
+      },
+      "follow_up": null
     },
     {
       "id": "q019",
@@ -350,7 +570,18 @@
       "recall_at_10": 1.0,
       "mrr": 1.0,
       "requirement_coverage_at_5": 1.0,
-      "requirement_coverage_at_10": 1.0
+      "requirement_coverage_at_10": 1.0,
+      "coverage": {
+        "requirements": [
+          "bivirkningsregisteret"
+        ],
+        "covered": [
+          "bivirkningsregisteret"
+        ],
+        "missing": [],
+        "confidence": 1.0
+      },
+      "follow_up": null
     },
     {
       "id": "q020",
@@ -366,7 +597,18 @@
       "recall_at_10": 1.0,
       "mrr": 1.0,
       "requirement_coverage_at_5": 1.0,
-      "requirement_coverage_at_10": 1.0
+      "requirement_coverage_at_10": 1.0,
+      "coverage": {
+        "requirements": [
+          "kreftregisteret"
+        ],
+        "covered": [
+          "kreftregisteret"
+        ],
+        "missing": [],
+        "confidence": 1.0
+      },
+      "follow_up": null
     },
     {
       "id": "q021",
@@ -382,7 +624,20 @@
       "recall_at_10": 1.0,
       "mrr": 1.0,
       "requirement_coverage_at_5": 1.0,
-      "requirement_coverage_at_10": 1.0
+      "requirement_coverage_at_10": 1.0,
+      "coverage": {
+        "requirements": [
+          "medisinsk",
+          "fødselsregister"
+        ],
+        "covered": [
+          "medisinsk",
+          "fødselsregister"
+        ],
+        "missing": [],
+        "confidence": 1.0
+      },
+      "follow_up": null
     },
     {
       "id": "q022",
@@ -398,7 +653,18 @@
       "recall_at_10": 1.0,
       "mrr": 1.0,
       "requirement_coverage_at_5": 1.0,
-      "requirement_coverage_at_10": 1.0
+      "requirement_coverage_at_10": 1.0,
+      "coverage": {
+        "requirements": [
+          "nowac"
+        ],
+        "covered": [
+          "nowac"
+        ],
+        "missing": [],
+        "confidence": 1.0
+      },
+      "follow_up": null
     },
     {
       "id": "q023",
@@ -414,7 +680,20 @@
       "recall_at_10": 1.0,
       "mrr": 1.0,
       "requirement_coverage_at_5": 1.0,
-      "requirement_coverage_at_10": 1.0
+      "requirement_coverage_at_10": 1.0,
+      "coverage": {
+        "requirements": [
+          "strandsonekartlegging",
+          "jølstravassdraget"
+        ],
+        "covered": [
+          "strandsonekartlegging",
+          "jølstravassdraget"
+        ],
+        "missing": [],
+        "confidence": 1.0
+      },
+      "follow_up": null
     },
     {
       "id": "q024",
@@ -432,7 +711,20 @@
       "recall_at_10": 1.0,
       "mrr": 1.0,
       "requirement_coverage_at_5": 1.0,
-      "requirement_coverage_at_10": 1.0
+      "requirement_coverage_at_10": 1.0,
+      "coverage": {
+        "requirements": [
+          "landbrukseiendommer",
+          "landbruksregisteret"
+        ],
+        "covered": [
+          "landbrukseiendommer",
+          "landbruksregisteret"
+        ],
+        "missing": [],
+        "confidence": 1.0
+      },
+      "follow_up": null
     },
     {
       "id": "q025",
@@ -453,7 +745,18 @@
       "recall_at_10": 1.0,
       "mrr": 1.0,
       "requirement_coverage_at_5": 1.0,
-      "requirement_coverage_at_10": 1.0
+      "requirement_coverage_at_10": 1.0,
+      "coverage": {
+        "requirements": [
+          "oljeindustri"
+        ],
+        "covered": [
+          "oljeindustri"
+        ],
+        "missing": [],
+        "confidence": 1.0
+      },
+      "follow_up": null
     },
     {
       "id": "q026",
@@ -474,7 +777,18 @@
       "recall_at_10": 1.0,
       "mrr": 1.0,
       "requirement_coverage_at_5": 1.0,
-      "requirement_coverage_at_10": 1.0
+      "requirement_coverage_at_10": 1.0,
+      "coverage": {
+        "requirements": [
+          "gruveindustri"
+        ],
+        "covered": [
+          "gruveindustri"
+        ],
+        "missing": [],
+        "confidence": 1.0
+      },
+      "follow_up": null
     },
     {
       "id": "q027",
@@ -495,7 +809,18 @@
       "recall_at_10": 1.0,
       "mrr": 1.0,
       "requirement_coverage_at_5": 1.0,
-      "requirement_coverage_at_10": 1.0
+      "requirement_coverage_at_10": 1.0,
+      "coverage": {
+        "requirements": [
+          "petroliumsindustri"
+        ],
+        "covered": [
+          "petroliumsindustri"
+        ],
+        "missing": [],
+        "confidence": 1.0
+      },
+      "follow_up": null
     },
     {
       "id": "q028",
@@ -520,7 +845,18 @@
       "recall_at_10": 1.0,
       "mrr": 0.125,
       "requirement_coverage_at_5": 1.0,
-      "requirement_coverage_at_10": 1.0
+      "requirement_coverage_at_10": 1.0,
+      "coverage": {
+        "requirements": [
+          "datahotell"
+        ],
+        "covered": [
+          "datahotell"
+        ],
+        "missing": [],
+        "confidence": 1.0
+      },
+      "follow_up": null
     },
     {
       "id": "q029",
@@ -545,7 +881,18 @@
       "recall_at_10": 1.0,
       "mrr": 0.2,
       "requirement_coverage_at_5": 1.0,
-      "requirement_coverage_at_10": 1.0
+      "requirement_coverage_at_10": 1.0,
+      "coverage": {
+        "requirements": [
+          "produksjonstilskudd"
+        ],
+        "covered": [
+          "produksjonstilskudd"
+        ],
+        "missing": [],
+        "confidence": 1.0
+      },
+      "follow_up": null
     },
     {
       "id": "q030",
@@ -562,7 +909,18 @@
       "recall_at_10": 1.0,
       "mrr": 0.5,
       "requirement_coverage_at_5": 1.0,
-      "requirement_coverage_at_10": 1.0
+      "requirement_coverage_at_10": 1.0,
+      "coverage": {
+        "requirements": [
+          "doffin"
+        ],
+        "covered": [
+          "doffin"
+        ],
+        "missing": [],
+        "confidence": 1.0
+      },
+      "follow_up": null
     },
     {
       "id": "q031",
@@ -578,7 +936,18 @@
       "recall_at_10": 1.0,
       "mrr": 1.0,
       "requirement_coverage_at_5": 1.0,
-      "requirement_coverage_at_10": 1.0
+      "requirement_coverage_at_10": 1.0,
+      "coverage": {
+        "requirements": [
+          "quickclay"
+        ],
+        "covered": [
+          "quickclay"
+        ],
+        "missing": [],
+        "confidence": 1.0
+      },
+      "follow_up": null
     },
     {
       "id": "q032",
@@ -594,7 +963,18 @@
       "recall_at_10": 1.0,
       "mrr": 1.0,
       "requirement_coverage_at_5": 1.0,
-      "requirement_coverage_at_10": 1.0
+      "requirement_coverage_at_10": 1.0,
+      "coverage": {
+        "requirements": [
+          "rockfall"
+        ],
+        "covered": [
+          "rockfall"
+        ],
+        "missing": [],
+        "confidence": 1.0
+      },
+      "follow_up": null
     },
     {
       "id": "q033",
@@ -611,7 +991,18 @@
       "recall_at_10": 1.0,
       "mrr": 1.0,
       "requirement_coverage_at_5": 1.0,
-      "requirement_coverage_at_10": 1.0
+      "requirement_coverage_at_10": 1.0,
+      "coverage": {
+        "requirements": [
+          "oljevernberedskap"
+        ],
+        "covered": [
+          "oljevernberedskap"
+        ],
+        "missing": [],
+        "confidence": 1.0
+      },
+      "follow_up": null
     },
     {
       "id": "q034",
@@ -628,7 +1019,18 @@
       "recall_at_10": 1.0,
       "mrr": 1.0,
       "requirement_coverage_at_5": 1.0,
-      "requirement_coverage_at_10": 1.0
+      "requirement_coverage_at_10": 1.0,
+      "coverage": {
+        "requirements": [
+          "grunnforurensning"
+        ],
+        "covered": [
+          "grunnforurensning"
+        ],
+        "missing": [],
+        "confidence": 1.0
+      },
+      "follow_up": null
     },
     {
       "id": "q035",
@@ -644,7 +1046,20 @@
       "recall_at_10": 1.0,
       "mrr": 1.0,
       "requirement_coverage_at_5": 1.0,
-      "requirement_coverage_at_10": 1.0
+      "requirement_coverage_at_10": 1.0,
+      "coverage": {
+        "requirements": [
+          "energy",
+          "cooperatives"
+        ],
+        "covered": [
+          "energy",
+          "cooperatives"
+        ],
+        "missing": [],
+        "confidence": 1.0
+      },
+      "follow_up": null
     },
     {
       "id": "q036",
@@ -669,7 +1084,18 @@
       "recall_at_10": 0.0,
       "mrr": 0.0,
       "requirement_coverage_at_5": 1.0,
-      "requirement_coverage_at_10": 1.0
+      "requirement_coverage_at_10": 1.0,
+      "coverage": {
+        "requirements": [
+          "health"
+        ],
+        "covered": [
+          "health"
+        ],
+        "missing": [],
+        "confidence": 1.0
+      },
+      "follow_up": null
     },
     {
       "id": "q037",
@@ -694,7 +1120,18 @@
       "recall_at_10": 0.0,
       "mrr": 0.0,
       "requirement_coverage_at_5": 1.0,
-      "requirement_coverage_at_10": 1.0
+      "requirement_coverage_at_10": 1.0,
+      "coverage": {
+        "requirements": [
+          "helse"
+        ],
+        "covered": [
+          "helse"
+        ],
+        "missing": [],
+        "confidence": 1.0
+      },
+      "follow_up": null
     },
     {
       "id": "q038",
@@ -719,7 +1156,20 @@
       "recall_at_10": 1.0,
       "mrr": 0.3333333333333333,
       "requirement_coverage_at_5": 1.0,
-      "requirement_coverage_at_10": 1.0
+      "requirement_coverage_at_10": 1.0,
+      "coverage": {
+        "requirements": [
+          "offentlig",
+          "sektor"
+        ],
+        "covered": [
+          "offentlig",
+          "sektor"
+        ],
+        "missing": [],
+        "confidence": 1.0
+      },
+      "follow_up": null
     },
     {
       "id": "q039",
@@ -744,7 +1194,18 @@
       "recall_at_10": 0.0,
       "mrr": 0.0,
       "requirement_coverage_at_5": 1.0,
-      "requirement_coverage_at_10": 1.0
+      "requirement_coverage_at_10": 1.0,
+      "coverage": {
+        "requirements": [
+          "energy"
+        ],
+        "covered": [
+          "energy"
+        ],
+        "missing": [],
+        "confidence": 1.0
+      },
+      "follow_up": null
     },
     {
       "id": "q040",
@@ -758,7 +1219,23 @@
       "recall_at_10": 0.0,
       "mrr": 0.0,
       "requirement_coverage_at_5": 0.0,
-      "requirement_coverage_at_10": 0.0
+      "requirement_coverage_at_10": 0.0,
+      "coverage": {
+        "requirements": [
+          "econ"
+        ],
+        "covered": [],
+        "missing": [
+          "econ"
+        ],
+        "confidence": 0.0
+      },
+      "follow_up": {
+        "ran": false,
+        "reason": "missing requirement is the same query; a second pass would repeat it",
+        "queries": [],
+        "added": []
+      }
     },
     {
       "id": "q041",
@@ -775,7 +1252,20 @@
       "recall_at_10": 0.0,
       "mrr": 0.0,
       "requirement_coverage_at_5": 0.5,
-      "requirement_coverage_at_10": 0.5
+      "requirement_coverage_at_10": 0.5,
+      "coverage": {
+        "requirements": [
+          "public",
+          "procurement"
+        ],
+        "covered": [
+          "public",
+          "procurement"
+        ],
+        "missing": [],
+        "confidence": 1.0
+      },
+      "follow_up": null
     },
     {
       "id": "q042",
@@ -789,7 +1279,23 @@
       "recall_at_10": 0.0,
       "mrr": 0.0,
       "requirement_coverage_at_5": 0.0,
-      "requirement_coverage_at_10": 0.0
+      "requirement_coverage_at_10": 0.0,
+      "coverage": {
+        "requirements": [
+          "agri"
+        ],
+        "covered": [],
+        "missing": [
+          "agri"
+        ],
+        "confidence": 0.0
+      },
+      "follow_up": {
+        "ran": false,
+        "reason": "missing requirement is the same query; a second pass would repeat it",
+        "queries": [],
+        "added": []
+      }
     },
     {
       "id": "q043",
@@ -805,7 +1311,24 @@
       "recall_at_10": 1.0,
       "mrr": 1.0,
       "requirement_coverage_at_5": 1.0,
-      "requirement_coverage_at_10": 1.0
+      "requirement_coverage_at_10": 1.0,
+      "coverage": {
+        "requirements": [
+          "family",
+          "history",
+          "of",
+          "cancer"
+        ],
+        "covered": [
+          "family",
+          "history",
+          "of",
+          "cancer"
+        ],
+        "missing": [],
+        "confidence": 1.0
+      },
+      "follow_up": null
     },
     {
       "id": "q044",
@@ -821,7 +1344,20 @@
       "recall_at_10": 1.0,
       "mrr": 1.0,
       "requirement_coverage_at_5": 1.0,
-      "requirement_coverage_at_10": 1.0
+      "requirement_coverage_at_10": 1.0,
+      "coverage": {
+        "requirements": [
+          "citizen",
+          "energy"
+        ],
+        "covered": [
+          "citizen",
+          "energy"
+        ],
+        "missing": [],
+        "confidence": 1.0
+      },
+      "follow_up": null
     },
     {
       "id": "q045",
@@ -841,7 +1377,20 @@
       "recall_at_10": 1.0,
       "mrr": 1.0,
       "requirement_coverage_at_5": 1.0,
-      "requirement_coverage_at_10": 1.0
+      "requirement_coverage_at_10": 1.0,
+      "coverage": {
+        "requirements": [
+          "forurensning",
+          "oslo"
+        ],
+        "covered": [
+          "forurensning",
+          "oslo"
+        ],
+        "missing": [],
+        "confidence": 1.0
+      },
+      "follow_up": null
     },
     {
       "id": "q046",
@@ -861,7 +1410,20 @@
       "recall_at_10": 1.0,
       "mrr": 1.0,
       "requirement_coverage_at_5": 1.0,
-      "requirement_coverage_at_10": 1.0
+      "requirement_coverage_at_10": 1.0,
+      "coverage": {
+        "requirements": [
+          "akutt",
+          "forurensning"
+        ],
+        "covered": [
+          "akutt",
+          "forurensning"
+        ],
+        "missing": [],
+        "confidence": 1.0
+      },
+      "follow_up": null
     },
     {
       "id": "q047",
@@ -879,7 +1441,20 @@
       "recall_at_10": 1.0,
       "mrr": 1.0,
       "requirement_coverage_at_5": 1.0,
-      "requirement_coverage_at_10": 1.0
+      "requirement_coverage_at_10": 1.0,
+      "coverage": {
+        "requirements": [
+          "elvebunnkartlegging",
+          "hellelandselva"
+        ],
+        "covered": [
+          "elvebunnkartlegging",
+          "hellelandselva"
+        ],
+        "missing": [],
+        "confidence": 1.0
+      },
+      "follow_up": null
     },
     {
       "id": "q048",
@@ -903,7 +1478,20 @@
       "recall_at_10": 1.0,
       "mrr": 1.0,
       "requirement_coverage_at_5": 1.0,
-      "requirement_coverage_at_10": 1.0
+      "requirement_coverage_at_10": 1.0,
+      "coverage": {
+        "requirements": [
+          "hardbunnskorallskog",
+          "observasjonsdata"
+        ],
+        "covered": [
+          "hardbunnskorallskog",
+          "observasjonsdata"
+        ],
+        "missing": [],
+        "confidence": 1.0
+      },
+      "follow_up": null
     },
     {
       "id": "q049",
@@ -928,7 +1516,20 @@
       "recall_at_10": 1.0,
       "mrr": 1.0,
       "requirement_coverage_at_5": 1.0,
-      "requirement_coverage_at_10": 1.0
+      "requirement_coverage_at_10": 1.0,
+      "coverage": {
+        "requirements": [
+          "vannforsyningssystem",
+          "innrapportering"
+        ],
+        "covered": [
+          "vannforsyningssystem",
+          "innrapportering"
+        ],
+        "missing": [],
+        "confidence": 1.0
+      },
+      "follow_up": null
     },
     {
       "id": "q050",
@@ -944,7 +1545,20 @@
       "recall_at_10": 1.0,
       "mrr": 1.0,
       "requirement_coverage_at_5": 1.0,
-      "requirement_coverage_at_10": 1.0
+      "requirement_coverage_at_10": 1.0,
+      "coverage": {
+        "requirements": [
+          "saltvannssjøbunn",
+          "punktobservasjoner"
+        ],
+        "covered": [
+          "saltvannssjøbunn",
+          "punktobservasjoner"
+        ],
+        "missing": [],
+        "confidence": 1.0
+      },
+      "follow_up": null
     },
     {
       "id": "q051",
@@ -960,7 +1574,20 @@
       "recall_at_10": 1.0,
       "mrr": 1.0,
       "requirement_coverage_at_5": 1.0,
-      "requirement_coverage_at_10": 1.0
+      "requirement_coverage_at_10": 1.0,
+      "coverage": {
+        "requirements": [
+          "operasjonelle",
+          "akvakulturrettigheter"
+        ],
+        "covered": [
+          "operasjonelle",
+          "akvakulturrettigheter"
+        ],
+        "missing": [],
+        "confidence": 1.0
+      },
+      "follow_up": null
     },
     {
       "id": "q052",
@@ -976,7 +1603,20 @@
       "recall_at_10": 1.0,
       "mrr": 1.0,
       "requirement_coverage_at_5": 1.0,
-      "requirement_coverage_at_10": 1.0
+      "requirement_coverage_at_10": 1.0,
+      "coverage": {
+        "requirements": [
+          "bølgevarsel",
+          "punkt"
+        ],
+        "covered": [
+          "bølgevarsel",
+          "punkt"
+        ],
+        "missing": [],
+        "confidence": 1.0
+      },
+      "follow_up": null
     },
     {
       "id": "q053",
@@ -992,7 +1632,24 @@
       "recall_at_10": 1.0,
       "mrr": 1.0,
       "requirement_coverage_at_5": 1.0,
-      "requirement_coverage_at_10": 1.0
+      "requirement_coverage_at_10": 1.0,
+      "coverage": {
+        "requirements": [
+          "sanntidsdata",
+          "buss",
+          "sør",
+          "trøndelag"
+        ],
+        "covered": [
+          "sanntidsdata",
+          "buss",
+          "sør",
+          "trøndelag"
+        ],
+        "missing": [],
+        "confidence": 1.0
+      },
+      "follow_up": null
     },
     {
       "id": "q054",
@@ -1008,7 +1665,22 @@
       "recall_at_10": 1.0,
       "mrr": 1.0,
       "requirement_coverage_at_5": 1.0,
-      "requirement_coverage_at_10": 1.0
+      "requirement_coverage_at_10": 1.0,
+      "coverage": {
+        "requirements": [
+          "trafikkdata",
+          "bane",
+          "nor"
+        ],
+        "covered": [
+          "trafikkdata",
+          "bane",
+          "nor"
+        ],
+        "missing": [],
+        "confidence": 1.0
+      },
+      "follow_up": null
     },
     {
       "id": "q055",
@@ -1024,7 +1696,20 @@
       "recall_at_10": 1.0,
       "mrr": 1.0,
       "requirement_coverage_at_5": 1.0,
-      "requirement_coverage_at_10": 1.0
+      "requirement_coverage_at_10": 1.0,
+      "coverage": {
+        "requirements": [
+          "avinor",
+          "as"
+        ],
+        "covered": [
+          "avinor",
+          "as"
+        ],
+        "missing": [],
+        "confidence": 1.0
+      },
+      "follow_up": null
     },
     {
       "id": "q056",
@@ -1040,7 +1725,18 @@
       "recall_at_10": 0.0,
       "mrr": 0.0,
       "requirement_coverage_at_5": 0.0,
-      "requirement_coverage_at_10": 0.0
+      "requirement_coverage_at_10": 0.0,
+      "coverage": {
+        "requirements": [
+          "atb"
+        ],
+        "covered": [
+          "atb"
+        ],
+        "missing": [],
+        "confidence": 1.0
+      },
+      "follow_up": null
     },
     {
       "id": "q057",
@@ -1056,7 +1752,20 @@
       "recall_at_10": 1.0,
       "mrr": 1.0,
       "requirement_coverage_at_5": 1.0,
-      "requirement_coverage_at_10": 1.0
+      "requirement_coverage_at_10": 1.0,
+      "coverage": {
+        "requirements": [
+          "gjeldsregisteret",
+          "as"
+        ],
+        "covered": [
+          "gjeldsregisteret",
+          "as"
+        ],
+        "missing": [],
+        "confidence": 1.0
+      },
+      "follow_up": null
     },
     {
       "id": "q058",
@@ -1081,7 +1790,18 @@
       "recall_at_10": 0.0,
       "mrr": 0.0,
       "requirement_coverage_at_5": 0.0,
-      "requirement_coverage_at_10": 0.0
+      "requirement_coverage_at_10": 0.0,
+      "coverage": {
+        "requirements": [
+          "barentswatch"
+        ],
+        "covered": [
+          "barentswatch"
+        ],
+        "missing": [],
+        "confidence": 1.0
+      },
+      "follow_up": null
     },
     {
       "id": "q059",
@@ -1106,7 +1826,18 @@
       "recall_at_10": 0.0,
       "mrr": 0.0,
       "requirement_coverage_at_5": 0.0,
-      "requirement_coverage_at_10": 0.0
+      "requirement_coverage_at_10": 0.0,
+      "coverage": {
+        "requirements": [
+          "geonorge"
+        ],
+        "covered": [
+          "geonorge"
+        ],
+        "missing": [],
+        "confidence": 1.0
+      },
+      "follow_up": null
     },
     {
       "id": "q060",
@@ -1129,7 +1860,22 @@
       "recall_at_10": 1.0,
       "mrr": 0.16666666666666666,
       "requirement_coverage_at_5": 1.0,
-      "requirement_coverage_at_10": 1.0
+      "requirement_coverage_at_10": 1.0,
+      "coverage": {
+        "requirements": [
+          "indre",
+          "østfold",
+          "kommune"
+        ],
+        "covered": [
+          "indre",
+          "østfold",
+          "kommune"
+        ],
+        "missing": [],
+        "confidence": 1.0
+      },
+      "follow_up": null
     },
     {
       "id": "q061",
@@ -1146,7 +1892,20 @@
       "recall_at_10": 1.0,
       "mrr": 1.0,
       "requirement_coverage_at_5": 1.0,
-      "requirement_coverage_at_10": 1.0
+      "requirement_coverage_at_10": 1.0,
+      "coverage": {
+        "requirements": [
+          "høgskolen",
+          "bergen"
+        ],
+        "covered": [
+          "høgskolen",
+          "bergen"
+        ],
+        "missing": [],
+        "confidence": 1.0
+      },
+      "follow_up": null
     },
     {
       "id": "q062",
@@ -1162,7 +1921,22 @@
       "recall_at_10": 1.0,
       "mrr": 1.0,
       "requirement_coverage_at_5": 1.0,
-      "requirement_coverage_at_10": 1.0
+      "requirement_coverage_at_10": 1.0,
+      "coverage": {
+        "requirements": [
+          "det",
+          "frivillige",
+          "skyttervesen"
+        ],
+        "covered": [
+          "det",
+          "frivillige",
+          "skyttervesen"
+        ],
+        "missing": [],
+        "confidence": 1.0
+      },
+      "follow_up": null
     },
     {
       "id": "q063",
@@ -1184,7 +1958,18 @@
       "recall_at_10": 1.0,
       "mrr": 0.16666666666666666,
       "requirement_coverage_at_5": 0.0,
-      "requirement_coverage_at_10": 1.0
+      "requirement_coverage_at_10": 1.0,
+      "coverage": {
+        "requirements": [
+          "forsvaret"
+        ],
+        "covered": [
+          "forsvaret"
+        ],
+        "missing": [],
+        "confidence": 1.0
+      },
+      "follow_up": null
     },
     {
       "id": "q064",
@@ -1200,7 +1985,20 @@
       "recall_at_10": 1.0,
       "mrr": 1.0,
       "requirement_coverage_at_5": 1.0,
-      "requirement_coverage_at_10": 1.0
+      "requirement_coverage_at_10": 1.0,
+      "coverage": {
+        "requirements": [
+          "kulturit",
+          "ans"
+        ],
+        "covered": [
+          "kulturit",
+          "ans"
+        ],
+        "missing": [],
+        "confidence": 1.0
+      },
+      "follow_up": null
     },
     {
       "id": "q065",
@@ -1225,13 +2023,23 @@
       "recall_at_10": 1.0,
       "mrr": 0.2,
       "requirement_coverage_at_5": 1.0,
-      "requirement_coverage_at_10": 1.0
+      "requirement_coverage_at_10": 1.0,
+      "coverage": {
+        "requirements": [
+          "soil"
+        ],
+        "covered": [
+          "soil"
+        ],
+        "missing": [],
+        "confidence": 1.0
+      },
+      "follow_up": null
     }
   ],
   "datanorge_baseline": null,
   "db": "data/registry.sqlite",
   "questions_path": "data/benchmark_questions.json",
-  "produced_at": "2026-08-26T22:14:10Z",
-  "compare": "data/benchmark_compare.json",
-  "decompose": true
+  "produced_at": "2026-08-26T22:20:26Z",
+  "compare": "data/coverage_proof.json"
 }

@@ -1,0 +1,219 @@
+{
+  "produced_at": "2026-08-26T22:20:26Z",
+  "questions_path": "data/benchmark_questions.json",
+  "question_count": 65,
+  "registry_datasets": 9120,
+  "before": {
+    "source": "Milestone 5 AND-decompose on the same gold set",
+    "scores": {
+      "recall_at_5": 0.8153846153846154,
+      "recall_at_10": 0.8615384615384616,
+      "mrr": 0.7721794871794873,
+      "requirement_coverage_at_5": 0.9,
+      "requirement_coverage_at_10": 0.9153846153846154
+    },
+    "by_kind": {
+      "hard": {
+        "n": 11,
+        "recall_at_5": 0.5454545454545454,
+        "recall_at_10": 0.7272727272727273,
+        "mrr": 0.503030303030303
+      },
+      "indirect": {
+        "n": 9,
+        "recall_at_5": 0.3333333333333333,
+        "recall_at_10": 0.3333333333333333,
+        "mrr": 0.2592592592592593
+      },
+      "multi": {
+        "n": 10,
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0
+      },
+      "simple": {
+        "n": 24,
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 0.9791666666666666
+      },
+      "synonym": {
+        "n": 11,
+        "recall_at_5": 0.9090909090909091,
+        "recall_at_10": 1.0,
+        "mrr": 0.8022727272727272
+      }
+    }
+  },
+  "after": {
+    "source": "pda benchmark with coverage + follow-up",
+    "scores": {
+      "recall_at_5": 0.8153846153846154,
+      "recall_at_10": 0.8615384615384616,
+      "mrr": 0.7721794871794873,
+      "requirement_coverage_at_5": 0.9,
+      "requirement_coverage_at_10": 0.9153846153846154,
+      "mean_confidence": 0.9692307692307692,
+      "follow_up_ran": 0
+    },
+    "by_kind": {
+      "hard": {
+        "n": 11,
+        "recall_at_5": 0.5454545454545454,
+        "recall_at_10": 0.7272727272727273,
+        "mrr": 0.503030303030303
+      },
+      "indirect": {
+        "n": 9,
+        "recall_at_5": 0.3333333333333333,
+        "recall_at_10": 0.3333333333333333,
+        "mrr": 0.2592592592592593
+      },
+      "multi": {
+        "n": 10,
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0
+      },
+      "simple": {
+        "n": 24,
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 0.9791666666666666
+      },
+      "synonym": {
+        "n": 11,
+        "recall_at_5": 0.9090909090909091,
+        "recall_at_10": 1.0,
+        "mrr": 0.8022727272727272
+      }
+    }
+  },
+  "delta": {
+    "recall_at_5": 0.0,
+    "recall_at_10": 0.0,
+    "mrr": 0.0,
+    "requirement_coverage_at_5": 0.0,
+    "requirement_coverage_at_10": 0.0
+  },
+  "follow_up_ran_count": 0,
+  "low_confidence_count": 2,
+  "examples": [
+    {
+      "id": "q045",
+      "kind": "multi",
+      "query": "forurensning oslo",
+      "recall_at_5": 1.0,
+      "recall_at_10": 1.0,
+      "mrr": 1.0,
+      "coverage": {
+        "requirements": [
+          "forurensning",
+          "oslo"
+        ],
+        "covered": [
+          "forurensning",
+          "oslo"
+        ],
+        "missing": [],
+        "confidence": 1.0
+      },
+      "follow_up": null,
+      "ranked": [
+        "datanorge:a290a2d1-b5eb-3747-8e00-5bca67b89c90",
+        "datanorge:f5d0ed23-0c50-3caf-9e63-7da9cfb80481",
+        "datanorge:4a6016f8-3a64-38e6-8bdc-8a05168e0989"
+      ]
+    },
+    {
+      "id": "q036",
+      "kind": "indirect",
+      "query": "Health",
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr": 0.0,
+      "coverage": {
+        "requirements": [
+          "health"
+        ],
+        "covered": [
+          "health"
+        ],
+        "missing": [],
+        "confidence": 1.0
+      },
+      "follow_up": null,
+      "ranked": [
+        "datanorge:d56a0347-8f4f-3293-9685-b584f70eb3fc",
+        "datanorge:caca9b99-5457-3ebc-9bc1-3721e4118c26",
+        "datanorge:830f4312-3ce0-3575-80f9-b13172766d7c",
+        "datanorge:77c5eaa2-09d5-3417-bf4f-26d4df4e21b1",
+        "datanorge:14b33482-b258-3325-8f31-82a1498e8033"
+      ]
+    },
+    {
+      "id": "q056",
+      "kind": "hard",
+      "query": "AtB",
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr": 0.0,
+      "coverage": {
+        "requirements": [
+          "atb"
+        ],
+        "covered": [
+          "atb"
+        ],
+        "missing": [],
+        "confidence": 1.0
+      },
+      "follow_up": null,
+      "ranked": [
+        "datanorge:c7960768-96a0-3cf0-8692-8af4afe8c423"
+      ]
+    },
+    {
+      "id": "q055",
+      "kind": "hard",
+      "query": "AVINOR AS",
+      "recall_at_5": 1.0,
+      "recall_at_10": 1.0,
+      "mrr": 1.0,
+      "coverage": {
+        "requirements": [
+          "avinor",
+          "as"
+        ],
+        "covered": [
+          "avinor",
+          "as"
+        ],
+        "missing": [],
+        "confidence": 1.0
+      },
+      "follow_up": null,
+      "ranked": [
+        "datanorge:fe9c6b0d-5eae-3d87-a267-3f455dfff3ba"
+      ]
+    }
+  ],
+  "follow_up_demo": {
+    "query": "abortregisteret blomkålkorallskog",
+    "note": "AND first pass is empty. Follow-up searches each requirement and merges.",
+    "confidence_before": 0.0,
+    "confidence_after": 1.0,
+    "follow_up_ran": true,
+    "added_titles": [
+      "Register over svangerskapsavbrudd (Abortregisteret)",
+      "Sårbare marine bunndyr - observasjonsdata Blomkålkorallskog"
+    ]
+  },
+  "notes": [
+    "Same 65 gold questions. No new expected ids.",
+    "Coverage uses stored title, keyword, description, publisher_name. Theme is not a retrieval field.",
+    "Follow-up did not change gold-set Recall. AND already returns complete-coverage hits, or the missing requirement is the same single-token query.",
+    "q040 ECON and q042 AGRI have confidence 0. Follow-up skipped because it would repeat the same query. Theme was not added to the scorer.",
+    "AtB (q056) and Health (q036) have confidence 1.0 from other retrieved rows that store those tokens. Gold recall stays 0."
+  ]
+}

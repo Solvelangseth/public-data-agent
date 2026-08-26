@@ -11,6 +11,7 @@ from public_data_agent.search import (
     decompose,
     keywords_from_payload,
     search,
+    search_report,
     tokenize,
 )
 from public_data_agent.sources.fixture import FixtureSource
@@ -140,6 +141,36 @@ def test_publisher_tokens_can_satisfy_a_requirement(tmp_path: Path) -> None:
     registry.close()
 
 
+def test_coverage_is_complete_when_and_hits_cover_every_requirement(tmp_path: Path) -> None:
+    registry = _registry(tmp_path)
+    report = search_report(registry, "statistisk sentralbyrå")
+    assert report.coverage.confidence == 1.0
+    assert report.coverage.missing == []
+    assert report.follow_up is None
+    registry.close()
+
+
+def test_empty_and_triggers_follow_up_on_each_missing_requirement(tmp_path: Path) -> None:
+    registry = _registry(tmp_path)
+    report = search_report(registry, "strandsone sparse")
+    assert report.follow_up is not None
+    assert report.follow_up["ran"] is True
+    assert set(report.follow_up["queries"]) == {"strandsone", "sparse"}
+    assert {hit.dataset_id for hit in report.hits} == {STRANDSONE_ID, SPARSE_ID}
+    assert report.coverage.confidence == 1.0
+    registry.close()
+
+
+def test_same_query_follow_up_is_skipped(tmp_path: Path) -> None:
+    registry = _registry(tmp_path)
+    report = search_report(registry, "qxzzzyyqq")
+    assert report.hits == []
+    assert report.coverage.confidence == 0.0
+    assert report.follow_up is not None
+    assert report.follow_up["ran"] is False
+    registry.close()
+
+
 def test_cli_search_uses_fixture_registry(tmp_path: Path, capsys) -> None:
     db = tmp_path / "registry.sqlite"
     assert main(["ingest", "--source", "fixture", "--fixtures", str(FIXTURES), "--db", str(db), "--quiet"]) == 0
@@ -150,3 +181,5 @@ def test_cli_search_uses_fixture_registry(tmp_path: Path, capsys) -> None:
     assert payload["results"][0]["id"] == STRANDSONE_ID
     assert payload["results"][0]["why"]["matches"]
     assert payload["results"][0]["publisher"]["name"] == "Statistisk sentralbyrå"
+    assert payload["coverage"]["confidence"] == 1.0
+    assert payload["coverage"]["covered"] == ["strandsone"]

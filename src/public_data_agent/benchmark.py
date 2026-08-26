@@ -6,7 +6,7 @@ from typing import Any, Callable
 
 from public_data_agent.http_util import HttpClient, RateLimiter, SourceHttpError
 from public_data_agent.registry import Registry
-from public_data_agent.search import keywords_from_payload, search, tokenize
+from public_data_agent.search import keywords_from_payload, search, search_report, tokenize
 
 DATANORGE_SEARCH = "https://search.api.fellesdatakatalog.digdir.no/search/datasets"
 DATANORGE_RATE = 10 / 60
@@ -51,9 +51,12 @@ def run_benchmark(
     log = progress or (lambda _message: None)
     our_rows: list[dict[str, Any]] = []
     for question in payload["questions"]:
-        hits = search(registry, question["query"], limit=10)
-        ranked = [hit.dataset_id for hit in hits]
-        our_rows.append(_score_question(question, ranked, registry))
+        report = search_report(registry, question["query"], limit=10)
+        ranked = [hit.dataset_id for hit in report.hits]
+        row = _score_question(question, ranked, registry)
+        row["coverage"] = report.coverage.to_dict()
+        row["follow_up"] = report.follow_up
+        our_rows.append(row)
         log(f"scored {question['id']} hits={len(ranked)}")
 
     result: dict[str, Any] = {
@@ -179,6 +182,12 @@ def _aggregate(rows: list[dict[str, Any]]) -> dict[str, Any]:
             }
             for kind, group in sorted(by_kind.items())
         },
+        "mean_confidence": (
+            sum((row.get("coverage") or {}).get("confidence") or 0.0 for row in rows) / len(rows)
+            if rows
+            else 0.0
+        ),
+        "follow_up_ran": sum(1 for row in rows if (row.get("follow_up") or {}).get("ran")),
     }
 
 
