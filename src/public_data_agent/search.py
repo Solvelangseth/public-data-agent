@@ -17,10 +17,18 @@ FIELD_WEIGHTS = {
 }
 
 TOKEN_RE = re.compile(r"[0-9a-zæøåäöéèü]+", re.IGNORECASE)
+QUOTE_RE = re.compile(r'"([^"]+)"')
 MIN_TOKEN_LEN = 2
+PUBLISHER_WEIGHT = 5
 VARIABLES_UNKNOWN_REASON = (
     "no variable or column list is stored in the registry or harvested payload"
 )
+
+
+@dataclass(frozen=True)
+class Requirement:
+    text: str
+    tokens: tuple[str, ...]
 
 
 @dataclass
@@ -56,6 +64,7 @@ class SearchHit:
     ranking_method: str = (
         "token overlap; weights title=10, keyword=5, description=2"
     )
+    requirements: list[str] | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -69,6 +78,7 @@ class SearchHit:
                     for m in self.matches
                 ],
                 "method": self.ranking_method,
+                "requirements": self.requirements,
             },
             "publisher": self.publisher,
             "license": self.license,
@@ -99,6 +109,26 @@ def tokenize(text: str | None) -> list[str]:
     if not text:
         return []
     return [tok for tok in TOKEN_RE.findall(text.casefold()) if len(tok) >= MIN_TOKEN_LEN]
+
+
+def decompose(query: str) -> list[Requirement]:
+    """Split a query into independent requirements.
+
+    Quoted phrases stay one requirement. Remaining tokens are each one
+    requirement. This does not change token-overlap weights.
+    """
+
+    requirements: list[Requirement] = []
+    remainder = query
+    for match in QUOTE_RE.finditer(query):
+        phrase = match.group(1).strip()
+        tokens = tuple(tokenize(phrase))
+        if tokens:
+            requirements.append(Requirement(text=phrase, tokens=tokens))
+        remainder = remainder.replace(match.group(0), " ", 1)
+    for token in tokenize(remainder):
+        requirements.append(Requirement(text=token, tokens=(token,)))
+    return requirements
 
 
 def keywords_from_payload(payload: dict[str, Any] | None) -> list[str]:
@@ -156,12 +186,80 @@ def why_summary(matches: list[FieldMatch]) -> str:
     return "; ".join(parts)
 
 
-def search(registry: Registry, query: str, *, limit: int = 10) -> list[SearchHit]:
-    query_tokens = tokenize(query)
-    if not query_tokens or limit <= 0:
+def search(
+    registry: Registry,
+    query: str,
+    *,
+    limit: int = 10,
+    decompose_query: bool = True,
+) -> list[SearchHit]:
+    if limit <= 0:
         return []
+    requirements = decompose(query) if decompose_query else []
+    if decompose_query and len(requirements) > 1:
+        return _search_requirements(registry, requirements, limit=limit)
+    query_tokens = tokenize(query)
+    if not query_tokens:
+        return []
+    return _rank_rows(registry, query_tokens, limit=limit)
+
+
+def _search_requirements(
+    registry: Registry,
+    requirements: list[Requirement],
+    *,
+    limit: int,
+) -> list[SearchHit]:
+    """Search each requirement, then keep rows that satisfy every one."""
 
     hits: list[SearchHit] = []
+    req_texts = [req.text for req in requirements]
+    for row, fields, keywords, payload in _iter_scored_rows(registry):
+        combined: list[FieldMatch] = []
+        failed = False
+        for req in requirements:
+            matches = _requirement_matches(req.tokens, fields, row.get("publisher_name"))
+            if matches is None:
+                failed = True
+                break
+            combined.extend(matches)
+        if failed:
+            continue
+        hits.append(
+            _hit_from_row(
+                row,
+                payload,
+                keywords,
+                combined,
+                why=_requirement_why(req_texts, combined),
+                ranking_method=(
+                    "decompose AND requirements; each scored with token overlap "
+                    "title=10, keyword=5, description=2"
+                ),
+                requirements=req_texts,
+            )
+        )
+    hits.sort(key=lambda hit: (-hit.relevance, hit.title or "", hit.dataset_id))
+    return hits[:limit]
+
+
+def _rank_rows(
+    registry: Registry,
+    query_tokens: list[str],
+    *,
+    limit: int,
+) -> list[SearchHit]:
+    hits: list[SearchHit] = []
+    for row, fields, keywords, payload in _iter_scored_rows(registry):
+        matches = score_document(query_tokens, fields)
+        if not matches:
+            continue
+        hits.append(_hit_from_row(row, payload, keywords, matches, why=why_summary(matches)))
+    hits.sort(key=lambda hit: (-hit.relevance, hit.title or "", hit.dataset_id))
+    return hits[:limit]
+
+
+def _iter_scored_rows(registry: Registry):
     for row in registry.iter_search_rows():
         payload = _json_obj(row.get("payload_json"))
         keywords = keywords_from_payload(payload)
@@ -169,47 +267,74 @@ def search(registry: Registry, query: str, *, limit: int = 10) -> list[SearchHit
         description_i18n = _json_obj(row.get("description_i18n_json"))
         title_text = " ".join([row.get("title") or "", *title_i18n.values()])
         description_text = " ".join([row.get("description") or "", *description_i18n.values()])
-        matches = score_document(
-            query_tokens,
-            {
-                "title": tokenize(title_text),
-                "keyword": tokenize(" ".join(keywords)),
-                "description": tokenize(description_text),
-            },
-        )
-        if not matches:
-            continue
-        relevance = sum(match.weight for match in matches)
-        missing = _json_obj(row.get("missing_fields_json"))
-        publisher = _json_obj(row.get("publisher_json")) or None
-        hits.append(
-            SearchHit(
-                dataset_id=row["id"],
-                title=row.get("title"),
-                relevance=relevance,
-                matches=matches,
-                why=why_summary(matches),
-                publisher=publisher,
-                license=row.get("license"),
-                licenses=_json_list(row.get("licenses_json")),
-                access_path=row.get("access_path"),
-                access_rights=row.get("access_rights"),
-                access_rights_uri=row.get("access_rights_uri"),
-                distributions=_json_list(row.get("distributions_json")),
-                issued=row.get("issued"),
-                modified=row.get("modified"),
-                temporal=_json_list(row.get("temporal_json")),
-                spatial=_json_list(row.get("spatial_json")),
-                variables=variables_from_stored(payload),
-                keywords=keywords,
-                source_native_uri=row.get("source_native_uri"),
-                landing_pages=_json_list(row.get("landing_pages_json")),
-                missing_fields=missing,
-            )
-        )
+        fields = {
+            "title": tokenize(title_text),
+            "keyword": tokenize(" ".join(keywords)),
+            "description": tokenize(description_text),
+        }
+        yield row, fields, keywords, payload
 
-    hits.sort(key=lambda hit: (-hit.relevance, hit.title or "", hit.dataset_id))
-    return hits[:limit]
+
+def _requirement_matches(
+    tokens: tuple[str, ...],
+    fields: dict[str, list[str]],
+    publisher_name: str | None,
+) -> list[FieldMatch] | None:
+    matches = score_document(list(tokens), fields)
+    matched = {match.token for match in matches}
+    if set(tokens) <= matched:
+        return matches
+    publisher_tokens = set(tokenize(publisher_name))
+    if set(tokens) <= publisher_tokens:
+        return [
+            FieldMatch(field="publisher_name", token=token, weight=PUBLISHER_WEIGHT)
+            for token in tokens
+        ]
+    return None
+
+
+def _requirement_why(req_texts: list[str], matches: list[FieldMatch]) -> str:
+    joined = " AND ".join(req_texts)
+    return f"requirements {joined}; {why_summary(matches)}"
+
+
+def _hit_from_row(
+    row: dict[str, Any],
+    payload: dict[str, Any],
+    keywords: list[str],
+    matches: list[FieldMatch],
+    *,
+    why: str,
+    ranking_method: str | None = None,
+    requirements: list[str] | None = None,
+) -> SearchHit:
+    publisher = _json_obj(row.get("publisher_json")) or None
+    return SearchHit(
+        dataset_id=row["id"],
+        title=row.get("title"),
+        relevance=sum(match.weight for match in matches),
+        matches=matches,
+        why=why,
+        publisher=publisher,
+        license=row.get("license"),
+        licenses=_json_list(row.get("licenses_json")),
+        access_path=row.get("access_path"),
+        access_rights=row.get("access_rights"),
+        access_rights_uri=row.get("access_rights_uri"),
+        distributions=_json_list(row.get("distributions_json")),
+        issued=row.get("issued"),
+        modified=row.get("modified"),
+        temporal=_json_list(row.get("temporal_json")),
+        spatial=_json_list(row.get("spatial_json")),
+        variables=variables_from_stored(payload),
+        keywords=keywords,
+        source_native_uri=row.get("source_native_uri"),
+        landing_pages=_json_list(row.get("landing_pages_json")),
+        missing_fields=_json_obj(row.get("missing_fields_json")),
+        ranking_method=ranking_method
+        or "token overlap; weights title=10, keyword=5, description=2",
+        requirements=requirements,
+    )
 
 
 def _json_obj(value: Any) -> dict[str, Any]:

@@ -8,6 +8,7 @@ from public_data_agent.harvest import harvest
 from public_data_agent.registry import Registry
 from public_data_agent.search import (
     VARIABLES_UNKNOWN_REASON,
+    decompose,
     keywords_from_payload,
     search,
     tokenize,
@@ -110,6 +111,33 @@ def test_keywords_come_from_stored_payload_not_guessed() -> None:
     keywords = keywords_from_payload(payload)
     assert "Health registry" in keywords
     assert "Helsedata" in keywords
+
+
+def test_decompose_quoted_phrase_stays_one_requirement() -> None:
+    reqs = decompose('pollution in "energy cooperatives" oslo')
+    texts = [req.text for req in reqs]
+    assert "energy cooperatives" in texts
+    assert "oslo" in texts
+    phrase = next(req for req in reqs if req.text == "energy cooperatives")
+    assert phrase.tokens == ("energy", "cooperatives")
+
+
+def test_two_token_and_drops_single_token_only_hits(tmp_path: Path) -> None:
+    registry = _registry(tmp_path)
+    and_hits = search(registry, "strandsone sparse")
+    assert and_hits == []
+    or_hits = search(registry, "strandsone sparse", decompose_query=False)
+    assert {hit.dataset_id for hit in or_hits} == {STRANDSONE_ID, SPARSE_ID}
+    registry.close()
+
+
+def test_publisher_tokens_can_satisfy_a_requirement(tmp_path: Path) -> None:
+    registry = _registry(tmp_path)
+    hits = search(registry, "statistisk sentralbyrå")
+    assert {hit.dataset_id for hit in hits} == {STRANDSONE_ID, HELSEDATA_ID}
+    assert any(match.field == "publisher_name" for hit in hits for match in hit.matches)
+    assert "requirements" in hits[0].why
+    registry.close()
 
 
 def test_cli_search_uses_fixture_registry(tmp_path: Path, capsys) -> None:

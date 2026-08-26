@@ -1,0 +1,135 @@
+{
+  "produced_at": "2026-08-26T22:14:10Z",
+  "questions_path": "data/benchmark_questions.json",
+  "question_count": 65,
+  "registry_datasets": 9120,
+  "before": {
+    "source": "data/benchmark_results.json from merged PR 4",
+    "decompose": false,
+    "scores": {
+      "recall_at_5": 0.7692307692307693,
+      "recall_at_10": 0.8,
+      "mrr": 0.7021794871794872,
+      "requirement_coverage_at_5": 0.8692307692307693,
+      "requirement_coverage_at_10": 0.8846153846153846
+    },
+    "by_kind": {
+      "hard": {
+        "n": 11,
+        "recall_at_5": 0.36363636363636365,
+        "recall_at_10": 0.45454545454545453,
+        "mrr": 0.19242424242424241
+      },
+      "indirect": {
+        "n": 9,
+        "recall_at_5": 0.3333333333333333,
+        "recall_at_10": 0.3333333333333333,
+        "mrr": 0.24444444444444446
+      },
+      "multi": {
+        "n": 10,
+        "recall_at_5": 0.9,
+        "recall_at_10": 0.9,
+        "mrr": 0.9
+      },
+      "simple": {
+        "n": 24,
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 0.9791666666666666
+      },
+      "synonym": {
+        "n": 11,
+        "recall_at_5": 0.9090909090909091,
+        "recall_at_10": 1.0,
+        "mrr": 0.8022727272727272
+      }
+    },
+    "q045": {
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr": 0.0,
+      "requirement_coverage_at_5": 1.0,
+      "requirement_coverage_at_10": 1.0,
+      "ranked": [
+        "datanorge:29be745f-5da2-3ef7-b1a8-560a338f54ec",
+        "datanorge:a2c06b68-72c6-3675-ae4d-4f5695dba13d",
+        "datanorge:911ea3f5-30cb-3e37-87be-dfdc3a21b797",
+        "datanorge:3f85f3c0-de60-38ae-b031-b057d89bcde2",
+        "datanorge:49362745-703f-3d56-af0b-e11135e43897",
+        "datanorge:582df164-d621-31f1-9ac5-7fa778f4867e",
+        "datanorge:d7c92bb7-28c2-3e8d-9027-8e0444fcff29",
+        "datanorge:25dba859-5618-3203-9ad4-61f0f76cb07f",
+        "datanorge:81059b49-2365-309e-8658-3b41e4783cdd",
+        "datanorge:963a0060-f861-36ee-9838-35dec4e79b01"
+      ]
+    }
+  },
+  "after": {
+    "source": "pda benchmark after AND-decompose",
+    "decompose": true,
+    "scores": {
+      "recall_at_5": 0.8153846153846154,
+      "recall_at_10": 0.8615384615384616,
+      "mrr": 0.7721794871794873,
+      "requirement_coverage_at_5": 0.9,
+      "requirement_coverage_at_10": 0.9153846153846154
+    },
+    "by_kind": {
+      "hard": {
+        "n": 11,
+        "recall_at_5": 0.5454545454545454,
+        "recall_at_10": 0.7272727272727273,
+        "mrr": 0.503030303030303
+      },
+      "indirect": {
+        "n": 9,
+        "recall_at_5": 0.3333333333333333,
+        "recall_at_10": 0.3333333333333333,
+        "mrr": 0.2592592592592593
+      },
+      "multi": {
+        "n": 10,
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0
+      },
+      "simple": {
+        "n": 24,
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 0.9791666666666666
+      },
+      "synonym": {
+        "n": 11,
+        "recall_at_5": 0.9090909090909091,
+        "recall_at_10": 1.0,
+        "mrr": 0.8022727272727272
+      }
+    },
+    "q045": {
+      "recall_at_5": 1.0,
+      "recall_at_10": 1.0,
+      "mrr": 1.0,
+      "requirement_coverage_at_5": 1.0,
+      "requirement_coverage_at_10": 1.0,
+      "ranked": [
+        "datanorge:a290a2d1-b5eb-3747-8e00-5bca67b89c90",
+        "datanorge:f5d0ed23-0c50-3caf-9e63-7da9cfb80481",
+        "datanorge:4a6016f8-3a64-38e6-8bdc-8a05168e0989"
+      ]
+    }
+  },
+  "delta": {
+    "recall_at_5": 0.0461538461538461,
+    "recall_at_10": 0.06153846153846154,
+    "mrr": 0.07000000000000006,
+    "requirement_coverage_at_5": 0.03076923076923077,
+    "requirement_coverage_at_10": 0.03076923076923077
+  },
+  "notes": [
+    "Same 65 gold questions. No new expected ids.",
+    "score_document and FIELD_WEIGHTS were not changed.",
+    "q045 gold is the three datasets that store both forurensning and oslo."
+  ]
+}
