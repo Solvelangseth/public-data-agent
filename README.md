@@ -423,6 +423,19 @@ description. Single-token publisher queries such as `AtB` still miss.
 Those gaps stay logged. Discovery MVP does not load observation rows,
 join sources, or expose MCP.
 
+### Production scores (2026-08-26)
+
+Same 9120-row registry and the same 65 questions as Milestone 5.
+
+| Run | Recall@5 | Recall@10 | MRR | req. cov@5 | mean confidence | follow-up ran |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| M5 AND | 0.815 | 0.862 | 0.772 | 0.900 |  |  |
+| M6 coverage | 0.815 | 0.862 | 0.772 | 0.900 | 0.969 | 0 of 65 |
+
+Follow-up did not move gold-set scores. AND already returns hits that cover every requirement, or the missing requirement is the same single-token query (q040 `ECON`, q042 `AGRI`). A constructed query `abortregisteret blomkålkorallskog` has empty AND, then follow-up raises confidence from 0 to 1 and adds both datasets.
+
+q045 coverage is `forurensning` and `oslo`, confidence 1.0, no follow-up. Hard Recall@5 stays 0.55. Indirect stays 0.33. `AtB` still misses. Proof is in `data/coverage_proof.json`.
+
 ```bash
 pda ingest --source datanorge --db data/registry.sqlite
 pda enrich --db data/registry.sqlite
