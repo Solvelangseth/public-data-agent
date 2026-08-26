@@ -1,0 +1,147 @@
+{
+  "produced_at": "2026-08-26T21:26:38Z",
+  "verified_at": "2026-08-26T21:27:00Z",
+  "catalog": {
+    "source_id": "datanorge",
+    "source_name": "Data.norge / Felles datakatalog",
+    "endpoints": {
+      "sparql": "https://sparql.fellesdatakatalog.digdir.no",
+      "resource_service": "https://resource.api.fellesdatakatalog.digdir.no",
+      "search_api_used": false
+    },
+    "sparql_dcat_dataset_count": 9120,
+    "ingest_reason": "listed as dcat:Dataset in Felles datakatalog SPARQL"
+  },
+  "registry": {
+    "path": "data/registry.sqlite",
+    "committed": false,
+    "reason_untracked": "158MB exceeds the 50MB commit threshold",
+    "bytes": 165240832,
+    "datasets": 9120,
+    "harvested_payloads": 9120,
+    "rebuild": "pda ingest --source datanorge --db data/registry.sqlite"
+  },
+  "runs": [
+    {
+      "id": 1,
+      "source_id": "datanorge",
+      "source_name": "Data.norge / Felles datakatalog",
+      "started_at": "2026-08-26T21:23:21Z",
+      "finished_at": "2026-08-26T21:26:35Z",
+      "status": "completed",
+      "listed": 9120,
+      "inserted": 9120,
+      "updated": 0,
+      "unchanged": 0,
+      "failed": 0,
+      "limit_applied": null,
+      "notes": "full catalog run 1",
+      "source_endpoints": [
+        "https://sparql.fellesdatakatalog.digdir.no",
+        "https://resource.api.fellesdatakatalog.digdir.no"
+      ],
+      "errors": []
+    },
+    {
+      "id": 2,
+      "source_id": "datanorge",
+      "source_name": "Data.norge / Felles datakatalog",
+      "started_at": "2026-08-26T21:26:35Z",
+      "finished_at": "2026-08-26T21:26:38Z",
+      "status": "completed",
+      "listed": 9120,
+      "inserted": 0,
+      "updated": 0,
+      "unchanged": 9120,
+      "failed": 0,
+      "limit_applied": null,
+      "notes": "incremental refresh run 2",
+      "source_endpoints": [
+        "https://sparql.fellesdatakatalog.digdir.no",
+        "https://resource.api.fellesdatakatalog.digdir.no"
+      ],
+      "errors": []
+    }
+  ],
+  "run_1": {
+    "listed": 9120,
+    "inserted": 9120,
+    "updated": 0,
+    "unchanged": 0,
+    "failed": 0
+  },
+  "run_2": {
+    "listed": 9120,
+    "inserted": 0,
+    "updated": 0,
+    "unchanged": 9120,
+    "failed": 0
+  },
+  "missing_fields": {
+    "datasets": 9120,
+    "missing": {
+      "publisher": {
+        "count": 322,
+        "percent": 3.53
+      },
+      "license": {
+        "count": 585,
+        "percent": 6.41
+      },
+      "access_path": {
+        "count": 60,
+        "percent": 0.66
+      },
+      "issued": {
+        "count": 335,
+        "percent": 3.67
+      },
+      "modified": {
+        "count": 7204,
+        "percent": 78.99
+      },
+      "temporal": {
+        "count": 707,
+        "percent": 7.75
+      },
+      "spatial": {
+        "count": 8243,
+        "percent": 90.38
+      },
+      "structure": {
+        "count": 438,
+        "percent": 4.8
+      },
+      "title": {
+        "count": 0,
+        "percent": 0.0
+      },
+      "description": {
+        "count": 8,
+        "percent": 0.09
+      },
+      "original_source": {
+        "count": 0,
+        "percent": 0.0
+      }
+    }
+  },
+  "payload_fetch": [
+    {
+      "fetched_from": "https://resource.api.fellesdatakatalog.digdir.no/v1/datasets",
+      "n": 9120
+    }
+  ],
+  "distinct_source_rows": [
+    {
+      "source_id": "datanorge",
+      "source_name": "Data.norge / Felles datakatalog"
+    }
+  ],
+  "distinct_endpoints_on_dataset_rows": [
+    [
+      "https://sparql.fellesdatakatalog.digdir.no",
+      "https://resource.api.fellesdatakatalog.digdir.no"
+    ]
+  ]
+}
