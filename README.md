@@ -374,6 +374,27 @@ one token.
 Same 65 questions as Milestone 4. Before and after scores are in
 `data/benchmark_compare.json`.
 
+### Production scores (2026-08-26)
+
+Same 9120-row registry and the same 65 questions as Milestone 4.
+
+| Run | Recall@5 | Recall@10 | MRR | req. cov@5 | req. cov@10 |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| before (OR, M4) | 0.769 | 0.800 | 0.702 | 0.869 | 0.885 |
+| after (AND decompose) | 0.815 | 0.862 | 0.772 | 0.900 | 0.915 |
+
+q045 `forurensning oslo`: Recall@10 0.00 to 1.00. The three gold rows are the top three hits. `why` says `requirements forurensning AND oslo`.
+
+| Kind | Recall@5 before | Recall@5 after | Recall@10 before | Recall@10 after |
+| --- | ---: | ---: | ---: | ---: |
+| simple | 1.00 | 1.00 | 1.00 | 1.00 |
+| synonym | 0.91 | 0.91 | 1.00 | 1.00 |
+| multi | 0.90 | 1.00 | 0.90 | 1.00 |
+| hard | 0.36 | 0.55 | 0.45 | 0.73 |
+| indirect | 0.33 | 0.33 | 0.33 | 0.33 |
+
+Indirect did not move. Theme strings that never appear in title, keyword, or description still miss. That is logged. The token-overlap weights were not changed.
+
 ```bash
 pda ingest --source datanorge --db data/registry.sqlite
 pda enrich --db data/registry.sqlite
