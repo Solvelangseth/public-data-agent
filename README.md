@@ -12,18 +12,18 @@ system finds the right data for you.
 
 ## Current status
 
-Milestone 1 is in this repo: a local SQLite **dataset registry** and an ingest command
-that harvests *metadata* from Data.norge / Felles datakatalog.
+Milestone 1 and 2 are in this repo: a local SQLite dataset registry, ingest from
+Data.norge / Felles datakatalog, and token-overlap search over that file.
 
-Data.norge is the first ingest source, not the product. Search, UI, joins, charts,
-observation-row loading, and MCP are out of scope until later milestones.
+Data.norge is the first ingest source, not the product. UI, joins, charts,
+observation-row loading, and MCP are later.
 
 ## Principles
 
 - **Data first, AI second.** LLMs handle intent, semantics and planning. Retrieval, joins,
   filtering, aggregation and math stay deterministic. The model never guesses factual values.
 - **Sources are replaceable.** Data.norge, SSB, BRREG and others are ingestion sources into
-  *our* registry. Search will run on the registry, not on someone else's search API.
+  *our* registry. Search runs on the registry, not on someone else's search API.
 - **Provenance from day one.** Every result can say what it is, who publishes it, why it was
   selected, when it was last updated, how to access it, and under which license.
 
@@ -43,7 +43,6 @@ What this milestone does:
 
 What it does not do:
 
-- Search or ranking
 - UI
 - Joins, charts, or loading observation rows
 - MCP
@@ -113,6 +112,32 @@ Tests and CI use a fixture adapter so they never harvest the live catalog:
 pda ingest --source fixture --fixtures tests/fixtures --db data/registry.sqlite
 pytest
 ```
+
+## Milestone 2: search the registry
+
+Query in, ranked datasets out. Search reads the local SQLite file. It does not
+call Data.norge Search.
+
+```bash
+pda search "forurensning oslo" --db data/registry.sqlite
+pda search "strandsone" --db data/registry.sqlite --limit 10
+```
+
+Ranking is token overlap after casefold. Tokens are letters and digits, length
+at least 2, including æøå. Weights: title 10, keyword 5, description 2. The
+score is the sum of weights for each query token that appears in that field.
+`why` lists the field and token for every match.
+
+Each hit uses stored registry fields only. Publisher, license, access, time,
+geography, and original links are null plus `missing_fields` when the source
+omitted them. Variables are `unknown` unless the harvested payload has an
+explicit variable list. Keywords are copied from the payload when present.
+Nothing is invented.
+
+This milestone does not add query decomposition, a coverage checker, joins,
+a UI, or MCP.
+
+Tests build a three-row fixture registry. CI never opens a 9k live harvest.
 
 ### Production harvest (2026-08-26)
 

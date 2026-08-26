@@ -7,6 +7,7 @@ from pathlib import Path
 
 from public_data_agent.harvest import harvest, stderr_progress
 from public_data_agent.registry import Registry
+from public_data_agent.search import search
 from public_data_agent.sources import SOURCE_IDS, build_source
 
 DEFAULT_DB = Path("data/registry.sqlite")
@@ -15,7 +16,7 @@ DEFAULT_DB = Path("data/registry.sqlite")
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         prog="pda",
-        description="Milestone 1: harvest catalogue metadata into the local dataset registry.",
+        description="Local dataset registry and natural-language search over it.",
     )
     sub = parser.add_subparsers(dest="command", required=True)
 
@@ -41,6 +42,11 @@ def main(argv: list[str] | None = None) -> int:
     stats.add_argument("--db", type=Path, default=DEFAULT_DB)
     stats.add_argument("--out", type=Path, default=None)
 
+    search_cmd = sub.add_parser("search", help="Rank datasets in the local registry")
+    search_cmd.add_argument("query", help="Natural-language query, matched as tokens")
+    search_cmd.add_argument("--db", type=Path, default=DEFAULT_DB)
+    search_cmd.add_argument("--limit", type=int, default=10)
+
     args = parser.parse_args(argv)
     if args.command == "ingest":
         return _ingest(args)
@@ -48,6 +54,8 @@ def main(argv: list[str] | None = None) -> int:
         return _status(args)
     if args.command == "stats":
         return _stats(args)
+    if args.command == "search":
+        return _search(args)
     parser.error(f"unknown command {args.command}")
     return 2
 
@@ -125,4 +133,29 @@ def _stats(args: argparse.Namespace) -> int:
         args.out.parent.mkdir(parents=True, exist_ok=True)
         args.out.write_text(text + "\n", encoding="utf-8")
     print(text)
+    return 0
+
+
+def _search(args: argparse.Namespace) -> int:
+    if not Path(args.db).exists() and str(args.db) != ":memory:":
+        print(f"no registry at {args.db}", file=sys.stderr)
+        return 1
+    registry = Registry(args.db)
+    try:
+        hits = search(registry, args.query, limit=args.limit)
+    finally:
+        registry.close()
+    print(
+        json.dumps(
+            {
+                "db": str(args.db),
+                "query": args.query,
+                "limit": args.limit,
+                "returned": len(hits),
+                "results": [hit.to_dict() for hit in hits],
+            },
+            ensure_ascii=False,
+            indent=2,
+        )
+    )
     return 0
