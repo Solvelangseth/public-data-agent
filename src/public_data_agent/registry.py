@@ -202,6 +202,57 @@ class Registry:
         ).fetchall()
         return [dict(row) for row in rows]
 
+    def get_enrichment(self, dataset_id: str) -> dict[str, Any] | None:
+        row = self.conn.execute(
+            "SELECT * FROM enrichments WHERE dataset_id = ?",
+            (dataset_id,),
+        ).fetchone()
+        return dict(row) if row else None
+
+    def enrichment_count(self) -> int:
+        row = self.conn.execute("SELECT COUNT(*) AS n FROM enrichments").fetchone()
+        return int(row["n"])
+
+    def upsert_enrichment(self, row: dict[str, Any], *, now: str | None = None) -> str:
+        """Insert or update by dataset_id. Matching harvest payload_hash is a no-op."""
+
+        stamp = now or utc_now()
+        existing = self.get_enrichment(row["dataset_id"])
+        if existing is not None and existing["payload_hash"] == row["payload_hash"]:
+            return "unchanged"
+
+        values = {
+            "dataset_id": row["dataset_id"],
+            "source": row["source"],
+            "method": row["method"],
+            "created_at": existing["created_at"] if existing else stamp,
+            "updated_at": stamp,
+            "payload_hash": row["payload_hash"],
+            "topics_json": _dumps(row.get("topics")),
+            "aliases_json": _dumps(row.get("aliases")),
+            "geography_json": _dumps(row.get("geography")),
+            "time_coverage_json": _dumps(row.get("time_coverage")),
+            "fields_json": _dumps(row.get("fields")),
+            "can_answer_json": _dumps(row.get("can_answer")),
+            "missing_json": _dumps(row.get("missing") or {}),
+        }
+        if existing is None:
+            self.conn.execute(
+                f"INSERT INTO enrichments ({', '.join(_ENRICHMENT_COLUMNS)}) "
+                f"VALUES ({_placeholders(_ENRICHMENT_COLUMNS)})",
+                tuple(values[col] for col in _ENRICHMENT_COLUMNS),
+            )
+            self.conn.commit()
+            return "inserted"
+
+        assign = ", ".join(f"{col} = ?" for col in _ENRICHMENT_UPDATE_COLUMNS)
+        self.conn.execute(
+            f"UPDATE enrichments SET {assign} WHERE dataset_id = ?",
+            (*(values[col] for col in _ENRICHMENT_UPDATE_COLUMNS), row["dataset_id"]),
+        )
+        self.conn.commit()
+        return "updated"
+
     def upsert(self, dataset: NormalizedDataset, run_id: int, *, now: str | None = None) -> str:
         """Insert or update by stable id. Never deletes other rows."""
 
@@ -300,6 +351,26 @@ _UPDATE_COLUMNS = tuple(
     col
     for col in _DATASET_COLUMNS
     if col not in {"id", "first_ingested_at", "last_seen_at"}
+)
+
+_ENRICHMENT_COLUMNS = (
+    "dataset_id",
+    "source",
+    "method",
+    "created_at",
+    "updated_at",
+    "payload_hash",
+    "topics_json",
+    "aliases_json",
+    "geography_json",
+    "time_coverage_json",
+    "fields_json",
+    "can_answer_json",
+    "missing_json",
+)
+
+_ENRICHMENT_UPDATE_COLUMNS = tuple(
+    col for col in _ENRICHMENT_COLUMNS if col not in {"dataset_id", "created_at"}
 )
 
 

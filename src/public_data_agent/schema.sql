@@ -80,6 +80,25 @@ CREATE TABLE IF NOT EXISTS harvested_payloads (
     FOREIGN KEY (dataset_id) REFERENCES datasets(id)
 );
 
+-- enrichments: one system-generated row per dataset, projected from stored
+-- harvest fields. Never write datasets or harvested_payloads from this table.
+CREATE TABLE IF NOT EXISTS enrichments (
+    dataset_id TEXT PRIMARY KEY,
+    source TEXT NOT NULL,              -- always 'system'
+    method TEXT NOT NULL,              -- e.g. 'deterministic_from_stored_metadata'
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    payload_hash TEXT NOT NULL,
+    topics_json TEXT,
+    aliases_json TEXT,
+    geography_json TEXT,
+    time_coverage_json TEXT,
+    fields_json TEXT,
+    can_answer_json TEXT,
+    missing_json TEXT NOT NULL,
+    FOREIGN KEY (dataset_id) REFERENCES datasets(id)
+);
+
 CREATE INDEX IF NOT EXISTS idx_datasets_source ON datasets(source_id);
 CREATE INDEX IF NOT EXISTS idx_datasets_publisher ON datasets(publisher_id);
 CREATE INDEX IF NOT EXISTS idx_harvest_runs_source ON harvest_runs(source_id, started_at);

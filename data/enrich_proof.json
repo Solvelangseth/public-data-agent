@@ -1,0 +1,52 @@
+{
+  "produced_at": "2026-08-26T21:50:16Z",
+  "merge": {
+    "pr": 2,
+    "state": "MERGED",
+    "merged_at": "2026-08-26T21:43:57Z",
+    "merge_commit": "86d71eb225273fceaf4660510b6236d9839335d2",
+    "main_has_search_py": true,
+    "search_py_blob": "88365aa51aa746ac4439a5f4bc2efe6a155347a2"
+  },
+  "fixture_enrich": {
+    "command": "pda ingest --source fixture --fixtures tests/fixtures --db /tmp/pda-m3-idemp.sqlite --quiet && pda enrich --db /tmp/pda-m3-idemp.sqlite && pda enrich --db /tmp/pda-m3-idemp.sqlite",
+    "datasets_in_db": 3,
+    "run_1": {"listed": 3, "inserted": 3, "updated": 0, "unchanged": 0, "failed": 0},
+    "run_2": {"listed": 3, "inserted": 0, "updated": 0, "unchanged": 3, "failed": 0}
+  },
+  "live_enrich": {
+    "command": "pda enrich --db data/registry.sqlite",
+    "datasets_in_db": 9120,
+    "payloads_in_db": 9120,
+    "enrichments_in_db": 9120,
+    "run_1": {"listed": 9120, "inserted": 9120, "updated": 0, "unchanged": 0, "failed": 0},
+    "run_2": {"listed": 9120, "inserted": 0, "updated": 0, "unchanged": 9120, "failed": 0},
+    "source": "system",
+    "method": "deterministic_from_stored_metadata",
+    "system_rows": 9120,
+    "nonempty": {
+      "topics": 9088,
+      "aliases": 8848,
+      "geography": 877,
+      "time_coverage": 8982,
+      "fields": 0,
+      "can_answer": 9120
+    },
+    "missing": {
+      "geography": 8243,
+      "time_coverage": 138,
+      "fields": 9120
+    },
+    "notes": [
+      "geography nonempty 877 matches harvest rows that stored spatial_json (9120-8243).",
+      "fields stayed null on every live row. No harvested payload named variables, variableList, or variable_list.",
+      "enrich upsert writes only the enrichments table. datasets harvest columns and harvested_payloads.payload_json are unchanged."
+    ]
+  },
+  "pytest": {
+    "command": "python3 -m pytest",
+    "passed": 26,
+    "deselected": 0,
+    "note": "fixture tests including tests/test_enrich.py"
+  }
+}
