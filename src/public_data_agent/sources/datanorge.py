@@ -23,20 +23,24 @@ LIST_QUERY = """
 PREFIX dcat: <http://www.w3.org/ns/dcat#>
 PREFIX dct: <http://purl.org/dc/terms/>
 PREFIX foaf: <http://xmlns.com/foaf/0.1/>
-SELECT ?dataset (SAMPLE(?fdkId) AS ?fdkId) (MAX(?modified) AS ?catalogModified)
-WHERE {
+SELECT ?dataset (SAMPLE(?fdkIdRaw) AS ?fdkId) (MAX(?modified) AS ?catalogModified)
+WHERE {{
   ?dataset a dcat:Dataset .
-  OPTIONAL {
+  OPTIONAL {{
     ?record a dcat:CatalogRecord ;
             foaf:primaryTopic ?dataset ;
-            dct:identifier ?fdkId .
-    OPTIONAL { ?record dct:modified ?modified }
-  }
-}
+            dct:identifier ?fdkIdRaw .
+    OPTIONAL {{ ?record dct:modified ?modified }}
+  }}
+}}
 GROUP BY ?dataset
 ORDER BY ?dataset
 LIMIT {limit} OFFSET {offset}
 """
+
+
+def list_query(*, limit: int, offset: int) -> str:
+    return LIST_QUERY.format(limit=int(limit), offset=int(offset))
 
 
 class DataNorgeSource(SourceBase):
@@ -75,7 +79,7 @@ class DataNorgeSource(SourceBase):
         page_offset = offset
         while remaining is None or remaining > 0:
             page = self.page_size if remaining is None else min(self.page_size, remaining)
-            rows = self._sparql(LIST_QUERY.format(limit=page, offset=page_offset))
+            rows = self._sparql(list_query(limit=page, offset=page_offset))
             for row in rows:
                 dataset = _binding(row, "dataset")
                 if not dataset:

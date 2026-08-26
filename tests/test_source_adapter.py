@@ -7,7 +7,53 @@ from public_data_agent.models import DatasetRef, HarvestedRecord
 from public_data_agent.registry import Registry
 from public_data_agent.sources import SOURCE_IDS, build_source
 from public_data_agent.sources.base import SourceBase
-from public_data_agent.sources.datanorge import DataNorgeSource
+from public_data_agent.sources.datanorge import DataNorgeSource, list_query
+
+
+def test_sparql_list_query_keeps_graph_braces() -> None:
+    query = list_query(limit=5, offset=10)
+    assert "LIMIT 5 OFFSET 10" in query
+    assert "?dataset a dcat:Dataset" in query
+    assert "SAMPLE(?fdkIdRaw) AS ?fdkId" in query
+    assert query.count("{") == query.count("}")
+    assert "{limit}" not in query
+
+
+class _FakeHttp:
+    def __init__(self, result):
+        self.result = result
+        self.calls: list[tuple] = []
+
+    def post_form(self, url, fields, headers=None):
+        self.calls.append((url, fields, headers))
+        return self.result
+
+    def get_json(self, url):
+        raise AssertionError("unexpected GET")
+
+    def post_json(self, url, body):
+        raise AssertionError("unexpected POST JSON")
+
+
+def test_datanorge_lists_refs_from_sparql_bindings() -> None:
+    http = _FakeHttp(
+        {
+            "results": {
+                "bindings": [
+                    {
+                        "dataset": {"value": "https://example.org/ds/1"},
+                        "fdkId": {"value": "abc"},
+                        "catalogModified": {"value": "2026-01-02T00:00:00Z"},
+                    }
+                ]
+            }
+        }
+    )
+    source = DataNorgeSource(http=_FakeHttp({}), sparql_http=http, page_size=10)
+    refs = source.list_dataset_refs(limit=1)
+    assert refs[0].source_native_uri == "https://example.org/ds/1"
+    assert refs[0].source_native_id == "abc"
+    assert "LIMIT 1 OFFSET 0" in http.calls[0][1]["query"]
 
 
 def test_datanorge_is_one_registered_adapter() -> None:
