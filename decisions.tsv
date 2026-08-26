@@ -7,3 +7,4 @@ ts	phase	decision	why	evidence	result
 2026-08-26T21:38:30Z	search	run pda search on the 9120-row live registry	standing order requires a live query when the file exists	pda search 'forurensning oslo' --db data/registry.sqlite --limit 5 returned 5; top IUA forurensning rel=17	live search works
 2026-08-26T21:38:30Z	scope	do not merge PR 2 and do not start M3	standing order; merge is irreversible for M2 tonight	PR 2 left OPEN	open
 2026-08-26T21:38:30Z	trail	commit decisions.tsv and search_proof.json on the M2 branch	morning review needs an auditable trail	decisions.tsv data/search_proof.json	pending commit
+2026-08-26T21:38:45Z	trail	pushed decision trail to M2 branch	commit so GitHub renders the TSV for morning review	commit d4f47d4 decisions.tsv data/search_proof.json	on origin/cursor/milestone-2-registry-search-4a96
