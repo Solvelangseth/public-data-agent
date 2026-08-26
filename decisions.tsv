@@ -40,3 +40,4 @@ ts	phase	decision	why	evidence	result
 2026-08-26T22:14:10Z	bench	rescore the same 65 questions on the 9120-row registry	prove decompose on the real file and gold set	data/benchmark_compare.json Recall@5 0.769 to 0.815; q045 Recall@10 0 to 1	live after
 2026-08-26T22:14:10Z	search	leave indirect at 0.33 and do not add theme to the scorer	theme-only questions are not in title/keyword/description; adding a field would rewrite the ranker	data/benchmark_compare.json after.by_kind.indirect.recall_at_5=0.333	logged
 2026-08-26T22:14:10Z	search	allow publisher_name to satisfy a requirement	hard multi-token publisher queries have no title tokens; this is retrieval, not a weight change	hard Recall@5 0.36 to 0.55	hard improved, single-token publisher still misses
+2026-08-26T22:16:00Z	pr	open Milestone 5 PR, do not merge, do not start M6	sequence ends at a reviewable PR after live before/after	https://github.com/Solvelangseth/public-data-agent/pull/5	OPEN
