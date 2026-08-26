@@ -48,6 +48,12 @@ def main(argv: list[str] | None = None) -> int:
     search_cmd.add_argument("query", help="Natural-language query, matched as tokens")
     search_cmd.add_argument("--db", type=Path, default=DEFAULT_DB)
     search_cmd.add_argument("--limit", type=int, default=10)
+    search_cmd.add_argument(
+        "--decompose",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="Split multi-token queries into AND requirements. Default on.",
+    )
 
     enrich_cmd = sub.add_parser("enrich", help="Project stored harvest fields into enrichments")
     enrich_cmd.add_argument("--db", type=Path, default=DEFAULT_DB)
@@ -225,7 +231,12 @@ def _search(args: argparse.Namespace) -> int:
         return 1
     registry = Registry(args.db)
     try:
-        hits = search(registry, args.query, limit=args.limit)
+        hits = search(
+            registry,
+            args.query,
+            limit=args.limit,
+            decompose_query=args.decompose,
+        )
     finally:
         registry.close()
     print(
@@ -234,6 +245,7 @@ def _search(args: argparse.Namespace) -> int:
                 "db": str(args.db),
                 "query": args.query,
                 "limit": args.limit,
+                "decompose": args.decompose,
                 "returned": len(hits),
                 "results": [hit.to_dict() for hit in hits],
             },

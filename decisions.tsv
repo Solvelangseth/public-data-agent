@@ -34,3 +34,6 @@ ts	phase	decision	why	evidence	result
 2026-08-26T22:06:00Z	bench	run Data.norge Search API baseline at 10 req/min	no auth, probe returned 200, fair same-question run was practical	65 of 65 completed; Recall@5=0.733 Recall@10=0.779 MRR=0.689	baseline ran
 2026-08-26T22:06:00Z	bench	leave q045 one-token gap logged, do not rewrite the scorer	three both-token gold ids have Recall@10=0; coverage still 1.0	data/benchmark_results.json q045	logged
 2026-08-26T22:07:00Z	pr	open Milestone 4 PR, do not merge, do not start M5	sequence ends at a reviewable PR after live scores	https://github.com/Solvelangseth/public-data-agent/pull/4	OPEN
+2026-08-26T22:11:12Z	merge	treat PR 4 as merged on main	gh pr view is the required proof	https://github.com/Solvelangseth/public-data-agent/pull/4 mergeCommit 1562ddce5739c811eda4a88c2cf9ee71d29bf1fe	MERGED 2026-08-26T22:11:12Z
+2026-08-26T22:11:13Z	merge	confirm origin/main holds benchmark CLI and questions	M5 starts from merged main	git ls-tree origin/main src/public_data_agent/benchmark.py data/benchmark_questions.json	on main
+2026-08-26T22:12:00Z	search	AND-decompose multi-token queries, leave FIELD_WEIGHTS alone	q045 fails because OR one-token hits outrank both-token gold; do not rewrite the scorer	src/public_data_agent/search.py decompose + _search_requirements; score_document unchanged	pending live rescore

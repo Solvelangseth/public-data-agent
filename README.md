@@ -12,9 +12,10 @@ system finds the right data for you.
 
 ## Current status
 
-Milestone 1, 2, 3, and 4 are in this repo: a local SQLite dataset registry, ingest from
+Milestone 1 through 5 are in this repo: a local SQLite dataset registry, ingest from
 Data.norge / Felles datakatalog, token-overlap search over that file, deterministic
-enrichment in a separate `enrichments` table, and a sourced search benchmark.
+enrichment in a separate `enrichments` table, a sourced search benchmark, and
+AND-decomposition of multi-token queries.
 
 Data.norge is the first ingest source, not the product. UI, joins, charts,
 observation-row loading, and MCP are later.
@@ -343,6 +344,35 @@ benchmark platform.
 
 Rebuild the registry if the sqlite file is missing, then rerun the commands
 above.
+
+## Milestone 5: query decomposition
+
+A multi-token query is split into independent requirements. Each requirement is
+scored with the same token-overlap weights as Milestone 2 (title 10, keyword 5,
+description 2). A dataset is kept only when every requirement matches. That is
+AND, not a new ranker.
+
+Quoted phrases stay one requirement. Remaining tokens are each one requirement.
+A requirement can also be satisfied by stored `publisher_name` tokens. That
+path is for publisher-shaped queries. It does not invent publishers.
+
+```bash
+pda search "forurensning oslo" --db data/registry.sqlite
+pda search "forurensning oslo" --db data/registry.sqlite --no-decompose
+pda benchmark --db data/registry.sqlite --questions data/benchmark_questions.json --out data/benchmark_results.json
+```
+
+`--no-decompose` is the Milestone 2 OR path. The scorer weights are unchanged
+either way.
+
+This milestone does not invent gold labels, guess observation values, or parse
+intent with an LLM. Theme-only indirect questions still miss when the theme
+string is not in title, keyword, or description. Single-token publisher
+queries still miss when the publisher name is not in those fields and is only
+one token.
+
+Same 65 questions as Milestone 4. Before and after scores are in
+`data/benchmark_compare.json`.
 
 ```bash
 pda ingest --source datanorge --db data/registry.sqlite
