@@ -272,7 +272,29 @@ temporal start. No LLM, and no invented numbers.
 A second run is incremental. The fingerprint is the harvest `payload_hash`.
 If it still matches, the enrichment row is counted unchanged and left alone.
 
-This milestone does not add a UI, joins, MCP, or a search rewrite.
+### Production enrich (2026-08-26)
+
+Ran against the local 9120-row registry from Milestone 1. No live catalog fetch.
+
+| Run | listed | inserted | updated | unchanged | failed |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| 1 full registry | 9120 | 9120 | 0 | 0 | 0 |
+| 2 incremental | 9120 | 0 | 0 | 9120 | 0 |
+
+Every enrichment row has `source=system` and `method=deterministic_from_stored_metadata`.
+
+| Field | nonempty | null with reason |
+| --- | ---: | ---: |
+| topics | 9088 | 32 empty list |
+| aliases | 8848 | 272 empty list |
+| geography | 877 | 8243 |
+| time coverage | 8982 | 138 |
+| fields | 0 | 9120 |
+| can_answer | 9120 | 0 |
+
+Geography nonempty 877 matches the harvest rows that stored `spatial_json`. Fields stayed null on every live row because no harvested payload named `variables`, `variableList`, or `variable_list`. Counts are in `data/enrich_proof.json`.
+
+This milestone does not add a UI, joins, MCP, or a search rewrite. It does not invent publishers, licenses, observation values, or missing geography and time.
 
 ## Architecture (long term)
 
