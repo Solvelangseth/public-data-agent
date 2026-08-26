@@ -1,0 +1,53 @@
+{
+  "produced_at": "2026-08-26T21:39:00Z",
+  "merge": {
+    "pr": 1,
+    "state": "MERGED",
+    "merged_at": "2026-08-26T21:35:14Z",
+    "merge_commit": "0ba994c6c35d08d3514736eba17fb6a3b184685e",
+    "main_has_m1": true,
+    "main_has_search_py": false
+  },
+  "fixture_search": {
+    "command": "pda ingest --source fixture --fixtures tests/fixtures --db /tmp/pda-fixture-search.sqlite && pda search \"strandsone\" --db /tmp/pda-fixture-search.sqlite --limit 3",
+    "datasets_in_db": 3,
+    "query": "strandsone",
+    "returned": 1,
+    "top": {
+      "id": "fixture:b2864e84-b474-31ae-97b1-8b94a71f5b0f",
+      "title": "Potensielt tilgjengelig strandsone",
+      "relevance": 17,
+      "why": "title matched strandsone; keyword matched strandsone; description matched strandsone",
+      "publisher": "Statistisk sentralbyrå",
+      "license": "http://publications.europa.eu/resource/authority/licence/NLOD_1_0",
+      "access_path": "https://kart.ssb.no/",
+      "variables": "unknown"
+    }
+  },
+  "live_search": {
+    "command": "pda search \"forurensning oslo\" --db data/registry.sqlite --limit 5",
+    "datasets_in_db": 9120,
+    "query": "forurensning oslo",
+    "returned": 5,
+    "top": [
+      {
+        "relevance": 17,
+        "title": "IUA - Interkommunale utvalg mot akutt forurensning",
+        "why": "title matched forurensning; keyword matched forurensning; description matched forurensning",
+        "publisher": "Kystverket"
+      },
+      {
+        "relevance": 17,
+        "title": "Prioriteringskart - akutt forurensning",
+        "why": "title matched forurensning; keyword matched forurensning; description matched forurensning",
+        "publisher": "Miljødirektoratet"
+      },
+      {
+        "relevance": 15,
+        "title": "Ortofoto Oslo - Bekkelaget 1977",
+        "why": "title matched oslo; keyword matched oslo",
+        "publisher": "Norge i bilder"
+      }
+    ]
+  }
+}

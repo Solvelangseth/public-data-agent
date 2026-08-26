@@ -1,0 +1,9 @@
+ts	phase	decision	why	evidence	result
+2026-08-26T21:38:30Z	pickup	inherited merged PR 1 and open M2 PR 2	prior agent already merged M1 and shipped search; do not redo the search stack	gh pr view 1 state=MERGED merge=0ba994c; gh pr view 2 state=OPEN	resume at prove-it-works
+2026-08-26T21:38:30Z	merge	treat PR 1 as merged on main	gh pr view is the required proof, not a self-report	https://github.com/Solvelangseth/public-data-agent/pull/1 mergeCommit 0ba994c6c35d08d3514736eba17fb6a3b184685e	MERGED 2026-08-26T21:35:14Z
+2026-08-26T21:38:30Z	merge	confirm main holds M1 and not M2 search	ls-tree on origin/main after fetch	origin/main 0ba994c has schema.sql harvest.py datanorge.py harvest_stats.json; search.py absent	M1 on main
+2026-08-26T21:38:30Z	search	keep token-overlap ranking as shipped	smallest change; do not invent a search stack	src/public_data_agent/search.py FIELD_WEIGHTS title=10 keyword=5 description=2	no ranking rewrite
+2026-08-26T21:38:30Z	search	run pda search on a 3-row fixture registry	prove the CLI path, not pytest self-report	pda search strandsone --db /tmp/pda-fixture-search.sqlite returned 1 hit relevance 17 publisher SSB	fixture search works
+2026-08-26T21:38:30Z	search	run pda search on the 9120-row live registry	standing order requires a live query when the file exists	pda search 'forurensning oslo' --db data/registry.sqlite --limit 5 returned 5; top IUA forurensning rel=17	live search works
+2026-08-26T21:38:30Z	scope	do not merge PR 2 and do not start M3	standing order; merge is irreversible for M2 tonight	PR 2 left OPEN	open
+2026-08-26T21:38:30Z	trail	commit decisions.tsv and search_proof.json on the M2 branch	morning review needs an auditable trail	decisions.tsv data/search_proof.json	pending commit
