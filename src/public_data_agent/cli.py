@@ -5,6 +5,7 @@ import json
 import sys
 from pathlib import Path
 
+from public_data_agent.benchmark import DEFAULT_QUESTIONS, load_questions, run_benchmark
 from public_data_agent.enrich import enrich
 from public_data_agent.harvest import harvest, stderr_progress
 from public_data_agent.registry import Registry
@@ -54,6 +55,18 @@ def main(argv: list[str] | None = None) -> int:
     enrich_cmd.add_argument("--offset", type=int, default=0)
     enrich_cmd.add_argument("--quiet", action="store_true", help="Do not print progress on stderr")
 
+    bench = sub.add_parser("benchmark", help="Score pda search against a sourced gold set")
+    bench.add_argument("--db", type=Path, default=DEFAULT_DB)
+    bench.add_argument("--questions", type=Path, default=DEFAULT_QUESTIONS)
+    bench.add_argument("--out", type=Path, default=None)
+    bench.add_argument(
+        "--baseline",
+        choices=["datanorge"],
+        default=None,
+        help="Optional Data.norge Search API baseline. Unstable, ~10 req/min.",
+    )
+    bench.add_argument("--quiet", action="store_true", help="Do not print progress on stderr")
+
     args = parser.parse_args(argv)
     if args.command == "ingest":
         return _ingest(args)
@@ -65,6 +78,8 @@ def main(argv: list[str] | None = None) -> int:
         return _search(args)
     if args.command == "enrich":
         return _enrich(args)
+    if args.command == "benchmark":
+        return _benchmark(args)
     parser.error(f"unknown command {args.command}")
     return 2
 
@@ -174,6 +189,34 @@ def _enrich(args: argparse.Namespace) -> int:
         )
     )
     return 1 if counts.failed else 0
+
+
+def _benchmark(args: argparse.Namespace) -> int:
+    if not Path(args.db).exists() and str(args.db) != ":memory:":
+        print(f"no registry at {args.db}", file=sys.stderr)
+        return 1
+    if not Path(args.questions).exists():
+        print(f"no questions at {args.questions}", file=sys.stderr)
+        return 1
+    questions = load_questions(args.questions)
+    registry = Registry(args.db)
+    try:
+        result = run_benchmark(
+            registry,
+            questions,
+            baseline=args.baseline,
+            progress=None if args.quiet else stderr_progress,
+        )
+    finally:
+        registry.close()
+    result["db"] = str(args.db)
+    result["questions_path"] = str(args.questions)
+    text = json.dumps(result, ensure_ascii=False, indent=2)
+    if args.out:
+        args.out.parent.mkdir(parents=True, exist_ok=True)
+        args.out.write_text(text + "\n", encoding="utf-8")
+    print(text)
+    return 0
 
 
 def _search(args: argparse.Namespace) -> int:

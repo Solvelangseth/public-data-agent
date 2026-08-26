@@ -1,0 +1,2676 @@
+{
+  "question_count": 65,
+  "our_search": {
+    "recall_at_5": 0.7692307692307693,
+    "recall_at_10": 0.8,
+    "mrr": 0.7021794871794872,
+    "requirement_coverage_at_5": 0.8692307692307693,
+    "requirement_coverage_at_10": 0.8846153846153846,
+    "by_kind": {
+      "hard": {
+        "n": 11,
+        "recall_at_5": 0.36363636363636365,
+        "recall_at_10": 0.45454545454545453,
+        "mrr": 0.19242424242424241
+      },
+      "indirect": {
+        "n": 9,
+        "recall_at_5": 0.3333333333333333,
+        "recall_at_10": 0.3333333333333333,
+        "mrr": 0.24444444444444446
+      },
+      "multi": {
+        "n": 10,
+        "recall_at_5": 0.9,
+        "recall_at_10": 0.9,
+        "mrr": 0.9
+      },
+      "simple": {
+        "n": 24,
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 0.9791666666666666
+      },
+      "synonym": {
+        "n": 11,
+        "recall_at_5": 0.9090909090909091,
+        "recall_at_10": 1.0,
+        "mrr": 0.8022727272727272
+      }
+    }
+  },
+  "questions": [
+    {
+      "id": "q001",
+      "kind": "simple",
+      "query": "abortregisteret",
+      "expected": [
+        "datanorge:3fa37b62-3e72-343d-bf57-501f56b5febf"
+      ],
+      "ranked": [
+        "datanorge:3fa37b62-3e72-343d-bf57-501f56b5febf"
+      ],
+      "recall_at_5": 1.0,
+      "recall_at_10": 1.0,
+      "mrr": 1.0,
+      "requirement_coverage_at_5": 1.0,
+      "requirement_coverage_at_10": 1.0
+    },
+    {
+      "id": "q002",
+      "kind": "simple",
+      "query": "familievernkontorenes dokumentasjonssystem",
+      "expected": [
+        "datanorge:16398bcf-9787-3c46-a00f-73846dea98e4"
+      ],
+      "ranked": [
+        "datanorge:16398bcf-9787-3c46-a00f-73846dea98e4"
+      ],
+      "recall_at_5": 1.0,
+      "recall_at_10": 1.0,
+      "mrr": 1.0,
+      "requirement_coverage_at_5": 1.0,
+      "requirement_coverage_at_10": 1.0
+    },
+    {
+      "id": "q003",
+      "kind": "simple",
+      "query": "ilandstigningslokaliteter svalbard",
+      "expected": [
+        "datanorge:717aebc7-1fc2-3739-abdd-3aa55c96861b"
+      ],
+      "ranked": [
+        "datanorge:717aebc7-1fc2-3739-abdd-3aa55c96861b",
+        "datanorge:575ac41f-0213-3598-937b-352da0cdef62",
+        "datanorge:ceb12aab-1e14-3a8e-be81-1cf4e7cb30b7",
+        "datanorge:35b14871-d472-311e-88b7-1da4d2791f06",
+        "datanorge:4331fd1c-b522-3463-883b-197ec6a51ca5",
+        "datanorge:7ad6e1ba-92e5-3ad6-ab4f-8d369ec99ca4",
+        "datanorge:ff2e54f3-230d-36b3-94fb-b95ec130ec6a",
+        "datanorge:1f6c1bb4-adbf-3ba7-a8ae-f657188210b6",
+        "datanorge:d053eabe-29d6-30ae-89ae-632870f194b6",
+        "datanorge:ad5c4c62-7048-3eb1-a883-23f67842dad5"
+      ],
+      "recall_at_5": 1.0,
+      "recall_at_10": 1.0,
+      "mrr": 1.0,
+      "requirement_coverage_at_5": 1.0,
+      "requirement_coverage_at_10": 1.0
+    },
+    {
+      "id": "q004",
+      "kind": "simple",
+      "query": "nntrans",
+      "expected": [
+        "datanorge:989da401-9865-3c79-8305-cc95292d18e9"
+      ],
+      "ranked": [
+        "datanorge:989da401-9865-3c79-8305-cc95292d18e9"
+      ],
+      "recall_at_5": 1.0,
+      "recall_at_10": 1.0,
+      "mrr": 1.0,
+      "requirement_coverage_at_5": 1.0,
+      "requirement_coverage_at_10": 1.0
+    },
+    {
+      "id": "q005",
+      "kind": "simple",
+      "query": "arealrepresentativ naturovervåking",
+      "expected": [
+        "datanorge:9d988fd5-78fd-3f82-b5ac-4e9943be02f4"
+      ],
+      "ranked": [
+        "datanorge:9d988fd5-78fd-3f82-b5ac-4e9943be02f4"
+      ],
+      "recall_at_5": 1.0,
+      "recall_at_10": 1.0,
+      "mrr": 1.0,
+      "requirement_coverage_at_5": 1.0,
+      "requirement_coverage_at_10": 1.0
+    },
+    {
+      "id": "q006",
+      "kind": "simple",
+      "query": "blomkålkorallskog",
+      "expected": [
+        "datanorge:6b128fc5-5a8e-35ab-888e-56ba48d0e4bd"
+      ],
+      "ranked": [
+        "datanorge:6b128fc5-5a8e-35ab-888e-56ba48d0e4bd",
+        "datanorge:33194e4a-049b-30b8-b434-0100deeed90a",
+        "datanorge:21fda0ae-1361-35f7-a447-356d42a4d4b6",
+        "datanorge:1ab414da-da4a-3a73-8d2f-4a275184decf",
+        "datanorge:d5383f33-ae4f-3ffe-a31d-c048f5e6a48a",
+        "datanorge:8381b6c3-5926-3473-980e-47840a966b0f",
+        "datanorge:19a93b42-caa1-3fb8-87ef-5552632a90a7",
+        "datanorge:3c32568e-b91d-3001-9e0f-bc30930f22fc"
+      ],
+      "recall_at_5": 1.0,
+      "recall_at_10": 1.0,
+      "mrr": 1.0,
+      "requirement_coverage_at_5": 1.0,
+      "requirement_coverage_at_10": 1.0
+    },
+    {
+      "id": "q007",
+      "kind": "simple",
+      "query": "tilleggstollavgiftssatser",
+      "expected": [
+        "datanorge:e312aacd-1c91-3de5-8120-abb73602bb41"
+      ],
+      "ranked": [
+        "datanorge:e312aacd-1c91-3de5-8120-abb73602bb41"
+      ],
+      "recall_at_5": 1.0,
+      "recall_at_10": 1.0,
+      "mrr": 1.0,
+      "requirement_coverage_at_5": 1.0,
+      "requirement_coverage_at_10": 1.0
+    },
+    {
+      "id": "q008",
+      "kind": "simple",
+      "query": "flydata avinor",
+      "expected": [
+        "datanorge:fe9c6b0d-5eae-3d87-a267-3f455dfff3ba"
+      ],
+      "ranked": [
+        "datanorge:fe9c6b0d-5eae-3d87-a267-3f455dfff3ba",
+        "datanorge:0ce49729-47f7-308c-94fc-52b3e7be6a8c",
+        "datanorge:92a5fa1d-b86b-3b05-bf05-f77c13a96936",
+        "datanorge:4b711f60-3fde-35fe-b49d-636f3e720e34",
+        "datanorge:0038d9b1-0577-314d-9cc3-437567e699f9",
+        "datanorge:7c24a4c7-ab0e-3a55-993f-a383595b82ef",
+        "datanorge:a6bf9826-2724-32f4-a166-7cba78496593",
+        "datanorge:4a6016f8-3a64-38e6-8bdc-8a05168e0989"
+      ],
+      "recall_at_5": 1.0,
+      "recall_at_10": 1.0,
+      "mrr": 1.0,
+      "requirement_coverage_at_5": 1.0,
+      "requirement_coverage_at_10": 1.0
+    },
+    {
+      "id": "q009",
+      "kind": "simple",
+      "query": "gjeldsregisteret",
+      "expected": [
+        "datanorge:2ead51f6-6370-33a3-a1e6-adb13624329c"
+      ],
+      "ranked": [
+        "datanorge:2ead51f6-6370-33a3-a1e6-adb13624329c"
+      ],
+      "recall_at_5": 1.0,
+      "recall_at_10": 1.0,
+      "mrr": 1.0,
+      "requirement_coverage_at_5": 1.0,
+      "requirement_coverage_at_10": 1.0
+    },
+    {
+      "id": "q010",
+      "kind": "simple",
+      "query": "radnett radioaktivitet",
+      "expected": [
+        "datanorge:d40dbd5f-58f5-3a1c-96bc-8ecc2d712422"
+      ],
+      "ranked": [
+        "datanorge:d40dbd5f-58f5-3a1c-96bc-8ecc2d712422",
+        "datanorge:b8bb0c43-6cf8-3c69-9020-b695330203bc",
+        "datanorge:e76e9a0d-e295-3f35-a59b-84d2711132d0",
+        "datanorge:41c6d193-7cc2-368f-870a-b2313735fa40"
+      ],
+      "recall_at_5": 1.0,
+      "recall_at_10": 1.0,
+      "mrr": 1.0,
+      "requirement_coverage_at_5": 1.0,
+      "requirement_coverage_at_10": 1.0
+    },
+    {
+      "id": "q011",
+      "kind": "simple",
+      "query": "kirkebygg",
+      "expected": [
+        "datanorge:8c7675b1-3fd9-3630-84f1-b70518eb4dc8"
+      ],
+      "ranked": [
+        "datanorge:daf1082b-13fb-3b10-8a26-0e9393d65eed",
+        "datanorge:8c7675b1-3fd9-3630-84f1-b70518eb4dc8"
+      ],
+      "recall_at_5": 1.0,
+      "recall_at_10": 1.0,
+      "mrr": 0.5,
+      "requirement_coverage_at_5": 1.0,
+      "requirement_coverage_at_10": 1.0
+    },
+    {
+      "id": "q012",
+      "kind": "simple",
+      "query": "badevannstemperaturer horten",
+      "expected": [
+        "datanorge:fcb01aa9-3a94-3ca3-ad5f-6260a8e6a6cf"
+      ],
+      "ranked": [
+        "datanorge:fcb01aa9-3a94-3ca3-ad5f-6260a8e6a6cf",
+        "datanorge:61b5c724-a548-3c76-b5c5-f0ce5f5c9279",
+        "datanorge:45b7c75b-a83e-348d-87f7-ef38f2843796",
+        "datanorge:506862dd-f8eb-3983-a6a3-e5f12148cd1f",
+        "datanorge:fda9ec9c-2dcf-3ae4-ae5d-0b6ac7fbb69f",
+        "datanorge:c100c9e0-3739-3c93-8f7e-919c87f86443",
+        "datanorge:4163671b-0a8d-3172-a4b9-d8bafed82570",
+        "datanorge:f01e4bae-3216-31e5-a0d5-4007c21abff0",
+        "datanorge:894e13e7-670b-37ec-a82d-e4e002330978"
+      ],
+      "recall_at_5": 1.0,
+      "recall_at_10": 1.0,
+      "mrr": 1.0,
+      "requirement_coverage_at_5": 1.0,
+      "requirement_coverage_at_10": 1.0
+    },
+    {
+      "id": "q013",
+      "kind": "simple",
+      "query": "kulturminner hadsel",
+      "expected": [
+        "datanorge:08175999-765c-388f-bf61-71c7d897a15a"
+      ],
+      "ranked": [
+        "datanorge:08175999-765c-388f-bf61-71c7d897a15a",
+        "datanorge:9f1edc43-9a20-3d5b-9859-3a6c57acb4da",
+        "datanorge:19a05d00-0795-31d1-9782-2f7805478bf0",
+        "datanorge:3fddd9a1-f9a2-3c93-84a0-e66ffc1f0af5",
+        "datanorge:7dd7756c-62b4-35f8-a50e-9c55377ca152",
+        "datanorge:6ed8400f-4504-31fa-a57d-77651bf51a4e",
+        "datanorge:7089fb0f-5f78-3c0c-abf1-76af3a805ac7",
+        "datanorge:c80a87ff-da32-3930-a402-d89eda86709c",
+        "datanorge:a6aa04cd-e8c5-32d4-bfde-f6600590328c",
+        "datanorge:10dfcd3b-5dcc-38ee-8335-2ba126e7785a"
+      ],
+      "recall_at_5": 1.0,
+      "recall_at_10": 1.0,
+      "mrr": 1.0,
+      "requirement_coverage_at_5": 1.0,
+      "requirement_coverage_at_10": 1.0
+    },
+    {
+      "id": "q014",
+      "kind": "simple",
+      "query": "skyteanlegg dfs",
+      "expected": [
+        "datanorge:f241e3f9-4a1b-3159-a486-181dddd64a30"
+      ],
+      "ranked": [
+        "datanorge:f241e3f9-4a1b-3159-a486-181dddd64a30"
+      ],
+      "recall_at_5": 1.0,
+      "recall_at_10": 1.0,
+      "mrr": 1.0,
+      "requirement_coverage_at_5": 1.0,
+      "requirement_coverage_at_10": 1.0
+    },
+    {
+      "id": "q015",
+      "kind": "simple",
+      "query": "forsvarets helseregister",
+      "expected": [
+        "datanorge:77c5eaa2-09d5-3417-bf4f-26d4df4e21b1"
+      ],
+      "ranked": [
+        "datanorge:77c5eaa2-09d5-3417-bf4f-26d4df4e21b1",
+        "datanorge:0fc39f00-97d2-34b4-9a9c-7acc606bb016",
+        "datanorge:66bf7840-a46b-32c1-8ff6-6a85abb53295",
+        "datanorge:d48123bb-4660-3e6c-a5f9-5abe9048dbcc",
+        "datanorge:e61d4336-38f0-322b-bc0d-302214cf0550",
+        "datanorge:3d426a6d-7331-3014-a367-3f7a3fb8b534",
+        "datanorge:23ccec7d-70c6-3616-9200-0f6d94fb11b0",
+        "datanorge:60e2ffc7-b98e-3a9b-b48b-672cd2586a9c",
+        "datanorge:3fa37b62-3e72-343d-bf57-501f56b5febf",
+        "datanorge:12eabbed-a63d-3c46-9f76-401d891bc7d6"
+      ],
+      "recall_at_5": 1.0,
+      "recall_at_10": 1.0,
+      "mrr": 1.0,
+      "requirement_coverage_at_5": 1.0,
+      "requirement_coverage_at_10": 1.0
+    },
+    {
+      "id": "q016",
+      "kind": "simple",
+      "query": "husbankens statistikkbank",
+      "expected": [
+        "datanorge:124c3cfb-485a-3372-aa5b-4b0e3a18edc5"
+      ],
+      "ranked": [
+        "datanorge:124c3cfb-485a-3372-aa5b-4b0e3a18edc5",
+        "datanorge:fc22c19b-5347-3b20-aa1b-ae534f178f57",
+        "datanorge:34dee2c0-1fd8-3eae-95f5-f8aaa0049b81",
+        "datanorge:3e6d0822-b441-3a3f-aa65-c25bb7acaf4c",
+        "datanorge:ea389e4e-fbaf-3e33-91f9-142c7c8f43f6",
+        "datanorge:cfa1e9f4-dfb4-33ce-abe3-ae66688df501",
+        "datanorge:388245e6-d976-3344-81c9-4734742244be"
+      ],
+      "recall_at_5": 1.0,
+      "recall_at_10": 1.0,
+      "mrr": 1.0,
+      "requirement_coverage_at_5": 1.0,
+      "requirement_coverage_at_10": 1.0
+    },
+    {
+      "id": "q017",
+      "kind": "simple",
+      "query": "kulturnav",
+      "expected": [
+        "datanorge:cf00b303-7f8a-3e07-a14b-4b1759341e75"
+      ],
+      "ranked": [
+        "datanorge:cf00b303-7f8a-3e07-a14b-4b1759341e75"
+      ],
+      "recall_at_5": 1.0,
+      "recall_at_10": 1.0,
+      "mrr": 1.0,
+      "requirement_coverage_at_5": 1.0,
+      "requirement_coverage_at_10": 1.0
+    },
+    {
+      "id": "q018",
+      "kind": "simple",
+      "query": "anleggsregisteret",
+      "expected": [
+        "datanorge:e493b1c8-57ea-33c2-a7ee-7094b47d78e4"
+      ],
+      "ranked": [
+        "datanorge:e493b1c8-57ea-33c2-a7ee-7094b47d78e4"
+      ],
+      "recall_at_5": 1.0,
+      "recall_at_10": 1.0,
+      "mrr": 1.0,
+      "requirement_coverage_at_5": 1.0,
+      "requirement_coverage_at_10": 1.0
+    },
+    {
+      "id": "q019",
+      "kind": "simple",
+      "query": "bivirkningsregisteret",
+      "expected": [
+        "datanorge:cb4cba05-d10f-3eac-99f6-14ddfd933224"
+      ],
+      "ranked": [
+        "datanorge:cb4cba05-d10f-3eac-99f6-14ddfd933224"
+      ],
+      "recall_at_5": 1.0,
+      "recall_at_10": 1.0,
+      "mrr": 1.0,
+      "requirement_coverage_at_5": 1.0,
+      "requirement_coverage_at_10": 1.0
+    },
+    {
+      "id": "q020",
+      "kind": "simple",
+      "query": "kreftregisteret",
+      "expected": [
+        "datanorge:caf3d50c-1d5c-3909-860b-0f491b24177b"
+      ],
+      "ranked": [
+        "datanorge:caf3d50c-1d5c-3909-860b-0f491b24177b"
+      ],
+      "recall_at_5": 1.0,
+      "recall_at_10": 1.0,
+      "mrr": 1.0,
+      "requirement_coverage_at_5": 1.0,
+      "requirement_coverage_at_10": 1.0
+    },
+    {
+      "id": "q021",
+      "kind": "simple",
+      "query": "medisinsk fødselsregister",
+      "expected": [
+        "datanorge:681ec3cc-a7c5-3078-bea0-8db415a51bcf"
+      ],
+      "ranked": [
+        "datanorge:681ec3cc-a7c5-3078-bea0-8db415a51bcf",
+        "datanorge:015d81df-e3f6-3c50-9996-7639211ecb85",
+        "datanorge:a8404cc3-3b21-3135-9896-02852ad497aa",
+        "datanorge:dba98b4c-36f3-31b4-8eb6-b3896041c024",
+        "datanorge:cb55e903-5567-37e3-ae2a-d8e1cbc47010",
+        "datanorge:ab3544f1-bcb6-3fbd-882f-7d90bab23e1b",
+        "datanorge:d98ce17e-4966-3741-a16e-641ba6e46971",
+        "datanorge:07d09f7b-d708-3803-8e76-c99bbc5741cb",
+        "datanorge:10e2017b-a3aa-3bc4-900b-b652230cc339",
+        "datanorge:92d37fdf-8749-357d-b63a-b939215c05e3"
+      ],
+      "recall_at_5": 1.0,
+      "recall_at_10": 1.0,
+      "mrr": 1.0,
+      "requirement_coverage_at_5": 1.0,
+      "requirement_coverage_at_10": 1.0
+    },
+    {
+      "id": "q022",
+      "kind": "simple",
+      "query": "nowac",
+      "expected": [
+        "datanorge:8e77e6bf-a4fa-38ec-83c9-605f8e0b8324"
+      ],
+      "ranked": [
+        "datanorge:8e77e6bf-a4fa-38ec-83c9-605f8e0b8324"
+      ],
+      "recall_at_5": 1.0,
+      "recall_at_10": 1.0,
+      "mrr": 1.0,
+      "requirement_coverage_at_5": 1.0,
+      "requirement_coverage_at_10": 1.0
+    },
+    {
+      "id": "q023",
+      "kind": "simple",
+      "query": "strandsonekartlegging jølstravassdraget",
+      "expected": [
+        "datanorge:6cd8ed1f-525e-3cf6-afe2-e7ce3ed79c4f"
+      ],
+      "ranked": [
+        "datanorge:6cd8ed1f-525e-3cf6-afe2-e7ce3ed79c4f"
+      ],
+      "recall_at_5": 1.0,
+      "recall_at_10": 1.0,
+      "mrr": 1.0,
+      "requirement_coverage_at_5": 1.0,
+      "requirement_coverage_at_10": 1.0
+    },
+    {
+      "id": "q024",
+      "kind": "simple",
+      "query": "landbrukseiendommer landbruksregisteret",
+      "expected": [
+        "datanorge:30dbf482-e732-3939-a96d-a4dbbc797ecb"
+      ],
+      "ranked": [
+        "datanorge:30dbf482-e732-3939-a96d-a4dbbc797ecb",
+        "datanorge:1c663e6d-5dc0-3bf7-b030-1a25c67b65aa",
+        "datanorge:28590404-0314-3489-8d29-b6052c1c7be9"
+      ],
+      "recall_at_5": 1.0,
+      "recall_at_10": 1.0,
+      "mrr": 1.0,
+      "requirement_coverage_at_5": 1.0,
+      "requirement_coverage_at_10": 1.0
+    },
+    {
+      "id": "q025",
+      "kind": "synonym",
+      "query": "oljeindustri",
+      "expected": [
+        "datanorge:607f3e76-2bfe-3570-b359-492d6ed57b5c"
+      ],
+      "ranked": [
+        "datanorge:607f3e76-2bfe-3570-b359-492d6ed57b5c",
+        "datanorge:e998fac6-2280-3079-bdd9-65c6d46550f5",
+        "datanorge:6477541d-9b3e-3bbd-bf57-8c69f8e3fb83",
+        "datanorge:ab87f22c-8619-3e36-a47f-07a0eecab90e",
+        "datanorge:01fbb158-d3c8-31c1-ba86-99ded8f7c68c",
+        "datanorge:005113e5-fe76-3392-bf5a-9989c1a5004f"
+      ],
+      "recall_at_5": 1.0,
+      "recall_at_10": 1.0,
+      "mrr": 1.0,
+      "requirement_coverage_at_5": 1.0,
+      "requirement_coverage_at_10": 1.0
+    },
+    {
+      "id": "q026",
+      "kind": "synonym",
+      "query": "gruveindustri",
+      "expected": [
+        "datanorge:607f3e76-2bfe-3570-b359-492d6ed57b5c"
+      ],
+      "ranked": [
+        "datanorge:607f3e76-2bfe-3570-b359-492d6ed57b5c",
+        "datanorge:e998fac6-2280-3079-bdd9-65c6d46550f5",
+        "datanorge:6477541d-9b3e-3bbd-bf57-8c69f8e3fb83",
+        "datanorge:ab87f22c-8619-3e36-a47f-07a0eecab90e",
+        "datanorge:01fbb158-d3c8-31c1-ba86-99ded8f7c68c",
+        "datanorge:005113e5-fe76-3392-bf5a-9989c1a5004f"
+      ],
+      "recall_at_5": 1.0,
+      "recall_at_10": 1.0,
+      "mrr": 1.0,
+      "requirement_coverage_at_5": 1.0,
+      "requirement_coverage_at_10": 1.0
+    },
+    {
+      "id": "q027",
+      "kind": "synonym",
+      "query": "petroliumsindustri",
+      "expected": [
+        "datanorge:607f3e76-2bfe-3570-b359-492d6ed57b5c"
+      ],
+      "ranked": [
+        "datanorge:607f3e76-2bfe-3570-b359-492d6ed57b5c",
+        "datanorge:e998fac6-2280-3079-bdd9-65c6d46550f5",
+        "datanorge:6477541d-9b3e-3bbd-bf57-8c69f8e3fb83",
+        "datanorge:ab87f22c-8619-3e36-a47f-07a0eecab90e",
+        "datanorge:01fbb158-d3c8-31c1-ba86-99ded8f7c68c",
+        "datanorge:005113e5-fe76-3392-bf5a-9989c1a5004f"
+      ],
+      "recall_at_5": 1.0,
+      "recall_at_10": 1.0,
+      "mrr": 1.0,
+      "requirement_coverage_at_5": 1.0,
+      "requirement_coverage_at_10": 1.0
+    },
+    {
+      "id": "q028",
+      "kind": "synonym",
+      "query": "datahotell",
+      "expected": [
+        "datanorge:607f3e76-2bfe-3570-b359-492d6ed57b5c"
+      ],
+      "ranked": [
+        "datanorge:0d53f5cd-53e1-34e2-aaa8-f456bd194b73",
+        "datanorge:f980a32a-a33b-38fe-be51-c31161d3fe58",
+        "datanorge:ca7fa519-632d-3ff2-afcf-8b957a164cbd",
+        "datanorge:473d2ed0-f74c-3dc5-bb0c-296499839c0f",
+        "datanorge:4ce66b36-1a28-3c13-9033-0766ec83fc95",
+        "datanorge:9636a0ed-69b2-3771-9943-5b2c9b9fb351",
+        "datanorge:df358d08-0922-3d30-ba42-819f643c1879",
+        "datanorge:607f3e76-2bfe-3570-b359-492d6ed57b5c",
+        "datanorge:29b0454e-9d27-3be9-b754-7e493100b6b7",
+        "datanorge:13e83601-8ec7-3e02-bdc9-dd740030a4c8"
+      ],
+      "recall_at_5": 0.0,
+      "recall_at_10": 1.0,
+      "mrr": 0.125,
+      "requirement_coverage_at_5": 1.0,
+      "requirement_coverage_at_10": 1.0
+    },
+    {
+      "id": "q029",
+      "kind": "synonym",
+      "query": "produksjonstilskudd",
+      "expected": [
+        "datanorge:239fb895-061c-3b8a-a752-6f939db02fed"
+      ],
+      "ranked": [
+        "datanorge:c48b7d1b-1dd2-36d2-9d8b-368ce0f93d8f",
+        "datanorge:16faae85-8df3-334d-8933-9fe69fb2f0c5",
+        "datanorge:0ff6e9fb-217e-3eac-9be4-d3e82a62e039",
+        "datanorge:5b0260a4-6c74-3bdc-9211-5fd3aa5092a3",
+        "datanorge:239fb895-061c-3b8a-a752-6f939db02fed",
+        "datanorge:bc686f3c-dd2a-328e-8d24-a64ae9924ef8",
+        "datanorge:7ca47719-ea97-3b37-9d9f-d95a1ca18553",
+        "datanorge:d9fb2676-1c65-33e6-b2c1-187b045512f5",
+        "datanorge:3211f9dd-005d-310b-83ca-1b9f57ada480",
+        "datanorge:ca86390c-8af1-3448-ac08-6962e0b116d9"
+      ],
+      "recall_at_5": 1.0,
+      "recall_at_10": 1.0,
+      "mrr": 0.2,
+      "requirement_coverage_at_5": 1.0,
+      "requirement_coverage_at_10": 1.0
+    },
+    {
+      "id": "q030",
+      "kind": "synonym",
+      "query": "doffin",
+      "expected": [
+        "datanorge:a77b0408-85f9-3e12-8a66-8d500b492e9d"
+      ],
+      "ranked": [
+        "datanorge:2ee61279-5936-3bdd-8181-da00dfcb71e1",
+        "datanorge:a77b0408-85f9-3e12-8a66-8d500b492e9d"
+      ],
+      "recall_at_5": 1.0,
+      "recall_at_10": 1.0,
+      "mrr": 0.5,
+      "requirement_coverage_at_5": 1.0,
+      "requirement_coverage_at_10": 1.0
+    },
+    {
+      "id": "q031",
+      "kind": "synonym",
+      "query": "quickclay",
+      "expected": [
+        "datanorge:af4e4e83-7c26-3b89-bc9b-58739083758d"
+      ],
+      "ranked": [
+        "datanorge:af4e4e83-7c26-3b89-bc9b-58739083758d"
+      ],
+      "recall_at_5": 1.0,
+      "recall_at_10": 1.0,
+      "mrr": 1.0,
+      "requirement_coverage_at_5": 1.0,
+      "requirement_coverage_at_10": 1.0
+    },
+    {
+      "id": "q032",
+      "kind": "synonym",
+      "query": "rockfall",
+      "expected": [
+        "datanorge:abdfbcc5-8c3c-3bf1-a13a-09672723ffda"
+      ],
+      "ranked": [
+        "datanorge:abdfbcc5-8c3c-3bf1-a13a-09672723ffda"
+      ],
+      "recall_at_5": 1.0,
+      "recall_at_10": 1.0,
+      "mrr": 1.0,
+      "requirement_coverage_at_5": 1.0,
+      "requirement_coverage_at_10": 1.0
+    },
+    {
+      "id": "q033",
+      "kind": "synonym",
+      "query": "oljevernberedskap",
+      "expected": [
+        "datanorge:29be745f-5da2-3ef7-b1a8-560a338f54ec"
+      ],
+      "ranked": [
+        "datanorge:29be745f-5da2-3ef7-b1a8-560a338f54ec",
+        "datanorge:96850412-35b9-3b24-9082-b3700c78be51"
+      ],
+      "recall_at_5": 1.0,
+      "recall_at_10": 1.0,
+      "mrr": 1.0,
+      "requirement_coverage_at_5": 1.0,
+      "requirement_coverage_at_10": 1.0
+    },
+    {
+      "id": "q034",
+      "kind": "synonym",
+      "query": "grunnforurensning",
+      "expected": [
+        "datanorge:fbd6e4e4-4d30-3bb7-9d3f-f3660462fe59"
+      ],
+      "ranked": [
+        "datanorge:fbd6e4e4-4d30-3bb7-9d3f-f3660462fe59",
+        "datanorge:f4b80d36-7f75-3c8a-9565-45e17c1c4337"
+      ],
+      "recall_at_5": 1.0,
+      "recall_at_10": 1.0,
+      "mrr": 1.0,
+      "requirement_coverage_at_5": 1.0,
+      "requirement_coverage_at_10": 1.0
+    },
+    {
+      "id": "q035",
+      "kind": "synonym",
+      "query": "energy cooperatives",
+      "expected": [
+        "datanorge:0d56ad96-5a51-32d6-93a1-ef5305ab5751"
+      ],
+      "ranked": [
+        "datanorge:0d56ad96-5a51-32d6-93a1-ef5305ab5751",
+        "datanorge:473d2ed0-f74c-3dc5-bb0c-296499839c0f",
+        "datanorge:4ce66b36-1a28-3c13-9033-0766ec83fc95",
+        "datanorge:9636a0ed-69b2-3771-9943-5b2c9b9fb351",
+        "datanorge:df358d08-0922-3d30-ba42-819f643c1879",
+        "datanorge:da888ae7-0388-3382-ba46-06d3e869b394",
+        "datanorge:f87bc872-6489-3f26-ac1c-aaede6e16cac",
+        "datanorge:a648d918-2f20-3e0c-9ff5-100e4ae31c7d",
+        "datanorge:49208480-6339-3ee3-8e86-0a140a8628f0",
+        "datanorge:32935a96-a303-3f2a-9583-0a58d8144a21"
+      ],
+      "recall_at_5": 1.0,
+      "recall_at_10": 1.0,
+      "mrr": 1.0,
+      "requirement_coverage_at_5": 1.0,
+      "requirement_coverage_at_10": 1.0
+    },
+    {
+      "id": "q036",
+      "kind": "indirect",
+      "query": "Health",
+      "expected": [
+        "datanorge:0d45b3e6-467a-3b5e-bab2-2672002fd13e"
+      ],
+      "ranked": [
+        "datanorge:d56a0347-8f4f-3293-9685-b584f70eb3fc",
+        "datanorge:caca9b99-5457-3ebc-9bc1-3721e4118c26",
+        "datanorge:830f4312-3ce0-3575-80f9-b13172766d7c",
+        "datanorge:77c5eaa2-09d5-3417-bf4f-26d4df4e21b1",
+        "datanorge:14b33482-b258-3325-8f31-82a1498e8033",
+        "datanorge:5c72d66e-4310-3ee1-9c6f-f2b2a5ec06c3",
+        "datanorge:aaab550e-9031-33d3-a1ee-bec7af1261b3",
+        "datanorge:3fa37b62-3e72-343d-bf57-501f56b5febf",
+        "datanorge:8e77e6bf-a4fa-38ec-83c9-605f8e0b8324",
+        "datanorge:b681a7a2-067f-3c92-9c55-1a7e2af4a9d0"
+      ],
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr": 0.0,
+      "requirement_coverage_at_5": 1.0,
+      "requirement_coverage_at_10": 1.0
+    },
+    {
+      "id": "q037",
+      "kind": "indirect",
+      "query": "Helse",
+      "expected": [
+        "datanorge:0d45b3e6-467a-3b5e-bab2-2672002fd13e"
+      ],
+      "ranked": [
+        "datanorge:dea31fc5-9a85-339b-8a4a-feb000f029b8",
+        "datanorge:681ec3cc-a7c5-3078-bea0-8db415a51bcf",
+        "datanorge:cee2fad3-476e-3e32-bb96-9a70f7dbe88c",
+        "datanorge:53a8655e-6836-320f-a2b9-5ab68110c181",
+        "datanorge:12eabbed-a63d-3c46-9f76-401d891bc7d6",
+        "datanorge:c095372e-c22a-3e01-864d-9ab6117f6d7b",
+        "datanorge:2c2f7f14-5f06-3668-bcd4-b885e2624a82",
+        "datanorge:5c72d66e-4310-3ee1-9c6f-f2b2a5ec06c3",
+        "datanorge:66db7186-259d-3af2-b265-e9b3332b8437",
+        "datanorge:66c8fb46-da24-35a0-83b8-930cf175339d"
+      ],
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr": 0.0,
+      "requirement_coverage_at_5": 1.0,
+      "requirement_coverage_at_10": 1.0
+    },
+    {
+      "id": "q038",
+      "kind": "indirect",
+      "query": "offentlig sektor",
+      "expected": [
+        "datanorge:0d45b3e6-467a-3b5e-bab2-2672002fd13e"
+      ],
+      "ranked": [
+        "datanorge:e19a01f2-52a7-34b0-9ad3-0a414aa8afaa",
+        "datanorge:a77b0408-85f9-3e12-8a66-8d500b492e9d",
+        "datanorge:614ed3eb-9abd-3079-8be4-b56b567a021d",
+        "datanorge:76ac1294-3732-35bc-8732-0b6584ac8970",
+        "datanorge:0d45b3e6-467a-3b5e-bab2-2672002fd13e",
+        "datanorge:5be44eb9-ae12-38f7-bf63-786bc4a31e76",
+        "datanorge:989cbae3-2996-3185-88cc-668a795a0c88",
+        "datanorge:042e0127-d79e-3451-9da2-573b8c712231",
+        "datanorge:16398bcf-9787-3c46-a00f-73846dea98e4",
+        "datanorge:ab1fd957-b13d-38aa-bc69-c580d0d21014"
+      ],
+      "recall_at_5": 1.0,
+      "recall_at_10": 1.0,
+      "mrr": 0.2,
+      "requirement_coverage_at_5": 1.0,
+      "requirement_coverage_at_10": 1.0
+    },
+    {
+      "id": "q039",
+      "kind": "indirect",
+      "query": "Energy",
+      "expected": [
+        "datanorge:607f3e76-2bfe-3570-b359-492d6ed57b5c"
+      ],
+      "ranked": [
+        "datanorge:0d56ad96-5a51-32d6-93a1-ef5305ab5751",
+        "datanorge:473d2ed0-f74c-3dc5-bb0c-296499839c0f",
+        "datanorge:4ce66b36-1a28-3c13-9033-0766ec83fc95",
+        "datanorge:9636a0ed-69b2-3771-9943-5b2c9b9fb351",
+        "datanorge:df358d08-0922-3d30-ba42-819f643c1879",
+        "datanorge:da888ae7-0388-3382-ba46-06d3e869b394",
+        "datanorge:f87bc872-6489-3f26-ac1c-aaede6e16cac",
+        "datanorge:a648d918-2f20-3e0c-9ff5-100e4ae31c7d",
+        "datanorge:49208480-6339-3ee3-8e86-0a140a8628f0",
+        "datanorge:32935a96-a303-3f2a-9583-0a58d8144a21"
+      ],
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr": 0.0,
+      "requirement_coverage_at_5": 1.0,
+      "requirement_coverage_at_10": 1.0
+    },
+    {
+      "id": "q040",
+      "kind": "indirect",
+      "query": "ECON",
+      "expected": [
+        "datanorge:607f3e76-2bfe-3570-b359-492d6ed57b5c"
+      ],
+      "ranked": [],
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr": 0.0,
+      "requirement_coverage_at_5": 0.0,
+      "requirement_coverage_at_10": 0.0
+    },
+    {
+      "id": "q041",
+      "kind": "indirect",
+      "query": "Public procurement",
+      "expected": [
+        "datanorge:a77b0408-85f9-3e12-8a66-8d500b492e9d"
+      ],
+      "ranked": [
+        "datanorge:f40e75d5-bd94-36ed-b8d0-240221efa76e",
+        "datanorge:614ed3eb-9abd-3079-8be4-b56b567a021d",
+        "datanorge:3fb1f0e4-49c4-3aef-8826-4bccae1bb427",
+        "datanorge:c7960768-96a0-3cf0-8692-8af4afe8c423",
+        "datanorge:205e3d28-fa7e-3514-b0aa-0df8183c299d",
+        "datanorge:596d8cef-20a6-35f4-a787-62de6246dfe9",
+        "datanorge:8c8c1e90-c7ee-3972-b34f-f612c0e6a548",
+        "datanorge:5be44eb9-ae12-38f7-bf63-786bc4a31e76",
+        "datanorge:989cbae3-2996-3185-88cc-668a795a0c88",
+        "datanorge:16398bcf-9787-3c46-a00f-73846dea98e4"
+      ],
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr": 0.0,
+      "requirement_coverage_at_5": 0.5,
+      "requirement_coverage_at_10": 0.5
+    },
+    {
+      "id": "q042",
+      "kind": "indirect",
+      "query": "AGRI",
+      "expected": [
+        "datanorge:239fb895-061c-3b8a-a752-6f939db02fed"
+      ],
+      "ranked": [],
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr": 0.0,
+      "requirement_coverage_at_5": 0.0,
+      "requirement_coverage_at_10": 0.0
+    },
+    {
+      "id": "q043",
+      "kind": "indirect",
+      "query": "family history of cancer",
+      "expected": [
+        "datanorge:8e77e6bf-a4fa-38ec-83c9-605f8e0b8324"
+      ],
+      "ranked": [
+        "datanorge:8e77e6bf-a4fa-38ec-83c9-605f8e0b8324",
+        "datanorge:caf3d50c-1d5c-3909-860b-0f491b24177b",
+        "datanorge:caca9b99-5457-3ebc-9bc1-3721e4118c26",
+        "datanorge:4b8b09cc-5620-3846-aa67-d93dbee2c8d7",
+        "datanorge:5c72d66e-4310-3ee1-9c6f-f2b2a5ec06c3",
+        "datanorge:09123a60-2545-3720-ac43-9e958a678446",
+        "datanorge:f917de40-a369-373d-ab6d-f2f6e47c4120",
+        "datanorge:253c595a-99f1-395e-8487-fb0cb77f5f4c",
+        "datanorge:23ccec7d-70c6-3616-9200-0f6d94fb11b0",
+        "datanorge:7311c93f-bf30-3fdb-8a01-4b7ca2c2ba01"
+      ],
+      "recall_at_5": 1.0,
+      "recall_at_10": 1.0,
+      "mrr": 1.0,
+      "requirement_coverage_at_5": 1.0,
+      "requirement_coverage_at_10": 1.0
+    },
+    {
+      "id": "q044",
+      "kind": "indirect",
+      "query": "citizen energy",
+      "expected": [
+        "datanorge:0d56ad96-5a51-32d6-93a1-ef5305ab5751"
+      ],
+      "ranked": [
+        "datanorge:0d56ad96-5a51-32d6-93a1-ef5305ab5751",
+        "datanorge:473d2ed0-f74c-3dc5-bb0c-296499839c0f",
+        "datanorge:4ce66b36-1a28-3c13-9033-0766ec83fc95",
+        "datanorge:9636a0ed-69b2-3771-9943-5b2c9b9fb351",
+        "datanorge:df358d08-0922-3d30-ba42-819f643c1879",
+        "datanorge:bbcfe34b-8cf8-37e5-b01d-5419cc92492b",
+        "datanorge:da888ae7-0388-3382-ba46-06d3e869b394",
+        "datanorge:2c2f7f14-5f06-3668-bcd4-b885e2624a82",
+        "datanorge:f87bc872-6489-3f26-ac1c-aaede6e16cac",
+        "datanorge:a648d918-2f20-3e0c-9ff5-100e4ae31c7d"
+      ],
+      "recall_at_5": 1.0,
+      "recall_at_10": 1.0,
+      "mrr": 1.0,
+      "requirement_coverage_at_5": 1.0,
+      "requirement_coverage_at_10": 1.0
+    },
+    {
+      "id": "q045",
+      "kind": "multi",
+      "query": "forurensning oslo",
+      "expected": [
+        "datanorge:a290a2d1-b5eb-3747-8e00-5bca67b89c90",
+        "datanorge:4a6016f8-3a64-38e6-8bdc-8a05168e0989",
+        "datanorge:f5d0ed23-0c50-3caf-9e63-7da9cfb80481"
+      ],
+      "ranked": [
+        "datanorge:29be745f-5da2-3ef7-b1a8-560a338f54ec",
+        "datanorge:a2c06b68-72c6-3675-ae4d-4f5695dba13d",
+        "datanorge:911ea3f5-30cb-3e37-87be-dfdc3a21b797",
+        "datanorge:3f85f3c0-de60-38ae-b031-b057d89bcde2",
+        "datanorge:49362745-703f-3d56-af0b-e11135e43897",
+        "datanorge:582df164-d621-31f1-9ac5-7fa778f4867e",
+        "datanorge:d7c92bb7-28c2-3e8d-9027-8e0444fcff29",
+        "datanorge:25dba859-5618-3203-9ad4-61f0f76cb07f",
+        "datanorge:81059b49-2365-309e-8658-3b41e4783cdd",
+        "datanorge:963a0060-f861-36ee-9838-35dec4e79b01"
+      ],
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr": 0.0,
+      "requirement_coverage_at_5": 1.0,
+      "requirement_coverage_at_10": 1.0
+    },
+    {
+      "id": "q046",
+      "kind": "multi",
+      "query": "akutt forurensning",
+      "expected": [
+        "datanorge:29be745f-5da2-3ef7-b1a8-560a338f54ec",
+        "datanorge:a2c06b68-72c6-3675-ae4d-4f5695dba13d"
+      ],
+      "ranked": [
+        "datanorge:29be745f-5da2-3ef7-b1a8-560a338f54ec",
+        "datanorge:a2c06b68-72c6-3675-ae4d-4f5695dba13d",
+        "datanorge:22baa5df-d85c-347e-aa3d-cc0cc2d7d5cf",
+        "datanorge:322e0f8f-5f84-3a63-946e-f16e73d6217d",
+        "datanorge:f5d0ed23-0c50-3caf-9e63-7da9cfb80481",
+        "datanorge:03087acf-6272-3148-bfb5-04b422c01f4e",
+        "datanorge:c0bf3b0e-2f63-3ea4-8344-807ba1d4d23d",
+        "datanorge:a290a2d1-b5eb-3747-8e00-5bca67b89c90",
+        "datanorge:d27fdff6-7196-363f-8f64-1c1c5f0a93c2",
+        "datanorge:8bec8d1e-ec7c-3597-8eb5-84a9ac841bcc"
+      ],
+      "recall_at_5": 1.0,
+      "recall_at_10": 1.0,
+      "mrr": 1.0,
+      "requirement_coverage_at_5": 1.0,
+      "requirement_coverage_at_10": 1.0
+    },
+    {
+      "id": "q047",
+      "kind": "multi",
+      "query": "elvebunnkartlegging hellelandselva",
+      "expected": [
+        "datanorge:bd2df436-c9b3-35a2-aa78-eb7bf840a1d9",
+        "datanorge:1c1d1c95-c75b-3f76-ab41-c9e2931634db"
+      ],
+      "ranked": [
+        "datanorge:1c1d1c95-c75b-3f76-ab41-c9e2931634db",
+        "datanorge:bd2df436-c9b3-35a2-aa78-eb7bf840a1d9",
+        "datanorge:03feb279-807a-3146-9952-e2c130587c6e",
+        "datanorge:8a69fb40-ec33-3d06-8577-c1d5652be336",
+        "datanorge:1e35bb3a-5e3d-3a08-8c1a-6f2d52a1ad40",
+        "datanorge:fdcc6ff5-ae7e-3eae-8ecf-077072643606",
+        "datanorge:28d9cc1c-b679-3cee-a77e-6395b27b0507",
+        "datanorge:a10adb27-5ad8-3675-a0b9-fe5590662c01"
+      ],
+      "recall_at_5": 1.0,
+      "recall_at_10": 1.0,
+      "mrr": 1.0,
+      "requirement_coverage_at_5": 1.0,
+      "requirement_coverage_at_10": 1.0
+    },
+    {
+      "id": "q048",
+      "kind": "multi",
+      "query": "hardbunnskorallskog observasjonsdata",
+      "expected": [
+        "datanorge:d5383f33-ae4f-3ffe-a31d-c048f5e6a48a"
+      ],
+      "ranked": [
+        "datanorge:d5383f33-ae4f-3ffe-a31d-c048f5e6a48a",
+        "datanorge:33194e4a-049b-30b8-b434-0100deeed90a",
+        "datanorge:6b128fc5-5a8e-35ab-888e-56ba48d0e4bd",
+        "datanorge:21fda0ae-1361-35f7-a447-356d42a4d4b6",
+        "datanorge:1ab414da-da4a-3a73-8d2f-4a275184decf",
+        "datanorge:8381b6c3-5926-3473-980e-47840a966b0f",
+        "datanorge:19a93b42-caa1-3fb8-87ef-5552632a90a7",
+        "datanorge:3c32568e-b91d-3001-9e0f-bc30930f22fc",
+        "datanorge:9a39a675-50c1-310d-9400-457e304a8750",
+        "datanorge:e6dfb829-a9a2-3971-baa4-bbb1fca3a85c"
+      ],
+      "recall_at_5": 1.0,
+      "recall_at_10": 1.0,
+      "mrr": 1.0,
+      "requirement_coverage_at_5": 1.0,
+      "requirement_coverage_at_10": 1.0
+    },
+    {
+      "id": "q049",
+      "kind": "multi",
+      "query": "vannforsyningssystem innrapportering",
+      "expected": [
+        "datanorge:ae763c61-fb99-3c00-9ab4-2b68d93361c3"
+      ],
+      "ranked": [
+        "datanorge:ae763c61-fb99-3c00-9ab4-2b68d93361c3",
+        "datanorge:8a85cd06-50c3-331b-adc2-102a2a6fc1da",
+        "datanorge:cc3aaa24-afc9-3ebb-8049-d8a7d55e4be6",
+        "datanorge:97d35ddd-4237-3894-af21-08066acd6e55",
+        "datanorge:881fb6e2-37e6-378c-bf98-f15910935b60",
+        "datanorge:0af4536d-baa9-35b9-a541-b3fe2c14f58a",
+        "datanorge:1ab99064-d6c1-3bd8-baee-abef991ba251",
+        "datanorge:45da9288-520f-35ef-9b9b-b0f5c95e30bc",
+        "datanorge:09ff40df-07f1-32a6-9cb9-a5faa0b3a20a",
+        "datanorge:c566c856-431a-3ba4-a983-53d59102b959"
+      ],
+      "recall_at_5": 1.0,
+      "recall_at_10": 1.0,
+      "mrr": 1.0,
+      "requirement_coverage_at_5": 1.0,
+      "requirement_coverage_at_10": 1.0
+    },
+    {
+      "id": "q050",
+      "kind": "multi",
+      "query": "saltvannssjøbunn punktobservasjoner",
+      "expected": [
+        "datanorge:fde1b830-ba04-38b6-8e36-1134bd337f0a"
+      ],
+      "ranked": [
+        "datanorge:fde1b830-ba04-38b6-8e36-1134bd337f0a",
+        "datanorge:2c287521-4de0-39a4-a9d2-cf773d81b109",
+        "datanorge:c83a7cc4-a351-39a9-8566-7805fdf66ea9",
+        "datanorge:33194e4a-049b-30b8-b434-0100deeed90a",
+        "datanorge:d5383f33-ae4f-3ffe-a31d-c048f5e6a48a"
+      ],
+      "recall_at_5": 1.0,
+      "recall_at_10": 1.0,
+      "mrr": 1.0,
+      "requirement_coverage_at_5": 1.0,
+      "requirement_coverage_at_10": 1.0
+    },
+    {
+      "id": "q051",
+      "kind": "multi",
+      "query": "operasjonelle akvakulturrettigheter",
+      "expected": [
+        "datanorge:eb3b84e7-1402-35bc-a480-c59c4684e871"
+      ],
+      "ranked": [
+        "datanorge:eb3b84e7-1402-35bc-a480-c59c4684e871",
+        "datanorge:a5ae094e-2f43-386c-ad3d-ac0ceff988fe"
+      ],
+      "recall_at_5": 1.0,
+      "recall_at_10": 1.0,
+      "mrr": 1.0,
+      "requirement_coverage_at_5": 1.0,
+      "requirement_coverage_at_10": 1.0
+    },
+    {
+      "id": "q052",
+      "kind": "multi",
+      "query": "bølgevarsel punkt",
+      "expected": [
+        "datanorge:367941ae-15ab-3109-8844-15f824176426"
+      ],
+      "ranked": [
+        "datanorge:367941ae-15ab-3109-8844-15f824176426",
+        "datanorge:0ce49729-47f7-308c-94fc-52b3e7be6a8c",
+        "datanorge:2451f848-e06d-34fa-b508-89c49bfa1c7e",
+        "datanorge:f57d731c-8382-3b88-860a-cb4f51ce0f29",
+        "datanorge:13009176-0284-3294-9743-dde7f766b7ee",
+        "datanorge:8ecdbf16-ddb9-354c-bed6-800e57d2cc56",
+        "datanorge:51aecd30-e087-3bab-b2d6-3b03e51894bd",
+        "datanorge:460d0c8e-d552-3dfd-ae9c-8fb002847e45",
+        "datanorge:2d2ee62a-edb8-3137-a0d2-84f874a309da",
+        "datanorge:2f5972c7-926c-3d00-8606-b7923e3dbff7"
+      ],
+      "recall_at_5": 1.0,
+      "recall_at_10": 1.0,
+      "mrr": 1.0,
+      "requirement_coverage_at_5": 1.0,
+      "requirement_coverage_at_10": 1.0
+    },
+    {
+      "id": "q053",
+      "kind": "multi",
+      "query": "sanntidsdata buss sør-trøndelag",
+      "expected": [
+        "datanorge:bd93f99e-6844-3b37-b386-eab994595180"
+      ],
+      "ranked": [
+        "datanorge:bd93f99e-6844-3b37-b386-eab994595180",
+        "datanorge:fe4a509e-bf97-3cc6-9de8-e21b2e0ec41c",
+        "datanorge:657279b8-33e0-38b3-bf72-8fd149ba6852",
+        "datanorge:0b89ffbe-fa97-3c27-a285-473e1e424d60",
+        "datanorge:e523950c-43a1-3c59-8f9d-8c4cd00c778c",
+        "datanorge:7d90acad-4d01-331d-8d24-5635b372343a",
+        "datanorge:d1f18c6f-29d1-3648-8236-c82d6477a479",
+        "datanorge:6d363427-4dd8-3811-ad94-02f8f46c3a67",
+        "datanorge:64d68ae2-612e-3105-8acb-8378e2881f7a",
+        "datanorge:f4e4be57-ad85-36a8-979f-dac08398b760"
+      ],
+      "recall_at_5": 1.0,
+      "recall_at_10": 1.0,
+      "mrr": 1.0,
+      "requirement_coverage_at_5": 1.0,
+      "requirement_coverage_at_10": 1.0
+    },
+    {
+      "id": "q054",
+      "kind": "multi",
+      "query": "trafikkdata bane nor",
+      "expected": [
+        "datanorge:ba8cc9a8-d344-3f7c-9f8d-160ea89e61a1"
+      ],
+      "ranked": [
+        "datanorge:ba8cc9a8-d344-3f7c-9f8d-160ea89e61a1",
+        "datanorge:a2c182c1-e56d-3cca-b191-9fed9f729383",
+        "datanorge:28f2bf39-3346-3283-becd-2402ee528311",
+        "datanorge:3d6dd9b2-9329-32b3-8cb1-a67ad594185e",
+        "datanorge:1d3f9415-afd1-3a69-918b-40abd00a5108",
+        "datanorge:0d793c71-f952-35cd-9e36-56aac9941880",
+        "datanorge:2c8bf4f4-a97e-32f0-849f-c9b3272b3845",
+        "datanorge:f02c35dd-4347-3b88-9abe-a7c50ebec2c8",
+        "datanorge:7ab63208-d84b-36e9-a7bf-112437867171",
+        "datanorge:f3be98c8-f1c4-35fb-ad95-1533c416459e"
+      ],
+      "recall_at_5": 1.0,
+      "recall_at_10": 1.0,
+      "mrr": 1.0,
+      "requirement_coverage_at_5": 1.0,
+      "requirement_coverage_at_10": 1.0
+    },
+    {
+      "id": "q055",
+      "kind": "hard",
+      "query": "AVINOR AS",
+      "expected": [
+        "datanorge:fe9c6b0d-5eae-3d87-a267-3f455dfff3ba"
+      ],
+      "ranked": [
+        "datanorge:0ce49729-47f7-308c-94fc-52b3e7be6a8c",
+        "datanorge:fe9c6b0d-5eae-3d87-a267-3f455dfff3ba",
+        "datanorge:7dd07547-07b2-3adb-961d-de9610c88b5b",
+        "datanorge:74a0e8de-d601-351b-a6e3-67eeac990ae3",
+        "datanorge:79bae4b9-66ad-3c8f-b11f-6f289cc92d90",
+        "datanorge:131807d0-9780-3ba3-8146-e62e46a403cd",
+        "datanorge:b022f14a-689a-3f71-ae6c-0266c220b331",
+        "datanorge:b9307d71-8dc5-362e-b4a8-5390069e2e32",
+        "datanorge:3aeedfd7-1d99-3de6-b5fb-95d9d0b27b9d",
+        "datanorge:eed9d72d-2d15-30f9-9cff-d1ffad20a151"
+      ],
+      "recall_at_5": 1.0,
+      "recall_at_10": 1.0,
+      "mrr": 0.5,
+      "requirement_coverage_at_5": 1.0,
+      "requirement_coverage_at_10": 1.0
+    },
+    {
+      "id": "q056",
+      "kind": "hard",
+      "query": "AtB",
+      "expected": [
+        "datanorge:bd93f99e-6844-3b37-b386-eab994595180"
+      ],
+      "ranked": [
+        "datanorge:c7960768-96a0-3cf0-8692-8af4afe8c423"
+      ],
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr": 0.0,
+      "requirement_coverage_at_5": 0.0,
+      "requirement_coverage_at_10": 0.0
+    },
+    {
+      "id": "q057",
+      "kind": "hard",
+      "query": "Gjeldsregisteret as",
+      "expected": [
+        "datanorge:2ead51f6-6370-33a3-a1e6-adb13624329c"
+      ],
+      "ranked": [
+        "datanorge:7dd07547-07b2-3adb-961d-de9610c88b5b",
+        "datanorge:74a0e8de-d601-351b-a6e3-67eeac990ae3",
+        "datanorge:79bae4b9-66ad-3c8f-b11f-6f289cc92d90",
+        "datanorge:2ead51f6-6370-33a3-a1e6-adb13624329c",
+        "datanorge:131807d0-9780-3ba3-8146-e62e46a403cd",
+        "datanorge:b022f14a-689a-3f71-ae6c-0266c220b331",
+        "datanorge:b9307d71-8dc5-362e-b4a8-5390069e2e32",
+        "datanorge:3aeedfd7-1d99-3de6-b5fb-95d9d0b27b9d",
+        "datanorge:eed9d72d-2d15-30f9-9cff-d1ffad20a151",
+        "datanorge:e0c4b21b-9660-382d-bfa0-261c768a70e3"
+      ],
+      "recall_at_5": 1.0,
+      "recall_at_10": 1.0,
+      "mrr": 0.25,
+      "requirement_coverage_at_5": 1.0,
+      "requirement_coverage_at_10": 1.0
+    },
+    {
+      "id": "q058",
+      "kind": "hard",
+      "query": "Barentswatch",
+      "expected": [
+        "datanorge:367941ae-15ab-3109-8844-15f824176426"
+      ],
+      "ranked": [
+        "datanorge:9a7b4816-d9af-30d8-bc4f-daf11463e05c",
+        "datanorge:13009176-0284-3294-9743-dde7f766b7ee",
+        "datanorge:44a20208-6ab6-3c77-bbd5-beac42388a32",
+        "datanorge:89abc83a-5567-38b6-9aa0-d11429d5f218",
+        "datanorge:33e124bc-b487-38e3-8a0c-f1d0adeb8c00",
+        "datanorge:0d3026c4-f8bd-336b-ac63-efa1fb23d5da",
+        "datanorge:31a9123d-3a74-3baf-8a89-ed6adcd2e3e6",
+        "datanorge:7e3e66fd-9502-3a39-b168-7d9c37abf1b2",
+        "datanorge:60e89004-2278-3bfa-b265-d07436587e6b",
+        "datanorge:846211d4-4009-3036-a865-a4787fbd5b2d"
+      ],
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr": 0.0,
+      "requirement_coverage_at_5": 0.0,
+      "requirement_coverage_at_10": 0.0
+    },
+    {
+      "id": "q059",
+      "kind": "hard",
+      "query": "Geonorge",
+      "expected": [
+        "datanorge:55348339-a047-3f0d-a195-3d065ebb72df"
+      ],
+      "ranked": [
+        "datanorge:258ee728-bf39-3f2e-b256-c19995b443e6",
+        "datanorge:3feb0625-2634-326f-83c9-476bf593441c",
+        "datanorge:9490c9e1-7644-348a-87cf-e7c9d2605bc6",
+        "datanorge:ff3e1568-d190-370a-ac01-b85ae8b0b4fb",
+        "datanorge:3a985eca-725f-368f-9c6e-a18f8a36c577",
+        "datanorge:1c02031d-a4cf-3730-b71d-31d781107176",
+        "datanorge:f543272b-6d94-30cc-b5eb-d81454fae6df",
+        "datanorge:fddd9b75-3844-3eff-af9c-66b20e1cbe1f",
+        "datanorge:f9bbaf1a-6805-3876-82b4-12355366ef7e",
+        "datanorge:da75f514-c8e4-324e-b2b8-089141db1846"
+      ],
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr": 0.0,
+      "requirement_coverage_at_5": 0.0,
+      "requirement_coverage_at_10": 0.0
+    },
+    {
+      "id": "q060",
+      "kind": "hard",
+      "query": "INDRE ØSTFOLD KOMMUNE",
+      "expected": [
+        "datanorge:fa8a0a1c-5951-3c73-903f-0e13d7fdab21"
+      ],
+      "ranked": [
+        "datanorge:edfc3137-e893-34bc-b281-b8acdfe31ae0",
+        "datanorge:fc89b77c-657e-38fc-bbe5-4b6b97184be5",
+        "datanorge:a8065075-9f8a-3672-9933-156cecfd10ec",
+        "datanorge:258ee728-bf39-3f2e-b256-c19995b443e6",
+        "datanorge:f55d705b-f393-33f2-aaf0-a1a76f184c6e",
+        "datanorge:ccbc66f9-e743-30f7-88bc-578c195ab5c3",
+        "datanorge:71303b8b-812b-3321-8f89-6339dccf358f",
+        "datanorge:48fffb29-d55d-3684-a953-7fba19f3ffa2",
+        "datanorge:5a65aea4-5e3d-3380-ae41-c4ef1b35b1c0",
+        "datanorge:cdfbe3e7-f543-3edb-a994-c156570a0f69"
+      ],
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr": 0.0,
+      "requirement_coverage_at_5": 1.0,
+      "requirement_coverage_at_10": 1.0
+    },
+    {
+      "id": "q061",
+      "kind": "hard",
+      "query": "HØGSKOLEN I BERGEN",
+      "expected": [
+        "datanorge:b72a20e9-ee3b-3ae2-867c-99f03cda5203"
+      ],
+      "ranked": [
+        "datanorge:b72a20e9-ee3b-3ae2-867c-99f03cda5203",
+        "datanorge:bcefcf62-15d8-3b86-9a06-5824cc867f71",
+        "datanorge:a2c77f0e-1df9-35a8-86ae-58615a252957",
+        "datanorge:83f11b90-0fcd-3261-bd50-a9fb86648c57",
+        "datanorge:6dc85d92-bffc-3206-a761-20b6d1bbf47e",
+        "datanorge:ac7739b8-89c2-319b-91aa-cc3235a04fe5",
+        "datanorge:7a810eca-09e2-337f-8aae-8bf2bb974862",
+        "datanorge:85289703-d271-3155-9adf-99cda964df70",
+        "datanorge:8f41bf5d-d1dd-3fff-bee3-adbe38875dcf",
+        "datanorge:69c0aaf9-37e1-3752-8c18-68f1ef361c44"
+      ],
+      "recall_at_5": 1.0,
+      "recall_at_10": 1.0,
+      "mrr": 1.0,
+      "requirement_coverage_at_5": 1.0,
+      "requirement_coverage_at_10": 1.0
+    },
+    {
+      "id": "q062",
+      "kind": "hard",
+      "query": "Det frivillige Skyttervesen",
+      "expected": [
+        "datanorge:f241e3f9-4a1b-3159-a486-181dddd64a30"
+      ],
+      "ranked": [
+        "datanorge:73b43600-6432-3add-a553-46bbde1a198b",
+        "datanorge:0d45b3e6-467a-3b5e-bab2-2672002fd13e",
+        "datanorge:d177895e-99ba-31a0-9dda-2509a32255b1",
+        "datanorge:601a115b-c20c-3bc1-a8e9-53f9ea718230",
+        "datanorge:265a14e9-39b4-3324-a043-81a59d05e097",
+        "datanorge:55358225-fedc-3287-8086-9d49b90ee6c2",
+        "datanorge:b5107af3-3be0-3725-abb4-8a13a8d1999e",
+        "datanorge:f3349a0b-8ad1-3a8e-8f95-8e960394064e",
+        "datanorge:44a20208-6ab6-3c77-bbd5-beac42388a32",
+        "datanorge:c6ed2c1b-db21-38f6-9462-7c116b0aa417"
+      ],
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr": 0.0,
+      "requirement_coverage_at_5": 0.0,
+      "requirement_coverage_at_10": 0.0
+    },
+    {
+      "id": "q063",
+      "kind": "hard",
+      "query": "Forsvaret",
+      "expected": [
+        "datanorge:77c5eaa2-09d5-3417-bf4f-26d4df4e21b1"
+      ],
+      "ranked": [
+        "datanorge:0fc39f00-97d2-34b4-9a9c-7acc606bb016",
+        "datanorge:66bf7840-a46b-32c1-8ff6-6a85abb53295",
+        "datanorge:7ac26e7f-de89-3712-acb8-7989d967a27f",
+        "datanorge:3d426a6d-7331-3014-a367-3f7a3fb8b534",
+        "datanorge:e61d4336-38f0-322b-bc0d-302214cf0550",
+        "datanorge:77c5eaa2-09d5-3417-bf4f-26d4df4e21b1",
+        "datanorge:4f5c28b9-d2c8-3128-b30b-04c595ad584a"
+      ],
+      "recall_at_5": 0.0,
+      "recall_at_10": 1.0,
+      "mrr": 0.16666666666666666,
+      "requirement_coverage_at_5": 0.0,
+      "requirement_coverage_at_10": 1.0
+    },
+    {
+      "id": "q064",
+      "kind": "hard",
+      "query": "KULTURIT ANS",
+      "expected": [
+        "datanorge:cf00b303-7f8a-3e07-a14b-4b1759341e75"
+      ],
+      "ranked": [
+        "datanorge:10476d0f-3742-397f-9942-0e4c52ceaa85"
+      ],
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr": 0.0,
+      "requirement_coverage_at_5": 0.0,
+      "requirement_coverage_at_10": 0.0
+    },
+    {
+      "id": "q065",
+      "kind": "hard",
+      "query": "Soil",
+      "expected": [
+        "datanorge:fbd6e4e4-4d30-3bb7-9d3f-f3660462fe59"
+      ],
+      "ranked": [
+        "datanorge:ee3ec006-387b-31fe-9748-c8b2efae2970",
+        "datanorge:a290a2d1-b5eb-3747-8e00-5bca67b89c90",
+        "datanorge:de8b954a-a7c3-3889-ae54-a3528848c999",
+        "datanorge:89abc83a-5567-38b6-9aa0-d11429d5f218",
+        "datanorge:fbd6e4e4-4d30-3bb7-9d3f-f3660462fe59",
+        "datanorge:4d989909-e5cd-3da8-971b-ccdbcae80477",
+        "datanorge:9d585557-6ad2-3ab7-94d3-f0e16bff7af5",
+        "datanorge:ddb7bd72-5594-3e01-8741-c8d799b5b394",
+        "datanorge:9d5be5b0-1dde-3998-ad26-f39571249bb4",
+        "datanorge:8953fe9f-c73f-3d12-ac74-3f93f93c45e3"
+      ],
+      "recall_at_5": 1.0,
+      "recall_at_10": 1.0,
+      "mrr": 0.2,
+      "requirement_coverage_at_5": 1.0,
+      "requirement_coverage_at_10": 1.0
+    }
+  ],
+  "datanorge_baseline": {
+    "endpoint": "https://search.api.fellesdatakatalog.digdir.no/search/datasets",
+    "rate_limit_per_minute": 10,
+    "completed": 65,
+    "skipped": null,
+    "scores": {
+      "recall_at_5": 0.7333333333333333,
+      "recall_at_10": 0.7794871794871795,
+      "mrr": 0.6888888888888889,
+      "requirement_coverage_at_5": 0.8846153846153846,
+      "requirement_coverage_at_10": 0.9,
+      "by_kind": {
+        "hard": {
+          "n": 11,
+          "recall_at_5": 0.2727272727272727,
+          "recall_at_10": 0.45454545454545453,
+          "mrr": 0.25252525252525254
+        },
+        "indirect": {
+          "n": 9,
+          "recall_at_5": 0.3333333333333333,
+          "recall_at_10": 0.3333333333333333,
+          "mrr": 0.2592592592592593
+        },
+        "multi": {
+          "n": 10,
+          "recall_at_5": 0.8666666666666666,
+          "recall_at_10": 0.9666666666666666,
+          "mrr": 0.9166666666666666
+        },
+        "simple": {
+          "n": 24,
+          "recall_at_5": 1.0,
+          "recall_at_10": 1.0,
+          "mrr": 0.9791666666666666
+        },
+        "synonym": {
+          "n": 11,
+          "recall_at_5": 0.8181818181818182,
+          "recall_at_10": 0.8181818181818182,
+          "mrr": 0.6363636363636364
+        }
+      }
+    },
+    "questions": [
+      {
+        "id": "q001",
+        "kind": "simple",
+        "query": "abortregisteret",
+        "expected": [
+          "datanorge:3fa37b62-3e72-343d-bf57-501f56b5febf"
+        ],
+        "ranked": [
+          "datanorge:3fa37b62-3e72-343d-bf57-501f56b5febf"
+        ],
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "requirement_coverage_at_5": 1.0,
+        "requirement_coverage_at_10": 1.0
+      },
+      {
+        "id": "q002",
+        "kind": "simple",
+        "query": "familievernkontorenes dokumentasjonssystem",
+        "expected": [
+          "datanorge:16398bcf-9787-3c46-a00f-73846dea98e4"
+        ],
+        "ranked": [
+          "datanorge:16398bcf-9787-3c46-a00f-73846dea98e4"
+        ],
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "requirement_coverage_at_5": 1.0,
+        "requirement_coverage_at_10": 1.0
+      },
+      {
+        "id": "q003",
+        "kind": "simple",
+        "query": "ilandstigningslokaliteter svalbard",
+        "expected": [
+          "datanorge:717aebc7-1fc2-3739-abdd-3aa55c96861b"
+        ],
+        "ranked": [
+          "datanorge:717aebc7-1fc2-3739-abdd-3aa55c96861b"
+        ],
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "requirement_coverage_at_5": 1.0,
+        "requirement_coverage_at_10": 1.0
+      },
+      {
+        "id": "q004",
+        "kind": "simple",
+        "query": "nntrans",
+        "expected": [
+          "datanorge:989da401-9865-3c79-8305-cc95292d18e9"
+        ],
+        "ranked": [
+          "datanorge:989da401-9865-3c79-8305-cc95292d18e9"
+        ],
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "requirement_coverage_at_5": 1.0,
+        "requirement_coverage_at_10": 1.0
+      },
+      {
+        "id": "q005",
+        "kind": "simple",
+        "query": "arealrepresentativ naturovervåking",
+        "expected": [
+          "datanorge:9d988fd5-78fd-3f82-b5ac-4e9943be02f4"
+        ],
+        "ranked": [
+          "datanorge:9d988fd5-78fd-3f82-b5ac-4e9943be02f4"
+        ],
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "requirement_coverage_at_5": 1.0,
+        "requirement_coverage_at_10": 1.0
+      },
+      {
+        "id": "q006",
+        "kind": "simple",
+        "query": "blomkålkorallskog",
+        "expected": [
+          "datanorge:6b128fc5-5a8e-35ab-888e-56ba48d0e4bd"
+        ],
+        "ranked": [
+          "datanorge:6b128fc5-5a8e-35ab-888e-56ba48d0e4bd",
+          "datanorge:33194e4a-049b-30b8-b434-0100deeed90a",
+          "datanorge:19a93b42-caa1-3fb8-87ef-5552632a90a7",
+          "datanorge:8381b6c3-5926-3473-980e-47840a966b0f",
+          "datanorge:21fda0ae-1361-35f7-a447-356d42a4d4b6",
+          "datanorge:1ab414da-da4a-3a73-8d2f-4a275184decf",
+          "datanorge:d5383f33-ae4f-3ffe-a31d-c048f5e6a48a",
+          "datanorge:3c32568e-b91d-3001-9e0f-bc30930f22fc"
+        ],
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "requirement_coverage_at_5": 1.0,
+        "requirement_coverage_at_10": 1.0
+      },
+      {
+        "id": "q007",
+        "kind": "simple",
+        "query": "tilleggstollavgiftssatser",
+        "expected": [
+          "datanorge:e312aacd-1c91-3de5-8120-abb73602bb41"
+        ],
+        "ranked": [
+          "datanorge:e312aacd-1c91-3de5-8120-abb73602bb41"
+        ],
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "requirement_coverage_at_5": 1.0,
+        "requirement_coverage_at_10": 1.0
+      },
+      {
+        "id": "q008",
+        "kind": "simple",
+        "query": "flydata avinor",
+        "expected": [
+          "datanorge:fe9c6b0d-5eae-3d87-a267-3f455dfff3ba"
+        ],
+        "ranked": [
+          "datanorge:fe9c6b0d-5eae-3d87-a267-3f455dfff3ba"
+        ],
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "requirement_coverage_at_5": 1.0,
+        "requirement_coverage_at_10": 1.0
+      },
+      {
+        "id": "q009",
+        "kind": "simple",
+        "query": "gjeldsregisteret",
+        "expected": [
+          "datanorge:2ead51f6-6370-33a3-a1e6-adb13624329c"
+        ],
+        "ranked": [
+          "datanorge:2ead51f6-6370-33a3-a1e6-adb13624329c"
+        ],
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "requirement_coverage_at_5": 1.0,
+        "requirement_coverage_at_10": 1.0
+      },
+      {
+        "id": "q010",
+        "kind": "simple",
+        "query": "radnett radioaktivitet",
+        "expected": [
+          "datanorge:d40dbd5f-58f5-3a1c-96bc-8ecc2d712422"
+        ],
+        "ranked": [
+          "datanorge:d40dbd5f-58f5-3a1c-96bc-8ecc2d712422"
+        ],
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "requirement_coverage_at_5": 1.0,
+        "requirement_coverage_at_10": 1.0
+      },
+      {
+        "id": "q011",
+        "kind": "simple",
+        "query": "kirkebygg",
+        "expected": [
+          "datanorge:8c7675b1-3fd9-3630-84f1-b70518eb4dc8"
+        ],
+        "ranked": [
+          "datanorge:daf1082b-13fb-3b10-8a26-0e9393d65eed",
+          "datanorge:8c7675b1-3fd9-3630-84f1-b70518eb4dc8"
+        ],
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 0.5,
+        "requirement_coverage_at_5": 1.0,
+        "requirement_coverage_at_10": 1.0
+      },
+      {
+        "id": "q012",
+        "kind": "simple",
+        "query": "badevannstemperaturer horten",
+        "expected": [
+          "datanorge:fcb01aa9-3a94-3ca3-ad5f-6260a8e6a6cf"
+        ],
+        "ranked": [
+          "datanorge:fcb01aa9-3a94-3ca3-ad5f-6260a8e6a6cf"
+        ],
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "requirement_coverage_at_5": 1.0,
+        "requirement_coverage_at_10": 1.0
+      },
+      {
+        "id": "q013",
+        "kind": "simple",
+        "query": "kulturminner hadsel",
+        "expected": [
+          "datanorge:08175999-765c-388f-bf61-71c7d897a15a"
+        ],
+        "ranked": [
+          "datanorge:08175999-765c-388f-bf61-71c7d897a15a"
+        ],
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "requirement_coverage_at_5": 1.0,
+        "requirement_coverage_at_10": 1.0
+      },
+      {
+        "id": "q014",
+        "kind": "simple",
+        "query": "skyteanlegg dfs",
+        "expected": [
+          "datanorge:f241e3f9-4a1b-3159-a486-181dddd64a30"
+        ],
+        "ranked": [
+          "datanorge:f241e3f9-4a1b-3159-a486-181dddd64a30"
+        ],
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "requirement_coverage_at_5": 1.0,
+        "requirement_coverage_at_10": 1.0
+      },
+      {
+        "id": "q015",
+        "kind": "simple",
+        "query": "forsvarets helseregister",
+        "expected": [
+          "datanorge:77c5eaa2-09d5-3417-bf4f-26d4df4e21b1"
+        ],
+        "ranked": [
+          "datanorge:77c5eaa2-09d5-3417-bf4f-26d4df4e21b1"
+        ],
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "requirement_coverage_at_5": 1.0,
+        "requirement_coverage_at_10": 1.0
+      },
+      {
+        "id": "q016",
+        "kind": "simple",
+        "query": "husbankens statistikkbank",
+        "expected": [
+          "datanorge:124c3cfb-485a-3372-aa5b-4b0e3a18edc5"
+        ],
+        "ranked": [
+          "datanorge:124c3cfb-485a-3372-aa5b-4b0e3a18edc5"
+        ],
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "requirement_coverage_at_5": 1.0,
+        "requirement_coverage_at_10": 1.0
+      },
+      {
+        "id": "q017",
+        "kind": "simple",
+        "query": "kulturnav",
+        "expected": [
+          "datanorge:cf00b303-7f8a-3e07-a14b-4b1759341e75"
+        ],
+        "ranked": [
+          "datanorge:cf00b303-7f8a-3e07-a14b-4b1759341e75"
+        ],
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "requirement_coverage_at_5": 1.0,
+        "requirement_coverage_at_10": 1.0
+      },
+      {
+        "id": "q018",
+        "kind": "simple",
+        "query": "anleggsregisteret",
+        "expected": [
+          "datanorge:e493b1c8-57ea-33c2-a7ee-7094b47d78e4"
+        ],
+        "ranked": [
+          "datanorge:e493b1c8-57ea-33c2-a7ee-7094b47d78e4"
+        ],
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "requirement_coverage_at_5": 1.0,
+        "requirement_coverage_at_10": 1.0
+      },
+      {
+        "id": "q019",
+        "kind": "simple",
+        "query": "bivirkningsregisteret",
+        "expected": [
+          "datanorge:cb4cba05-d10f-3eac-99f6-14ddfd933224"
+        ],
+        "ranked": [
+          "datanorge:cb4cba05-d10f-3eac-99f6-14ddfd933224"
+        ],
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "requirement_coverage_at_5": 1.0,
+        "requirement_coverage_at_10": 1.0
+      },
+      {
+        "id": "q020",
+        "kind": "simple",
+        "query": "kreftregisteret",
+        "expected": [
+          "datanorge:caf3d50c-1d5c-3909-860b-0f491b24177b"
+        ],
+        "ranked": [
+          "datanorge:caf3d50c-1d5c-3909-860b-0f491b24177b"
+        ],
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "requirement_coverage_at_5": 1.0,
+        "requirement_coverage_at_10": 1.0
+      },
+      {
+        "id": "q021",
+        "kind": "simple",
+        "query": "medisinsk fødselsregister",
+        "expected": [
+          "datanorge:681ec3cc-a7c5-3078-bea0-8db415a51bcf"
+        ],
+        "ranked": [
+          "datanorge:681ec3cc-a7c5-3078-bea0-8db415a51bcf"
+        ],
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "requirement_coverage_at_5": 1.0,
+        "requirement_coverage_at_10": 1.0
+      },
+      {
+        "id": "q022",
+        "kind": "simple",
+        "query": "nowac",
+        "expected": [
+          "datanorge:8e77e6bf-a4fa-38ec-83c9-605f8e0b8324"
+        ],
+        "ranked": [
+          "datanorge:8e77e6bf-a4fa-38ec-83c9-605f8e0b8324"
+        ],
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "requirement_coverage_at_5": 1.0,
+        "requirement_coverage_at_10": 1.0
+      },
+      {
+        "id": "q023",
+        "kind": "simple",
+        "query": "strandsonekartlegging jølstravassdraget",
+        "expected": [
+          "datanorge:6cd8ed1f-525e-3cf6-afe2-e7ce3ed79c4f"
+        ],
+        "ranked": [
+          "datanorge:6cd8ed1f-525e-3cf6-afe2-e7ce3ed79c4f"
+        ],
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "requirement_coverage_at_5": 1.0,
+        "requirement_coverage_at_10": 1.0
+      },
+      {
+        "id": "q024",
+        "kind": "simple",
+        "query": "landbrukseiendommer landbruksregisteret",
+        "expected": [
+          "datanorge:30dbf482-e732-3939-a96d-a4dbbc797ecb"
+        ],
+        "ranked": [
+          "datanorge:30dbf482-e732-3939-a96d-a4dbbc797ecb",
+          "datanorge:28590404-0314-3489-8d29-b6052c1c7be9",
+          "datanorge:1c663e6d-5dc0-3bf7-b030-1a25c67b65aa"
+        ],
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "requirement_coverage_at_5": 1.0,
+        "requirement_coverage_at_10": 1.0
+      },
+      {
+        "id": "q025",
+        "kind": "synonym",
+        "query": "oljeindustri",
+        "expected": [
+          "datanorge:607f3e76-2bfe-3570-b359-492d6ed57b5c"
+        ],
+        "ranked": [
+          "datanorge:ab87f22c-8619-3e36-a47f-07a0eecab90e",
+          "datanorge:607f3e76-2bfe-3570-b359-492d6ed57b5c",
+          "datanorge:6477541d-9b3e-3bbd-bf57-8c69f8e3fb83",
+          "datanorge:e998fac6-2280-3079-bdd9-65c6d46550f5",
+          "datanorge:005113e5-fe76-3392-bf5a-9989c1a5004f",
+          "datanorge:01fbb158-d3c8-31c1-ba86-99ded8f7c68c"
+        ],
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 0.5,
+        "requirement_coverage_at_5": 1.0,
+        "requirement_coverage_at_10": 1.0
+      },
+      {
+        "id": "q026",
+        "kind": "synonym",
+        "query": "gruveindustri",
+        "expected": [
+          "datanorge:607f3e76-2bfe-3570-b359-492d6ed57b5c"
+        ],
+        "ranked": [
+          "datanorge:ab87f22c-8619-3e36-a47f-07a0eecab90e",
+          "datanorge:607f3e76-2bfe-3570-b359-492d6ed57b5c",
+          "datanorge:6477541d-9b3e-3bbd-bf57-8c69f8e3fb83",
+          "datanorge:e998fac6-2280-3079-bdd9-65c6d46550f5",
+          "datanorge:005113e5-fe76-3392-bf5a-9989c1a5004f",
+          "datanorge:01fbb158-d3c8-31c1-ba86-99ded8f7c68c"
+        ],
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 0.5,
+        "requirement_coverage_at_5": 1.0,
+        "requirement_coverage_at_10": 1.0
+      },
+      {
+        "id": "q027",
+        "kind": "synonym",
+        "query": "petroliumsindustri",
+        "expected": [
+          "datanorge:607f3e76-2bfe-3570-b359-492d6ed57b5c"
+        ],
+        "ranked": [
+          "datanorge:ab87f22c-8619-3e36-a47f-07a0eecab90e",
+          "datanorge:607f3e76-2bfe-3570-b359-492d6ed57b5c",
+          "datanorge:6477541d-9b3e-3bbd-bf57-8c69f8e3fb83",
+          "datanorge:e998fac6-2280-3079-bdd9-65c6d46550f5",
+          "datanorge:005113e5-fe76-3392-bf5a-9989c1a5004f",
+          "datanorge:01fbb158-d3c8-31c1-ba86-99ded8f7c68c"
+        ],
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 0.5,
+        "requirement_coverage_at_5": 1.0,
+        "requirement_coverage_at_10": 1.0
+      },
+      {
+        "id": "q028",
+        "kind": "synonym",
+        "query": "datahotell",
+        "expected": [
+          "datanorge:607f3e76-2bfe-3570-b359-492d6ed57b5c"
+        ],
+        "ranked": [
+          "datanorge:0d53f5cd-53e1-34e2-aaa8-f456bd194b73",
+          "datanorge:df358d08-0922-3d30-ba42-819f643c1879",
+          "datanorge:473d2ed0-f74c-3dc5-bb0c-296499839c0f",
+          "datanorge:9636a0ed-69b2-3771-9943-5b2c9b9fb351",
+          "datanorge:4ce66b36-1a28-3c13-9033-0766ec83fc95",
+          "datanorge:813f21c3-7428-3de1-8304-457ba1705652",
+          "datanorge:cf5b3e9e-13bc-3bee-b86d-c70c74d7ab15",
+          "datanorge:f94bfc54-5df6-3600-a178-31e7bc5f531c",
+          "datanorge:54bec4d2-fa90-322c-8d59-6539ae8407c9",
+          "datanorge:a8a3011e-a3ed-3fc4-9329-f0dacc997f70"
+        ],
+        "recall_at_5": 0.0,
+        "recall_at_10": 0.0,
+        "mrr": 0.0,
+        "requirement_coverage_at_5": 1.0,
+        "requirement_coverage_at_10": 1.0
+      },
+      {
+        "id": "q029",
+        "kind": "synonym",
+        "query": "produksjonstilskudd",
+        "expected": [
+          "datanorge:239fb895-061c-3b8a-a752-6f939db02fed"
+        ],
+        "ranked": [
+          "datanorge:0ff6e9fb-217e-3eac-9be4-d3e82a62e039",
+          "datanorge:c48b7d1b-1dd2-36d2-9d8b-368ce0f93d8f",
+          "datanorge:5b0260a4-6c74-3bdc-9211-5fd3aa5092a3",
+          "datanorge:16faae85-8df3-334d-8933-9fe69fb2f0c5",
+          "datanorge:d9fb2676-1c65-33e6-b2c1-187b045512f5",
+          "datanorge:7ca47719-ea97-3b37-9d9f-d95a1ca18553",
+          "datanorge:20bbc842-9140-32fb-a522-fe716eed1015",
+          "datanorge:64e9b230-3022-3a80-b453-afcf8c2b309e",
+          "datanorge:c21a715c-84bf-3ef7-951f-6107416fcd0d",
+          "datanorge:3211f9dd-005d-310b-83ca-1b9f57ada480"
+        ],
+        "recall_at_5": 0.0,
+        "recall_at_10": 0.0,
+        "mrr": 0.0,
+        "requirement_coverage_at_5": 1.0,
+        "requirement_coverage_at_10": 1.0
+      },
+      {
+        "id": "q030",
+        "kind": "synonym",
+        "query": "doffin",
+        "expected": [
+          "datanorge:a77b0408-85f9-3e12-8a66-8d500b492e9d"
+        ],
+        "ranked": [
+          "datanorge:2ee61279-5936-3bdd-8181-da00dfcb71e1",
+          "datanorge:a77b0408-85f9-3e12-8a66-8d500b492e9d"
+        ],
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 0.5,
+        "requirement_coverage_at_5": 1.0,
+        "requirement_coverage_at_10": 1.0
+      },
+      {
+        "id": "q031",
+        "kind": "synonym",
+        "query": "quickclay",
+        "expected": [
+          "datanorge:af4e4e83-7c26-3b89-bc9b-58739083758d"
+        ],
+        "ranked": [
+          "datanorge:af4e4e83-7c26-3b89-bc9b-58739083758d"
+        ],
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "requirement_coverage_at_5": 1.0,
+        "requirement_coverage_at_10": 1.0
+      },
+      {
+        "id": "q032",
+        "kind": "synonym",
+        "query": "rockfall",
+        "expected": [
+          "datanorge:abdfbcc5-8c3c-3bf1-a13a-09672723ffda"
+        ],
+        "ranked": [
+          "datanorge:abdfbcc5-8c3c-3bf1-a13a-09672723ffda"
+        ],
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "requirement_coverage_at_5": 1.0,
+        "requirement_coverage_at_10": 1.0
+      },
+      {
+        "id": "q033",
+        "kind": "synonym",
+        "query": "oljevernberedskap",
+        "expected": [
+          "datanorge:29be745f-5da2-3ef7-b1a8-560a338f54ec"
+        ],
+        "ranked": [
+          "datanorge:29be745f-5da2-3ef7-b1a8-560a338f54ec",
+          "datanorge:96850412-35b9-3b24-9082-b3700c78be51"
+        ],
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "requirement_coverage_at_5": 1.0,
+        "requirement_coverage_at_10": 1.0
+      },
+      {
+        "id": "q034",
+        "kind": "synonym",
+        "query": "grunnforurensning",
+        "expected": [
+          "datanorge:fbd6e4e4-4d30-3bb7-9d3f-f3660462fe59"
+        ],
+        "ranked": [
+          "datanorge:fbd6e4e4-4d30-3bb7-9d3f-f3660462fe59",
+          "datanorge:f4b80d36-7f75-3c8a-9565-45e17c1c4337"
+        ],
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "requirement_coverage_at_5": 1.0,
+        "requirement_coverage_at_10": 1.0
+      },
+      {
+        "id": "q035",
+        "kind": "synonym",
+        "query": "energy cooperatives",
+        "expected": [
+          "datanorge:0d56ad96-5a51-32d6-93a1-ef5305ab5751"
+        ],
+        "ranked": [
+          "datanorge:0d56ad96-5a51-32d6-93a1-ef5305ab5751"
+        ],
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "requirement_coverage_at_5": 1.0,
+        "requirement_coverage_at_10": 1.0
+      },
+      {
+        "id": "q036",
+        "kind": "indirect",
+        "query": "Health",
+        "expected": [
+          "datanorge:0d45b3e6-467a-3b5e-bab2-2672002fd13e"
+        ],
+        "ranked": [
+          "datanorge:aaab550e-9031-33d3-a1ee-bec7af1261b3",
+          "datanorge:77c5eaa2-09d5-3417-bf4f-26d4df4e21b1",
+          "datanorge:830f4312-3ce0-3575-80f9-b13172766d7c",
+          "datanorge:d56a0347-8f4f-3293-9685-b584f70eb3fc",
+          "datanorge:caca9b99-5457-3ebc-9bc1-3721e4118c26",
+          "datanorge:5c72d66e-4310-3ee1-9c6f-f2b2a5ec06c3",
+          "datanorge:14b33482-b258-3325-8f31-82a1498e8033",
+          "datanorge:674fbda9-a687-33f1-ad23-eba5093a508b",
+          "datanorge:0969b350-304a-3ae0-b012-d9a991b8b51c",
+          "datanorge:c62e7438-61a8-388d-8546-fd130cd2d83a"
+        ],
+        "recall_at_5": 0.0,
+        "recall_at_10": 0.0,
+        "mrr": 0.0,
+        "requirement_coverage_at_5": 1.0,
+        "requirement_coverage_at_10": 1.0
+      },
+      {
+        "id": "q037",
+        "kind": "indirect",
+        "query": "Helse",
+        "expected": [
+          "datanorge:0d45b3e6-467a-3b5e-bab2-2672002fd13e"
+        ],
+        "ranked": [
+          "datanorge:dea31fc5-9a85-339b-8a4a-feb000f029b8",
+          "datanorge:77c5eaa2-09d5-3417-bf4f-26d4df4e21b1",
+          "datanorge:c095372e-c22a-3e01-864d-9ab6117f6d7b",
+          "datanorge:60e2ffc7-b98e-3a9b-b48b-672cd2586a9c",
+          "datanorge:53a8655e-6836-320f-a2b9-5ab68110c181",
+          "datanorge:cee2fad3-476e-3e32-bb96-9a70f7dbe88c",
+          "datanorge:3fa37b62-3e72-343d-bf57-501f56b5febf",
+          "datanorge:23ccec7d-70c6-3616-9200-0f6d94fb11b0",
+          "datanorge:d8d2c603-2513-37c8-96cf-508fd0b2d21e",
+          "datanorge:388245e6-d976-3344-81c9-4734742244be"
+        ],
+        "recall_at_5": 0.0,
+        "recall_at_10": 0.0,
+        "mrr": 0.0,
+        "requirement_coverage_at_5": 1.0,
+        "requirement_coverage_at_10": 1.0
+      },
+      {
+        "id": "q038",
+        "kind": "indirect",
+        "query": "offentlig sektor",
+        "expected": [
+          "datanorge:0d45b3e6-467a-3b5e-bab2-2672002fd13e"
+        ],
+        "ranked": [
+          "datanorge:5be44eb9-ae12-38f7-bf63-786bc4a31e76",
+          "datanorge:d4f092cf-1dd1-3b98-83d7-ebae662cc748",
+          "datanorge:0d45b3e6-467a-3b5e-bab2-2672002fd13e",
+          "datanorge:ab1fd957-b13d-38aa-bc69-c580d0d21014",
+          "datanorge:795f6814-acd4-3d6b-b494-0c7a11133577",
+          "datanorge:bb6fa73d-9e33-3c06-9d11-35b690b37041",
+          "datanorge:16398bcf-9787-3c46-a00f-73846dea98e4",
+          "datanorge:989cbae3-2996-3185-88cc-668a795a0c88",
+          "datanorge:a77b0408-85f9-3e12-8a66-8d500b492e9d",
+          "datanorge:fa1db7c8-209b-3654-b636-c8b4f68fd85a"
+        ],
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 0.3333333333333333,
+        "requirement_coverage_at_5": 1.0,
+        "requirement_coverage_at_10": 1.0
+      },
+      {
+        "id": "q039",
+        "kind": "indirect",
+        "query": "Energy",
+        "expected": [
+          "datanorge:607f3e76-2bfe-3570-b359-492d6ed57b5c"
+        ],
+        "ranked": [
+          "datanorge:0d56ad96-5a51-32d6-93a1-ef5305ab5751",
+          "datanorge:df358d08-0922-3d30-ba42-819f643c1879",
+          "datanorge:473d2ed0-f74c-3dc5-bb0c-296499839c0f",
+          "datanorge:9636a0ed-69b2-3771-9943-5b2c9b9fb351",
+          "datanorge:4ce66b36-1a28-3c13-9033-0766ec83fc95",
+          "datanorge:61a6737b-cd0d-3b7e-8da3-88908c8c500b",
+          "datanorge:d6947126-4459-3f02-b686-bb9bda9486dc",
+          "datanorge:a648d918-2f20-3e0c-9ff5-100e4ae31c7d",
+          "datanorge:49208480-6339-3ee3-8e86-0a140a8628f0",
+          "datanorge:fbff4b7a-b03d-34a7-8dd9-f44c8e7b56da"
+        ],
+        "recall_at_5": 0.0,
+        "recall_at_10": 0.0,
+        "mrr": 0.0,
+        "requirement_coverage_at_5": 1.0,
+        "requirement_coverage_at_10": 1.0
+      },
+      {
+        "id": "q040",
+        "kind": "indirect",
+        "query": "ECON",
+        "expected": [
+          "datanorge:607f3e76-2bfe-3570-b359-492d6ed57b5c"
+        ],
+        "ranked": [
+          "datanorge:caca9b99-5457-3ebc-9bc1-3721e4118c26",
+          "datanorge:4b8b09cc-5620-3846-aa67-d93dbee2c8d7",
+          "datanorge:b35ed28e-d853-3b5f-a54e-c0fb5165d4a9",
+          "datanorge:b681a7a2-067f-3c92-9c55-1a7e2af4a9d0",
+          "datanorge:09123a60-2545-3720-ac43-9e958a678446",
+          "datanorge:fd53387f-e777-37ec-8f29-426521bff0a7",
+          "datanorge:f917de40-a369-373d-ab6d-f2f6e47c4120",
+          "datanorge:26522d06-448e-3869-9a40-9ef2512245a4",
+          "datanorge:bbcfe34b-8cf8-37e5-b01d-5419cc92492b",
+          "datanorge:da888ae7-0388-3382-ba46-06d3e869b394"
+        ],
+        "recall_at_5": 0.0,
+        "recall_at_10": 0.0,
+        "mrr": 0.0,
+        "requirement_coverage_at_5": 0.0,
+        "requirement_coverage_at_10": 0.0
+      },
+      {
+        "id": "q041",
+        "kind": "indirect",
+        "query": "Public procurement",
+        "expected": [
+          "datanorge:a77b0408-85f9-3e12-8a66-8d500b492e9d"
+        ],
+        "ranked": [
+          "datanorge:1c7d88fe-a8a6-3954-9593-6dbed84cc2d5",
+          "datanorge:2ee61279-5936-3bdd-8181-da00dfcb71e1"
+        ],
+        "recall_at_5": 0.0,
+        "recall_at_10": 0.0,
+        "mrr": 0.0,
+        "requirement_coverage_at_5": 0.5,
+        "requirement_coverage_at_10": 0.5
+      },
+      {
+        "id": "q042",
+        "kind": "indirect",
+        "query": "AGRI",
+        "expected": [
+          "datanorge:239fb895-061c-3b8a-a752-6f939db02fed"
+        ],
+        "ranked": [
+          "datanorge:0e25b357-bc8d-37f8-a4d1-a54159d170ec",
+          "datanorge:389ad2a9-e8da-39fc-bd8f-5929628690a9",
+          "datanorge:d1ac7921-acb0-3a5c-b103-e39f56d1c22e",
+          "datanorge:af2c09a0-ccb0-308e-9c04-d324814f6c7d",
+          "datanorge:34753a81-eb7c-3ce9-a6a0-b0af7c21a7da",
+          "datanorge:97cff6ec-2df5-3d54-8ecb-1e3f8757aace",
+          "datanorge:98506d5f-d0f5-311d-bffc-819dacee4970",
+          "datanorge:b30f3e45-87e6-389e-928f-08cdb7c5e428",
+          "datanorge:ddb7bd72-5594-3e01-8741-c8d799b5b394",
+          "datanorge:4d989909-e5cd-3da8-971b-ccdbcae80477"
+        ],
+        "recall_at_5": 0.0,
+        "recall_at_10": 0.0,
+        "mrr": 0.0,
+        "requirement_coverage_at_5": 1.0,
+        "requirement_coverage_at_10": 1.0
+      },
+      {
+        "id": "q043",
+        "kind": "indirect",
+        "query": "family history of cancer",
+        "expected": [
+          "datanorge:8e77e6bf-a4fa-38ec-83c9-605f8e0b8324"
+        ],
+        "ranked": [
+          "datanorge:8e77e6bf-a4fa-38ec-83c9-605f8e0b8324"
+        ],
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "requirement_coverage_at_5": 1.0,
+        "requirement_coverage_at_10": 1.0
+      },
+      {
+        "id": "q044",
+        "kind": "indirect",
+        "query": "citizen energy",
+        "expected": [
+          "datanorge:0d56ad96-5a51-32d6-93a1-ef5305ab5751"
+        ],
+        "ranked": [
+          "datanorge:0d56ad96-5a51-32d6-93a1-ef5305ab5751"
+        ],
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "requirement_coverage_at_5": 1.0,
+        "requirement_coverage_at_10": 1.0
+      },
+      {
+        "id": "q045",
+        "kind": "multi",
+        "query": "forurensning oslo",
+        "expected": [
+          "datanorge:a290a2d1-b5eb-3747-8e00-5bca67b89c90",
+          "datanorge:4a6016f8-3a64-38e6-8bdc-8a05168e0989",
+          "datanorge:f5d0ed23-0c50-3caf-9e63-7da9cfb80481"
+        ],
+        "ranked": [
+          "datanorge:a290a2d1-b5eb-3747-8e00-5bca67b89c90",
+          "datanorge:f5d0ed23-0c50-3caf-9e63-7da9cfb80481"
+        ],
+        "recall_at_5": 0.6666666666666666,
+        "recall_at_10": 0.6666666666666666,
+        "mrr": 1.0,
+        "requirement_coverage_at_5": 1.0,
+        "requirement_coverage_at_10": 1.0
+      },
+      {
+        "id": "q046",
+        "kind": "multi",
+        "query": "akutt forurensning",
+        "expected": [
+          "datanorge:29be745f-5da2-3ef7-b1a8-560a338f54ec",
+          "datanorge:a2c06b68-72c6-3675-ae4d-4f5695dba13d"
+        ],
+        "ranked": [
+          "datanorge:a2c06b68-72c6-3675-ae4d-4f5695dba13d",
+          "datanorge:29be745f-5da2-3ef7-b1a8-560a338f54ec",
+          "datanorge:22baa5df-d85c-347e-aa3d-cc0cc2d7d5cf",
+          "datanorge:96850412-35b9-3b24-9082-b3700c78be51"
+        ],
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "requirement_coverage_at_5": 1.0,
+        "requirement_coverage_at_10": 1.0
+      },
+      {
+        "id": "q047",
+        "kind": "multi",
+        "query": "elvebunnkartlegging hellelandselva",
+        "expected": [
+          "datanorge:bd2df436-c9b3-35a2-aa78-eb7bf840a1d9",
+          "datanorge:1c1d1c95-c75b-3f76-ab41-c9e2931634db"
+        ],
+        "ranked": [
+          "datanorge:1c1d1c95-c75b-3f76-ab41-c9e2931634db",
+          "datanorge:bd2df436-c9b3-35a2-aa78-eb7bf840a1d9"
+        ],
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "requirement_coverage_at_5": 1.0,
+        "requirement_coverage_at_10": 1.0
+      },
+      {
+        "id": "q048",
+        "kind": "multi",
+        "query": "hardbunnskorallskog observasjonsdata",
+        "expected": [
+          "datanorge:d5383f33-ae4f-3ffe-a31d-c048f5e6a48a"
+        ],
+        "ranked": [
+          "datanorge:d5383f33-ae4f-3ffe-a31d-c048f5e6a48a",
+          "datanorge:19a93b42-caa1-3fb8-87ef-5552632a90a7",
+          "datanorge:8381b6c3-5926-3473-980e-47840a966b0f",
+          "datanorge:21fda0ae-1361-35f7-a447-356d42a4d4b6",
+          "datanorge:33194e4a-049b-30b8-b434-0100deeed90a",
+          "datanorge:1ab414da-da4a-3a73-8d2f-4a275184decf",
+          "datanorge:6b128fc5-5a8e-35ab-888e-56ba48d0e4bd",
+          "datanorge:3c32568e-b91d-3001-9e0f-bc30930f22fc"
+        ],
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "requirement_coverage_at_5": 1.0,
+        "requirement_coverage_at_10": 1.0
+      },
+      {
+        "id": "q049",
+        "kind": "multi",
+        "query": "vannforsyningssystem innrapportering",
+        "expected": [
+          "datanorge:ae763c61-fb99-3c00-9ab4-2b68d93361c3"
+        ],
+        "ranked": [
+          "datanorge:881fb6e2-37e6-378c-bf98-f15910935b60",
+          "datanorge:0af4536d-baa9-35b9-a541-b3fe2c14f58a",
+          "datanorge:09ff40df-07f1-32a6-9cb9-a5faa0b3a20a",
+          "datanorge:4a9607e5-7fda-39f7-bed8-4834878aa72b",
+          "datanorge:97d35ddd-4237-3894-af21-08066acd6e55",
+          "datanorge:ae763c61-fb99-3c00-9ab4-2b68d93361c3",
+          "datanorge:a34c3d39-d75b-32c5-b906-7366260e3993",
+          "datanorge:c566c856-431a-3ba4-a983-53d59102b959",
+          "datanorge:cc3aaa24-afc9-3ebb-8049-d8a7d55e4be6",
+          "datanorge:8a85cd06-50c3-331b-adc2-102a2a6fc1da"
+        ],
+        "recall_at_5": 0.0,
+        "recall_at_10": 1.0,
+        "mrr": 0.16666666666666666,
+        "requirement_coverage_at_5": 1.0,
+        "requirement_coverage_at_10": 1.0
+      },
+      {
+        "id": "q050",
+        "kind": "multi",
+        "query": "saltvannssjøbunn punktobservasjoner",
+        "expected": [
+          "datanorge:fde1b830-ba04-38b6-8e36-1134bd337f0a"
+        ],
+        "ranked": [
+          "datanorge:fde1b830-ba04-38b6-8e36-1134bd337f0a"
+        ],
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "requirement_coverage_at_5": 1.0,
+        "requirement_coverage_at_10": 1.0
+      },
+      {
+        "id": "q051",
+        "kind": "multi",
+        "query": "operasjonelle akvakulturrettigheter",
+        "expected": [
+          "datanorge:eb3b84e7-1402-35bc-a480-c59c4684e871"
+        ],
+        "ranked": [
+          "datanorge:eb3b84e7-1402-35bc-a480-c59c4684e871"
+        ],
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "requirement_coverage_at_5": 1.0,
+        "requirement_coverage_at_10": 1.0
+      },
+      {
+        "id": "q052",
+        "kind": "multi",
+        "query": "bølgevarsel punkt",
+        "expected": [
+          "datanorge:367941ae-15ab-3109-8844-15f824176426"
+        ],
+        "ranked": [
+          "datanorge:367941ae-15ab-3109-8844-15f824176426"
+        ],
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "requirement_coverage_at_5": 1.0,
+        "requirement_coverage_at_10": 1.0
+      },
+      {
+        "id": "q053",
+        "kind": "multi",
+        "query": "sanntidsdata buss sør-trøndelag",
+        "expected": [
+          "datanorge:bd93f99e-6844-3b37-b386-eab994595180"
+        ],
+        "ranked": [
+          "datanorge:bd93f99e-6844-3b37-b386-eab994595180"
+        ],
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "requirement_coverage_at_5": 1.0,
+        "requirement_coverage_at_10": 1.0
+      },
+      {
+        "id": "q054",
+        "kind": "multi",
+        "query": "trafikkdata bane nor",
+        "expected": [
+          "datanorge:ba8cc9a8-d344-3f7c-9f8d-160ea89e61a1"
+        ],
+        "ranked": [
+          "datanorge:ba8cc9a8-d344-3f7c-9f8d-160ea89e61a1"
+        ],
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "requirement_coverage_at_5": 1.0,
+        "requirement_coverage_at_10": 1.0
+      },
+      {
+        "id": "q055",
+        "kind": "hard",
+        "query": "AVINOR AS",
+        "expected": [
+          "datanorge:fe9c6b0d-5eae-3d87-a267-3f455dfff3ba"
+        ],
+        "ranked": [
+          "datanorge:4a6016f8-3a64-38e6-8bdc-8a05168e0989"
+        ],
+        "recall_at_5": 0.0,
+        "recall_at_10": 0.0,
+        "mrr": 0.0,
+        "requirement_coverage_at_5": 0.0,
+        "requirement_coverage_at_10": 0.0
+      },
+      {
+        "id": "q056",
+        "kind": "hard",
+        "query": "AtB",
+        "expected": [
+          "datanorge:bd93f99e-6844-3b37-b386-eab994595180"
+        ],
+        "ranked": [
+          "datanorge:c7960768-96a0-3cf0-8692-8af4afe8c423",
+          "datanorge:bd93f99e-6844-3b37-b386-eab994595180"
+        ],
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 0.5,
+        "requirement_coverage_at_5": 1.0,
+        "requirement_coverage_at_10": 1.0
+      },
+      {
+        "id": "q057",
+        "kind": "hard",
+        "query": "Gjeldsregisteret as",
+        "expected": [
+          "datanorge:2ead51f6-6370-33a3-a1e6-adb13624329c"
+        ],
+        "ranked": [],
+        "recall_at_5": 0.0,
+        "recall_at_10": 0.0,
+        "mrr": 0.0,
+        "requirement_coverage_at_5": 0.0,
+        "requirement_coverage_at_10": 0.0
+      },
+      {
+        "id": "q058",
+        "kind": "hard",
+        "query": "Barentswatch",
+        "expected": [
+          "datanorge:367941ae-15ab-3109-8844-15f824176426"
+        ],
+        "ranked": [
+          "datanorge:9a7b4816-d9af-30d8-bc4f-daf11463e05c",
+          "datanorge:7e3e66fd-9502-3a39-b168-7d9c37abf1b2",
+          "datanorge:e1bb980b-3da6-399a-8e71-e1821634ab8e",
+          "datanorge:60e89004-2278-3bfa-b265-d07436587e6b",
+          "datanorge:0d3026c4-f8bd-336b-ac63-efa1fb23d5da",
+          "datanorge:31a9123d-3a74-3baf-8a89-ed6adcd2e3e6",
+          "datanorge:5aa40024-2804-3f88-98fc-5bafdf317f67",
+          "datanorge:33e124bc-b487-38e3-8a0c-f1d0adeb8c00",
+          "datanorge:13009176-0284-3294-9743-dde7f766b7ee",
+          "datanorge:89abc83a-5567-38b6-9aa0-d11429d5f218"
+        ],
+        "recall_at_5": 0.0,
+        "recall_at_10": 0.0,
+        "mrr": 0.0,
+        "requirement_coverage_at_5": 0.0,
+        "requirement_coverage_at_10": 0.0
+      },
+      {
+        "id": "q059",
+        "kind": "hard",
+        "query": "Geonorge",
+        "expected": [
+          "datanorge:55348339-a047-3f0d-a195-3d065ebb72df"
+        ],
+        "ranked": [
+          "datanorge:2f347556-8035-38f6-a833-293adbb25138",
+          "datanorge:61814e11-4eee-3ee4-be8e-ffb599904a7f",
+          "datanorge:7ac26e7f-de89-3712-acb8-7989d967a27f",
+          "datanorge:dcc87bf7-26a2-3907-8649-96c1e6f6d6e2",
+          "datanorge:ce17e853-9a2b-3a72-b208-cfae276f4c1e",
+          "datanorge:3a985eca-725f-368f-9c6e-a18f8a36c577",
+          "datanorge:8c62e33e-76ba-3c00-9db6-3a10e44135bc",
+          "datanorge:48c84c5e-08fe-358f-a7d8-6865e41f9683",
+          "datanorge:537e00c7-1a89-3cf9-9eea-bc03c496a97e",
+          "datanorge:9490c9e1-7644-348a-87cf-e7c9d2605bc6"
+        ],
+        "recall_at_5": 0.0,
+        "recall_at_10": 0.0,
+        "mrr": 0.0,
+        "requirement_coverage_at_5": 0.0,
+        "requirement_coverage_at_10": 0.0
+      },
+      {
+        "id": "q060",
+        "kind": "hard",
+        "query": "INDRE ØSTFOLD KOMMUNE",
+        "expected": [
+          "datanorge:fa8a0a1c-5951-3c73-903f-0e13d7fdab21"
+        ],
+        "ranked": [
+          "datanorge:a8065075-9f8a-3672-9933-156cecfd10ec",
+          "datanorge:edfc3137-e893-34bc-b281-b8acdfe31ae0",
+          "datanorge:fc89b77c-657e-38fc-bbe5-4b6b97184be5",
+          "datanorge:258ee728-bf39-3f2e-b256-c19995b443e6",
+          "datanorge:f55d705b-f393-33f2-aaf0-a1a76f184c6e",
+          "datanorge:8aa07439-e295-3e11-8ee5-141cf03d7bd5",
+          "datanorge:601a115b-c20c-3bc1-a8e9-53f9ea718230"
+        ],
+        "recall_at_5": 0.0,
+        "recall_at_10": 0.0,
+        "mrr": 0.0,
+        "requirement_coverage_at_5": 1.0,
+        "requirement_coverage_at_10": 1.0
+      },
+      {
+        "id": "q061",
+        "kind": "hard",
+        "query": "HØGSKOLEN I BERGEN",
+        "expected": [
+          "datanorge:b72a20e9-ee3b-3ae2-867c-99f03cda5203"
+        ],
+        "ranked": [
+          "datanorge:b72a20e9-ee3b-3ae2-867c-99f03cda5203",
+          "datanorge:d4c9bf41-d6eb-3779-af61-e0aefb57fa83"
+        ],
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "requirement_coverage_at_5": 1.0,
+        "requirement_coverage_at_10": 1.0
+      },
+      {
+        "id": "q062",
+        "kind": "hard",
+        "query": "Det frivillige Skyttervesen",
+        "expected": [
+          "datanorge:f241e3f9-4a1b-3159-a486-181dddd64a30"
+        ],
+        "ranked": [
+          "datanorge:f241e3f9-4a1b-3159-a486-181dddd64a30"
+        ],
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "requirement_coverage_at_5": 1.0,
+        "requirement_coverage_at_10": 1.0
+      },
+      {
+        "id": "q063",
+        "kind": "hard",
+        "query": "Forsvaret",
+        "expected": [
+          "datanorge:77c5eaa2-09d5-3417-bf4f-26d4df4e21b1"
+        ],
+        "ranked": [
+          "datanorge:3d426a6d-7331-3014-a367-3f7a3fb8b534",
+          "datanorge:66bf7840-a46b-32c1-8ff6-6a85abb53295",
+          "datanorge:e61d4336-38f0-322b-bc0d-302214cf0550",
+          "datanorge:0fc39f00-97d2-34b4-9a9c-7acc606bb016",
+          "datanorge:7ac26e7f-de89-3712-acb8-7989d967a27f",
+          "datanorge:77c5eaa2-09d5-3417-bf4f-26d4df4e21b1",
+          "datanorge:d48123bb-4660-3e6c-a5f9-5abe9048dbcc",
+          "datanorge:4f5c28b9-d2c8-3128-b30b-04c595ad584a",
+          "datanorge:dd8e868f-8748-3aae-9759-7a37029b1710"
+        ],
+        "recall_at_5": 0.0,
+        "recall_at_10": 1.0,
+        "mrr": 0.16666666666666666,
+        "requirement_coverage_at_5": 0.0,
+        "requirement_coverage_at_10": 1.0
+      },
+      {
+        "id": "q064",
+        "kind": "hard",
+        "query": "KULTURIT ANS",
+        "expected": [
+          "datanorge:cf00b303-7f8a-3e07-a14b-4b1759341e75"
+        ],
+        "ranked": [],
+        "recall_at_5": 0.0,
+        "recall_at_10": 0.0,
+        "mrr": 0.0,
+        "requirement_coverage_at_5": 0.0,
+        "requirement_coverage_at_10": 0.0
+      },
+      {
+        "id": "q065",
+        "kind": "hard",
+        "query": "Soil",
+        "expected": [
+          "datanorge:fbd6e4e4-4d30-3bb7-9d3f-f3660462fe59"
+        ],
+        "ranked": [
+          "datanorge:ee3ec006-387b-31fe-9748-c8b2efae2970",
+          "datanorge:ddb7bd72-5594-3e01-8741-c8d799b5b394",
+          "datanorge:9d5be5b0-1dde-3998-ad26-f39571249bb4",
+          "datanorge:8953fe9f-c73f-3d12-ac74-3f93f93c45e3",
+          "datanorge:4d989909-e5cd-3da8-971b-ccdbcae80477",
+          "datanorge:9d585557-6ad2-3ab7-94d3-f0e16bff7af5",
+          "datanorge:de8b954a-a7c3-3889-ae54-a3528848c999",
+          "datanorge:89abc83a-5567-38b6-9aa0-d11429d5f218",
+          "datanorge:fbd6e4e4-4d30-3bb7-9d3f-f3660462fe59",
+          "datanorge:40e015f7-7d18-3c4d-9f67-6a919d3e4e0b"
+        ],
+        "recall_at_5": 0.0,
+        "recall_at_10": 1.0,
+        "mrr": 0.1111111111111111,
+        "requirement_coverage_at_5": 1.0,
+        "requirement_coverage_at_10": 1.0
+      }
+    ]
+  },
+  "db": "data/registry.sqlite",
+  "questions_path": "data/benchmark_questions.json",
+  "produced_at": "2026-08-26T22:06:00Z",
+  "registry_datasets": 9120,
+  "notes": [
+    "Gold labels sourced from stored title, publisher_name, keyword, theme, or description.",
+    "q045 forurensning oslo: our Recall@5=0 and Recall@10=0 on the three datasets that store both tokens. Requirement coverage is 1.0 because single-token hits cover each word. Same one-token ranking gap as Milestone 2.",
+    "fields=0 remains an upstream harvest gap. No variable lists were invented."
+  ]
+}

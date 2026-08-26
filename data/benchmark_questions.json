@@ -1,0 +1,1793 @@
+{
+  "version": 1,
+  "sourced_from": "data/registry.sqlite",
+  "sourced_at": "2026-08-26T21:57:12Z",
+  "rule": "Every expected dataset_id exists in the registry. Every reason cites a stored title, publisher_name, keyword, theme, or description.",
+  "kinds": {
+    "simple": "query uses a distinctive stored title token",
+    "synonym": "query uses a stored keyword that is not the title string",
+    "indirect": "query uses a stored theme or description phrase, not the title",
+    "multi": "query has two stored-field requirements",
+    "hard": "publisher-only or a stored synonym that our title-token search may miss"
+  },
+  "questions": [
+    {
+      "id": "q001",
+      "kind": "simple",
+      "query": "abortregisteret",
+      "expected": [
+        {
+          "dataset_id": "datanorge:3fa37b62-3e72-343d-bf57-501f56b5febf",
+          "reasons": [
+            {
+              "field": "title",
+              "stored": "Register over svangerskapsavbrudd (Abortregisteret)"
+            }
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "id": "abortregisteret",
+          "kind": "token",
+          "field": "title",
+          "token": "abortregisteret"
+        }
+      ]
+    },
+    {
+      "id": "q002",
+      "kind": "simple",
+      "query": "familievernkontorenes dokumentasjonssystem",
+      "expected": [
+        {
+          "dataset_id": "datanorge:16398bcf-9787-3c46-a00f-73846dea98e4",
+          "reasons": [
+            {
+              "field": "title",
+              "stored": "Familievernkontorenes dokumentasjonssystem"
+            }
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "id": "familievernkontorenes",
+          "kind": "token",
+          "field": "title",
+          "token": "familievernkontorenes"
+        },
+        {
+          "id": "dokumentasjonssystem",
+          "kind": "token",
+          "field": "title",
+          "token": "dokumentasjonssystem"
+        }
+      ]
+    },
+    {
+      "id": "q003",
+      "kind": "simple",
+      "query": "ilandstigningslokaliteter svalbard",
+      "expected": [
+        {
+          "dataset_id": "datanorge:717aebc7-1fc2-3739-abdd-3aa55c96861b",
+          "reasons": [
+            {
+              "field": "title",
+              "stored": "Ilandstigningslokaliteter Svalbard"
+            }
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "id": "ilandstigningslokaliteter",
+          "kind": "token",
+          "field": "title",
+          "token": "ilandstigningslokaliteter"
+        },
+        {
+          "id": "svalbard",
+          "kind": "token",
+          "field": "title",
+          "token": "svalbard"
+        }
+      ]
+    },
+    {
+      "id": "q004",
+      "kind": "simple",
+      "query": "nntrans",
+      "expected": [
+        {
+          "dataset_id": "datanorge:989da401-9865-3c79-8305-cc95292d18e9",
+          "reasons": [
+            {
+              "field": "title",
+              "stored": "Høydetransformasjonsmodell (NNTrans)"
+            }
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "id": "nntrans",
+          "kind": "token",
+          "field": "title",
+          "token": "nntrans"
+        }
+      ]
+    },
+    {
+      "id": "q005",
+      "kind": "simple",
+      "query": "arealrepresentativ naturovervåking",
+      "expected": [
+        {
+          "dataset_id": "datanorge:9d988fd5-78fd-3f82-b5ac-4e9943be02f4",
+          "reasons": [
+            {
+              "field": "title",
+              "stored": "Arealrepresentativ naturovervåking (ANO)"
+            }
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "id": "arealrepresentativ",
+          "kind": "token",
+          "field": "title",
+          "token": "arealrepresentativ"
+        },
+        {
+          "id": "naturovervåking",
+          "kind": "token",
+          "field": "title",
+          "token": "naturovervåking"
+        }
+      ]
+    },
+    {
+      "id": "q006",
+      "kind": "simple",
+      "query": "blomkålkorallskog",
+      "expected": [
+        {
+          "dataset_id": "datanorge:6b128fc5-5a8e-35ab-888e-56ba48d0e4bd",
+          "reasons": [
+            {
+              "field": "title",
+              "stored": "Sårbare marine bunndyr - observasjonsdata Blomkålkorallskog"
+            }
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "id": "blomkålkorallskog",
+          "kind": "token",
+          "field": "title",
+          "token": "blomkålkorallskog"
+        }
+      ]
+    },
+    {
+      "id": "q007",
+      "kind": "simple",
+      "query": "tilleggstollavgiftssatser",
+      "expected": [
+        {
+          "dataset_id": "datanorge:e312aacd-1c91-3de5-8120-abb73602bb41",
+          "reasons": [
+            {
+              "field": "title",
+              "stored": "Nåværende og fremtidige tilleggstollavgiftssatser / Current and future increased customs duty for imports"
+            }
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "id": "tilleggstollavgiftssatser",
+          "kind": "token",
+          "field": "title",
+          "token": "tilleggstollavgiftssatser"
+        }
+      ]
+    },
+    {
+      "id": "q008",
+      "kind": "simple",
+      "query": "flydata avinor",
+      "expected": [
+        {
+          "dataset_id": "datanorge:fe9c6b0d-5eae-3d87-a267-3f455dfff3ba",
+          "reasons": [
+            {
+              "field": "title",
+              "stored": "Flydata fra Avinor"
+            },
+            {
+              "field": "publisher_name",
+              "stored": "AVINOR AS"
+            }
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "id": "flydata",
+          "kind": "token",
+          "field": "title",
+          "token": "flydata"
+        },
+        {
+          "id": "avinor",
+          "kind": "token",
+          "field": "title",
+          "token": "avinor"
+        }
+      ]
+    },
+    {
+      "id": "q009",
+      "kind": "simple",
+      "query": "gjeldsregisteret",
+      "expected": [
+        {
+          "dataset_id": "datanorge:2ead51f6-6370-33a3-a1e6-adb13624329c",
+          "reasons": [
+            {
+              "field": "title",
+              "stored": "Gjeldsregisteret"
+            }
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "id": "gjeldsregisteret",
+          "kind": "token",
+          "field": "title",
+          "token": "gjeldsregisteret"
+        }
+      ]
+    },
+    {
+      "id": "q010",
+      "kind": "simple",
+      "query": "radnett radioaktivitet",
+      "expected": [
+        {
+          "dataset_id": "datanorge:d40dbd5f-58f5-3a1c-96bc-8ecc2d712422",
+          "reasons": [
+            {
+              "field": "title",
+              "stored": "Radnett - overvåking av radioaktivitet"
+            }
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "id": "radnett",
+          "kind": "token",
+          "field": "title",
+          "token": "radnett"
+        },
+        {
+          "id": "radioaktivitet",
+          "kind": "token",
+          "field": "title",
+          "token": "radioaktivitet"
+        }
+      ]
+    },
+    {
+      "id": "q011",
+      "kind": "simple",
+      "query": "kirkebygg",
+      "expected": [
+        {
+          "dataset_id": "datanorge:8c7675b1-3fd9-3630-84f1-b70518eb4dc8",
+          "reasons": [
+            {
+              "field": "title",
+              "stored": "Kirkebygg i Norge"
+            }
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "id": "kirkebygg",
+          "kind": "token",
+          "field": "title",
+          "token": "kirkebygg"
+        }
+      ]
+    },
+    {
+      "id": "q012",
+      "kind": "simple",
+      "query": "badevannstemperaturer horten",
+      "expected": [
+        {
+          "dataset_id": "datanorge:fcb01aa9-3a94-3ca3-ad5f-6260a8e6a6cf",
+          "reasons": [
+            {
+              "field": "title",
+              "stored": "Badevannstemperaturer Horten"
+            }
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "id": "badevannstemperaturer",
+          "kind": "token",
+          "field": "title",
+          "token": "badevannstemperaturer"
+        },
+        {
+          "id": "horten",
+          "kind": "token",
+          "field": "title",
+          "token": "horten"
+        }
+      ]
+    },
+    {
+      "id": "q013",
+      "kind": "simple",
+      "query": "kulturminner hadsel",
+      "expected": [
+        {
+          "dataset_id": "datanorge:08175999-765c-388f-bf61-71c7d897a15a",
+          "reasons": [
+            {
+              "field": "title",
+              "stored": "Kulturminner i Hadsel kommune"
+            }
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "id": "kulturminner",
+          "kind": "token",
+          "field": "title",
+          "token": "kulturminner"
+        },
+        {
+          "id": "hadsel",
+          "kind": "token",
+          "field": "title",
+          "token": "hadsel"
+        }
+      ]
+    },
+    {
+      "id": "q014",
+      "kind": "simple",
+      "query": "skyteanlegg dfs",
+      "expected": [
+        {
+          "dataset_id": "datanorge:f241e3f9-4a1b-3159-a486-181dddd64a30",
+          "reasons": [
+            {
+              "field": "title",
+              "stored": "Skyteanlegg DFS"
+            }
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "id": "skyteanlegg",
+          "kind": "token",
+          "field": "title",
+          "token": "skyteanlegg"
+        },
+        {
+          "id": "dfs",
+          "kind": "token",
+          "field": "title",
+          "token": "dfs"
+        }
+      ]
+    },
+    {
+      "id": "q015",
+      "kind": "simple",
+      "query": "forsvarets helseregister",
+      "expected": [
+        {
+          "dataset_id": "datanorge:77c5eaa2-09d5-3417-bf4f-26d4df4e21b1",
+          "reasons": [
+            {
+              "field": "title",
+              "stored": "Forsvarets helseregister"
+            }
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "id": "forsvarets",
+          "kind": "token",
+          "field": "title",
+          "token": "forsvarets"
+        },
+        {
+          "id": "helseregister",
+          "kind": "token",
+          "field": "title",
+          "token": "helseregister"
+        }
+      ]
+    },
+    {
+      "id": "q016",
+      "kind": "simple",
+      "query": "husbankens statistikkbank",
+      "expected": [
+        {
+          "dataset_id": "datanorge:124c3cfb-485a-3372-aa5b-4b0e3a18edc5",
+          "reasons": [
+            {
+              "field": "title",
+              "stored": "Husbankens statistikkbank"
+            }
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "id": "husbankens",
+          "kind": "token",
+          "field": "title",
+          "token": "husbankens"
+        },
+        {
+          "id": "statistikkbank",
+          "kind": "token",
+          "field": "title",
+          "token": "statistikkbank"
+        }
+      ]
+    },
+    {
+      "id": "q017",
+      "kind": "simple",
+      "query": "kulturnav",
+      "expected": [
+        {
+          "dataset_id": "datanorge:cf00b303-7f8a-3e07-a14b-4b1759341e75",
+          "reasons": [
+            {
+              "field": "title",
+              "stored": "KulturNav"
+            }
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "id": "kulturnav",
+          "kind": "token",
+          "field": "title",
+          "token": "kulturnav"
+        }
+      ]
+    },
+    {
+      "id": "q018",
+      "kind": "simple",
+      "query": "anleggsregisteret",
+      "expected": [
+        {
+          "dataset_id": "datanorge:e493b1c8-57ea-33c2-a7ee-7094b47d78e4",
+          "reasons": [
+            {
+              "field": "title",
+              "stored": "Anleggsregisteret"
+            }
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "id": "anleggsregisteret",
+          "kind": "token",
+          "field": "title",
+          "token": "anleggsregisteret"
+        }
+      ]
+    },
+    {
+      "id": "q019",
+      "kind": "simple",
+      "query": "bivirkningsregisteret",
+      "expected": [
+        {
+          "dataset_id": "datanorge:cb4cba05-d10f-3eac-99f6-14ddfd933224",
+          "reasons": [
+            {
+              "field": "title",
+              "stored": "Bivirkningsregisteret"
+            }
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "id": "bivirkningsregisteret",
+          "kind": "token",
+          "field": "title",
+          "token": "bivirkningsregisteret"
+        }
+      ]
+    },
+    {
+      "id": "q020",
+      "kind": "simple",
+      "query": "kreftregisteret",
+      "expected": [
+        {
+          "dataset_id": "datanorge:caf3d50c-1d5c-3909-860b-0f491b24177b",
+          "reasons": [
+            {
+              "field": "title",
+              "stored": "Kreftregisteret"
+            }
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "id": "kreftregisteret",
+          "kind": "token",
+          "field": "title",
+          "token": "kreftregisteret"
+        }
+      ]
+    },
+    {
+      "id": "q021",
+      "kind": "simple",
+      "query": "medisinsk fødselsregister",
+      "expected": [
+        {
+          "dataset_id": "datanorge:681ec3cc-a7c5-3078-bea0-8db415a51bcf",
+          "reasons": [
+            {
+              "field": "title",
+              "stored": "Medisinsk Fødselsregister"
+            }
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "id": "medisinsk",
+          "kind": "token",
+          "field": "title",
+          "token": "medisinsk"
+        },
+        {
+          "id": "fødselsregister",
+          "kind": "token",
+          "field": "title",
+          "token": "fødselsregister"
+        }
+      ]
+    },
+    {
+      "id": "q022",
+      "kind": "simple",
+      "query": "nowac",
+      "expected": [
+        {
+          "dataset_id": "datanorge:8e77e6bf-a4fa-38ec-83c9-605f8e0b8324",
+          "reasons": [
+            {
+              "field": "title",
+              "stored": "The Norwegian Women and Cancer study (NOWAC)"
+            }
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "id": "nowac",
+          "kind": "token",
+          "field": "title",
+          "token": "nowac"
+        }
+      ]
+    },
+    {
+      "id": "q023",
+      "kind": "simple",
+      "query": "strandsonekartlegging jølstravassdraget",
+      "expected": [
+        {
+          "dataset_id": "datanorge:6cd8ed1f-525e-3cf6-afe2-e7ce3ed79c4f",
+          "reasons": [
+            {
+              "field": "title",
+              "stored": "Strandsonekartlegging Jølstravassdraget 2026"
+            }
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "id": "strandsonekartlegging",
+          "kind": "token",
+          "field": "title",
+          "token": "strandsonekartlegging"
+        },
+        {
+          "id": "jølstravassdraget",
+          "kind": "token",
+          "field": "title",
+          "token": "jølstravassdraget"
+        }
+      ]
+    },
+    {
+      "id": "q024",
+      "kind": "simple",
+      "query": "landbrukseiendommer landbruksregisteret",
+      "expected": [
+        {
+          "dataset_id": "datanorge:30dbf482-e732-3939-a96d-a4dbbc797ecb",
+          "reasons": [
+            {
+              "field": "title",
+              "stored": "Landbrukseiendommer i Landbruksregisteret"
+            }
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "id": "landbrukseiendommer",
+          "kind": "token",
+          "field": "title",
+          "token": "landbrukseiendommer"
+        },
+        {
+          "id": "landbruksregisteret",
+          "kind": "token",
+          "field": "title",
+          "token": "landbruksregisteret"
+        }
+      ]
+    },
+    {
+      "id": "q025",
+      "kind": "synonym",
+      "query": "oljeindustri",
+      "expected": [
+        {
+          "dataset_id": "datanorge:607f3e76-2bfe-3570-b359-492d6ed57b5c",
+          "reasons": [
+            {
+              "field": "keyword",
+              "stored": "oljeindustri"
+            }
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "id": "oljeindustri",
+          "kind": "token",
+          "field": "keyword",
+          "token": "oljeindustri"
+        }
+      ]
+    },
+    {
+      "id": "q026",
+      "kind": "synonym",
+      "query": "gruveindustri",
+      "expected": [
+        {
+          "dataset_id": "datanorge:607f3e76-2bfe-3570-b359-492d6ed57b5c",
+          "reasons": [
+            {
+              "field": "keyword",
+              "stored": "gruveindustri"
+            }
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "id": "gruveindustri",
+          "kind": "token",
+          "field": "keyword",
+          "token": "gruveindustri"
+        }
+      ]
+    },
+    {
+      "id": "q027",
+      "kind": "synonym",
+      "query": "petroliumsindustri",
+      "expected": [
+        {
+          "dataset_id": "datanorge:607f3e76-2bfe-3570-b359-492d6ed57b5c",
+          "reasons": [
+            {
+              "field": "keyword",
+              "stored": "petroliumsindustri"
+            }
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "id": "petroliumsindustri",
+          "kind": "token",
+          "field": "keyword",
+          "token": "petroliumsindustri"
+        }
+      ]
+    },
+    {
+      "id": "q028",
+      "kind": "synonym",
+      "query": "datahotell",
+      "expected": [
+        {
+          "dataset_id": "datanorge:607f3e76-2bfe-3570-b359-492d6ed57b5c",
+          "reasons": [
+            {
+              "field": "keyword",
+              "stored": "datahotell"
+            }
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "id": "datahotell",
+          "kind": "token",
+          "field": "keyword",
+          "token": "datahotell"
+        }
+      ]
+    },
+    {
+      "id": "q029",
+      "kind": "synonym",
+      "query": "produksjonstilskudd",
+      "expected": [
+        {
+          "dataset_id": "datanorge:239fb895-061c-3b8a-a752-6f939db02fed",
+          "reasons": [
+            {
+              "field": "keyword",
+              "stored": "produksjonstilskudd"
+            }
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "id": "produksjonstilskudd",
+          "kind": "token",
+          "field": "keyword",
+          "token": "produksjonstilskudd"
+        }
+      ]
+    },
+    {
+      "id": "q030",
+      "kind": "synonym",
+      "query": "doffin",
+      "expected": [
+        {
+          "dataset_id": "datanorge:a77b0408-85f9-3e12-8a66-8d500b492e9d",
+          "reasons": [
+            {
+              "field": "keyword",
+              "stored": "Doffin"
+            }
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "id": "doffin",
+          "kind": "token",
+          "field": "keyword",
+          "token": "doffin"
+        }
+      ]
+    },
+    {
+      "id": "q031",
+      "kind": "synonym",
+      "query": "quickclay",
+      "expected": [
+        {
+          "dataset_id": "datanorge:af4e4e83-7c26-3b89-bc9b-58739083758d",
+          "reasons": [
+            {
+              "field": "keyword",
+              "stored": "quickclay"
+            }
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "id": "quickclay",
+          "kind": "token",
+          "field": "keyword",
+          "token": "quickclay"
+        }
+      ]
+    },
+    {
+      "id": "q032",
+      "kind": "synonym",
+      "query": "rockfall",
+      "expected": [
+        {
+          "dataset_id": "datanorge:abdfbcc5-8c3c-3bf1-a13a-09672723ffda",
+          "reasons": [
+            {
+              "field": "keyword",
+              "stored": "rockfall"
+            }
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "id": "rockfall",
+          "kind": "token",
+          "field": "keyword",
+          "token": "rockfall"
+        }
+      ]
+    },
+    {
+      "id": "q033",
+      "kind": "synonym",
+      "query": "oljevernberedskap",
+      "expected": [
+        {
+          "dataset_id": "datanorge:29be745f-5da2-3ef7-b1a8-560a338f54ec",
+          "reasons": [
+            {
+              "field": "keyword",
+              "stored": "Oljevernberedskap"
+            }
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "id": "oljevernberedskap",
+          "kind": "token",
+          "field": "keyword",
+          "token": "oljevernberedskap"
+        }
+      ]
+    },
+    {
+      "id": "q034",
+      "kind": "synonym",
+      "query": "grunnforurensning",
+      "expected": [
+        {
+          "dataset_id": "datanorge:fbd6e4e4-4d30-3bb7-9d3f-f3660462fe59",
+          "reasons": [
+            {
+              "field": "keyword",
+              "stored": "grunnforurensning"
+            }
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "id": "grunnforurensning",
+          "kind": "token",
+          "field": "keyword",
+          "token": "grunnforurensning"
+        }
+      ]
+    },
+    {
+      "id": "q035",
+      "kind": "synonym",
+      "query": "energy cooperatives",
+      "expected": [
+        {
+          "dataset_id": "datanorge:0d56ad96-5a51-32d6-93a1-ef5305ab5751",
+          "reasons": [
+            {
+              "field": "keyword",
+              "stored": "energy cooperatives"
+            }
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "id": "energy",
+          "kind": "token",
+          "field": "keyword",
+          "token": "energy"
+        },
+        {
+          "id": "cooperatives",
+          "kind": "token",
+          "field": "keyword",
+          "token": "cooperatives"
+        }
+      ]
+    },
+    {
+      "id": "q036",
+      "kind": "indirect",
+      "query": "Health",
+      "expected": [
+        {
+          "dataset_id": "datanorge:0d45b3e6-467a-3b5e-bab2-2672002fd13e",
+          "reasons": [
+            {
+              "field": "theme",
+              "stored": "Health"
+            }
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "id": "health",
+          "kind": "token",
+          "field": "theme",
+          "token": "health"
+        }
+      ]
+    },
+    {
+      "id": "q037",
+      "kind": "indirect",
+      "query": "Helse",
+      "expected": [
+        {
+          "dataset_id": "datanorge:0d45b3e6-467a-3b5e-bab2-2672002fd13e",
+          "reasons": [
+            {
+              "field": "theme",
+              "stored": "Helse"
+            }
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "id": "helse",
+          "kind": "token",
+          "field": "theme",
+          "token": "helse"
+        }
+      ]
+    },
+    {
+      "id": "q038",
+      "kind": "indirect",
+      "query": "offentlig sektor",
+      "expected": [
+        {
+          "dataset_id": "datanorge:0d45b3e6-467a-3b5e-bab2-2672002fd13e",
+          "reasons": [
+            {
+              "field": "keyword",
+              "stored": "offentlig sektor"
+            }
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "id": "offentlig",
+          "kind": "token",
+          "field": "keyword",
+          "token": "offentlig"
+        },
+        {
+          "id": "sektor",
+          "kind": "token",
+          "field": "keyword",
+          "token": "sektor"
+        }
+      ]
+    },
+    {
+      "id": "q039",
+      "kind": "indirect",
+      "query": "Energy",
+      "expected": [
+        {
+          "dataset_id": "datanorge:607f3e76-2bfe-3570-b359-492d6ed57b5c",
+          "reasons": [
+            {
+              "field": "theme",
+              "stored": "Energy"
+            }
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "id": "energy",
+          "kind": "token",
+          "field": "theme",
+          "token": "energy"
+        }
+      ]
+    },
+    {
+      "id": "q040",
+      "kind": "indirect",
+      "query": "ECON",
+      "expected": [
+        {
+          "dataset_id": "datanorge:607f3e76-2bfe-3570-b359-492d6ed57b5c",
+          "reasons": [
+            {
+              "field": "theme",
+              "stored": "ECON"
+            }
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "id": "econ",
+          "kind": "token",
+          "field": "theme",
+          "token": "econ"
+        }
+      ]
+    },
+    {
+      "id": "q041",
+      "kind": "indirect",
+      "query": "Public procurement",
+      "expected": [
+        {
+          "dataset_id": "datanorge:a77b0408-85f9-3e12-8a66-8d500b492e9d",
+          "reasons": [
+            {
+              "field": "theme",
+              "stored": "Public procurement"
+            }
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "id": "public",
+          "kind": "token",
+          "field": "theme",
+          "token": "public"
+        },
+        {
+          "id": "procurement",
+          "kind": "token",
+          "field": "theme",
+          "token": "procurement"
+        }
+      ]
+    },
+    {
+      "id": "q042",
+      "kind": "indirect",
+      "query": "AGRI",
+      "expected": [
+        {
+          "dataset_id": "datanorge:239fb895-061c-3b8a-a752-6f939db02fed",
+          "reasons": [
+            {
+              "field": "theme",
+              "stored": "AGRI"
+            }
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "id": "agri",
+          "kind": "token",
+          "field": "theme",
+          "token": "agri"
+        }
+      ]
+    },
+    {
+      "id": "q043",
+      "kind": "indirect",
+      "query": "family history of cancer",
+      "expected": [
+        {
+          "dataset_id": "datanorge:8e77e6bf-a4fa-38ec-83c9-605f8e0b8324",
+          "reasons": [
+            {
+              "field": "keyword",
+              "stored": "FAMILY HISTORY OF CANCER"
+            }
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "id": "family",
+          "kind": "token",
+          "field": "keyword",
+          "token": "family"
+        },
+        {
+          "id": "cancer",
+          "kind": "token",
+          "field": "keyword",
+          "token": "cancer"
+        }
+      ]
+    },
+    {
+      "id": "q044",
+      "kind": "indirect",
+      "query": "citizen energy",
+      "expected": [
+        {
+          "dataset_id": "datanorge:0d56ad96-5a51-32d6-93a1-ef5305ab5751",
+          "reasons": [
+            {
+              "field": "keyword",
+              "stored": "citizen energy"
+            }
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "id": "citizen",
+          "kind": "token",
+          "field": "keyword",
+          "token": "citizen"
+        },
+        {
+          "id": "energy",
+          "kind": "token",
+          "field": "keyword",
+          "token": "energy"
+        }
+      ]
+    },
+    {
+      "id": "q045",
+      "kind": "multi",
+      "query": "forurensning oslo",
+      "expected": [
+        {
+          "dataset_id": "datanorge:a290a2d1-b5eb-3747-8e00-5bca67b89c90",
+          "reasons": [
+            {
+              "field": "keyword",
+              "stored": "Forurensning"
+            },
+            {
+              "field": "keyword",
+              "stored": "Oslo kommune"
+            }
+          ]
+        },
+        {
+          "dataset_id": "datanorge:4a6016f8-3a64-38e6-8bdc-8a05168e0989",
+          "reasons": [
+            {
+              "field": "keyword",
+              "stored": "Støyforurensning"
+            },
+            {
+              "field": "description",
+              "stored": "oslo"
+            }
+          ]
+        },
+        {
+          "dataset_id": "datanorge:f5d0ed23-0c50-3caf-9e63-7da9cfb80481",
+          "reasons": [
+            {
+              "field": "description",
+              "stored": "forurensning"
+            },
+            {
+              "field": "description",
+              "stored": "oslo"
+            }
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "id": "forurensning",
+          "kind": "token",
+          "token": "forurensning"
+        },
+        {
+          "id": "oslo",
+          "kind": "token",
+          "token": "oslo"
+        }
+      ]
+    },
+    {
+      "id": "q046",
+      "kind": "multi",
+      "query": "akutt forurensning",
+      "expected": [
+        {
+          "dataset_id": "datanorge:29be745f-5da2-3ef7-b1a8-560a338f54ec",
+          "reasons": [
+            {
+              "field": "title",
+              "stored": "IUA - Interkommunale utvalg mot akutt forurensning"
+            }
+          ]
+        },
+        {
+          "dataset_id": "datanorge:a2c06b68-72c6-3675-ae4d-4f5695dba13d",
+          "reasons": [
+            {
+              "field": "title",
+              "stored": "Prioriteringskart - akutt forurensning"
+            }
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "id": "akutt",
+          "kind": "token",
+          "field": "title",
+          "token": "akutt"
+        },
+        {
+          "id": "forurensning",
+          "kind": "token",
+          "field": "title",
+          "token": "forurensning"
+        }
+      ]
+    },
+    {
+      "id": "q047",
+      "kind": "multi",
+      "query": "elvebunnkartlegging hellelandselva",
+      "expected": [
+        {
+          "dataset_id": "datanorge:bd2df436-c9b3-35a2-aa78-eb7bf840a1d9",
+          "reasons": [
+            {
+              "field": "title",
+              "stored": "Høydedata NVE elvebunnkartlegging Hellelandselva 2024"
+            }
+          ]
+        },
+        {
+          "dataset_id": "datanorge:1c1d1c95-c75b-3f76-ab41-c9e2931634db",
+          "reasons": [
+            {
+              "field": "title",
+              "stored": "Ortofoto Elvebunnkartlegging Hellelandselva 2024"
+            }
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "id": "elvebunnkartlegging",
+          "kind": "token",
+          "field": "title",
+          "token": "elvebunnkartlegging"
+        },
+        {
+          "id": "hellelandselva",
+          "kind": "token",
+          "field": "title",
+          "token": "hellelandselva"
+        }
+      ]
+    },
+    {
+      "id": "q048",
+      "kind": "multi",
+      "query": "hardbunnskorallskog observasjonsdata",
+      "expected": [
+        {
+          "dataset_id": "datanorge:d5383f33-ae4f-3ffe-a31d-c048f5e6a48a",
+          "reasons": [
+            {
+              "field": "title",
+              "stored": "Sårbare marine bunndyr - observasjonsdata Hardbunnskorallskog"
+            }
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "id": "hardbunnskorallskog",
+          "kind": "token",
+          "field": "title",
+          "token": "hardbunnskorallskog"
+        },
+        {
+          "id": "observasjonsdata",
+          "kind": "token",
+          "field": "title",
+          "token": "observasjonsdata"
+        }
+      ]
+    },
+    {
+      "id": "q049",
+      "kind": "multi",
+      "query": "vannforsyningssystem innrapportering",
+      "expected": [
+        {
+          "dataset_id": "datanorge:ae763c61-fb99-3c00-9ab4-2b68d93361c3",
+          "reasons": [
+            {
+              "field": "title",
+              "stored": "Vannverk - vannforsyningssystem_innrapportering"
+            }
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "id": "vannforsyningssystem",
+          "kind": "token",
+          "field": "title",
+          "token": "vannforsyningssystem"
+        },
+        {
+          "id": "innrapportering",
+          "kind": "token",
+          "field": "title",
+          "token": "innrapportering"
+        }
+      ]
+    },
+    {
+      "id": "q050",
+      "kind": "multi",
+      "query": "saltvannssjøbunn punktobservasjoner",
+      "expected": [
+        {
+          "dataset_id": "datanorge:fde1b830-ba04-38b6-8e36-1134bd337f0a",
+          "reasons": [
+            {
+              "field": "title",
+              "stored": "NiN grunntyper og hovedtyper av saltvannssjøbunn, punktobservasjoner"
+            }
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "id": "saltvannssjøbunn",
+          "kind": "token",
+          "field": "title",
+          "token": "saltvannssjøbunn"
+        },
+        {
+          "id": "punktobservasjoner",
+          "kind": "token",
+          "field": "title",
+          "token": "punktobservasjoner"
+        }
+      ]
+    },
+    {
+      "id": "q051",
+      "kind": "multi",
+      "query": "operasjonelle akvakulturrettigheter",
+      "expected": [
+        {
+          "dataset_id": "datanorge:eb3b84e7-1402-35bc-a480-c59c4684e871",
+          "reasons": [
+            {
+              "field": "title",
+              "stored": "Offentlig API for operasjonelle akvakulturrettigheter"
+            }
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "id": "operasjonelle",
+          "kind": "token",
+          "field": "title",
+          "token": "operasjonelle"
+        },
+        {
+          "id": "akvakulturrettigheter",
+          "kind": "token",
+          "field": "title",
+          "token": "akvakulturrettigheter"
+        }
+      ]
+    },
+    {
+      "id": "q052",
+      "kind": "multi",
+      "query": "bølgevarsel punkt",
+      "expected": [
+        {
+          "dataset_id": "datanorge:367941ae-15ab-3109-8844-15f824176426",
+          "reasons": [
+            {
+              "field": "title",
+              "stored": "Bølgevarsel - punkt"
+            }
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "id": "bølgevarsel",
+          "kind": "token",
+          "field": "title",
+          "token": "bølgevarsel"
+        },
+        {
+          "id": "punkt",
+          "kind": "token",
+          "field": "title",
+          "token": "punkt"
+        }
+      ]
+    },
+    {
+      "id": "q053",
+      "kind": "multi",
+      "query": "sanntidsdata buss sør-trøndelag",
+      "expected": [
+        {
+          "dataset_id": "datanorge:bd93f99e-6844-3b37-b386-eab994595180",
+          "reasons": [
+            {
+              "field": "title",
+              "stored": "Sanntidsdata - Buss i Sør-Trøndelag"
+            }
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "id": "sanntidsdata",
+          "kind": "token",
+          "field": "title",
+          "token": "sanntidsdata"
+        },
+        {
+          "id": "buss",
+          "kind": "token",
+          "field": "title",
+          "token": "buss"
+        }
+      ]
+    },
+    {
+      "id": "q054",
+      "kind": "multi",
+      "query": "trafikkdata bane nor",
+      "expected": [
+        {
+          "dataset_id": "datanorge:ba8cc9a8-d344-3f7c-9f8d-160ea89e61a1",
+          "reasons": [
+            {
+              "field": "title",
+              "stored": "Trafikkdata fra Bane NOR"
+            }
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "id": "trafikkdata",
+          "kind": "token",
+          "field": "title",
+          "token": "trafikkdata"
+        },
+        {
+          "id": "bane",
+          "kind": "token",
+          "field": "title",
+          "token": "bane"
+        }
+      ]
+    },
+    {
+      "id": "q055",
+      "kind": "hard",
+      "query": "AVINOR AS",
+      "expected": [
+        {
+          "dataset_id": "datanorge:fe9c6b0d-5eae-3d87-a267-3f455dfff3ba",
+          "reasons": [
+            {
+              "field": "publisher_name",
+              "stored": "AVINOR AS"
+            }
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "id": "avinor",
+          "kind": "token",
+          "field": "publisher_name",
+          "token": "avinor"
+        }
+      ]
+    },
+    {
+      "id": "q056",
+      "kind": "hard",
+      "query": "AtB",
+      "expected": [
+        {
+          "dataset_id": "datanorge:bd93f99e-6844-3b37-b386-eab994595180",
+          "reasons": [
+            {
+              "field": "publisher_name",
+              "stored": "AtB"
+            }
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "id": "atb",
+          "kind": "token",
+          "field": "publisher_name",
+          "token": "atb"
+        }
+      ]
+    },
+    {
+      "id": "q057",
+      "kind": "hard",
+      "query": "Gjeldsregisteret as",
+      "expected": [
+        {
+          "dataset_id": "datanorge:2ead51f6-6370-33a3-a1e6-adb13624329c",
+          "reasons": [
+            {
+              "field": "publisher_name",
+              "stored": "Gjeldsregisteret as"
+            }
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "id": "gjeldsregisteret",
+          "kind": "token",
+          "field": "publisher_name",
+          "token": "gjeldsregisteret"
+        }
+      ]
+    },
+    {
+      "id": "q058",
+      "kind": "hard",
+      "query": "Barentswatch",
+      "expected": [
+        {
+          "dataset_id": "datanorge:367941ae-15ab-3109-8844-15f824176426",
+          "reasons": [
+            {
+              "field": "publisher_name",
+              "stored": "Barentswatch"
+            }
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "id": "barentswatch",
+          "kind": "token",
+          "field": "publisher_name",
+          "token": "barentswatch"
+        }
+      ]
+    },
+    {
+      "id": "q059",
+      "kind": "hard",
+      "query": "Geonorge",
+      "expected": [
+        {
+          "dataset_id": "datanorge:55348339-a047-3f0d-a195-3d065ebb72df",
+          "reasons": [
+            {
+              "field": "publisher_name",
+              "stored": "Geonorge"
+            }
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "id": "geonorge",
+          "kind": "token",
+          "field": "publisher_name",
+          "token": "geonorge"
+        }
+      ]
+    },
+    {
+      "id": "q060",
+      "kind": "hard",
+      "query": "INDRE ØSTFOLD KOMMUNE",
+      "expected": [
+        {
+          "dataset_id": "datanorge:fa8a0a1c-5951-3c73-903f-0e13d7fdab21",
+          "reasons": [
+            {
+              "field": "publisher_name",
+              "stored": "INDRE ØSTFOLD KOMMUNE"
+            }
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "id": "østfold",
+          "kind": "token",
+          "field": "publisher_name",
+          "token": "østfold"
+        }
+      ]
+    },
+    {
+      "id": "q061",
+      "kind": "hard",
+      "query": "HØGSKOLEN I BERGEN",
+      "expected": [
+        {
+          "dataset_id": "datanorge:b72a20e9-ee3b-3ae2-867c-99f03cda5203",
+          "reasons": [
+            {
+              "field": "publisher_name",
+              "stored": "HØGSKOLEN I BERGEN"
+            }
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "id": "høgskolen",
+          "kind": "token",
+          "field": "publisher_name",
+          "token": "høgskolen"
+        }
+      ]
+    },
+    {
+      "id": "q062",
+      "kind": "hard",
+      "query": "Det frivillige Skyttervesen",
+      "expected": [
+        {
+          "dataset_id": "datanorge:f241e3f9-4a1b-3159-a486-181dddd64a30",
+          "reasons": [
+            {
+              "field": "publisher_name",
+              "stored": "Det frivillige Skyttervesen"
+            }
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "id": "skyttervesen",
+          "kind": "token",
+          "field": "publisher_name",
+          "token": "skyttervesen"
+        }
+      ]
+    },
+    {
+      "id": "q063",
+      "kind": "hard",
+      "query": "Forsvaret",
+      "expected": [
+        {
+          "dataset_id": "datanorge:77c5eaa2-09d5-3417-bf4f-26d4df4e21b1",
+          "reasons": [
+            {
+              "field": "publisher_name",
+              "stored": "Forsvaret"
+            }
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "id": "forsvaret",
+          "kind": "token",
+          "field": "publisher_name",
+          "token": "forsvaret"
+        }
+      ]
+    },
+    {
+      "id": "q064",
+      "kind": "hard",
+      "query": "KULTURIT ANS",
+      "expected": [
+        {
+          "dataset_id": "datanorge:cf00b303-7f8a-3e07-a14b-4b1759341e75",
+          "reasons": [
+            {
+              "field": "publisher_name",
+              "stored": "KULTURIT ANS"
+            }
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "id": "kulturit",
+          "kind": "token",
+          "field": "publisher_name",
+          "token": "kulturit"
+        }
+      ]
+    },
+    {
+      "id": "q065",
+      "kind": "hard",
+      "query": "Soil",
+      "expected": [
+        {
+          "dataset_id": "datanorge:fbd6e4e4-4d30-3bb7-9d3f-f3660462fe59",
+          "reasons": [
+            {
+              "field": "keyword",
+              "stored": "Soil"
+            }
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "id": "soil",
+          "kind": "token",
+          "field": "keyword",
+          "token": "soil"
+        }
+      ]
+    }
+  ]
+}

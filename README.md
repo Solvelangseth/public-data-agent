@@ -12,9 +12,9 @@ system finds the right data for you.
 
 ## Current status
 
-Milestone 1, 2, and 3 are in this repo: a local SQLite dataset registry, ingest from
-Data.norge / Felles datakatalog, token-overlap search over that file, and deterministic
-enrichment in a separate `enrichments` table.
+Milestone 1, 2, 3, and 4 are in this repo: a local SQLite dataset registry, ingest from
+Data.norge / Felles datakatalog, token-overlap search over that file, deterministic
+enrichment in a separate `enrichments` table, and a sourced search benchmark.
 
 Data.norge is the first ingest source, not the product. UI, joins, charts,
 observation-row loading, and MCP are later.
@@ -295,6 +295,59 @@ Every enrichment row has `source=system` and `method=deterministic_from_stored_m
 Geography nonempty 877 matches the harvest rows that stored `spatial_json`. Fields stayed null on every live row because no harvested payload named `variables`, `variableList`, or `variable_list`. Counts are in `data/enrich_proof.json`.
 
 This milestone does not add a UI, joins, MCP, or a search rewrite. It does not invent publishers, licenses, observation values, or missing geography and time.
+
+## Milestone 4: search benchmark
+
+65 questions sourced from the live registry. Every expected dataset id exists
+in `data/registry.sqlite`. Every gold reason cites a stored title,
+publisher_name, keyword, theme, or description. No invented labels.
+
+Kinds: 24 simple, 11 synonym, 9 indirect, 10 multi, 11 hard.
+
+```bash
+python3 tools/build_benchmark_questions.py --db data/registry.sqlite
+pda benchmark --db data/registry.sqlite --questions data/benchmark_questions.json --out data/benchmark_results.json
+```
+
+The command runs `pda search` in-process (`search()` with limit 10) and writes
+Recall@5, Recall@10, MRR, and requirement coverage. Requirement coverage is the
+share of listed tokens or publisher tokens that appear in a stored field of any
+top-k hit.
+
+Optional Data.norge Search API baseline. No auth. About 10 requests per minute.
+Skip it when the endpoint errors or a fair run of the same questions is not
+practical.
+
+```bash
+pda benchmark --db data/registry.sqlite --questions data/benchmark_questions.json --out data/benchmark_results.json --baseline datanorge
+```
+
+### Production scores (2026-08-26)
+
+Ran on the local 9120-row registry. 65 sourced questions.
+
+| System | Recall@5 | Recall@10 | MRR | req. cov@5 | req. cov@10 |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| ours (`pda search`) | 0.769 | 0.800 | 0.702 | 0.869 | 0.885 |
+| Data.norge Search API | 0.733 | 0.779 | 0.689 | 0.885 | 0.900 |
+
+By kind, ours: simple Recall@5 1.00, synonym 0.91, multi 0.90, hard 0.36, indirect 0.33.
+
+`forurensning oslo` (q045) is the known one-token gap. The three datasets that store both tokens have Recall@10 0. Requirement coverage is 1.0 because single-token hits still cover each word. The scorer was not rewritten.
+
+Data.norge baseline used `POST https://search.api.fellesdatakatalog.digdir.no/search/datasets` with no auth, 10 requests per minute, 65 of 65 completed. Full rows are in `data/benchmark_results.json`.
+
+`fields=0` from Milestone 3 stays an upstream gap. This milestone does not
+invent variable lists. It does not rewrite the scorer. It does not add a
+benchmark platform.
+
+Rebuild the registry if the sqlite file is missing, then rerun the commands
+above.
+
+```bash
+pda ingest --source datanorge --db data/registry.sqlite
+pda enrich --db data/registry.sqlite
+```
 
 ## Architecture (long term)
 
