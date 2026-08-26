@@ -68,17 +68,20 @@ without walking the whole catalog:
 pda ingest --source datanorge --limit 5 --db data/registry.sqlite
 ```
 
-Full catalog. SPARQL lists every `dcat:Dataset`, then the Resource Service is fetched in
-batches of 25 at 5 requests/second (published limit: 5 rps, burst 10). At ~9k datasets
-that is a bit over a minute if the batch endpoint holds. If a batch fails, that page
-falls back to one GET per dataset, which takes closer to half an hour.
+Full catalog. SPARQL lists every `dcat:Dataset` in one query, then the Resource Service
+is fetched in batches of 25 at 5 requests/second (published limit: 5 rps, burst 10).
+Each batch is written before the next fetch. A killed run can continue: already stored
+rows with the same catalog-record `dct:modified` are skipped. The registry is never wiped.
+
+Measured 2026-08-26: 9120 datasets in 3 minutes 14 seconds. If a batch POST fails, that
+page falls back to one GET per dataset, which takes closer to half an hour.
 
 ```bash
 pda ingest --source datanorge --db data/registry.sqlite
 ```
 
 A later run is incremental. SPARQL `dcat:CatalogRecord` `dct:modified` is compared to the
-stored value. Unchanged records are not refetched. The registry is upserted, never rebuilt.
+stored value. Unchanged records are not refetched.
 
 ```bash
 pda ingest --source datanorge --db data/registry.sqlite
@@ -94,12 +97,53 @@ pda ingest --source datanorge --db data/registry.sqlite --offset 0 --limit 500
 pda ingest --source datanorge --db data/registry.sqlite --offset 500 --limit 500
 ```
 
+`data/registry.sqlite` is local and gitignored. The 2026-08-26 full harvest was 158MB,
+over the 50MB commit limit. Counts from that run are in `data/harvest_stats.json` and
+`data/harvest_runs.json`. Rebuild:
+
+```bash
+pda ingest --source datanorge --db data/registry.sqlite
+pda ingest --source datanorge --db data/registry.sqlite   # incremental refresh
+pda stats --db data/registry.sqlite
+```
+
 Tests and CI use a fixture adapter so they never harvest the live catalog:
 
 ```bash
 pda ingest --source fixture --fixtures tests/fixtures --db data/registry.sqlite
 pytest
 ```
+
+### Production harvest (2026-08-26)
+
+Ran on this branch against production SPARQL + Resource Service. Search API was not used.
+
+Endpoints:
+
+- `https://sparql.fellesdatakatalog.digdir.no`
+- `https://resource.api.fellesdatakatalog.digdir.no`
+
+| Run | listed | inserted | updated | unchanged | failed | started (UTC) | finished (UTC) |
+| --- | ---: | ---: | ---: | ---: | ---: | --- | --- |
+| 1 full catalog | 9120 | 9120 | 0 | 0 | 0 | 21:23:21 | 21:26:35 |
+| 2 incremental refresh | 9120 | 0 | 0 | 9120 | 0 | 21:26:35 | 21:26:38 |
+
+Run 2 left the registry at 9120 rows. Errors: none on either run.
+
+Missing-reason rates on the 9120 stored rows (field absent upstream, stored null):
+
+| Field | count | % |
+| --- | ---: | ---: |
+| publisher | 322 | 3.53 |
+| license | 585 | 6.41 |
+| access_path | 60 | 0.66 |
+| issued | 335 | 3.67 |
+| modified | 7204 | 78.99 |
+| temporal | 707 | 7.75 |
+| spatial | 8243 | 90.38 |
+| structure | 438 | 4.80 |
+
+`original_source` was present on every row. Title was present on every row.
 
 ### Harvest path (verified 2026-08-26)
 
