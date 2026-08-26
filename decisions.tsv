@@ -47,3 +47,4 @@ ts	phase	decision	why	evidence	result
 2026-08-26T22:20:00Z	bench	rescore the same 65 questions with coverage	prove it on the live registry	data/coverage_proof.json Recall unchanged 0.815/0.862; follow_up_ran=0	gold scores unchanged
 2026-08-26T22:20:00Z	search	leave theme and AtB gaps logged, do not add theme to the scorer	q040/q042 confidence 0 and same-query skip; q056 AtB recall 0	data/coverage_proof.json examples	logged
 2026-08-26T22:20:00Z	search	prove follow-up on abortregisteret blomkålkorallskog	gold set never had an empty AND; need a real empty joint to show the merge	pda search confidence 0 to 1, added Abortregisteret and Blomkålkorallskog	follow-up works
+2026-08-26T22:21:00Z	pr	open Milestone 6 PR, do not merge, do not start M7	discovery MVP ends at a reviewable coverage PR	https://github.com/Solvelangseth/public-data-agent/pull/6	OPEN
