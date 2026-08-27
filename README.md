@@ -1857,9 +1857,11 @@ a license URL nor a publisher. No license URI is invented.
 Live ingest 2026-08-27: 3 printed untemplated GET paths (catalog prints
 5 GET paths, 3 untemplated, cap 10). Live search `datakilder` returns
 `hoydedata:datakilder`. Live fetch GETs
-`https://ws.geonorge.no/hoydedata/v1/datakilder` HTTP 200, printed
-source-name rows. `pda methods` is not applicable: source names, not a
-numeric time series. Proof is `data/hoydedata_source_proof.json`.
+`https://ws.geonorge.no/hoydedata/v1/datakilder` HTTP 200, 5 source-name
+rows. Sample printed values: dtm1, dom1, dybdekurver, hoydekurver,
+innsjohoyde. `pda methods` is not applicable: source names, not a
+numeric time series (`no observations matched entity/measure; available=[]`).
+Proof is `data/hoydedata_source_proof.json`.
 
 ## Architecture (long term)
 

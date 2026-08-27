@@ -1,0 +1,196 @@
+{
+  "produced_at": "2026-08-27T20:58:30Z",
+  "bound": {
+    "list_api": "https://ws.geonorge.no/hoydedata/v1/openapi.json",
+    "walk": "copy printed untemplated collection GET paths from the official Kartverket Høydedata OpenAPI paths object; native ids are the last printed path segment; access_path is the printed path joined to the spec's own relative servers[0].url /hoydedata/v1 on the OpenAPI origin; skip templated {datakilde} paths; do not invent endpoint ids",
+    "cap": 10,
+    "how": "pda ingest --source hoydedata --limit 10. The official Kartverket Høydedata OpenAPI prints 5 GET paths, of which 3 are untemplated collection paths. The adapter copies those 3 printed paths and joins each to /hoydedata/v1 on the OpenAPI origin. GET uses the printed path with no invented query filters."
+  },
+  "discarded": [
+    {
+      "candidate": "Kartverket Kommuneinfo",
+      "url": "PR 94 --source kommuneinfo, now on main",
+      "why": "Lane B must not pick Kommuneinfo. Already on main. Do not re-add."
+    },
+    {
+      "candidate": "Artsdatabanken NiN",
+      "url": "PR 95 --source nin, now on main",
+      "why": "Lane B must not pick NiN. Just merged on main. Do not re-add."
+    },
+    {
+      "candidate": "NGU OGC API Features",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/96",
+      "why": "In-flight PR 96. Lane B must not pick NGU."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Forbidden by the standing order. Do not pick."
+    },
+    {
+      "candidate": "Kartverket Adresse OpenAPI",
+      "url": "https://ws.geonorge.no/adresser/v1/openapi.json",
+      "why": "HTTP 200 OpenAPI prints /sok and /punktsok. Search/geocode API, not a collection catalog of datasets. /punktsok requires invented lat/lon/radius. Same class as Eiendom geokoding. Unused."
+    },
+    {
+      "candidate": "Riksantikvaren ArcGIS",
+      "url": "https://kart.ra.no/arcgis/rest/services?f=json",
+      "why": "HTTP 200 prints folders. MABYGIS_rest_ro FeatureServer prints 29 layer names. Left unused because Høydedata OpenAPI already prints a collection catalog of endpoints, matching the existing OpenAPI adapter shape."
+    },
+    {
+      "candidate": "NVE gis3 ArcGIS",
+      "url": "https://gis3.nve.no/arcgis/rest/services?f=json",
+      "why": "HTTP 200 prints folders only, zero root services. NVE Magasinstatistikk already on main as --source nve."
+    },
+    {
+      "candidate": "Kartverket Transformasjon OpenAPI",
+      "url": "https://ws.geonorge.no/transformasjon/v1/openapi.json",
+      "why": "HTTP 403. Do not retry."
+    },
+    {
+      "candidate": "Stortinget data root / eksport / swagger",
+      "url": "https://data.stortinget.no/",
+      "why": "Root HTTP 200 HTML-only. /eksport HTTP 404. swagger/v1/swagger.json HTTP 404. Do not retry."
+    },
+    {
+      "candidate": "Avinor airportNames",
+      "url": "https://flydata.avinor.no/airportNames.asp",
+      "why": "HTTP 200 HTML-only. Do not retry."
+    },
+    {
+      "candidate": "Bergen / Kristiansand / Bærum CKAN",
+      "url": "opendata.bergen.kommune.no / opendata.kristiansand.kommune.no / data.baerum.kommune.no package_list",
+      "why": "DNS NXDOMAIN. Do not retry."
+    },
+    {
+      "candidate": "Varsom avalanche swagger",
+      "url": "https://api01.nve.no/hydrology/forecast/avalanche/v6.2.1/swagger/v1/swagger.json",
+      "why": "HTTP 404. Do not retry."
+    },
+    {
+      "candidate": "Udir NKR / NFS swagger",
+      "url": "https://data-nkr.udir.no/swagger/v4/swagger.json",
+      "why": "DNS NXDOMAIN. Do not retry."
+    },
+    {
+      "candidate": "Nasjonalbiblioteket catalog v1",
+      "url": "https://api.nb.no/catalog/v1",
+      "why": "HTTP 404. Do not retry."
+    },
+    {
+      "candidate": "Matvaretabellen /api/nb/foods",
+      "url": "https://www.matvaretabellen.no/api/nb/foods",
+      "why": "HTTP 404. Do not retry."
+    },
+    {
+      "candidate": "Kartverket SeHavniva stationlist",
+      "url": "https://api.sehavniva.no/tideapi.php?request=stationlist&format=json",
+      "why": "TLS handshake timeout. Do not retry."
+    },
+    {
+      "candidate": "DSA / Elhub / nve.geodataonline / api.kartverket.no/adresse",
+      "url": "https://www.dsa.no/api",
+      "why": "HTTP 404 or DNS NXDOMAIN. Do not retry."
+    },
+    {
+      "candidate": "NVDB Les V3 OpenAPI",
+      "url": "https://nvdbapiles-v3.atlas.vegvesen.no/dokumentasjon/openapi.json",
+      "why": "Known skip: HTTP 400 User-Agent. Do not retry."
+    },
+    {
+      "candidate": "Vegvesen Trafikkdata swagger / trafikkdata-api",
+      "url": "https://trafikkdata.atlas.vegvesen.no/",
+      "why": "Known skip: swagger HTML-only; trafikkdata-api 410. Do not retry."
+    },
+    {
+      "candidate": "Kartverket Eiendom /geokoding",
+      "url": "https://api.kartverket.no/eiendom/v1/geokoding",
+      "why": "Known skip: HTTP 400 without matrikkel params. Search API, not a collection catalog. Do not retry."
+    },
+    {
+      "candidate": "Udir Statistikkbanken /data",
+      "url": "Udir Statistikkbanken /Eksport/{id}/data",
+      "why": "Known skip: requires invented filters. Do not retry."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source hoydedata --db /tmp/pda-hoydedata-proof/registry.sqlite --limit 10",
+    "listed": 3,
+    "inserted": 3,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "hoydedata:datakilder",
+        "access_path": "https://ws.geonorge.no/hoydedata/v1/datakilder"
+      },
+      {
+        "id": "hoydedata:punkt",
+        "access_path": "https://ws.geonorge.no/hoydedata/v1/punkt"
+      },
+      {
+        "id": "hoydedata:terrengtyper",
+        "access_path": "https://ws.geonorge.no/hoydedata/v1/terrengtyper"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search datakilder --db /tmp/pda-hoydedata-proof/registry.sqlite --limit 5",
+    "query": "datakilder",
+    "returned": 3,
+    "hit_id": "hoydedata:datakilder",
+    "title": "Alle datakilder man kan hente høyder/dybder fra.",
+    "source_id": "hoydedata"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset hoydedata:datakilder --db /tmp/pda-hoydedata-proof/registry.sqlite",
+    "dataset": "hoydedata:datakilder",
+    "table_id": "datakilder",
+    "access_path": "https://ws.geonorge.no/hoydedata/v1/datakilder",
+    "request_url": "https://ws.geonorge.no/hoydedata/v1/datakilder",
+    "http_status": 200,
+    "listed": 5,
+    "inserted": 5,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "datakilde",
+        "value": "dtm1"
+      },
+      {
+        "measure": "datakilde",
+        "value": "dom1"
+      },
+      {
+        "measure": "datakilde",
+        "value": "dybdekurver"
+      },
+      {
+        "measure": "datakilde",
+        "value": "hoydekurver"
+      },
+      {
+        "measure": "datakilde",
+        "value": "innsjohoyde"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset hoydedata:datakilder --table datakilder --entity \"\" --measure \"\" --db /tmp/pda-hoydedata-proof/registry.sqlite --out /tmp/pda-hoydedata-proof/methods",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "Høydedata datakilder prints source names. That is not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed OpenAPI paths. access_path is https://ws.geonorge.no/hoydedata/v1/datakilder, joined from the printed relative server /hoydedata/v1 and printed path /datakilder. https://ws.geonorge.no/datakilder is not used (HTTP 403). No hoydedata id was written onto a geonorge, kommuneinfo, nin, sodir, or datanorge row.",
+    "Publisher and license are null. The OpenAPI document does not print those fields.",
+    "Original harvested OpenAPI metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "Kartverket Kommuneinfo stays --source kommuneinfo. Artsdatabanken NiN stays --source nin. NGU stays on PR 96.",
+    "python3 -m pytest 433 passed, 1 skipped, 1 deselected."
+  ]
+}
