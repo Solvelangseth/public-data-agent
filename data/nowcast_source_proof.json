@@ -169,9 +169,10 @@
     "Ids are copied from printed swagger path last segments. access_path is swagger origin + printed basePath + path. No nowcast id was written onto a met, hoydedata, ngu, or datanorge row.",
     "License is the printed swagger CC BY 4.0 URL http://creativecommons.org/licenses/by/4.0. Publisher is null: the spec prints contact.name Developer Support, not a publisher.",
     "Original harvested swagger metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
-    "Høydedata stays on Lane B PR 97. Metalerts stays --source met. This source does not re-implement either.",
+    "Høydedata is now on main as --source hoydedata after PR 97. Metalerts stays --source met. This source does not re-implement either.",
     "/classic and /complete are printed untemplated GET paths and were ingested. Fetch in this slice uses /locations so lat and lon are not invented.",
     "python3 -m pytest 443 passed, 1 skipped, 1 deselected.",
+    "Rebased onto origin/main after Høydedata 97 merge c2e9052. hoydedata adapter files were not edited.",
     "Not a numeric time series with two or more periods."
   ]
 }
