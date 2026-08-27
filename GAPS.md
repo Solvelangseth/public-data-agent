@@ -46,3 +46,5 @@ This file does not add theme to the scorer. It does not rewrite ranking. It does
 
 - **Trafikkdata is GraphQL, not a printed list API.** `https://trafikkdata.atlas.vegvesen.no/swagger/v1/swagger.json` is HTML. `https://trafikkdata-api.atlas.vegvesen.no/` is HTTP 410. The working Vegvesen catalog is CKAN `https://dataut.vegvesen.no/api/3/action/package_list`. Source: live GET 2026-08-27T15:07:00Z.
 
+- **Udir NOR is a distinct printed OpenAPI catalog.** `https://data-nor.udir.no/swagger/v4/swagger.json` HTTP 200 prints untemplated collection GET paths (`/v4/maalformer`, `/v4/organisasjonsformer`, `/v4/enheter`, …). This is not NSR (`data-nsr.udir.no`) and not NBR (`data-nbr.udir.no`). Fiskeridirektoratet Kjøperregisteret stays on PR 82. Known skips stayed skipped: NVDB User-Agent 400, Trafikkdata HTML/410, Kartverket Eiendom geokoding 400. Source: live GET 2026-08-27T15:30:00Z.
+

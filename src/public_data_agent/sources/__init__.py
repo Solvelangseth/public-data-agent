@@ -18,6 +18,7 @@ from public_data_agent.sources.met import MetMetalertsSource
 from public_data_agent.sources.miljodir import MiljodirVannmiljoSource
 from public_data_agent.sources.nbr import NbrSource
 from public_data_agent.sources.nibio import NibioWeatherSource
+from public_data_agent.sources.nor import NorSource
 from public_data_agent.sources.norgesbank import NorgesBankSource
 from public_data_agent.sources.npolar import NpolarSource
 from public_data_agent.sources.nve import NveMagasinSource
@@ -61,6 +62,7 @@ SOURCE_IDS = (
     "sikt",
     "vegvesen",
     "buyer",
+    "nor",
 )
 
 
@@ -123,6 +125,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return VegvesenSource()
     if source_id == "buyer":
         return BuyerSource()
+    if source_id == "nor":
+        return NorSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -143,6 +147,7 @@ __all__ = [
     "MiljodirVannmiljoSource",
     "NbrSource",
     "NibioWeatherSource",
+    "NorSource",
     "NorgesBankSource",
     "NpolarSource",
     "NveMagasinSource",
