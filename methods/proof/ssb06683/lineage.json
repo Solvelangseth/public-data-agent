@@ -1,0 +1,446 @@
+{
+  "derived_columns": [
+    {
+      "name": "yoy_growth",
+      "formula": "(v_t - v_{t-1}) / v_{t-1}",
+      "input_columns": [
+        "value"
+      ],
+      "units": "ratio",
+      "rows": [
+        {
+          "value": null,
+          "lineage": {
+            "name": "yoy_growth",
+            "formula": "(v_t - v_{t-1}) / v_{t-1}",
+            "input_columns": [
+              "value"
+            ],
+            "units": "ratio",
+            "source_observation_ids": [
+              "c35149585e883145d3077abbfed744ee27d3d817"
+            ],
+            "source_periods": [
+              "2023"
+            ],
+            "note": "undefined: no prior period"
+          },
+          "entity": "Stebarn",
+          "period": "2023",
+          "measure": "06683: Adopsjoner, etter adopsjonstype, statistikkvariabel og år",
+          "observation_id": "c35149585e883145d3077abbfed744ee27d3d817"
+        },
+        {
+          "value": 0.16831683168316833,
+          "lineage": {
+            "name": "yoy_growth",
+            "formula": "(v_t - v_{t-1}) / v_{t-1}",
+            "input_columns": [
+              "value"
+            ],
+            "units": "ratio",
+            "source_observation_ids": [
+              "c35149585e883145d3077abbfed744ee27d3d817",
+              "791144f3b481c6e10f48bdd66ed649797d89118b"
+            ],
+            "source_periods": [
+              "2023",
+              "2024"
+            ]
+          },
+          "entity": "Stebarn",
+          "period": "2024",
+          "measure": "06683: Adopsjoner, etter adopsjonstype, statistikkvariabel og år",
+          "observation_id": "791144f3b481c6e10f48bdd66ed649797d89118b"
+        },
+        {
+          "value": null,
+          "lineage": {
+            "name": "yoy_growth",
+            "formula": "(v_t - v_{t-1}) / v_{t-1}",
+            "input_columns": [
+              "value"
+            ],
+            "units": "ratio",
+            "source_observation_ids": [
+              "9dfbb0c4a931647520d856a3a81447e5e330e01f"
+            ],
+            "source_periods": [
+              "2023"
+            ],
+            "note": "undefined: no prior period"
+          },
+          "entity": "Utenlandsadopsjoner",
+          "period": "2023",
+          "measure": "06683: Adopsjoner, etter adopsjonstype, statistikkvariabel og år",
+          "observation_id": "9dfbb0c4a931647520d856a3a81447e5e330e01f"
+        },
+        {
+          "value": -0.29411764705882354,
+          "lineage": {
+            "name": "yoy_growth",
+            "formula": "(v_t - v_{t-1}) / v_{t-1}",
+            "input_columns": [
+              "value"
+            ],
+            "units": "ratio",
+            "source_observation_ids": [
+              "9dfbb0c4a931647520d856a3a81447e5e330e01f",
+              "9cd3cc377bd311258bb7f1b88e582a50bcd7b30c"
+            ],
+            "source_periods": [
+              "2023",
+              "2024"
+            ]
+          },
+          "entity": "Utenlandsadopsjoner",
+          "period": "2024",
+          "measure": "06683: Adopsjoner, etter adopsjonstype, statistikkvariabel og år",
+          "observation_id": "9cd3cc377bd311258bb7f1b88e582a50bcd7b30c"
+        }
+      ]
+    },
+    {
+      "name": "index",
+      "formula": "100 * v_t / v_base",
+      "input_columns": [
+        "value"
+      ],
+      "units": "index (base = 100)",
+      "rows": [
+        {
+          "value": 100.0,
+          "lineage": {
+            "name": "index",
+            "formula": "100 * v_t / v_base",
+            "input_columns": [
+              "value"
+            ],
+            "units": "index (base = 100)",
+            "source_observation_ids": [
+              "c35149585e883145d3077abbfed744ee27d3d817"
+            ],
+            "source_periods": [
+              "2023"
+            ],
+            "base_period": "2023",
+            "base_observation_id": "c35149585e883145d3077abbfed744ee27d3d817"
+          },
+          "entity": "Stebarn",
+          "period": "2023",
+          "measure": "06683: Adopsjoner, etter adopsjonstype, statistikkvariabel og år",
+          "observation_id": "c35149585e883145d3077abbfed744ee27d3d817"
+        },
+        {
+          "value": 116.83168316831683,
+          "lineage": {
+            "name": "index",
+            "formula": "100 * v_t / v_base",
+            "input_columns": [
+              "value"
+            ],
+            "units": "index (base = 100)",
+            "source_observation_ids": [
+              "c35149585e883145d3077abbfed744ee27d3d817",
+              "791144f3b481c6e10f48bdd66ed649797d89118b"
+            ],
+            "source_periods": [
+              "2023",
+              "2024"
+            ],
+            "base_period": "2023",
+            "base_observation_id": "c35149585e883145d3077abbfed744ee27d3d817"
+          },
+          "entity": "Stebarn",
+          "period": "2024",
+          "measure": "06683: Adopsjoner, etter adopsjonstype, statistikkvariabel og år",
+          "observation_id": "791144f3b481c6e10f48bdd66ed649797d89118b"
+        },
+        {
+          "value": 100.0,
+          "lineage": {
+            "name": "index",
+            "formula": "100 * v_t / v_base",
+            "input_columns": [
+              "value"
+            ],
+            "units": "index (base = 100)",
+            "source_observation_ids": [
+              "9dfbb0c4a931647520d856a3a81447e5e330e01f"
+            ],
+            "source_periods": [
+              "2023"
+            ],
+            "base_period": "2023",
+            "base_observation_id": "9dfbb0c4a931647520d856a3a81447e5e330e01f"
+          },
+          "entity": "Utenlandsadopsjoner",
+          "period": "2023",
+          "measure": "06683: Adopsjoner, etter adopsjonstype, statistikkvariabel og år",
+          "observation_id": "9dfbb0c4a931647520d856a3a81447e5e330e01f"
+        },
+        {
+          "value": 70.58823529411765,
+          "lineage": {
+            "name": "index",
+            "formula": "100 * v_t / v_base",
+            "input_columns": [
+              "value"
+            ],
+            "units": "index (base = 100)",
+            "source_observation_ids": [
+              "9dfbb0c4a931647520d856a3a81447e5e330e01f",
+              "9cd3cc377bd311258bb7f1b88e582a50bcd7b30c"
+            ],
+            "source_periods": [
+              "2023",
+              "2024"
+            ],
+            "base_period": "2023",
+            "base_observation_id": "9dfbb0c4a931647520d856a3a81447e5e330e01f"
+          },
+          "entity": "Utenlandsadopsjoner",
+          "period": "2024",
+          "measure": "06683: Adopsjoner, etter adopsjonstype, statistikkvariabel og år",
+          "observation_id": "9cd3cc377bd311258bb7f1b88e582a50bcd7b30c"
+        }
+      ]
+    },
+    {
+      "name": "rank",
+      "formula": "1 + count(peers in (period, measure) with value > v_t)",
+      "input_columns": [
+        "value"
+      ],
+      "units": "rank (1 = highest)",
+      "rows": [
+        {
+          "value": 1.0,
+          "lineage": {
+            "name": "rank",
+            "formula": "1 + count(peers in (period, measure) with value > v_t)",
+            "input_columns": [
+              "value"
+            ],
+            "units": "rank (1 = highest)",
+            "source_observation_ids": [
+              "c35149585e883145d3077abbfed744ee27d3d817"
+            ],
+            "source_periods": [
+              "2023"
+            ],
+            "note": "competition/min: equal values share this rank; the next rank skips",
+            "peer_observation_ids": [
+              "9dfbb0c4a931647520d856a3a81447e5e330e01f",
+              "c35149585e883145d3077abbfed744ee27d3d817"
+            ]
+          },
+          "entity": "Stebarn",
+          "period": "2023",
+          "measure": "06683: Adopsjoner, etter adopsjonstype, statistikkvariabel og år",
+          "observation_id": "c35149585e883145d3077abbfed744ee27d3d817"
+        },
+        {
+          "value": 1.0,
+          "lineage": {
+            "name": "rank",
+            "formula": "1 + count(peers in (period, measure) with value > v_t)",
+            "input_columns": [
+              "value"
+            ],
+            "units": "rank (1 = highest)",
+            "source_observation_ids": [
+              "791144f3b481c6e10f48bdd66ed649797d89118b"
+            ],
+            "source_periods": [
+              "2024"
+            ],
+            "note": "competition/min: equal values share this rank; the next rank skips",
+            "peer_observation_ids": [
+              "791144f3b481c6e10f48bdd66ed649797d89118b",
+              "9cd3cc377bd311258bb7f1b88e582a50bcd7b30c"
+            ]
+          },
+          "entity": "Stebarn",
+          "period": "2024",
+          "measure": "06683: Adopsjoner, etter adopsjonstype, statistikkvariabel og år",
+          "observation_id": "791144f3b481c6e10f48bdd66ed649797d89118b"
+        },
+        {
+          "value": 2.0,
+          "lineage": {
+            "name": "rank",
+            "formula": "1 + count(peers in (period, measure) with value > v_t)",
+            "input_columns": [
+              "value"
+            ],
+            "units": "rank (1 = highest)",
+            "source_observation_ids": [
+              "9dfbb0c4a931647520d856a3a81447e5e330e01f"
+            ],
+            "source_periods": [
+              "2023"
+            ],
+            "note": "competition/min: equal values share this rank; the next rank skips",
+            "peer_observation_ids": [
+              "9dfbb0c4a931647520d856a3a81447e5e330e01f",
+              "c35149585e883145d3077abbfed744ee27d3d817"
+            ]
+          },
+          "entity": "Utenlandsadopsjoner",
+          "period": "2023",
+          "measure": "06683: Adopsjoner, etter adopsjonstype, statistikkvariabel og år",
+          "observation_id": "9dfbb0c4a931647520d856a3a81447e5e330e01f"
+        },
+        {
+          "value": 2.0,
+          "lineage": {
+            "name": "rank",
+            "formula": "1 + count(peers in (period, measure) with value > v_t)",
+            "input_columns": [
+              "value"
+            ],
+            "units": "rank (1 = highest)",
+            "source_observation_ids": [
+              "9cd3cc377bd311258bb7f1b88e582a50bcd7b30c"
+            ],
+            "source_periods": [
+              "2024"
+            ],
+            "note": "competition/min: equal values share this rank; the next rank skips",
+            "peer_observation_ids": [
+              "791144f3b481c6e10f48bdd66ed649797d89118b",
+              "9cd3cc377bd311258bb7f1b88e582a50bcd7b30c"
+            ]
+          },
+          "entity": "Utenlandsadopsjoner",
+          "period": "2024",
+          "measure": "06683: Adopsjoner, etter adopsjonstype, statistikkvariabel og år",
+          "observation_id": "9cd3cc377bd311258bb7f1b88e582a50bcd7b30c"
+        }
+      ]
+    },
+    {
+      "name": "rank_change",
+      "formula": "rank_{t-1} - rank_t",
+      "input_columns": [
+        "rank"
+      ],
+      "units": "rank positions (positive = moved up)",
+      "rows": [
+        {
+          "value": null,
+          "lineage": {
+            "name": "rank_change",
+            "formula": "rank_{t-1} - rank_t",
+            "input_columns": [
+              "rank"
+            ],
+            "units": "rank positions (positive = moved up)",
+            "source_observation_ids": [
+              "c35149585e883145d3077abbfed744ee27d3d817"
+            ],
+            "source_periods": [
+              "2023"
+            ],
+            "note": "undefined: no prior period; positive would mean moved up",
+            "peer_observation_ids": [
+              "9dfbb0c4a931647520d856a3a81447e5e330e01f",
+              "c35149585e883145d3077abbfed744ee27d3d817"
+            ]
+          },
+          "entity": "Stebarn",
+          "period": "2023",
+          "measure": "06683: Adopsjoner, etter adopsjonstype, statistikkvariabel og år",
+          "observation_id": "c35149585e883145d3077abbfed744ee27d3d817"
+        },
+        {
+          "value": 0.0,
+          "lineage": {
+            "name": "rank_change",
+            "formula": "rank_{t-1} - rank_t",
+            "input_columns": [
+              "rank"
+            ],
+            "units": "rank positions (positive = moved up)",
+            "source_observation_ids": [
+              "c35149585e883145d3077abbfed744ee27d3d817",
+              "791144f3b481c6e10f48bdd66ed649797d89118b"
+            ],
+            "source_periods": [
+              "2023",
+              "2024"
+            ],
+            "note": "positive = moved up (lower rank number)",
+            "peer_observation_ids": [
+              "791144f3b481c6e10f48bdd66ed649797d89118b",
+              "9cd3cc377bd311258bb7f1b88e582a50bcd7b30c",
+              "9dfbb0c4a931647520d856a3a81447e5e330e01f",
+              "c35149585e883145d3077abbfed744ee27d3d817"
+            ]
+          },
+          "entity": "Stebarn",
+          "period": "2024",
+          "measure": "06683: Adopsjoner, etter adopsjonstype, statistikkvariabel og år",
+          "observation_id": "791144f3b481c6e10f48bdd66ed649797d89118b"
+        },
+        {
+          "value": null,
+          "lineage": {
+            "name": "rank_change",
+            "formula": "rank_{t-1} - rank_t",
+            "input_columns": [
+              "rank"
+            ],
+            "units": "rank positions (positive = moved up)",
+            "source_observation_ids": [
+              "9dfbb0c4a931647520d856a3a81447e5e330e01f"
+            ],
+            "source_periods": [
+              "2023"
+            ],
+            "note": "undefined: no prior period; positive would mean moved up",
+            "peer_observation_ids": [
+              "9dfbb0c4a931647520d856a3a81447e5e330e01f",
+              "c35149585e883145d3077abbfed744ee27d3d817"
+            ]
+          },
+          "entity": "Utenlandsadopsjoner",
+          "period": "2023",
+          "measure": "06683: Adopsjoner, etter adopsjonstype, statistikkvariabel og år",
+          "observation_id": "9dfbb0c4a931647520d856a3a81447e5e330e01f"
+        },
+        {
+          "value": 0.0,
+          "lineage": {
+            "name": "rank_change",
+            "formula": "rank_{t-1} - rank_t",
+            "input_columns": [
+              "rank"
+            ],
+            "units": "rank positions (positive = moved up)",
+            "source_observation_ids": [
+              "9dfbb0c4a931647520d856a3a81447e5e330e01f",
+              "9cd3cc377bd311258bb7f1b88e582a50bcd7b30c"
+            ],
+            "source_periods": [
+              "2023",
+              "2024"
+            ],
+            "note": "positive = moved up (lower rank number)",
+            "peer_observation_ids": [
+              "791144f3b481c6e10f48bdd66ed649797d89118b",
+              "9cd3cc377bd311258bb7f1b88e582a50bcd7b30c",
+              "9dfbb0c4a931647520d856a3a81447e5e330e01f",
+              "c35149585e883145d3077abbfed744ee27d3d817"
+            ]
+          },
+          "entity": "Utenlandsadopsjoner",
+          "period": "2024",
+          "measure": "06683: Adopsjoner, etter adopsjonstype, statistikkvariabel og år",
+          "observation_id": "9cd3cc377bd311258bb7f1b88e582a50bcd7b30c"
+        }
+      ]
+    }
+  ]
+}
