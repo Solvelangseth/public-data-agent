@@ -1,0 +1,201 @@
+{
+  "produced_at": "2026-08-27T23:29:48Z",
+  "bound": {
+    "list_api": "https://api.met.no/weatherapi/turbulence/2.0/swagger",
+    "walk": "copy printed untemplated GET paths from the official MET Turbulence swagger; skip templated {format} paths and GET operations that print required query parameters; native ids are the last printed path segment; access_path is swagger origin + printed basePath + path; do not invent dataset ids or icao/type filters",
+    "cap": 10,
+    "how": "pda ingest --source turbulence --limit 10. The official MET Turbulence swagger prints 6 untemplated GET paths that have a last-segment id and no required query parameter. The adapter copies those paths. GET uses the printed /locations collection with no invented query filters. The root product path, /cross_section, and /map print required icao so they stay unused for fetch. /available prints XML so it stays unused for fetch."
+  },
+  "discarded": [
+    {
+      "candidate": "MET Offshoremaps",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/121",
+      "why": "Assigned skip for this lane. Lane B already has OPEN PR 121 offshoremaps (branch cursor/offshoremaps-met-source-0549). Do not pick offshoremaps."
+    },
+    {
+      "candidate": "MET Isobaricgrib",
+      "url": "PR 120 --source isobaricgrib, now on main",
+      "why": "Assigned skip for this lane. Already on main after merge 79c6df1. Do not re-add."
+    },
+    {
+      "candidate": "MET Oslofjord",
+      "url": "PR 119 --source oslofjord, now on main",
+      "why": "Assigned skip for this lane. Already on main after merge e3c683d. Do not re-add."
+    },
+    {
+      "candidate": "MET Metgc",
+      "url": "PR 118 --source metgc, now on main",
+      "why": "Assigned skip for this lane. Already on main. Do not re-add."
+    },
+    {
+      "candidate": "MET Gribfiles",
+      "url": "PR 117 --source gribfiles, now on main",
+      "why": "Assigned skip for this lane. Already on main. Do not re-add."
+    },
+    {
+      "candidate": "MET Soundprofile",
+      "url": "PR 116 --source soundprofile, now on main",
+      "why": "Assigned skip for this lane. Already on main. Do not re-add."
+    },
+    {
+      "candidate": "Kartverket Transformering",
+      "url": "PR 115 --source transformering, now on main",
+      "why": "Assigned skip for this lane. Already on main. Do not re-add."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    },
+    {
+      "candidate": "MET Volcanicashforecast /reftimes",
+      "url": "https://api.met.no/weatherapi/volcanicashforecast/0.1/swagger",
+      "why": "Leftover unused this slice for a later lane. Live swagger and /reftimes HTTP 200. Not selected because Lane B already opened a MET leftover (offshoremaps) and this slice stays on Turbulence."
+    },
+    {
+      "candidate": "MET Aviationforecast /locations",
+      "url": "https://api.met.no/weatherapi/aviationforecast/2.0/swagger",
+      "why": "Leftover unused this slice. Live swagger HTTP 200 and /locations HTTP 200 FeatureCollection. Not selected to avoid colliding with the parallel lane after Offshoremaps."
+    },
+    {
+      "candidate": "MET Sigmets /features",
+      "url": "https://api.met.no/weatherapi/sigmets/2.0/swagger",
+      "why": "Leftover unused this slice. Live swagger HTTP 200. /features FeatureCollection prints empty properties. Not selected."
+    },
+    {
+      "candidate": "MET Locationforecast /classic /compact /complete",
+      "url": "https://api.met.no/weatherapi/locationforecast/2.0/swagger",
+      "why": "Printed forecast paths require lat/lon. Unused for fetch."
+    },
+    {
+      "candidate": "MET weathericon / verticalprofile / forecastmap / routeforecast / icing / thredds swagger",
+      "url": "https://api.met.no/weatherapi/",
+      "why": "Known skip: swagger HTTP 500 HTML. Do not retry."
+    },
+    {
+      "candidate": "Frost MET sources",
+      "url": "https://frost.met.no/sources/v0.jsonld",
+      "why": "HTTP 401. Do not retry."
+    },
+    {
+      "candidate": "NVDB Les V3 OpenAPI",
+      "url": "https://nvdbapiles-v3.atlas.vegvesen.no/dokumentasjon/openapi.json",
+      "why": "Known skip: HTTP 400 User-Agent. Do not retry."
+    },
+    {
+      "candidate": "Vegvesen Trafikkdata swagger / trafikkdata-api",
+      "url": "https://trafikkdata.atlas.vegvesen.no/",
+      "why": "Known skip: swagger HTML-only; trafikkdata-api 410. Do not retry."
+    },
+    {
+      "candidate": "Kartverket Eiendom /geokoding",
+      "url": "https://api.kartverket.no/eiendom/v1/geokoding",
+      "why": "Known skip: HTTP 400 without matrikkel params. Do not retry."
+    },
+    {
+      "candidate": "Kartverket Adresser /sok",
+      "url": "https://ws.geonorge.no/adresser/v1/sok",
+      "why": "OpenAPI prints /sok, but live GET without search params is HTTP 400. Do not invent a query."
+    },
+    {
+      "candidate": "Kartverket skred / kvikkleire / hoydekurver / seeiendom OpenAPI",
+      "url": "https://ws.geonorge.no/skred/v1/openapi.json",
+      "why": "Live GET OpenAPI is HTTP 403. Do not invent an auth workaround."
+    },
+    {
+      "candidate": "NVE HydAPI /api/v1/Parameters",
+      "url": "https://hydapi.nve.no/swagger/v1/swagger.json",
+      "why": "HTTP 401. Do not retry."
+    },
+    {
+      "candidate": "Udir Statistikkbanken /data",
+      "url": "Udir Statistikkbanken /Eksport/{id}/data",
+      "why": "Known skip: requires invented filters. Do not retry."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source turbulence --db /tmp/pda-turbulence-proof/registry.sqlite --limit 10",
+    "listed": 6,
+    "inserted": 6,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "turbulence:available",
+        "access_path": "https://api.met.no/weatherapi/turbulence/2.0/available"
+      },
+      {
+        "id": "turbulence:changelog",
+        "access_path": "https://api.met.no/weatherapi/turbulence/2.0/changelog"
+      },
+      {
+        "id": "turbulence:features",
+        "access_path": "https://api.met.no/weatherapi/turbulence/2.0/features"
+      },
+      {
+        "id": "turbulence:healthz",
+        "access_path": "https://api.met.no/weatherapi/turbulence/2.0/healthz"
+      },
+      {
+        "id": "turbulence:locations",
+        "access_path": "https://api.met.no/weatherapi/turbulence/2.0/locations"
+      },
+      {
+        "id": "turbulence:values",
+        "access_path": "https://api.met.no/weatherapi/turbulence/2.0/values"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search locations --db /tmp/pda-turbulence-proof/registry.sqlite --limit 5",
+    "query": "locations",
+    "returned": 1,
+    "hit_id": "turbulence:locations",
+    "title": "List available locations as GeoJSON FeatureCollection",
+    "source_id": "turbulence",
+    "publisher": null,
+    "license": "http://creativecommons.org/licenses/by/4.0",
+    "access_path": "https://api.met.no/weatherapi/turbulence/2.0/locations",
+    "original_source": "https://api.met.no/weatherapi/turbulence/2.0/swagger",
+    "why_picked": "title matched locations"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset turbulence:locations --db /tmp/pda-turbulence-proof/registry.sqlite",
+    "dataset": "turbulence:locations",
+    "table_id": "locations",
+    "access_path": "https://api.met.no/weatherapi/turbulence/2.0/locations",
+    "request_url": "https://api.met.no/weatherapi/turbulence/2.0/locations",
+    "http_status": 200,
+    "listed": 19,
+    "inserted": 19,
+    "updated": 0,
+    "license": "http://creativecommons.org/licenses/by/4.0",
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "name",
+        "value": "ORSTA-VOLDA/HOVDEN"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset turbulence:locations --table locations --entity \"\" --measure \"\" --db /tmp/pda-turbulence-proof/registry.sqlite --out /tmp/pda-turbulence-proof/methods",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "Turbulence /locations prints GeoJSON location names. Those are not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed swagger path last segments. access_path is swagger origin + printed basePath + path. No turbulence id was written onto a met, isobaricgrib, oslofjord, metgc, gribfiles, nowcast, airquality, tidalwater, oceanforecast, sunrise, radar, spotwind, textforecast, icemap, ncagalewarnings, tafmetar, subseasonal, geosatellite, metgm, subjectiveforecast, polarsatellite, soundprofile, transformering, or datanorge row.",
+    "License is the printed swagger CC BY 4.0 URL http://creativecommons.org/licenses/by/4.0. Publisher is null: the spec does not print a publisher.",
+    "Original harvested swagger metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "Lane B PR 121 MET Offshoremaps merged to main at 989cc2d. This branch rebased onto that main. offshoremaps adapter files were not edited.",
+    "python3 -m pytest after Turbulence adapter: 680 passed, 1 skipped, 1 deselected.",
+    "python3 -m pytest after rebase onto Offshoremaps 121: 690 passed, 1 skipped, 1 deselected.",
+    "Not a numeric time series with two or more periods. Fetch listed 19 printed location-name cells (sample ORSTA-VOLDA/HOVDEN).",
+    "Rebased onto origin/main after Offshoremaps 121 merge 989cc2d. All existing sources plus turbulence were kept."
+  ]
+}
