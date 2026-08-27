@@ -676,6 +676,22 @@ Samboere 23 then 23.
 
 `pda search 06831` returns `ssb:06831`. Proof is `data/ssb_expand_proof.json`.
 
+## NVE Magasinstatistikk source
+
+Data.norge and SSB are ingest adapters. `pda ingest --source nve` is another.
+It copies GET paths from the official NVE Magasinstatistikk OpenAPI at
+`https://biapi.nve.no/magasinstatistikk/swagger/v1/swagger.json`.
+This slice keeps at most 10 printed paths. Dataset ids are the printed
+operation names. `access_path` is the printed endpoint URL.
+
+```bash
+pda ingest --source nve --db data/registry.sqlite --limit 10
+pda search magasinstatistikk --db data/registry.sqlite
+pda fetch --dataset nve:HentOffentligDataSisteUke --db data/registry.sqlite
+```
+
+License is null. The OpenAPI document does not print a license URI.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists

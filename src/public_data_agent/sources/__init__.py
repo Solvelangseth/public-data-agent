@@ -5,9 +5,10 @@ from pathlib import Path
 from public_data_agent.sources.base import CatalogSource, SourceBase
 from public_data_agent.sources.datanorge import DataNorgeSource
 from public_data_agent.sources.fixture import FixtureSource
+from public_data_agent.sources.nve import NveMagasinSource
 from public_data_agent.sources.ssb import SsbStatbankSource
 
-SOURCE_IDS = ("datanorge", "fixture", "ssb")
+SOURCE_IDS = ("datanorge", "fixture", "ssb", "nve")
 
 
 def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSource:
@@ -19,6 +20,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return FixtureSource.from_directory(fixtures)
     if source_id == "ssb":
         return SsbStatbankSource()
+    if source_id == "nve":
+        return NveMagasinSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -26,6 +29,7 @@ __all__ = [
     "CatalogSource",
     "DataNorgeSource",
     "FixtureSource",
+    "NveMagasinSource",
     "SsbStatbankSource",
     "SOURCE_IDS",
     "SourceBase",
