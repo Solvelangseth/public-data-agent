@@ -2025,6 +2025,33 @@ feature-name row. Sample printed value: Oceanforecast area.
 (`no observations matched entity/measure; available=[]`).
 Proof is `data/oceanforecast_source_proof.json`.
 
+## Meteorologisk institutt Sunrise source
+
+`pda ingest --source sunrise` is another replaceable adapter. It lists printed
+collection GET paths on the official MET Sunrise swagger
+`https://api.met.no/weatherapi/sunrise/3.0/swagger`, capped at 10.
+Templated `{format}` paths and the root `/` path are skipped. Dataset ids
+are the last printed path segment. `access_path` is the swagger origin +
+printed `basePath` + path. License is the printed swagger CC BY 4.0 URL.
+Publisher stays null. This is not Metalerts (`--source met`), not Nowcast
+(`--source nowcast`), not MET Airqualityforecast (`--source airquality`),
+not MET Tidalwater (`--source tidalwater`, now on main), and not MET
+Oceanforecast (`--source oceanforecast`, now on main after PR 102).
+`/sun` and `/moon` stay unused for fetch in this slice: those printed
+paths require `lat` and `lon`.
+
+```bash
+pda ingest --source sunrise --db data/registry.sqlite --limit 10
+pda search locations --db data/registry.sqlite
+pda fetch --dataset sunrise:locations --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored collection URL. Observation values are copied
+from printed GeoJSON feature `name`. License is the printed swagger
+CC BY 4.0 URL. Publisher stays null: the spec does not print a publisher.
+
+Live ingest and fetch proof will be recorded after the first live run.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
