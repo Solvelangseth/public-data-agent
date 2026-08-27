@@ -225,6 +225,7 @@ def test_tafmetar_is_a_registered_source() -> None:
     assert "tafmetar" in SOURCE_IDS
     assert "icemap" in SOURCE_IDS
     assert "textforecast" in SOURCE_IDS
+    assert "ncagalewarnings" in SOURCE_IDS
     source = build_source("tafmetar")
     assert isinstance(source, TafmetarSource)
     assert source.source_id == "tafmetar"
@@ -326,6 +327,7 @@ def test_is_tafmetar_url_accepts_only_tafmetar_host_path() -> None:
     assert not is_tafmetar_url("https://api.met.no/weatherapi/spotwind/1.1/locations")
     assert not is_tafmetar_url("https://api.met.no/weatherapi/textforecast/3.0/landoverview")
     assert not is_tafmetar_url("https://api.met.no/weatherapi/icemap/1.0/locations")
+    assert not is_tafmetar_url("https://api.met.no/weatherapi/ncagalewarnings/1.0/locations")
     assert not is_tafmetar_url("https://ws.geonorge.no/hoydedata/v1/datakilder")
     assert not is_tafmetar_url("https://data.norge.no/datasets/x")
     assert not is_tafmetar_url(None)
