@@ -14,6 +14,7 @@ from public_data_agent.sources.fiskeridir import FiskeridirVesselSource
 from public_data_agent.sources.fixture import FixtureSource
 from public_data_agent.sources.geonorge import GeonorgeKartkatalogSource
 from public_data_agent.sources.hi import HiFeaturesSource
+from public_data_agent.sources.kommuneinfo import KommuneinfoSource
 from public_data_agent.sources.kystverket import KystverketSource
 from public_data_agent.sources.mattilsynet import MattilsynetPlantevernSource
 from public_data_agent.sources.met import MetMetalertsSource
@@ -83,6 +84,7 @@ SOURCE_IDS = (
     "portal",
     "opencom",
     "sodir",
+    "kommuneinfo",
 )
 
 
@@ -167,6 +169,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return OpencomSource()
     if source_id == "sodir":
         return SodirSource()
+    if source_id == "kommuneinfo":
+        return KommuneinfoSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -183,6 +187,7 @@ __all__ = [
     "FixtureSource",
     "GeonorgeKartkatalogSource",
     "HiFeaturesSource",
+    "KommuneinfoSource",
     "KystverketSource",
     "MattilsynetPlantevernSource",
     "MetMetalertsSource",
