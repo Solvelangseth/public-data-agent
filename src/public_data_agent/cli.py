@@ -528,7 +528,11 @@ def _search(args: argparse.Namespace) -> int:
         return 1
     registry = Registry(args.db)
     try:
-        from public_data_agent.sources.user import annotate_search_hits, ingest_user_file
+        from public_data_agent.sources.user import (
+            annotate_search_hits,
+            ensure_user_hits,
+            ingest_user_file,
+        )
 
         user_path = args.user_file or args.user_db
         if user_path is not None:
@@ -548,6 +552,12 @@ def _search(args: argparse.Namespace) -> int:
         }
         if user_path is not None:
             payload["user_file"] = str(user_path)
+            payload["results"] = ensure_user_hits(
+                payload.get("results") or [],
+                registry,
+                args.query,
+                limit=args.limit,
+            )
         annotate_search_hits(payload.get("results") or [], registry)
     except (FileNotFoundError, ValueError) as exc:
         print(str(exc), file=sys.stderr)

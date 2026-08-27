@@ -98,6 +98,30 @@ def test_user_sqlite_maps_the_same_columns(tmp_path: Path) -> None:
     registry.close()
 
 
+def test_cli_keeps_user_hit_on_the_demo_query(tmp_path: Path, capsys) -> None:
+    registry = _registry(tmp_path)
+    db = tmp_path / "registry.sqlite"
+    registry.close()
+    assert (
+        main(
+            [
+                "search",
+                "Hvilke Oslo-bydeler er størst og hvilke vokser mest?",
+                "--db",
+                str(db),
+                "--user-file",
+                str(EXAMPLE_CSV),
+                "--limit",
+                "5",
+            ]
+        )
+        == 0
+    )
+    payload = json.loads(capsys.readouterr().out)
+    assert any(hit["user_supplied"] for hit in payload["results"])
+    assert any(not hit["user_supplied"] for hit in payload["results"])
+
+
 def test_cli_search_user_file(tmp_path: Path, capsys) -> None:
     registry = _registry(tmp_path)
     db = tmp_path / "registry.sqlite"

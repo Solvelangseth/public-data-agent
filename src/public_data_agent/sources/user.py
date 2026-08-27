@@ -87,6 +87,33 @@ def annotate_search_hits(results: list[dict[str, Any]], registry: Registry) -> l
     return results
 
 
+def ensure_user_hits(
+    results: list[dict[str, Any]],
+    registry: Registry,
+    query: str,
+    *,
+    limit: int,
+) -> list[dict[str, Any]]:
+    """Keep at least one matching user row when follow-up truncation drops it."""
+
+    if any((registry.get_dataset(hit["id"]) or {}).get("source_id") == USER_SOURCE_ID for hit in results):
+        return results
+    from public_data_agent.search import search
+
+    extras: list[dict[str, Any]] = []
+    seen = {hit["id"] for hit in results}
+    for hit in search(registry, query, limit=max(limit, 1), decompose_query=False):
+        row = registry.get_dataset(hit.dataset_id)
+        if (row or {}).get("source_id") != USER_SOURCE_ID:
+            continue
+        if hit.dataset_id in seen:
+            continue
+        extras.append(hit.to_dict())
+    if not extras:
+        return results
+    return (extras + results)[:limit]
+
+
 def _payloads_from_csv(path: Path) -> list[dict[str, Any]]:
     with path.open(encoding="utf-8", newline="") as handle:
         rows = list(csv.DictReader(handle))
