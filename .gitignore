@@ -15,6 +15,7 @@ data/*.sqlite-shm
 *.sqlite-journal
 *.sqlite-wal
 *.sqlite-shm
+!data/examples/user_bydel.sqlite
 .coverage
 htmlcov/
 logs/

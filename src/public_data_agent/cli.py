@@ -68,7 +68,7 @@ def main(argv: list[str] | None = None) -> int:
         "--user-file",
         type=Path,
         default=None,
-        help="Local CSV searched next to the public catalog this run.",
+        help="Local CSV or SQLite searched next to the public catalog this run.",
     )
     search_cmd.add_argument(
         "--user-db",
