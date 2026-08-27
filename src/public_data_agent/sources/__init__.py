@@ -51,6 +51,7 @@ from public_data_agent.sources.spotwind import SpotwindSource
 from public_data_agent.sources.ssb import SsbStatbankSource
 from public_data_agent.sources.statnett import StatnettDriftsdataSource
 from public_data_agent.sources.stedsnavn import StedsnavnSource
+from public_data_agent.sources.subjectiveforecast import SubjectiveforecastSource
 from public_data_agent.sources.subseasonal import SubseasonalSource
 from public_data_agent.sources.sunrise import SunriseSource
 from public_data_agent.sources.tafmetar import TafmetarSource
@@ -121,6 +122,7 @@ SOURCE_IDS = (
     "subseasonal",
     "geosatellite",
     "metgm",
+    "subjectiveforecast",
 )
 
 
@@ -243,6 +245,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return GeosatelliteSource()
     if source_id == "metgm":
         return MetgmSource()
+    if source_id == "subjectiveforecast":
+        return SubjectiveforecastSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -298,6 +302,7 @@ __all__ = [
     "SourceBase",
     "StatnettDriftsdataSource",
     "StedsnavnSource",
+    "SubjectiveforecastSource",
     "SubseasonalSource",
     "SunriseSource",
     "TafmetarSource",
