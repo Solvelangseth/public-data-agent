@@ -1,0 +1,162 @@
+{
+  "produced_at": "2026-08-27T13:53:26Z",
+  "bound": {
+    "list_api": "https://data.trondheim.kommune.no/api/v3/datasets/export.json",
+    "walk": "copy printed dataset ids from the official Trondheim Åpne Data export.json; native ids are the printed catalog id values; access_path is the documented /api/v3/dataset/:id URL",
+    "cap": 10,
+    "how": "pda ingest --source trondheim --limit 10. The official export prints 9 datasets. The deprecated CKAN help route prints /api/v3/datasets/export.json and /api/v3/dataset/:id. The adapter copies those printed values. No dataset id was invented."
+  },
+  "discarded": [
+    {
+      "candidate": "Oslo kommune Statistikkbank",
+      "url": "https://statistikkbanken.oslo.kommune.no",
+      "why": "In flight on PR 74 (cursor/oslo-statbank-source-4d28, --source oslo). This slice starts from origin/main and does not touch that branch, PR, or adapter."
+    },
+    {
+      "candidate": "Riksantikvaren OGC Features",
+      "url": "https://api.ra.no/LokaliteterEnkeltminnerOgSikringssoner/collections",
+      "why": "Already discarded on main: timed out. Live re-probe was timeout / HTTP 502. Do not invent a catalog."
+    },
+    {
+      "candidate": "Sikt NVA",
+      "url": "https://api.nva.unit.no/",
+      "why": "Already discarded on main: HTTP 403 Forbidden. Do not invent a token."
+    },
+    {
+      "candidate": "Digitalarkivet API root",
+      "url": "https://media.digitalarkivet.no/api/v1/",
+      "why": "Already discarded on main: HTTP 404. No printed endpoint catalog."
+    },
+    {
+      "candidate": "Artsdatabanken /Api",
+      "url": "https://artsdatabanken.no/Api",
+      "why": "Already discarded on main: HTTP 404. /Api/Taxon returns taxon records, not a printed endpoint catalog. openapi.json is 404."
+    },
+    {
+      "candidate": "Stortinget eksport",
+      "url": "https://data.stortinget.no/eksport",
+      "why": "Already discarded on main: HTTP 404 root. Individual eksport names return JSON, but the catalog page is HTML."
+    },
+    {
+      "candidate": "HK-dir DBH",
+      "url": "https://dbh.hkdir.no/api",
+      "why": "Already discarded on main: welcome JSON only. swagger.json and openapi.json are HTML SPA or 404."
+    },
+    {
+      "candidate": "Nasjonalbiblioteket swagger.json",
+      "url": "https://api.nb.no/swagger.json",
+      "why": "HTTP 404 nginx. Root is Swagger UI HTML. Do not wrap HTML docs."
+    },
+    {
+      "candidate": "MET weatherapi available.json",
+      "url": "https://api.met.no/weatherapi/available.json",
+      "why": "Live GET 200 product catalog. Publisher is MET; Metalerts is already on main."
+    },
+    {
+      "candidate": "Trondheim badeplasser.geojson download",
+      "url": "https://data.trondheim.kommune.no/download/e736k/4zz/badeplasser.geojson",
+      "why": "Printed resource URL. Live GET 200 application/geo+json. Body is not UTF-8; existing HttpClient decodes UTF-8 only. Fetch uses the documented UTF-8 dataset API instead. File bytes were not invented or re-encoded."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source trondheim --db /tmp/pda-trondheim-proof/registry.sqlite --limit 10",
+    "listed": 9,
+    "inserted": 9,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "trondheim:2z8j6",
+        "access_path": "https://data.trondheim.kommune.no/api/v3/dataset/2z8j6"
+      },
+      {
+        "id": "trondheim:vq7l7",
+        "access_path": "https://data.trondheim.kommune.no/api/v3/dataset/vq7l7"
+      },
+      {
+        "id": "trondheim:2lkwm",
+        "access_path": "https://data.trondheim.kommune.no/api/v3/dataset/2lkwm"
+      },
+      {
+        "id": "trondheim:e736k",
+        "access_path": "https://data.trondheim.kommune.no/api/v3/dataset/e736k"
+      },
+      {
+        "id": "trondheim:v8963",
+        "access_path": "https://data.trondheim.kommune.no/api/v3/dataset/v8963"
+      },
+      {
+        "id": "trondheim:vdn4m",
+        "access_path": "https://data.trondheim.kommune.no/api/v3/dataset/vdn4m"
+      },
+      {
+        "id": "trondheim:2op6g",
+        "access_path": "https://data.trondheim.kommune.no/api/v3/dataset/2op6g"
+      },
+      {
+        "id": "trondheim:24d7n",
+        "access_path": "https://data.trondheim.kommune.no/api/v3/dataset/24d7n"
+      },
+      {
+        "id": "trondheim:20zr1",
+        "access_path": "https://data.trondheim.kommune.no/api/v3/dataset/20zr1"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search Badeplasser --db /tmp/pda-trondheim-proof/registry.sqlite --limit 5",
+    "query": "Badeplasser",
+    "returned": 1,
+    "hit_id": "trondheim:e736k",
+    "title": "Badeplasser i Trondheimsregionen",
+    "source_id": "trondheim"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset trondheim:e736k --db /tmp/pda-trondheim-proof/registry.sqlite",
+    "dataset": "trondheim:e736k",
+    "table_id": "e736k",
+    "access_path": "https://data.trondheim.kommune.no/api/v3/dataset/e736k",
+    "request_url": "https://data.trondheim.kommune.no/api/v3/dataset/e736k",
+    "http_status": 200,
+    "listed": 2,
+    "inserted": 2,
+    "license": "https://data.norge.no/nlod/no/2.0",
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "title",
+        "value": "Badeplasser i Trondheimsregionen",
+        "dimensions": {
+          "id": "4zz",
+          "url": "https://data.trondheim.kommune.no/download/e736k/4zz/badeplasser.geojson"
+        }
+      },
+      {
+        "measure": "title",
+        "value": "Badeplasser",
+        "dimensions": {
+          "id": "zfn",
+          "url": "https://geoinnsyn3.nois.no/release/#?project=Friluftsliv_og_gronnstruktur&application=GI3Trondheim&guid=6b695ffe-b1c4&layers=1048,1001&zoom=11&lat=7033629.43&lon=569426.63&params=10100000000"
+        }
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset trondheim:e736k --db /tmp/pda-trondheim-proof/registry.sqlite --entity \"\" --measure \"\"",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "Get dataset e736k prints resource and link titles (title plus id/url). That is not a numeric time series. methods.clean drops the rows because they have no period. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from the printed export.json id. access_path is the documented host + /api/v3/dataset/ + printed id. No Trondheim id was written onto a datanorge row.",
+    "Fetch GETs the stored dataset API URL. Observation values are printed title fields on resources and links. Nested QA objects are not copied as dimensions unless they are scalars on the resource/link object.",
+    "License is copied from printed licence.url (NLOD 2.0) when present. Publisher stays null: the catalog does not print a publisher name.",
+    "24d7n +CityxChange KPI overview was ingested as a printed catalog row. It was not fetched: the dataset API prints empty resources and links.",
+    "The printed badeplasser.geojson download is Latin-1 and was not fetched. The dataset API is UTF-8 JSON 200.",
+    "Oslo stays on PR 74. This source does not re-implement it. Miljødirektoratet Vannmiljø stayed on main (PR 73)."
+  ]
+}

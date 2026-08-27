@@ -1135,6 +1135,33 @@ HTTP 200, 12 cells for 2024-2026. Sample printed Oslo totals:
 717710, 724290, 728714. `pda methods` reads those stored numeric
 rows and returns YoY. Proof is `data/oslo_source_proof.json`.
 
+## Trondheim kommune Åpne Data source
+
+`pda ingest --source trondheim` is another replaceable adapter. It lists printed
+datasets on the official Trondheim Åpne Data export
+`https://data.trondheim.kommune.no/api/v3/datasets/export.json`, capped at 10.
+Dataset ids are the printed catalog `id` values. `access_path` is the printed
+`/api/v3/dataset/:id` URL. License is copied from a printed `licence.url` when
+present. Publisher stays null: the catalog does not print a publisher name.
+
+```bash
+pda ingest --source trondheim --db data/registry.sqlite --limit 10
+pda search Badeplasser --db data/registry.sqlite
+pda fetch --dataset trondheim:e736k --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored dataset API URL. Observation values are copied
+from printed resource and link titles. Nested QA objects are not copied.
+
+Live ingest 2026-08-27: 9 printed catalog datasets. Live search
+`Badeplasser` returns `trondheim:e736k`. Live fetch GETs
+`https://data.trondheim.kommune.no/api/v3/dataset/e736k`
+HTTP 200, 2 resource/link-title rows. Sample printed titles:
+Badeplasser i Trondheimsregionen, Badeplasser.
+`pda methods` is not applicable: titles, not a numeric time series
+(`no observations matched entity/measure; available=[]`).
+Proof is `data/trondheim_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
