@@ -859,6 +859,32 @@ Privatskole, Kommunal. `pda methods` is not applicable: names, not a
 numeric time series (`no observations matched entity/measure; available=[]`).
 Proof is `data/udir_source_proof.json`.
 
+## Entur mobility GBFS source
+
+`pda ingest --source entur` is another replaceable adapter. It lists printed
+system `id` and `url` values on the official Entur mobility GBFS list
+`https://api.entur.io/mobility/v2/gbfs`, capped at 10. Dataset ids are the
+printed system ids. `access_path` is the printed system URL.
+
+```bash
+pda ingest --source entur --db data/registry.sqlite --limit 10
+pda search voistavanger --db data/registry.sqlite
+pda fetch --dataset entur:voistavanger --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored system URL, then follows a printed
+`vehicle_types` feed URL when the discovery document lists one. Observation
+values are copied from printed `name`. License and publisher stay null: the
+list API does not print them.
+
+Live ingest 2026-08-27: 10 printed systems. Live search `voistavanger`
+returns `entur:voistavanger`. Live fetch GETs
+`https://api.entur.io/mobility/v2/gbfs/v2/voistavanger/vehicle_types`
+HTTP 200, 2 vehicle-type rows. Sample printed names: Voiager_5, Voiager_4.
+`pda methods` is not applicable: vehicle names, not a numeric time series
+(`no observations matched entity/measure; available=[]`).
+Proof is `data/entur_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists

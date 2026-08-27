@@ -1,0 +1,158 @@
+{
+  "produced_at": "2026-08-27T11:41:38Z",
+  "bound": {
+    "list_api": "https://api.entur.io/mobility/v2/gbfs",
+    "walk": "copy printed system id and url values from the systems array",
+    "cap": 10,
+    "how": "pda ingest --source entur --limit 10. The official Entur mobility GBFS list prints system objects with id and url. The adapter copies those printed values and stops at 10."
+  },
+  "discarded": [
+    {
+      "candidate": "Regobs API swagger",
+      "url": "https://api.regobs.no/v5/swagger/docs/v5",
+      "why": "Live GET 200 OpenAPI. Publisher is NVE/Varsom; Magasinstatistikk is already on main. Spec advertises regObs_apptoken. Not a new publisher."
+    },
+    {
+      "candidate": "NILU lookup",
+      "url": "https://api.nilu.no/lookup/areas",
+      "why": "HTTP 410 discontinued. swagger.json 404."
+    },
+    {
+      "candidate": "BarentsWatch swagger",
+      "url": "https://www.barentswatch.no/bwapi/swagger/docs/v1",
+      "why": "HTTP 404. Root /bwapi is HTML."
+    },
+    {
+      "candidate": "SODIR FactPages",
+      "url": "https://factpages.sodir.no/swagger/v1/swagger.json",
+      "why": "HTTP 404. /public/api is HTML, not a list API."
+    },
+    {
+      "candidate": "SVV Trafikkdata swagger",
+      "url": "https://www.vegvesen.no/trafikkdata/api/v1/swagger.json",
+      "why": "HTTP 404 HTML."
+    },
+    {
+      "candidate": "NVE HydAPI stations",
+      "url": "https://hydapi.nve.no/api/v1/Stations",
+      "why": "HTTP 401. HydAPI was already 404 in earlier slices; Magasinstatistikk is on main."
+    },
+    {
+      "candidate": "Entur stop-places swagger",
+      "url": "https://api.entur.io/stop-places/v1/rest/swagger.json",
+      "why": "HTTP 403 Access not allowed. GBFS list already printed system URLs with no auth."
+    },
+    {
+      "candidate": "Kulturminne data",
+      "url": "https://data.kulturminne.no/",
+      "why": "TLS handshake timed out."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source entur --db /tmp/pda-entur-proof/registry.sqlite --limit 10",
+    "listed": 10,
+    "inserted": 10,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "entur:voistavanger",
+        "access_path": "https://api.entur.io/mobility/v2/gbfs/v2/voistavanger/gbfs"
+      },
+      {
+        "id": "entur:voikristiansand",
+        "access_path": "https://api.entur.io/mobility/v2/gbfs/v2/voikristiansand/gbfs"
+      },
+      {
+        "id": "entur:voioslo",
+        "access_path": "https://api.entur.io/mobility/v2/gbfs/v2/voioslo/gbfs"
+      },
+      {
+        "id": "entur:voilillestrom",
+        "access_path": "https://api.entur.io/mobility/v2/gbfs/v2/voilillestrom/gbfs"
+      },
+      {
+        "id": "entur:voitrondheim",
+        "access_path": "https://api.entur.io/mobility/v2/gbfs/v2/voitrondheim/gbfs"
+      },
+      {
+        "id": "entur:voiarendal",
+        "access_path": "https://api.entur.io/mobility/v2/gbfs/v2/voiarendal/gbfs"
+      },
+      {
+        "id": "entur:voimoss",
+        "access_path": "https://api.entur.io/mobility/v2/gbfs/v2/voimoss/gbfs"
+      },
+      {
+        "id": "entur:boltoslo",
+        "access_path": "https://api.entur.io/mobility/v2/gbfs/v2/boltoslo/gbfs"
+      },
+      {
+        "id": "entur:boltlillestrom",
+        "access_path": "https://api.entur.io/mobility/v2/gbfs/v2/boltlillestrom/gbfs"
+      },
+      {
+        "id": "entur:boltfredrikstad",
+        "access_path": "https://api.entur.io/mobility/v2/gbfs/v2/boltfredrikstad/gbfs"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search voistavanger --db /tmp/pda-entur-proof/registry.sqlite --limit 5",
+    "query": "voistavanger",
+    "returned": 1,
+    "hit_id": "entur:voistavanger",
+    "title": "voistavanger",
+    "source_id": "entur"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset entur:voistavanger --db /tmp/pda-entur-proof/registry.sqlite",
+    "dataset": "entur:voistavanger",
+    "table_id": "voistavanger",
+    "access_path": "https://api.entur.io/mobility/v2/gbfs/v2/voistavanger/gbfs",
+    "request_url": "https://api.entur.io/mobility/v2/gbfs/v2/voistavanger/vehicle_types",
+    "http_status": 200,
+    "listed": 2,
+    "inserted": 2,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "name",
+        "value": "Voiager_5",
+        "dimensions": {
+          "vehicle_type_id": "YVO:VehicleType:172ef7a6-ee84-4320-9337-86235f2f67ac",
+          "form_factor": "scooter_standing",
+          "make": "Ninebot",
+          "model": "Voiager_5"
+        }
+      },
+      {
+        "measure": "name",
+        "value": "Voiager_4",
+        "dimensions": {
+          "vehicle_type_id": "YVO:VehicleType:5da7c980-05b1-4a03-873a-d3d45a2f7e69",
+          "form_factor": "scooter_standing",
+          "make": "Ninebot",
+          "model": "Voiager_4"
+        }
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset entur:voistavanger --db /tmp/pda-entur-proof/registry.sqlite",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "GBFS vehicle_types prints vehicle names (name plus vehicle_type_id). That is not a numeric time series. methods.clean drops the rows because they have no period. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed GBFS system id fields. access_path is the printed system url. No Entur id was written onto a datanorge row.",
+    "Fetch GETs the stored system URL, then follows the printed vehicle_types feed URL when the discovery document lists one. Observation values are printed name. Nested objects such as vehicle_assets are not copied as dimensions.",
+    "License and publisher stay null. The systems list prints only id and url.",
+    "Udir NSR stayed on main (PR 60). This source does not re-implement it."
+  ]
+}
