@@ -16,6 +16,7 @@ from public_data_agent.sources.fixture import FixtureSource
 from public_data_agent.sources.geonorge import GeonorgeKartkatalogSource
 from public_data_agent.sources.hi import HiFeaturesSource
 from public_data_agent.sources.hoydedata import HoydedataSource
+from public_data_agent.sources.icemap import IcemapSource
 from public_data_agent.sources.kommuneinfo import KommuneinfoSource
 from public_data_agent.sources.kystverket import KystverketSource
 from public_data_agent.sources.mattilsynet import MattilsynetPlantevernSource
@@ -109,6 +110,7 @@ SOURCE_IDS = (
     "radar",
     "spotwind",
     "textforecast",
+    "icemap",
 )
 
 
@@ -219,6 +221,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return SpotwindSource()
     if source_id == "textforecast":
         return TextforecastSource()
+    if source_id == "icemap":
+        return IcemapSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -237,6 +241,7 @@ __all__ = [
     "GeonorgeKartkatalogSource",
     "HiFeaturesSource",
     "HoydedataSource",
+    "IcemapSource",
     "KommuneinfoSource",
     "KystverketSource",
     "MattilsynetPlantevernSource",
