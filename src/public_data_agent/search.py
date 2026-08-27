@@ -424,6 +424,13 @@ def _rank_rows(
     for row, fields, keywords, payload in _iter_scored_rows(registry):
         matches = score_document(query_tokens, fields)
         if not matches:
+            matches = (
+                _requirement_matches(
+                    tuple(query_tokens), fields, row.get("publisher_name")
+                )
+                or []
+            )
+        if not matches:
             continue
         hits.append(_hit_from_row(row, payload, keywords, matches, why=why_summary(matches)))
     hits.sort(key=lambda hit: (-hit.relevance, hit.title or "", hit.dataset_id))
