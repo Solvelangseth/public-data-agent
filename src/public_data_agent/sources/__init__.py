@@ -37,6 +37,7 @@ from public_data_agent.sources.nytek import NytekSource
 from public_data_agent.sources.oceanforecast import OceanforecastSource
 from public_data_agent.sources.opencom import OpencomSource
 from public_data_agent.sources.portal import PortalSource
+from public_data_agent.sources.radar import RadarSource
 from public_data_agent.sources.research import ResearchSource
 from public_data_agent.sources.riksantikvaren import RiksantikvarenSource
 from public_data_agent.sources.sikt import SiktSource
@@ -103,6 +104,7 @@ SOURCE_IDS = (
     "tidalwater",
     "oceanforecast",
     "sunrise",
+    "radar",
 )
 
 
@@ -207,6 +209,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return OceanforecastSource()
     if source_id == "sunrise":
         return SunriseSource()
+    if source_id == "radar":
+        return RadarSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -246,6 +250,7 @@ __all__ = [
     "OceanforecastSource",
     "OpencomSource",
     "PortalSource",
+    "RadarSource",
     "ResearchSource",
     "RiksantikvarenSource",
     "SiktSource",
