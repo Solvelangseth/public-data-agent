@@ -2001,7 +2001,8 @@ Templated `{format}` paths are skipped. Dataset ids are the last printed path
 segment. `access_path` is the swagger origin + printed `basePath` + path.
 License is the printed swagger CC BY 4.0 URL. Publisher stays null. This is not
 Metalerts (`--source met`), not Nowcast (`--source nowcast`), not
-Airqualityforecast (`--source airquality`, now on main), and not Riksantikvaren
+Airqualityforecast (`--source airquality`, now on main), not Tidalwater
+(`--source tidalwater`, now on main after PR 101), and not Riksantikvaren
 MABYGIS (`--source riksantikvaren`). `/complete` and `/mox` stay unused for
 fetch in this slice: those printed paths require `lat` and `lon`.
 
