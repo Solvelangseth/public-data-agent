@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import sqlite3
 from datetime import datetime, timezone
@@ -212,6 +213,57 @@ class Registry:
     def enrichment_count(self) -> int:
         row = self.conn.execute("SELECT COUNT(*) AS n FROM enrichments").fetchone()
         return int(row["n"])
+
+    def ensure_observation_dataset(
+        self,
+        *,
+        dataset_id: str,
+        title: str | None,
+        publisher_name: str | None,
+        access_path: str | None,
+        license: str | None,
+    ) -> None:
+        """Insert an identity-only datasets row so observations can satisfy the FK.
+
+        Does not write harvested_payloads or enrichments. Does not update a
+        row that already exists.
+        """
+
+        if self.get_dataset(dataset_id) is not None:
+            return
+        source_id, _, native_id = dataset_id.partition(":")
+        stamp = utc_now()
+        self.conn.execute(
+            """
+            INSERT INTO datasets (
+                id, source_id, source_native_id, source_native_uri,
+                title, publisher_name, license, access_path,
+                ingest_reason, source_name, source_endpoints_json,
+                missing_fields_json, payload_hash,
+                first_ingested_at, last_ingested_at, last_seen_at, last_changed_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                dataset_id,
+                source_id or dataset_id,
+                native_id or None,
+                access_path,
+                title,
+                publisher_name,
+                license,
+                access_path,
+                "observation_store_identity",
+                publisher_name or dataset_id,
+                json.dumps([access_path] if access_path else [], ensure_ascii=False),
+                json.dumps({}, ensure_ascii=False),
+                hashlib.sha256(dataset_id.encode("utf-8")).hexdigest(),
+                stamp,
+                stamp,
+                stamp,
+                stamp,
+            ),
+        )
+        self.conn.commit()
 
     def start_fetch_run(
         self,

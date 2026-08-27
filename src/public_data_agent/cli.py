@@ -9,6 +9,7 @@ from public_data_agent.benchmark import DEFAULT_QUESTIONS, load_questions, run_b
 from public_data_agent.enrich import enrich
 from public_data_agent.fetch import DEFAULT_OSLO_DATASET, DEFAULT_OSLO_TABLE, fetch_observations
 from public_data_agent.ask import DEMO_QUESTION, ask, ask_proof_payload
+from public_data_agent.export import export_proof_payload, write_ask_charts, write_ask_csv
 from public_data_agent.join import (
     DEFAULT_KLASS_DATASET,
     join_bydel_population,
@@ -399,11 +400,24 @@ def _ask(args: argparse.Namespace) -> int:
         command = f'pda ask "{args.question}" --year {args.year} --prior-year {args.prior_year} --db {args.db}'
         if args.out:
             command += f" --out {args.out}"
-        payload = ask_proof_payload(result, command=command, db=str(args.db))
+        if args.out and args.out.suffix.lower() == ".csv":
+            write_ask_csv(result, args.out)
+            charts = write_ask_charts(result, args.out.with_name(args.out.stem + "_charts"))
+            payload = export_proof_payload(
+                result,
+                command=command,
+                csv_path=args.out,
+                chart_paths=charts,
+                db=str(args.db),
+            )
+            proof = args.out.with_name(args.out.stem + "_proof.json")
+            proof.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        else:
+            payload = ask_proof_payload(result, command=command, db=str(args.db))
+            if args.out:
+                args.out.parent.mkdir(parents=True, exist_ok=True)
+                args.out.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
         text = json.dumps(payload, ensure_ascii=False, indent=2)
-        if args.out:
-            args.out.parent.mkdir(parents=True, exist_ok=True)
-            args.out.write_text(text + "\n", encoding="utf-8")
         print(text)
         failed = any(item.counts.failed for item in result.joins)
         return 1 if failed else 0

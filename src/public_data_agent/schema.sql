@@ -99,8 +99,10 @@ CREATE TABLE IF NOT EXISTS enrichments (
     FOREIGN KEY (dataset_id) REFERENCES datasets(id)
 );
 
--- observations: cells retrieved from a public API. Never write datasets,
--- harvested_payloads, or enrichments from this table.
+-- observations: cells retrieved from a public API. Never write
+-- harvested_payloads or enrichments from this table. A missing datasets
+-- row may be inserted as identity-only so the FK holds; never overwrite
+-- an existing harvest row.
 CREATE TABLE IF NOT EXISTS fetch_runs (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     dataset_id TEXT NOT NULL,

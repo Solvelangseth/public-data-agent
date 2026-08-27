@@ -82,3 +82,12 @@ ts	phase	decision	why	evidence	result
 2026-08-27T08:12:00Z	ask	leave search og-token hits logged, do not edit search.py	Chef owns search; AND still treats og as a requirement	ask_proof.json discovery hits relevance 22 on og	logged
 2026-08-27T08:12:30Z	test	run pytest after the ask commit	do not leave the count only in the PR body	python3 -m pytest 64 passed 1 deselected	tests green
 2026-08-27T08:13:00Z	pr	open Milestone 10 PR, do not merge	first ask path is a reviewable PR	https://github.com/Solvelangseth/public-data-agent/pull/18	OPEN
+2026-08-27T08:14:20Z	merge	treat PR 18 as merged on main	gh pr view is the required proof	https://github.com/Solvelangseth/public-data-agent/pull/18 mergeCommit 81c3d4001dcef57f947e60eb8f8228af7277c1dc	MERGED 2026-08-27T08:14:20Z
+2026-08-27T08:15:00Z	export	PR 19 chart helper is on main, call methods.emit.emit	do not take the Methods Lab branch; reuse the public helper already on origin/main	gh pr view 19 MERGED a2b8491; methods/emit.py emit + yoy_bar_points	reuse
+2026-08-27T08:15:30Z	export	--out .csv writes stable bydel columns, not methods table.csv	Excel needs bydel_code name personer yoy lineage; emit() still writes its own table next to the charts	src/public_data_agent/export.py CSV_COLUMNS	live used
+2026-08-27T08:16:00Z	export	live pda ask wrote data/ask_export.csv	prove the Excel file from a real ask, not a rebuilt proof	15 rows HTTP 200; 030102 personer=67039; 030108 yoy=0.0184; methods.emit.emit wrote yoy_bar.png	live works
+2026-08-27T08:16:30Z	test	run pytest after the export commit	do not leave the count only in the PR body	python3 -m pytest 70 passed 1 deselected	tests green
+2026-08-27T08:17:00Z	pr	open Milestone 11 PR, do not merge	export is a reviewable PR	https://github.com/Solvelangseth/public-data-agent/pull/21	OPEN
+2026-08-27T08:23:32Z	obs	persist 11763 cells during pda join/ask, no new API	Methods Lab had 0 bydel rows in observations; join already POSTed table 11763	data/ask_export_proof.json observations_11763 count=36 sample 030102 Grünerløkka 67039 HTTP 200 license=null	live stored
+2026-08-27T08:23:32Z	obs	INSERT identity-only datasets row ssb:11763 for the FK	observations.dataset_id REFERENCES datasets(id); do not write harvested_payloads or enrichments	datasets ingest_reason=observation_store_identity; harvested_payloads 0; enrichments 0	harvest untouched
+2026-08-27T08:23:32Z	methods	pda methods on ssb:11763 used stored rows only	load_observations found 36 rows so it did not call pda fetch	pda methods --dataset ssb:11763 --entity "" --measure "" rows=30	no new API
