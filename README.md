@@ -932,6 +932,13 @@ pda fetch --dataset statnett:ElspotPowerSituation_GetPowerSituations --db data/r
 from printed `elspotId`. License and publisher stay null: the spec does not
 print them.
 
+Live ingest 2026-08-27: 10 printed collection GET paths. Live search
+`elspot` returns `statnett:ElspotPowerSituation_GetPowerSituations`. Live
+fetch GETs
+`https://driftsdata.statnett.no/RestApi/ElspotPowerSituation/GetPowerSituations`
+HTTP 200, 5 elspot-area rows. Sample printed ids: NO3, NO4, NO1, NO2, NO5.
+`pda methods` is not applicable: area ids, not a numeric time series
+(`no observations matched entity/measure; available=[]`).
 Proof is `data/statnett_source_proof.json`.
 
 ## Architecture (long term)

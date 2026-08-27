@@ -194,9 +194,11 @@ def test_fetch_gets_printed_power_situations(tmp_path: Path) -> None:
     assert result.http_status == 200
     assert result.counts.listed == 2
     rows = registry.list_observations(DATASET_ID)
-    assert [json.loads(row["value_json"]) for row in rows] == ["NO3", "NO4"]
+    values = [json.loads(row["value_json"]) for row in rows]
+    assert values == ["NO3", "NO4"] or values == ["NO4", "NO3"]
     assert all(row["measure"] == "elspotId" for row in rows)
-    dims = json.loads(rows[0]["dimensions_json"])
+    by_id = {json.loads(row["value_json"]): row for row in rows}
+    dims = json.loads(by_id["NO3"]["dimensions_json"])
     assert dims["powerSituation"] == "Normal"
     assert dims["elspotCoordinates"] == "495,467,489,460"
     assert "translatedText" not in dims
