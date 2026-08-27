@@ -15,6 +15,7 @@ from public_data_agent.sources.fiskeridir import FiskeridirVesselSource
 from public_data_agent.sources.fixture import FixtureSource
 from public_data_agent.sources.geonorge import GeonorgeKartkatalogSource
 from public_data_agent.sources.geosatellite import GeosatelliteSource
+from public_data_agent.sources.gribfiles import GribfilesSource
 from public_data_agent.sources.hi import HiFeaturesSource
 from public_data_agent.sources.hoydedata import HoydedataSource
 from public_data_agent.sources.icemap import IcemapSource
@@ -129,6 +130,7 @@ SOURCE_IDS = (
     "polarsatellite",
     "transformering",
     "soundprofile",
+    "gribfiles",
 )
 
 
@@ -259,6 +261,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return TransformeringSource()
     if source_id == "soundprofile":
         return SoundprofileSource()
+    if source_id == "gribfiles":
+        return GribfilesSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -276,6 +280,7 @@ __all__ = [
     "FixtureSource",
     "GeonorgeKartkatalogSource",
     "GeosatelliteSource",
+    "GribfilesSource",
     "HiFeaturesSource",
     "HoydedataSource",
     "IcemapSource",
