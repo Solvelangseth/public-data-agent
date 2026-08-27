@@ -338,6 +338,120 @@ class Registry:
         self.conn.commit()
         return "updated"
 
+    def start_join_run(
+        self,
+        *,
+        join_key: str,
+        left_dataset_id: str | None,
+        right_dataset_id: str | None,
+        left_request_url: str,
+        right_request_url: str,
+        started_at: str | None = None,
+    ) -> int:
+        cur = self.conn.execute(
+            """
+            INSERT INTO join_runs (
+                join_key, left_dataset_id, right_dataset_id,
+                left_request_url, right_request_url, started_at, status
+            ) VALUES (?, ?, ?, ?, ?, ?, 'running')
+            """,
+            (
+                join_key,
+                left_dataset_id,
+                right_dataset_id,
+                left_request_url,
+                right_request_url,
+                started_at or utc_now(),
+            ),
+        )
+        self.conn.commit()
+        return int(cur.lastrowid)
+
+    def finish_join_run(
+        self,
+        run_id: int,
+        counts: HarvestCounts,
+        *,
+        status: str,
+        left_http_status: int | None,
+        right_http_status: int | None,
+        finished_at: str | None = None,
+    ) -> None:
+        self.conn.execute(
+            """
+            UPDATE join_runs
+            SET finished_at = ?, status = ?, left_http_status = ?,
+                right_http_status = ?, listed = ?, inserted = ?,
+                updated = ?, unchanged = ?, failed = ?, errors_json = ?
+            WHERE id = ?
+            """,
+            (
+                finished_at or utc_now(),
+                status,
+                left_http_status,
+                right_http_status,
+                counts.listed,
+                counts.inserted,
+                counts.updated,
+                counts.unchanged,
+                counts.failed,
+                json.dumps(counts.errors, ensure_ascii=False),
+                run_id,
+            ),
+        )
+        self.conn.commit()
+
+    def joined_row_count(self) -> int:
+        row = self.conn.execute("SELECT COUNT(*) AS n FROM joined_rows").fetchone()
+        return int(row["n"])
+
+    def list_joined_rows(self) -> list[dict[str, Any]]:
+        rows = self.conn.execute("SELECT * FROM joined_rows ORDER BY join_key_value, id").fetchall()
+        return [dict(row) for row in rows]
+
+    def upsert_joined_row(self, row: dict[str, Any], run_id: int) -> str:
+        existing = self.conn.execute(
+            "SELECT id, payload_json FROM joined_rows WHERE id = ?",
+            (row["id"],),
+        ).fetchone()
+        values = {
+            "id": row["id"],
+            "join_run_id": run_id,
+            "join_key": row["join_key"],
+            "join_key_value": row["join_key_value"],
+            "why_matched": row["why_matched"],
+            "left_dataset_id": row.get("left_dataset_id"),
+            "right_dataset_id": row.get("right_dataset_id"),
+            "left_publisher_name": row.get("left_publisher_name"),
+            "right_publisher_name": row.get("right_publisher_name"),
+            "left_license": row.get("left_license"),
+            "right_license": row.get("right_license"),
+            "left_access_path": row.get("left_access_path"),
+            "right_access_path": row.get("right_access_path"),
+            "left_request_url": row.get("left_request_url"),
+            "right_request_url": row.get("right_request_url"),
+            "left_retrieved_at": row.get("left_retrieved_at"),
+            "right_retrieved_at": row.get("right_retrieved_at"),
+            "payload_json": _dumps(row.get("payload")),
+        }
+        if existing is None:
+            self.conn.execute(
+                f"INSERT INTO joined_rows ({', '.join(_JOINED_ROW_COLUMNS)}) "
+                f"VALUES ({_placeholders(_JOINED_ROW_COLUMNS)})",
+                tuple(values[col] for col in _JOINED_ROW_COLUMNS),
+            )
+            self.conn.commit()
+            return "inserted"
+        if existing["payload_json"] == values["payload_json"]:
+            return "unchanged"
+        assign = ", ".join(f"{col} = ?" for col in _JOINED_ROW_UPDATE_COLUMNS)
+        self.conn.execute(
+            f"UPDATE joined_rows SET {assign} WHERE id = ?",
+            (*(values[col] for col in _JOINED_ROW_UPDATE_COLUMNS), row["id"]),
+        )
+        self.conn.commit()
+        return "updated"
+
     def upsert_enrichment(self, row: dict[str, Any], *, now: str | None = None) -> str:
         """Insert or update by dataset_id. Matching harvest payload_hash is a no-op."""
 
@@ -518,6 +632,29 @@ _OBSERVATION_COLUMNS = (
 _OBSERVATION_UPDATE_COLUMNS = tuple(
     col for col in _OBSERVATION_COLUMNS if col not in {"id", "dataset_id", "table_id"}
 )
+
+_JOINED_ROW_COLUMNS = (
+    "id",
+    "join_run_id",
+    "join_key",
+    "join_key_value",
+    "why_matched",
+    "left_dataset_id",
+    "right_dataset_id",
+    "left_publisher_name",
+    "right_publisher_name",
+    "left_license",
+    "right_license",
+    "left_access_path",
+    "right_access_path",
+    "left_request_url",
+    "right_request_url",
+    "left_retrieved_at",
+    "right_retrieved_at",
+    "payload_json",
+)
+
+_JOINED_ROW_UPDATE_COLUMNS = tuple(col for col in _JOINED_ROW_COLUMNS if col not in {"id"})
 
 
 def _placeholders(columns: tuple[str, ...]) -> str:
