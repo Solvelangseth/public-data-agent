@@ -193,14 +193,6 @@ def riksantikvaren_table_id(access_path: str) -> str:
 
 
 def cells_from_riksantikvaren(payload: Any) -> list[tuple[str, Any, dict[str, str]]]:
-    """Copy printed FeatureServer fields into observation cells.
-
-    A live layer document keeps a printed `fields` array. Each field copies
-    printed `name` when it is a non-empty string, otherwise `alias`. Other
-    scalars stay as dimensions. Nested objects are not copied. Nothing is
-    invented.
-    """
-
     if not isinstance(payload, dict):
         raise ValueError("riksantikvaren payload is not a JSON object")
     fields = payload.get("fields")
