@@ -1638,6 +1638,40 @@ regnbueørret med luftlomme, Medisinfôr Skretting.
 (`no observations matched entity/measure; available=[]`).
 Proof is `data/research_source_proof.json`.
 
+## Fiskeridirektoratet Akvakultursøknader source
+
+`pda ingest --source portal` is another replaceable adapter. It lists printed
+collection GET paths on the official Akvakultursøknader OpenAPI
+`https://api.fiskeridir.no/aqua-portal-api-public/v3/api-docs`,
+capped at 10. Templated paths such as
+`/api/v1/application/{applicationNo}` are skipped. Dataset ids are
+the printed last path segments. `access_path` is the printed path joined
+to the printed `servers[0].url`. This is a different Fiskeridirektoratet
+register from `--source fiskeridir` (Fartøyregisteret), `--source buyer`
+(Kjøperregisteret), `--source nytek` (NYTEK), `--source aqua`
+(Akvakulturregister), and `--source research` (Akvakulturforskning).
+
+```bash
+pda ingest --source portal --db data/registry.sqlite --limit 10
+pda search akvakultursøknader --db data/registry.sqlite
+pda fetch --dataset portal:applications --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored collection URL. Observation values are copied
+from printed `title` when it is a non-empty string, otherwise
+`applicationNo`. License is copied from the printed OpenAPI
+`info.license.url` when present. Publisher stays null: the spec does not
+print a publisher name.
+
+Live ingest 2026-08-27: 1 printed collection GET path. Live search
+`akvakultursøknader` returns `portal:applications`. Live fetch GETs
+`https://api.fiskeridir.no/aqua-portal-api-public/api/v1/applications`
+HTTP 200, 10 søknad-title rows. Sample printed values: HUNDBERGAN,
+Segløygrunna, SØRVÆRET, VARHOLMEN, JAMNUNGEN.
+`pda methods` is not applicable: application titles, not a numeric time
+series (`no observations matched entity/measure; available=[]`).
+Proof is `data/portal_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
