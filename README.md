@@ -2015,8 +2015,14 @@ pda fetch --dataset oceanforecast:locations --db data/registry.sqlite
 from printed feature `name`. License is the printed swagger CC BY 4.0 URL.
 Publisher stays null: the spec does not print a publisher.
 
-Live ingest numbers and proof will be recorded after `pda ingest`/`search`/`fetch`
-on a throwaway db.
+Live ingest 2026-08-27: 7 printed untemplated GET paths (catalog prints
+11 paths, 4 templated `{format}` paths skipped, cap 10). Live search
+`locations` returns `oceanforecast:locations`. Live fetch GETs
+`https://api.met.no/weatherapi/oceanforecast/2.0/locations` HTTP 200, 1
+feature-name row. Sample printed value: Oceanforecast area.
+`pda methods` is not applicable: feature name, not a numeric time series
+(`no observations matched entity/measure; available=[]`).
+Proof is `data/oceanforecast_source_proof.json`.
 
 ## Architecture (long term)
 
