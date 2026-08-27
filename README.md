@@ -1694,6 +1694,16 @@ printed `organization.title` when present. License is copied from printed
 `license_url` when it is an http(s) URI. The first printed packages store
 `license_id` only, so license stays null. No license URI is invented.
 
+Live ingest 2026-08-27: 10 printed package names (catalog prints 360,
+cap 10). Live search `behovsprofil` returns
+`opencom:04682-behovsprofil-grunnlagsdata`. Live fetch GETs
+`https://opencom.no/api/3/action/package_show?id=04682-behovsprofil-grunnlagsdata`
+HTTP 200, 9 resource-name rows. Sample printed values: 04682_2010.csv,
+04682_2011.csv, 04682_2012.csv, 04682_2013.csv, 04682_2014.csv.
+`pda methods` is not applicable: resource names, not a numeric time
+series (`no observations matched entity/measure; available=[]`).
+Proof is `data/opencom_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists

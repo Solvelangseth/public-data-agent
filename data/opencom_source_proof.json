@@ -1,0 +1,174 @@
+{
+  "produced_at": "2026-08-27T17:21:31Z",
+  "bound": {
+    "list_api": "https://opencom.no/api/3/action/package_list",
+    "walk": "copy printed package names from the official CKAN package_list result array; native ids are those printed names; access_path is the catalog's own /api/3/action/package_show?id= action joined to the list origin; do not invent package names",
+    "cap": 10,
+    "how": "pda ingest --source opencom --limit 10. The official Stavanger Opencom package_list prints 360 package names. The adapter copies the first 10 printed names and joins each name to package_show. No package name was invented."
+  },
+  "discarded": [
+    {
+      "candidate": "Fiskeridirektoratet Akvakultursøknader",
+      "url": "PR 91 --source portal, now on main",
+      "why": "Already on main as --source portal. Do not re-add. This branch starts from origin/main only."
+    },
+    {
+      "candidate": "Fiskeridirektoratet Autorisasjonsregisteret",
+      "url": "https://api.fiskeridir.no/authreg-api/openapi",
+      "why": "Official catalog lists it first among unused Fiskeridir APIs. OpenAPI prints only /authreg-api/api/v1/messages/auth-status/{radio_call_sign}. Templated lookup, not a collection catalog. Do not invent radio call signs."
+    },
+    {
+      "candidate": "Fiskeridirektoratet operasjonelle akvakulturrettigheter",
+      "url": "https://api.fiskeridir.no/aqua-operations-public/v3/api-docs",
+      "why": "OpenAPI prints only /api/v1/joint-ops/{site-nr}. Templated lookup, not a collection catalog. Do not invent site numbers."
+    },
+    {
+      "candidate": "Fiskeridirektoratet miljøundersøkelser / envreportreg",
+      "url": "https://api.fiskeridir.no/envreportreg-public/v3/api-docs",
+      "why": "Already discarded on main: untemplated paths are search endpoints. Do not invent report ids."
+    },
+    {
+      "candidate": "Fiskeridirektoratet miljorapporter-api",
+      "url": "https://api.fiskeridir.no/miljorapporter-api/v3/api-docs",
+      "why": "Not listed in the official Fiskeridir API directory. The directory still points miljøundersøkelser at envreportreg-public. Spec prints a global Keycloak scheme. Left unused."
+    },
+    {
+      "candidate": "Fiskeridirektoratet omregningsfaktor havressurs",
+      "url": "https://api.fiskeridir.no/conversion-factor-api/swagger/api",
+      "why": "Already discarded on main: the only printed path is /api/v1/conversionfactors/search. Search API, not a collection catalog."
+    },
+    {
+      "candidate": "SODIR FactMaps FeatureServer",
+      "url": "https://factmaps.sodir.no/api/rest/services/DataService/Data/FeatureServer?f=json",
+      "why": "Layer catalog prints names. Live query without a filter is HTTP 400. Do not invent a where clause."
+    },
+    {
+      "candidate": "NVDB Les V3 OpenAPI",
+      "url": "https://nvdbapiles-v3.atlas.vegvesen.no/dokumentasjon/openapi.json",
+      "why": "Known skip: HTTP 400 User-Agent. Do not retry."
+    },
+    {
+      "candidate": "Vegvesen Trafikkdata swagger / trafikkdata-api",
+      "url": "https://trafikkdata.atlas.vegvesen.no/",
+      "why": "Known skip: swagger HTML-only; trafikkdata-api 410. Do not retry."
+    },
+    {
+      "candidate": "Kartverket Eiendom /geokoding",
+      "url": "https://api.kartverket.no/eiendom/v1/geokoding",
+      "why": "Known skip: HTTP 400 without matrikkel params. Search API, not a collection catalog. Do not retry."
+    },
+    {
+      "candidate": "Udir Statistikkbanken /data",
+      "url": "Udir Statistikkbanken /Eksport/{id}/data",
+      "why": "Known skip: requires invented filters. Do not retry."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source opencom --db /tmp/pda-opencom-proof/registry.sqlite --limit 10",
+    "listed": 10,
+    "inserted": 10,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "opencom:04682-behovsprofil-grunnlagsdata",
+        "access_path": "https://opencom.no/api/3/action/package_show?id=04682-behovsprofil-grunnlagsdata"
+      },
+      {
+        "id": "opencom:04683-barnehager-grunnlagsdata",
+        "access_path": "https://opencom.no/api/3/action/package_show?id=04683-barnehager-grunnlagsdata"
+      },
+      {
+        "id": "opencom:04684-grunnskoleopplaering-grunnlagsdata",
+        "access_path": "https://opencom.no/api/3/action/package_show?id=04684-grunnskoleopplaering-grunnlagsdata"
+      },
+      {
+        "id": "opencom:04685-kommunehelse-grunnlagsdata",
+        "access_path": "https://opencom.no/api/3/action/package_show?id=04685-kommunehelse-grunnlagsdata"
+      },
+      {
+        "id": "opencom:04686-pleie-og-omsorg-grunnlagsdata",
+        "access_path": "https://opencom.no/api/3/action/package_show?id=04686-pleie-og-omsorg-grunnlagsdata"
+      },
+      {
+        "id": "opencom:04687-sosialtjenesten-grunnlagsdata",
+        "access_path": "https://opencom.no/api/3/action/package_show?id=04687-sosialtjenesten-grunnlagsdata"
+      },
+      {
+        "id": "opencom:04688-barnevern-grunnlagsdata",
+        "access_path": "https://opencom.no/api/3/action/package_show?id=04688-barnevern-grunnlagsdata"
+      },
+      {
+        "id": "opencom:04689-vann-grunnlagsdata",
+        "access_path": "https://opencom.no/api/3/action/package_show?id=04689-vann-grunnlagsdata"
+      },
+      {
+        "id": "opencom:04691-gebyrsatser-brukerbetaling-grunnlagsdata",
+        "access_path": "https://opencom.no/api/3/action/package_show?id=04691-gebyrsatser-brukerbetaling-grunnlagsdata"
+      },
+      {
+        "id": "opencom:04692-kultur-grunnlagsdata",
+        "access_path": "https://opencom.no/api/3/action/package_show?id=04692-kultur-grunnlagsdata"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search behovsprofil --db /tmp/pda-opencom-proof/registry.sqlite --limit 5",
+    "query": "behovsprofil",
+    "returned": 1,
+    "hit_id": "opencom:04682-behovsprofil-grunnlagsdata",
+    "title": "04682 Behovsprofil grunnlagsdata 2010-16",
+    "source_id": "opencom"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset opencom:04682-behovsprofil-grunnlagsdata --db /tmp/pda-opencom-proof/registry.sqlite",
+    "dataset": "opencom:04682-behovsprofil-grunnlagsdata",
+    "table_id": "04682-behovsprofil-grunnlagsdata",
+    "access_path": "https://opencom.no/api/3/action/package_show?id=04682-behovsprofil-grunnlagsdata",
+    "request_url": "https://opencom.no/api/3/action/package_show?id=04682-behovsprofil-grunnlagsdata",
+    "http_status": 200,
+    "listed": 9,
+    "inserted": 9,
+    "license": null,
+    "publisher": "Stavangerregionen",
+    "sample": [
+      {
+        "measure": "name",
+        "value": "04682_2010.csv"
+      },
+      {
+        "measure": "name",
+        "value": "04682_2011.csv"
+      },
+      {
+        "measure": "name",
+        "value": "04682_2012.csv"
+      },
+      {
+        "measure": "name",
+        "value": "04682_2013.csv"
+      },
+      {
+        "measure": "name",
+        "value": "04682_2014.csv"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset opencom:04682-behovsprofil-grunnlagsdata --table 04682-behovsprofil-grunnlagsdata --entity \"\" --measure \"\" --db /tmp/pda-opencom-proof/registry.sqlite --out /tmp/pda-opencom-proof/methods",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "Opencom package_show prints resource file names. That is not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed CKAN package names. access_path is https://opencom.no/api/3/action/package_show?id=04682-behovsprofil-grunnlagsdata. No opencom id was written onto a vegvesen, trondheim, portal, or datanorge row.",
+    "Publisher is the printed organization.title Stavangerregionen. License is null. The first printed packages store license_id NLOD-1.0 and no license_url. No license URI was invented.",
+    "Original harvested CKAN metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "Akvakultursøknader stays --source portal. Vegvesen Dataportalen stays --source vegvesen. Trondheim Åpne Data stays --source trondheim. This source does not re-implement any of them.",
+    "python3 -m pytest 400 passed, 1 skipped, 1 deselected."
+  ]
+}
