@@ -1625,6 +1625,19 @@ from printed `name` when it is a non-empty string, otherwise
 `info.license.url` when present. Publisher stays null: the spec does not
 print a publisher name.
 
+Live ingest 2026-08-27: 1 printed collection GET path. Live search
+`forskningsprosjekter` returns `research:research-projects`. Live fetch
+GETs
+`https://api.fiskeridir.no/aqua-research-project-api-public/api/v1/research-projects`
+HTTP 200, 80 forskningsprosjekt-name rows. Sample printed values:
+Klinisk utprøving av quorum sensing-antagonist på skinnhelse hos
+atlantisk laks, Standardising manual louse counts (LusetellingSOP),
+Seonguavhengig produksjon av regnbueørret, Nedsenket produksjon av
+regnbueørret med luftlomme, Medisinfôr Skretting.
+`pda methods` is not applicable: project names, not a numeric time series
+(`no observations matched entity/measure; available=[]`).
+Proof is `data/research_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
