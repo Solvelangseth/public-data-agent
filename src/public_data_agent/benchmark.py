@@ -6,7 +6,13 @@ from typing import Any, Callable
 
 from public_data_agent.http_util import HttpClient, RateLimiter, SourceHttpError
 from public_data_agent.registry import Registry
-from public_data_agent.search import keywords_from_payload, search, search_report, tokenize
+from public_data_agent.search import (
+    keywords_from_payload,
+    search,
+    search_report,
+    themes_from_payload,
+    tokenize,
+)
 
 DATANORGE_SEARCH = "https://search.api.fellesdatakatalog.digdir.no/search/datasets"
 DATANORGE_RATE = 10 / 60
@@ -147,7 +153,7 @@ def _id_covers(registry: Registry | None, dataset_id: str, req: dict[str, Any]) 
     if field == "description":
         return token in tokenize(row.get("description"))
     if field == "theme":
-        return token in tokenize(" ".join(_theme_labels(payload)))
+        return token in tokenize(" ".join(themes_from_payload(payload)))
     blob = " ".join(
         [
             row.get("title") or "",
@@ -252,27 +258,10 @@ def _reason_holds(row: dict[str, Any], payload: dict[str, Any], reason: dict[str
         keywords = keywords_from_payload(payload)
         return any(stored.casefold() == item.casefold() or stored.casefold() in item.casefold() for item in keywords)
     if field == "theme":
-        themes = _theme_labels(payload)
+        themes = themes_from_payload(payload)
         return any(stored.casefold() == item.casefold() for item in themes)
     if field == "description":
         return stored.casefold() in (row.get("description") or "").casefold()
     return False
 
 
-def _theme_labels(payload: dict[str, Any]) -> list[str]:
-    labels: list[str] = []
-    for key in ("theme", "losTheme"):
-        value = payload.get(key)
-        items = value if isinstance(value, list) else [value] if value else []
-        for item in items:
-            if not isinstance(item, dict):
-                continue
-            title = item.get("title") or item.get("name") or item.get("prefLabel")
-            if isinstance(title, dict):
-                labels.extend(str(part) for part in title.values() if part)
-            elif isinstance(title, str):
-                labels.append(title)
-            code = item.get("code")
-            if isinstance(code, str):
-                labels.append(code)
-    return labels
