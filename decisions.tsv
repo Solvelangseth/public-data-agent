@@ -118,3 +118,11 @@ ts	phase	decision	why	evidence	result
 2026-08-27T09:08:30Z	scan	live harvest has no unused printed PxWeb table URL	9121 payloads, 0 table/ or *.px api strings that are not already access_path; 07459 absent	data/table_url_scan_proof.json new_stored=0 sit=true klass_skipped=85	sit
 2026-08-27T09:08:40Z	test	run pytest after the scan	do not leave the count only in the PR body	python3 -m pytest 92 passed 1 deselected	tests green
 2026-08-27T09:09:20Z	pr	open harvest table-url scan PR, do not merge	live scan sat at new_stored=0	https://github.com/Solvelangseth/public-data-agent/pull/33	OPEN
+2026-08-27T09:12:17Z	merge	merge PR 33 after CI green	CI test + GitGuardian SUCCESS; zero printed table URLs is the result	gh pr view 33 MERGED mergeCommit 3dfd24cfe245b87b3d4da6ae61c16b83f97004ac	MERGED
+2026-08-27T09:13:00Z	ssb	add SsbStatbankSource as a replaceable ingest adapter	Data.norge is one CatalogSource; SSB list API is another	src/public_data_agent/sources/ssb.py source_id=ssb	selected
+2026-08-27T09:13:20Z	ssb	bound first ingest to printed be folder, cap 8 BFS tables	do not ingest the whole statbank; ids come from list item text	GET /api/v0/no/table lists be=Befolkning	capped
+2026-08-27T09:15:50Z	ssb	live pda ingest --source ssb --limit 8	SSB list API 200; 8 tables; 07459 not in that list	inserted=8 access_path table/06683 etc license=null	live works
+2026-08-27T09:16:10Z	fetch	live pda fetch ssb:06683 years 2023-2024	printed table URL; numeric cells; two periods	POST 200 listed=8 34/24 and 202/236	live works
+2026-08-27T09:16:20Z	methods	pda methods reads 06683 from the store	8 numeric rows; did not call pda fetch	rows=8 yoy Stebarn=0.1683; fetch_runs=1	numeric
+2026-08-27T09:16:30Z	test	run pytest after the SSB source	do not leave the count only in the PR body	python3 -m pytest 97 passed 1 deselected	tests green
+2026-08-27T09:17:10Z	pr	open SSB Statbank source PR, do not merge	bounded ingest plus 06683 fetch and methods	https://github.com/Solvelangseth/public-data-agent/pull/35	OPEN

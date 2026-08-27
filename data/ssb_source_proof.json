@@ -1,0 +1,109 @@
+{
+  "produced_at": "2026-08-27T09:16:26Z",
+  "pr_33": {
+    "url": "https://github.com/Solvelangseth/public-data-agent/pull/33",
+    "state": "MERGED",
+    "merge_commit": "3dfd24cfe245b87b3d4da6ae61c16b83f97004ac",
+    "merged_at": "2026-08-27T09:12:17Z"
+  },
+  "bound": {
+    "list_api": "https://data.ssb.no/api/v0/no/table",
+    "subject_id": "be",
+    "subject_text": "Befolkning",
+    "walk": "BFS of type=l folders, keep type=t items",
+    "cap": 8,
+    "how": "pda ingest --source ssb --limit 8. Default subject is the printed be folder. The adapter stops after 8 listed tables."
+  },
+  "ingest": {
+    "command": "pda ingest --source ssb --db data/registry.sqlite --limit 8",
+    "listed": 8,
+    "inserted": 8,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "ssb:04766",
+        "access_path": "https://data.ssb.no/api/v0/no/table/04766"
+      },
+      {
+        "id": "ssb:05739",
+        "access_path": "https://data.ssb.no/api/v0/no/table/05739"
+      },
+      {
+        "id": "ssb:06683",
+        "access_path": "https://data.ssb.no/api/v0/no/table/06683"
+      },
+      {
+        "id": "ssb:06685",
+        "access_path": "https://data.ssb.no/api/v0/no/table/06685"
+      },
+      {
+        "id": "ssb:06688",
+        "access_path": "https://data.ssb.no/api/v0/no/table/06688"
+      },
+      {
+        "id": "ssb:06689",
+        "access_path": "https://data.ssb.no/api/v0/no/table/06689"
+      },
+      {
+        "id": "ssb:06690",
+        "access_path": "https://data.ssb.no/api/v0/no/table/06690"
+      },
+      {
+        "id": "ssb:07277",
+        "access_path": "https://data.ssb.no/api/v0/no/table/07277"
+      }
+    ]
+  },
+  "fetch": {
+    "command": "pda fetch --dataset ssb:06683 --table 06683 --from-year 2023 --to-year 2024 --db data/registry.sqlite",
+    "dataset": "ssb:06683",
+    "table_id": "06683",
+    "request_url": "https://data.ssb.no/api/v0/no/table/06683",
+    "http_status": 200,
+    "listed": 8,
+    "inserted": 8,
+    "license": null,
+    "sample": [
+      {
+        "measure": "06683: Adopsjoner, etter adopsjonstype, statistikkvariabel og år",
+        "value": 34,
+        "dimensions": {"Adopsjonstype": "Utenlandsadopsjoner", "Tid": "2023"}
+      },
+      {
+        "measure": "06683: Adopsjoner, etter adopsjonstype, statistikkvariabel og år",
+        "value": 24,
+        "dimensions": {"Adopsjonstype": "Utenlandsadopsjoner", "Tid": "2024"}
+      },
+      {
+        "measure": "06683: Adopsjoner, etter adopsjonstype, statistikkvariabel og år",
+        "value": 202,
+        "dimensions": {"Adopsjonstype": "Stebarn", "Tid": "2023"}
+      },
+      {
+        "measure": "06683: Adopsjoner, etter adopsjonstype, statistikkvariabel og år",
+        "value": 236,
+        "dimensions": {"Adopsjonstype": "Stebarn", "Tid": "2024"}
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset ssb:06683 --table 06683 --entity \"\" --measure \"\" --db data/registry.sqlite --out /tmp/pda-methods-06683",
+    "exit_code": 0,
+    "rows": 8,
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1,
+    "sample": [
+      {"entity": "Stebarn", "period": "2023", "value": 202.0, "yoy_growth": null},
+      {"entity": "Stebarn", "period": "2024", "value": 236.0, "yoy_growth": 0.16831683168316833},
+      {"entity": "Utenlandsadopsjoner", "period": "2023", "value": 34.0, "yoy_growth": null},
+      {"entity": "Utenlandsadopsjoner", "period": "2024", "value": 24.0, "yoy_growth": -0.29411764705882354}
+    ]
+  },
+  "notes": [
+    "07459 was not in the first 8 printed befolkning tables. It was not written onto a datanorge row.",
+    "License is null. The SSB table metadata JSON does not print a license.",
+    "ssb:11763 stays the earlier identity-only row. This ingest did not list it."
+  ]
+}

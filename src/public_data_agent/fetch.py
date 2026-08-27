@@ -4,7 +4,7 @@ import hashlib
 import json
 from dataclasses import dataclass, field
 from typing import Any, Protocol
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlparse
 
 from public_data_agent.http_util import HttpClient, JsonResponse
 from public_data_agent.models import HarvestCounts
@@ -155,7 +155,11 @@ def fetch_observations(
     if is_klass_url(access_path):
         return _fetch_klass(registry, dataset, http=http)
     client = http or HttpClient(timeout=60.0, max_retries=4)
-    request_url = pxweb_api_url(access_path, table_id)
+    if _is_ssb_table_url(access_path):
+        request_url = access_path.rstrip("/")
+        table_id = request_url.rsplit("/", 1)[-1]
+    else:
+        request_url = pxweb_api_url(access_path, table_id)
     started = utc_now()
     run_id = registry.start_fetch_run(
         dataset_id=dataset_id,
@@ -352,6 +356,11 @@ def _unravel(index: int, sizes: list[int]) -> list[int]:
         remaining //= size
     coords.reverse()
     return coords
+
+
+def _is_ssb_table_url(access_path: str) -> bool:
+    parsed = urlparse(access_path)
+    return parsed.netloc == "data.ssb.no" and parsed.path.startswith("/api/v0/")
 
 
 def _year_from_label(label: str) -> int | None:
