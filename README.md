@@ -745,6 +745,13 @@ scalar fields on the first `_embedded` list of dicts (prefer `kode`, then
 `navn`, then `beskrivelse`). License and publisher stay null unless the API
 prints them.
 
+Live ingest 2026-08-27: 6 printed HAL relations. Live search
+`organisasjonsformer` returns `brreg:organisasjonsformer`. Live fetch GETs
+`https://data.brreg.no/enhetsregisteret/api/organisasjonsformer` HTTP 200,
+44 organisation-form rows. Sample printed values: AAFY, ADOS, ANNA, ANS, AS.
+`pda methods` is not applicable: the payload is codes and names, not a
+numeric time series (`available=[]`). Proof is `data/brreg_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
