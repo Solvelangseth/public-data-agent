@@ -1592,6 +1592,14 @@ This source is Fiskeridirektoratet Offentlig Akvakulturregister
 (`api.fiskeridir.no/pub-aqua`), not Fartøyregisteret, Kjøperregisteret,
 or NYTEK.
 
+Live ingest 2026-08-27: 10 printed collection GET paths (catalog prints
+10, cap 10). Live search `områder` returns `aqua:areas`. Live fetch GETs
+`https://api.fiskeridir.no/pub-aqua/api/v1/areas` HTTP 200, 10 area-name
+rows. Sample printed names: ARUBA, AFGHANISTAN, ANGOLA, ANGUILLA,
+ALBANIA. `pda methods` is not applicable: names, not a numeric time
+series (`no observations matched entity/measure; available=[]`).
+Proof is `data/aqua_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists

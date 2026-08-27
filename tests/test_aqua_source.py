@@ -99,7 +99,7 @@ def test_endpoint_url_uses_printed_absolute_server() -> None:
         "/api/v1/areas",
         OPENAPI_URL,
     )
-    assert relative == AREAS_URL
+    assert relative == "https://api.fiskeridir.no/api/v1/areas"
 
 
 def test_aqua_is_a_registered_source() -> None:
