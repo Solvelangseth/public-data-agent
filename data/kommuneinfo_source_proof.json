@@ -14,8 +14,8 @@
     },
     {
       "candidate": "Sokkeldirektoratet FactMaps DataService",
-      "url": "PR 93 --source sodir, factmaps.sodir.no",
-      "why": "In-flight on PR 93. Do not re-add. Not this source."
+      "url": "PR 93 --source sodir, now on main",
+      "why": "Already on main as --source sodir after PR 93 merged. Do not re-add. This branch was rebased onto that main."
     },
     {
       "candidate": "Fiskeridirektoratet Autorisasjonsregisteret",
