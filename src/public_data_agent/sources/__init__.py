@@ -28,6 +28,7 @@ from public_data_agent.sources.nin import NinSource
 from public_data_agent.sources.nor import NorSource
 from public_data_agent.sources.npr import NprSource
 from public_data_agent.sources.norgesbank import NorgesBankSource
+from public_data_agent.sources.nowcast import NowcastSource
 from public_data_agent.sources.npolar import NpolarSource
 from public_data_agent.sources.nve import NveMagasinSource
 from public_data_agent.sources.nxr import NxrSource
@@ -91,6 +92,7 @@ SOURCE_IDS = (
     "nin",
     "ngu",
     "hoydedata",
+    "nowcast",
 )
 
 
@@ -183,6 +185,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return NguSource()
     if source_id == "hoydedata":
         return HoydedataSource()
+    if source_id == "nowcast":
+        return NowcastSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -213,6 +217,7 @@ __all__ = [
     "NorSource",
     "NprSource",
     "NorgesBankSource",
+    "NowcastSource",
     "NpolarSource",
     "NveMagasinSource",
     "NxrSource",

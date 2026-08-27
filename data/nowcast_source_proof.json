@@ -1,0 +1,178 @@
+{
+  "produced_at": "2026-08-27T21:02:10Z",
+  "bound": {
+    "list_api": "https://api.met.no/weatherapi/nowcast/2.0/swagger",
+    "walk": "copy printed untemplated GET paths from the official MET Nowcast swagger; native ids are the last printed path segment; access_path is swagger origin + printed basePath + path; do not invent dataset ids or lat/lon filters",
+    "cap": 10,
+    "how": "pda ingest --source nowcast --limit 10. The official MET Nowcast swagger prints 11 paths. The adapter copies the 8 untemplated GET paths. GET uses the printed /locations collection with no invented query filters."
+  },
+  "discarded": [
+    {
+      "candidate": "Kartverket Høydedata",
+      "url": "PR 97 --source hoydedata",
+      "why": "Already in flight on Lane B. Do not re-add. Lane A must pick a different source."
+    },
+    {
+      "candidate": "NGU OGC API Features",
+      "url": "https://geo.ngu.no/api/features",
+      "why": "Already on main as --source ngu after PR 96. Do not re-add."
+    },
+    {
+      "candidate": "Artsdatabanken NiN Kode API",
+      "url": "https://nin-kode-api.artsdatabanken.no/swagger/v3.0/swagger.json",
+      "why": "Already on main as --source nin after PR 95. Do not re-add."
+    },
+    {
+      "candidate": "Kartverket Kommuneinfo",
+      "url": "https://api.kartverket.no/kommuneinfo/v1/openapi.json",
+      "why": "Already on main as --source kommuneinfo after PR 94. Do not re-add."
+    },
+    {
+      "candidate": "Kartverket Transformering OpenAPI",
+      "url": "https://ws.geonorge.no/transformering/v1/openapi.json",
+      "why": "HTTP 200 OpenAPI prints /transformer (POST, requires coordinates) and /projeksjoner. Same Kartverket/Geonorge family as Lane B Høydedata. Unused."
+    },
+    {
+      "candidate": "MET Locationforecast swagger",
+      "url": "https://api.met.no/weatherapi/locationforecast/2.0/swagger",
+      "why": "HTTP 200 swagger. Untemplated /classic and /complete require lat and lon. Search/forecast API, not used."
+    },
+    {
+      "candidate": "Digdir organization catalog",
+      "url": "https://organization-catalog.fellesdatakatalog.digdir.no/organizations",
+      "why": "HTTP 200 prints 975 organizations. Live host has no OpenAPI (v3/api-docs 404). Per-organization URLs are not printed. Unused."
+    },
+    {
+      "candidate": "Norsk Polarinstitutt OGC Features",
+      "url": "https://geodata.npolar.no/ogc/features/v1/collections",
+      "why": "HTTP 404 HTML. Do not retry."
+    },
+    {
+      "candidate": "BarentsWatch swagger v1",
+      "url": "https://www.barentswatch.no/bwapi/swagger/v1/swagger.json",
+      "why": "HTTP 404. Do not retry."
+    },
+    {
+      "candidate": "BRREG Regnskapsregisteret swagger",
+      "url": "https://data.brreg.no/regnskapsregisteret/regnskap/swagger.json",
+      "why": "HTTP 404. Do not retry."
+    },
+    {
+      "candidate": "Kartverket SeHavniva stationlist",
+      "url": "https://api.sehavniva.no/tideapi.php?tide_request=stationlist&format=json",
+      "why": "Timeout. ws.geonorge.no/sehavniva/v1/openapi.json is HTTP 403. Do not retry."
+    },
+    {
+      "candidate": "NVDB Les V3 OpenAPI",
+      "url": "https://nvdbapiles-v3.atlas.vegvesen.no/dokumentasjon/openapi.json",
+      "why": "Known skip: HTTP 400 User-Agent. Do not retry."
+    },
+    {
+      "candidate": "Vegvesen Trafikkdata swagger / trafikkdata-api",
+      "url": "https://trafikkdata.atlas.vegvesen.no/",
+      "why": "Known skip: swagger HTML-only; trafikkdata-api 410. Do not retry."
+    },
+    {
+      "candidate": "Kartverket Eiendom /geokoding",
+      "url": "https://api.kartverket.no/eiendom/v1/geokoding",
+      "why": "Known skip: HTTP 400 without matrikkel params. Search API, not a collection catalog. Do not retry."
+    },
+    {
+      "candidate": "Udir Statistikkbanken /data",
+      "url": "Udir Statistikkbanken /Eksport/{id}/data",
+      "why": "Known skip: requires invented filters. Do not retry."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source nowcast --db /tmp/pda-nowcast-proof/registry.sqlite --limit 10",
+    "listed": 8,
+    "inserted": 8,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "nowcast:changelog",
+        "access_path": "https://api.met.no/weatherapi/nowcast/2.0/changelog"
+      },
+      {
+        "id": "nowcast:classic",
+        "access_path": "https://api.met.no/weatherapi/nowcast/2.0/classic"
+      },
+      {
+        "id": "nowcast:complete",
+        "access_path": "https://api.met.no/weatherapi/nowcast/2.0/complete"
+      },
+      {
+        "id": "nowcast:coverage",
+        "access_path": "https://api.met.no/weatherapi/nowcast/2.0/coverage"
+      },
+      {
+        "id": "nowcast:healthz",
+        "access_path": "https://api.met.no/weatherapi/nowcast/2.0/healthz"
+      },
+      {
+        "id": "nowcast:locations",
+        "access_path": "https://api.met.no/weatherapi/nowcast/2.0/locations"
+      },
+      {
+        "id": "nowcast:schema",
+        "access_path": "https://api.met.no/weatherapi/nowcast/2.0/schema"
+      },
+      {
+        "id": "nowcast:status",
+        "access_path": "https://api.met.no/weatherapi/nowcast/2.0/status"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search FeatureCollection --db /tmp/pda-nowcast-proof/registry.sqlite --limit 5",
+    "query": "FeatureCollection",
+    "returned": 1,
+    "hit_id": "nowcast:locations",
+    "title": "List available locations as GeoJSON FeatureCollection",
+    "source_id": "nowcast"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset nowcast:locations --db /tmp/pda-nowcast-proof/registry.sqlite",
+    "dataset": "nowcast:locations",
+    "table_id": "locations",
+    "access_path": "https://api.met.no/weatherapi/nowcast/2.0/locations",
+    "request_url": "https://api.met.no/weatherapi/nowcast/2.0/locations",
+    "http_status": 200,
+    "listed": 1,
+    "inserted": 1,
+    "license": "http://creativecommons.org/licenses/by/4.0",
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "name",
+        "value": "MEPS area"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset nowcast:locations --table locations --entity \"\" --measure \"\" --db /tmp/pda-nowcast-proof/registry.sqlite --out /tmp/pda-nowcast-proof/methods",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "Nowcast /locations prints one GeoJSON feature name (MEPS area). That is not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed swagger path last segments. access_path is swagger origin + printed basePath + path. No nowcast id was written onto a met, hoydedata, ngu, or datanorge row.",
+    "License is the printed swagger CC BY 4.0 URL http://creativecommons.org/licenses/by/4.0. Publisher is null: the spec prints contact.name Developer Support, not a publisher.",
+    "Original harvested swagger metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "Høydedata is now on main as --source hoydedata after PR 97. Metalerts stays --source met. This source does not re-implement either.",
+    "/classic and /complete are printed untemplated GET paths and were ingested. Fetch in this slice uses /locations so lat and lon are not invented.",
+    "python3 -m pytest 443 passed, 1 skipped, 1 deselected.",
+    "Rebased onto origin/main after Høydedata 97 merge c2e9052. hoydedata adapter files were not edited.",
+    "Not a numeric time series with two or more periods."
+  ]
+}
