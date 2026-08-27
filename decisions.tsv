@@ -77,4 +77,8 @@ ts	phase	decision	why	evidence	result
 2026-08-27T08:07:00Z	pr	open Milestone 9 PR, do not merge	first join is a reviewable PR	https://github.com/Solvelangseth/public-data-agent/pull/14	OPEN
 2026-08-27T08:09:07Z	merge	treat PR 14 as merged on main	gh pr view is the required proof; PR 13 on main made #14 conflict so origin/main was merged into the M9 branch first	https://github.com/Solvelangseth/public-data-agent/pull/14 mergeCommit cceea20caa812422bd0a10c59b9fe5ff235af741	MERGED 2026-08-27T08:09:07Z
 2026-08-27T08:10:00Z	ask	call methods.derive.derive_yoy, do not reimplement YoY	PR 13 is MERGED on main at 7976a0d	gh pr view 13 state=MERGED	call existing code
-2026-08-27T08:10:30Z	ask	join 2024 and 2025 then rank size and YoY	one year cannot grow; latest 11763 year is 2025	pda join twice on bydel_code	pending live ask
+2026-08-27T08:10:30Z	ask	join 2024 and 2025 then rank size and YoY	one year cannot grow; latest 11763 year is 2025	pda join twice on bydel_code	live used
+2026-08-27T08:11:33Z	ask	live pda ask the exact demo question	prove search+join+derive_yoy on real APIs	data/ask_proof.json 36 rows HTTP 200; largest 030102=67039; yoy 030108=0.0184	live works
+2026-08-27T08:12:00Z	ask	leave search og-token hits logged, do not edit search.py	Chef owns search; AND still treats og as a requirement	ask_proof.json discovery hits relevance 22 on og	logged
+2026-08-27T08:12:30Z	test	run pytest after the ask commit	do not leave the count only in the PR body	python3 -m pytest 64 passed 1 deselected	tests green
+2026-08-27T08:13:00Z	pr	open Milestone 10 PR, do not merge	first ask path is a reviewable PR	https://github.com/Solvelangseth/public-data-agent/pull/18	OPEN

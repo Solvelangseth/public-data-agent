@@ -554,7 +554,13 @@ Size is latest-year population from the joined cells. Growth is
 null. No guessed numbers.
 
 Each ranked row cites publisher, license, access path, request URL, join key,
-and why the dataset was picked. Proof is `data/ask_proof.json`.
+and why the dataset was picked.
+
+Live run 2026-08-27: both years HTTP 200, 36 joined rows (18+18). Largest
+2025 is Grünerløkka 67039, then Gamle Oslo 64920. Fastest YoY 2024-2025 is
+Nordre Aker 0.0184, then Bjerke 0.0131. Search ran and returned 10 hits.
+Those hits matched `og`. Klass and 11763 were still used because they are
+the M9 pair that shares `bydel_code`. Proof is `data/ask_proof.json`.
 
 This milestone does not add a UI or MCP.
 
