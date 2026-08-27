@@ -1153,6 +1153,15 @@ pda fetch --dataset trondheim:e736k --db data/registry.sqlite
 `pda fetch` GETs the stored dataset API URL. Observation values are copied
 from printed resource and link titles. Nested QA objects are not copied.
 
+Live ingest 2026-08-27: 9 printed catalog datasets. Live search
+`Badeplasser` returns `trondheim:e736k`. Live fetch GETs
+`https://data.trondheim.kommune.no/api/v3/dataset/e736k`
+HTTP 200, 2 resource/link-title rows. Sample printed titles:
+Badeplasser i Trondheimsregionen, Badeplasser.
+`pda methods` is not applicable: titles, not a numeric time series
+(`no observations matched entity/measure; available=[]`).
+Proof is `data/trondheim_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
