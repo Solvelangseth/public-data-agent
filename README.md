@@ -2119,6 +2119,15 @@ pda fetch --dataset spotwind:locations --db data/registry.sqlite
 from printed GeoJSON feature `name`. License is the printed swagger
 CC BY 4.0 URL. Publisher stays null: the spec does not print a publisher.
 
+Live ingest 2026-08-27: 4 printed untemplated GET paths (catalog prints
+4 paths with a last-segment id, cap 10). Live search `locations` returns
+`spotwind:locations`. Live fetch GETs
+`https://api.met.no/weatherapi/spotwind/1.1/locations` HTTP 200, 15
+location-name rows. Sample printed values: DKE, DKW, FE. `pda methods`
+is not applicable: GeoJSON feature names, not a numeric time series
+(`no observations matched entity/measure; available=[]`). Proof is
+`data/spotwind_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
