@@ -104,3 +104,10 @@ ts	phase	decision	why	evidence	result
 2026-08-27T08:52:20Z	user	--user-file reads .sqlite with the same column map as CSV	from_path already branched on suffix; this slice ships the example file	data/examples/user_bydel.sqlite table notes	adapter reused
 2026-08-27T08:52:49Z	user	live pda search --user-file user_bydel.sqlite	prove SQLite on the live registry, not a temp fixture	data/user_sqlite_proof.json user:user-bydel-notes user_supplied=true; public datanorge:265a14e9	live works
 2026-08-27T08:52:49Z	pr	open Milestone 13 SQLite PR, do not merge	example sqlite is a reviewable PR	https://github.com/Solvelangseth/public-data-agent/pull/29	OPEN
+2026-08-27T08:54:55Z	merge	merge PR 29 after CI green	CI test + GitGuardian SUCCESS; closes M13 first wave	gh pr view 29 MERGED mergeCommit e7685998f064407fea8d355a0e59e5b59dac729f	MERGED
+2026-08-27T08:55:20Z	fetch	skip stored Kommuneinndeling 1160.json	same URL as M8, still HTTP 404	GET https://data.ssb.no/api/klass/v1/versions/1160.json	skipped
+2026-08-27T08:55:20Z	fetch	skip stored Klass XML/CSV versions	fetch expects a JSON object; do not add a parser for this slice	916.xml 1219.xml 33.csv still stored	skipped
+2026-08-27T08:55:40Z	fetch	use stored Yrkeskatalogen Klass 683.json	only unused stored Klass JSON that returns 200; not Oslo, not 11763, not 07459	datanorge:1ab99064-d6c1-3bd8-baee-abef991ba251 GET 200 items=7127	selected
+2026-08-27T08:56:51Z	fetch	live pda fetch Klass 683 into observations	reuse _fetch_klass; no harvest or enrichment write	HTTP 200 listed=7127 inserted=7127 table=klass:683 datasets=9122	live works
+2026-08-27T08:57:10Z	methods	pda methods reads 683 from the store, then clean drops names	load_observations found 7127 rows so it did not call pda fetch; names are not a numeric series	exit 1 available=[]; fetch_runs still 1	honest miss
+2026-08-27T08:58:00Z	test	run pytest after the Klass 683 proof	do not leave the count only in the PR body	python3 -m pytest 88 passed 1 deselected	tests green

@@ -1,0 +1,87 @@
+{
+  "produced_at": "2026-08-27T08:57:21Z",
+  "command": "pda fetch --dataset datanorge:1ab99064-d6c1-3bd8-baee-abef991ba251 --table klass --db data/registry.sqlite",
+  "dataset": {
+    "id": "datanorge:1ab99064-d6c1-3bd8-baee-abef991ba251",
+    "title": "Yrkeskatalogen med yrkeskoder",
+    "publisher_name": "STATISTISK SENTRALBYRÅ",
+    "license": "http://publications.europa.eu/resource/authority/licence/NLOD_2_0",
+    "access_path": "https://data.ssb.no/api/klass/v1/versions/683.json",
+    "source_native_uri": "https://data.norge.no/node/1488"
+  },
+  "why_this_dataset": "The unused stored Klass JSON URLs were versions/1160.json (Kommuneinndeling, HTTP 404) and versions/683.json (Yrkeskatalogen, HTTP 200). Oslo OK-BEF008 and SSB 11763 already have observations. 07459 is still not an access_path. XML/CSV Klass URLs are stored but the existing fetch expects a JSON object.",
+  "api": {
+    "kind": "SSB Klass classificationItems JSON",
+    "request_url": "https://data.ssb.no/api/klass/v1/versions/683.json",
+    "request_method": "GET",
+    "http_status": 200,
+    "auth": "none",
+    "host": "data.ssb.no",
+    "table_id": "klass:683",
+    "payload_name": "Yrkeskatalogen, basert på STYRK 98 2016-12"
+  },
+  "counts": {
+    "listed": 7127,
+    "inserted": 7127,
+    "updated": 0,
+    "unchanged": 0,
+    "failed": 0,
+    "datasets_unchanged": 9122
+  },
+  "sample": [
+    {
+      "measure": "Yrkeskatalogen, basert på STYRK 98 2016-12",
+      "value": "MENIG (FORSVARET)",
+      "dimensions": {
+        "code": "0111101",
+        "level": "1"
+      }
+    },
+    {
+      "measure": "Yrkeskatalogen, basert på STYRK 98 2016-12",
+      "value": "KORPORAL",
+      "dimensions": {
+        "code": "0111102",
+        "level": "1"
+      }
+    },
+    {
+      "measure": "Yrkeskatalogen, basert på STYRK 98 2016-12",
+      "value": "GRENADER",
+      "dimensions": {
+        "code": "0111103",
+        "level": "1"
+      }
+    },
+    {
+      "measure": "Yrkeskatalogen, basert på STYRK 98 2016-12",
+      "value": "VERVET (FORSVARET)",
+      "dimensions": {
+        "code": "0111104",
+        "level": "1"
+      }
+    },
+    {
+      "measure": "Yrkeskatalogen, basert på STYRK 98 2016-12",
+      "value": "SERSJANT",
+      "dimensions": {
+        "code": "0112101",
+        "level": "1"
+      }
+    }
+  ],
+  "methods": {
+    "command": "pda methods --dataset datanorge:1ab99064-d6c1-3bd8-baee-abef991ba251 --table klass:683 --entity \"\" --measure \"\" --db data/registry.sqlite --out /tmp/pda-methods-683",
+    "exit_code": 1,
+    "stderr": "no observations matched entity/measure; available=[]",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1,
+    "note": "methods.cli.load_observations reads registry.list_observations. 7127 rows were already stored, so it did not call pda fetch. methods.clean drops non-numeric Klass names and then select has nothing left. This series is codes and names, not a numeric time series."
+  },
+  "notes": [
+    "Values are classification item names and codes from the HTTP JSON. None were invented.",
+    "The Klass body has no license field. license on each observation is the harvested dataset license NLOD_2_0.",
+    "Observations land in the same observations table as Milestone 7. datasets, harvested_payloads, and enrichments were not written for this run."
+  ]
+}

@@ -604,6 +604,34 @@ pda mcp --call search \
   --out data/mcp_proof.json
 ```
 
+## Third stored-API fetch
+
+`pda fetch` already GETs a stored SSB Klass JSON URL. The unused live
+path after Oslo PxWeb and Klass 1168 is Yrkeskatalogen, Klass version 683.
+Kommuneinndeling `versions/1160.json` still returns 404. SSB 07459 is still
+not an `access_path`.
+
+```bash
+pda fetch --dataset datanorge:1ab99064-d6c1-3bd8-baee-abef991ba251 \
+  --table klass \
+  --db data/registry.sqlite
+pda methods --dataset datanorge:1ab99064-d6c1-3bd8-baee-abef991ba251 \
+  --table klass:683 --entity "" --measure "" \
+  --db data/registry.sqlite --out /tmp/pda-methods-683
+```
+
+Live fetch 2026-08-27: GET `https://data.ssb.no/api/klass/v1/versions/683.json`
+HTTP 200, 7127 rows in `observations`, table id `klass:683`. Sample names
+from the response: `0111101` MENIG (FORSVARET), `0111102` KORPORAL.
+License on each row is the harvested NLOD_2_0 URL. The Klass JSON does not
+print a license.
+
+`pda methods` reads those rows from the store and does not call `pda fetch`
+again. `methods.clean` drops the names because they are not numeric and
+have no period. The command exits 1 with
+`no observations matched entity/measure; available=[]`.
+Proof is `data/connector3_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
