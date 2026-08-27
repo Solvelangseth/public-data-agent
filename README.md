@@ -1052,6 +1052,25 @@ Finnmark, Innlandet. `pda methods` is not applicable: names, not a
 numeric time series (`no observations matched entity/measure; available=[]`).
 Proof is `data/kystverket_source_proof.json`.
 
+## NIBIO IPM Resource Hub Weather source
+
+`pda ingest --source nibio` is another replaceable adapter. It lists printed
+collection GET paths on the official NIBIO IPM Resource Hub OpenAPI
+`https://irh.nibio.no/weather/openapi.json`, capped at 10. Dataset ids are
+the printed path's last segment. `access_path` is the OpenAPI origin plus
+the printed path.
+
+```bash
+pda ingest --source nibio --db data/registry.sqlite --limit 10
+pda search parameter --db data/registry.sqlite
+pda fetch --dataset nibio:parameter --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored path. Observation values are copied from a
+printed name field (`name`, `title`, `navn`, or `id`) when present. Nested
+objects are not copied. License and publisher stay null: the OpenAPI
+`info` object does not print those fields.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
