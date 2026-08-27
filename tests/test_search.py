@@ -59,6 +59,54 @@ def test_tokenize_maps_folketall_to_stored_befolkning() -> None:
     assert tokenize("befolkning på tromsø") == ["befolkning", "tromsø"]
 
 
+def test_befolkningsvekst_query_matches_stored_vekst_and_place(tmp_path: Path) -> None:
+    payloads = [
+        {
+            "id": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+            "uri": "https://example.org/vekstomrader-lillestrom",
+            "type": "datasets",
+            "title": {"nb": "Prioriterte vekstområder i Lillestrøm kommune - lokale data"},
+            "description": {
+                "nb": "Områder som skal ha 90 % av fremtidig vekst i antall arbeidsplasser og boliger."
+            },
+            "keyword": [{"no": "Lillestrøm kommune"}],
+            "harvest": {
+                "modified": "2026-01-01T00:00:00Z",
+                "firstHarvested": "2026-01-01T00:00:00Z",
+            },
+        },
+        {
+            "id": "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
+            "uri": "https://example.org/ortofoto-lillestrom",
+            "type": "datasets",
+            "title": {"nb": "Ortofoto Lillestrøm 1939"},
+            "description": {"nb": "flyfoto"},
+            "keyword": [{"nb": "lillestrøm"}],
+            "harvest": {
+                "modified": "2026-01-01T00:00:00Z",
+                "firstHarvested": "2026-01-01T00:00:00Z",
+            },
+        },
+    ]
+    registry = Registry(tmp_path / "registry.sqlite")
+    harvest(registry, FixtureSource(payloads))
+    assert tokenize("befolkningsvekst i lillestrøm") == ["befolkningsvekst", "lillestrøm"]
+    hits = search(registry, "befolkningsvekst i lillestrøm")
+    assert [hit.dataset_id for hit in hits] == [
+        "fixture:aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa"
+    ]
+    tokens = {match.token for match in hits[0].matches}
+    assert "vekst" in tokens
+    assert "lillestrøm" in tokens
+    assert "description matched vekst" in hits[0].why
+    assert "lillestrøm" in hits[0].why
+    report = search_report(registry, "befolkningsvekst i lillestrøm")
+    assert report.coverage.missing == []
+    assert "befolkningsvekst" in report.coverage.covered
+    assert "lillestrøm" in report.coverage.covered
+    registry.close()
+
+
 def test_folketall_query_matches_stored_befolkning_and_place(tmp_path: Path) -> None:
     payloads = [
         {
