@@ -1,0 +1,172 @@
+{
+  "dataset_id": "ssb:06683",
+  "table_id": "06683",
+  "posted": false,
+  "seeded_from": {
+    "ssb_source_proof": "data/ssb_source_proof.json",
+    "main_merge": "2d827915691bba863610ab19b99ca565c3c11e06",
+    "pr": 35,
+    "note": "Values are the four fetch.sample cells committed on main after PR 35. That live fetch listed 8 cells; the other four values were not printed in the committed artifact and are not invented here. No SSB/PxWeb POST."
+  },
+  "counts": {
+    "total": 4,
+    "numeric": 4,
+    "null_values": 0,
+    "entities": 2,
+    "numeric_entities": 2,
+    "periods": [
+      "2023",
+      "2024"
+    ],
+    "years": {
+      "2023": 2,
+      "2024": 2
+    }
+  },
+  "expected_from_pr35": {
+    "dataset_id": "ssb:06683",
+    "table_id": "06683",
+    "printed_sample_count": 4,
+    "live_listed": 8,
+    "request_url": "https://data.ssb.no/api/v0/no/table/06683",
+    "http_status": 200,
+    "publisher_name": "Statistisk sentralbyrå",
+    "license": null,
+    "sample": [
+      {
+        "measure": "06683: Adopsjoner, etter adopsjonstype, statistikkvariabel og år",
+        "value": 34,
+        "dimensions": {
+          "Adopsjonstype": "Utenlandsadopsjoner",
+          "Tid": "2023"
+        }
+      },
+      {
+        "measure": "06683: Adopsjoner, etter adopsjonstype, statistikkvariabel og år",
+        "value": 24,
+        "dimensions": {
+          "Adopsjonstype": "Utenlandsadopsjoner",
+          "Tid": "2024"
+        }
+      },
+      {
+        "measure": "06683: Adopsjoner, etter adopsjonstype, statistikkvariabel og år",
+        "value": 202,
+        "dimensions": {
+          "Adopsjonstype": "Stebarn",
+          "Tid": "2023"
+        }
+      },
+      {
+        "measure": "06683: Adopsjoner, etter adopsjonstype, statistikkvariabel og år",
+        "value": 236,
+        "dimensions": {
+          "Adopsjonstype": "Stebarn",
+          "Tid": "2024"
+        }
+      }
+    ],
+    "methods_yoy_sample": [
+      {
+        "entity": "Stebarn",
+        "period": "2023",
+        "value": 202.0,
+        "yoy_growth": null
+      },
+      {
+        "entity": "Stebarn",
+        "period": "2024",
+        "value": 236.0,
+        "yoy_growth": 0.16831683168316833
+      },
+      {
+        "entity": "Utenlandsadopsjoner",
+        "period": "2023",
+        "value": 34.0,
+        "yoy_growth": null
+      },
+      {
+        "entity": "Utenlandsadopsjoner",
+        "period": "2024",
+        "value": 24.0,
+        "yoy_growth": -0.29411764705882354
+      }
+    ],
+    "sql": "SELECT count(*) FROM observations WHERE dataset_id = 'ssb:06683'",
+    "methods_command": "pda methods --dataset ssb:06683 --out methods/proof/ssb06683/ --db data/registry.sqlite"
+  },
+  "rows": [
+    {
+      "id": "9dfbb0c4a931647520d856a3a81447e5e330e01f",
+      "dataset_id": "ssb:06683",
+      "table_id": "06683",
+      "measure": "06683: Adopsjoner, etter adopsjonstype, statistikkvariabel og år",
+      "value": 34,
+      "dimensions": {
+        "Adopsjonstype": "Utenlandsadopsjoner",
+        "Tid": "2023"
+      },
+      "retrieved_at": "2026-08-27T09:16:26Z",
+      "request_url": "https://data.ssb.no/api/v0/no/table/06683",
+      "http_status": 200,
+      "publisher_name": "Statistisk sentralbyrå",
+      "license": null,
+      "access_path": "https://data.ssb.no/api/v0/no/table/06683",
+      "source_native_uri": null
+    },
+    {
+      "id": "9cd3cc377bd311258bb7f1b88e582a50bcd7b30c",
+      "dataset_id": "ssb:06683",
+      "table_id": "06683",
+      "measure": "06683: Adopsjoner, etter adopsjonstype, statistikkvariabel og år",
+      "value": 24,
+      "dimensions": {
+        "Adopsjonstype": "Utenlandsadopsjoner",
+        "Tid": "2024"
+      },
+      "retrieved_at": "2026-08-27T09:16:26Z",
+      "request_url": "https://data.ssb.no/api/v0/no/table/06683",
+      "http_status": 200,
+      "publisher_name": "Statistisk sentralbyrå",
+      "license": null,
+      "access_path": "https://data.ssb.no/api/v0/no/table/06683",
+      "source_native_uri": null
+    },
+    {
+      "id": "c35149585e883145d3077abbfed744ee27d3d817",
+      "dataset_id": "ssb:06683",
+      "table_id": "06683",
+      "measure": "06683: Adopsjoner, etter adopsjonstype, statistikkvariabel og år",
+      "value": 202,
+      "dimensions": {
+        "Adopsjonstype": "Stebarn",
+        "Tid": "2023"
+      },
+      "retrieved_at": "2026-08-27T09:16:26Z",
+      "request_url": "https://data.ssb.no/api/v0/no/table/06683",
+      "http_status": 200,
+      "publisher_name": "Statistisk sentralbyrå",
+      "license": null,
+      "access_path": "https://data.ssb.no/api/v0/no/table/06683",
+      "source_native_uri": null
+    },
+    {
+      "id": "791144f3b481c6e10f48bdd66ed649797d89118b",
+      "dataset_id": "ssb:06683",
+      "table_id": "06683",
+      "measure": "06683: Adopsjoner, etter adopsjonstype, statistikkvariabel og år",
+      "value": 236,
+      "dimensions": {
+        "Adopsjonstype": "Stebarn",
+        "Tid": "2024"
+      },
+      "retrieved_at": "2026-08-27T09:16:26Z",
+      "request_url": "https://data.ssb.no/api/v0/no/table/06683",
+      "http_status": 200,
+      "publisher_name": "Statistisk sentralbyrå",
+      "license": null,
+      "access_path": "https://data.ssb.no/api/v0/no/table/06683",
+      "source_native_uri": null
+    }
+  ]
+}

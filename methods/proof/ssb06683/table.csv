@@ -1,0 +1,5 @@
+entity,period,measure,value,yoy_growth,index,rank,rank_change,observation_id,source
+Stebarn,2023,"06683: Adopsjoner, etter adopsjonstype, statistikkvariabel og år",202,,100,1,,c35149585e883145d3077abbfed744ee27d3d817,ssb:06683
+Stebarn,2024,"06683: Adopsjoner, etter adopsjonstype, statistikkvariabel og år",236,0.1683168317,116.8316832,1,0,791144f3b481c6e10f48bdd66ed649797d89118b,ssb:06683
+Utenlandsadopsjoner,2023,"06683: Adopsjoner, etter adopsjonstype, statistikkvariabel og år",34,,100,2,,9dfbb0c4a931647520d856a3a81447e5e330e01f,ssb:06683
+Utenlandsadopsjoner,2024,"06683: Adopsjoner, etter adopsjonstype, statistikkvariabel og år",24,-0.2941176471,70.58823529,2,0,9cd3cc377bd311258bb7f1b88e582a50bcd7b30c,ssb:06683
