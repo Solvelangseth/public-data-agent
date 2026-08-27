@@ -1,0 +1,175 @@
+{
+  "produced_at": "2026-08-27T15:13:21Z",
+  "bound": {
+    "list_api": "https://dataut.vegvesen.no/api/3/action/package_list",
+    "walk": "copy printed package names from the official CKAN package_list result array; native ids are those printed names; access_path is the catalog's own /api/3/action/package_show?id= action joined to the list origin; do not invent package names",
+    "cap": 10,
+    "how": "pda ingest --source vegvesen --limit 10. The official Statens vegvesen Dataportalen package_list prints 85 package names. The adapter copies the first 10 printed names and joins each name to package_show. No package name was invented."
+  },
+  "discarded": [
+    {
+      "candidate": "Sikt DataverseNO",
+      "url": "PR 80 cursor/sikt-dataverseno-6661 --source sikt",
+      "why": "Already in flight. Do not touch that branch, PR, or sikt adapter files. This branch starts from origin/main only."
+    },
+    {
+      "candidate": "Kartverket Stedsnavn OpenAPI",
+      "url": "https://ws.geonorge.no/stedsnavn/v1/openapi.json",
+      "why": "Already ingested on main (PR 79). Do not re-add."
+    },
+    {
+      "candidate": "Geonorge Kartkatalog / Høydedata OpenAPI",
+      "url": "https://ws.geonorge.no/hoydedata/v1/openapi.json",
+      "why": "Geonorge Kartkatalog is already on main. Høydedata OpenAPI is already a Geonorge row. Do not re-add."
+    },
+    {
+      "candidate": "Kartverket Eiendom OpenAPI",
+      "url": "https://ws.geonorge.no/eiendom/v1/openapi.json",
+      "why": "HTTP 200 OpenAPI prints 3 GET paths. Live GET https://api.kartverket.no/eiendom/v1/geokoding is HTTP 400 without kommunenummer/gardsnummer/bruksnummer. Search API, not a collection catalog."
+    },
+    {
+      "candidate": "Trafikkdata swagger / GraphQL",
+      "url": "https://trafikkdata.atlas.vegvesen.no/swagger/v1/swagger.json",
+      "why": "Swagger URL is HTML. https://trafikkdata-api.atlas.vegvesen.no/ is HTTP 410. GraphQL is not a printed list API, OpenAPI path catalog, or OGC collections catalog."
+    },
+    {
+      "candidate": "NVDB OpenAPI",
+      "url": "https://nvdbapiles-v3.atlas.vegvesen.no/",
+      "why": "Known skip: OpenAPI HTTP 400 User-Agent. Not used."
+    },
+    {
+      "candidate": "NVE HydAPI swagger",
+      "url": "https://hydapi.nve.no/swagger/v1/swagger.json",
+      "why": "Known skip: swagger needs X-API-Key."
+    },
+    {
+      "candidate": "MET available.json",
+      "url": "https://api.met.no/weatherapi/available.json",
+      "why": "Known skip. Publisher is MET; Metalerts is already on main."
+    },
+    {
+      "candidate": "Artsdatabanken Taxon",
+      "url": "https://artsdatabanken.no/Api/Taxon",
+      "why": "Known skip: /Api 404. Taxon returns records, not a printed endpoint catalog."
+    },
+    {
+      "candidate": "Avinor Airports list",
+      "url": "https://avinor.no/Api/Airports",
+      "why": "Known skip: printed url values are HTML flyplass pages."
+    },
+    {
+      "candidate": "Stortinget eksport",
+      "url": "https://data.stortinget.no/eksport/stortingsperioder",
+      "why": "Known skip: catalog is HTML documentation, not a printed list API."
+    },
+    {
+      "candidate": "Digdir Datahotell",
+      "url": "https://hotell.difi.no/api",
+      "why": "DNS failed (Name or service not known)."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source vegvesen --db /tmp/pda-vegvesen-proof/registry.sqlite --limit 10",
+    "listed": 10,
+    "inserted": 10,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "vegvesen:apne-kartlag-fra-svv",
+        "access_path": "https://dataut.vegvesen.no/api/3/action/package_show?id=apne-kartlag-fra-svv"
+      },
+      {
+        "id": "vegvesen:arsrapporter-nokkeltall",
+        "access_path": "https://dataut.vegvesen.no/api/3/action/package_show?id=arsrapporter-nokkeltall"
+      },
+      {
+        "id": "vegvesen:artsmangfold",
+        "access_path": "https://dataut.vegvesen.no/api/3/action/package_show?id=artsmangfold"
+      },
+      {
+        "id": "vegvesen:bompenger",
+        "access_path": "https://dataut.vegvesen.no/api/3/action/package_show?id=bompenger"
+      },
+      {
+        "id": "vegvesen:bomstasjoner-i-nvdb",
+        "access_path": "https://dataut.vegvesen.no/api/3/action/package_show?id=bomstasjoner-i-nvdb"
+      },
+      {
+        "id": "vegvesen:bruer",
+        "access_path": "https://dataut.vegvesen.no/api/3/action/package_show?id=bruer"
+      },
+      {
+        "id": "vegvesen:bruksklasser",
+        "access_path": "https://dataut.vegvesen.no/api/3/action/package_show?id=bruksklasser"
+      },
+      {
+        "id": "vegvesen:datafangst-api",
+        "access_path": "https://dataut.vegvesen.no/api/3/action/package_show?id=datafangst-api"
+      },
+      {
+        "id": "vegvesen:datex",
+        "access_path": "https://dataut.vegvesen.no/api/3/action/package_show?id=datex"
+      },
+      {
+        "id": "vegvesen:digitale-vegnormaler",
+        "access_path": "https://dataut.vegvesen.no/api/3/action/package_show?id=digitale-vegnormaler"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search Artsmangfold --db /tmp/pda-vegvesen-proof/registry.sqlite --limit 5",
+    "query": "Artsmangfold",
+    "returned": 1,
+    "hit_id": "vegvesen:artsmangfold",
+    "title": "Artsmangfold",
+    "source_id": "vegvesen"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset vegvesen:artsmangfold --db /tmp/pda-vegvesen-proof/registry.sqlite",
+    "dataset": "vegvesen:artsmangfold",
+    "table_id": "artsmangfold",
+    "access_path": "https://dataut.vegvesen.no/api/3/action/package_show?id=artsmangfold",
+    "request_url": "https://dataut.vegvesen.no/api/3/action/package_show?id=artsmangfold",
+    "http_status": 200,
+    "listed": 2,
+    "inserted": 2,
+    "license": "https://data.norge.no/nlod/no",
+    "publisher": "Statens vegvesen",
+    "sample": [
+      {
+        "measure": "name",
+        "value": "Åpne data via NVDB api",
+        "dimensions": {
+          "format": "XML",
+          "url": "https://nvdbapiles-v3.atlas.vegvesen.no/"
+        }
+      },
+      {
+        "measure": "name",
+        "value": "Åpne data via NVDB api",
+        "dimensions": {
+          "format": "JSON",
+          "url": "http://api.vegdata.no/"
+        }
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset vegvesen:artsmangfold --table artsmangfold --entity \"\" --measure \"\" --db /tmp/pda-vegvesen-proof/registry.sqlite --out /tmp/pda-vegvesen-proof/methods",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "artsmangfold prints CKAN resource names, not a numeric time series. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed CKAN package_list names. access_path joins each printed name to https://dataut.vegvesen.no/api/3/action/package_show. No Vegvesen id was written onto a datanorge, geonorge, or stedsnavn row.",
+    "The catalog prints 85 package names. Ingest stored the first 10 (cap 10).",
+    "License is copied from printed license_url when it is an http(s) URI. artsmangfold prints https://data.norge.no/nlod/no. Some listed packages print license_id=notspecified and stay null.",
+    "Publisher is copied from printed organization.title when present. artsmangfold prints Statens vegvesen. apne-kartlag-fra-svv printed no organization and stays null.",
+    "Sikt DataverseNO stayed on PR 80. Kartverket Stedsnavn and Geonorge Kartkatalog stayed on main. This source does not re-implement those."
+  ]
+}

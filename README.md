@@ -1305,6 +1305,39 @@ S5SXRG, T6KSX4, 2NKJPG.
 time series (`no observations matched entity/measure; available=[]`).
 Proof is `data/sikt_source_proof.json`.
 
+## Statens vegvesen Dataportalen source
+
+`pda ingest --source vegvesen` is another replaceable adapter. It lists printed
+package names on the official Statens vegvesen Dataportalen CKAN
+`https://dataut.vegvesen.no/api/3/action/package_list`, capped at 10.
+Dataset ids are the printed package names. `access_path` is the catalog's
+own `package_show?id=` action. License is copied from a printed
+`license_url` when it is an http(s) URI. Publisher is copied from a printed
+`organization.title` when present.
+
+```bash
+pda ingest --source vegvesen --db data/registry.sqlite --limit 10
+pda search Artsmangfold --db data/registry.sqlite
+pda fetch --dataset vegvesen:artsmangfold --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored package_show URL. Observation values are copied
+from printed resource `name` (or `url` when name is empty). Nested objects
+are not copied.
+
+This source is Statens vegvesen's CKAN dataportal, not NVDB OpenAPI
+(known User-Agent 400 skip) and not Trafikkdata GraphQL.
+
+Live ingest 2026-08-27: 10 printed package names (catalog prints 85,
+cap 10). Live search `Artsmangfold` returns `vegvesen:artsmangfold`.
+Live fetch GETs
+`https://dataut.vegvesen.no/api/3/action/package_show?id=artsmangfold`
+HTTP 200, 2 resource-name rows. Sample printed names: Åpne data via
+NVDB api (XML), Åpne data via NVDB api (JSON). `pda methods` is not
+applicable: resource names, not a numeric time series
+(`no observations matched entity/measure; available=[]`).
+Proof is `data/vegvesen_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
