@@ -1949,6 +1949,15 @@ pda fetch --dataset airquality:stations --db data/registry.sqlite
 from printed station `name`. License is the printed swagger CC BY 4.0 URL.
 Publisher stays null: the spec does not print a publisher.
 
+Live ingest 2026-08-27: 10 printed untemplated GET paths (catalog prints
+11 paths, 1 root path with no last segment, cap 10). Live search
+`stations` returns `airquality:stations`. Live fetch GETs
+`https://api.met.no/weatherapi/airqualityforecast/0.1/stations` HTTP 200,
+82 station-name rows. Sample printed values: Alnabru, Alvim,
+Backeparken. `pda methods` is not applicable: station names, not a
+numeric time series (`no observations matched entity/measure; available=[]`).
+Proof is `data/airquality_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
