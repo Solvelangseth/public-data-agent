@@ -1,0 +1,163 @@
+{
+  "produced_at": "2026-08-27T14:18:40Z",
+  "bound": {
+    "list_api": "https://data.norges-bank.no/api/dataflow?format=sdmx-json",
+    "walk": "copy printed dataflow ids from data.dataflows; join each id to /api/data/{id}?format=sdmx-json on the list origin; do not invent dataflow ids",
+    "cap": 10,
+    "how": "pda ingest --source norgesbank --limit 10. The official Norges Bank SDMX list API prints 24 dataflow ids. The adapter copies those printed ids, joins each id to the same-host /api/data/{id} path the live data message prints on meta.links.href, keeps the same format=sdmx-json query the list API uses, and stops at 10."
+  },
+  "discarded": [
+    {
+      "candidate": "Udir Nasjonalt barnehageregister",
+      "url": "PR 76 cursor/next-norwegian-source-30dc --source nbr (already on main a01e271)",
+      "why": "Already ingested on main. Do not touch that branch, PR, or nbr adapter files."
+    },
+    {
+      "candidate": "Norges Bank API root",
+      "url": "https://data.norges-bank.no/api",
+      "why": "Known skip: HTTP 403 Cloudflare HTML. The printed catalog is /api/dataflow?format=sdmx-json."
+    },
+    {
+      "candidate": "SODIR FactPages swagger",
+      "url": "https://factpages.sodir.no/swagger/v1/swagger.json",
+      "why": "HTTP 404 HTML. Known skip."
+    },
+    {
+      "candidate": "SODIR FactMaps HTML",
+      "url": "https://factmaps.sodir.no/",
+      "why": "HTTP 200 HTML map app. Does not print a list API, OpenAPI path catalog, or OGC collections."
+    },
+    {
+      "candidate": "DiBK Sentral godkjenning swagger",
+      "url": "https://sgregister.dibk.no/swagger/v1/swagger.json",
+      "why": "HTTP 404 JSON {\"error\":\"not_found\"}."
+    },
+    {
+      "candidate": "Forbrukerrådet strømpris",
+      "url": "https://www.hvakosterstrommen.no/api/v1/prices",
+      "why": "HTTP 403 nginx HTML."
+    },
+    {
+      "candidate": "Nasjonalmuseet Collection API",
+      "url": "https://api.nasjonalmuseet.no/collection",
+      "why": "HTTP 404 JSON Not Found."
+    },
+    {
+      "candidate": "Kristiansand / Bergen / Tromsø CKAN package_list",
+      "url": "https://opendata.{kristiansand,bergen,tromso}.kommune.no/api/3/action/package_list",
+      "why": "DNS name not known."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source norgesbank --db /tmp/pda-norgesbank-proof/registry.sqlite --limit 10",
+    "listed": 10,
+    "inserted": 10,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "norgesbank:ANN_FX_SPU",
+        "access_path": "https://data.norges-bank.no/api/data/ANN_FX_SPU?format=sdmx-json"
+      },
+      {
+        "id": "norgesbank:ANN_KPRA",
+        "access_path": "https://data.norges-bank.no/api/data/ANN_KPRA?format=sdmx-json"
+      },
+      {
+        "id": "norgesbank:ANN_TEST",
+        "access_path": "https://data.norges-bank.no/api/data/ANN_TEST?format=sdmx-json"
+      },
+      {
+        "id": "norgesbank:CBC_CALENDAR",
+        "access_path": "https://data.norges-bank.no/api/data/CBC_CALENDAR?format=sdmx-json"
+      },
+      {
+        "id": "norgesbank:CBC_INSTRUMENTS",
+        "access_path": "https://data.norges-bank.no/api/data/CBC_INSTRUMENTS?format=sdmx-json"
+      },
+      {
+        "id": "norgesbank:CBC_TRANSACTIONS",
+        "access_path": "https://data.norges-bank.no/api/data/CBC_TRANSACTIONS?format=sdmx-json"
+      },
+      {
+        "id": "norgesbank:EXR",
+        "access_path": "https://data.norges-bank.no/api/data/EXR?format=sdmx-json"
+      },
+      {
+        "id": "norgesbank:FAUCTION",
+        "access_path": "https://data.norges-bank.no/api/data/FAUCTION?format=sdmx-json"
+      },
+      {
+        "id": "norgesbank:FINANCIAL_INDICATORS",
+        "access_path": "https://data.norges-bank.no/api/data/FINANCIAL_INDICATORS?format=sdmx-json"
+      },
+      {
+        "id": "norgesbank:GOVT_GENERIC_RATES",
+        "access_path": "https://data.norges-bank.no/api/data/GOVT_GENERIC_RATES?format=sdmx-json"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search styringsrenten --db /tmp/pda-norgesbank-proof/registry.sqlite --limit 5",
+    "query": "styringsrenten",
+    "returned": 1,
+    "hit_id": "norgesbank:ANN_KPRA",
+    "title": "Publisering av styringsrenten",
+    "source_id": "norgesbank"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset norgesbank:ANN_KPRA --db /tmp/pda-norgesbank-proof/registry.sqlite",
+    "dataset": "norgesbank:ANN_KPRA",
+    "table_id": "ANN_KPRA",
+    "access_path": "https://data.norges-bank.no/api/data/ANN_KPRA?format=sdmx-json",
+    "request_url": "https://data.norges-bank.no/api/data/ANN_KPRA?format=sdmx-json",
+    "http_status": 200,
+    "listed": 281,
+    "inserted": 281,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "Key policy rate",
+        "value": "13.00",
+        "dimensions": {"TIME_PERIOD": "1986-01-13"}
+      },
+      {
+        "measure": "Key policy rate",
+        "value": "14.00",
+        "dimensions": {"TIME_PERIOD": "1986-05-02"}
+      },
+      {
+        "measure": "Key policy rate",
+        "value": "30.00",
+        "dimensions": {"TIME_PERIOD": "1986-05-05"}
+      },
+      {
+        "measure": "Key policy rate",
+        "value": "50.00",
+        "dimensions": {"TIME_PERIOD": "1986-05-07"}
+      },
+      {
+        "measure": "Key policy rate",
+        "value": "14.00",
+        "dimensions": {"TIME_PERIOD": "1986-05-12"}
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset norgesbank:ANN_KPRA --table ANN_KPRA --entity \"\" --measure \"\" --db /tmp/pda-norgesbank-proof/registry.sqlite --out /tmp/pda-norgesbank-proof/methods",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "row 0 (...): no period in dimensions or period field",
+    "why": "ANN_KPRA prints numeric key-policy-rate observations with TIME_PERIOD dates (1986-01-13 .. 2026-08-13). methods.clean only treats year-like aliases as period and does not read TIME_PERIOD. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed data.dataflows[].id. access_path joins each printed id to https://data.norges-bank.no/api/data/{id}?format=sdmx-json. The format query is copied from the list API because /api/data/{id} without it returns XML. No Norges Bank id was written onto a datanorge or nbr row.",
+    "License is null. The dataflow list does not print a license URI.",
+    "Publisher is null. meta.sender.id prints Unknown; that is not copied as a publisher name.",
+    "NBR stayed on main (PR 76). This source does not re-implement NBR."
+  ]
+}

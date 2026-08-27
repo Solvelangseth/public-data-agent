@@ -1191,6 +1191,33 @@ Statlig barnehage. `pda methods` is not applicable: names, not a
 numeric time series (`no observations matched entity/measure; available=[]`).
 Proof is `data/nbr_source_proof.json`.
 
+## Norges Bank Open Data source
+
+`pda ingest --source norgesbank` is another replaceable adapter. It lists printed
+dataflow ids on the official Norges Bank SDMX list API
+`https://data.norges-bank.no/api/dataflow?format=sdmx-json`, capped at 10.
+Dataset ids are the printed dataflow ids. `access_path` joins each printed id
+to `/api/data/{id}?format=sdmx-json` on the same host.
+
+```bash
+pda ingest --source norgesbank --db data/registry.sqlite --limit 10
+pda search styringsrenten --db data/registry.sqlite
+pda fetch --dataset norgesbank:ANN_KPRA --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored dataflow URL. Observation values are copied from
+printed SDMX-JSON observation arrays. License and publisher stay null: the
+list API does not print them.
+
+Live ingest 2026-08-27: 10 printed dataflow ids. Live search
+`styringsrenten` returns `norgesbank:ANN_KPRA`. Live fetch GETs
+`https://data.norges-bank.no/api/data/ANN_KPRA?format=sdmx-json` HTTP 200,
+281 key-policy-rate rows. Sample printed values: 13.00 on 1986-01-13,
+4.25 on 2026-08-13. `pda methods` is not applicable without editing
+`methods/`: `TIME_PERIOD` dates are not a year-like period alias
+(`no period in dimensions or period field`). Proof is
+`data/norgesbank_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
