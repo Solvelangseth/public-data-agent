@@ -1797,6 +1797,39 @@ Landformer i fast fjell og løsmasser, Innsjøbasseng, Torvmarksmassiv.
 (`no observations matched entity/measure; available=[]`).
 Proof is `data/nin_source_proof.json`.
 
+## Norges geologiske undersøkelse OGC API Features source
+
+`pda ingest --source ngu` is another replaceable adapter. It lists printed
+dataset ids on the official Norges geologiske undersøkelse OGC API Features
+catalog `https://geo.ngu.no/api/features`, capped at 10. Dataset ids are the
+printed `apis[].id` values. `access_path` is the printed `landingPageUri`.
+This is not Havforskningsinstituttet OGC Features (`--source hi`), not
+Geonorge Kartkatalog (`--source geonorge`), not Kartverket Kommuneinfo
+(`--source kommuneinfo`, now on main), and not Artsdatabanken NiN
+(`--source nin`, now on main). Root `/collections` stays unused: that
+path 404s. The catalog's own `apis` array is the printed list.
+
+```bash
+pda ingest --source ngu --db data/registry.sqlite --limit 10
+pda search ankringsforhold --db data/registry.sqlite
+pda fetch --dataset ngu:ankringsforhold --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored landing-page URL. Observation values are copied
+from printed link `title` when it is a non-empty string, otherwise `rel`,
+otherwise `href`. License and publisher stay null: the catalog prints
+neither a license URL nor a structured publisher.
+
+Live ingest 2026-08-27: 10 printed datasets (catalog prints 28, cap 10). Live
+search `ankringsforhold` returns `ngu:ankringsforhold`. Live fetch GETs
+`https://geo.ngu.no/api/features/ankringsforhold` HTTP 200, 15 link-title
+rows. Sample printed values: This document as HTML, OGC API conformance
+classes implemented by this server, Access the data (ankringOmr,
+Dataavgrensning, GeolAvgrLinje).
+`pda methods` is not applicable: link titles, not a numeric time series
+(`no observations matched entity/measure; available=[]`).
+Proof is `data/ngu_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists

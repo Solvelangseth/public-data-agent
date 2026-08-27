@@ -1,0 +1,190 @@
+{
+  "produced_at": "2026-08-27T20:47:13Z",
+  "bound": {
+    "list_api": "https://geo.ngu.no/api/features",
+    "walk": "copy printed dataset ids from the official OGC API Features catalog apis array; native ids are those printed ids; access_path is the printed landingPageUri; do not invent dataset ids",
+    "cap": 10,
+    "how": "pda ingest --source ngu --limit 10. The official Norges geologiske undersøkelse OGC API Features catalog prints 28 dataset ids. The adapter copies the first 10 printed ids and the printed landingPageUri. GET uses the printed landing page with no invented query filters."
+  },
+  "discarded": [
+    {
+      "candidate": "Kartverket Kommuneinfo",
+      "url": "PR 94 --source kommuneinfo",
+      "why": "Already in flight. Do not re-add. Lane A must pick a different source."
+    },
+    {
+      "candidate": "Sokkeldirektoratet FactMaps DataService",
+      "url": "https://factmaps.sodir.no/api/rest/services/DataService/Data/FeatureServer?f=json",
+      "why": "Already on main as --source sodir after PR 93. Do not re-add."
+    },
+    {
+      "candidate": "Kartverket Adresse OpenAPI",
+      "url": "https://ws.geonorge.no/adresser/v1/openapi.json",
+      "why": "HTTP 200 OpenAPI prints only /sok and /punktsok. Both require search params. Search API, not a collection catalog."
+    },
+    {
+      "candidate": "Høydedata OpenAPI",
+      "url": "https://ws.geonorge.no/hoydedata/v1/openapi.json",
+      "why": "HTTP 200 with untemplated GET /datakilder and /terrengtyper. Already stored as a Geonorge row. Same Kartverket/Geonorge family as kommuneinfo. Do not re-add."
+    },
+    {
+      "candidate": "NGU root /collections",
+      "url": "https://geo.ngu.no/api/features/collections",
+      "why": "Known skip: HTTP 404. The printed catalog is the landing-page apis array, not /collections."
+    },
+    {
+      "candidate": "Artsdatabanken /Api",
+      "url": "https://artsdatabanken.no/Api",
+      "why": "Known skip: HTTP 404. /Api/Taxon is a record array, not used."
+    },
+    {
+      "candidate": "Stortinget eksport",
+      "url": "https://data.stortinget.no/eksport",
+      "why": "Known skip: HTTP 404. Individual eksport names return XML. The publisher catalog is HTML documentation, not a printed list API."
+    },
+    {
+      "candidate": "NVE HydAPI",
+      "url": "https://hydapi.nve.no/api/v1/Stations",
+      "why": "Known skip: HTTP 401 requires X-API-Key."
+    },
+    {
+      "candidate": "Geonorge register /api/register",
+      "url": "https://register.geonorge.no/api/register",
+      "why": "HTTP 500. /api/epsg-koder is 200 but that id is not printed by a working register catalog. Do not invent register ids."
+    },
+    {
+      "candidate": "NVDB Les V3 OpenAPI",
+      "url": "https://nvdbapiles-v3.atlas.vegvesen.no/dokumentasjon/openapi.json",
+      "why": "Known skip: HTTP 400 User-Agent. Do not retry."
+    },
+    {
+      "candidate": "Vegvesen Trafikkdata swagger / trafikkdata-api",
+      "url": "https://trafikkdata.atlas.vegvesen.no/",
+      "why": "Known skip: swagger HTML-only; trafikkdata-api 410. Do not retry."
+    },
+    {
+      "candidate": "Kartverket Eiendom /geokoding",
+      "url": "https://api.kartverket.no/eiendom/v1/geokoding",
+      "why": "Known skip: HTTP 400 without matrikkel params. Search API, not a collection catalog. Do not retry."
+    },
+    {
+      "candidate": "Udir Statistikkbanken /data",
+      "url": "Udir Statistikkbanken /Eksport/{id}/data",
+      "why": "Known skip: requires invented filters. Do not retry."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source ngu --db /tmp/pda-ngu-proof/registry.sqlite --limit 10",
+    "listed": 10,
+    "inserted": 10,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "ngu:ankringsforhold",
+        "access_path": "https://geo.ngu.no/api/features/ankringsforhold"
+      },
+      {
+        "id": "ngu:bunnfellingsomrader",
+        "access_path": "https://geo.ngu.no/api/features/bunnfellingsomrader"
+      },
+      {
+        "id": "ngu:bunnsedimentdannelsedetaljert",
+        "access_path": "https://geo.ngu.no/api/features/bunnsedimentdannelsedetaljert"
+      },
+      {
+        "id": "ngu:bunnsedimentdannelseregionalt",
+        "access_path": "https://geo.ngu.no/api/features/bunnsedimentdannelseregionalt"
+      },
+      {
+        "id": "ngu:bunnsedimentdannelseoversikt",
+        "access_path": "https://geo.ngu.no/api/features/bunnsedimentdannelseoversikt"
+      },
+      {
+        "id": "ngu:bunnsedimentkornstorrelsedetaljert",
+        "access_path": "https://geo.ngu.no/api/features/bunnsedimentkornstorrelsedetaljert"
+      },
+      {
+        "id": "ngu:bunnsedimentkornstorrlseregionalt",
+        "access_path": "https://geo.ngu.no/api/features/bunnsedimentkornstorrelseregionalt"
+      },
+      {
+        "id": "ngu:bunnsedimentkornstorrelseoversikt",
+        "access_path": "https://geo.ngu.no/api/features/bunnsedimentkornstorrelseoversikt"
+      },
+      {
+        "id": "ngu:frostonline",
+        "access_path": "https://geo.ngu.no/api/features/frostonline"
+      },
+      {
+        "id": "ngu:gassoppkommer",
+        "access_path": "https://geo.ngu.no/api/features/gassoppkommer"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search ankringsforhold --db /tmp/pda-ngu-proof/registry.sqlite --limit 5",
+    "query": "ankringsforhold",
+    "returned": 1,
+    "hit_id": "ngu:ankringsforhold",
+    "title": "Marin: Ankringsforhold",
+    "source_id": "ngu"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset ngu:ankringsforhold --db /tmp/pda-ngu-proof/registry.sqlite",
+    "dataset": "ngu:ankringsforhold",
+    "table_id": "ankringsforhold",
+    "access_path": "https://geo.ngu.no/api/features/ankringsforhold",
+    "request_url": "https://geo.ngu.no/api/features/ankringsforhold",
+    "http_status": 200,
+    "listed": 15,
+    "inserted": 15,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "title",
+        "value": "This document as HTML"
+      },
+      {
+        "measure": "title",
+        "value": "OGC API conformance classes implemented by this server"
+      },
+      {
+        "measure": "title",
+        "value": "Access the data (ankringOmr, Dataavgrensning, GeolAvgrLinje)"
+      },
+      {
+        "measure": "title",
+        "value": "OGC API conformance classes implemented by this server"
+      },
+      {
+        "measure": "title",
+        "value": "Access the data (ankringOmr, Dataavgrensning, GeolAvgrLinje)"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset ngu:ankringsforhold --table ankringsforhold --entity \"\" --measure \"\" --db /tmp/pda-ngu-proof/registry.sqlite --out /tmp/pda-ngu-proof/methods",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "NGU landing page ankringsforhold prints link titles. That is not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed catalog apis[].id. access_path is the printed landingPageUri https://geo.ngu.no/api/features/ankringsforhold. No ngu id was written onto a geonorge, hi, kommuneinfo, or datanorge row.",
+    "License and publisher are null. The catalog prints neither a license URL nor a structured publisher. HTML attribution was not scraped into a publisher field.",
+    "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "Kommuneinfo stays on PR 94. Høydedata stays a Geonorge row. This source does not re-implement either.",
+    "python3 -m pytest 425 passed, 1 skipped, 1 deselected after rebase onto main with kommuneinfo.",
+    "Rebased onto origin/main after Kommuneinfo 94 merge 2d9e6a5. kommuneinfo and sodir adapters were not edited."
+  ]
+}
