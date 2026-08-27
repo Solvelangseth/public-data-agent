@@ -10,7 +10,7 @@
     {
       "candidate": "MET Subseasonal",
       "url": "https://github.com/Solvelangseth/public-data-agent/pull/110",
-      "why": "Lane B open PR 110 --source subseasonal. Do not pick the same source."
+      "why": "Already on main as --source subseasonal after PR 110 merge 2e374a3. Do not re-add."
     },
     {
       "candidate": "Meteorologisk institutt Tafmetar",
@@ -207,7 +207,7 @@
     "applicable": false,
     "exit_code": 1,
     "printed_reason": "no observations matched entity/measure; available=[]",
-    "why": "Geosatellite /features prints feature datetime stamps and image ids (Mediterranean-Sea-IR-20260825220000, …). That is not a numeric time series with a year-like period field. methods/ was not edited.",
+    "why": "Geosatellite /features prints feature datetime stamps and image ids (Mediterranean-Sea-IR-20260825220000, \u2026). That is not a numeric time series with a year-like period field. methods/ was not edited.",
     "read_from_store": true,
     "called_fetch": false,
     "fetch_runs_after": 1
@@ -219,6 +219,7 @@
     "Nowcast stays --source nowcast. Metalerts stays --source met. Airqualityforecast stays --source airquality. Tidalwater stays --source tidalwater. Oceanforecast stays --source oceanforecast. Sunrise stays --source sunrise. Radar stays --source radar. Spotwind stays --source spotwind. Textforecast stays --source textforecast. Icemap stays --source icemap. NCAgalewarnings stays --source ncagalewarnings. Tafmetar stays --source tafmetar after PR 109. Lane B Subseasonal stays PR 110. This source does not re-implement those.",
     "Root / is an image product with no last path segment and was not ingested. Optional area/size/type/time filters were not invented. Fetch in this slice uses /features.",
     "python3 -m pytest 572 passed, 1 skipped, 1 deselected.",
-    "Not a numeric time series with two or more periods."
+    "Not a numeric time series with two or more periods.",
+    "Rebased onto origin/main after Subseasonal PR 110 merge 2e374a3. Kept subseasonal plus geosatellite."
   ]
 }
