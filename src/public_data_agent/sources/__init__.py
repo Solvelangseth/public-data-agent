@@ -29,6 +29,7 @@ from public_data_agent.sources.trondheim import TrondheimOpenDataSource
 from public_data_agent.sources.udir import UdirNsrSource
 from public_data_agent.sources.utdanning import UtdanningSource
 from public_data_agent.sources.valg import ValgresultatSource
+from public_data_agent.sources.vegvesen import VegvesenSource
 
 SOURCE_IDS = (
     "datanorge",
@@ -57,6 +58,7 @@ SOURCE_IDS = (
     "npolar",
     "stedsnavn",
     "sikt",
+    "vegvesen",
 )
 
 
@@ -115,6 +117,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return StedsnavnSource()
     if source_id == "sikt":
         return SiktSource()
+    if source_id == "vegvesen":
+        return VegvesenSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -148,5 +152,6 @@ __all__ = [
     "UdirNsrSource",
     "UtdanningSource",
     "ValgresultatSource",
+    "VegvesenSource",
     "build_source",
 ]

@@ -42,3 +42,7 @@ This file does not add theme to the scorer. It does not rewrite ranking. It does
 
 - **Sikt DataverseNO OpenAPI is not the walk.** `https://dataverse.no/openapi` is HTTP 200 YAML for the generic Dataverse 6.6 software API (414 paths, 134 untemplated, mostly `/admin`). The working printed catalog is `https://dataverse.no/api/dataverses/:root/contents` (31 members; 18 titled dataverses). Root datasets print no title. We do not invent aliases or licenses. Source: live GET 2026-08-27T15:00:41Z and `data/sikt_source_proof.json` discarded list.
 
+- **Kartverket Eiendom OpenAPI is not a collection catalog.** `https://ws.geonorge.no/eiendom/v1/openapi.json` HTTP 200 prints 3 GET paths. Live GET `https://api.kartverket.no/eiendom/v1/geokoding` is HTTP 400 without kommunenummer/gardsnummer/bruksnummer. Høydedata OpenAPI stays a Geonorge row. Source: live GET 2026-08-27T15:07:00Z.
+
+- **Trafikkdata is GraphQL, not a printed list API.** `https://trafikkdata.atlas.vegvesen.no/swagger/v1/swagger.json` is HTML. `https://trafikkdata-api.atlas.vegvesen.no/` is HTTP 410. The working Vegvesen catalog is CKAN `https://dataut.vegvesen.no/api/3/action/package_list`. Source: live GET 2026-08-27T15:07:00Z.
+
