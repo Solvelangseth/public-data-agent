@@ -9,9 +9,9 @@ import pytest
 
 from methods.clean import CleanError, clean
 from methods.cli import run as run_methods
-from methods.derive import derive_yoy
+from methods.derive import derive, derive_yoy
 from methods.emit import emit
-from methods.types import DerivedValue, Lineage, YOY_GROWTH, YOY_GROWTH_FORMULA
+from methods.types import DerivedValue, Lineage, INDEX, INDEX_FORMULA, YOY_GROWTH, YOY_GROWTH_FORMULA
 from public_data_agent.cli import main
 from public_data_agent.harvest import harvest
 from public_data_agent.registry import Registry
@@ -140,6 +140,67 @@ def test_zero_prior_value_is_undefined() -> None:
     assert derived[1].yoy_growth.lineage.note == "undefined: v_{t-1} is 0"
 
 
+def test_index_default_base_is_first_period() -> None:
+    derived = derive(clean(FIXTURE_ROWS))
+    assert derived[0].index.value == 100.0
+    assert derived[0].observation.period == "2000"
+    assert derived[1].index.value == pytest.approx(100.0 * 110 / 100)
+    assert derived[2].index.value == pytest.approx(100.0 * 80 / 100)
+    for row in derived:
+        assert row.index.lineage.name == INDEX
+        assert row.index.lineage.formula == INDEX_FORMULA
+        assert row.index.lineage.base_period == "2000"
+        assert row.index.lineage.base_observation_id == "fixture-obs-2000"
+        assert row.index.lineage.source_observation_ids
+        assert row.index.lineage.source_periods
+
+
+def test_index_two_entities_each_have_own_base() -> None:
+    # Fixture Town A/B — not Oslo. Each (entity, measure) series has its own 100.
+    rows = clean(
+        [
+            {**FIXTURE_ROWS[0], "id": "a-1", "value": 50, "dimensions": {"year": "2000", "entity": "Fixture A"}},
+            {**FIXTURE_ROWS[2], "id": "a-2", "value": 75, "dimensions": {"year": "2001", "entity": "Fixture A"}},
+            {**FIXTURE_ROWS[0], "id": "b-1", "value": 200, "dimensions": {"year": "2000", "entity": "Fixture B"}},
+            {**FIXTURE_ROWS[2], "id": "b-2", "value": 100, "dimensions": {"year": "2001", "entity": "Fixture B"}},
+        ]
+    )
+    derived = derive(rows)
+    by_key = {(row.observation.entity, row.observation.period): row for row in derived}
+    assert by_key[("Fixture A", "2000")].index.value == 100.0
+    assert by_key[("Fixture A", "2001")].index.value == pytest.approx(150.0)
+    assert by_key[("Fixture B", "2000")].index.value == 100.0
+    assert by_key[("Fixture B", "2001")].index.value == pytest.approx(50.0)
+    assert by_key[("Fixture A", "2001")].index.lineage.base_observation_id == "a-1"
+    assert by_key[("Fixture B", "2001")].index.lineage.base_observation_id == "b-1"
+
+
+def test_index_configurable_base_period() -> None:
+    derived = derive(clean(FIXTURE_ROWS), base_period="2001")
+    assert derived[1].observation.period == "2001"
+    assert derived[1].index.value == 100.0
+    assert derived[0].index.value == pytest.approx(100.0 * 100 / 110)
+    assert derived[2].index.value == pytest.approx(100.0 * 80 / 110)
+    assert all(row.index.lineage.base_period == "2001" for row in derived)
+
+
+def test_index_missing_or_zero_base_is_undefined() -> None:
+    missing = derive(clean(FIXTURE_ROWS), base_period="1990")
+    assert all(row.index.value is None for row in missing)
+    assert all(row.index.lineage.note == "undefined: base period not in series" for row in missing)
+    zero = derive(
+        clean(
+            [
+                {**FIXTURE_ROWS[0], "value": 0},
+                {**FIXTURE_ROWS[2], "value": 10},
+            ]
+        )
+    )
+    assert zero[0].index.value is None
+    assert zero[1].index.value is None
+    assert zero[0].index.lineage.note == "undefined: v_base is 0"
+
+
 def test_derived_without_lineage_is_unrepresentable() -> None:
     with pytest.raises(TypeError):
         DerivedValue(value=0.1)  # type: ignore[call-arg]
@@ -154,6 +215,15 @@ def test_derived_without_lineage_is_unrepresentable() -> None:
             source_observation_ids=("x",),
             source_periods=("2000",),
         )
+    with pytest.raises(ValueError, match="base_period"):
+        Lineage(
+            name=INDEX,
+            formula=INDEX_FORMULA,
+            input_columns=("value",),
+            units="index (base = 100)",
+            source_observation_ids=("x",),
+            source_periods=("2000",),
+        )
 
 
 def test_emit_writes_table_chart_and_lineage(tmp_path: Path) -> None:
@@ -164,14 +234,24 @@ def test_emit_writes_table_chart_and_lineage(tmp_path: Path) -> None:
     assert "0.1" in csv_text
     md = paths["markdown"].read_text(encoding="utf-8")
     assert YOY_GROWTH_FORMULA in md
+    assert INDEX_FORMULA in md
+    assert "index" in csv_text
     lineage = json.loads(paths["lineage"].read_text(encoding="utf-8"))
-    column = lineage["derived_columns"][0]
-    assert column["name"] == YOY_GROWTH
-    assert column["formula"] == YOY_GROWTH_FORMULA
-    assert len(column["rows"]) == 3
-    for item in column["rows"]:
+    names = [column["name"] for column in lineage["derived_columns"]]
+    assert names == [YOY_GROWTH, INDEX]
+    yoy = lineage["derived_columns"][0]
+    index = lineage["derived_columns"][1]
+    assert yoy["formula"] == YOY_GROWTH_FORMULA
+    assert index["formula"] == INDEX_FORMULA
+    assert len(yoy["rows"]) == 3
+    assert len(index["rows"]) == 3
+    for item in yoy["rows"]:
         assert item["lineage"]["name"] == YOY_GROWTH
         assert item["lineage"]["formula"] == YOY_GROWTH_FORMULA
+    for item in index["rows"]:
+        assert item["lineage"]["name"] == INDEX
+        assert item["lineage"]["formula"] == INDEX_FORMULA
+        assert item["lineage"]["base_period"] == "2000"
     png = paths["chart"].read_bytes()
     assert png.startswith(b"\x89PNG")
 
@@ -248,6 +328,8 @@ def test_cli_methods_on_fixture_store(tmp_path: Path) -> None:
     assert (out / "chart.png").is_file()
     lineage = json.loads((out / "lineage.json").read_text(encoding="utf-8"))
     assert lineage["derived_columns"][0]["formula"] == YOY_GROWTH_FORMULA
+    assert lineage["derived_columns"][1]["formula"] == INDEX_FORMULA
+    assert "index" in table
 
 
 def test_run_methods_uses_stored_fixture_values(tmp_path: Path) -> None:
