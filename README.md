@@ -996,6 +996,34 @@ Nordland, Østfold. `pda methods` is not applicable: names, not a numeric
 time series (`no observations matched entity/measure; available=[]`).
 Proof is `data/met_source_proof.json`.
 
+## Havforskningsinstituttet OGC API Features source
+
+`pda ingest --source hi` is another replaceable adapter. It lists printed
+collections on the official OGC API Features collections document
+`https://kart.hi.no/data/ogc/features/v1/collections`, capped at 10.
+Dataset ids are the printed collection `id` values. `access_path` is the
+printed `application/json` items href.
+
+```bash
+pda ingest --source hi --db data/registry.sqlite --limit 10
+pda search Strandnot --db data/registry.sqlite
+pda fetch --dataset hi:hi_basemap:Strandnot --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored items URL. Observation values are copied from
+a printed name field (`navn`, `Description`, `Station`, `title`, `name`,
+`id`, or `fid`) when present. Nested geometry is not copied. License and
+publisher stay null: the collections document does not print those fields.
+
+Live ingest 2026-08-27: 10 printed collections. Live search `Strandnot`
+returns `hi:hi_basemap:Strandnot`. Live fetch GETs
+`https://kart.hi.no/data/ogc/features/v1/collections/hi_basemap:Strandnot/items?f=application%2Fjson`
+HTTP 200, 163 station rows. Sample printed descriptions: Holme utenfor
+Skarsnes, Hvaler; Knudrete fjell nord for strand. `pda methods` is not
+applicable: names, not a numeric time series
+(`no observations matched entity/measure; available=[]`).
+Proof is `data/hi_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists

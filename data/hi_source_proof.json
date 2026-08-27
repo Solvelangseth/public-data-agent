@@ -1,0 +1,191 @@
+{
+  "produced_at": "2026-08-27T12:46:22Z",
+  "bound": {
+    "list_api": "https://kart.hi.no/data/ogc/features/v1/collections",
+    "walk": "copy printed collection id and the printed application/json items href from the official Havforskningsinstituttet OGC API Features collections list; skip rows with no printed id or items JSON href",
+    "cap": 10,
+    "how": "pda ingest --source hi --limit 10. The official collections document prints collection ids and items links. The adapter copies the printed application/json items href as access_path. It does not invent a format query or a collection id."
+  },
+  "discarded": [
+    {
+      "candidate": "MET Metalerts swagger",
+      "url": "https://api.met.no/weatherapi/metalerts/2.0/swagger",
+      "why": "Already an open slice on PR 69 (cursor/met-metalerts-source-5505). Do not re-implement MET Metalerts."
+    },
+    {
+      "candidate": "Havforskningsinstituttet OGC OpenAPI",
+      "url": "https://kart.hi.no/data/ogc/features/v1/openapi",
+      "why": "HTTP 200 OpenAPI 3.0.2 without Accept. HTTP 500 when the existing HttpClient sends Accept: application/json. Do not invent a custom Accept header. The collections document already lists endpoints as JSON."
+    },
+    {
+      "candidate": "NIBIO IPM Resource Hub OpenAPI",
+      "url": "https://irh.nibio.no/weather/openapi.json",
+      "why": "HTTP 200 OpenAPI 3.1 with collection GETs. weatherdatasource HTTP 200 listed 4 sources; parameter HTTP 200 listed 44. Left as a later source after HI printed a no-auth collections list with named Strandnot stations."
+    },
+    {
+      "candidate": "NIBIO LMT stations",
+      "url": "https://lmt.nibio.no/services/rest/weatherstations",
+      "why": "Already discarded on main in data/statnett_source_proof.json: HTTP 404."
+    },
+    {
+      "candidate": "CRISTIN API v2 root",
+      "url": "https://api.cristin.no/v2/",
+      "why": "HTTP 200 HTML docs. Do not wrap HTML docs."
+    },
+    {
+      "candidate": "DiBK Sentral godkjenning swagger",
+      "url": "https://sgregister.dibk.no/swagger/v1/swagger.json",
+      "why": "HTTP 404 JSON not_found. Root /api is HTML."
+    },
+    {
+      "candidate": "Norges geologiske undersøkelse geo swagger",
+      "url": "https://geo.ngu.no/api/v1/swagger.json",
+      "why": "Already discarded on main: HTTP 503."
+    },
+    {
+      "candidate": "Kystdatahuset swagger",
+      "url": "https://kystdatahuset.no/swagger/v1/swagger.json",
+      "why": "Already discarded on main: HTTP 406 HTML."
+    },
+    {
+      "candidate": "Forbrukerrådet strømpris /api/v1/prices",
+      "url": "https://www.hvakosterstrommen.no/api/v1/prices",
+      "why": "HTTP 403 Cloudflare. Not a list API."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source hi --db /tmp/pda-hi-proof/registry.sqlite --limit 10",
+    "listed": 10,
+    "inserted": 10,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "hi:hi_basemap:Mareano_observerte_vme",
+        "access_path": "https://kart.hi.no/data/ogc/features/v1/collections/hi_basemap:Mareano_observerte_vme/items?f=application%2Fjson"
+      },
+      {
+        "id": "hi:hi_basemap:Rutenett",
+        "access_path": "https://kart.hi.no/data/ogc/features/v1/collections/hi_basemap:Rutenett/items?f=application%2Fjson"
+      },
+      {
+        "id": "hi:hi_basemap:Strandnot",
+        "access_path": "https://kart.hi.no/data/ogc/features/v1/collections/hi_basemap:Strandnot/items?f=application%2Fjson"
+      },
+      {
+        "id": "hi:hi_basemap:basemap_detailed_coastline",
+        "access_path": "https://kart.hi.no/data/ogc/features/v1/collections/hi_basemap:basemap_detailed_coastline/items?f=application%2Fjson"
+      },
+      {
+        "id": "hi:hi_basemap:basemap_land_2",
+        "access_path": "https://kart.hi.no/data/ogc/features/v1/collections/hi_basemap:basemap_land_2/items?f=application%2Fjson"
+      },
+      {
+        "id": "hi:hi_basemap:basemap_ne_10m_bathymetry_0m",
+        "access_path": "https://kart.hi.no/data/ogc/features/v1/collections/hi_basemap:basemap_ne_10m_bathymetry_0m/items?f=application%2Fjson"
+      },
+      {
+        "id": "hi:hi_basemap:basemap_ne_10m_bathymetry_0m_2",
+        "access_path": "https://kart.hi.no/data/ogc/features/v1/collections/hi_basemap:basemap_ne_10m_bathymetry_0m_2/items?f=application%2Fjson"
+      },
+      {
+        "id": "hi:hi_basemap:basemap_ne_10m_bathymetry_1000m",
+        "access_path": "https://kart.hi.no/data/ogc/features/v1/collections/hi_basemap:basemap_ne_10m_bathymetry_1000m/items?f=application%2Fjson"
+      },
+      {
+        "id": "hi:hi_basemap:basemap_ne_10m_bathymetry_2000m",
+        "access_path": "https://kart.hi.no/data/ogc/features/v1/collections/hi_basemap:basemap_ne_10m_bathymetry_2000m/items?f=application%2Fjson"
+      },
+      {
+        "id": "hi:hi_basemap:basemap_ne_10m_bathymetry_200m",
+        "access_path": "https://kart.hi.no/data/ogc/features/v1/collections/hi_basemap:basemap_ne_10m_bathymetry_200m/items?f=application%2Fjson"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search Strandnot --db /tmp/pda-hi-proof/registry.sqlite --limit 5",
+    "query": "Strandnot",
+    "returned": 1,
+    "hit_id": "hi:hi_basemap:Strandnot",
+    "title": "Strandnot",
+    "source_id": "hi"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset hi:hi_basemap:Strandnot --db /tmp/pda-hi-proof/registry.sqlite",
+    "dataset": "hi:hi_basemap:Strandnot",
+    "table_id": "hi_basemap:Strandnot",
+    "access_path": "https://kart.hi.no/data/ogc/features/v1/collections/hi_basemap:Strandnot/items?f=application%2Fjson",
+    "request_url": "https://kart.hi.no/data/ogc/features/v1/collections/hi_basemap:Strandnot/items?f=application%2Fjson",
+    "http_status": 200,
+    "listed": 163,
+    "inserted": 163,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "Description",
+        "value": "Holme utenfor Skarsnes, Hvaler. Vestvendt Nordre holme",
+        "dimensions": {
+          "fid": "3",
+          "StationNumber": "445",
+          "Lat": "59.02969",
+          "Long": "11.05968",
+          "Station": "445",
+          "FirstYearSampled": "2000",
+          "LastYearSampled": "2007",
+          "Exposure": "1",
+          "Region": "Ostfold",
+          "YearsSampled": "7"
+        }
+      },
+      {
+        "measure": "Description",
+        "value": "Knudrete fjell nord for strand.",
+        "dimensions": {
+          "fid": "5",
+          "StationNumber": "446",
+          "Lat": "59.25283333",
+          "Long": "10.70406667",
+          "Station": "446",
+          "FirstYearSampled": "2000",
+          "LastYearSampled": "2007",
+          "Exposure": "0",
+          "Region": "Ostfold",
+          "YearsSampled": "8"
+        }
+      },
+      {
+        "measure": "Description",
+        "value": "Svanelangen, Herf l, Hvaler. Friareale. Nordvestvendt kast. Fra plati til gammel kryssbolt",
+        "dimensions": {
+          "fid": "2",
+          "StationNumber": "441",
+          "Lat": "58.99564",
+          "Long": "11.03738",
+          "Station": "441",
+          "FirstYearSampled": "2000",
+          "LastYearSampled": "2007",
+          "Exposure": "1",
+          "Region": "Ostfold",
+          "YearsSampled": "8"
+        }
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset hi:hi_basemap:Strandnot --table hi_basemap:Strandnot --entity \"\" --measure \"\" --db /tmp/pda-hi-proof/registry.sqlite --out /tmp/pda-hi-proof/methods",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "Strandnot prints station descriptions (Description plus Station/Region). That is not a numeric time series. methods.clean drops the rows because they have no period. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from the printed collection id. access_path is the printed application/json items href. No HI id was written onto a datanorge row.",
+    "Fetch GETs the stored items URL. Observation values are printed Description. Nested geometry is not copied as dimensions.",
+    "License and publisher stay null: the collections document does not print those fields.",
+    "MET Metalerts stayed on PR 69. This source does not re-implement it. Utdanning.no stayed on main (PR 67)."
+  ]
+}
