@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from public_data_agent.sources.aqua import AquaSource
 from public_data_agent.sources.baf import BafSource
 from public_data_agent.sources.base import CatalogSource, SourceBase
 from public_data_agent.sources.brreg import BrregEnhetsregisterSource
@@ -73,6 +74,7 @@ SOURCE_IDS = (
     "nfr",
     "nxr",
     "baf",
+    "aqua",
 )
 
 
@@ -147,10 +149,13 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return NxrSource()
     if source_id == "baf":
         return BafSource()
+    if source_id == "aqua":
+        return AquaSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
 __all__ = [
+    "AquaSource",
     "BafSource",
     "BrregEnhetsregisterSource",
     "BuyerSource",
