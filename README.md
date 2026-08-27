@@ -1044,6 +1044,14 @@ from a printed name field (`countyname`, `label`, `area_name`, `name`,
 `title`, or `code`) when present. License is the printed OpenAPI NLOD URL.
 Publisher stays null: the spec does not print a publisher field.
 
+Live ingest 2026-08-27: 10 printed collection GET paths. Live search
+`counties` returns `kystverket:api/location/counties`. Live fetch GETs
+`https://kystdatahuset.no/ws/api/location/counties` HTTP 200, 17
+county-name rows. Sample printed names: Agder, Akershus, Buskerud,
+Finnmark, Innlandet. `pda methods` is not applicable: names, not a
+numeric time series (`no observations matched entity/measure; available=[]`).
+Proof is `data/kystverket_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
