@@ -154,7 +154,7 @@
     "License is the printed swagger CC BY 4.0 URL http://creativecommons.org/licenses/by/4.0. Publisher is null: the spec does not print a publisher.",
     "Original harvested swagger metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
     "Lane A opened PR 111 for MET Geosatellite. Subseasonal is now on main as --source subseasonal after PR 110. Tafmetar stays --source tafmetar. NCAgalewarnings stays --source ncagalewarnings. Icemap stays --source icemap. Textforecast stays --source textforecast. Spotwind stays --source spotwind. Radar stays --source radar. Sunrise stays --source sunrise. Oceanforecast stays --source oceanforecast. Tidalwater stays --source tidalwater. Airqualityforecast stays --source airquality. Nowcast stays --source nowcast. Metalerts stays --source met.",
-    "python3 -m pytest: 582 passed, 1 skipped, 1 deselected.",
+    "python3 -m pytest after rebase onto Geosatellite 111: 592 passed, 1 skipped, 1 deselected.",
     "Not a numeric time series with two or more periods. Fetch listed 112 printed feature cells; observation identity is dataset/table/measure/dimensions, so features that share a datetime upsert (inserted=16, updated=96).",
     "Rebased onto origin/main after Geosatellite 111 merge 25e8953. geosatellite adapter files were not edited."
   ]
