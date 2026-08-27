@@ -1,0 +1,133 @@
+{
+  "produced_at": "2026-08-27T16:55:24Z",
+  "bound": {
+    "list_api": "https://api.fiskeridir.no/aqua-research-project-api-public/v3/api-docs",
+    "walk": "copy printed collection GET paths from the official Akvakulturforskning OpenAPI; skip templated paths; join each path to printed servers[0].url https://api.fiskeridir.no/aqua-research-project-api-public; do not invent path ids",
+    "cap": 10,
+    "how": "pda ingest --source research --limit 10. The official Akvakulturforskning OpenAPI prints 3 paths. 1 untemplated collection GET is /api/v1/research-projects. The live spec also prints /api/v1/research-project/{projectNumber} and /api/v1/research-report-file/{reportNumber}/{fileId}; those templated paths are skipped. The adapter copies the printed untemplated path joined to the printed servers[0].url. GET uses the printed path with no invented query filters."
+  },
+  "discarded": [
+    {
+      "candidate": "Fiskeridirektoratet Offentlig Akvakulturregister",
+      "url": "PR 89 cursor/aqua-akvakulturregister-a532 --source aqua",
+      "why": "Already in flight. Do not touch that branch, PR, or aqua adapter files. This branch starts from origin/main only."
+    },
+    {
+      "candidate": "Udir Barnehagefakta",
+      "url": "https://www.barnehagefakta.no/swagger/docs/v1",
+      "why": "Already ingested on main as --source baf. Do not re-add."
+    },
+    {
+      "candidate": "Fiskeridirektoratet NYTEK",
+      "url": "https://api.fiskeridir.no/nytek-public/v3/api-docs",
+      "why": "Already ingested on main as --source nytek. Do not re-add."
+    },
+    {
+      "candidate": "Fiskeridirektoratet Kjøperregisteret / Fartøyregisteret",
+      "url": "https://api.fiskeridir.no/buyer-api/openapi",
+      "why": "Already ingested on main as --source buyer and --source fiskeridir. Different registers."
+    },
+    {
+      "candidate": "Fiskeridirektoratet miljøundersøkelser",
+      "url": "https://api.fiskeridir.no/envreportreg-public/v3/api-docs",
+      "why": "Already discarded on main: untemplated paths are /api/v2/report/search and /api/v1/report/search. Search API, not a collection catalog. Do not invent report ids."
+    },
+    {
+      "candidate": "Fiskeridirektoratet omregningsfaktor havressurs",
+      "url": "https://api.fiskeridir.no/conversion-factor-api/swagger/api",
+      "why": "OpenAPI HTTP 200 but the only printed path is /api/v1/conversionfactors/search. Search API, not a collection catalog. Do not invent factor ids."
+    },
+    {
+      "candidate": "Fiskeridirektoratet akvakultursøknader",
+      "url": "https://api.fiskeridir.no/aqua-portal-api-public/v3/api-docs",
+      "why": "HTTP 200 OpenAPI with untemplated GET /api/v1/applications and live collection records. Left unused after Akvakulturforskning printed a distinct research-projects collection earlier in the official catalog."
+    },
+    {
+      "candidate": "NVDB Les V3 OpenAPI",
+      "url": "https://nvdbapiles-v3.atlas.vegvesen.no/dokumentasjon/openapi.json",
+      "why": "Known skip: HTTP 400 User-Agent. Do not retry."
+    },
+    {
+      "candidate": "Vegvesen Trafikkdata swagger / trafikkdata-api",
+      "url": "https://trafikkdata.atlas.vegvesen.no/",
+      "why": "Known skip: swagger HTML-only; trafikkdata-api 410. Do not retry."
+    },
+    {
+      "candidate": "Kartverket Eiendom /geokoding",
+      "url": "https://api.kartverket.no/eiendom/v1/geokoding",
+      "why": "Known skip: HTTP 400 without matrikkel params. Search API, not a collection catalog. Do not retry."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source research --db /tmp/pda-research-proof/registry.sqlite --limit 10",
+    "listed": 1,
+    "inserted": 1,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "research:research-projects",
+        "access_path": "https://api.fiskeridir.no/aqua-research-project-api-public/api/v1/research-projects"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search forskningsprosjekter --db /tmp/pda-research-proof/registry.sqlite --limit 5",
+    "query": "forskningsprosjekter",
+    "returned": 1,
+    "hit_id": "research:research-projects",
+    "title": "Søk etter forskningsprosjekter",
+    "source_id": "research"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset research:research-projects --db /tmp/pda-research-proof/registry.sqlite",
+    "dataset": "research:research-projects",
+    "table_id": "research-projects",
+    "access_path": "https://api.fiskeridir.no/aqua-research-project-api-public/api/v1/research-projects",
+    "request_url": "https://api.fiskeridir.no/aqua-research-project-api-public/api/v1/research-projects",
+    "http_status": 200,
+    "listed": 80,
+    "inserted": 80,
+    "license": "https://www.fiskeridir.no/Tall-og-analyse/Lisens-for-bruk-av-Fiskeridirektoratets-data",
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "name",
+        "value": "Klinisk utprøving av quorum sensing-antagonist på skinnhelse hos atlantisk laks"
+      },
+      {
+        "measure": "name",
+        "value": "Standardising manual louse counts (LusetellingSOP)"
+      },
+      {
+        "measure": "name",
+        "value": "Seonguavhengig produksjon av regnbueørret"
+      },
+      {
+        "measure": "name",
+        "value": "Nedsenket produksjon av regnbueørret med luftlomme"
+      },
+      {
+        "measure": "name",
+        "value": "Medisinfôr Skretting"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset research:research-projects --table research-projects --entity \"\" --measure \"\" --db /tmp/pda-research-proof/registry.sqlite --out /tmp/pda-research-proof/methods",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "Akvakulturforskning /api/v1/research-projects prints project names. That is not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed OpenAPI path last segments. access_path is https://api.fiskeridir.no/aqua-research-project-api-public/api/v1/research-projects, joined from printed servers[0].url and the printed untemplated GET path. No research id was written onto a fiskeridir, buyer, nytek, or datanorge row.",
+    "License is the printed OpenAPI info.license.url. Publisher is null. The spec does not print a publisher name.",
+    "Original harvested OpenAPI metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "Akvakulturregister stays on PR 89. Fartøyregisteret, Kjøperregisteret, and NYTEK were not re-added. This source does not re-implement any of them.",
+    "python3 -m pytest 375 passed, 1 skipped, 1 deselected."
+  ]
+}
