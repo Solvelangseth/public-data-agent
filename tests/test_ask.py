@@ -127,6 +127,10 @@ def test_ask_ranks_size_and_yoy_from_joined_cells(tmp_path: Path) -> None:
     assert result.growing[0]["yoy_growth"] == (64920 - 60000) / 60000
     assert result.growing[0]["yoy_formula"] == "(v_t - v_{t-1}) / v_{t-1}"
     assert result.search["returned"] >= 0
+    stored_11763 = registry.list_observations("ssb:11763")
+    assert len(stored_11763) == 4
+    years = {json.loads(row["dimensions_json"])["år"] for row in stored_11763}
+    assert years == {"2024", "2025"}
     registry.close()
 
 
