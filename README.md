@@ -1455,6 +1455,15 @@ null: the spec does not print a publisher name.
 This source is Udir NPR (`data-npr.udir.no`), not NSR (`--source udir`),
 not NBR (`--source nbr`), and not NOR (`--source nor`).
 
+Live ingest 2026-08-27: 7 printed collection GET paths (catalog prints 7,
+cap 10). Live search `næringskoder` returns `npr:naeringskoder`. Live
+fetch GETs `https://data-npr.udir.no/v4/naeringskoder` HTTP 200, 1
+næringskode-name row. Sample printed name:
+Pedagogisk-psykologisk rådgivningstjeneste. `pda methods` is not
+applicable: names, not a numeric time series
+(`no observations matched entity/measure; available=[]`).
+Proof is `data/npr_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
