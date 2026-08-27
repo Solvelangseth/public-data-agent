@@ -1,0 +1,131 @@
+{
+  "produced_at": "2026-08-27T15:53:30Z",
+  "bound": {
+    "list_api": "https://data-npr.udir.no/swagger/v4/swagger.json",
+    "walk": "copy collection GET paths printed in OpenAPI paths; skip templated {organisasjonsnummer} paths and POST /v4/enheter/sok; native ids are the printed last path segments; access_path joins each printed path to the OpenAPI document origin because servers is absent; do not invent path ids",
+    "cap": 10,
+    "how": "pda ingest --source npr --limit 10. The official Nasjonalt register for PP-tjenester OpenAPI prints 7 untemplated collection GET paths. The adapter copies those printed paths and stops at the catalog size (under the cap of 10). No path id was invented."
+  },
+  "discarded": [
+    {
+      "candidate": "Fiskeridirektoratet NYTEK",
+      "url": "PR 84 cursor/nytek-source-3708 --source nytek",
+      "why": "Already in flight. Do not touch that branch, PR, or nytek adapter files. This branch starts from origin/main only."
+    },
+    {
+      "candidate": "Udir NOR",
+      "url": "https://data-nor.udir.no/swagger/v4/swagger.json",
+      "why": "Already ingested on main at 305a1f2 as --source nor. Do not re-add."
+    },
+    {
+      "candidate": "Udir NSR / NBR",
+      "url": "https://data-nsr.udir.no/swagger/v1/swagger.json",
+      "why": "Already ingested on main as --source udir and --source nbr. NPR is data-npr.udir.no, a different register."
+    },
+    {
+      "candidate": "Udir NFR OpenAPI",
+      "url": "https://data-nfr.udir.no/swagger/v4/swagger.json",
+      "why": "HTTP 200 OpenAPI with live code collections. Left unused after NPR printed a distinct PP-tjeneste register."
+    },
+    {
+      "candidate": "NVDB Les V3 OpenAPI",
+      "url": "https://nvdbapiles-v3.atlas.vegvesen.no/dokumentasjon/openapi.json",
+      "why": "Known skip: HTTP 400 User-Agent. Do not retry."
+    },
+    {
+      "candidate": "Vegvesen Trafikkdata swagger / trafikkdata-api",
+      "url": "https://trafikkdata.atlas.vegvesen.no/swagger/v1/swagger.json",
+      "why": "Known skip: swagger HTML-only; trafikkdata-api 410. Do not retry."
+    },
+    {
+      "candidate": "Kartverket Eiendom /geokoding",
+      "url": "https://api.kartverket.no/eiendom/v1/geokoding",
+      "why": "Known skip: HTTP 400 without matrikkel params. Search API, not a collection catalog. Do not retry."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source npr --db /tmp/pda-npr-proof/registry.sqlite --limit 10",
+    "listed": 7,
+    "inserted": 7,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "npr:endretetter",
+        "access_path": "https://data-npr.udir.no/v4/enheter/endretetter"
+      },
+      {
+        "id": "npr:enheter",
+        "access_path": "https://data-npr.udir.no/v4/enheter"
+      },
+      {
+        "id": "npr:maalformer",
+        "access_path": "https://data-npr.udir.no/v4/maalformer"
+      },
+      {
+        "id": "npr:naeringskoder",
+        "access_path": "https://data-npr.udir.no/v4/naeringskoder"
+      },
+      {
+        "id": "npr:organisasjonsformer",
+        "access_path": "https://data-npr.udir.no/v4/organisasjonsformer"
+      },
+      {
+        "id": "npr:relasjonstyper",
+        "access_path": "https://data-npr.udir.no/v4/relasjonstyper"
+      },
+      {
+        "id": "npr:utgaattyper",
+        "access_path": "https://data-npr.udir.no/v4/utgaattyper"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search næringskoder --db /tmp/pda-npr-proof/registry.sqlite --limit 5",
+    "query": "næringskoder",
+    "returned": 1,
+    "hit_id": "npr:naeringskoder",
+    "title": "PP-tjeneste næringskoder",
+    "source_id": "npr"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset npr:naeringskoder --db /tmp/pda-npr-proof/registry.sqlite",
+    "dataset": "npr:naeringskoder",
+    "table_id": "naeringskoder",
+    "access_path": "https://data-npr.udir.no/v4/naeringskoder",
+    "request_url": "https://data-npr.udir.no/v4/naeringskoder",
+    "http_status": 200,
+    "listed": 1,
+    "inserted": 1,
+    "license": "https://data.norge.no/nlod/no",
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "Navn",
+        "value": "Pedagogisk-psykologisk rådgivningstjeneste",
+        "dimensions": {
+          "Kode": "85.691",
+          "Versjon": "2025"
+        }
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset npr:naeringskoder --table naeringskoder --entity \"\" --measure \"\" --db /tmp/pda-npr-proof/registry.sqlite --out /tmp/pda-npr-proof/methods",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "NPR /v4/naeringskoder prints a næringskode name (Navn plus Kode and Versjon). That is not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed OpenAPI collection path last segments. access_path joins each printed path to the origin of https://data-npr.udir.no/swagger/v4/swagger.json because the spec prints no servers array. A swagger-directory join 404s. No NPR id was written onto a datanorge, udir, nbr, or nor row.",
+    "The catalog prints 7 untemplated collection GET paths. Ingest stored all 7 (under cap 10).",
+    "License is the printed OpenAPI info.license.url https://data.norge.no/nlod/no. The spec name is NLOD without a version path; the printed URL was copied as-is.",
+    "Publisher is null. The OpenAPI info object does not print a publisher name.",
+    "Original harvest metadata is in harvested_payloads. enrichments stayed 0 on the throwaway db.",
+    "Fiskeridirektoratet NYTEK stayed on PR 84. Udir NOR, NSR, and NBR stayed on main. This source does not re-implement those."
+  ]
+}
