@@ -752,6 +752,23 @@ Live ingest 2026-08-27: 6 printed HAL relations. Live search
 `pda methods` is not applicable: the payload is codes and names, not a
 numeric time series (`available=[]`). Proof is `data/brreg_source_proof.json`.
 
+## Valgdirektoratet Valgresultat source
+
+`pda ingest --source valg` is another replaceable adapter. It lists printed
+`_sublinks` hrefs on the official Valgresultat API root
+`https://valgresultat.no/api`, capped at 10. Dataset ids are the printed
+paths. `access_path` is the printed href joined to that API root.
+
+```bash
+pda ingest --source valg --db data/registry.sqlite --limit 10
+pda search 2009/st --db data/registry.sqlite
+pda fetch --dataset valg:2009/st --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored href. Observation values are copied from printed
+`partier[].stemmer.resultat.antall.total`. License and publisher stay null
+unless the API prints them.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists

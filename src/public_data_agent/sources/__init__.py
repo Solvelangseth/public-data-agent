@@ -9,8 +9,9 @@ from public_data_agent.sources.fixture import FixtureSource
 from public_data_agent.sources.geonorge import GeonorgeKartkatalogSource
 from public_data_agent.sources.nve import NveMagasinSource
 from public_data_agent.sources.ssb import SsbStatbankSource
+from public_data_agent.sources.valg import ValgresultatSource
 
-SOURCE_IDS = ("datanorge", "fixture", "ssb", "geonorge", "nve", "brreg")
+SOURCE_IDS = ("datanorge", "fixture", "ssb", "geonorge", "nve", "brreg", "valg")
 
 
 def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSource:
@@ -28,6 +29,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return NveMagasinSource()
     if source_id == "brreg":
         return BrregEnhetsregisterSource()
+    if source_id == "valg":
+        return ValgresultatSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -41,5 +44,6 @@ __all__ = [
     "SsbStatbankSource",
     "SOURCE_IDS",
     "SourceBase",
+    "ValgresultatSource",
     "build_source",
 ]
