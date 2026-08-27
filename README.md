@@ -1565,6 +1565,41 @@ numeric time series
 (`no observations matched entity/measure; available=[]`).
 Proof is `data/baf_source_proof.json`.
 
+## Fiskeridirektoratet Offentlig Akvakulturregister source
+
+`pda ingest --source aqua` is another replaceable adapter. It lists printed
+collection GET paths on the official Offentlig Akvakulturregister OpenAPI
+`https://api.fiskeridir.no/pub-aqua/api/api-docs`, capped at 10. Templated
+paths such as `/api/v1/sites/{site-nr}` are skipped. Dataset ids are the
+printed last path segments. `access_path` is the printed path joined to
+the printed `servers[0].url`. This is a different Fiskeridirektoratet
+register from `--source fiskeridir` (Fartøyregisteret), `--source buyer`
+(Kjøperregisteret), and `--source nytek` (NYTEK).
+
+```bash
+pda ingest --source aqua --db data/registry.sqlite --limit 10
+pda search områder --db data/registry.sqlite
+pda fetch --dataset aqua:areas --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored collection URL. Observation values are copied
+from printed `name` when it is a non-empty string, otherwise `defaultName`
+/ `nbNoName` / `regulationName`. License is copied from the printed
+OpenAPI `info.license.url` when present. Publisher stays null: the spec
+does not print a publisher name.
+
+This source is Fiskeridirektoratet Offentlig Akvakulturregister
+(`api.fiskeridir.no/pub-aqua`), not Fartøyregisteret, Kjøperregisteret,
+or NYTEK.
+
+Live ingest 2026-08-27: 10 printed collection GET paths (catalog prints
+10, cap 10). Live search `områder` returns `aqua:areas`. Live fetch GETs
+`https://api.fiskeridir.no/pub-aqua/api/v1/areas` HTTP 200, 10 area-name
+rows. Sample printed names: ARUBA, AFGHANISTAN, ANGOLA, ANGUILLA,
+ALBANIA. `pda methods` is not applicable: names, not a numeric time
+series (`no observations matched entity/measure; available=[]`).
+Proof is `data/aqua_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists

@@ -1,0 +1,154 @@
+{
+  "produced_at": "2026-08-27T16:38:44Z",
+  "bound": {
+    "list_api": "https://api.fiskeridir.no/pub-aqua/api/api-docs",
+    "walk": "copy printed collection GET paths from the official Offentlig Akvakulturregister OpenAPI; skip templated paths; join each path to the printed servers[0].url https://api.fiskeridir.no/pub-aqua; do not invent path ids",
+    "cap": 10,
+    "how": "pda ingest --source aqua --limit 10. The official Akvakulturregisteret OpenAPI prints 26 paths. 10 untemplated collection GETs are /api/v1/sites, /api/v1/licenses, /api/v1/licenses-overview, /api/v1/license-types/intentions, /api/v1/fish-codes, /api/v1/entities, /api/v1/dump/xlsx-file, /api/v1/dump/new-legacy-csv, /api/v1/dump/new-legacy-csv-file, and /api/v1/areas. Templated {site-nr} / {license-nr} / {entity-nr-id} / {version-id} paths are skipped. The adapter copies the printed untemplated GET paths joined to https://api.fiskeridir.no/pub-aqua."
+  },
+  "discarded": [
+    {
+      "candidate": "Udir Barnehagefakta",
+      "url": "PR 88 cursor/next-norwegian-source-4226 --source baf",
+      "why": "Already in flight. Do not touch that branch, PR, or baf adapter files. This branch starts from origin/main only."
+    },
+    {
+      "candidate": "Udir NXR Fellestjeneste",
+      "url": "https://data-nxr-fellestjeneste.udir.no/swagger/v2/swagger.json",
+      "why": "Already ingested on main as --source nxr after PR 87 merged. Do not re-add."
+    },
+    {
+      "candidate": "Fiskeridirektoratet Fartøyregisteret / Kjøperregisteret / NYTEK",
+      "url": "https://api.fiskeridir.no/vessel-api/api/openapi",
+      "why": "Already ingested on main as --source fiskeridir, --source buyer, and --source nytek. Different path prefixes on the same host."
+    },
+    {
+      "candidate": "Udir Statistikkbanken /Eksport/{id}/data",
+      "url": "https://api.statistikkbanken.udir.no/api/rest/v2/Eksport",
+      "why": "List API prints 8 export table names, but /data is HTTP 400 Filter må oppgis. Search API, not a filter-free collection fetch. Do not invent filters."
+    },
+    {
+      "candidate": "NVDB Les V3 OpenAPI",
+      "url": "https://nvdbapiles-v3.atlas.vegvesen.no/dokumentasjon/openapi.json",
+      "why": "Known skip: HTTP 400 User-Agent. Do not retry."
+    },
+    {
+      "candidate": "Vegvesen Trafikkdata swagger / trafikkdata-api",
+      "url": "https://trafikkdata.atlas.vegvesen.no/",
+      "why": "Known skip: swagger HTML-only; trafikkdata-api 410. Do not retry."
+    },
+    {
+      "candidate": "Kartverket Eiendom /geokoding",
+      "url": "https://api.kartverket.no/eiendom/v1/geokoding",
+      "why": "Known skip: HTTP 400 without matrikkel params. Search API, not a collection catalog. Do not retry."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source aqua --db /tmp/pda-aqua-proof/registry.sqlite --limit 10",
+    "listed": 10,
+    "inserted": 10,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "aqua:sites",
+        "access_path": "https://api.fiskeridir.no/pub-aqua/api/v1/sites"
+      },
+      {
+        "id": "aqua:licenses",
+        "access_path": "https://api.fiskeridir.no/pub-aqua/api/v1/licenses"
+      },
+      {
+        "id": "aqua:licenses-overview",
+        "access_path": "https://api.fiskeridir.no/pub-aqua/api/v1/licenses-overview"
+      },
+      {
+        "id": "aqua:intentions",
+        "access_path": "https://api.fiskeridir.no/pub-aqua/api/v1/license-types/intentions"
+      },
+      {
+        "id": "aqua:fish-codes",
+        "access_path": "https://api.fiskeridir.no/pub-aqua/api/v1/fish-codes"
+      },
+      {
+        "id": "aqua:entities",
+        "access_path": "https://api.fiskeridir.no/pub-aqua/api/v1/entities"
+      },
+      {
+        "id": "aqua:xlsx-file",
+        "access_path": "https://api.fiskeridir.no/pub-aqua/api/v1/dump/xlsx-file"
+      },
+      {
+        "id": "aqua:new-legacy-csv",
+        "access_path": "https://api.fiskeridir.no/pub-aqua/api/v1/dump/new-legacy-csv"
+      },
+      {
+        "id": "aqua:new-legacy-csv-file",
+        "access_path": "https://api.fiskeridir.no/pub-aqua/api/v1/dump/new-legacy-csv-file"
+      },
+      {
+        "id": "aqua:areas",
+        "access_path": "https://api.fiskeridir.no/pub-aqua/api/v1/areas"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search områder --db /tmp/pda-aqua-proof/registry.sqlite --limit 5",
+    "query": "områder",
+    "returned": 1,
+    "hit_id": "aqua:areas",
+    "title": "Henter en liste av områder",
+    "source_id": "aqua"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset aqua:areas --db /tmp/pda-aqua-proof/registry.sqlite",
+    "dataset": "aqua:areas",
+    "table_id": "areas",
+    "access_path": "https://api.fiskeridir.no/pub-aqua/api/v1/areas",
+    "request_url": "https://api.fiskeridir.no/pub-aqua/api/v1/areas",
+    "http_status": 200,
+    "listed": 10,
+    "inserted": 10,
+    "license": "https://www.fiskeridir.no/Tall-og-analyse/Lisens-for-bruk-av-Fiskeridirektoratets-data",
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "name",
+        "value": "ARUBA"
+      },
+      {
+        "measure": "name",
+        "value": "AFGHANISTAN"
+      },
+      {
+        "measure": "name",
+        "value": "ANGOLA"
+      },
+      {
+        "measure": "name",
+        "value": "ANGUILLA"
+      },
+      {
+        "measure": "name",
+        "value": "ALBANIA"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset aqua:areas --table areas --entity \"\" --measure \"\" --db /tmp/pda-aqua-proof/registry.sqlite --out /tmp/pda-aqua-proof/methods",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "Akvakulturregisteret /api/v1/areas prints area names. That is not a numeric time series. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed OpenAPI path last segments. access_path is https://api.fiskeridir.no/pub-aqua/api/v1/areas, joined from the printed servers[0].url and the printed untemplated GET path. No aqua id was written onto a fiskeridir, buyer, nytek, or datanorge row.",
+    "License is the printed OpenAPI info.license.url. Publisher is null. The spec does not print a publisher name.",
+    "Original harvested OpenAPI metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "Udir Barnehagefakta stays on PR 88. NXR, Fartøyregisteret, Kjøperregisteret, and NYTEK were not re-added. This source does not re-implement any of them.",
+    "python3 -m pytest 367 passed, 1 skipped, 1 deselected."
+  ]
+}
