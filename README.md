@@ -1896,6 +1896,37 @@ applicable: a feature name, not a numeric time series
 (`no observations matched entity/measure; available=[]`).
 Proof is `data/nowcast_source_proof.json`.
 
+## Riksantikvaren MABYGIS source
+
+`pda ingest --source riksantikvaren` is another replaceable adapter. It lists printed
+layer names on the official Riksantikvaren MABYGIS FeatureServer
+`https://kart.ra.no/arcgis/rest/services/MABYGIS/MABYGIS_rest_ro/FeatureServer?f=json`,
+capped at 10. Dataset ids are the printed layer names. `access_path` is the
+printed layer id joined to the FeatureServer origin with the same `f=json`
+format the list API uses. This is not MET Nowcast (`--source nowcast`, now
+on main), not Kartverket Høydedata (`--source hoydedata`), and not
+Sokkeldirektoratet FactMaps (`--source sodir`).
+
+```bash
+pda ingest --source riksantikvaren --db data/registry.sqlite --limit 10
+pda search Borhull --db data/registry.sqlite
+pda fetch --dataset riksantikvaren:Borhull --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored layer URL. Observation values are copied from
+printed field `name` when it is a non-empty string, otherwise `alias`.
+License and publisher stay null: the list document prints an empty
+`copyrightText` and no license URL. No license URI is invented.
+
+Live ingest 2026-08-27: 10 printed layers (catalog prints 29, cap 10). Live
+search `Borhull` returns `riksantikvaren:Borhull`. Live fetch GETs
+`https://kart.ra.no/arcgis/rest/services/MABYGIS/MABYGIS_rest_ro/FeatureServer/0?f=json`
+HTTP 200, 25 field-name rows. Sample printed values: X_UTM33, Y_UTM33, Z,
+TOP_BOR_MOH, BORE_DIAM.
+`pda methods` is not applicable: field names, not a numeric time series
+(`no observations matched entity/measure; available=[]`).
+Proof is `data/riksantikvaren_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
