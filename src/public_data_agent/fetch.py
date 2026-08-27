@@ -6,6 +6,13 @@ from dataclasses import dataclass, field
 from typing import Any, Protocol
 from urllib.parse import urljoin, urlparse
 
+from public_data_agent.geonorge_rest import (
+    cells_from_geonorge,
+    collection_request_url,
+    geonorge_table_id,
+    is_geonorge_rest_url,
+    openapi_url,
+)
 from public_data_agent.http_util import HttpClient, JsonResponse
 from public_data_agent.models import HarvestCounts
 from public_data_agent.registry import Registry, utc_now
@@ -154,6 +161,8 @@ def fetch_observations(
     access_path = dataset.get("access_path") or ""
     if is_klass_url(access_path):
         return _fetch_klass(registry, dataset, http=http)
+    if is_geonorge_rest_url(access_path):
+        return _fetch_geonorge_rest(registry, dataset, http=http)
     client = http or HttpClient(timeout=60.0, max_retries=4)
     if _is_ssb_table_url(access_path):
         request_url = access_path.rstrip("/")
@@ -262,6 +271,69 @@ def _fetch_klass(
         dataset_id=dataset["id"],
         table_id=table_id,
         request_url=access_path,
+        http_status=http_status,
+        counts=counts,
+        sample=sample,
+    )
+
+
+def _fetch_geonorge_rest(
+    registry: Registry,
+    dataset: dict[str, Any],
+    *,
+    http: JsonHttp | None = None,
+) -> FetchResult:
+    access_path = dataset.get("access_path") or ""
+    client = http or HttpClient(timeout=60.0, max_retries=4)
+    spec_url = openapi_url(access_path)
+    started = utc_now()
+    run_id = registry.start_fetch_run(
+        dataset_id=dataset["id"],
+        table_id="geonorge",
+        request_url=spec_url,
+        request_method="GET",
+        started_at=started,
+    )
+    counts = HarvestCounts()
+    status = "failed"
+    http_status = 0
+    table_id = "geonorge"
+    request_url = spec_url
+    sample: list[dict[str, Any]] = []
+    try:
+        spec = client.get_json_response(spec_url)
+        if not isinstance(spec.body, dict):
+            raise ValueError("geonorge openapi response is not a JSON object")
+        request_url = collection_request_url(access_path, spec.body)
+        table_id = geonorge_table_id(request_url)
+        registry.set_fetch_request(run_id, request_url=request_url, request_body={"method": "GET"})
+        got = client.get_json_response(request_url)
+        http_status = got.status
+        measure = str(dataset.get("title") or table_id)
+        cells = cells_from_geonorge(got.body, measure=measure)
+        counts.listed = len(cells)
+        sample = _store_cells(
+            registry,
+            dataset,
+            run_id,
+            table_id=table_id,
+            cells=cells,
+            retrieved_at=utc_now(),
+            request_url=request_url,
+            http_status=http_status,
+            counts=counts,
+        )
+        status = "completed"
+    except Exception as exc:
+        counts.failed += 1
+        counts.errors.append({"error": str(exc), "url": request_url})
+        raise
+    finally:
+        registry.finish_fetch_run(run_id, counts, status=status, http_status=http_status)
+    return FetchResult(
+        dataset_id=dataset["id"],
+        table_id=table_id,
+        request_url=request_url,
         http_status=http_status,
         counts=counts,
         sample=sample,
