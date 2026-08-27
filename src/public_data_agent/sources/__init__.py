@@ -19,6 +19,7 @@ from public_data_agent.sources.gribfiles import GribfilesSource
 from public_data_agent.sources.hi import HiFeaturesSource
 from public_data_agent.sources.hoydedata import HoydedataSource
 from public_data_agent.sources.icemap import IcemapSource
+from public_data_agent.sources.isobaricgrib import IsobaricgribSource
 from public_data_agent.sources.kommuneinfo import KommuneinfoSource
 from public_data_agent.sources.kystverket import KystverketSource
 from public_data_agent.sources.mattilsynet import MattilsynetPlantevernSource
@@ -135,6 +136,7 @@ SOURCE_IDS = (
     "gribfiles",
     "metgc",
     "oslofjord",
+    "isobaricgrib",
 )
 
 
@@ -271,6 +273,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return MetgcSource()
     if source_id == "oslofjord":
         return OslofjordSource()
+    if source_id == "isobaricgrib":
+        return IsobaricgribSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -292,6 +296,7 @@ __all__ = [
     "HiFeaturesSource",
     "HoydedataSource",
     "IcemapSource",
+    "IsobaricgribSource",
     "KommuneinfoSource",
     "KystverketSource",
     "MattilsynetPlantevernSource",
