@@ -33,6 +33,7 @@ from public_data_agent.sources.ngu import NguSource
 from public_data_agent.sources.ncagalewarnings import NcagalewarningsSource
 from public_data_agent.sources.nibio import NibioWeatherSource
 from public_data_agent.sources.nin import NinSource
+from public_data_agent.sources.nlaroutes import NlaroutesSource
 from public_data_agent.sources.nor import NorSource
 from public_data_agent.sources.npr import NprSource
 from public_data_agent.sources.norgesbank import NorgesBankSource
@@ -141,6 +142,7 @@ SOURCE_IDS = (
     "isobaricgrib",
     "offshoremaps",
     "turbulence",
+    "nlaroutes",
 )
 
 
@@ -283,6 +285,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return OffshoremapsSource()
     if source_id == "turbulence":
         return TurbulenceSource()
+    if source_id == "nlaroutes":
+        return NlaroutesSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -318,6 +322,7 @@ __all__ = [
     "NguSource",
     "NibioWeatherSource",
     "NinSource",
+    "NlaroutesSource",
     "NorSource",
     "NprSource",
     "NorgesBankSource",
