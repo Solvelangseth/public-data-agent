@@ -1,0 +1,118 @@
+{
+  "produced_at": "2026-08-27T15:46:19Z",
+  "bound": {
+    "list_api": "https://api.fiskeridir.no/nytek-public/v3/api-docs",
+    "walk": "copy printed collection GET paths from the official NYTEK OpenAPI; skip templated paths; join each path to printed servers[0].url https://api.fiskeridir.no/nytek-public; do not invent path ids",
+    "cap": 10,
+    "how": "pda ingest --source nytek --limit 10. The official NYTEK OpenAPI prints 3 paths. 1 untemplated collection GET is /api/v3/certificates. The live spec also prints /api/v3/certificates/{site-nr} and /api/v3/files/{uuid}; those templated paths are skipped. The adapter copies the printed untemplated path joined to the printed servers[0].url."
+  },
+  "discarded": [
+    {
+      "candidate": "Udir NOR / Nasjonalt register for opplæringskontorer",
+      "url": "PR 83 cursor/next-official-source-6b66 --source nor",
+      "why": "Already in flight. Do not touch that branch, PR, or nor adapter files. This branch starts from origin/main only."
+    },
+    {
+      "candidate": "Fiskeridirektoratet Kjøperregisteret",
+      "url": "https://api.fiskeridir.no/buyer-api/openapi",
+      "why": "Already ingested on main at c50f33d. Do not re-add."
+    },
+    {
+      "candidate": "Fiskeridirektoratet Fartøyregisteret",
+      "url": "https://api.fiskeridir.no/vessel-api/api/openapi",
+      "why": "Already ingested on main as --source fiskeridir. Different register. NYTEK is /nytek-public/, not /vessel-api/."
+    },
+    {
+      "candidate": "Statens vegvesen Dataportalen",
+      "url": "https://dataut.vegvesen.no/api/3/action/package_list",
+      "why": "Already ingested on main as --source vegvesen. Do not re-add."
+    },
+    {
+      "candidate": "NVDB Les V3 OpenAPI",
+      "url": "https://nvdbapiles-v3.atlas.vegvesen.no/dokumentasjon/openapi.json",
+      "why": "Known skip: HTTP 400 User-Agent. Do not retry."
+    },
+    {
+      "candidate": "Vegvesen Trafikkdata swagger / trafikkdata-api",
+      "url": "https://trafikkdata.atlas.vegvesen.no/",
+      "why": "Known skip: swagger HTML-only; trafikkdata-api 410. Do not retry."
+    },
+    {
+      "candidate": "Kartverket Eiendom /geokoding",
+      "url": "https://api.kartverket.no/eiendom/v1/geokoding",
+      "why": "Known skip: HTTP 400 without matrikkel params. Search API, not a collection catalog. Do not retry."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source nytek --db /tmp/pda-nytek-proof/registry.sqlite --limit 10",
+    "listed": 1,
+    "inserted": 1,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "nytek:certificates",
+        "access_path": "https://api.fiskeridir.no/nytek-public/api/v3/certificates"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search anleggssertifikat --db /tmp/pda-nytek-proof/registry.sqlite --limit 5",
+    "query": "anleggssertifikat",
+    "returned": 1,
+    "hit_id": "nytek:certificates",
+    "title": "Søk etter anleggssertifikat med parametre",
+    "source_id": "nytek"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset nytek:certificates --db /tmp/pda-nytek-proof/registry.sqlite",
+    "dataset": "nytek:certificates",
+    "table_id": "certificates",
+    "access_path": "https://api.fiskeridir.no/nytek-public/api/v3/certificates",
+    "request_url": "https://api.fiskeridir.no/nytek-public/api/v3/certificates",
+    "http_status": 200,
+    "listed": 20,
+    "inserted": 20,
+    "license": "https://www.fiskeridir.no/Tall-og-analyse/Lisens-for-bruk-av-Fiskeridirektoratets-data",
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "siteName",
+        "value": "TRÆLVIKA"
+      },
+      {
+        "measure": "siteName",
+        "value": "MOLLVIKA"
+      },
+      {
+        "measure": "siteName",
+        "value": "OTERNESET"
+      },
+      {
+        "measure": "siteName",
+        "value": "GISSØYSUNDET S"
+      },
+      {
+        "measure": "siteName",
+        "value": "SKJELLESVIKA"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset nytek:certificates --table certificates --entity \"\" --measure \"\" --db /tmp/pda-nytek-proof/registry.sqlite --out /tmp/pda-nytek-proof/methods",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "NYTEK /nytek-public/api/v3/certificates prints anleggssertifikat site names. That is not a numeric time series. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed OpenAPI path last segments. access_path is https://api.fiskeridir.no/nytek-public/api/v3/certificates, joined from printed servers[0].url and the printed untemplated GET path. No nytek id was written onto a fiskeridir, buyer, or datanorge row.",
+    "License is the printed OpenAPI info.license.url. Publisher is null. The spec does not print a publisher name.",
+    "Original harvested OpenAPI metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "Udir NOR stays on PR 83. Fartøyregisteret and Kjøperregisteret were not re-added. This source does not re-implement either.",
+    "python3 -m pytest 327 passed, 1 skipped, 1 deselected."
+  ]
+}

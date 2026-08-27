@@ -1423,6 +1423,15 @@ string, otherwise `siteNr`. License is copied from the printed OpenAPI
 `info.license.url` when present. Publisher stays null: the spec does not
 print a publisher name.
 
+Live ingest 2026-08-27: 1 printed collection GET path. Live search
+`anleggssertifikat` returns `nytek:certificates`. Live fetch GETs
+`https://api.fiskeridir.no/nytek-public/api/v3/certificates` HTTP 200, 20
+anleggssertifikat rows. Sample printed values: TRÆLVIKA, MOLLVIKA,
+OTERNESET, GISSØYSUNDET S, SKJELLESVIKA.
+`pda methods` is not applicable: site names, not a numeric time series
+(`no observations matched entity/measure; available=[]`).
+Proof is `data/nytek_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
