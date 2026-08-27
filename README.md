@@ -1218,6 +1218,25 @@ Live ingest 2026-08-27: 10 printed dataflow ids. Live search
 (`no period in dimensions or period field`). Proof is
 `data/norgesbank_source_proof.json`.
 
+## Norsk Polarinstitutt Open Data API source
+
+`pda ingest --source npolar` is another replaceable adapter. It lists printed
+service paths on the official Norsk Polarinstitutt service catalog
+`https://api.npolar.no/service/?q=*&format=json`, capped at 10. Dataset ids
+are the printed service `id` values. `access_path` joins each printed path
+to the catalog origin with the same `q=*&format=json` query the catalog
+uses to print members.
+
+```bash
+pda ingest --source npolar --db data/registry.sqlite --limit 10
+pda search Country --db data/registry.sqlite
+pda fetch --dataset npolar:country-api --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored collection URL. Observation values are copied
+from printed `name` or `title`. License and publisher stay null: the
+service catalog does not print those fields.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
