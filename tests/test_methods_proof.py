@@ -10,7 +10,7 @@ import pytest
 
 from methods.clean import clean
 from methods.derive import derive
-from methods.emit import yoy_bar_points
+from methods.emit import index_line_series, yoy_bar_points
 from methods.types import INDEX, INDEX_FORMULA, YOY_GROWTH, YOY_GROWTH_FORMULA
 
 OSLO_DATASET = "datanorge:fc22c19b-5347-3b20-aa1b-ae534f178f57"
@@ -96,6 +96,12 @@ def test_live_oslo_store_matches_formula_and_lineage() -> None:
     assert [period for period, _rate in bars] == [item["period"] for item in series_snapshot[1:]]
     for (_period, rate), item, previous in zip(bars, series_snapshot[1:], series_snapshot):
         assert rate == pytest.approx((item["value"] - previous["value"]) / previous["value"])
+    plotted = index_line_series(derived)
+    assert len(plotted) == 1
+    assert [period for period, _value in plotted[0][2]] == [item["period"] for item in series_snapshot]
+    assert plotted[0][2][0][1] == 100.0
+    for (_period, value), item in zip(plotted[0][2], series_snapshot):
+        assert value == pytest.approx(100.0 * item["value"] / stored_base)
 
 
 def test_committed_oslo_proof_artifacts() -> None:
@@ -104,13 +110,16 @@ def test_committed_oslo_proof_artifacts() -> None:
     lineage_path = PROOF_DIR / "lineage.json"
     chart_path = PROOF_DIR / "chart.png"
     bar_path = PROOF_DIR / "yoy_bar.png"
+    index_path = PROOF_DIR / "index_line.png"
     assert csv_path.is_file()
     assert md_path.is_file()
     assert lineage_path.is_file()
     assert chart_path.is_file()
     assert bar_path.is_file()
+    assert index_path.is_file()
     assert chart_path.read_bytes().startswith(b"\x89PNG")
     assert bar_path.read_bytes().startswith(b"\x89PNG")
+    assert index_path.read_bytes().startswith(b"\x89PNG")
 
     with csv_path.open(encoding="utf-8", newline="") as handle:
         table = list(csv.DictReader(handle))
@@ -134,6 +143,9 @@ def test_committed_oslo_proof_artifacts() -> None:
         assert float(table[index]["index"]) == pytest.approx(100.0 * current / stored_base)
         table_yoy.append((table[index]["period"], rate))
     assert table[0]["period"] not in {period for period, _rate in table_yoy}
+    table_index = [(row["period"], float(row["index"])) for row in table if row["index"]]
+    assert table_index[0][1] == 100.0
+    assert [period for period, _value in table_index] == [row["period"] for row in table]
 
     lineage = json.loads(lineage_path.read_text(encoding="utf-8"))
     names = [column["name"] for column in lineage["derived_columns"]]
