@@ -5,6 +5,7 @@ from pathlib import Path
 from public_data_agent.sources.base import CatalogSource, SourceBase
 from public_data_agent.sources.brreg import BrregEnhetsregisterSource
 from public_data_agent.sources.datanorge import DataNorgeSource
+from public_data_agent.sources.entur import EnturGbfsSource
 from public_data_agent.sources.fhi import FhiStatistikkSource
 from public_data_agent.sources.fixture import FixtureSource
 from public_data_agent.sources.geonorge import GeonorgeKartkatalogSource
@@ -25,6 +26,7 @@ SOURCE_IDS = (
     "fhi",
     "mattilsynet",
     "udir",
+    "entur",
 )
 
 
@@ -51,6 +53,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return MattilsynetPlantevernSource()
     if source_id == "udir":
         return UdirNsrSource()
+    if source_id == "entur":
+        return EnturGbfsSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -58,6 +62,7 @@ __all__ = [
     "BrregEnhetsregisterSource",
     "CatalogSource",
     "DataNorgeSource",
+    "EnturGbfsSource",
     "FhiStatistikkSource",
     "FixtureSource",
     "GeonorgeKartkatalogSource",
