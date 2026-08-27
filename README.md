@@ -1523,6 +1523,15 @@ not NSR (`--source udir`), NBR (`--source nbr`), or NOR (`--source nor`).
 Register for lærebedrifter (`data-nlr.udir.no`) requires an authentication
 key and is unused.
 
+Live ingest 2026-08-27: 10 printed collection GET paths (catalog prints 21,
+cap 10). Live search `fylkedata` returns `nxr:fylkedata`. Live fetch GETs
+`https://data-nxr-fellestjeneste.udir.no/api/v2/fylkedata` HTTP 200, 69
+county-name rows. Sample printed names: Smaalenenes amt, Østfold,
+Akershus amt, Akershus, Christiania amt. `pda methods` is not applicable:
+names, not a numeric time series
+(`no observations matched entity/measure; available=[]`).
+Proof is `data/nxr_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists

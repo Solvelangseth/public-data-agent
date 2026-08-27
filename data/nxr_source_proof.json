@@ -1,0 +1,159 @@
+{
+  "produced_at": "2026-08-27T16:15:48Z",
+  "bound": {
+    "list_api": "https://data-nxr-fellestjeneste.udir.no/swagger/v2/swagger.json",
+    "walk": "copy collection GET paths printed in OpenAPI paths; skip templated {organisasjonsnummer} paths; native ids are the printed last path segments; access_path joins each printed path to the OpenAPI document origin because servers is absent; do not invent path ids",
+    "cap": 10,
+    "how": "pda ingest --source nxr --limit 10. The official NXR Fellestjeneste OpenAPI prints 21 untemplated collection GET paths. The adapter copies those printed paths and stops at the cap of 10. No path id was invented."
+  },
+  "discarded": [
+    {
+      "candidate": "Udir NPR / Nasjonalt register for PP-tjenester",
+      "url": "PR 85 cursor/npr-pp-tjenester-2d86 --source npr",
+      "why": "Already in flight. Do not touch that branch, PR, or npr adapter files. This branch starts from origin/main only."
+    },
+    {
+      "candidate": "Udir NFR / Nasjonalt register for skolefritidsordningen",
+      "url": "PR 86 cursor/norwegian-open-data-source-26c8 --source nfr",
+      "why": "Already in flight. Do not touch that branch, PR, or nfr adapter files. This branch starts from origin/main only."
+    },
+    {
+      "candidate": "Fiskeridirektoratet NYTEK",
+      "url": "https://api.fiskeridir.no/nytek-public/v3/api-docs",
+      "why": "Already ingested on main at bf84ac0. Do not re-add."
+    },
+    {
+      "candidate": "Udir NSR / NBR / NOR",
+      "url": "https://data-nsr.udir.no/swagger/v1/swagger.json",
+      "why": "Already ingested on main as --source udir, --source nbr, and --source nor. NXR Fellestjeneste is data-nxr-fellestjeneste.udir.no, a different host."
+    },
+    {
+      "candidate": "Udir Register for lærebedrifter",
+      "url": "https://data-nlr.udir.no/",
+      "why": "Official NXR page prints that an authentication key is required. Do not invent a key."
+    },
+    {
+      "candidate": "NVDB Les V3 OpenAPI",
+      "url": "https://nvdbapiles-v3.atlas.vegvesen.no/dokumentasjon/openapi.json",
+      "why": "Known skip: HTTP 400 User-Agent. Do not retry."
+    },
+    {
+      "candidate": "Vegvesen Trafikkdata swagger / trafikkdata-api",
+      "url": "https://trafikkdata.atlas.vegvesen.no/",
+      "why": "Known skip: swagger HTML-only; trafikkdata-api 410. Do not retry."
+    },
+    {
+      "candidate": "Kartverket Eiendom /geokoding",
+      "url": "https://api.kartverket.no/eiendom/v1/geokoding",
+      "why": "Known skip: HTTP 400 without matrikkel params. Search API, not a collection catalog. Do not retry."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source nxr --db /tmp/pda-nxr-proof/registry.sqlite --limit 10",
+    "listed": 10,
+    "inserted": 10,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "nxr:getcacheinformation",
+        "access_path": "https://data-nxr-fellestjeneste.udir.no/api/v2/getcacheinformation"
+      },
+      {
+        "id": "nxr:bydeldata",
+        "access_path": "https://data-nxr-fellestjeneste.udir.no/api/v2/bydeldata"
+      },
+      {
+        "id": "nxr:bydeldatamedbydelnummer",
+        "access_path": "https://data-nxr-fellestjeneste.udir.no/api/v2/bydeldatamedbydelnummer"
+      },
+      {
+        "id": "nxr:bydeldatamedkommunenummer",
+        "access_path": "https://data-nxr-fellestjeneste.udir.no/api/v2/bydeldatamedkommunenummer"
+      },
+      {
+        "id": "nxr:bydeldatamedfylkesnummer",
+        "access_path": "https://data-nxr-fellestjeneste.udir.no/api/v2/bydeldatamedfylkesnummer"
+      },
+      {
+        "id": "nxr:bydeldatamedid",
+        "access_path": "https://data-nxr-fellestjeneste.udir.no/api/v2/bydeldatamedid"
+      },
+      {
+        "id": "nxr:fylkedata",
+        "access_path": "https://data-nxr-fellestjeneste.udir.no/api/v2/fylkedata"
+      },
+      {
+        "id": "nxr:fylkedatamedfylkesnummer",
+        "access_path": "https://data-nxr-fellestjeneste.udir.no/api/v2/fylkedatamedfylkesnummer"
+      },
+      {
+        "id": "nxr:fylkedatamedid",
+        "access_path": "https://data-nxr-fellestjeneste.udir.no/api/v2/fylkedatamedid"
+      },
+      {
+        "id": "nxr:kommunedata",
+        "access_path": "https://data-nxr-fellestjeneste.udir.no/api/v2/kommunedata"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search fylkedata --db /tmp/pda-nxr-proof/registry.sqlite --limit 5",
+    "query": "fylkedata",
+    "returned": 3,
+    "hit_id": "nxr:fylkedata",
+    "title": "Hent liste med fylkedata",
+    "source_id": "nxr"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset nxr:fylkedata --db /tmp/pda-nxr-proof/registry.sqlite",
+    "dataset": "nxr:fylkedata",
+    "table_id": "fylkedata",
+    "access_path": "https://data-nxr-fellestjeneste.udir.no/api/v2/fylkedata",
+    "request_url": "https://data-nxr-fellestjeneste.udir.no/api/v2/fylkedata",
+    "http_status": 200,
+    "listed": 69,
+    "inserted": 69,
+    "license": "https://data.norge.no/nlod/no",
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "Fylkesnavn",
+        "value": "Smaalenenes amt"
+      },
+      {
+        "measure": "Fylkesnavn",
+        "value": "Østfold"
+      },
+      {
+        "measure": "Fylkesnavn",
+        "value": "Akershus amt"
+      },
+      {
+        "measure": "Fylkesnavn",
+        "value": "Akershus"
+      },
+      {
+        "measure": "Fylkesnavn",
+        "value": "Christiania amt"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset nxr:fylkedata --table fylkedata --entity \"\" --measure \"\" --db /tmp/pda-nxr-proof/registry.sqlite --out /tmp/pda-nxr-proof/methods",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "NXR /api/v2/fylkedata prints historical county names. That is not a numeric time series. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed OpenAPI path last segments. access_path is https://data-nxr-fellestjeneste.udir.no/api/v2/fylkedata, joined from the OpenAPI document origin and the printed untemplated GET path. No nxr id was written onto a udir, nbr, nor, or datanorge row.",
+    "License is the printed OpenAPI info.license.url. Publisher is null. The spec does not print a publisher name.",
+    "Original harvested OpenAPI metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "Udir NPR stays on PR 85. Udir NFR stays on PR 86. NSR, NBR, and NOR were not re-added. Register for lærebedrifter requires an authentication key and was unused.",
+    "python3 -m pytest 343 passed, 1 skipped, 1 deselected."
+  ]
+}
