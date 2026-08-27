@@ -45,6 +45,7 @@ from public_data_agent.sources.oslo import OsloStatbankSource
 from public_data_agent.sources.ssb import SsbStatbankSource
 from public_data_agent.sources.statnett import StatnettDriftsdataSource
 from public_data_agent.sources.stedsnavn import StedsnavnSource
+from public_data_agent.sources.sunrise import SunriseSource
 from public_data_agent.sources.tidalwater import TidalwaterSource
 from public_data_agent.sources.trondheim import TrondheimOpenDataSource
 from public_data_agent.sources.udir import UdirNsrSource
@@ -101,6 +102,7 @@ SOURCE_IDS = (
     "airquality",
     "tidalwater",
     "oceanforecast",
+    "sunrise",
 )
 
 
@@ -203,6 +205,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return TidalwaterSource()
     if source_id == "oceanforecast":
         return OceanforecastSource()
+    if source_id == "sunrise":
+        return SunriseSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -252,6 +256,7 @@ __all__ = [
     "SourceBase",
     "StatnettDriftsdataSource",
     "StedsnavnSource",
+    "SunriseSource",
     "TidalwaterSource",
     "TrondheimOpenDataSource",
     "UdirNsrSource",
