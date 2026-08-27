@@ -1368,6 +1368,38 @@ OCEANBLOCK AS, DAG SELNES JOHANSEN.
 time series (`no period in dimensions or period field`).
 Proof is `data/buyer_source_proof.json`.
 
+## Udir Nasjonalt register for opplæringskontorer source
+
+`pda ingest --source nor` is another replaceable adapter. It lists printed
+collection GET paths on the official Nasjonalt register for
+opplæringskontorer OpenAPI
+`https://data-nor.udir.no/swagger/v4/swagger.json`, capped at 10. Templated
+paths such as `/v4/enhet/{organisasjonsnummer}` are skipped. Dataset ids
+are the printed last path segments. `access_path` is the printed path
+joined to the OpenAPI document origin.
+
+```bash
+pda ingest --source nor --db data/registry.sqlite --limit 10
+pda search målformer --db data/registry.sqlite
+pda fetch --dataset nor:maalformer --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored collection URL. Observation values are copied
+from printed `Navn` on a printed `*Liste` array. License is copied from
+the printed OpenAPI `info.license.url` when present. Publisher stays
+null: the spec does not print a publisher name.
+
+This source is Udir NOR (`data-nor.udir.no`), not NSR (`--source udir`)
+and not NBR (`--source nbr`).
+
+Live ingest 2026-08-27: 6 printed collection GET paths (catalog prints 6,
+cap 10). Live search `målformer` returns `nor:maalformer`. Live fetch
+GETs `https://data-nor.udir.no/v4/maalformer` HTTP 200, 3 language-name
+rows. Sample printed names: Udefinert, Bokmål, Nynorsk. `pda methods`
+is not applicable: names, not a numeric time series
+(`no observations matched entity/measure; available=[]`).
+Proof is `data/nor_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
