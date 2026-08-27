@@ -50,6 +50,7 @@ from public_data_agent.sources.portal import PortalSource
 from public_data_agent.sources.radar import RadarSource
 from public_data_agent.sources.research import ResearchSource
 from public_data_agent.sources.riksantikvaren import RiksantikvarenSource
+from public_data_agent.sources.routeforecast import RouteforecastSource
 from public_data_agent.sources.sigcharts import SigchartsSource
 from public_data_agent.sources.sikt import SiktSource
 from public_data_agent.sources.sodir import SodirSource
@@ -147,6 +148,7 @@ SOURCE_IDS = (
     "nlaroutes",
     "sigcharts",
     "volcanicashforecast",
+    "routeforecast",
 )
 
 
@@ -295,6 +297,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return SigchartsSource()
     if source_id == "volcanicashforecast":
         return VolcanicashforecastSource()
+    if source_id == "routeforecast":
+        return RouteforecastSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -347,6 +351,7 @@ __all__ = [
     "RadarSource",
     "ResearchSource",
     "RiksantikvarenSource",
+    "RouteforecastSource",
     "SigchartsSource",
     "SiktSource",
     "SodirSource",
