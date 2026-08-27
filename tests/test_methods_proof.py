@@ -11,7 +11,16 @@ import pytest
 from methods.clean import clean
 from methods.derive import derive
 from methods.emit import index_line_series, yoy_bar_points
-from methods.types import INDEX, INDEX_FORMULA, YOY_GROWTH, YOY_GROWTH_FORMULA
+from methods.types import (
+    INDEX,
+    INDEX_FORMULA,
+    RANK,
+    RANK_CHANGE,
+    RANK_CHANGE_FORMULA,
+    RANK_FORMULA,
+    YOY_GROWTH,
+    YOY_GROWTH_FORMULA,
+)
 
 OSLO_DATASET = "datanorge:fc22c19b-5347-3b20-aa1b-ae534f178f57"
 OSLO_ENTITY = "Oslo (Kristiania og Aker) i alt"
@@ -242,6 +251,8 @@ def test_live_ssb11763_store_matches_formula_and_lineage() -> None:
         assert latest.index.value == pytest.approx(100.0 * latest.observation.value / base.observation.value)
         assert latest.index.lineage.base_period == "2024"
         assert latest.index.lineage.base_observation_id == base.observation.id
+        assert base.rank_change.value is None
+        assert latest.rank_change.value == pytest.approx(base.rank.value - latest.rank.value)
         for row in (base, latest):
             assert row.yoy_growth.lineage.name == YOY_GROWTH
             assert row.yoy_growth.lineage.formula == YOY_GROWTH_FORMULA
@@ -253,7 +264,25 @@ def test_live_ssb11763_store_matches_formula_and_lineage() -> None:
             assert row.index.lineage.source_observation_ids
             assert row.index.lineage.source_periods
             assert row.index.lineage.base_period
+            assert row.rank.lineage.name == RANK
+            assert row.rank.lineage.formula == RANK_FORMULA
+            assert row.rank.lineage.peer_observation_ids
+            assert len(row.rank.lineage.peer_observation_ids) == 15
+            assert row.rank_change.lineage.name == RANK_CHANGE
+            assert row.rank_change.lineage.formula == RANK_CHANGE_FORMULA
+            assert row.rank_change.lineage.peer_observation_ids
             assert row.observation.source == SSB_11763
+            for derived_col in row.derived_columns():
+                assert derived_col.lineage.name
+                assert derived_col.lineage.formula
+                assert derived_col.lineage.source_observation_ids
+                assert derived_col.lineage.source_periods
+
+    rank1_2024 = max((row for row in derived if row.observation.period == "2024"), key=lambda row: row.observation.value)
+    assert rank1_2024.rank.value == 1
+    assert rank1_2024.observation.value == max(
+        row.observation.value for row in derived if row.observation.period == "2024"
+    )
 
     bars = yoy_bar_points(derived)
     assert len(bars) == 15
@@ -332,6 +361,8 @@ def test_ssb11763_cli_reads_store_and_does_not_fetch(tmp_path: Path) -> None:
         assert row.observation.value == float(by_id[row.observation.id])
         assert row.yoy_growth.lineage.formula == YOY_GROWTH_FORMULA
         assert row.index.lineage.formula == INDEX_FORMULA
+        assert row.rank.lineage.formula == RANK_FORMULA
+        assert row.rank_change.lineage.formula == RANK_CHANGE_FORMULA
 
 
 def test_ssb11763_empty_store_does_not_post() -> None:
@@ -403,16 +434,27 @@ def test_committed_ssb11763_proof_artifacts() -> None:
         assert float(latest["index"]) == pytest.approx(100.0 * current / previous)
         assert latest["source"] == SSB_11763
         assert base["source"] == SSB_11763
+        assert base["rank_change"] == ""
+        assert float(latest["rank_change"]) == pytest.approx(float(base["rank"]) - float(latest["rank"]))
+
+    rank1 = max((row for row in table if row["period"] == "2024"), key=lambda row: float(row["value"]))
+    assert float(rank1["rank"]) == 1
 
     lineage = json.loads(lineage_path.read_text(encoding="utf-8"))
     names = [column["name"] for column in lineage["derived_columns"]]
-    assert names == [YOY_GROWTH, INDEX]
+    assert names == [YOY_GROWTH, INDEX, RANK, RANK_CHANGE]
     yoy = lineage["derived_columns"][0]
     index = lineage["derived_columns"][1]
+    rank = lineage["derived_columns"][2]
+    rank_change = lineage["derived_columns"][3]
     assert yoy["formula"] == YOY_GROWTH_FORMULA
     assert index["formula"] == INDEX_FORMULA
+    assert rank["formula"] == RANK_FORMULA
+    assert rank_change["formula"] == RANK_CHANGE_FORMULA
     assert len(yoy["rows"]) == 30
     assert len(index["rows"]) == 30
+    assert len(rank["rows"]) == 30
+    assert len(rank_change["rows"]) == 30
     for item in yoy["rows"]:
         assert item["lineage"]["name"] == YOY_GROWTH
         assert item["lineage"]["formula"] == YOY_GROWTH_FORMULA
@@ -432,9 +474,25 @@ def test_committed_ssb11763_proof_artifacts() -> None:
         assert item["lineage"]["source_periods"]
         if item["value"] is not None:
             assert item["lineage"]["base_observation_id"]
+    for item in rank["rows"]:
+        assert item["lineage"]["name"] == RANK
+        assert item["lineage"]["formula"] == RANK_FORMULA
+        assert item["lineage"]["peer_observation_ids"]
+        assert len(item["lineage"]["peer_observation_ids"]) == 15
+        assert item["value"] is not None
+    for item in rank_change["rows"]:
+        assert item["lineage"]["name"] == RANK_CHANGE
+        assert item["lineage"]["formula"] == RANK_CHANGE_FORMULA
+        assert item["lineage"]["peer_observation_ids"]
+        if item["period"] == "2024":
+            assert item["value"] is None
+        else:
+            assert item["value"] is not None
     md = md_path.read_text(encoding="utf-8")
     assert YOY_GROWTH_FORMULA in md
     assert INDEX_FORMULA in md
+    assert RANK_FORMULA in md
+    assert RANK_CHANGE_FORMULA in md
     dump = json.loads(SSB_STORE.read_text(encoding="utf-8"))
     assert dump["posted"] is False
     assert dump["counts"]["total"] == 36
