@@ -2272,6 +2272,16 @@ pda fetch --dataset tafmetar:locations --db data/registry.sqlite
 from printed feature `name`. License is the printed swagger CC BY 4.0 URL.
 Publisher stays null: the spec does not print a publisher.
 
+Live ingest 2026-08-27: 5 printed untemplated collection GET paths
+(catalog prints 14 paths; templated `{format}` paths and TAF/METAR
+product paths with required `icao` skipped). Live search `locations`
+returns `tafmetar:locations`. Live fetch GETs
+`https://api.met.no/weatherapi/tafmetar/1.0/locations` HTTP 200, 52
+airport-name rows. Sample printed values: KRISTIANSUND/ KVERNBERGET,
+NOTODDEN, SANDANE/ANDA. `pda methods` is not applicable: GeoJSON
+feature names, not a numeric time series (`no observations matched
+entity/measure; available=[]`). Proof is `data/tafmetar_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
