@@ -25,6 +25,7 @@ from public_data_agent.sources.miljodir import MiljodirVannmiljoSource
 from public_data_agent.sources.nbr import NbrSource
 from public_data_agent.sources.nfr import NfrSource
 from public_data_agent.sources.ngu import NguSource
+from public_data_agent.sources.ncagalewarnings import NcagalewarningsSource
 from public_data_agent.sources.nibio import NibioWeatherSource
 from public_data_agent.sources.nin import NinSource
 from public_data_agent.sources.nor import NorSource
@@ -111,6 +112,7 @@ SOURCE_IDS = (
     "spotwind",
     "textforecast",
     "icemap",
+    "ncagalewarnings",
 )
 
 
@@ -223,6 +225,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return TextforecastSource()
     if source_id == "icemap":
         return IcemapSource()
+    if source_id == "ncagalewarnings":
+        return NcagalewarningsSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -248,6 +252,7 @@ __all__ = [
     "MetMetalertsSource",
     "MiljodirVannmiljoSource",
     "NbrSource",
+    "NcagalewarningsSource",
     "NfrSource",
     "NguSource",
     "NibioWeatherSource",
