@@ -2241,6 +2241,37 @@ location-name rows. Sample printed values: Stad, Hustadvika, Folda 1.
 time series (`no observations matched entity/measure; available=[]`).
 Proof is `data/ncagalewarnings_source_proof.json`.
 
+## Meteorologisk institutt Tafmetar source
+
+`pda ingest --source tafmetar` is another replaceable adapter. It lists printed
+collection GET paths on the official MET Tafmetar swagger
+`https://api.met.no/weatherapi/tafmetar/1.0/swagger`, capped at 10.
+Templated `{format}` paths are skipped. GET paths that print a required
+query parameter (`icao`, `content`, `content_type`) stay unused: those
+are TAF/METAR products, not a collection list. Dataset ids are the last
+printed path segment. `access_path` is the swagger origin + printed
+`basePath` + path. License is the printed swagger CC BY 4.0 URL.
+Publisher stays null. This is not Metalerts (`--source met`), not Nowcast
+(`--source nowcast`), not Airqualityforecast (`--source airquality`),
+not Tidalwater (`--source tidalwater`), not Oceanforecast
+(`--source oceanforecast`), not MET Sunrise (`--source sunrise`), not
+Radar (`--source radar`), not MET Spotwind (`--source spotwind`), not
+Textforecast (`--source textforecast`), not Icemap (`--source icemap`,
+now on main after PR 108), and not NCAgalewarnings
+(`--source ncagalewarnings`, now on main after PR 107). `/changelog`
+and `/schema` stay unused for fetch in this slice: those printed paths
+return RSS/XML.
+
+```bash
+pda ingest --source tafmetar --db data/registry.sqlite --limit 10
+pda search locations --db data/registry.sqlite
+pda fetch --dataset tafmetar:locations --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored collection URL. Observation values are copied
+from printed feature `name`. License is the printed swagger CC BY 4.0 URL.
+Publisher stays null: the spec does not print a publisher.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
