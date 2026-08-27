@@ -1,0 +1,246 @@
+{
+  "produced_at": "2026-08-27T07:52:17Z",
+  "command": "pda fetch --dataset datanorge:0c89041e-ae88-32ef-a765-8e1ccbd64fdd --db data/registry.sqlite",
+  "dataset": {
+    "id": "datanorge:0c89041e-ae88-32ef-a765-8e1ccbd64fdd",
+    "title": "Bydelsinndeling",
+    "publisher_name": "STATISTISK SENTRALBYRÅ",
+    "license": "http://publications.europa.eu/resource/authority/licence/NLOD_2_0",
+    "access_path": "https://data.ssb.no/api/klass/v1/versions/1168.json",
+    "source_native_uri": "https://data.norge.no/node/1115"
+  },
+  "why_this_dataset": "SSB table 07459 is still not an access_path on any of the 9120 registry rows. Kommuneinndeling versions/1160.json is 404. Bydelsinndeling stores a working Klass GET URL on data.ssb.no, a second publisher from Oslo kommunes statistikkbank.",
+  "api": {
+    "kind": "SSB Klass classificationItems JSON",
+    "request_url": "https://data.ssb.no/api/klass/v1/versions/1168.json",
+    "request_method": "GET",
+    "http_status": 200,
+    "auth": "none",
+    "host": "data.ssb.no"
+  },
+  "counts": {
+    "listed": 42,
+    "inserted": 42,
+    "updated": 0,
+    "unchanged": 0,
+    "failed": 0,
+    "datasets_unchanged": 9120
+  },
+  "sample": [
+    {
+      "measure": "Bydelsinndeling 2020",
+      "value": "Gamle Oslo",
+      "dimensions": {
+        "code": "030101",
+        "level": "1"
+      }
+    },
+    {
+      "measure": "Bydelsinndeling 2020",
+      "value": "Grünerløkka",
+      "dimensions": {
+        "code": "030102",
+        "level": "1"
+      }
+    },
+    {
+      "measure": "Bydelsinndeling 2020",
+      "value": "Sagene",
+      "dimensions": {
+        "code": "030103",
+        "level": "1"
+      }
+    },
+    {
+      "measure": "Bydelsinndeling 2020",
+      "value": "St. Hanshaugen",
+      "dimensions": {
+        "code": "030104",
+        "level": "1"
+      }
+    },
+    {
+      "measure": "Bydelsinndeling 2020",
+      "value": "Frogner",
+      "dimensions": {
+        "code": "030105",
+        "level": "1"
+      }
+    }
+  ],
+  "all_codes_in_response": [
+    {
+      "code": "030101",
+      "name": "Gamle Oslo"
+    },
+    {
+      "code": "030102",
+      "name": "Grünerløkka"
+    },
+    {
+      "code": "030103",
+      "name": "Sagene"
+    },
+    {
+      "code": "030104",
+      "name": "St. Hanshaugen"
+    },
+    {
+      "code": "030105",
+      "name": "Frogner"
+    },
+    {
+      "code": "030106",
+      "name": "Ullern"
+    },
+    {
+      "code": "030107",
+      "name": "Vestre Aker"
+    },
+    {
+      "code": "030108",
+      "name": "Nordre Aker"
+    },
+    {
+      "code": "030109",
+      "name": "Bjerke"
+    },
+    {
+      "code": "030110",
+      "name": "Grorud"
+    },
+    {
+      "code": "030111",
+      "name": "Stovner"
+    },
+    {
+      "code": "030112",
+      "name": "Alna"
+    },
+    {
+      "code": "030113",
+      "name": "Østensjø"
+    },
+    {
+      "code": "030114",
+      "name": "Nordstrand"
+    },
+    {
+      "code": "030115",
+      "name": "Søndre Nordstrand"
+    },
+    {
+      "code": "030116",
+      "name": "Sentrum"
+    },
+    {
+      "code": "030117",
+      "name": "Marka"
+    },
+    {
+      "code": "030199",
+      "name": "Uoppgitt"
+    },
+    {
+      "code": "110301",
+      "name": "Hundvåg"
+    },
+    {
+      "code": "110302",
+      "name": "Tasta"
+    },
+    {
+      "code": "110303",
+      "name": "Eiganes og Våland"
+    },
+    {
+      "code": "110304",
+      "name": "Madla"
+    },
+    {
+      "code": "110305",
+      "name": "Storhaug"
+    },
+    {
+      "code": "110306",
+      "name": "Hillevåg"
+    },
+    {
+      "code": "110307",
+      "name": "Hinna"
+    },
+    {
+      "code": "110308",
+      "name": "Finnøy"
+    },
+    {
+      "code": "110309",
+      "name": "Rennesøy"
+    },
+    {
+      "code": "110399",
+      "name": "Uoppgitt"
+    },
+    {
+      "code": "460101",
+      "name": "Arna"
+    },
+    {
+      "code": "460102",
+      "name": "Bergenhus"
+    },
+    {
+      "code": "460103",
+      "name": "Fana"
+    },
+    {
+      "code": "460104",
+      "name": "Fyllingsdalen"
+    },
+    {
+      "code": "460105",
+      "name": "Laksevåg"
+    },
+    {
+      "code": "460106",
+      "name": "Ytrebygda"
+    },
+    {
+      "code": "460107",
+      "name": "Årstad"
+    },
+    {
+      "code": "460108",
+      "name": "Åsane"
+    },
+    {
+      "code": "460199",
+      "name": "Uoppgitt"
+    },
+    {
+      "code": "500101",
+      "name": "Midtbyen"
+    },
+    {
+      "code": "500102",
+      "name": "Østbyen"
+    },
+    {
+      "code": "500103",
+      "name": "Lerkendal"
+    },
+    {
+      "code": "500104",
+      "name": "Heimdal"
+    },
+    {
+      "code": "500199",
+      "name": "Uoppgitt"
+    }
+  ],
+  "notes": [
+    "Values are classification item names and codes from the HTTP JSON. None were invented.",
+    "Not statistikkbanken.oslo.kommune.no.",
+    "Observations land in the same observations table as Milestone 7. datasets and enrichments were not written."
+  ]
+}

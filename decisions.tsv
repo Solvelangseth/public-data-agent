@@ -61,3 +61,6 @@ ts	phase	decision	why	evidence	result
 2026-08-27T04:27:00Z	fetch	confirm SSB 07459 is absent from the live registry	trail review said the negative search was not evidenced	sqlite count of id/title/access_path like %07459% = 0	absent
 2026-08-27T04:27:00Z	fetch	log live identity-key drift, do not add a history table	first live run used table-title measure, second used Statistikkvariabel, so inserted=28 twice	data/connector_proof.json notes; fixture test_fetch still unchanged=2	logged, no history table
 2026-08-27T04:27:00Z	trail	cross-model review of the M7 decision trail	show-me-your-work requires a different model family	claude-sonnet-5: identity drift, missing pytest row, 07459 evidence, value overwrite	logged
+2026-08-27T07:50:00Z	fetch	07459 still absent; skip stale Kommuneinndeling 1160.json	sqlite 07459 count 0; Klass versions/1160.json HTTP 404	live GET 404 and registry query	skipped
+2026-08-27T07:51:00Z	fetch	use SSB Klass Bydelsinndeling as the second source	stored access_path is a working national API, not Oslo PxWeb	datanorge:0c89041e-ae88-32ef-a765-8e1ccbd64fdd GET 200 listed 42	selected
+2026-08-27T07:52:00Z	test	run pytest after the klass adapter	do not leave the count only in the PR body	python3 -m pytest 45 passed 1 deselected	tests green
