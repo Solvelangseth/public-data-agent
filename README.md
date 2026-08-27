@@ -1992,6 +1992,39 @@ location-name rows. Sample printed values: Andenes, Bergen, Oscarsborg.
 (`no observations matched entity/measure; available=[]`).
 Proof is `data/tidalwater_source_proof.json`.
 
+## Meteorologisk institutt Oceanforecast source
+
+`pda ingest --source oceanforecast` is another replaceable adapter. It lists printed
+collection GET paths on the official MET Oceanforecast swagger
+`https://api.met.no/weatherapi/oceanforecast/2.0/swagger`, capped at 10.
+Templated `{format}` paths are skipped. Dataset ids are the last printed path
+segment. `access_path` is the swagger origin + printed `basePath` + path.
+License is the printed swagger CC BY 4.0 URL. Publisher stays null. This is not
+Metalerts (`--source met`), not Nowcast (`--source nowcast`), not
+Airqualityforecast (`--source airquality`, now on main), not Tidalwater
+(`--source tidalwater`, now on main after PR 101), and not Riksantikvaren
+MABYGIS (`--source riksantikvaren`). `/complete` and `/mox` stay unused for
+fetch in this slice: those printed paths require `lat` and `lon`.
+
+```bash
+pda ingest --source oceanforecast --db data/registry.sqlite --limit 10
+pda search locations --db data/registry.sqlite
+pda fetch --dataset oceanforecast:locations --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored collection URL. Observation values are copied
+from printed feature `name`. License is the printed swagger CC BY 4.0 URL.
+Publisher stays null: the spec does not print a publisher.
+
+Live ingest 2026-08-27: 7 printed untemplated GET paths (catalog prints
+11 paths, 4 templated `{format}` paths skipped, cap 10). Live search
+`locations` returns `oceanforecast:locations`. Live fetch GETs
+`https://api.met.no/weatherapi/oceanforecast/2.0/locations` HTTP 200, 1
+feature-name row. Sample printed value: Oceanforecast area.
+`pda methods` is not applicable: feature name, not a numeric time series
+(`no observations matched entity/measure; available=[]`).
+Proof is `data/oceanforecast_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
