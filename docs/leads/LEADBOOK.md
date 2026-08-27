@@ -6,7 +6,7 @@ No email, call, or outbound post from this file. Contacts are only what the org 
 Product sold: registry of Norwegian public datasets (Data.norge first ingest, sources replaceable), natural-language search, first fetch of actual rows. Later analysis. LLM for intent and explanation. Deterministic retrieval. Provenance (source, publisher, license, access path) on every hit.
 Repo: https://github.com/Solvelangseth/public-data-agent
 
-Status 27 Aug 2026, 11:48 Europe/Oslo: 72 sourced leads. PR 38 merged. Wave 7 in the living file: health (Førde, Sunnaas, Diakonhjemmet), energy (Barents Nett, Noranett, Enida), mid-size (Hamar, Askøy, Horten). Arendal held. Rana were forslag-only this pass. No invented emails. No outreach.
+Status 27 Aug 2026, 12:01 Europe/Oslo: 78 sourced leads. PR 40 merged (d3206ae). Wave 8 in the living file: Sørlandet, Nordlandssykehuset, Vestall, Elmea, Halden, Lillehammer. Elmea inboxes are page-printed (`kunde@` / `pal.martinussen@`). Arendal held. No outreach.
 
 How to read a lead: why they would pay is tied to a named programme, not "they use data." Service shape is always search → fetch → later analysis. If a field says none published, do not invent one.
 
@@ -1090,6 +1090,49 @@ Sources below were opened 2026-08-27 from official pages and the named press/pro
   - https://virksomhet.brreg.no/nb/oppslag/enheter/982791952
   - https://data.brreg.no/enhetsregisteret/api/enheter/982791952
 
+### Sykehuset Sørlandet HF
+
+- **Why they would pay.** SAFE-MS at Nevrologisk avdeling / NevroforskSør (REK 616056, use to 2030) hunts NPR, Reseptregisteret/Legemiddelregisteret and Kreftregisteret. Parallel: endometriose RCT (landing 08.12.2025) hunts NPR + KPR. Not a Data.norge publisher (0 hits). Utlevering-til-NPR on the personvernerklæring and COVITA (Telemark-led) are not the buy reason.
+- **Concrete use case.** NevroforskSør / Forskningsseksjonen finds and first-fetches official NPR, Reseptregisteret and Kreftregisteret rows before a Helsedataservice kobling for the utenlands-behandlet MS-kohort.
+- **How the service should look.**
+  - Search: data.norge first (NPR, Reseptregisteret, Kreftregisteret, Helsedataservice). SSHF is the consumer.
+  - Fetch: first official metadata/distribution row. Registers are NON_PUBLIC — landing helsedata.no.
+  - Later analysis: innleggelser / antibiotika / kreft-risiko after HSCT. Helsedata søknad stays theirs.
+- **Public contact.**
+  - Role / unit: SAFE-MS / NevroforskSør (Åslaug Rudjord Lorentzen, Stine Schikora-Rustad named). Forskningsseksjonen.
+  - Email: `postmottak@sshf.no`; `forskning@sshf.no`; `aslaug.rudjord.lorentzen@sshf.no`; `stirus@sshf.no`
+  - Phone: 38 07 30 00; Lorentzen 38 07 39 10
+  - Form/URL: https://www.sshf.no/om-oss/kontakt-oss
+- **Key facts.** Org.nr 983 975 240. Postboks 416 Lundsiden, 4604 Kristiansand S.
+- **Sources** (opened 2026-08-27).
+  - https://www.sshf.no/helsefaglig/forskning-og-innovasjon/forskningsgrupper/nevroforsksor/
+  - https://www.sshf.no/helsefaglig/forskning-og-innovasjon/den-gode-smertesamtalen-ved-endometriose/
+  - https://www.sshf.no/om-oss/kontakt-oss
+  - https://data.norge.no/nb/datasets/e842f90c-0555-3f56-8b66-540a9d9d911d/norsk-pasientregister
+  - https://virksomhet.brreg.no/nb/oppslag/enheter/983975240
+  - https://data.brreg.no/enhetsregisteret/api/enheter/983975240
+
+### Nordlandssykehuset HF
+
+- **Why they would pay.** NORSPIS (landing 25.06.2025) names NPR as an external source and says sammenligninger with NPR are done regelmessig; årsrapport 2025 already has individnivå-sammenstilling and a filed/planned NPR-import. Parallel: HomeCare+ cites Helsedirektoratet SAMDATA. Hosting NORSPIS is publisher-side; NPR is the consume. SKDE is a taken seat — this stays NLSH. Not a Data.norge publisher.
+- **Concrete use case.** NORSPIS registeradministrasjon finds and first-fetches the official NPR catalogue row before dekningsgrad / automatisk datafangst against own NORSPIS counts.
+- **How the service should look.**
+  - Search: data.norge first (NPR, Helsedataservice). NORSPIS is not harvested.
+  - Fetch: first official NPR row. Helsedata søknad stays theirs.
+  - Later analysis: dekningsgrad vs NPR; do not move the seat to SKDE.
+- **Public contact.**
+  - Role / unit: NORSPIS (Lisbeth Sæterstad, Mona Jæger Lyngmo named). Faglig leder vacant.
+  - Email: `norspis@nordlandssykehuset.no`; `lisbeth.saeterstad@nordlandssykehuset.no`; `postmottak@nordlandssykehuset.no`
+  - Phone: 75 59 60 00; Sæterstad 75 59 85 67
+  - Form/URL: https://www.nordlandssykehuset.no/forskning-og-innovasjon/kvalitetsregistre/norsk-kvalitetsregister-for-behandling-av-spiseforstyrrelser-norspis/
+- **Key facts.** Org.nr 983 974 910. Postboks 1480, 8092 Bodø.
+- **Sources** (opened 2026-08-27).
+  - https://www.nordlandssykehuset.no/forskning-og-innovasjon/kvalitetsregistre/norsk-kvalitetsregister-for-behandling-av-spiseforstyrrelser-norspis/
+  - https://www.nordlandssykehuset.no/om-oss/kontaktinformasjon/
+  - https://data.norge.no/nb/datasets/e842f90c-0555-3f56-8b66-540a9d9d911d/norsk-pasientregister
+  - https://virksomhet.brreg.no/nb/oppslag/enheter/983974910
+  - https://data.brreg.no/enhetsregisteret/api/enheter/983974910
+
 ---
 
 ## 31. Statnett SF — SUP 2025 + 10 områdeplaner + Omstillingsplan 2026
@@ -1720,6 +1763,52 @@ Sources below were opened 2026-08-27 from official pages and the named press/pro
   - https://virksomhet.brreg.no/nb/oppslag/enheter/918312730
   - https://data.brreg.no/enhetsregisteret/api/enheter/918312730
 
+### Vestall AS
+
+- **Why they would pay.** Tilko for >1 MW + DF + utredningsavtale, plus a live 132 kV NVE-melding/KU for Sortland / Øksnes / Hadsel / Bø. Those files hunt Statnett KVU Kvandal–Kilbotn, NVE PlanNett / Atlas, municipal plan and kulturminner. Joint lastutvikling with Elmea / Noranett (~1300 MW). Not the NUK (Noranett is taken). Own portal / Tilko host is not the buy reason.
+- **Concrete use case.** Plan first-fetches Statnett Områdeplan Nord / KVU Kvandal–Kilbotn, NVE PlanNett and municipal plan/kulturminner for the Stokmarknes–Dragneset–Lokkøya–Myre 132 kV corridor or a Tilko ≥1 MW sak.
+- **How the service should look.**
+  - Search: data.norge first, then PlanNett, Statnett, Geonorge / municipal plan.
+  - Fetch: first official PDF / GeoJSON. Not a replacement for Tilko or the kundeportal.
+  - Later analysis: corridor overlay on the vestsnittet 1 MW kø.
+- **Public contact.**
+  - Role / unit: nett / 132 kV melding (Torbjørn Åsbakk, Sindre Bruun named).
+  - Email: `nett@vestall.no`; `Torbjorn.asbakk@vestall.no`; `Sindre.brun@vestall.no`
+  - Phone: 76 11 25 01; Åsbakk 908 59 525; Bruun 409 04 305
+  - Form/URL: https://vestall.no/kontakt/
+- **Key facts.** Org.nr 968 168 134. Strandgata 47, 8400 Sortland. Historisk navn VESTERÅLSKRAFT NETT AS (to 07.12.2021).
+- **Sources** (opened 2026-08-27).
+  - https://vestall.no/hovedstromforsyning/
+  - https://vestall.no/tilknytninger/storre-tilknytninger/
+  - https://vestall.no/kontakt/
+  - https://plannett.nve.no/
+  - https://virksomhet.brreg.no/nb/oppslag/enheter/968168134
+  - https://data.brreg.no/enhetsregisteret/api/enheter/968168134
+
+### Elmea AS
+
+- **Why they would pay.** Tilko for ≥1 MW + DF + KVU, plus 20-year lastprognoser into regionale KSU. Every ≥1 MW sak is also cleared with Statnett. Joint ~1300 MW / KVU Kvandal–Kilbotn with Vestall / Noranett. Not the NUK. Do not use leftover `firmapost@lofotkraft.no`.
+- **Concrete use case.** Nettplan first-fetches NVE PlanNett, Statnett Områdeplan Nord / KVU Kvandal–Kilbotn and municipal plan for a named Lofoten lastprognose or Tilko ≥1 MW sak.
+- **How the service should look.**
+  - Search: data.norge first, then PlanNett, Statnett, Geonorge / municipal plan, SSB.
+  - Fetch: first official PDF / GeoJSON. Not a replacement for Tilko or the kundeportal.
+  - Later analysis: overlay on the vestsnittet 1 MW kø.
+- **Public contact.**
+  - Role / unit: kundesenter. Daglig leder Pål Martinussen (pressekontakter).
+  - Email: `kunde@elmea.no` (proff/kontaktinfo); `pal.martinussen@elmea.no` (kontakt-oss pressekontakter). Do not use leftover `firmapost@lofotkraft.no`.
+  - Phone: 76 06 76 06; Martinussen 918 15 949
+  - Form/URL: https://www.elmea.no/proff/kontaktinfo/; https://www.elmea.no/kontakt-oss/
+- **Key facts.** Org.nr 986 347 801. Vorsetøyveien 31, 8300 Svolvær. Historisk navn LOFOTKRAFT NETT AS (to 15.11.2021).
+- **Sources** (opened 2026-08-27).
+  - https://www.elmea.no/storre-nettilknytning-eller-effektokning/
+  - https://www.elmea.no/driftsmessig-forsvarlig-vurderinger/
+  - https://www.elmea.no/melde-inn-store-framtidige-kapasitetsbehov/
+  - https://www.elmea.no/proff/kontaktinfo/
+  - https://www.elmea.no/kontakt-oss/
+  - https://plannett.nve.no/
+  - https://virksomhet.brreg.no/nb/oppslag/enheter/986347801
+  - https://data.brreg.no/enhetsregisteret/api/enheter/986347801
+
 ---
 
 ## 48. Fredrikstad kommune — Åpne data Hub + kart@
@@ -2288,6 +2377,54 @@ Sources below were opened 2026-08-27 from official pages and the named press/pro
 
 ---
 
+### Halden kommune
+
+- **Why they would pay.** Økonomiplan 2026–2029 Framsikt title is **Vedtatt av kommunestyret 17.06.2025**. Named **Klimabudsjett** chapter: Miljødirektoratet is the source of record (110 500 t in 2016 → 83 200 t in 2023, −24,7 %; 60 % vs 2016 by 2030). Yearly job is to re-pull kommune 3101 into those rows.
+- **Concrete use case.** Klima owners first-fetch Miljødirektoratet kommune 3101 sector series and overlay the chapter’s 2016 / 2023 / 2030 rows, then SSB KOSTRA 09574 for formålsbygg energy.
+- **How the service should look.**
+  - Search: data.norge first, then Mdir kommuneregnskap, SSB 09574.
+  - Fetch: first official Excel/PxWeb rows. Their Framsikt chapter stays theirs.
+  - Later analysis: 2023→2024/2025 refresh on the 60 % / 2016 gap; keep industri as the rising residual.
+- **Public contact.**
+  - Role / unit: klima / miljø (Gunnhild Sørsdal Marthinsen, Martine Hageengen Ringdal named).
+  - Email: `postmottak@halden.kommune.no`; `gunnhild.marthinsen@halden.kommune.no`; `martine.ringdal@halden.kommune.no`
+  - Phone: 69 17 45 00; Marthinsen 47 69 55 72; Ringdal 48 26 80 78
+  - Form/URL: https://www.halden.kommune.no/tjenester/miljo-og-teknisk/klima-og-energi/mal-og-status/
+- **Key facts.** Org.nr 959 159 092. Kommunenr. 3101. Postboks 150, 1751 Halden.
+- **Sources** (opened 2026-08-27).
+  - https://www.halden.kommune.no/tjenester/byen-og-kommunen/organisasjon-og-administrasjon/planer-strategier-og-rapporter/okonomiplan/
+  - https://pub.framsikt.net/2026/halden/bm-2026-okonomiplan2026-2029_vedtatt
+  - https://pub.framsikt.net/2026/halden/bm-2026-okonomiplan2026-2029_vedtatt/#/generic/summary/climatesummary
+  - https://www.halden.kommune.no/tjenester/miljo-og-teknisk/klima-og-energi/mal-og-status/
+  - https://data.brreg.no/enhetsregisteret/api/enheter/959159092
+  - https://www.miljodirektoratet.no/tjenester/klimagassutslipp-kommuner/
+
+---
+
+### Lillehammer kommune
+
+- **Why they would pay.** Handlings- og økonomiplan 2026–2029 Framsikt title is **Kommunestyrets vedtak** (`bm-2026-hop_26-29_vedtak`). Named **Klimabudsjett** chapter: «de årlige beregningene fra Miljødirektoratet for Lillehammer kommune, omfatter hele kommunen som lokalsamfunn.» Forslag slug is not this document.
+- **Concrete use case.** Klima owners first-fetch Miljødirektoratet kommune 3405 sector series and overlay the vedtatt chapter, then SSB energy/KOSTRA for own-org bygg.
+- **How the service should look.**
+  - Search: data.norge first, then Mdir kommuneregnskap, SSB.
+  - Fetch: first official Excel/PxWeb rows. Their Framsikt chapter stays theirs.
+  - Later analysis: refresh the latest Mdir year against the samfunnsdel klimamål.
+- **Public contact.**
+  - Role / unit: postmottak. No klima unit inbox opened this pass.
+  - Email: `postmottak@lillehammer.kommune.no`; `controllere@lillehammer.kommune.no` (printed on https://lillehammer.kommune.no/om-kommunen/organisasjon/kommuneokonomien/)
+  - Phone: 61 05 05 00
+  - Form/URL: https://lillehammer.kommune.no/nyheter/handlings-og-okonomiplan-2026-2029.19098.aspx
+- **Key facts.** Org.nr 945 578 564. Kommunenr. 3405. Kommunestyret sak 90/2025, 11.12.2025.
+- **Sources** (opened 2026-08-27).
+  - https://pub.framsikt.net/2026/lillehammer/bm-2026-hop_26-29_vedtak
+  - https://pub.framsikt.net/2026/lillehammer/bm-2026-hop_26-29_vedtak/#/generic/summary/climatesummary
+  - https://lillehammer.kommune.no/nyheter/handlings-og-okonomiplan-2026-2029.19098.aspx
+  - https://lillehammer.kommune.no/om-kommunen/organisasjon/kommuneokonomien/
+  - https://data.brreg.no/enhetsregisteret/api/enheter/945578564
+  - https://www.miljodirektoratet.no/tjenester/klimagassutslipp-kommuner/
+
+---
+
 ## Skipped, with reasons
 
 Keep these notes in the living book. They are not leads.
@@ -2324,6 +2461,7 @@ Keep these notes in the living book. They are not leads.
 - 2026-08-27: Added Hamar kommune (vedtatt HØP klimabudsjett). Wave 7 mid-size closed. Still no outreach.
 - 2026-08-27: Added Askøy kommune (vedtatt slug bm-2026-vedtatt_budsjett; earlier skip was the forslag slug).
 - 2026-08-27: Added Horten kommune (vedtatt slug bm-2026-ohp_2026; earlier skip was the innstilling slug).
+- 2026-08-27: Added Sykehuset Sørlandet, Nordlandssykehuset, Vestall, Elmea, Halden and Lillehammer. Elmea inboxes are page-printed (`kunde@` / `pal.martinussen@`). Still no leftover `firmapost@lofotkraft.no`. Lillehammer deepen: `controllere@` + sak 90/2025. Still no outreach.
 
 ---
 
