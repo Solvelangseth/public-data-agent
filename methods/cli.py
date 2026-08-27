@@ -12,7 +12,13 @@ from typing import Any
 from methods.clean import clean
 from methods.derive import derive
 from methods.emit import emit
-from methods.types import INDEX_FORMULA, YOY_GROWTH_FORMULA, SeriesRow
+from methods.types import (
+    INDEX_FORMULA,
+    RANK_CHANGE_FORMULA,
+    RANK_FORMULA,
+    YOY_GROWTH_FORMULA,
+    SeriesRow,
+)
 
 # Selection only. Transforms never branch on these ids.
 DEFAULT_DATASET = "datanorge:fc22c19b-5347-3b20-aa1b-ae534f178f57"
@@ -177,6 +183,8 @@ def _summary(rows: tuple[SeriesRow, ...], args: argparse.Namespace) -> dict[str,
         "formula": {
             "yoy_growth": YOY_GROWTH_FORMULA,
             "index": INDEX_FORMULA,
+            "rank": RANK_FORMULA,
+            "rank_change": RANK_CHANGE_FORMULA,
         },
         "series": [
             {
@@ -186,6 +194,8 @@ def _summary(rows: tuple[SeriesRow, ...], args: argparse.Namespace) -> dict[str,
                 "value": row.observation.value,
                 "yoy_growth": row.yoy_growth.value,
                 "index": row.index.value,
+                "rank": row.rank.value,
+                "rank_change": row.rank_change.value,
                 "observation_id": row.observation.id,
             }
             for row in rows

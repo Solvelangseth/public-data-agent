@@ -2,39 +2,42 @@
 
 Derived column `yoy_growth` uses `(v_t - v_{t-1}) / v_{t-1}`.
 Derived column `index` uses `100 * v_t / v_base`. The base row is exactly 100.
-The first period has no YoY rate. A missing or zero base leaves index undefined.
+Derived column `rank` uses `1 + count(peers in (period, measure) with value > v_t)`. 1 is the highest value in `(period, measure)`.
+Ties share the minimum (competition) rank; the next rank skips.
+Derived column `rank_change` uses `rank_{t-1} - rank_t`. Positive means moved up.
+The first period has no YoY rate and no rank_change. A missing or zero base leaves index undefined.
 Values are stored observations, not guesses.
 Percent next to yoy_growth is display-only: `100 × yoy_growth`.
 
-| entity | period | measure | value | yoy_growth (ratio) | yoy_growth × 100 | index | observation_id | source |
-| --- | --- | --- | ---: | ---: | ---: | ---: | --- | --- |
-| Alna | 2024 | Personer (antall) | 50678 |  |  | 100 | 10f07a4dbc22de2437fd7b0b24b769ec4e9a264c | ssb:11763 |
-| Alna | 2025 | Personer (antall) | 50793 | 0.002269229251 | 0.2269 | 100.2269229 | afec4b40b1c24a5fbede8adad3344298cde9100d | ssb:11763 |
-| Bjerke | 2024 | Personer (antall) | 37053 |  |  | 100 | a05b28be69a33d028afff87e37b02a0d762e203e | ssb:11763 |
-| Bjerke | 2025 | Personer (antall) | 37538 | 0.01308935849 | 1.309 | 101.3089358 | e0aca7c34b04362416eeb87015b04dc2ea22e3ba | ssb:11763 |
-| Frogner | 2024 | Personer (antall) | 60533 |  |  | 100 | 706e9d6da550a257fa4248209660e9d03f91a25e | ssb:11763 |
-| Frogner | 2025 | Personer (antall) | 60321 | -0.003502221929 | -0.3502 | 99.64977781 | 31dbcff4fa7e75c15f039dd7336a5cdc99289d84 | ssb:11763 |
-| Gamle Oslo | 2024 | Personer (antall) | 64554 |  |  | 100 | 226b2d3e8502fad1517b811207b382220a851038 | ssb:11763 |
-| Gamle Oslo | 2025 | Personer (antall) | 64920 | 0.005669671903 | 0.567 | 100.5669672 | 78918eef204e97fcce3ba8cba8d526c690acea04 | ssb:11763 |
-| Grorud | 2024 | Personer (antall) | 28234 |  |  | 100 | d72f761f630a9bed7f33038b5d19d434dc63bb85 | ssb:11763 |
-| Grorud | 2025 | Personer (antall) | 28369 | 0.004781469151 | 0.4781 | 100.4781469 | df4b6278a13d8a79449323fe7d3547e99dfe0a06 | ssb:11763 |
-| Grünerløkka | 2024 | Personer (antall) | 66404 |  |  | 100 | 468bd5c39c4855be5a6350dfe67af85bd36a1f1c | ssb:11763 |
-| Grünerløkka | 2025 | Personer (antall) | 67039 | 0.009562676947 | 0.9563 | 100.9562677 | 248b6b3ff0b8229eb04abcad1053485b433a5982 | ssb:11763 |
-| Nordre Aker | 2024 | Personer (antall) | 55987 |  |  | 100 | 9f37e3c43818935cfe71bdc0eee620df0657f72d | ssb:11763 |
-| Nordre Aker | 2025 | Personer (antall) | 57017 | 0.0183971279 | 1.84 | 101.8397128 | 5a39e1ce64e560bc4563f589c4d655cedbca20f8 | ssb:11763 |
-| Nordstrand | 2024 | Personer (antall) | 54883 |  |  | 100 | edeea6037c02b9cd1e3e49835f98e0edb622c9cd | ssb:11763 |
-| Nordstrand | 2025 | Personer (antall) | 55286 | 0.007342893063 | 0.7343 | 100.7342893 | 10c4d9820c9200967a9e484488a5c72b8bed045c | ssb:11763 |
-| Sagene | 2024 | Personer (antall) | 47801 |  |  | 100 | ea05cd9ff8e4f3639d956e44213e163c5f511c98 | ssb:11763 |
-| Sagene | 2025 | Personer (antall) | 48325 | 0.01096211376 | 1.096 | 101.0962114 | 50b60d43bb4d7bc8993c37dd7bd57613dd0fa9ef | ssb:11763 |
-| St. Hanshaugen | 2024 | Personer (antall) | 41362 |  |  | 100 | 5c9cfcab07c85672d2e9b55f180a544eccd51e8e | ssb:11763 |
-| St. Hanshaugen | 2025 | Personer (antall) | 41379 | 0.0004110052705 | 0.0411 | 100.0411005 | fef6d5530e43f532166c351fb6c4bf708c2deb20 | ssb:11763 |
-| Stovner | 2024 | Personer (antall) | 34577 |  |  | 100 | 797a32746d5aa915ffb5544921118a1eb102df20 | ssb:11763 |
-| Stovner | 2025 | Personer (antall) | 34709 | 0.003817566591 | 0.3818 | 100.3817567 | 14b0b07a2550b1f5d96fc424665461dea08caafb | ssb:11763 |
-| Søndre Nordstrand | 2024 | Personer (antall) | 39348 |  |  | 100 | e2482823b926e3e3eb92c8fc889ad444cd8eb42f | ssb:11763 |
-| Søndre Nordstrand | 2025 | Personer (antall) | 39365 | 0.0004320422893 | 0.0432 | 100.0432042 | 9ae5d16b20dab9d4a43cb8a7782d867c0498f6b5 | ssb:11763 |
-| Ullern | 2024 | Personer (antall) | 35668 |  |  | 100 | cffb98e2d9ebfdb3e7deae5e5a78ed9611f44158 | ssb:11763 |
-| Ullern | 2025 | Personer (antall) | 35805 | 0.003840977907 | 0.3841 | 100.3840978 | 9b6579e1a14cbfafb6ddba0b7e2549089c148d00 | ssb:11763 |
-| Vestre Aker | 2024 | Personer (antall) | 52962 |  |  | 100 | 18df28559ef0299f19eec37f1881fec809e19aeb | ssb:11763 |
-| Vestre Aker | 2025 | Personer (antall) | 53304 | 0.006457460066 | 0.6457 | 100.645746 | 4823d879e973688e11539567b47d80352746a843 | ssb:11763 |
-| Østensjø | 2024 | Personer (antall) | 52234 |  |  | 100 | d7a7c8cdf631d1bb98161e63c2fed0d42990ad48 | ssb:11763 |
-| Østensjø | 2025 | Personer (antall) | 52374 | 0.002680246583 | 0.268 | 100.2680247 | ecdbb0fa3912ec5118901a0508b5192637bae46a | ssb:11763 |
+| entity | period | measure | value | yoy_growth (ratio) | yoy_growth × 100 | index | rank | rank_change | observation_id | source |
+| --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- | --- |
+| Alna | 2024 | Personer (antall) | 50678 |  |  | 100 | 8 |  | 10f07a4dbc22de2437fd7b0b24b769ec4e9a264c | ssb:11763 |
+| Alna | 2025 | Personer (antall) | 50793 | 0.002269229251 | 0.2269 | 100.2269229 | 8 | 0 | afec4b40b1c24a5fbede8adad3344298cde9100d | ssb:11763 |
+| Bjerke | 2024 | Personer (antall) | 37053 |  |  | 100 | 12 |  | a05b28be69a33d028afff87e37b02a0d762e203e | ssb:11763 |
+| Bjerke | 2025 | Personer (antall) | 37538 | 0.01308935849 | 1.309 | 101.3089358 | 12 | 0 | e0aca7c34b04362416eeb87015b04dc2ea22e3ba | ssb:11763 |
+| Frogner | 2024 | Personer (antall) | 60533 |  |  | 100 | 3 |  | 706e9d6da550a257fa4248209660e9d03f91a25e | ssb:11763 |
+| Frogner | 2025 | Personer (antall) | 60321 | -0.003502221929 | -0.3502 | 99.64977781 | 3 | 0 | 31dbcff4fa7e75c15f039dd7336a5cdc99289d84 | ssb:11763 |
+| Gamle Oslo | 2024 | Personer (antall) | 64554 |  |  | 100 | 2 |  | 226b2d3e8502fad1517b811207b382220a851038 | ssb:11763 |
+| Gamle Oslo | 2025 | Personer (antall) | 64920 | 0.005669671903 | 0.567 | 100.5669672 | 2 | 0 | 78918eef204e97fcce3ba8cba8d526c690acea04 | ssb:11763 |
+| Grorud | 2024 | Personer (antall) | 28234 |  |  | 100 | 15 |  | d72f761f630a9bed7f33038b5d19d434dc63bb85 | ssb:11763 |
+| Grorud | 2025 | Personer (antall) | 28369 | 0.004781469151 | 0.4781 | 100.4781469 | 15 | 0 | df4b6278a13d8a79449323fe7d3547e99dfe0a06 | ssb:11763 |
+| Grünerløkka | 2024 | Personer (antall) | 66404 |  |  | 100 | 1 |  | 468bd5c39c4855be5a6350dfe67af85bd36a1f1c | ssb:11763 |
+| Grünerløkka | 2025 | Personer (antall) | 67039 | 0.009562676947 | 0.9563 | 100.9562677 | 1 | 0 | 248b6b3ff0b8229eb04abcad1053485b433a5982 | ssb:11763 |
+| Nordre Aker | 2024 | Personer (antall) | 55987 |  |  | 100 | 4 |  | 9f37e3c43818935cfe71bdc0eee620df0657f72d | ssb:11763 |
+| Nordre Aker | 2025 | Personer (antall) | 57017 | 0.0183971279 | 1.84 | 101.8397128 | 4 | 0 | 5a39e1ce64e560bc4563f589c4d655cedbca20f8 | ssb:11763 |
+| Nordstrand | 2024 | Personer (antall) | 54883 |  |  | 100 | 5 |  | edeea6037c02b9cd1e3e49835f98e0edb622c9cd | ssb:11763 |
+| Nordstrand | 2025 | Personer (antall) | 55286 | 0.007342893063 | 0.7343 | 100.7342893 | 5 | 0 | 10c4d9820c9200967a9e484488a5c72b8bed045c | ssb:11763 |
+| Sagene | 2024 | Personer (antall) | 47801 |  |  | 100 | 9 |  | ea05cd9ff8e4f3639d956e44213e163c5f511c98 | ssb:11763 |
+| Sagene | 2025 | Personer (antall) | 48325 | 0.01096211376 | 1.096 | 101.0962114 | 9 | 0 | 50b60d43bb4d7bc8993c37dd7bd57613dd0fa9ef | ssb:11763 |
+| St. Hanshaugen | 2024 | Personer (antall) | 41362 |  |  | 100 | 10 |  | 5c9cfcab07c85672d2e9b55f180a544eccd51e8e | ssb:11763 |
+| St. Hanshaugen | 2025 | Personer (antall) | 41379 | 0.0004110052705 | 0.0411 | 100.0411005 | 10 | 0 | fef6d5530e43f532166c351fb6c4bf708c2deb20 | ssb:11763 |
+| Stovner | 2024 | Personer (antall) | 34577 |  |  | 100 | 14 |  | 797a32746d5aa915ffb5544921118a1eb102df20 | ssb:11763 |
+| Stovner | 2025 | Personer (antall) | 34709 | 0.003817566591 | 0.3818 | 100.3817567 | 14 | 0 | 14b0b07a2550b1f5d96fc424665461dea08caafb | ssb:11763 |
+| Søndre Nordstrand | 2024 | Personer (antall) | 39348 |  |  | 100 | 11 |  | e2482823b926e3e3eb92c8fc889ad444cd8eb42f | ssb:11763 |
+| Søndre Nordstrand | 2025 | Personer (antall) | 39365 | 0.0004320422893 | 0.0432 | 100.0432042 | 11 | 0 | 9ae5d16b20dab9d4a43cb8a7782d867c0498f6b5 | ssb:11763 |
+| Ullern | 2024 | Personer (antall) | 35668 |  |  | 100 | 13 |  | cffb98e2d9ebfdb3e7deae5e5a78ed9611f44158 | ssb:11763 |
+| Ullern | 2025 | Personer (antall) | 35805 | 0.003840977907 | 0.3841 | 100.3840978 | 13 | 0 | 9b6579e1a14cbfafb6ddba0b7e2549089c148d00 | ssb:11763 |
+| Vestre Aker | 2024 | Personer (antall) | 52962 |  |  | 100 | 6 |  | 18df28559ef0299f19eec37f1881fec809e19aeb | ssb:11763 |
+| Vestre Aker | 2025 | Personer (antall) | 53304 | 0.006457460066 | 0.6457 | 100.645746 | 6 | 0 | 4823d879e973688e11539567b47d80352746a843 | ssb:11763 |
+| Østensjø | 2024 | Personer (antall) | 52234 |  |  | 100 | 7 |  | d7a7c8cdf631d1bb98161e63c2fed0d42990ad48 | ssb:11763 |
+| Østensjø | 2025 | Personer (antall) | 52374 | 0.002680246583 | 0.268 | 100.2680247 | 7 | 0 | ecdbb0fa3912ec5118901a0508b5192637bae46a | ssb:11763 |

@@ -11,7 +11,18 @@ from methods.clean import CleanError, clean
 from methods.cli import run as run_methods
 from methods.derive import derive, derive_yoy
 from methods.emit import emit, index_line_series, yoy_bar_points
-from methods.types import DerivedValue, Lineage, INDEX, INDEX_FORMULA, YOY_GROWTH, YOY_GROWTH_FORMULA
+from methods.types import (
+    DerivedValue,
+    Lineage,
+    INDEX,
+    INDEX_FORMULA,
+    RANK,
+    RANK_CHANGE,
+    RANK_CHANGE_FORMULA,
+    RANK_FORMULA,
+    YOY_GROWTH,
+    YOY_GROWTH_FORMULA,
+)
 from public_data_agent.cli import main
 from public_data_agent.harvest import harvest
 from public_data_agent.registry import Registry
@@ -155,6 +166,54 @@ def test_index_default_base_is_first_period() -> None:
         assert row.index.lineage.source_periods
 
 
+def test_rank_and_rank_change_two_entities_two_periods() -> None:
+    rows = clean(
+        [
+            {**FIXTURE_ROWS[0], "id": "a-1", "value": 50, "dimensions": {"year": "2000", "entity": "Fixture A"}},
+            {**FIXTURE_ROWS[2], "id": "a-2", "value": 150, "dimensions": {"year": "2001", "entity": "Fixture A"}},
+            {**FIXTURE_ROWS[0], "id": "b-1", "value": 200, "dimensions": {"year": "2000", "entity": "Fixture B"}},
+            {**FIXTURE_ROWS[2], "id": "b-2", "value": 100, "dimensions": {"year": "2001", "entity": "Fixture B"}},
+        ]
+    )
+    derived = derive(rows)
+    by_key = {(row.observation.entity, row.observation.period): row for row in derived}
+    assert by_key[("Fixture B", "2000")].rank.value == 1
+    assert by_key[("Fixture A", "2000")].rank.value == 2
+    assert by_key[("Fixture A", "2001")].rank.value == 1
+    assert by_key[("Fixture B", "2001")].rank.value == 2
+    assert by_key[("Fixture A", "2000")].rank_change.value is None
+    assert by_key[("Fixture B", "2000")].rank_change.value is None
+    assert by_key[("Fixture A", "2001")].rank_change.value == 1  # 2 -> 1, moved up
+    assert by_key[("Fixture B", "2001")].rank_change.value == -1  # 1 -> 2, moved down
+    for row in derived:
+        assert row.rank.lineage.name == RANK
+        assert row.rank.lineage.formula == RANK_FORMULA
+        assert row.rank.lineage.peer_observation_ids
+        assert row.rank_change.lineage.name == RANK_CHANGE
+        assert row.rank_change.lineage.formula == RANK_CHANGE_FORMULA
+        assert row.rank_change.lineage.peer_observation_ids
+        for derived_col in row.derived_columns():
+            assert derived_col.lineage.source_observation_ids
+            assert derived_col.lineage.source_periods
+
+
+def test_rank_ties_share_min_and_skip() -> None:
+    rows = clean(
+        [
+            {**FIXTURE_ROWS[0], "id": "a-1", "value": 100, "dimensions": {"year": "2000", "entity": "Fixture A"}},
+            {**FIXTURE_ROWS[0], "id": "b-1", "value": 100, "dimensions": {"year": "2000", "entity": "Fixture B"}},
+            {**FIXTURE_ROWS[0], "id": "c-1", "value": 50, "dimensions": {"year": "2000", "entity": "Fixture C"}},
+        ]
+    )
+    derived = derive(rows)
+    by_entity = {row.observation.entity: row for row in derived}
+    assert by_entity["Fixture A"].rank.value == 1
+    assert by_entity["Fixture B"].rank.value == 1
+    assert by_entity["Fixture C"].rank.value == 3
+    peers = set(by_entity["Fixture A"].rank.lineage.peer_observation_ids or ())
+    assert peers == {"a-1", "b-1", "c-1"}
+
+
 def test_index_two_entities_each_have_own_base(tmp_path: Path) -> None:
     # Fixture Town A/B — not Oslo. Each (entity, measure) series has its own 100.
     rows = clean(
@@ -244,13 +303,19 @@ def test_emit_writes_table_chart_and_lineage(tmp_path: Path) -> None:
     assert "index" in csv_text
     lineage = json.loads(paths["lineage"].read_text(encoding="utf-8"))
     names = [column["name"] for column in lineage["derived_columns"]]
-    assert names == [YOY_GROWTH, INDEX]
+    assert names == [YOY_GROWTH, INDEX, RANK, RANK_CHANGE]
     yoy = lineage["derived_columns"][0]
     index = lineage["derived_columns"][1]
+    rank = lineage["derived_columns"][2]
+    rank_change = lineage["derived_columns"][3]
     assert yoy["formula"] == YOY_GROWTH_FORMULA
     assert index["formula"] == INDEX_FORMULA
+    assert rank["formula"] == RANK_FORMULA
+    assert rank_change["formula"] == RANK_CHANGE_FORMULA
     assert len(yoy["rows"]) == 3
     assert len(index["rows"]) == 3
+    assert len(rank["rows"]) == 3
+    assert len(rank_change["rows"]) == 3
     for item in yoy["rows"]:
         assert item["lineage"]["name"] == YOY_GROWTH
         assert item["lineage"]["formula"] == YOY_GROWTH_FORMULA
@@ -349,7 +414,10 @@ def test_cli_methods_on_fixture_store(tmp_path: Path) -> None:
     lineage = json.loads((out / "lineage.json").read_text(encoding="utf-8"))
     assert lineage["derived_columns"][0]["formula"] == YOY_GROWTH_FORMULA
     assert lineage["derived_columns"][1]["formula"] == INDEX_FORMULA
+    assert lineage["derived_columns"][2]["formula"] == RANK_FORMULA
+    assert lineage["derived_columns"][3]["formula"] == RANK_CHANGE_FORMULA
     assert "index" in table
+    assert "rank" in table
 
 
 def test_select_oslo_defaults_keep_every_entity_when_unmatched() -> None:

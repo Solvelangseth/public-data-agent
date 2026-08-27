@@ -15,6 +15,17 @@ INDEX_FORMULA = "100 * v_t / v_base"
 INDEX_UNITS = "index (base = 100)"
 INDEX_INPUTS = ("value",)
 
+RANK = "rank"
+RANK_FORMULA = "1 + count(peers in (period, measure) with value > v_t)"
+RANK_UNITS = "rank (1 = highest)"
+RANK_INPUTS = ("value",)
+RANK_TIE_NOTE = "competition/min: equal values share this rank; the next rank skips"
+
+RANK_CHANGE = "rank_change"
+RANK_CHANGE_FORMULA = "rank_{t-1} - rank_t"
+RANK_CHANGE_UNITS = "rank positions (positive = moved up)"
+RANK_CHANGE_INPUTS = ("rank",)
+
 
 @dataclass(frozen=True)
 class Observation:
@@ -56,6 +67,7 @@ class Lineage:
     note: str | None = None
     base_period: str | None = None
     base_observation_id: str | None = None
+    peer_observation_ids: tuple[str, ...] | None = None
 
     def __post_init__(self) -> None:
         if not self.name:
@@ -72,6 +84,8 @@ class Lineage:
             raise ValueError("lineage.source_periods is required")
         if self.name == INDEX and not self.base_period:
             raise ValueError("index lineage requires base_period")
+        if self.name in {RANK, RANK_CHANGE} and not self.peer_observation_ids:
+            raise ValueError("rank lineage requires peer_observation_ids")
 
     def to_dict(self) -> dict[str, object]:
         payload: dict[str, object] = {
@@ -88,6 +102,8 @@ class Lineage:
             payload["base_period"] = self.base_period
         if self.base_observation_id is not None:
             payload["base_observation_id"] = self.base_observation_id
+        if self.peer_observation_ids is not None:
+            payload["peer_observation_ids"] = list(self.peer_observation_ids)
         return payload
 
 
@@ -115,10 +131,16 @@ class SeriesRow:
     observation: Observation
     yoy_growth: DerivedValue
     index: DerivedValue
+    rank: DerivedValue
+    rank_change: DerivedValue
 
     def derived_columns(self) -> tuple[DerivedValue, ...]:
-        return (self.yoy_growth, self.index)
+        return (self.yoy_growth, self.index, self.rank, self.rank_change)
 
     def __post_init__(self) -> None:
         if not isinstance(self.index, DerivedValue):
             raise TypeError("SeriesRow.index must be a DerivedValue with lineage")
+        if not isinstance(self.rank, DerivedValue):
+            raise TypeError("SeriesRow.rank must be a DerivedValue with lineage")
+        if not isinstance(self.rank_change, DerivedValue):
+            raise TypeError("SeriesRow.rank_change must be a DerivedValue with lineage")

@@ -9,6 +9,10 @@ from pathlib import Path
 from methods.types import (
     INDEX,
     INDEX_FORMULA,
+    RANK,
+    RANK_CHANGE,
+    RANK_CHANGE_FORMULA,
+    RANK_FORMULA,
     YOY_GROWTH,
     YOY_GROWTH_FORMULA,
     DerivedValue,
@@ -72,6 +76,8 @@ def _write_csv(rows: tuple[SeriesRow, ...], path: Path) -> None:
                 "value",
                 "yoy_growth",
                 "index",
+                "rank",
+                "rank_change",
                 "observation_id",
                 "source",
             ],
@@ -87,6 +93,8 @@ def _write_csv(rows: tuple[SeriesRow, ...], path: Path) -> None:
                     "value": _number(obs.value),
                     "yoy_growth": _number(row.yoy_growth.value),
                     "index": _number(row.index.value),
+                    "rank": _number(row.rank.value),
+                    "rank_change": _number(row.rank_change.value),
                     "observation_id": obs.id,
                     "source": obs.source,
                 }
@@ -99,12 +107,15 @@ def _write_markdown(rows: tuple[SeriesRow, ...], path: Path) -> None:
         "",
         f"Derived column `{YOY_GROWTH}` uses `{YOY_GROWTH_FORMULA}`.",
         f"Derived column `{INDEX}` uses `{INDEX_FORMULA}`. The base row is exactly 100.",
-        "The first period has no YoY rate. A missing or zero base leaves index undefined.",
+        f"Derived column `{RANK}` uses `{RANK_FORMULA}`. 1 is the highest value in `(period, measure)`.",
+        "Ties share the minimum (competition) rank; the next rank skips.",
+        f"Derived column `{RANK_CHANGE}` uses `{RANK_CHANGE_FORMULA}`. Positive means moved up.",
+        "The first period has no YoY rate and no rank_change. A missing or zero base leaves index undefined.",
         "Values are stored observations, not guesses.",
         "Percent next to yoy_growth is display-only: `100 × yoy_growth`.",
         "",
-        "| entity | period | measure | value | yoy_growth (ratio) | yoy_growth × 100 | index | observation_id | source |",
-        "| --- | --- | --- | ---: | ---: | ---: | ---: | --- | --- |",
+        "| entity | period | measure | value | yoy_growth (ratio) | yoy_growth × 100 | index | rank | rank_change | observation_id | source |",
+        "| --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- | --- |",
     ]
     for row in rows:
         obs = row.observation
@@ -120,6 +131,8 @@ def _write_markdown(rows: tuple[SeriesRow, ...], path: Path) -> None:
                     _number(rate),
                     _percent(rate),
                     _number(row.index.value),
+                    _number(row.rank.value),
+                    _number(row.rank_change.value),
                     _md(obs.id),
                     _md(obs.source),
                 ]
@@ -145,6 +158,20 @@ def _write_lineage(rows: tuple[SeriesRow, ...], path: Path) -> None:
                 "input_columns": ["value"],
                 "units": "index (base = 100)",
                 "rows": [_lineage_row(row, row.index) for row in rows],
+            },
+            {
+                "name": RANK,
+                "formula": RANK_FORMULA,
+                "input_columns": ["value"],
+                "units": "rank (1 = highest)",
+                "rows": [_lineage_row(row, row.rank) for row in rows],
+            },
+            {
+                "name": RANK_CHANGE,
+                "formula": RANK_CHANGE_FORMULA,
+                "input_columns": ["rank"],
+                "units": "rank positions (positive = moved up)",
+                "rows": [_lineage_row(row, row.rank_change) for row in rows],
             },
         ]
     }
