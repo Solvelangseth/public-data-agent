@@ -23,6 +23,11 @@ from public_data_agent.sources.nve import (
     nve_table_id,
     requestable_url,
 )
+from public_data_agent.sources.fhi import (
+    cells_from_fhi,
+    fhi_table_id,
+    is_fhi_url,
+)
 from public_data_agent.sources.valg import (
     cells_from_valg,
     is_valg_url,
@@ -181,6 +186,8 @@ def fetch_observations(
         return _fetch_brreg(registry, dataset, http=http)
     if is_valg_url(access_path):
         return _fetch_valg(registry, dataset, http=http)
+    if is_fhi_url(access_path):
+        return _fetch_fhi(registry, dataset, http=http)
     client = http or HttpClient(timeout=60.0, max_retries=4)
     if _is_ssb_table_url(access_path):
         request_url = access_path.rstrip("/")
@@ -499,6 +506,61 @@ def _fetch_valg(
         http_status = got.status
         registry.set_fetch_request(run_id, request_url=access_path, request_body={"method": "GET"})
         cells = cells_from_valg(got.body)
+        counts.listed = len(cells)
+        sample = _store_cells(
+            registry,
+            dataset,
+            run_id,
+            table_id=table_id,
+            cells=cells,
+            retrieved_at=utc_now(),
+            request_url=access_path,
+            http_status=http_status,
+            counts=counts,
+        )
+        status = "completed"
+    except Exception as exc:
+        counts.failed += 1
+        counts.errors.append({"error": str(exc), "url": access_path})
+        raise
+    finally:
+        registry.finish_fetch_run(run_id, counts, status=status, http_status=http_status)
+    return FetchResult(
+        dataset_id=dataset["id"],
+        table_id=table_id,
+        request_url=access_path,
+        http_status=http_status,
+        counts=counts,
+        sample=sample,
+    )
+
+
+def _fetch_fhi(
+    registry: Registry,
+    dataset: dict[str, Any],
+    *,
+    http: JsonHttp | None = None,
+) -> FetchResult:
+    access_path = dataset.get("access_path") or ""
+    client = http or HttpClient(timeout=60.0, max_retries=4)
+    table_id = fhi_table_id(access_path)
+    started = utc_now()
+    run_id = registry.start_fetch_run(
+        dataset_id=dataset["id"],
+        table_id=table_id,
+        request_url=access_path,
+        request_method="GET",
+        started_at=started,
+    )
+    counts = HarvestCounts()
+    status = "failed"
+    http_status = 0
+    sample: list[dict[str, Any]] = []
+    try:
+        got = client.get_json_response(access_path)
+        http_status = got.status
+        registry.set_fetch_request(run_id, request_url=access_path, request_body={"method": "GET"})
+        cells = cells_from_fhi(got.body)
         counts.listed = len(cells)
         sample = _store_cells(
             registry,
