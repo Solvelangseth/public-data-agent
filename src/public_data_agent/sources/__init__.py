@@ -18,6 +18,7 @@ from public_data_agent.sources.miljodir import MiljodirVannmiljoSource
 from public_data_agent.sources.nbr import NbrSource
 from public_data_agent.sources.nibio import NibioWeatherSource
 from public_data_agent.sources.norgesbank import NorgesBankSource
+from public_data_agent.sources.npolar import NpolarSource
 from public_data_agent.sources.nve import NveMagasinSource
 from public_data_agent.sources.oslo import OsloStatbankSource
 from public_data_agent.sources.ssb import SsbStatbankSource
@@ -51,6 +52,7 @@ SOURCE_IDS = (
     "trondheim",
     "nbr",
     "norgesbank",
+    "npolar",
 )
 
 
@@ -103,6 +105,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return NbrSource()
     if source_id == "norgesbank":
         return NorgesBankSource()
+    if source_id == "npolar":
+        return NpolarSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -123,6 +127,7 @@ __all__ = [
     "NbrSource",
     "NibioWeatherSource",
     "NorgesBankSource",
+    "NpolarSource",
     "NveMagasinSource",
     "OsloStatbankSource",
     "SsbStatbankSource",
