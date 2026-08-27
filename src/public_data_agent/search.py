@@ -43,6 +43,7 @@ QUERY_COMPOUND_SPLITS = {
     "kraftsituasjonen": ("kraft", "situasjonen"),
 }
 PUBLISHER_WEIGHT = 5
+DISTRIBUTION_WEIGHT = 5
 VARIABLES_UNKNOWN_REASON = (
     "no variable or column list is stored in the registry or harvested payload"
 )
@@ -231,6 +232,22 @@ def keywords_from_payload(payload: dict[str, Any] | None) -> list[str]:
     return out
 
 
+def titles_from_distributions(distributions: list[Any] | None) -> list[str]:
+    if not distributions:
+        return []
+    out: list[str] = []
+    seen: set[str] = set()
+    for item in distributions:
+        if not isinstance(item, dict):
+            continue
+        for text in localized_text(item.get("title")).values():
+            value = text.strip()
+            if value and value not in seen:
+                seen.add(value)
+                out.append(value)
+    return out
+
+
 def variables_from_stored(payload: dict[str, Any] | None) -> dict[str, Any]:
     """Variables are unknown unless the harvested payload has an explicit list.
 
@@ -411,6 +428,9 @@ def _hit_covers(registry: Registry, dataset_id: str, req: Requirement) -> bool:
         "keyword": tokenize(" ".join(keywords)),
         "theme": tokenize(" ".join(themes)),
         "description": tokenize(" ".join([row.get("description") or "", *description_i18n.values()])),
+        "distribution": tokenize(
+            " ".join(titles_from_distributions(_json_list(row.get("distributions_json"))))
+        ),
     }
     return _requirement_matches(req.tokens, fields, row.get("publisher_name")) is not None
 
@@ -517,6 +537,9 @@ def _iter_scored_rows(registry: Registry):
             "keyword": tokenize(" ".join(keywords)),
             "theme": tokenize(" ".join(themes)),
             "description": tokenize(description_text),
+            "distribution": tokenize(
+                " ".join(titles_from_distributions(_json_list(row.get("distributions_json"))))
+            ),
         }
         yield row, fields, keywords, payload
 
@@ -565,6 +588,16 @@ def _requirement_matches(
                 field="publisher_name",
                 token=_first_stored_token(token, publisher_tokens) or token,
                 weight=PUBLISHER_WEIGHT,
+            )
+            for token in tokens
+        ]
+    distribution_tokens = set(fields.get("distribution", []))
+    if _requirement_satisfied(tokens, distribution_tokens):
+        return [
+            FieldMatch(
+                field="distribution",
+                token=_first_stored_token(token, distribution_tokens) or token,
+                weight=DISTRIBUTION_WEIGHT,
             )
             for token in tokens
         ]
