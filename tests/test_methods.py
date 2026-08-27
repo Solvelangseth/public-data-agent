@@ -10,7 +10,7 @@ import pytest
 from methods.clean import CleanError, clean
 from methods.cli import run as run_methods
 from methods.derive import derive, derive_yoy
-from methods.emit import emit
+from methods.emit import emit, yoy_bar_points
 from methods.types import DerivedValue, Lineage, INDEX, INDEX_FORMULA, YOY_GROWTH, YOY_GROWTH_FORMULA
 from public_data_agent.cli import main
 from public_data_agent.harvest import harvest
@@ -254,6 +254,12 @@ def test_emit_writes_table_chart_and_lineage(tmp_path: Path) -> None:
         assert item["lineage"]["base_period"] == "2000"
     png = paths["chart"].read_bytes()
     assert png.startswith(b"\x89PNG")
+    bar = paths["yoy_bar"].read_bytes()
+    assert bar.startswith(b"\x89PNG")
+    points = yoy_bar_points(derived)
+    assert [period for period, _rate in points] == ["2001", "2002"]
+    assert points[0][1] == pytest.approx(0.1)
+    assert points[1][1] == pytest.approx((80 - 110) / 110)
 
 
 def test_methods_modules_do_not_import_connectors() -> None:
