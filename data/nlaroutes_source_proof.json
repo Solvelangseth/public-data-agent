@@ -1,0 +1,242 @@
+{
+  "produced_at": "2026-08-27T23:34:00Z",
+  "bound": {
+    "list_api": "https://api.met.no/weatherapi/nlaroutes/1.0/swagger",
+    "walk": "copy printed untemplated GET paths from the official MET NLAroutes swagger; skip templated {format} paths and GET operations that print required query parameters; native ids are the last printed path segment; access_path is swagger origin + printed basePath + path; do not invent dataset ids or location/route/time filters",
+    "cap": 10,
+    "how": "pda ingest --source nlaroutes --limit 10. The official MET NLAroutes swagger prints 8 untemplated GET paths that have a last-segment id and no required query parameter. The adapter copies those paths. GET uses the printed /locations collection with no invented query filters. The root path prints required name/time/type, /timegraph prints required location/time, and /vcross prints required route/time so they stay unused for fetch. /available prints XML so it stays unused for fetch."
+  },
+  "discarded": [
+    {
+      "candidate": "MET Turbulence /locations",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/122",
+      "why": "Assigned skip for this lane. Open PR 122 from Lane A (bc-64e42fd9). Do not pick turbulence."
+    },
+    {
+      "candidate": "MET Volcanicashforecast /reftimes",
+      "url": "https://api.met.no/weatherapi/volcanicashforecast/0.1/swagger",
+      "why": "Leftover MET swagger with live GET swagger HTTP 200. Unused this slice so a later lane can take it. Not needed after NLAroutes /locations worked."
+    },
+    {
+      "candidate": "MET Offshoremaps",
+      "url": "PR 121 --source offshoremaps, now on main",
+      "why": "Assigned skip for this lane. Already on main after merge 989cc2d. Do not re-add."
+    },
+    {
+      "candidate": "MET Isobaricgrib",
+      "url": "PR 120 --source isobaricgrib, now on main",
+      "why": "Assigned skip for this lane. Already on main. Do not re-add."
+    },
+    {
+      "candidate": "MET Oslofjord",
+      "url": "PR 119 --source oslofjord, now on main",
+      "why": "Assigned skip for this lane. Already on main. Do not re-add."
+    },
+    {
+      "candidate": "MET Metgc",
+      "url": "PR 118 --source metgc, now on main",
+      "why": "Assigned skip for this lane. Already on main. Do not re-add."
+    },
+    {
+      "candidate": "MET Gribfiles",
+      "url": "PR 117 --source gribfiles, now on main",
+      "why": "Assigned skip for this lane. Already on main. Do not re-add."
+    },
+    {
+      "candidate": "MET Soundprofile",
+      "url": "PR 116 --source soundprofile, now on main",
+      "why": "Assigned skip for this lane. Already on main. Do not re-add."
+    },
+    {
+      "candidate": "Kartverket Transformering",
+      "url": "PR 115 --source transformering, now on main",
+      "why": "Assigned skip for this lane. Already on main. Do not re-add."
+    },
+    {
+      "candidate": "MET Polarsatellite",
+      "url": "PR 114 --source polarsatellite, now on main",
+      "why": "Assigned skip for this lane. Already on main. Do not re-add."
+    },
+    {
+      "candidate": "MET Subjectiveforecast",
+      "url": "PR 113 --source subjectiveforecast, now on main",
+      "why": "Assigned skip for this lane. Do not re-add."
+    },
+    {
+      "candidate": "MET Metgm",
+      "url": "PR 112 --source metgm, now on main",
+      "why": "Assigned skip for this lane. Already on main. Do not re-add."
+    },
+    {
+      "candidate": "MET Geosatellite",
+      "url": "PR 111 --source geosatellite, now on main",
+      "why": "Assigned skip for this lane. Do not re-add."
+    },
+    {
+      "candidate": "MET Subseasonal",
+      "url": "PR 110 --source subseasonal, now on main",
+      "why": "Assigned skip for this lane. Do not re-add."
+    },
+    {
+      "candidate": "MET Tafmetar",
+      "url": "PR 109 --source tafmetar, now on main",
+      "why": "Assigned skip for this lane. Do not re-add."
+    },
+    {
+      "candidate": "MET NCAgalewarnings",
+      "url": "PR 107 --source ncagalewarnings, now on main",
+      "why": "Assigned skip for this lane. Do not re-add."
+    },
+    {
+      "candidate": "MET Icemap",
+      "url": "https://api.met.no/weatherapi/icemap/1.0/swagger",
+      "why": "Assigned skip for this lane. Already on main as --source icemap. Do not re-add."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    },
+    {
+      "candidate": "MET Locationforecast /classic /compact /complete",
+      "url": "https://api.met.no/weatherapi/locationforecast/2.0/swagger",
+      "why": "Printed forecast paths require lat/lon. Unused for fetch."
+    },
+    {
+      "candidate": "MET weathericon / aviationforecast / verticalprofile / forecastmap / routeforecast / sigmets / icing swagger",
+      "url": "https://api.met.no/weatherapi/",
+      "why": "Known skip: swagger HTTP 500 HTML. Do not retry."
+    },
+    {
+      "candidate": "Frost MET sources",
+      "url": "https://frost.met.no/sources/v0.jsonld",
+      "why": "HTTP 401. Do not retry."
+    },
+    {
+      "candidate": "NVDB Les V3 OpenAPI",
+      "url": "https://nvdbapiles-v3.atlas.vegvesen.no/dokumentasjon/openapi.json",
+      "why": "Known skip: HTTP 400 User-Agent. Do not retry."
+    },
+    {
+      "candidate": "Vegvesen Trafikkdata swagger / trafikkdata-api",
+      "url": "https://trafikkdata.atlas.vegvesen.no/",
+      "why": "Known skip: swagger HTML-only; trafikkdata-api 410. Do not retry."
+    },
+    {
+      "candidate": "Kartverket Eiendom /geokoding",
+      "url": "https://api.kartverket.no/eiendom/v1/geokoding",
+      "why": "Known skip: HTTP 400 without matrikkel params. Do not retry."
+    },
+    {
+      "candidate": "Kartverket Adresser /sok",
+      "url": "https://ws.geonorge.no/adresser/v1/sok",
+      "why": "OpenAPI prints /sok, but live GET without search params is HTTP 400. Do not invent a query."
+    },
+    {
+      "candidate": "Kartverket skred / kvikkleire / hoydekurver / seeiendom OpenAPI",
+      "url": "https://ws.geonorge.no/skred/v1/openapi.json",
+      "why": "Live GET OpenAPI is HTTP 403. Do not invent an auth workaround."
+    },
+    {
+      "candidate": "NVE HydAPI /api/v1/Parameters",
+      "url": "https://hydapi.nve.no/swagger/v1/swagger.json",
+      "why": "HTTP 401. Do not retry."
+    },
+    {
+      "candidate": "Udir Statistikkbanken /data",
+      "url": "Udir Statistikkbanken /Eksport/{id}/data",
+      "why": "Known skip: requires invented filters. Do not retry."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source nlaroutes --db /tmp/pda-nlaroutes-proof/registry.sqlite --limit 10",
+    "listed": 8,
+    "inserted": 8,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "nlaroutes:available",
+        "access_path": "https://api.met.no/weatherapi/nlaroutes/1.0/available"
+      },
+      {
+        "id": "nlaroutes:changelog",
+        "access_path": "https://api.met.no/weatherapi/nlaroutes/1.0/changelog"
+      },
+      {
+        "id": "nlaroutes:features",
+        "access_path": "https://api.met.no/weatherapi/nlaroutes/1.0/features"
+      },
+      {
+        "id": "nlaroutes:healthz",
+        "access_path": "https://api.met.no/weatherapi/nlaroutes/1.0/healthz"
+      },
+      {
+        "id": "nlaroutes:locations",
+        "access_path": "https://api.met.no/weatherapi/nlaroutes/1.0/locations"
+      },
+      {
+        "id": "nlaroutes:regions",
+        "access_path": "https://api.met.no/weatherapi/nlaroutes/1.0/regions"
+      },
+      {
+        "id": "nlaroutes:updated",
+        "access_path": "https://api.met.no/weatherapi/nlaroutes/1.0/updated"
+      },
+      {
+        "id": "nlaroutes:values",
+        "access_path": "https://api.met.no/weatherapi/nlaroutes/1.0/values"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search locations --db /tmp/pda-nlaroutes-proof/registry.sqlite --limit 5",
+    "query": "locations",
+    "returned": 1,
+    "hit_id": "nlaroutes:locations",
+    "title": "List available locations as GeoJSON FeatureCollection",
+    "source_id": "nlaroutes",
+    "publisher": null,
+    "license": "http://creativecommons.org/licenses/by/4.0",
+    "access_path": "https://api.met.no/weatherapi/nlaroutes/1.0/locations",
+    "original_source": "https://api.met.no/weatherapi/nlaroutes/1.0/swagger",
+    "why_picked": "title matched locations"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset nlaroutes:locations --db /tmp/pda-nlaroutes-proof/registry.sqlite",
+    "dataset": "nlaroutes:locations",
+    "table_id": "locations",
+    "access_path": "https://api.met.no/weatherapi/nlaroutes/1.0/locations",
+    "request_url": "https://api.met.no/weatherapi/nlaroutes/1.0/locations",
+    "http_status": 200,
+    "listed": 154,
+    "inserted": 154,
+    "updated": 0,
+    "license": "http://creativecommons.org/licenses/by/4.0",
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "name",
+        "value": "BANAK"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset nlaroutes:locations --table locations --entity \"\" --measure \"\" --db /tmp/pda-nlaroutes-proof/registry.sqlite --out /tmp/pda-nlaroutes-proof/methods",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "NLAroutes /locations prints GeoJSON location names with collection/id/region dimensions. Those are not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed swagger path last segments. access_path is swagger origin + printed basePath + path. No nlaroutes id was written onto a met, offshoremaps, isobaricgrib, oslofjord, metgc, gribfiles, nowcast, airquality, tidalwater, oceanforecast, sunrise, radar, spotwind, textforecast, icemap, ncagalewarnings, tafmetar, subseasonal, geosatellite, metgm, subjectiveforecast, polarsatellite, soundprofile, transformering, or datanorge row.",
+    "License is the printed swagger CC BY 4.0 URL http://creativecommons.org/licenses/by/4.0. Publisher is null: the spec does not print a publisher.",
+    "Original harvested swagger metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "python3 -m pytest after NLAroutes adapter: 690 passed, 1 skipped, 1 deselected.",
+    "Not a numeric time series with two or more periods. Fetch listed 154 printed location-name cells (sample BANAK).",
+    "Open PR check at pickup found Lane A PR 122 MET Turbulence. That source stayed unused. volcanicashforecast leftover unused."
+  ]
+}
