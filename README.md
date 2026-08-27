@@ -1209,6 +1209,15 @@ pda fetch --dataset norgesbank:ANN_KPRA --db data/registry.sqlite
 printed SDMX-JSON observation arrays. License and publisher stay null: the
 list API does not print them.
 
+Live ingest 2026-08-27: 10 printed dataflow ids. Live search
+`styringsrenten` returns `norgesbank:ANN_KPRA`. Live fetch GETs
+`https://data.norges-bank.no/api/data/ANN_KPRA?format=sdmx-json` HTTP 200,
+281 key-policy-rate rows. Sample printed values: 13.00 on 1986-01-13,
+4.25 on 2026-08-13. `pda methods` is not applicable without editing
+`methods/`: `TIME_PERIOD` dates are not a year-like period alias
+(`no period in dimensions or period field`). Proof is
+`data/norgesbank_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
