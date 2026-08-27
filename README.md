@@ -777,6 +777,24 @@ Senterpartiet 165006, KrF 148748. `pda methods` is not applicable: one
 election year, no prior period for YoY (`no derived yoy_growth values to
 chart`). Proof is `data/valg_source_proof.json`.
 
+## Folkehelseinstituttet Statistikk source
+
+`pda ingest --source fhi` is another replaceable adapter. It lists printed
+source ids on the official FHI Statistikk Open API
+`https://statistikk-data.fhi.no/api/open/v1/Common/source`, capped at 10.
+Dataset ids are the printed source ids. `access_path` is the official
+`/Table` collection joined to that printed id.
+
+```bash
+pda ingest --source fhi --db data/registry.sqlite --limit 10
+pda search Abortregisteret --db data/registry.sqlite
+pda fetch --dataset fhi:abr --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored table-list URL. Observation values are copied
+from printed `tableId`. License stays null unless a source object prints
+one. Publisher is copied from printed `publishedBy`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
