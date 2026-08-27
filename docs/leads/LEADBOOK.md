@@ -6,7 +6,7 @@ No email, call, or outbound post from this file. Contacts are only what the org 
 Product sold: registry of Norwegian public datasets (Data.norge first ingest, sources replaceable), natural-language search, first fetch of actual rows. Later analysis. LLM for intent and explanation. Deterministic retrieval. Provenance (source, publisher, license, access path) on every hit.
 Repo: https://github.com/Solvelangseth/public-data-agent
 
-Status 27 Aug 2026, 13:25 Europe/Oslo: 55 sourced leads. Mix: 18 municipalities, 14 energy, 12 health, 3 consultancies, 2 media, 2 property/infra, 2 research, 2 NGOs. Wave-2 (13): FHI, Helsedirektoratet, Helse Sør-Øst RHF, Statnett, Eviny, Hafslund, Tensio, Lnett, Fredrikstad, Sandnes, Bodø, Kristiansand, Lillestrøm. Wave-3 (11): Helse Vest RHF, Helse Midt-Norge RHF, Helse Nord RHF, Elvia, Glitre Nett, Linea, Tønsberg, Larvik, Porsgrunn, Sarpsborg, Skien. Wave-4 (8): Oslo universitetssykehus HF, Helse Bergen HF, Universitetssykehuset Nord-Norge HF, Arva, Lede, Fagne, Moss, Haugesund. Wave-5 (8): Akershus universitetssykehus HF, Vestre Viken HF, Sykehuset Østfold HF, Vissi, Elinett, Linja, Molde, Gjøvik. Contacts only as listed. No invented emails. No outreach.
+Status 27 Aug 2026, 14:10 Europe/Oslo: 63 sourced leads. Mix: 20 municipalities, 17 energy, 15 health, 3 consultancies, 2 media, 2 property/infra, 2 research, 2 NGOs. Wave-2 (13): FHI, Helsedirektoratet, Helse Sør-Øst RHF, Statnett, Eviny, Hafslund, Tensio, Lnett, Fredrikstad, Sandnes, Bodø, Kristiansand, Lillestrøm. Wave-3 (11): Helse Vest RHF, Helse Midt-Norge RHF, Helse Nord RHF, Elvia, Glitre Nett, Linea, Tønsberg, Larvik, Porsgrunn, Sarpsborg, Skien. Wave-4 (8): Oslo universitetssykehus HF, Helse Bergen HF, Universitetssykehuset Nord-Norge HF, Arva, Lede, Fagne, Moss, Haugesund. Wave-5 (8): Akershus universitetssykehus HF, Vestre Viken HF, Sykehuset Østfold HF, Vissi, Elinett, Linja, Molde, Gjøvik. Wave-6 (8): Sykehuset Innlandet HF, Sykehuset Telemark HF, Sykehuset i Vestfold HF, Jæren Everk, Midtnett, S-Nett, Karmøy, Kongsberg. Contacts only as listed. No invented emails. No outreach.
 
 How to read a lead: why they would pay is tied to a named programme, not "they use data." Service shape is always search → fetch → later analysis. If a field says none published, do not invent one.
 
@@ -933,7 +933,99 @@ Sources below were opened 2026-08-27 from official pages and the named press/pro
 
 ---
 
-## 28. Statnett SF — SUP 2025 + 10 områdeplaner + Omstillingsplan 2026
+## 28. Sykehuset Innlandet HF — ROPforsk / NPR + MSIS + SSB + Legemiddelregisteret
+
+**Why they would pay.** ROPforsk consumes Norsk pasientregister (NPR), MSIS, SSB and Legemiddelregisteret — registers it does not host. Data.norge lists NPR (ikke-allmenn tilgang). They already run ROPforsk. They would pay to search and fetch those national catalogue paths and published series with provenance for the next kobling — not another Innlandet register portal.
+
+**Concrete use case.** ROPforsk / forskning needs the current NPR / MSIS / SSB / Legemiddelregisteret access path and a first licensed fetch of published catalogue metadata or aggregated series before later REK / Helsedata søknad.
+
+**Search → fetch → later analysis.**
+- Search: "NPR" / MSIS / SSB / Legemiddelregisteret + publisher (FHI, Helsedata, SSB).
+- Fetch: first catalogue / access-path rows from data.norge or Helsedata; license and publisher on every hit. Do not fetch personidentifiable register rows.
+- Later analysis: feed ROPforsk kobling; keep provenance; do not invent clinical figures.
+
+**Public contact (only published / listed).**
+- postmottak@sykehuset-innlandet.no — listed
+- forskning@sykehuset-innlandet.no — listed
+- Bjorn.Stensrud@sykehuset-innlandet.no — listed
+- Anne.Landheim@sykehuset-innlandet.no — listed
+- Telephone: 91 50 62 00
+- Org: 983971709
+- Do not invent extra project inboxes.
+
+**Key facts.**
+- Postboks 104, 2381 Brumunddal; Furnesvegen 26, 2382 Brumunddal on the Enhetsregisteret page.
+- ROPforsk consumes NPR + MSIS + SSB + Legemiddelregisteret; it does not host them.
+
+**Sources opened 2026-08-27.**
+- https://www.sykehuset-innlandet.no/
+- https://data.norge.no/nb/datasets/e842f90c-0555-3f56-8b66-540a9d9d911d/norsk-pasientregister
+- https://virksomhet.brreg.no/nb/oppslag/enheter/983971709
+
+---
+
+## 29. Sykehuset Telemark HF — Helsefellesskapet Retningslinje 1 + Gastronet / NPR
+
+**Why they would pay.** Helsefellesskapet Retningslinje 1 uses data from NPR and SSB. Gastronet (dataansvar Sykehuset Telemark HF) prints NPR dekningsgrad. Those programmes consume national series they do not host. They already run Gastronet. They would pay to search and fetch NPR / SSB series with provenance for the next retningslinje or dekningsgrad brief — not another Gastronet portal.
+
+**Concrete use case.** Helsefellesskapet / Gastronet needs current NPR / SSB tables used in Retningslinje 1 and Gastronet dekningsgrad, fetched as rows with license and access path before later overlay.
+
+**Search → fetch → later analysis.**
+- Search: "NPR" / dekningsgrad / SSB + publisher (FHI, Helsedirektoratet, SSB).
+- Fetch: first rows from the recorded access path; license and publisher on every hit.
+- Later analysis: feed Retningslinje 1 or Gastronet dekningsgrad; keep provenance; do not invent clinical figures.
+
+**Public contact (only published / listed).**
+- postmottak@sthf.no — listed
+- gastronet@sthf.no — listed
+- fou@sthf.no — listed
+- hhge@sthf.no — listed
+- Telephone: 35 00 35 00
+- Org: 983975267
+- Do not invent extra project inboxes.
+
+**Key facts.**
+- Postboks 2900 Kjørbekk, 3710 Skien; Ulefossvegen 55 on the Enhetsregisteret page.
+- Helsefellesskapet Retningslinje 1 uses NPR + SSB. Gastronet prints NPR dekningsgrad.
+
+**Sources opened 2026-08-27.**
+- https://www.sthf.no/
+- https://www.kvalitetsregistre.no/registeroversikt/gastronet
+- https://virksomhet.brreg.no/nb/oppslag/enheter/983975267
+
+---
+
+## 30. Sykehuset i Vestfold HF — NorCP / NPR + MFR
+
+**Why they would pay.** NorCP consumes Norsk pasientregister (NPR) and Medisinsk fødselsregister (MFR) — registers it does not host. They already run NorCP. They would pay to search and fetch those national series with provenance for the next dekningsgrad or kobling — not another NorCP portal.
+
+**Concrete use case.** NorCP / forskning needs current NPR / MFR access paths and a first licensed fetch of published catalogue or aggregated series before later REK / register overlay.
+
+**Search → fetch → later analysis.**
+- Search: "NPR" / MFR / NorCP + publisher (FHI, Helsedata).
+- Fetch: first catalogue / access-path rows; license and publisher on every hit. Do not fetch personidentifiable register rows.
+- Later analysis: feed NorCP; keep provenance; do not invent clinical figures.
+
+**Public contact (only published / listed).**
+- post@siv.no — listed
+- norcp@siv.no — listed
+- forskning@siv.no — listed
+- personvern@siv.no — listed
+- Telephone: 33 34 20 00
+- Org: 983975259
+- Do not invent extra project inboxes.
+
+**Key facts.**
+- Postboks 2168, 3103 Tønsberg; Halfdan Wilhelmsens alle 17, 3116 Tønsberg on the Enhetsregisteret page.
+- NorCP consumes NPR + MFR; it does not host them.
+
+**Sources opened 2026-08-27.**
+- https://www.siv.no/
+- https://virksomhet.brreg.no/nb/oppslag/enheter/983975259
+
+---
+
+## 31. Statnett SF — SUP 2025 + 10 områdeplaner + Omstillingsplan 2026
 
 **Why they would pay.** Systemutviklingsplan 2025 (published 3 Nov 2025) is Statnett's overordnet plan for transmisjonsnett, markedsløsninger and systemdrift (150–200 mrd kroner over the next ten years in nett and digitalisering). Ten geografiske områdeplaner, updated in dialog with regionale nettselskap, are a printed building block of SUP. Omstillingsplan 2026 (published February 2026) is the sustainability plan toward 2050 (klima, natur, mennesker, styring). Those programmes need forbruksprognoser, industri, produksjon, fornyelse and nature/climate layers that do *not* all live on statnett.no: NVE, SSB, municipalities, Miljødirektoratet. They would pay to search and fetch those rows with provenance, then later analyse against SUP / områdeplan assumptions — not another Statnett portal.
 
@@ -965,7 +1057,7 @@ Sources below were opened 2026-08-27 from official pages and the named press/pro
 
 ---
 
-## 29. Eviny AS — 100-på-10 / PIA / dataflyt
+## 32. Eviny AS — 100-på-10 / PIA / dataflyt
 
 **Why they would pay.** Konsernstrategi *100 på 10* (defined 2024) says Eviny will invest over the next ten years what it built over the previous hundred: 2,5 TWh ny fornybar energi, 30 percent more effekt, double regional nettkapasitet. The published dataflyt/dataanalyse page says good decisions need sanntidsdata on kraftmarkedet, kraftpriser, sensordata and værprognoser; Digital sjef Trond Stokken is printed there. PIA (Plattform for Innsikt og Analyse) is named on Bouvet's Eviny case as the lake where sources are landed, kvalitetssikret and analysed (Microsoft building blocks; Eviny/Bouvet delivery). They already have a platform. They would pay to discover and fetch *other* public series (NVE, MET, SSB, Statnett) into that stack with provenance — not to replace PIA.
 
@@ -996,7 +1088,7 @@ Sources below were opened 2026-08-27 from official pages and the named press/pro
 
 ---
 
-## 30. Hafslund AS — Naturkompasset with NVE / Miljødirektoratet
+## 33. Hafslund AS — Naturkompasset with NVE / Miljødirektoratet
 
 **Why they would pay.** Hafslund prints that it helped develop *Naturkompasset*, the Fornybar Norge project-based naturregnskap method, with Miljødirektoratet and NVE in the external referansegruppe (Asplan Viak, Multiconsult, Rambøll as consultants). Ambition: naturregnskap in all new utbygginger. In 2026 the method goes into Låvi (effekt vann), Hol 1 (vann) and Trysil (vind); pilots already run at Aremark Sør and Hemsil 3. The method needs GIS layers and nature-type data that live at NVE, Miljødirektoratet, Kartverket and municipalities. They would pay to search and fetch those layers with provenance, then later score naturpoeng — not another Hafslund GIS.
 
@@ -1027,7 +1119,7 @@ Sources below were opened 2026-08-27 from official pages and the named press/pro
 
 ---
 
-## 31. Tensio AS — områdestudier replace KSU
+## 34. Tensio AS — områdestudier replace KSU
 
 **Why they would pay.** Tensio's 28 Feb 2025 (updated 22 Apr 2025) innspillsmøte page states that områdestudier for energiutviklingen in Trøndelag *skal erstatte* the former regionale kraftsystemutredninger (KSU). Meetings present nåsituasjon and the new konsept; local/regional actors are asked for utviklingstrekk. Drivers printed: elektrifisering of industri and transport, grønn næringsutvikling, mer ikke-regulerbar kraft, befolkningsvekst, new forbruksmønstre; lange ledetider and kø in transmisjonsnettet mean traditional nettutbygging is not enough. Energikoordinering is named as a new tool. Those studies need municipal plans, SSB forbruk/næring, NVE and Statnett områdeplan Midt series that do not live on tensio.no. They would pay to search and fetch those rows with provenance, then later feed prognoser — not to replace Tensio's own nett model.
 
@@ -1054,7 +1146,7 @@ Sources below were opened 2026-08-27 from official pages and the named press/pro
 
 ---
 
-## 32. Lnett AS (Lyse) — NVE nettutviklingskoordinator + Energikoordinator
+## 35. Lnett AS (Lyse) — NVE nettutviklingskoordinator + Energikoordinator
 
 **Why they would pay.** Lnett is NVE's nettutviklingskoordinator for Sør-Rogaland: it coordinates nettutredninger across eiere, gives innspill to other utredere, and can utrede/melde tiltak on others' behalf. As nettutreder it produces effektprognoser (≥20 years, not older than two years), områdestudier (behovsanalyse, 20 years, updated at least every other year) and KVU (40-year samfunnsøkonomi). Energikoordinator is a 2024–2026 pilot with Tensio and Elvia; referansegruppe is NVE, RME and Statnett. Those roles consume municipal plans, næringsutvikling, Statnett SUP/områdeplaner and NVE PlanNett — datasets that do not all live on l-nett.no. They would pay to search and fetch those rows with provenance, then later feed prognoser — not to replace PlanNett.
 
@@ -1085,7 +1177,7 @@ Sources below were opened 2026-08-27 from official pages and the named press/pro
 
 ---
 
-## 33. Elvia AS — NVE NUK Oslo / Innlandet / Akershus / Østfold + PlanNett
+## 36. Elvia AS — NVE NUK Oslo / Innlandet / Akershus / Østfold + PlanNett
 
 **Why they would pay.** Elvia is NVE's nettutviklingskoordinator for Oslo, Innlandet, Akershus and Østfold. The langsiktig-planlegging page says KSU was avviklet 1 March 2024 and that Elvia now publishes effektprognoser, områdestudier, KVU and regionalnettiltak on NVE PlanNett. Ambition printed on the Innlandet solkraft page: øke kapasiteten i det eksisterende strømnettet with 20 percent. This is Elvia AS (DSO), not Hafslund AS (already a Naturkompasset lead). Those NUK / PlanNett roles consume municipal plans, SSB, Statnett områdeplaner and NVE layers that do not all live on elvia.no. They would pay to search and fetch those rows with provenance, then later feed prognoser — not to replace PlanNett.
 
@@ -1121,7 +1213,7 @@ Sources below were opened 2026-08-27 from official pages and the named press/pro
 
 ---
 
-## 34. Glitre Nett AS — DataArena IPN 332323 + NUK Agder / Buskerud / Hadeland
+## 37. Glitre Nett AS — DataArena IPN 332323 + NUK Agder / Buskerud / Hadeland
 
 **Why they would pay.** Glitre Nett AS (org.nr 982 974 011) is the successor of Agder Energi Nett. DataArena is printed as IPN 332323: a kapasitetskart for 1–20 MW forbruk/produksjon, led by Glitre Nett. NVE has utpekt Glitre Nett as nettutviklingskoordinator for Agder, Buskerud and Hadeland. Nine områdestudier (2 June 2025 news) cover those areas. Norgesnett is folded into Glitre Nett — not a fourth energy seat. They already publish a capacity map. They would pay to search and fetch Statnett områdeplaner, NVE PlanNett, municipal plans and SSB series with provenance into DataArena / områdestudier — not to replace the map.
 
@@ -1159,7 +1251,7 @@ Sources below were opened 2026-08-27 from official pages and the named press/pro
 
 ---
 
-## 35. Linea AS — TILKO digitaliseringsstrategi + kapasitetsregime 5 / 1 / 0.1 MW
+## 38. Linea AS — TILKO digitaliseringsstrategi + kapasitetsregime 5 / 1 / 0.1 MW
 
 **Why they would pay.** Linea's 20 May 2025 news prints TILKO as «en viktig del av vår digitaliseringsstrategi» (Steinar Benum): a national tilknytningsportal for ≥1 MW, developed through ElBits, with data shared to Statnett. The store-anlegg page prints the kapasitetsregime: 5 MW (transmisjonsnett reservation / kø at Statnett), 1 MW (Sør-Helgeland and some Linea-nett limits), and 0.1 MW (100 kW) in named kommuner/områder. Those pages point at Statnett *Områdeplan Helgeland og Salten* (2025). Linea already runs TILKO. They would pay to search and fetch the Statnett områdeplan layers plus municipal / NVE / SSB series with provenance — not to replace TILKO.
 
@@ -1194,7 +1286,7 @@ Sources below were opened 2026-08-27 from official pages and the named press/pro
 
 ---
 
-## 36. Arva AS — NUK Troms + Midtre-Nordland + §15 Kapasitetskart
+## 39. Arva AS — NUK Troms + Midtre-Nordland + §15 Kapasitetskart
 
 **Why they would pay.** NVE has utpekt Arva as nettutviklingskoordinator for Troms and for Midtre-Nordland. Forskrift om energiutredninger §15 (*Ledig nettkapasitet*) requires nettutredere to publish anslag on ledig kapasitet; the NVE veileder names Kapasitetskart (Arva) as an example. On 27 Aug 2026 `https://arva.no/Kapasitetskart` returned 404 — keep the NVE cite; do not claim the page is live. Arva's own 22.04.2026 press prints Statnett's stopp in tildeling of nettkapasitet nord for Svartisen. Own news 04.05.2026 prints 607 millioner kroner invested in the grid in 2025 and planned investments of sju to ti milliarder kroner over the coming ten years. Those NUK / §15 / områdeplan roles consume Statnett, NVE PlanNett, municipal and SSB series that do not all live on arva.no. They would pay to search and fetch those rows with provenance, then later feed prognoser — not to replace a capacity map.
 
@@ -1231,7 +1323,7 @@ Sources below were opened 2026-08-27 from official pages and the named press/pro
 
 ---
 
-## 37. Lede AS — NUK Vestfold og Telemark + Tilko / Wattapp / KSU 2022–2041
+## 40. Lede AS — NUK Vestfold og Telemark + Tilko / Wattapp / KSU 2022–2041
 
 **Why they would pay.** Lede is NVE's nettutviklingskoordinator for Vestfold og Telemark (including the Drammen-konsesjon slice; excluding Høgefoss / the Nissedal slice that is Glitre Nett). *Kraftsystemutredningen 2022–2041* for Vestfold og Telemark is the printed 20-year regionalnett utredning and is also registered toward NVE PlanNett. *Større tilknytninger* uses Tilko for ≥1 MW; *Kapasitet og køordning* points at Wattapp for tidlig-fase ledig kapasitet. Those NUK / Tilko / KSU roles consume Statnett områdeplaner, municipal plans and SSB series that do not all live on lede.no. They would pay to search and fetch those rows with provenance, then later feed prognoser — not to replace Tilko or Wattapp.
 
@@ -1267,7 +1359,7 @@ Sources below were opened 2026-08-27 from official pages and the named press/pro
 
 ---
 
-## 38. Fagne AS — NUK Sunnhordaland og Nord-Rogaland + dialogmøter 2026 + Tilko
+## 41. Fagne AS — NUK Sunnhordaland og Nord-Rogaland + dialogmøter 2026 + Tilko
 
 **Why they would pay.** Fagne is NVE's nettutviklingskoordinator for Sunnhordaland og Nord-Rogaland. May–June 2026 regional dialogmøter with Statnett (11 May Sunnhordaland / Stord; 10 June Haugalandet) are printed as a new early-dialog path into områdestudier; 110 påmeldte across the two meetings; høst 2026 meetings in Indre Hardanger and Ryfylke. *Større tilknytninger over 1 MW* uses Tilko. Those NUK / dialog / Tilko roles consume Statnett områdeplaner, municipal plans and SSB series that do not all live on fagne.no. They would pay to search and fetch those rows with provenance, then later feed prognoser — not to replace Tilko.
 
@@ -1300,7 +1392,7 @@ Sources below were opened 2026-08-27 from official pages and the named press/pro
 
 ---
 
-## 39. Vissi AS — nettutreder in Arva NUK Troms + >0,5 MW / modenhetsmatrise
+## 42. Vissi AS — nettutreder in Arva NUK Troms + >0,5 MW / modenhetsmatrise
 
 **Why they would pay.** Vissi is the nettutreder inside Arva's NVE NUK Troms area (Arva already names Vissi-konsesjon slices). The tilknytning page prints a process for større tilknytningssaker >0,5 MW and Vissi's own modenhetsmatrise. Those tilknytning / NUK-area roles consume Statnett, NVE PlanNett, municipal and SSB series that do not all live on vissi.no. They would pay to search and fetch those rows with provenance, then later feed prognoser — not to replace the modenhetsmatrise.
 
@@ -1333,7 +1425,7 @@ Sources below were opened 2026-08-27 from official pages and the named press/pro
 
 ---
 
-## 40. Elinett AS — NUK Romsdal og Nordmøre + PlanNett
+## 43. Elinett AS — NUK Romsdal og Nordmøre + PlanNett
 
 **Why they would pay.** Elinett (former Istad Nett) is NVE's nettutviklingskoordinator for Romsdal og Nordmøre. The energiutredninger page (updated 07.08.2026) prints that KSU / utredningsansvarlig was avviklet 1.3.2024 and that Elinett is nettutreder for eget nett plus NUK for Romsdal og Nordmøre; Sunnmøre is now Linja's NUK. PlanNett is printed as the sentral plattform. Those NUK / PlanNett roles consume Statnett områdeplaner, municipal plans and SSB series that do not all live on elinett.no. They would pay to search and fetch those rows with provenance, then later feed prognoser — not to replace PlanNett.
 
@@ -1364,7 +1456,7 @@ Sources below were opened 2026-08-27 from official pages and the named press/pro
 
 ---
 
-## 41. Linja AS — NUK Sunnmøre og Sogn og Fjordane + PlanNett / Tilko >1 MW
+## 44. Linja AS — NUK Sunnmøre og Sogn og Fjordane + PlanNett / Tilko >1 MW
 
 **Why they would pay.** Linja (former Mørenett) is NVE's nettutviklingskoordinator for Sunnmøre og Sogn og Fjordane. This is not Linea AS (Helgeland, already in this book). PlanNett is the NVE portal for områdestudier; Tilko is printed for tilknytning >1 MW. Those NUK / PlanNett / Tilko roles consume Statnett områdeplaner, municipal plans and SSB series that do not all live on linja.no. They would pay to search and fetch those rows with provenance, then later feed prognoser — not to replace Tilko or PlanNett.
 
@@ -1394,7 +1486,91 @@ Sources below were opened 2026-08-27 from official pages and the named press/pro
 
 ---
 
-## 42. Fredrikstad kommune — Åpne data Hub + kart@
+## 45. Jæren Everk AS — PlanNett actor + Lnett NUK Sør-Rogaland + anleggsbidrag
+
+**Why they would pay.** Jæren Everk is a PlanNett actor inside Lnett's NVE NUK Sør-Rogaland area. The anleggsbidrag page prints that anleggsbidrag applies at all nettnivå. Those PlanNett / NUK-area / anleggsbidrag roles consume Statnett, NVE PlanNett, municipal and SSB series that do not all live on jev.no. They would pay to search and fetch those rows with provenance, then later feed prognoser — not to replace PlanNett or the anleggsbidrag kalkyle.
+
+**Concrete use case.** A tilknytning / nettutvikling officer needs a municipal arealplan or Statnett områdeplan layer for the Jæren / Sør-Rogaland area that is not in Jæren Everk's own PlanNett file, fetched as rows/features with license before later anleggsbidrag / NUK overlay.
+
+**Search → fetch → later analysis.**
+- Search: Jæren / Hå / Sør-Rogaland / kommune + arealplan / industri / effekt with publisher (Statnett, NVE, kommune, SSB).
+- Fetch: first rows / features from the recorded access path.
+- Later analysis: PlanNett / anleggsbidrag / NUK follow-up; keep provenance.
+
+**Public contact (only published / listed).**
+- post@jev.no — printed on kontakt-oss
+- Telephone: 51 79 95 00
+- Org: 824914982
+- Do not invent extra project inboxes.
+
+**Key facts.**
+- Besøksadresse printed: Bernervegen 28, 4365 Nærbø. Postboks 55, 4367 Nærbø.
+- PlanNett actor; Lnett is NUK Sør-Rogaland. Anleggsbidrag is printed for all nettnivå.
+
+**Sources opened 2026-08-27.**
+- https://jev.no/kontakt-oss
+- https://jev.no/anleggsbidrag
+- https://plannett.nve.no/
+- https://data.brreg.no/enhetsregisteret/api/enheter/824914982
+
+---
+
+## 46. Midtnett AS — PlanNett + Tilko >1 MW + Glitre NUK Buskerud
+
+**Why they would pay.** Midtnett is a PlanNett actor inside Glitre Nett's NVE NUK Buskerud area. Tilko is printed for tilknytning >1 MW. Those PlanNett / Tilko / NUK-area roles consume Statnett områdeplaner, municipal plans and SSB series that do not all live on midtnett.no. They would pay to search and fetch those rows with provenance, then later feed prognoser — not to replace Tilko or PlanNett.
+
+**Concrete use case.** A tilknytning / nettutvikling officer needs a municipal arealplan or Statnett områdeplan layer for the Midtnett / Buskerud area that is not in Midtnett's own PlanNett file, fetched as rows/features with license before later Tilko / KVU.
+
+**Search → fetch → later analysis.**
+- Search: Modum / Buskerud / kommune + arealplan / industri / effekt with publisher (Statnett, NVE, kommune, SSB).
+- Fetch: first rows / features from the recorded access path.
+- Later analysis: PlanNett / Tilko / NUK; keep provenance.
+
+**Public contact (only published / listed).**
+- post@midtnett.no — listed
+- kunde@midtnett.no — listed
+- Telephone: 32 78 32 98
+- Org: 917856222
+- Do not invent extra project inboxes.
+
+**Key facts.**
+- Forretningsadresse printed: Øvre Nedmarken 15, 3370 Vikersund.
+- PlanNett actor; Glitre Nett is NUK Buskerud. Tilko for >1 MW.
+
+**Sources opened 2026-08-27.**
+- https://plannett.nve.no/
+- https://data.brreg.no/enhetsregisteret/api/enheter/917856222
+
+---
+
+## 47. S-Nett AS — printed modenhetsvurdering + Elinett NUK Romsdal og Nordmøre
+
+**Why they would pay.** S-Nett prints a modenhetsvurdering. It sits inside Elinett's NVE NUK Romsdal og Nordmøre area. Those tilknytning / NUK-area roles consume Statnett, NVE PlanNett, municipal and SSB series that do not all live on snett.no. They would pay to search and fetch those rows with provenance, then later feed prognoser — not to replace the modenhetsvurdering.
+
+**Concrete use case.** A nettutreder officer needs a municipal arealplan or Statnett områdeplan layer for the S-Nett / Romsdal og Nordmøre area that is not in S-Nett's own tilknytning file, fetched as rows/features with license before later modenhetsvurdering / NUK overlay.
+
+**Search → fetch → later analysis.**
+- Search: Surnadal / Rindal / Heim / Romsdal / Nordmøre + arealplan / industri / effekt with publisher (Statnett, NVE, kommune, SSB).
+- Fetch: first rows / features from the recorded access path.
+- Later analysis: modenhetsvurdering / NUK follow-up; keep provenance.
+
+**Public contact (only published / listed).**
+- nettkunde@snett.no — listed
+- Telephone: 71 65 91 00
+- Org: 923819177
+- Do not use nett@svorka.no. That address is leftover (Svorka).
+
+**Key facts.**
+- Forretningsadresse printed: Svartvassvegen 6, 6650 Surnadal.
+- Printed modenhetsvurdering. Elinett is NUK Romsdal og Nordmøre.
+
+**Sources opened 2026-08-27.**
+- https://www.snett.no/
+- https://data.brreg.no/enhetsregisteret/api/enheter/923819177
+
+---
+
+## 48. Fredrikstad kommune — Åpne data Hub + kart@
 
 **Why they would pay.** Fredrikstad runs an ArcGIS Hub for åpne data (API download/connect). The Hub front page says the datasets there are the municipality's own, and that *other* datasets are available via data.norge.no or Geonorge.no. The kartdata page says Fredrikstad is in Norge Digitalt, that most digital kartdata are on Geonorge, and that the Hub/API is the path for users without Geonorge access (NLOD; Euref89 UTM 32N / NN2000). They already publish. They would pay to search and fetch the *other* publishers' layers named on their own Hub — Kartverket, NVE, SSB, neighbouring municipalities — with provenance, then later join to Hub layers.
 
@@ -1422,7 +1598,7 @@ Sources below were opened 2026-08-27 from official pages and the named press/pro
 
 ---
 
-## 43. Sandnes kommune — Prinsipp 6 «Vi deler og tar i bruk åpne data»
+## 49. Sandnes kommune — Prinsipp 6 «Vi deler og tar i bruk åpne data»
 
 **Why they would pay.** *Sandnes – helt enkelt* (digitalisering, smartby and innovasjon) takes the national smartby veikart's eight principles. Prinsipp 6 is printed as «Vi deler og tar i bruk åpne data»: åpne data are a råvare for innovasjon and effektivisering; the municipality will tilgjengeliggjøre and *use* data for effektivisering, kvalitetsforbedring, innovasjon and næringsutvikling, while protecting personvern and giving innbyggere grunnlag for beslutninger. Geodata is the printed unit for matrikkel/kart (postmottak.geodata@). They would pay to find and fetch *other* agencies' and municipalities' open datasets into that "ta i bruk" side — not to replace the matrikkel.
 
@@ -1450,7 +1626,7 @@ Sources below were opened 2026-08-27 from official pages and the named press/pro
 
 ---
 
-## 44. Bodø kommune — Bodøkart + Geonorge
+## 50. Bodø kommune — Bodøkart + Geonorge
 
 **Why they would pay.** Bodø forvalter and updates many kart types; Bodøkart is the published digital-kart inngang (ansatte get utvida tilgang). Bodø kommune is also a Geonorge organisation: plan and byutvikling datasets sit in Kartkatalogen next to national layers. The gap is finding and fetching Kartverket / NVE / SSB / neighbouring-municipality series that sit beside Bodøkart, with license and access path — they already have a kartklient.
 
@@ -1479,7 +1655,7 @@ Sources below were opened 2026-08-27 from official pages and the named press/pro
 
 ---
 
-## 45. Kristiansand kommune — Økonomiplan 2026–2029 (datadeling + klimabudsjett)
+## 51. Kristiansand kommune — Økonomiplan 2026–2029 (datadeling + klimabudsjett)
 
 **Why they would pay.** Økonomiplan 2026–2029, vedtatt bystyret 17.12.2025, is the current mandate — not only the 2022 *Smartere sammen* title. Kap. 5.4 («Kristiansand kommune skal være en digital og innovativ organisasjon») prints the focus area «Økt datadeling og utnytte mulighetene i data»: data shall be tilgjengelige, gjenfinnbare, mulig å bruke and kunne sammenstilles so they give verdi in tjenesteutvikling; «Det bør etableres tydeligere interne retningslinje for hvordan man må gå frem for å få tilgang til data.» Kap. 6 uses Miljødirektoratets kommunefordelte klimagassstatistikk as basisgrunnlaget for the municipal klimabudsjett (Klima- og miljøbarometeret is the published indicator surface). They would pay to find and fetch those Miljødirektoratet / SSB / neighbour series with provenance, then later sammenstille them — the printed gap is gjenfinnbarhet, access rules and sammenstilling, not another strategy PDF.
 
@@ -1510,7 +1686,7 @@ Sources below were opened 2026-08-27 from official pages and the named press/pro
 
 ---
 
-## 46. Lillestrøm kommune — digitalisering 2020–2025 + klimabudsjett
+## 52. Lillestrøm kommune — digitalisering 2020–2025 + klimabudsjett
 
 **Why they would pay.** *Strategi for digitalisering 2020–2025* prints «Data skal deles, gjenbrukes og forvaltes» as a platform requirement, and under Informasjonsforvaltning: «En datadrevet offentlig forvaltning, med åpne og tilgjengelige data». Digitaliseringsavdelingen understøtter digitaliseringsinitiativ and owns architecture/forvaltning. *Plan for klimanøytral drift* (klimanøytral 2027) prints the årlige klimabudsjett as «det viktigste styringsverktøyet» for that plan. No first-party open-data portal is printed; municipal datasets sit on data.norge / Geonorge. They would pay to find and fetch SSB, Miljødirektoratet, NVE and neighbour Nedre Romerike series with provenance — not another municipal portal.
 
@@ -1543,7 +1719,7 @@ Sources below were opened 2026-08-27 from official pages and the named press/pro
 
 ---
 
-## 47. Tønsberg kommune — HØP 2026–2029 klimabudsjett
+## 53. Tønsberg kommune — HØP 2026–2029 klimabudsjett
 
 **Why they would pay.** Kommuneplanens handlingsdel og økonomiplan (HØP) 2026–2029 prints a klimabudsjett and the 60 percent cut by 2030. The same document says Tønsberg «ligger langt etter» that mål. For 2026, Plan, eiendom og teknikk is named as ansvarlig to «Evaluere hvordan klimabudsjettet kan være et relevant og effektivt verktøy». They would pay to find and fetch Miljødirektoratet kommunefordelte klimagassstatistikk, SSB and neighbour Vestfold series with provenance so that 2026 evaluation has actual rows — not another strategy PDF.
 
@@ -1574,7 +1750,7 @@ Sources below were opened 2026-08-27 from official pages and the named press/pro
 
 ---
 
-## 48. Larvik kommune — KEP 2026–2029 + årlige klimabudsjett in HØP
+## 54. Larvik kommune — KEP 2026–2029 + årlige klimabudsjett in HØP
 
 **Why they would pay.** Klima- og energiplan (KEP) 2026–2029 is the named climate programme. The høring page prints that Larvik operasjonaliserer KEP-oppdrag with konkrete tiltak årlig through klimabudsjett, økonomiplan and virksomhetsplan. HØP 2026–2029 was vedtatt as KST-230/25; that PDF lists Klimabudsjett as a chapter in the web-utgave. They would pay to find and fetch Miljødirektoratet / SSB series with provenance for the next årlige klimabudsjett — not another KEP PDF.
 
@@ -1606,7 +1782,7 @@ Sources below were opened 2026-08-27 from official pages and the named press/pro
 
 ---
 
-## 49. Porsgrunn kommune — HP 2026–2029 Klimabudsjett chapter
+## 55. Porsgrunn kommune — HP 2026–2029 Klimabudsjett chapter
 
 **Why they would pay.** Handlingsprogram 2026–2029 (bystyret 11.12.2025) has a named Klimabudsjett chapter from s. 54 (Kommunens klimamål; Klimastatus from s. 55; Klimatiltak from s. 58). The opened PDF (s. 16–17) prints that Porsgrunn already has «en rekke gode klimatiltak, både for direkte utslipp og klimafotavtrykket fra kommunen som egen virksomhet», but «for å nå klimamålene kreves det flere og mer målrettede tiltak framover». It also prints 500 000 kroner to start revisjon of klima- og energiplanen (verbalvedtak 2024; today's KEP lasted to 2025; table line «Klima- og energiplan 500» in 1 000 kroner). They would pay to find and fetch Miljødirektoratet / SSB series with provenance for that klimabudsjett and the KEP revision — not another HP PDF.
 
@@ -1637,7 +1813,7 @@ Sources below were opened 2026-08-27 from official pages and the named press/pro
 
 ---
 
-## 50. Sarpsborg kommune — Plattform for digitalisering + KDP klima og energi
+## 56. Sarpsborg kommune — Plattform for digitalisering + KDP klima og energi
 
 **Why they would pay.** *Plattform for digitalisering*, vedtatt bystyret 02.02.2023, is the named digital mandate. Kap. 1.3 («Deling og gjenbruk av data») says the municipality shall legge til rette for deling og gjenbruk, including data it produces or henter from other sources, and follow Digitaliseringsdirektoratet «orden i eget hus». Kap. 3.2 («Samarbeid og verdiskapning») prints that Sarpsborg shall «sørge for løsninger som enkelt gir næringslivsaktører tilgang til kommunens åpne data». Kap. 4.2 («Informasjonssikkerhet») prints «dele data når den kan og skjerme data når den må». Virksomhet Digitalisering (virksomhetsleder Atle Johnsen) owns the platform work. *Kommunedelplan klima og energi 2021–2030* (bystyret 17.06.2021) prints a klimabudsjett as part of the handlingsdel and cites Miljødirektoratet municipal GHG calculations plus SSB. They would pay to find and fetch those national series and other-municipality open datasets with provenance — not another municipal portal.
 
@@ -1670,7 +1846,7 @@ Sources below were opened 2026-08-27 from official pages and the named press/pro
 
 ---
 
-## 51. Skien kommune — HP 2026–2029 Framsikt klimabudsjett
+## 57. Skien kommune — HP 2026–2029 Framsikt klimabudsjett
 
 **Why they would pay.** Handlings- og økonomiplan 2026–2029 (Framsikt klimabudsjett) is the current mandate. The climatesummary prints that yearly Klimakost stopped after 2023, a 7 mill. kr pot, and that the municipality needs arealverktøy. The older HP 2025–2028 PDF still cites Miljødirektoratet kommunefordelte geografiske utslipp. They would pay to find and fetch the latest Miljødirektoratet / SSB / areal series with provenance for that 2026–2029 klimabudsjett and the missing arealverktøy — not another HP PDF.
 
@@ -1702,7 +1878,7 @@ Sources below were opened 2026-08-27 from official pages and the named press/pro
 
 ---
 
-## 52. Moss kommune — ØP 2026–2029 Klimabudsjett
+## 58. Moss kommune — ØP 2026–2029 Klimabudsjett
 
 **Why they would pay.** Økonomiplan 2026–2029 prints a Klimabudsjett. The 60 percent cut in direkte utslipp by 2030 (referanseår 2016) is the named mål; framskrivninger with today's tiltak reach about 45–49 percent by 2030. Miljødirektoratet kommunefordelte klimagassstatistikk is the printed source for those geografiske utslipp. The klimabudsjett page says the budget is integrert in the ordinære økonomiplanen. They would pay to find and fetch the latest Miljødirektoratet / SSB series with provenance so the 60 percent vs 45–49 percent gap has actual rows — not another ØP PDF.
 
@@ -1734,7 +1910,7 @@ Sources below were opened 2026-08-27 from official pages and the named press/pro
 
 ---
 
-## 53. Haugesund kommune — Budsjett 2026 Klimabudsjett
+## 59. Haugesund kommune — Budsjett 2026 Klimabudsjett
 
 **Why they would pay.** Budsjett 2026 / Handlings- og økonomiplan 2026–2029, vedtatt kommunestyret 10.12.2025, has a named Klimabudsjett chapter in the Framsikt climatesummary. That is the current mandate. They would pay to find and fetch Miljødirektoratet kommunefordelte klimagassstatistikk and related SSB series with provenance for that chapter — not another budget PDF.
 
@@ -1766,7 +1942,7 @@ Sources below were opened 2026-08-27 from official pages and the named press/pro
 
 ---
 
-## 54. Molde kommune — KEP 2023–2035 klimabudsjett + Smart data
+## 60. Molde kommune — KEP 2023–2035 klimabudsjett + Smart data
 
 **Why they would pay.** Klimabudsjett is the yearly handlingsdel of Klima- og energiplan 2023–2035. The 2024 HØP klimabudsjett chapter plots Miljødirektoratet kommunefordelte tall. The Smart data page prints «dele data med viktige interessenter» as a named reason for the project. The 2026 klimabudsjett chapter was not opened — do not invent 2026 cells. They would pay to find and fetch the latest Miljødirektoratet / SSB series with provenance for that yearly handlingsdel — not another KEP PDF.
 
@@ -1798,7 +1974,7 @@ Sources below were opened 2026-08-27 from official pages and the named press/pro
 
 ---
 
-## 55. Gjøvik kommune — Åpne data (SSB API) + årlig klimabudsjett
+## 61. Gjøvik kommune — Åpne data (SSB API) + årlig klimabudsjett
 
 **Why they would pay.** The official *Åpne data i Gjøvik kommune* page points at SSB APIs as the hovedvekt of the municipality's open data (data and nøkkeltall reported to sentrale myndigheter). Klimabudsjett is printed as yearly and as part of kommunens styringsdokument. The 2026 Framsikt klimabudsjett view is empty — do not invent cells. They would pay to find and fetch SSB / Miljødirektoratet series with provenance for that yearly chapter — not another åpne-data page.
 
@@ -1829,6 +2005,64 @@ Sources below were opened 2026-08-27 from official pages and the named press/pro
 
 ---
 
+## 62. Karmøy kommune — HP 2026–2029 Framsikt climatesummary
+
+**Why they would pay.** Handlingsprogram 2026–2029, vedtatt 15.12.2025, has a Framsikt climatesummary. That is the current mandate. They would pay to find and fetch Miljødirektoratet kommunefordelte klimagassstatistikk and related SSB series with provenance for that chapter — not another HP PDF.
+
+**Concrete use case.** Klima / økonomi needs the latest kommunefordelte klimagassstatistikk and related SSB series for Karmøy (knr 1149), fetched as rows with license and access path before later overlay on the HP 2026–2029 climatesummary.
+
+**Search → fetch → later analysis.**
+- Search: Karmøy + klimagass / energi / «kommunefordelt» with publisher (Miljødirektoratet, SSB).
+- Fetch: first rows from the recorded access path; license and publisher on every hit.
+- Later analysis: feed klimabudsjett / climatesummary; do not invent tonnes.
+
+**Public contact (only published / listed).**
+- ehs@karmoy.kommune.no — listed
+- postmottak@karmoy.kommune.no — listed
+- Telephone: 52 85 75 00
+- Org: 940791901
+- Kommunenummer: 1149
+- Do not invent a klima inbox.
+
+**Key facts.**
+- Postboks 167, 4291 Kopervik; Statsråd Vinjes gate 25, 4250 Kopervik on the Enhetsregisteret page.
+- Vedtak 15.12.2025. Framsikt document: bm-2026-handlingsprogram_2026-2029_kommunestyrets_vedtak.
+
+**Sources opened 2026-08-27.**
+- https://pub.framsikt.net/2026/karmøy/bm-2026-handlingsprogram_2026-2029_kommunestyrets_vedtak/#/generic/summary/climatesummary
+- https://www.karmoy.kommune.no/innbygger/klima-natur-og-miljo/klima-og-miljo/klimaarbeidet/
+- https://data.brreg.no/enhetsregisteret/api/enheter/940791901
+
+---
+
+## 63. Kongsberg kommune — ØHP 2026–2029 Klima / klimaregnskap + klimabudsjett
+
+**Why they would pay.** Økonomi- og handlingsplan 2026–2029 Klima prints: «Dette følges opp gjennom klimaregnskap og klimabudsjett.» That is the named follow-up. They would pay to find and fetch Miljødirektoratet kommunefordelte klimagassstatistikk and related SSB series with provenance for that klimaregnskap / klimabudsjett — not another ØHP PDF.
+
+**Concrete use case.** Klima / økonomi needs the latest kommunefordelte klimagassstatistikk and related SSB series for Kongsberg (knr 3303), fetched as rows with license and access path before later overlay on the ØHP 2026–2029 klimaregnskap and klimabudsjett.
+
+**Search → fetch → later analysis.**
+- Search: Kongsberg + klimagass / «kommunefordelt» with publisher (Miljødirektoratet, SSB).
+- Fetch: first rows from the recorded access path; license and publisher on every hit.
+- Later analysis: feed klimaregnskap / klimabudsjett; do not invent tonnes.
+
+**Public contact (only published / listed).**
+- postmottak@kongsberg.kommune.no — listed
+- Telephone: 32 86 60 00
+- Org: 942402465
+- Kommunenummer: 3303
+- Do not invent a klima inbox.
+
+**Key facts.**
+- Postboks 115, 3602 Kongsberg; Kirkegata 1, 3616 Kongsberg on the Enhetsregisteret page.
+- ØHP 2026–2029 Klima: «Dette følges opp gjennom klimaregnskap og klimabudsjett.»
+
+**Sources opened 2026-08-27.**
+- https://pub.framsikt.net/2026/kongsberg/bm-2026-handlingsplan_2026-2029/#/generic/summary/focusarea/2319
+- https://data.brreg.no/enhetsregisteret/api/enheter/942402465
+
+---
+
 ## Skipped, with reasons
 
 Keep these notes in the living book. They are not leads.
@@ -1842,7 +2076,8 @@ Keep these notes in the living book. They are not leads.
 - **E24 / Kommunal Rapport** — weaker than Aftenposten's published data desk (Journalisten is the source for desk size «seks»).
 - **DIS (Helse Nord)** — Digitale innbygger- og samhandlingstjenester; clinical patient-journey / documents, not a discovery buyer. Helse Nord programme in this book is Helseatlas / SKDE.
 - **Norgesnett** — folded into Glitre Nett; not a fourth energy seat.
-- **Arendal kommune** — 2026 klimabudsjett is only in kommunedirektørens forslag; the vedtatt HØP (bystyret 11.12.2025) has no Klimabudsjett chapter. Same skip as an un-vedtatt skisse.
+- **Asker / Bærum / Ålesund / Tromsø / Drammen** — mid-size seats held; not numbered in this book.
+- **Arendal kommune** — held: 2026 klimabudsjett is only in kommunedirektørens forslag; the vedtatt HØP (bystyret 11.12.2025) has no Klimabudsjett chapter. Same skip as an un-vedtatt skisse.
 
 ---
 
@@ -1858,6 +2093,7 @@ Keep these notes in the living book. They are not leads.
 - **27 Aug 2026, 12:40 Europe/Oslo.** Wave-4: 8 sourced entries (Oslo universitetssykehus HF, Helse Bergen HF, Universitetssykehuset Nord-Norge HF, Arva, Lede, Fagne, Moss, Haugesund). Skien Why they would pay updated to HP 2026–2029 Framsikt klimabudsjett (Klimakost stopped after 2023; 7 mill. kr pot; needs arealverktøy); contacts stay post@skien.kommune.no. Arva Kapasitetskart: NVE §15 cite kept; arva.no/Kapasitetskart 404 on 27 Aug 2026 — do not claim the page is live. No invented emails (no Golde@, no post@arva.no). No outreach. No competitor section.
 - **27 Aug 2026, 13:10 Europe/Oslo.** Wave-5: 8 sourced entries (Akershus universitetssykehus HF, Vestre Viken HF, Sykehuset Østfold HF, Vissi, Elinett, Linja, Molde, Gjøvik). Contacts only as listed. No invented emails (no firmapost@morenett.no; no named-person emails for Elinett). 2026 klimabudsjett cells not opened for Molde or Gjøvik — not invented. TROLL/NOR-ITP noted as own registers, not the buy. Linja is not Linea. No outreach. No competitor section.
 - **27 Aug 2026, 13:25 Europe/Oslo.** Arendal kommune pulled / skipped: 2026 klimabudsjett is only in kommunedirektørens forslag; vedtatt HØP (bystyret 11.12.2025) has no Klimabudsjett chapter. Same skip as an un-vedtatt skisse. Not a lead. Wave-5 stays the eight. No outreach. No competitor section.
+- **27 Aug 2026, 14:10 Europe/Oslo.** Wave-6: 8 sourced entries (Sykehuset Innlandet HF, Sykehuset Telemark HF, Sykehuset i Vestfold HF, Jæren Everk, Midtnett, S-Nett, Karmøy, Kongsberg). Contacts only as listed. No invented emails (no nett@svorka.no). Arendal held (klimabudsjett only in kommunedirektørens forslag; vedtatt HØP 11.12.2025 has no Klimabudsjett chapter). Asker / Bærum / Ålesund / Tromsø / Drammen stay skipped. No outreach. No competitor section.
 
 ---
 
