@@ -1099,6 +1099,13 @@ pda fetch --dataset miljodir:Public_GetMediumList --db data/registry.sqlite
 from a printed name field (`Name`, `name`, `title`, `MediumID`, or `id`)
 when present. License and publisher stay null.
 
+Live ingest 2026-08-27: 10 printed collection GET paths. Live search
+`Medium` returns `miljodir:Public_GetMediumList`. Live fetch GETs
+`https://vannmiljoapi.miljodirektoratet.no/api/Public/GetMediumList`
+HTTP 200, 54 medium-name rows. Sample printed names: Biota bløtdeler,
+Biota helkropp, Biota lever, Biota muskelvev, Biota mageinnhold.
+`pda methods` is not applicable: names, not a numeric time series
+(`no observations matched entity/measure; available=[]`).
 Proof is `data/miljodir_source_proof.json`.
 
 ## Architecture (long term)

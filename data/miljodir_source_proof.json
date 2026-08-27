@@ -1,0 +1,179 @@
+{
+  "produced_at": "2026-08-27T13:20:52Z",
+  "bound": {
+    "list_api": "https://vannmiljoapi.miljodirektoratet.no/swagger/docs/v1",
+    "walk": "copy printed collection GET paths from the official Miljødirektoratet Vannmiljø swagger; skip templated {id} paths; native ids are the printed operationId values",
+    "cap": 10,
+    "how": "pda ingest --source miljodir --limit 10. The official swagger prints host=vannmiljoapi.miljodirektoratet.no, basePath=/, schemes=[https], and GET paths. The adapter copies those printed values. Templated /api/Public/DownloadAttachment/{id} paths are skipped."
+  },
+  "discarded": [
+    {
+      "candidate": "NIBIO IPM Resource Hub",
+      "url": "https://lmt.nibio.no/",
+      "why": "Left on open PR 72 (cursor/nibio-source-f272, --source nibio). This slice starts from origin/main and does not touch that branch, PR, or adapter."
+    },
+    {
+      "candidate": "Kystverket Kystdatahuset OpenAPI",
+      "url": "https://kystdatahuset.no/ws/swagger/v1/swagger.json",
+      "why": "Already on main via PR 71. This slice does not re-implement it."
+    },
+    {
+      "candidate": "Vann-Nett portal-api swagger",
+      "url": "https://vann-nett.no/portal-api/swagger/v1/swagger.json",
+      "why": "Already discarded on main: TLS certificate verify failed. Vannmiljø swagger is a different Miljødirektoratet product and host."
+    },
+    {
+      "candidate": "Sikt NVA",
+      "url": "https://api.nva.unit.no/",
+      "why": "HTTP 403 Forbidden. /open-api is also 403. Do not invent a token."
+    },
+    {
+      "candidate": "Digitalarkivet API root",
+      "url": "https://media.digitalarkivet.no/api/v1/",
+      "why": "HTTP 404 JSON error. No printed endpoint catalog at the probed root."
+    },
+    {
+      "candidate": "Arbeidstilsynet /api",
+      "url": "https://www.arbeidstilsynet.no/api",
+      "why": "HTTP 404 HTML. api.arbeidstilsynet.no is also 404. No printed list API."
+    },
+    {
+      "candidate": "Havtil /api",
+      "url": "https://api.havtil.no/",
+      "why": "HTTP 404 JSON. www.havtil.no/api is 404 HTML. No printed list API."
+    },
+    {
+      "candidate": "Norsk Polarinstitutt /service",
+      "url": "https://api.npolar.no/service",
+      "why": "Live GET 200 count=51. Same publisher already discarded on main for /dataset: root has no printed endpoint list."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source miljodir --db /tmp/pda-miljodir-proof/registry.sqlite --limit 10",
+    "listed": 10,
+    "inserted": 10,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "miljodir:Public_GetActivityList",
+        "access_path": "https://vannmiljoapi.miljodirektoratet.no/api/Public/GetActivityList"
+      },
+      {
+        "id": "miljodir:Public_GetAllInternalSpeciesList",
+        "access_path": "https://vannmiljoapi.miljodirektoratet.no/api/Public/GetAllInternalSpeciesList"
+      },
+      {
+        "id": "miljodir:Public_GetAnalysisMethodList",
+        "access_path": "https://vannmiljoapi.miljodirektoratet.no/api/Public/GetAnalysisMethodList"
+      },
+      {
+        "id": "miljodir:Public_GetMediumList",
+        "access_path": "https://vannmiljoapi.miljodirektoratet.no/api/Public/GetMediumList"
+      },
+      {
+        "id": "miljodir:Public_GetPMSList",
+        "access_path": "https://vannmiljoapi.miljodirektoratet.no/api/Public/GetPMSList"
+      },
+      {
+        "id": "miljodir:Public_GetParameterList",
+        "access_path": "https://vannmiljoapi.miljodirektoratet.no/api/Public/GetParameterList"
+      },
+      {
+        "id": "miljodir:Public_GetSamplingMethodList",
+        "access_path": "https://vannmiljoapi.miljodirektoratet.no/api/Public/GetSamplingMethodList"
+      },
+      {
+        "id": "miljodir:Public_GetSpeciesList",
+        "access_path": "https://vannmiljoapi.miljodirektoratet.no/api/Public/GetSpeciesList"
+      },
+      {
+        "id": "miljodir:Public_GetUnitList",
+        "access_path": "https://vannmiljoapi.miljodirektoratet.no/api/Public/GetUnitList"
+      },
+      {
+        "id": "miljodir:Public_SearchSpeciesInternalAndExternal",
+        "access_path": "https://vannmiljoapi.miljodirektoratet.no/api/Public/SearchSpeciesInternalAndExternal"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search Medium --db /tmp/pda-miljodir-proof/registry.sqlite --limit 5",
+    "query": "Medium",
+    "returned": 1,
+    "hit_id": "miljodir:Public_GetMediumList",
+    "title": "Returnerer en liste av Medium objekter.",
+    "source_id": "miljodir"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset miljodir:Public_GetMediumList --db /tmp/pda-miljodir-proof/registry.sqlite",
+    "dataset": "miljodir:Public_GetMediumList",
+    "table_id": "GetMediumList",
+    "access_path": "https://vannmiljoapi.miljodirektoratet.no/api/Public/GetMediumList",
+    "request_url": "https://vannmiljoapi.miljodirektoratet.no/api/Public/GetMediumList",
+    "http_status": 200,
+    "listed": 54,
+    "inserted": 54,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "Name",
+        "value": "Biota bløtdeler",
+        "dimensions": {
+          "MediumID": "BB",
+          "EUcode": "Biota soft body"
+        }
+      },
+      {
+        "measure": "Name",
+        "value": "Biota helkropp",
+        "dimensions": {
+          "MediumID": "BH",
+          "EUcode": "Biota whole body"
+        }
+      },
+      {
+        "measure": "Name",
+        "value": "Biota lever",
+        "dimensions": {
+          "MediumID": "BL",
+          "EUcode": "Biota liver"
+        }
+      },
+      {
+        "measure": "Name",
+        "value": "Biota muskelvev",
+        "dimensions": {
+          "MediumID": "BM",
+          "EUcode": "Biota fillet"
+        }
+      },
+      {
+        "measure": "Name",
+        "value": "Biota mageinnhold",
+        "dimensions": {
+          "MediumID": "BS",
+          "EUcode": "Biota stomach content"
+        }
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset miljodir:Public_GetMediumList --db /tmp/pda-miljodir-proof/registry.sqlite --entity \"\" --measure \"\"",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "GetMediumList prints medium names (Name plus MediumID). That is not a numeric time series. methods.clean drops the rows because they have no period. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from the printed swagger operationId. access_path is the printed host + basePath / + path. No Vannmiljø id was written onto a datanorge row.",
+    "Fetch GETs the stored collection URL. Observation values are printed Name. Nested objects are not copied as dimensions.",
+    "License and publisher stay null: the swagger does not print those fields.",
+    "GetPMSList and SearchSpeciesInternalAndExternal were ingested as printed GET paths. They were not fetched: the swagger marks filter as required, and this slice does not invent a filter.",
+    "NIBIO stays on PR 72. This source does not re-implement it. Kystverket stayed on main (PR 71)."
+  ]
+}
