@@ -1328,6 +1328,16 @@ are not copied.
 This source is Statens vegvesen's CKAN dataportal, not NVDB OpenAPI
 (known User-Agent 400 skip) and not Trafikkdata GraphQL.
 
+Live ingest 2026-08-27: 10 printed package names (catalog prints 85,
+cap 10). Live search `Artsmangfold` returns `vegvesen:artsmangfold`.
+Live fetch GETs
+`https://dataut.vegvesen.no/api/3/action/package_show?id=artsmangfold`
+HTTP 200, 2 resource-name rows. Sample printed names: Åpne data via
+NVDB api (XML), Åpne data via NVDB api (JSON). `pda methods` is not
+applicable: resource names, not a numeric time series
+(`no observations matched entity/measure; available=[]`).
+Proof is `data/vegvesen_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
