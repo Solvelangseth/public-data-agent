@@ -1,0 +1,143 @@
+{
+  "produced_at": "2026-08-27T16:05:00Z",
+  "bound": {
+    "list_api": "https://data-nfr.udir.no/swagger/v4/swagger.json",
+    "walk": "copy printed collection GET paths from the official NFR OpenAPI; skip templated paths and POST; join each path to the OpenAPI document origin because the live spec prints no servers array; do not invent path ids",
+    "cap": 10,
+    "how": "pda ingest --source nfr --limit 10. The official NFR OpenAPI prints 15 paths. 8 untemplated collection GETs are /v4/enheter, /v4/enheter/endretetter, /v4/naeringskoder, /v4/maalformer, /v4/organisasjonsformer, /v4/utgaattyper, /v4/relasjonstyper, and /v4/skolefritidsordningskategorier. Templated {organisasjonsnummer} paths and POST /v4/enheter/sok are skipped. The adapter copies the printed untemplated GET paths joined to https://data-nfr.udir.no."
+  },
+  "discarded": [
+    {
+      "candidate": "Udir NPR / Nasjonalt register for PP-tjenester",
+      "url": "PR 85 cursor/npr-pp-tjenester-2d86 --source npr",
+      "why": "Already in flight. Do not touch that branch, PR, or npr adapter files. This branch starts from origin/main only."
+    },
+    {
+      "candidate": "Udir NOR / Nasjonalt register for opplæringskontorer",
+      "url": "https://data-nor.udir.no/swagger/v4/swagger.json",
+      "why": "Already ingested on main as --source nor. Do not re-add."
+    },
+    {
+      "candidate": "Udir NSR / Nasjonalt skoleregister",
+      "url": "https://data-nsr.udir.no/",
+      "why": "Already ingested on main as --source udir. Different register."
+    },
+    {
+      "candidate": "Udir NBR / Nasjonalt barnehageregister",
+      "url": "https://data-nbr.udir.no/",
+      "why": "Already ingested on main as --source nbr. Different register."
+    },
+    {
+      "candidate": "Fiskeridirektoratet NYTEK",
+      "url": "https://api.fiskeridir.no/nytek-public/v3/api-docs",
+      "why": "Already ingested on main as --source nytek. Do not re-add."
+    },
+    {
+      "candidate": "NVDB Les V3 OpenAPI",
+      "url": "https://nvdbapiles-v3.atlas.vegvesen.no/dokumentasjon/openapi.json",
+      "why": "Known skip: HTTP 400 User-Agent. Do not retry."
+    },
+    {
+      "candidate": "Vegvesen Trafikkdata swagger / trafikkdata-api",
+      "url": "https://trafikkdata.atlas.vegvesen.no/",
+      "why": "Known skip: swagger HTML-only; trafikkdata-api 410. Do not retry."
+    },
+    {
+      "candidate": "Kartverket Eiendom /geokoding",
+      "url": "https://api.kartverket.no/eiendom/v1/geokoding",
+      "why": "Known skip: HTTP 400 without matrikkel params. Search API, not a collection catalog. Do not retry."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source nfr --db /tmp/pda-nfr-proof/registry.sqlite --limit 10",
+    "listed": 8,
+    "inserted": 8,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "nfr:enheter",
+        "access_path": "https://data-nfr.udir.no/v4/enheter"
+      },
+      {
+        "id": "nfr:endretetter",
+        "access_path": "https://data-nfr.udir.no/v4/enheter/endretetter"
+      },
+      {
+        "id": "nfr:naeringskoder",
+        "access_path": "https://data-nfr.udir.no/v4/naeringskoder"
+      },
+      {
+        "id": "nfr:maalformer",
+        "access_path": "https://data-nfr.udir.no/v4/maalformer"
+      },
+      {
+        "id": "nfr:organisasjonsformer",
+        "access_path": "https://data-nfr.udir.no/v4/organisasjonsformer"
+      },
+      {
+        "id": "nfr:utgaattyper",
+        "access_path": "https://data-nfr.udir.no/v4/utgaattyper"
+      },
+      {
+        "id": "nfr:relasjonstyper",
+        "access_path": "https://data-nfr.udir.no/v4/relasjonstyper"
+      },
+      {
+        "id": "nfr:skolefritidsordningskategorier",
+        "access_path": "https://data-nfr.udir.no/v4/skolefritidsordningskategorier"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search skolefritidsordningskategorier --db /tmp/pda-nfr-proof/registry.sqlite --limit 5",
+    "query": "skolefritidsordningskategorier",
+    "returned": 1,
+    "hit_id": "nfr:skolefritidsordningskategorier",
+    "title": "Alle skolefritidsordningskategorier",
+    "source_id": "nfr"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset nfr:skolefritidsordningskategorier --db /tmp/pda-nfr-proof/registry.sqlite",
+    "dataset": "nfr:skolefritidsordningskategorier",
+    "table_id": "skolefritidsordningskategorier",
+    "access_path": "https://data-nfr.udir.no/v4/skolefritidsordningskategorier",
+    "request_url": "https://data-nfr.udir.no/v4/skolefritidsordningskategorier",
+    "http_status": 200,
+    "listed": 3,
+    "inserted": 3,
+    "license": "https://data.norge.no/nlod/no",
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "Navn",
+        "value": "Ingen verdi"
+      },
+      {
+        "measure": "Navn",
+        "value": "Offentlig skolefritidsordning"
+      },
+      {
+        "measure": "Navn",
+        "value": "Privat skolefritidsordning"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset nfr:skolefritidsordningskategorier --table skolefritidsordningskategorier --entity \"\" --measure \"\" --db /tmp/pda-nfr-proof/registry.sqlite --out /tmp/pda-nfr-proof/methods",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "NFR /v4/skolefritidsordningskategorier prints kategori names. That is not a numeric time series. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed OpenAPI path last segments. access_path is https://data-nfr.udir.no/v4/skolefritidsordningskategorier, joined from the OpenAPI origin and the printed untemplated GET path. No nfr id was written onto a udir, nbr, nor, npr, or datanorge row.",
+    "License is the printed OpenAPI info.license.url. Publisher is null. The spec does not print a publisher name.",
+    "Original harvested OpenAPI metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "Udir NPR stays on PR 85. NSR, NBR, NOR, and NYTEK were not re-added. This source does not re-implement any of them.",
+    "python3 -m pytest 343 passed, 1 skipped, 1 deselected."
+  ]
+}
