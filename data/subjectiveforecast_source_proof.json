@@ -1,0 +1,224 @@
+{
+  "produced_at": "2026-08-27T22:33:27Z",
+  "bound": {
+    "list_api": "https://api.met.no/weatherapi/subjectiveforecast/1.0/swagger",
+    "walk": "copy printed untemplated GET paths from the official MET Subjectiveforecast swagger that have a last path segment and no required parameter; skip templated {format} paths and the root / image product (required product query); native ids are the last printed path segment; access_path is swagger origin + printed basePath + path; optional content_type/product/param query filters are not invented",
+    "cap": 10,
+    "how": "pda ingest --source subjectiveforecast --limit 10. The official MET Subjectiveforecast swagger prints 7 paths. The adapter copies the 5 untemplated GET paths that have a printed last segment and no required parameter (available, changelog, features, healthz, values). GET uses the printed /features collection with no invented query filters."
+  },
+  "discarded": [
+    {
+      "candidate": "MET Metgm",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/112",
+      "why": "Lane B already opened --source metgm as PR 112. Do not pick that source."
+    },
+    {
+      "candidate": "Meteorologisk institutt Geosatellite",
+      "url": "https://api.met.no/weatherapi/geosatellite/1.4/swagger",
+      "why": "Already on main as --source geosatellite after PR 111 merge 25e8953. Do not re-add."
+    },
+    {
+      "candidate": "MET Subseasonal",
+      "url": "https://api.met.no/weatherapi/subseasonal/1.0/swagger",
+      "why": "Already on main as --source subseasonal after PR 110. Do not re-add."
+    },
+    {
+      "candidate": "Meteorologisk institutt Tafmetar",
+      "url": "https://api.met.no/weatherapi/tafmetar/1.0/swagger",
+      "why": "Already on main as --source tafmetar after PR 109. Do not re-add."
+    },
+    {
+      "candidate": "MET NCAgalewarnings",
+      "url": "https://api.met.no/weatherapi/ncagalewarnings/1.0/swagger",
+      "why": "Already on main as --source ncagalewarnings. Do not re-add."
+    },
+    {
+      "candidate": "Meteorologisk institutt Icemap",
+      "url": "https://api.met.no/weatherapi/icemap/1.0/swagger",
+      "why": "Already on main as --source icemap. Do not re-add."
+    },
+    {
+      "candidate": "Meteorologisk institutt Textforecast",
+      "url": "https://api.met.no/weatherapi/textforecast/3.0/swagger",
+      "why": "Already on main as --source textforecast. Do not re-add."
+    },
+    {
+      "candidate": "MET Spotwind",
+      "url": "https://api.met.no/weatherapi/spotwind/1.1/swagger",
+      "why": "Already on main as --source spotwind. Do not re-add."
+    },
+    {
+      "candidate": "Meteorologisk institutt Radar",
+      "url": "https://api.met.no/weatherapi/radar/2.0/swagger",
+      "why": "Already on main as --source radar. Do not re-add."
+    },
+    {
+      "candidate": "MET Sunrise",
+      "url": "https://api.met.no/weatherapi/sunrise/3.0/swagger",
+      "why": "Already on main as --source sunrise. Do not re-add."
+    },
+    {
+      "candidate": "Meteorologisk institutt Oceanforecast",
+      "url": "https://api.met.no/weatherapi/oceanforecast/2.0/swagger",
+      "why": "Already on main as --source oceanforecast. Do not re-add."
+    },
+    {
+      "candidate": "Meteorologisk institutt Tidalwater",
+      "url": "https://api.met.no/weatherapi/tidalwater/1.1/swagger",
+      "why": "Already on main as --source tidalwater. Do not re-add."
+    },
+    {
+      "candidate": "Meteorologisk institutt Airqualityforecast",
+      "url": "https://api.met.no/weatherapi/airqualityforecast/0.1/swagger",
+      "why": "Already on main as --source airquality. Do not re-add."
+    },
+    {
+      "candidate": "MET Locationforecast /classic /compact /complete",
+      "url": "https://api.met.no/weatherapi/locationforecast/2.0/swagger",
+      "why": "Printed forecast paths require lat/lon. Unused for fetch."
+    },
+    {
+      "candidate": "MET weathericon swagger",
+      "url": "https://api.met.no/weatherapi/weathericon/2.0/swagger",
+      "why": "Known skip: HTTP 500. Do not retry."
+    },
+    {
+      "candidate": "MET aviationforecast swagger",
+      "url": "https://api.met.no/weatherapi/aviationforecast/1.6/swagger",
+      "why": "Known skip: HTTP 500. Do not retry."
+    },
+    {
+      "candidate": "MET turbulence swagger",
+      "url": "https://api.met.no/weatherapi/turbulence/1.1/swagger",
+      "why": "Known skip: HTTP 500. Do not retry."
+    },
+    {
+      "candidate": "Frost MET sources",
+      "url": "https://frost.met.no/sources/v0.jsonld",
+      "why": "Known skip: HTTP 401. Do not retry."
+    },
+    {
+      "candidate": "NVDB Les V3 OpenAPI",
+      "url": "https://nvdbapiles-v3.atlas.vegvesen.no/dokumentasjon/openapi.json",
+      "why": "Known skip: HTTP 400 User-Agent. Do not retry."
+    },
+    {
+      "candidate": "Vegvesen Trafikkdata swagger / trafikkdata-api",
+      "url": "https://trafikkdata.atlas.vegvesen.no/",
+      "why": "Known skip: swagger HTML-only; trafikkdata-api 410. Do not retry."
+    },
+    {
+      "candidate": "Kartverket Eiendom /geokoding",
+      "url": "https://api.kartverket.no/eiendom/v1/geokoding",
+      "why": "Known skip: HTTP 400 without matrikkel params. Do not retry."
+    },
+    {
+      "candidate": "Udir Statistikkbanken /data",
+      "url": "Udir Statistikkbanken /Eksport/{id}/data",
+      "why": "Known skip: requires invented filters. Do not retry."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source subjectiveforecast --db /tmp/pda-subjectiveforecast-proof/registry.sqlite --limit 10",
+    "listed": 5,
+    "inserted": 5,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "subjectiveforecast:available",
+        "access_path": "https://api.met.no/weatherapi/subjectiveforecast/1.0/available"
+      },
+      {
+        "id": "subjectiveforecast:changelog",
+        "access_path": "https://api.met.no/weatherapi/subjectiveforecast/1.0/changelog"
+      },
+      {
+        "id": "subjectiveforecast:features",
+        "access_path": "https://api.met.no/weatherapi/subjectiveforecast/1.0/features"
+      },
+      {
+        "id": "subjectiveforecast:healthz",
+        "access_path": "https://api.met.no/weatherapi/subjectiveforecast/1.0/healthz"
+      },
+      {
+        "id": "subjectiveforecast:values",
+        "access_path": "https://api.met.no/weatherapi/subjectiveforecast/1.0/values"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search featurecollection --db /tmp/pda-subjectiveforecast-proof/registry.sqlite --limit 5",
+    "query": "featurecollection",
+    "returned": 1,
+    "hit_id": "subjectiveforecast:features",
+    "title": "List available resources as OGC API FeatureCollection",
+    "source_id": "subjectiveforecast",
+    "publisher": null,
+    "license": "http://creativecommons.org/licenses/by/4.0",
+    "access_path": "https://api.met.no/weatherapi/subjectiveforecast/1.0/features",
+    "original_source": "https://api.met.no/weatherapi/subjectiveforecast/1.0/swagger",
+    "why_picked": "title matched featurecollection"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset subjectiveforecast:features --db /tmp/pda-subjectiveforecast-proof/registry.sqlite",
+    "dataset": "subjectiveforecast:features",
+    "table_id": "features",
+    "access_path": "https://api.met.no/weatherapi/subjectiveforecast/1.0/features",
+    "request_url": "https://api.met.no/weatherapi/subjectiveforecast/1.0/features",
+    "http_status": 200,
+    "listed": 12,
+    "inserted": 12,
+    "updated": 0,
+    "unchanged": 0,
+    "license": "http://creativecommons.org/licenses/by/4.0",
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "datetime",
+        "value": "2026-08-25T18:00:00Z",
+        "dimensions": {
+          "id": "analyse_20260825T18"
+        }
+      },
+      {
+        "measure": "datetime",
+        "value": "2026-08-26T00:00:00Z",
+        "dimensions": {
+          "id": "analyse_20260826T00"
+        }
+      },
+      {
+        "measure": "datetime",
+        "value": "2026-08-26T03:00:00Z",
+        "dimensions": {
+          "id": "analyse_20260826T03"
+        }
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset subjectiveforecast:features --table features --entity \"\" --measure \"\" --db /tmp/pda-subjectiveforecast-proof/registry.sqlite --out /tmp/pda-subjectiveforecast-proof/methods",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "Subjectiveforecast /features prints feature datetime stamps and image ids (analyse_20260825T18, …). That is not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed swagger path last segments. access_path is swagger origin + printed basePath + path. No subjectiveforecast id was written onto a met, nowcast, radar, oceanforecast, airquality, tidalwater, sunrise, spotwind, textforecast, icemap, ncagalewarnings, tafmetar, subseasonal, geosatellite, or datanorge row.",
+    "License is the printed swagger CC BY 4.0 URL http://creativecommons.org/licenses/by/4.0. Publisher is null: the spec prints contact.name Developer Support, not a publisher.",
+    "Original harvested swagger metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "Nowcast stays --source nowcast. Metalerts stays --source met. Airqualityforecast stays --source airquality. Tidalwater stays --source tidalwater. Oceanforecast stays --source oceanforecast. Sunrise stays --source sunrise. Radar stays --source radar. Spotwind stays --source spotwind. Textforecast stays --source textforecast. Icemap stays --source icemap. NCAgalewarnings stays --source ncagalewarnings. Tafmetar stays --source tafmetar. Subseasonal stays --source subseasonal. Geosatellite stays --source geosatellite after PR 111. Lane B Metgm stays PR 112. This source does not re-implement those.",
+    "Root / is an image product with no last path segment and a required product query; it was not ingested. Optional content_type/product/param filters were not invented. Fetch in this slice uses /features.",
+    "python3 -m pytest 592 passed, 1 skipped, 1 deselected.",
+    "Not a numeric time series with two or more periods."
+  ]
+}
