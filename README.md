@@ -941,6 +941,26 @@ HTTP 200, 5 elspot-area rows. Sample printed ids: NO3, NO4, NO1, NO2, NO5.
 (`no observations matched entity/measure; available=[]`).
 Proof is `data/statnett_source_proof.json`.
 
+## Utdanning.no API source
+
+`pda ingest --source utdanning` is another replaceable adapter. It lists printed
+collection GET paths on the official Utdanning.no OpenAPI
+`https://api.utdanning.no/openapi.json`, capped at 10. Templated
+paths such as `/vgs/skole/{vilbli_org_id}` are skipped. Dataset ids are
+the printed last path segments. `access_path` is the printed path joined to
+the OpenAPI document origin.
+
+```bash
+pda ingest --source utdanning --db data/registry.sqlite --limit 10
+pda search stedsvelger --db data/registry.sqlite
+pda fetch --dataset utdanning:stedsvelger --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored collection URL. Observation values are copied
+from a printed name field (`fylkenavn`, `tittel`, `name`, `navn`, or
+`yrke_navn`) when present. License and publisher stay null: the spec does
+not print those fields.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists

@@ -15,6 +15,7 @@ from public_data_agent.sources.nve import NveMagasinSource
 from public_data_agent.sources.ssb import SsbStatbankSource
 from public_data_agent.sources.statnett import StatnettDriftsdataSource
 from public_data_agent.sources.udir import UdirNsrSource
+from public_data_agent.sources.utdanning import UtdanningSource
 from public_data_agent.sources.valg import ValgresultatSource
 
 SOURCE_IDS = (
@@ -31,6 +32,7 @@ SOURCE_IDS = (
     "entur",
     "fiskeridir",
     "statnett",
+    "utdanning",
 )
 
 
@@ -63,6 +65,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return FiskeridirVesselSource()
     if source_id == "statnett":
         return StatnettDriftsdataSource()
+    if source_id == "utdanning":
+        return UtdanningSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -82,6 +86,7 @@ __all__ = [
     "SourceBase",
     "StatnettDriftsdataSource",
     "UdirNsrSource",
+    "UtdanningSource",
     "ValgresultatSource",
     "build_source",
 ]
