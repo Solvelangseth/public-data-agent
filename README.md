@@ -2916,6 +2916,8 @@ location-name cells. Sample printed value: `BANAK`.
 time series (`no observations matched entity/measure; available=[]`).
 Proof is `data/nlaroutes_source_proof.json`.
 
+## MET Sigcharts source
+
 `pda ingest --source sigcharts` is another replaceable adapter. It lists printed
 collection GET paths on the official MET Sigcharts swagger
 `https://api.met.no/weatherapi/sigcharts/2.0/swagger`, capped at 10.
@@ -2965,6 +2967,59 @@ location-name cells. Sample printed value: `Nordic`.
 `pda methods` is not applicable: GeoJSON location names, not a numeric
 time series (`no observations matched entity/measure; available=[]`).
 Proof is `data/sigcharts_source_proof.json`.
+
+## MET Volcanicashforecast source
+
+`pda ingest --source volcanicashforecast` is another replaceable adapter. It
+lists printed collection GET paths on the official MET Volcanicashforecast
+swagger `https://api.met.no/weatherapi/volcanicashforecast/0.1/swagger`,
+capped at 10. Templated `{format}` paths and GET operations that print
+required query parameters are skipped. The root product path has no
+last-segment id so it is skipped. Dataset ids are the last printed path
+segment. `access_path` is the swagger origin + printed `basePath` + path.
+License is the printed swagger CC BY 4.0 URL. Publisher stays null.
+This is not Metalerts (`--source met`), not Nowcast (`--source nowcast`),
+not MET Airqualityforecast (`--source airquality`), not MET Tidalwater
+(`--source tidalwater`), not MET Oceanforecast (`--source oceanforecast`),
+not MET Sunrise (`--source sunrise`), not MET Radar (`--source radar`),
+not MET Spotwind (`--source spotwind`), not MET Textforecast
+(`--source textforecast`), not MET Icemap (`--source icemap`), not MET
+NCAgalewarnings (`--source ncagalewarnings`), not MET Tafmetar
+(`--source tafmetar`), not MET Subseasonal (`--source subseasonal`),
+not MET Geosatellite (`--source geosatellite`), not MET Metgm
+(`--source metgm`), not MET Subjectiveforecast
+(`--source subjectiveforecast`), not MET Polarsatellite
+(`--source polarsatellite`), not Kartverket Transformering
+(`--source transformering`), not MET Soundprofile
+(`--source soundprofile`), not MET Gribfiles (`--source gribfiles`),
+not MET Metgc (`--source metgc`), not MET Oslofjord
+(`--source oslofjord`), not MET Isobaricgrib (`--source isobaricgrib`),
+not MET Offshoremaps (`--source offshoremaps`), not MET Turbulence
+(`--source turbulence`), not MET NLAroutes (`--source nlaroutes`),
+and not MET Sigcharts (`--source sigcharts`, now on main after PR 124).
+`/changelog` prints RSS and `/healthz` prints plain text, so they stay
+unused for fetch. `/resources` prints a JSON array of file paths and
+stays unused for this first fetch.
+
+```bash
+pda ingest --source volcanicashforecast --db data/registry.sqlite --limit 10
+pda search something --db data/registry.sqlite
+pda fetch --dataset volcanicashforecast:reftimes --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored collection URL. Observation values are copied
+from the printed `/reftimes` JSON array. License is the printed swagger
+CC BY 4.0 URL. Publisher stays null: the spec does not print a publisher.
+
+Live ingest 2026-08-27: 4 printed untemplated GET paths (catalog prints
+4 paths with a last-segment id and no required query parameter, cap 10).
+Live search `something` returns `volcanicashforecast:reftimes`. Live fetch
+GETs `https://api.met.no/weatherapi/volcanicashforecast/0.1/reftimes`
+HTTP 200, 27 printed reftime cells. Sample printed value:
+`2026-06-09T11:00:00Z`. `pda methods` is not applicable: printed reftime
+strings, not a numeric time series
+(`no observations matched entity/measure; available=[]`).
+Proof is `data/volcanicashforecast_source_proof.json`.
 
 ## Architecture (long term)
 
