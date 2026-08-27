@@ -184,6 +184,7 @@
     "License and publisher are null. The catalog prints neither a license URL nor a structured publisher. HTML attribution was not scraped into a publisher field.",
     "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
     "Kommuneinfo stays on PR 94. Høydedata stays a Geonorge row. This source does not re-implement either.",
-    "python3 -m pytest 417 passed, 1 skipped, 1 deselected."
+    "python3 -m pytest 425 passed, 1 skipped, 1 deselected after rebase onto main with kommuneinfo.",
+    "Rebased onto origin/main after Kommuneinfo 94 merge 2d9e6a5. kommuneinfo and sodir adapters were not edited."
   ]
 }
