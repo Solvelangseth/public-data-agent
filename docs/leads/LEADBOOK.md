@@ -6,7 +6,7 @@ No email, call, or outbound post from this file. Contacts are only what the org 
 Product sold: registry of Norwegian public datasets (Data.norge first ingest, sources replaceable), natural-language search, first fetch of actual rows. Later analysis. LLM for intent and explanation. Deterministic retrieval. Provenance (source, publisher, license, access path) on every hit.
 Repo: https://github.com/Solvelangseth/public-data-agent
 
-Status 27 Aug 2026, 12:19 Europe/Oslo: 82 sourced leads. PR 41 merged (e580b7c). Wave 9: Sygnir, Meløy Energi, Lier, Sandefjord. Health this wave skipped (no named consume). Arendal held. No outreach.
+Status 27 Aug 2026, 12:45 Europe/Oslo: 86 sourced leads. PR 46 merged (cb2e51f). Wave 10: Føie, Vestmar, Nordre Follo, Lørenskog. Tinn/Stannum skipped. Arendal held. No outreach.
 
 How to read a lead: why they would pay is tied to a named programme, not "they use data." Service shape is always search → fetch → later analysis. If a field says none published, do not invent one.
 
@@ -1855,6 +1855,57 @@ Sources below were opened 2026-08-27 from official pages and the named press/pro
   - https://virksomhet.brreg.no/nb/oppslag/enheter/919173122
   - https://data.brreg.no/enhetsregisteret/api/enheter/919173122
 
+### Føie AS
+
+- **Why they would pay.** Tilko for ≥1 MW (forbruk og produksjon) plus Statnett-printed samarbeid on **områdeplan Hallingdal og Ringerike**: «lokale nettiltak hos Glitre og Føie»; «vi samarbeider med Glitre Nett og Føie om videre nettutvikling og reservasjon av nettkapasitet» (200 MW reserved, 575 MW in kø). Live **Green Mountain / hScale 40+40 MW** Follum 22 kV file must cite Statnett Hønefoss, Glitre overlying and Ringerike kommuneplan. Nettutreder under taken Glitre NUK Buskerud (PlanNett last login null). Own Tilko host alone is not the buy reason. Not a Glitre brand.
+- **Concrete use case.** Nettutvikling first-fetches Statnett områdeplan Hallingdal og Ringerike / Hønefoss transformatorstasjon, NVE PlanNett / Atlas / samlekonsesjon 202417301, Glitre NUK Buskerud, and Ringerike (Follum / Treklyngen) or Hole plan for a Tilko ≥1 MW sak or the live 40+40 MW Follum file.
+- **How the service should look.**
+  - Search: data.norge first (Nettkonsesjonsområder; kommuneplan / regulering), then PlanNett, Statnett, Geonorge / municipal plan, SSB.
+  - Fetch: first official PDF / GeoJSON. Not a replacement for Tilko or the installatørmelding.
+  - Later analysis: corridor overlay on Glitre’s NUK områdestudie and Statnett’s 200 MW reserved / 575 MW kø.
+- **Public contact.**
+  - Role / unit: kundeservice / nettutvikling (Ringerike, Hole og Nore is the Tilko / Follum desk). Vebjørn Sortebekk named as leder for nettutvikling; Cecilie Pindsle named as pressekontakt. Hole press prints phones only — do not invent firstname.lastname mailboxes. Anders Granheim named as daglig leder; no mailbox printed.
+  - Email: `post@foie.no` (Enhetsregisteret); `kontakt@foie.no` (Ringerike, Hole og Nore); `hallingdal@foie.no`. Do not use leftover `post@ringerikskraft.no`.
+  - Phone: 32 08 71 00 (Enhetsregisteret); 32 07 08 09 (kundeservice). Sortebekk 468 36 324 and Pindsle 917 10 430 on the Hole press page.
+  - Form/URL: https://www.foie.no/kundeservice/kontakt/kontaktinfo; https://www.foie.no/stromtilknytning/storre-stromtilknytninger/
+- **Key facts.** Org.nr 971 589 752. Lienvegen 41, 3580 Geilo. Historisk navn HALLINGDAL KRAFTNETT AS (to 07.11.2024). Absorbed gamle Føie / Ringerikskraft Nett + Hemsil Nett in 2024. 50/50 Vidju Holding / Ringerikskraft. 113 ansatte (12.08.2026).
+- **Sources** (opened 2026-08-27).
+  - https://www.foie.no/stromtilknytning/storre-stromtilknytninger/
+  - https://www.foie.no/kundeservice/kontakt/kontaktinfo
+  - https://www.foie.no/om-oss/styret-og-ledelse/
+  - https://www.foie.no/presse/pressemeldinger/foie-forsterker-stromnettet-og-forbedrer-kapasiteten-i-hole-3429429
+  - https://www.statnett.no/om-statnett/nyheter-og-pressemeldinger/nyhetsarkiv-2025/omradeplan-hallingdal-og-ringerike--styrker-stromforsyningen-og-legger-til-rette-for-okt-vannkraftproduksjon/
+  - https://www.nve.no/konsesjon/konsesjonssaker/konsesjonssak?id=17229&type=A-1
+  - https://plannett.nve.no/
+  - https://virksomhet.brreg.no/nb/oppslag/enheter/971589752
+  - https://data.brreg.no/enhetsregisteret/api/enheter/971589752
+
+### Vestmar Nett AS
+
+- **Why they would pay.** Named PlanNett **KVU 20250129 «Effektøkning Fikkjebakke Industriområde»** (owner Vestmar; E18 Dørdal–Grense Agder; 30–60 MW vind/sol) plus **områdestudie 20250221 «Effekttilgang regionalnett Kragerø»**. The study consumes PlanNett lastprognoser («total effektøkning på 1,6 MW») and links Statnett KVU **20230174 «Nettforsterkning mellom Sørlandet og Østlandet»**. Results: need better grunnlagsdata before a tiltak-KVU. Nettutreder under taken Lede NUK Vestfold og Telemark (last login 2026-07-03). Own portal / installatørmelding alone is not the buy reason. Not a Lede brand. No live «Kragerø Energi Nett».
+- **Concrete use case.** Nettplan first-fetches Statnett KVU 20230174, NVE PlanNett / Atlas / KVU 20250129 / områdestudie 20250221, and Kragerø kommuneplan / regulering for Fikkjebakke or the 3–4 MW sentralrenseanlegg / 6–8 MW fergeelektrifisering last.
+- **How the service should look.**
+  - Search: data.norge first, then PlanNett, Statnett, Geonorge / Kragerø plan, SSB.
+  - Fetch: first official PDF / GeoJSON. Not a replacement for the installatørmelding.
+  - Later analysis: overlay on Lede’s NUK områdestudie and Statnett 20230174.
+- **Public contact.**
+  - Role / unit: firmapost / PlanNett nettutreder. Henrik Thoresen printed as PlanNett public contact on områdestudie 20250221. Daglig leder Nils Martin Stensholt named; no mailbox printed — do not invent one.
+  - Email: `firmapost@vestmar-nett.no` (vestmar-nett.no + PlanNett KVU); `hst@vestmar-nett.no` (PlanNett områdestudie); `post@krageroenergi.net` (Enhetsregisteret). Do not use leftover `firmapost@kragero-energi.no`.
+  - Phone: 35 49 99 66 (vestmar-nett.no); 35 98 15 00 (Enhetsregisteret); vakt 35 98 20 94
+  - Form/URL: https://vestmar-nett.no/om-oss/; https://plannett.nve.no/omraadestudie/20250221
+- **Key facts.** Org.nr 979 399 901. Bråteveien 6, 3772 Kragerø. Historisk navn KRAGERØ ENERGI AS (to 16.06.2021). 23 ansatte (13.06.2026). ~9 200 nettkunder.
+- **Sources** (opened 2026-08-27).
+  - https://vestmar-nett.no/om-oss/
+  - https://vestmar-nett.no/kundeservice/
+  - https://api-plannett.nve.no/api/Konseptvalgutredning/20250129
+  - https://api-plannett.nve.no/api/Omraadestudie/20250221
+  - https://plannett.nve.no/konseptvalgutredning/20250129
+  - https://plannett.nve.no/omraadestudie/20250221
+  - https://api-plannett.nve.no/api/Konseptvalgutredning/20230174
+  - https://plannett.nve.no/
+  - https://virksomhet.brreg.no/nb/oppslag/enheter/979399901
+  - https://data.brreg.no/enhetsregisteret/api/enheter/979399901
+
 ---
 
 ## 48. Fredrikstad kommune — Åpne data Hub + kart@
@@ -2516,6 +2567,56 @@ Sources below were opened 2026-08-27 from official pages and the named press/pro
   - https://data.brreg.no/enhetsregisteret/api/enheter/916882807
   - https://www.miljodirektoratet.no/tjenester/klimagassutslipp-kommuner/
 
+### Nordre Follo kommune
+
+- **Why they would pay.** Økonomi- og handlingsplan 2026–2029 Framsikt slug `bm-2026-okonomi-_og_handlingsplan_2026-2029_kst`: title.json documentTitle2 is **Kommunestyrets vedtak 17.12.2025** (title3 empty; this tenant puts vedtak in title2). Named **Klima- og miljøbudsjettet** chapter cites Miljødirektoratet (2023 geografiske utslipp, arealbruk 14 217 t, Klimakur). Forslag slug `bm-2026-okonomi-_og_handlingsplan_2026-2029` is Kommunedirektørens forslag — not this document. Chapter figure href area=747 is Vadsø; live Nordre Follo is areaId 533.
+- **Concrete use case.** Klima owners first-fetch Miljødirektoratet kommune 3207 / areaId 533 sector series and overlay the vedtatt 2023 / −8 % / −24 % / −55 %-2030 / Klimakur rows. Official 2024 first-fetch is 97 055,3 t (−3,7 %); chapter is still on 2023.
+- **How the service should look.**
+  - Search: data.norge first, then Mdir kommuneregnskap, SSB 07459.
+  - Fetch: first official Excel rows for areaId 533. Do not fetch 747 as Nordre Follo. Their Framsikt chapter stays theirs.
+  - Later analysis: refresh 2023→2024/2025 into the 55 % / 2030 residual; keep veitrafikk and the area=747 Vadsø href as named holes.
+- **Public contact.**
+  - Role / unit: postmottak; kommunedirektør Øyvind Henriksen; direktør Eiendom, samfunn og teknikk Monica Lysebo. Klimarådgiver / økonomisjef named in news, no mailbox printed — do not invent one.
+  - Email: `postmottak@nordrefollo.kommune.no`; `oyvind.henriksen@nordrefollo.kommune.no`; `monica.lysebo@nordrefollo.kommune.no`
+  - Phone: 02178 / 98 70 21 78; Henriksen 95 98 65 90; Lysebo 91 64 78 48
+  - Form/URL: https://nordrefollo.kommune.no/om-nordre-follo-kommune/kontakt-oss/; https://nordrefollo.kommune.no/om-nordre-follo-kommune/administrativ-ledelse/
+- **Key facts.** Org.nr 922 092 648. Kommunenr. 3207. Idrettsveien 8, 1400 Ski. Kommunestyret 17.12.2025.
+- **Sources** (opened 2026-08-27).
+  - https://pub.framsikt.net/2026/nf/bm-2026-okonomi-_og_handlingsplan_2026-2029_kst
+  - https://pub.framsikt.net/2026/nf/bm-2026-okonomi-_og_handlingsplan_2026-2029_kst/#/generic/summary/69630827-f78a-4c1b-bece-abe1116a2cb2-cn
+  - https://pub.framsikt.net/2026/nf/bm-2026-okonomi-_og_handlingsplan_2026-2029_kst/content/data/title.json
+  - https://www.nordrefollo.kommune.no/okonomiske-analyser-og-planer/strategi--og-handlingsplan/
+  - https://nordrefollo.kommune.no/om-nordre-follo-kommune/kontakt-oss/
+  - https://nordrefollo.kommune.no/om-nordre-follo-kommune/administrativ-ledelse/
+  - https://data.brreg.no/enhetsregisteret/api/enheter/922092648
+  - https://www.miljodirektoratet.no/tjenester/klimagassutslipp-kommuner/
+  - https://www.miljodirektoratet.no/greenhousegas/api/summary?areaId=533
+
+### Lørenskog kommune
+
+- **Why they would pay.** Handlings- og økonomiplan 2026–2029 Framsikt slug `bm-2026-budsjett_2026_kst_vedtak`: title.json documentTitle3 is **Kommunestyrets vedtak**. Named **Klimabudsjett** chapter cites Miljødirektoratet as the only yearly geographic series («det kun er denne statistikken som blir utarbeidet av Miljødirektoratet»; 2023 ca. 57 000 t; −18 % 2009–2023; veitrafikk ca. 44 % / annen mobil ca. 42 %). Forslag slugs `bm-2026-okonomiplan` (versjon 18. september 2025) and `bm-2026-bu_2026` (versjon 7. november) are not this document.
+- **Concrete use case.** Klima owners first-fetch Miljødirektoratet kommune 3222 / areaId 542 sector series and overlay the vedtatt 2009 / 2023 / −50 %-2030 / klimanøytral-2050 rows. Official 2024 first-fetch is 63 638,2 t (+1,7 %); chapter is still on 2023 «ca. 57 000 t».
+- **How the service should look.**
+  - Search: data.norge first, then Mdir kommuneregnskap, SSB 07459.
+  - Fetch: first official Excel rows for areaId 542. Their Framsikt chapter stays theirs.
+  - Later analysis: refresh 2023→2024/2025 into the 50 % / 2030 residual; keep veitrafikk and annen mobil as named holes.
+- **Public contact.**
+  - Role / unit: postmottak; leder økonomi Terje Trovik; kommunalsjef utvikling, eiendom og teknikk Hogne Røisheim. No named klimarådgiver mailbox — do not invent one.
+  - Email: `postmottak@lorenskog.kommune.no`; `tertro@lorenskog.kommune.no`; `hogroi@lorenskog.kommune.no`
+  - Phone: 67 93 40 00; Trovik 48 89 85 03; Røisheim 41 43 79 21
+  - Form/URL: https://www.lorenskog.kommune.no/om-kommunen/kontakt-oss/kontaktinformasjon/
+- **Key facts.** Org.nr 842 566 142. Kommunenr. 3222. Hasselveien 6 / Postboks 304, 1471 Lørenskog. Kommunestyret 10.12.2025.
+- **Sources** (opened 2026-08-27).
+  - https://pub.framsikt.net/2026/lorenskog/bm-2026-budsjett_2026_kst_vedtak
+  - https://pub.framsikt.net/2026/lorenskog/bm-2026-budsjett_2026_kst_vedtak/#/generic/summary/climatesummary
+  - https://pub.framsikt.net/2026/lorenskog/bm-2026-budsjett_2026_kst_vedtak/content/data/title.json
+  - https://pub.framsikt.net/2026/lorenskog/bm-2026-budsjett_2026_kst_vedtak/content/text/summary/ClimateSummary/t-7/description.json
+  - https://www.lorenskog.kommune.no/politikk-og-medvirkning/okonomi/budsjett-2026-og-okonomiplan-2026-2029/
+  - https://www.lorenskog.kommune.no/om-kommunen/kontakt-oss/kontaktinformasjon/
+  - https://data.brreg.no/enhetsregisteret/api/enheter/842566142
+  - https://www.miljodirektoratet.no/tjenester/klimagassutslipp-kommuner/
+  - https://www.miljodirektoratet.no/greenhousegas/api/summary?areaId=542
+
 ---
 
 ## Skipped, with reasons
@@ -2534,6 +2635,8 @@ Keep these notes in the living book. They are not leads.
 - **Istad** — is Elinett; not a separate energy seat.
 - **Asker / Bærum / Ålesund / Tromsø / Drammen** — mid-size seats held; not numbered in this book.
 - **Arendal kommune** — held: 2026 klimabudsjett is only in kommunedirektørens forslag; the vedtatt HØP (bystyret 11.12.2025) has no Klimabudsjett chapter. Same skip as an un-vedtatt skisse.
+- **Tinn Energi Nett** — skipped (live name Stannum AS 924 940 379; Tilko host / PlanNett lastLogin null; not absorbed).
+- **Kragerø Energi Nett** — no live desk; that desk is Vestmar.
 - **Steinkjer kommune** — held: 2026 klimabudsjett is forslag, not vedtatt.
 - **Elverum kommune** — no 2026 Klimabudsjett.
 - **Ringsaker kommune** — vedtatt, no Klimabudsjett.
@@ -2562,6 +2665,11 @@ Keep these notes in the living book. They are not leads.
 - 2026-08-27: Added Horten kommune (vedtatt slug bm-2026-ohp_2026; earlier skip was the innstilling slug).
 - 2026-08-27: Added Sykehuset Sørlandet, Nordlandssykehuset, Vestall, Elmea, Halden and Lillehammer. Elmea inboxes are page-printed (`kunde@` / `pal.martinussen@`). Still no leftover `firmapost@lofotkraft.no`. Lillehammer deepen: `controllere@` + sak 90/2025. Still no outreach.
 - 2026-08-27: Added Sygnir, Meløy Energi, Lier and Sandefjord. Health seats this wave skipped. Still no outreach.
+- 2026-08-27: Added Føie AS from wave-10 energy (ex Hallingdal Kraftnett). Sortebekk named, no printed mailbox. Arendal held. Still no outreach.
+- 2026-08-27: Added Nordre Follo kommune from wave-10 mid-size (vedtatt slug bm-2026-okonomi-_og_handlingsplan_2026-2029_kst; title2 Kommunestyrets vedtak 17.12.2025). Arendal held. Still no outreach.
+- 2026-08-27: Added Lørenskog kommune from wave-10 mid-size (vedtatt slug bm-2026-budsjett_2026_kst_vedtak; title3 Kommunestyrets vedtak). Tinn/Stannum skipped. Arendal held. Still no outreach.
+- 2026-08-27: Added Vestmar Nett AS from wave-10 energy (ex Kragerø Energi). Tinn/Stannum skipped. Leftover firmapost@kragero-energi.no not used. Arendal held. Still no outreach.
+- 2026-08-27: Wave 10 closed in the living file (Føie, Vestmar, Nordre Follo, Lørenskog). Health seats this wave skipped/exhausted. Still no outreach.
 
 ---
 
