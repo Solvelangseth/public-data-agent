@@ -20,6 +20,7 @@ from public_data_agent.sources.nibio import NibioWeatherSource
 from public_data_agent.sources.norgesbank import NorgesBankSource
 from public_data_agent.sources.npolar import NpolarSource
 from public_data_agent.sources.nve import NveMagasinSource
+from public_data_agent.sources.sikt import SiktSource
 from public_data_agent.sources.oslo import OsloStatbankSource
 from public_data_agent.sources.ssb import SsbStatbankSource
 from public_data_agent.sources.statnett import StatnettDriftsdataSource
@@ -55,6 +56,7 @@ SOURCE_IDS = (
     "norgesbank",
     "npolar",
     "stedsnavn",
+    "sikt",
 )
 
 
@@ -111,6 +113,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return NpolarSource()
     if source_id == "stedsnavn":
         return StedsnavnSource()
+    if source_id == "sikt":
+        return SiktSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -133,6 +137,7 @@ __all__ = [
     "NorgesBankSource",
     "NpolarSource",
     "NveMagasinSource",
+    "SiktSource",
     "OsloStatbankSource",
     "SsbStatbankSource",
     "SOURCE_IDS",
