@@ -4,6 +4,7 @@ import argparse
 import json
 import sys
 from pathlib import Path
+from typing import Any
 
 from public_data_agent.benchmark import DEFAULT_QUESTIONS, load_questions, run_benchmark
 from public_data_agent.enrich import enrich
@@ -119,6 +120,21 @@ def main(argv: list[str] | None = None) -> int:
     ask_cmd.add_argument("--out", type=Path, default=None)
     ask_cmd.add_argument("--limit", type=int, default=10)
 
+    mcp_cmd = sub.add_parser("mcp", help="Run the stdio MCP server or call one tool")
+    mcp_cmd.add_argument("--call", choices=["search", "ask", "fetch"], default=None)
+    mcp_cmd.add_argument("--query", default=None)
+    mcp_cmd.add_argument("--question", default=None)
+    mcp_cmd.add_argument("--dataset", default=None)
+    mcp_cmd.add_argument("--table", default=None)
+    mcp_cmd.add_argument("--db", type=Path, default=DEFAULT_DB)
+    mcp_cmd.add_argument("--limit", type=int, default=10)
+    mcp_cmd.add_argument("--year", type=int, default=None)
+    mcp_cmd.add_argument("--prior-year", type=int, default=None)
+    mcp_cmd.add_argument("--from-year", type=int, default=None)
+    mcp_cmd.add_argument("--to-year", type=int, default=None)
+    mcp_cmd.add_argument("--join", action="store_true")
+    mcp_cmd.add_argument("--out", type=Path, default=None)
+
     args = parser.parse_args(argv)
     if args.command == "ingest":
         return _ingest(args)
@@ -140,6 +156,8 @@ def main(argv: list[str] | None = None) -> int:
         return _methods(args)
     if args.command == "ask":
         return _ask(args)
+    if args.command == "mcp":
+        return _mcp(args)
     parser.error(f"unknown command {args.command}")
     return 2
 
@@ -426,6 +444,70 @@ def _ask(args: argparse.Namespace) -> int:
         return 1
     finally:
         registry.close()
+
+
+def _mcp(args: argparse.Namespace) -> int:
+    from public_data_agent.mcp_server import call_tool, run_stdio
+
+    if args.call is None:
+        run_stdio()
+        return 0
+    arguments: dict[str, Any] = {"db": str(args.db)}
+    if args.call == "search":
+        if not args.query:
+            print("mcp --call search needs --query", file=sys.stderr)
+            return 1
+        arguments["query"] = args.query
+        arguments["limit"] = args.limit
+    elif args.call == "ask":
+        arguments["question"] = args.question or DEMO_QUESTION
+        arguments["limit"] = args.limit
+        if args.dataset:
+            arguments["dataset"] = args.dataset
+        if args.table:
+            arguments["table"] = args.table
+        if args.year is not None:
+            arguments["year"] = args.year
+        if args.prior_year is not None:
+            arguments["prior_year"] = args.prior_year
+    else:
+        if args.dataset:
+            arguments["dataset"] = args.dataset
+        if args.table:
+            arguments["table"] = args.table
+        if args.from_year is not None:
+            arguments["from_year"] = args.from_year
+        if args.to_year is not None:
+            arguments["to_year"] = args.to_year
+        if args.year is not None:
+            arguments["year"] = args.year
+        if args.join:
+            arguments["join"] = True
+    try:
+        result = call_tool(args.call, arguments)
+    except ValueError as exc:
+        print(str(exc), file=sys.stderr)
+        return 1
+    parts = [f"pda mcp --call {args.call}"]
+    if args.call == "search":
+        parts.append(f'--query "{args.query}"')
+    elif args.call == "ask":
+        parts.append(f'--question "{arguments["question"]}"')
+    parts.append(f"--db {args.db}")
+    if args.out:
+        parts.append(f"--out {args.out}")
+    payload = {
+        "command": " ".join(parts),
+        "tool": args.call,
+        "arguments": arguments,
+        **result,
+    }
+    text = json.dumps(payload, ensure_ascii=False, indent=2)
+    if args.out:
+        args.out.parent.mkdir(parents=True, exist_ok=True)
+        args.out.write_text(text + "\n", encoding="utf-8")
+    print(text)
+    return 0
 
 
 def _search(args: argparse.Namespace) -> int:
