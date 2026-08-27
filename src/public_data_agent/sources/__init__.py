@@ -21,6 +21,7 @@ from public_data_agent.sources.met import MetMetalertsSource
 from public_data_agent.sources.miljodir import MiljodirVannmiljoSource
 from public_data_agent.sources.nbr import NbrSource
 from public_data_agent.sources.nfr import NfrSource
+from public_data_agent.sources.ngu import NguSource
 from public_data_agent.sources.nibio import NibioWeatherSource
 from public_data_agent.sources.nin import NinSource
 from public_data_agent.sources.nor import NorSource
@@ -87,6 +88,7 @@ SOURCE_IDS = (
     "sodir",
     "kommuneinfo",
     "nin",
+    "ngu",
 )
 
 
@@ -175,6 +177,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return KommuneinfoSource()
     if source_id == "nin":
         return NinSource()
+    if source_id == "ngu":
+        return NguSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -198,6 +202,7 @@ __all__ = [
     "MiljodirVannmiljoSource",
     "NbrSource",
     "NfrSource",
+    "NguSource",
     "NibioWeatherSource",
     "NinSource",
     "NorSource",
