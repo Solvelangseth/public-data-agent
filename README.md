@@ -795,6 +795,14 @@ pda fetch --dataset fhi:abr --db data/registry.sqlite
 from printed `tableId`. License stays null unless a source object prints
 one. Publisher is copied from printed `publishedBy`.
 
+Live ingest 2026-08-27: 10 printed source ids. Live search
+`Abortregisteret` returns `fhi:abr`. Live fetch GETs
+`https://statistikk-data.fhi.no/api/open/v1/abr/Table` HTTP 200,
+13 table rows. Sample printed table ids: 588, 589, 253, 262, 286.
+`pda methods` is not applicable: the payload is a table catalog, not a
+numeric time series (`no period in dimensions or period field`).
+Proof is `data/fhi_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists

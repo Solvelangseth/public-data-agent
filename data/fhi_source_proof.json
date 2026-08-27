@@ -1,0 +1,163 @@
+{
+  "produced_at": "2026-08-27T11:04:24Z",
+  "bound": {
+    "list_api": "https://statistikk-data.fhi.no/api/open/v1/Common/source",
+    "walk": "copy printed source id values in JSON array order",
+    "cap": 10,
+    "how": "pda ingest --source fhi --limit 10. The official FHI Statistikk Open API lists sources on Common/source. The adapter copies those printed ids, joins each id to the official /Table collection, and stops at 10."
+  },
+  "discarded": [
+    {
+      "candidate": "Helsedirektoratet HAPI /innhold",
+      "url": "https://api.helsedirektoratet.no/innhold",
+      "why": "HTTP 404 JSON Resource not found. The HTML docs page is not a list API."
+    },
+    {
+      "candidate": "NAV åpne data",
+      "url": "https://www.nav.no/no/nav-og-samfunn/statistikk/flere-statistikkomrader/relatert-informasjon/apne-data-fra-nav",
+      "why": "NAV points at data.norge.no and Maskinporten APIs. No no-auth list API that prints its own endpoints."
+    },
+    {
+      "candidate": "Kartverket stedsnavn OpenAPI",
+      "url": "https://ws.geonorge.no/stedsnavn/v1/openapi.json",
+      "why": "Live OpenAPI 200, but Kartverket REST hosts are already a Geonorge row. Not a new publisher."
+    },
+    {
+      "candidate": "Kartverket sehavniva tideapi",
+      "url": "https://api.sehavniva.no/tideapi.php?request=stationlist&format=json",
+      "why": "TLS handshake timed out"
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source fhi --db /tmp/pda-fhi-proof/registry.sqlite --limit 10",
+    "listed": 10,
+    "inserted": 10,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "fhi:abr",
+        "access_path": "https://statistikk-data.fhi.no/api/open/v1/abr/Table"
+      },
+      {
+        "id": "fhi:daar",
+        "access_path": "https://statistikk-data.fhi.no/api/open/v1/daar/Table"
+      },
+      {
+        "id": "fhi:nokkel",
+        "access_path": "https://statistikk-data.fhi.no/api/open/v1/nokkel/Table"
+      },
+      {
+        "id": "fhi:gs",
+        "access_path": "https://statistikk-data.fhi.no/api/open/v1/gs/Table"
+      },
+      {
+        "id": "fhi:hkr",
+        "access_path": "https://statistikk-data.fhi.no/api/open/v1/hkr/Table"
+      },
+      {
+        "id": "fhi:kpr",
+        "access_path": "https://statistikk-data.fhi.no/api/open/v1/kpr/Table"
+      },
+      {
+        "id": "fhi:lmr",
+        "access_path": "https://statistikk-data.fhi.no/api/open/v1/lmr/Table"
+      },
+      {
+        "id": "fhi:mfr",
+        "access_path": "https://statistikk-data.fhi.no/api/open/v1/mfr/Table"
+      },
+      {
+        "id": "fhi:msis",
+        "access_path": "https://statistikk-data.fhi.no/api/open/v1/msis/Table"
+      },
+      {
+        "id": "fhi:ngs",
+        "access_path": "https://statistikk-data.fhi.no/api/open/v1/ngs/Table"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search Abortregisteret --db /tmp/pda-fhi-proof/registry.sqlite --limit 5",
+    "query": "Abortregisteret",
+    "returned": 1,
+    "hit_id": "fhi:abr",
+    "title": "Abortregisteret (ABR)",
+    "source_id": "fhi"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset fhi:abr --db /tmp/pda-fhi-proof/registry.sqlite",
+    "dataset": "fhi:abr",
+    "table_id": "abr",
+    "access_path": "https://statistikk-data.fhi.no/api/open/v1/abr/Table",
+    "request_url": "https://statistikk-data.fhi.no/api/open/v1/abr/Table",
+    "http_status": 200,
+    "listed": 13,
+    "inserted": 13,
+    "license": null,
+    "publisher": "Folkehelseinstituttet",
+    "sample": [
+      {
+        "measure": "A12b: Svangerskapsavbrot fordelt på prevensjonsbruk og alder",
+        "value": 588,
+        "dimensions": {
+          "tableId": "588",
+          "publishedAt": "2026-05-12T05:00:00Z",
+          "modifiedAt": "2026-05-11T12:31:46.265306Z"
+        }
+      },
+      {
+        "measure": "A12a: Svangerskapsavbrot fordelt på alder og om det er registrert opplysning om prevensjonsbruk",
+        "value": 589,
+        "dimensions": {
+          "tableId": "589",
+          "publishedAt": "2026-05-12T05:00:00Z",
+          "modifiedAt": "2026-05-11T12:31:46.263593Z"
+        }
+      },
+      {
+        "measure": "A5: Nemndbehandla svangerskapsavbrot fordelt på bustadsfylke",
+        "value": 253,
+        "dimensions": {
+          "tableId": "253",
+          "publishedAt": "2026-05-12T05:00:00Z",
+          "modifiedAt": "2026-05-11T12:37:03.628749Z"
+        }
+      },
+      {
+        "measure": "A10: Nemndbehandla begjæringar om svangerskapsavbrot med vedtak fordelt på vedtak og svangerskapslengde",
+        "value": 262,
+        "dimensions": {
+          "tableId": "262",
+          "publishedAt": "2026-05-12T05:00:00Z",
+          "modifiedAt": "2026-05-11T12:47:16.973945Z"
+        }
+      },
+      {
+        "measure": "A4: Svangerskapsavbrot fordelt på metode, type begjæring og svangerskapslengde",
+        "value": 286,
+        "dimensions": {
+          "tableId": "286",
+          "publishedAt": "2026-05-12T05:00:00Z",
+          "modifiedAt": "2026-05-11T13:08:51.143149Z"
+        }
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset fhi:abr --table abr --entity \"\" --measure \"\" --db /tmp/pda-fhi-proof/registry.sqlite --out /tmp/pda-fhi-proof/methods",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no period in dimensions or period field",
+    "why": "FHI /abr/Table prints a catalog of tables (tableId plus title). That is not a numeric time series. methods.clean drops the rows because they have no period. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed Common/source id fields. access_path joins each printed id to the official /Table collection under https://statistikk-data.fhi.no/api/open/v1. No FHI id was written onto a datanorge row.",
+    "License is null. The Common/source objects do not print a license URI. The OpenAPI spec prints CC BY 4.0, but that URI is not on the source objects, so it was not copied.",
+    "Publisher is copied from printed publishedBy. Nine of the ten ingested sources print Folkehelseinstituttet. fhi:nokkel prints Helsedirektoratet.",
+    "Valgdirektoratet Valgresultat stayed on main (PR 52). This source does not re-implement it."
+  ]
+}
