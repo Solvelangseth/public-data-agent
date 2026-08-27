@@ -1704,6 +1704,29 @@ HTTP 200, 9 resource-name rows. Sample printed values: 04682_2010.csv,
 series (`no observations matched entity/measure; available=[]`).
 Proof is `data/opencom_source_proof.json`.
 
+## Sokkeldirektoratet FactMaps DataService source
+
+`pda ingest --source sodir` is another replaceable adapter. It lists printed
+layer names on the official Sokkeldirektoratet FactMaps DataService
+FeatureServer
+`https://factmaps.sodir.no/api/rest/services/DataService/Data/FeatureServer?f=json`,
+capped at 10. Dataset ids are the printed layer names. `access_path` is the
+printed layer id joined to the FeatureServer origin with the same `f=json`
+format the list API uses. This is not Stavanger Opencom (`--source opencom`,
+now on main), not Vegvesen Dataportalen (`--source vegvesen`), and not
+Kartverket kommuneinfo on Geonorge.
+
+```bash
+pda ingest --source sodir --db data/registry.sqlite --limit 10
+pda search block --db data/registry.sqlite
+pda fetch --dataset sodir:block --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored layer URL. Observation values are copied from
+printed field `name` when it is a non-empty string, otherwise `alias`.
+Publisher is copied from the printed FeatureServer `copyrightText`. License
+stays null: the list document does not print a license URL.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
