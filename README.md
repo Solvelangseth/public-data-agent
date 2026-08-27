@@ -690,7 +690,17 @@ pda search magasinstatistikk --db data/registry.sqlite
 pda fetch --dataset nve:HentOffentligDataSisteUke --db data/registry.sqlite
 ```
 
-License is null. The OpenAPI document does not print a license URI.
+Live ingest 2026-08-27: 4 printed GET paths, access paths such as
+`https://biapi.nve.no/magasinstatistikk/api/Magasinstatistikk/HentOffentligDataSisteUke`.
+License is null.
+
+Live fetch of `HentOffentligDataSisteUke`: GET 200, 45 cells for ISO week 34
+of 2026. Sample printed `fyllingsgrad` values: EL area 3 = 0.63724726,
+EL area 2 = 0.46631882, VASS area 3 = 0.82981455.
+
+`pda search magasinstatistikk` returns `nve:HentOffentligDataSisteUke`.
+The payload is one week across areas, not a time series, so methods
+was not used. Proof is `data/nve_source_proof.json`.
 
 ## Architecture (long term)
 

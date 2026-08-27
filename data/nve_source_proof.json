@@ -1,0 +1,97 @@
+{
+  "produced_at": "2026-08-27T10:29:16Z",
+  "bound": {
+    "list_api": "https://biapi.nve.no/magasinstatistikk/swagger/v1/swagger.json",
+    "walk": "copy GET paths printed in OpenAPI paths",
+    "cap": 10,
+    "printed_paths": 4,
+    "how": "pda ingest --source nve --limit 10. The adapter stops after 10 printed GET paths. The live OpenAPI printed 4."
+  },
+  "discarded": {
+    "bergen": "statistikkbanken.bergen.kommune.no and statistikk.bergen.kommune.no did not resolve",
+    "trondheim": "statistikkbanken.trondheim.kommune.no resolved to Azure and returned HTTP 404",
+    "stavanger": "statistikk.stavanger.kommune.no redirected to a 404 HTML page, not a PxWeb list API",
+    "frost": "https://frost.met.no/sources/v0.jsonld returned HTTP 401 without a client id",
+    "nve_hydapi": "https://hydapi.nve.no requires an X-API-Key"
+  },
+  "ingest": {
+    "command": "pda ingest --source nve --db data/registry.sqlite --limit 10",
+    "listed": 4,
+    "inserted": 4,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "nve:HentOffentligData",
+        "access_path": "https://biapi.nve.no/magasinstatistikk/api/Magasinstatistikk/HentOffentligData"
+      },
+      {
+        "id": "nve:HentOffentligDataMinMaxMedian",
+        "access_path": "https://biapi.nve.no/magasinstatistikk/api/Magasinstatistikk/HentOffentligDataMinMaxMedian"
+      },
+      {
+        "id": "nve:HentOffentligDataSisteUke",
+        "access_path": "https://biapi.nve.no/magasinstatistikk/api/Magasinstatistikk/HentOffentligDataSisteUke"
+      },
+      {
+        "id": "nve:HentOmråder",
+        "access_path": "https://biapi.nve.no/magasinstatistikk/api/Magasinstatistikk/HentOmråder"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search magasinstatistikk --db data/registry.sqlite --limit 5",
+    "query": "magasinstatistikk",
+    "hit_id": "nve:HentOffentligDataSisteUke",
+    "returned": 4,
+    "ids": [
+      "nve:HentOffentligData",
+      "nve:HentOffentligDataMinMaxMedian",
+      "nve:HentOffentligDataSisteUke",
+      "nve:HentOmråder"
+    ]
+  },
+  "fetch": {
+    "command": "pda fetch --dataset nve:HentOffentligDataSisteUke --db data/registry.sqlite",
+    "dataset": "nve:HentOffentligDataSisteUke",
+    "table_id": "HentOffentligDataSisteUke",
+    "request_url": "https://biapi.nve.no/magasinstatistikk/api/Magasinstatistikk/HentOffentligDataSisteUke",
+    "http_status": 200,
+    "listed": 45,
+    "inserted": 45,
+    "license": null,
+    "publisher_name": "Norges vassdrags- og energidirektorat (NVE)",
+    "sample": [
+      {
+        "measure": "fyllingsgrad",
+        "value": 0.63724726,
+        "dimensions": {"omrType": "EL", "omrnr": "3", "iso_aar": "2026", "iso_uke": "34", "dato_Id": "2026-08-23"}
+      },
+      {
+        "measure": "fyllingsgrad",
+        "value": 0.46631882,
+        "dimensions": {"omrType": "EL", "omrnr": "2", "iso_aar": "2026", "iso_uke": "34", "dato_Id": "2026-08-23"}
+      },
+      {
+        "measure": "fyllingsgrad",
+        "value": 0.82981455,
+        "dimensions": {"omrType": "VASS", "omrnr": "3", "iso_aar": "2026", "iso_uke": "34", "dato_Id": "2026-08-23"}
+      }
+    ]
+  },
+  "methods": {
+    "applicable": false,
+    "reason": "HentOffentligDataSisteUke prints one ISO week (2026 week 34) across areas. That is a cross-section, not a numeric time series. methods/ was not edited.",
+    "command": "pda methods --dataset nve:HentOffentligDataSisteUke --table HentOffentligDataSisteUke --entity \"\" --measure \"\" --db data/registry.sqlite --out /tmp/pda-methods-nve",
+    "exit_code": 0,
+    "rows": 45,
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "No id was written onto a Data.norge row. The live registry used for this proof contained only the four nve rows.",
+    "License is null. The NVE OpenAPI document does not print a license URI.",
+    "Publisher is the name printed in the OpenAPI description: Norges vassdrags- og energidirektorat (NVE)."
+  ]
+}
