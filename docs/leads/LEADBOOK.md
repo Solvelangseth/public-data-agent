@@ -7,7 +7,7 @@ Product sold: registry of Norwegian public datasets (Data.norge first ingest, so
 Repo: https://github.com/Solvelangseth/public-data-agent
 Competitor note: offentligdata.no is a competitor, not a customer. Do not treat that site as a lead.
 
-Status 27 Aug 2026, 10:00 Europe/Oslo: 15 sourced leads. Mix: 4 municipalities, 3 consultancies, 2 media, 2 property/infra, 2 research, 2 NGOs. No invented emails. No outreach.
+Status 27 Aug 2026, 10:15 Europe/Oslo: 15 sourced leads. Mix: 4 municipalities, 3 consultancies, 2 media, 2 property/infra, 2 research, 2 NGOs. Five deepen notes added same day (Oslo DIG tildelingsbrev, Stavanger Regnsensordata, Bouvet Kartverket grant, Aftenposten Fossan mailto, Statsbygg SIMBA 2.1 + tungt.no second-hand). No invented emails. No outreach.
 
 How to read a lead: why they would pay is tied to a named programme, not "they use data." Service shape is always search → fetch → later analysis. If a field says none published, do not invent one.
 
@@ -29,6 +29,8 @@ Sources below were opened 2026-08-27 from official pages and the named press/pro
 **Public contact (only published).**
 - Digitaliseringsetaten postmottak: postmottak@dig.oslo.kommune.no
 - Telephone (city switchboard, printed on DIG and Klimaetaten pages): 21802180 / 21 80 21 80
+- Etatsdirektør, printed on the DIG etat page: torstein.harildstad@dig.oslo.kommune.no
+- Pressekontakt, printed on the DIG etat page: therese.bergwitz-larsen@dig.oslo.kommune.no
 - Oslostatistikken: oslostatistikken@byr.oslo.kommune.no (printed on Statistikkbanken and on oslo.kommune.no/statistikk/kontakt-oss/)
 - Klimaetaten postmottak: postmottak@kli.oslo.kommune.no
 - Municipality org: 958935420 (OSLO KOMMUNE). DIG prints a separate subunit org 935 346 312; Klimaetaten prints 876 819 902 for invoicing. Use 958935420 for the municipality.
@@ -37,7 +39,8 @@ Sources below were opened 2026-08-27 from official pages and the named press/pro
 - DIG: ~320 staff; merges digital/IT environments from Oslo Origo and UKE; etablert 1. januar 2026; data sharing and information security are stated responsibilities.
 - Klimaetaten: created 1 July 2016; under Byrådsavdeling for miljø og samferdsel; climate budget, klimatilpasning, Klima- og energifondet, Næring for Klima, C40 Clean Construction.
 - Oslostatistikken: Statistikkbanken is PxWeb (same family as SSB); API guidance is published; contact for demografi, tjenesteproduksjon, bolig, arbeids- og næringsliv is oslostatistikken@byr.oslo.kommune.no.
-- DIG page also prints etatsdirektør and press emails; those are not required for this book. Do not invent others.
+
+**Deepen (27 Aug 2026).** DIG Tildelingsbrev 2026 (21.01.2026, ref. 25/5336) assigns a 2026 datadeling task (målbilde/veikart, dataprodukter, frist 01.07.2026) and prints an estimated 45,5 mill. kroner saving on a named PC-ownership klimabudsjett measure (klimaoslo.no: sentralisere eierskap og forvaltning of kommunens PC-er / IKT-utstyr; DIG named with OKF). Do not claim the 817 699 / 75 000 cells as kroner; they lack a unit line.
 
 **Sources opened 2026-08-27.**
 - https://www.oslo.kommune.no/etater-foretak-og-ombud/digitaliseringsetaten/
@@ -46,6 +49,8 @@ Sources below were opened 2026-08-27 from official pages and the named press/pro
 - https://www.oslo.kommune.no/statistikk/kontakt-oss/
 - https://statistikkbanken.oslo.kommune.no/
 - https://statistikkbanken.oslo.kommune.no/statbank/pxweb/no/db1/
+- https://www.oslo.kommune.no/get-file/1396749/7975dfc27e88db851f1c640a0c31cdf4210f344a6ba008df468e9fe0d87d119c
+- https://www.klimaoslo.no/klimabudsjett/klimabudsjettet/
 - https://data.brreg.no/enhetsregisteret/oppslag/enheter/958935420
 
 ---
@@ -129,7 +134,8 @@ Sources below were opened 2026-08-27 from official pages and the named press/pro
 - Later analysis: join Stavanger opencom / datasjø tables to national series; keep provenance on every hit.
 
 **Public contact (only published).**
-- opendata@stavanger.kommune.no — printed on opencom.no (front page and about) as the address for dataset wishes and contact.
+- opendata@stavanger.kommune.no — printed on opencom.no (front page and about) as the address for dataset wishes and contact, and as Vedlikeholdes av on the Regnsensordata dataset.
+- Staff-ID sk5028338@stavanger.kommune.no is printed next to opendata@ on that dataset (Forfatter: Espen S. Oftedal). Not a new outreach inbox.
 - No separate switchboard printed on the open-data pages opened.
 - Org: 964965226
 
@@ -138,9 +144,12 @@ Sources below were opened 2026-08-27 from official pages and the named press/pro
 - Digitaliseringsstrategi vedtatt 06.12.2022, valid to 31.12.2029; five goals including data-driven organisation and sharing of public data.
 - Årets publisist 2020 (Digdir); datasjø established 2019 with Bouvet.
 
+**Deepen (27 Aug 2026).** Live first-party dataset https://opencom.no/nb_NO/dataset/regnsensordata «Regnsensordata»: last updated 27 Aug 2026 02:01 CEST (page stamp 27. august 2026, 00:01 UTC+00:00), daily NLOD CSV/ZIP (plus JSON and other listed formats). Daily files dated 2026-08-26 were on the page when opened.
+
 **Sources opened 2026-08-27.**
 - https://opencom.no/
 - https://opencom.no/about
+- https://opencom.no/nb_NO/dataset/regnsensordata
 - https://www.stavanger.kommune.no/om-stavanger-kommune/apne-data/
 - https://www.stavanger.kommune.no/samfunnsutvikling/planer/strategier/digitaliseringsstrategien/
 - https://www.stavanger.kommune.no/nyheter/stavanger-kommune-mottok-pris-for-deling-av-apne-data/
@@ -167,14 +176,18 @@ Sources below were opened 2026-08-27 from official pages and the named press/pro
 - Org: 971278374
 
 **Key facts.**
-- SIMBA 2.1: IFC4, machine validation, discipline/phase requirement sets; guidance PDF lists www.statsbygg.no/bim and bim@statsbygg.no.
+- Current kravsett is SIMBA 2.1 (veiledning 2022-07-01, rettelse 2025-01-08). PDF: https://prod-backend.simapp01.statsbygg.clh.no/documents/kravene/SIMBA2-1_Veiledning_NO_Rettet_2025-01-08_2025-01-08-110119_arje.pdf. IFC4, machine validation, discipline/phase requirement sets; guidance PDF lists www.statsbygg.no/bim and bim@statsbygg.no.
 - Old Google Sites SIMBA pages were unpublished 2025-03-05; current entry is simba.statsbygg.no.
+
+**Deepen (27 Aug 2026).** tungt.no 19 Mar 2026 write-up of årsrapport 2025 prints 13,6 mrd investments. Mark that as second-hand because the statsbygg.no article fetch failed.
 
 **Sources opened 2026-08-27.**
 - https://www.statsbygg.no/bim
 - https://www.statsbygg.no/nyheter/statsbyggs-bim-krav-i-ny-drakt
 - https://simba.statsbygg.no
+- https://prod-backend.simapp01.statsbygg.clh.no/documents/kravene/SIMBA2-1_Veiledning_NO_Rettet_2025-01-08_2025-01-08-110119_arje.pdf
 - https://sites.google.com/view/simba-bim-krav/hjem
+- https://www.tungt.no/article/view/1217557/statsbygg_2025_436_millioner_i_resultat_investerte_136_milliarder
 - https://data.brreg.no/enhetsregisteret/oppslag/enheter/971278374
 
 ---
@@ -338,7 +351,7 @@ Sources below were opened 2026-08-27 from official pages and the named press/pro
 
 ## 11. Bouvet Norge AS — Kartverket 2026 rammeavtale, Stavanger datasjø, Faktavarehus 2.0
 
-**Why they would pay.** Bouvet is a delivery partner on three published data-platform programmes: (1) Kartverket rammeavtale signed 26 June 2026 with Bekk and Bouvet Norge AS, inntil åtte år, systemutvikling / rådgivning / produktutvikling / transformasjon, against Kartverket's 477 million kroner five-year upgrade of national geographic infrastructure; (2) Stavanger datasjø (from 2019; Fyrlyktprisen 2023) for analysis, efficiency and open-data sharing; (3) Sokkeldirektoratet Faktavarehus 2.0, a modern data platform for continental-shelf data, Stavanger team + Geodata. Those programmes already collect, structure and share data. Bouvet would pay or resell a search → fetch → later-analysis layer that sits on a national registry (not only the client's lake) so delivery teams can find other agencies' datasets and pull first rows with provenance.
+**Why they would pay.** Bouvet is a delivery partner on three published data-platform programmes: (1) Kartverket rammeavtale signed 26 June 2026 with Bekk and Bouvet Norge AS, inntil åtte år, systemutvikling / rådgivning / produktutvikling / transformasjon, against Kartverket's printed 2026 statsbudsjett grant of 477 million kroner over five years for nasjonale fellesløsninger (no Bouvet contract price on that page); (2) Stavanger datasjø (from 2019; Fyrlyktprisen 2023) for analysis, efficiency and open-data sharing; (3) Sokkeldirektoratet Faktavarehus 2.0, a modern data platform for continental-shelf data, Stavanger team + Geodata. Those programmes already collect, structure and share data. Bouvet would pay or resell a search → fetch → later-analysis layer that sits on a national registry (not only the client's lake) so delivery teams can find other agencies' datasets and pull first rows with provenance.
 
 **Concrete use case.** A Kartverket or Stavanger delivery team needs a dataset from another publisher to land in the lake / national infrastructure; search the registry; fetch a sample; later engineer the pipeline.
 
@@ -353,7 +366,7 @@ Sources below were opened 2026-08-27 from official pages and the named press/pro
   - per.tronsli@bouvet.no (daglig leder)
   - steffen.garder@bouvet.no
   - lisbeth.viker@bouvet.no
-  - jorgen.kaasa@bouvet.no
+  - jorgen.kaasa@bouvet.no — also printed on the Kartverket 26 June 2026 announcement with tlf. 97 69 28 70
   - anne.hasselgreen@bouvet.no
   - renate.kristiansen@bouvet.no
   - bjarte.gudmundsen@bouvet.no
@@ -376,10 +389,14 @@ Sources below were opened 2026-08-27 from official pages and the named press/pro
 - Faktavarehus 2.0: Kjetil Molaug, Thao Ha, Bjarte Gudmundsen named in Bouvet/CW coverage.
 - Bekk is a close peer on the Kartverket agreement; Bekk is skipped as a *lead* (see skipped notes), not as a fact about Bouvet.
 
+**Deepen (27 Aug 2026).** Kartverket 26 June 2026 announcement of Bekk/Bouvet contracts prints a 2026 statsbudsjett grant of 477 million kroner over five years for nasjonale fellesløsninger. No Bouvet contract price on that page. Practice page still says 200 konsulenter; Oslo job ad 25 Aug 2026 says 50 Oslo / about 250 across Bouvet.
+
 **Sources opened 2026-08-27.**
 - https://www.bouvet.no/om-bouvet/ledelsen
 - https://www.bouvet.no/om-bouvet/vare-kontorer/oslo
 - https://www.bouvet.no/bouvet-deler/stavanger-kommune-vinner-av-fyrlyktprisen-2023
+- https://www.bouvet.no/vi-jobber-med/Tjenester/tjeneste-plattform-innsikt-og-analyse
+- https://www.bouvet.no/bli-en-av-oss/ledige-stillinger/arkitekter-radgivere-og-utviklere-for-moderne-data-og-analyseplattformer-708
 - https://kartverket.no/om-kartverket/nyheter/alle/2026/juni/nasjonalt-loft-gir-ny-it-avtale
 - https://www.cw.no/bekk-bouvet-digitalisering/kartverket-velger-bouvet-som-utviklingsleverandor/2455702
 - https://www.cw.no/bouvet-datavarehus-it-bransjen/sokkeldirektoratet-velger-bouvet/2462734
@@ -485,31 +502,36 @@ Sources below were opened 2026-08-27 from official pages and the named press/pro
 
 ---
 
-## 15. Aftenposten AS — six-person data desk; tips page asks for data
+## 15. Aftenposten AS — data desk; tips page asks for data
 
-**Why they would pay.** Journalisten 1 July 2026 (notice 677965) reports Kajsa Garmann Lønrusten (Faktisk.no) and Jonas Blich Bakken (DN) hired as data journalists; leader Eirik Wallem Fossan; the desk is then six data journalists, working with two creative leads and an illustrator, on datagraving, analysis, OSINT and KI-supported method. The tips page asks for tips that can be backed with facts and prints a tips inbox and tipstelefon. GitHub org "Aftenposten - datajournalistikk" prints mm@aftenposten.no and hosts story data repos. They would pay to search Norwegian public datasets and fetch first rows with provenance as the start of a desk story — later analysis is editorial.
+**Why they would pay.** Journalisten 1 July 2026 (notice 677965) reports Kajsa Garmann Lønrusten (Faktisk.no) and Jonas Blich Bakken (DN) hired as data journalists; leader Eirik Wallem Fossan; Journalisten then writes that the desk is six data journalists, working with two creative leads and an illustrator, on datagraving, analysis, OSINT and KI-supported method. Desk size «seks» is Journalisten only; do not claim aftenposten.no prints six. The tips page asks for tips that can be backed with facts and prints a tips inbox and tipstelefon. GitHub org "Aftenposten - datajournalistikk" prints mm@aftenposten.no and hosts story data repos. They would pay to search Norwegian public datasets and fetch first rows with provenance as the start of a desk story — later analysis is editorial.
 
 **Concrete use case.** Desk story on municipal spending, climate, property or demographics: search the registry, fetch the rows, later analyse and visualise; publish with source/license.
 
 **Search → fetch → later analysis.**
 - Search: reporter question over the national registry.
 - Fetch: first rows; provenance mandatory for publication.
-- Later analysis: Aftenposten desk (six people); this product does not write the article.
+- Later analysis: Aftenposten data desk; this product does not write the article.
 
 **Public contact (only published).**
 - tips@aftenposten.no — printed on https://www.aftenposten.no/tips
 - Tipstelefon: 02286 — printed on the same page
 - mm@aftenposten.no — printed as the GitHub org email on https://github.com/Aftenposten
+- eirik.wallem.fossan@aftenposten.no — in the HTML of https://www.aftenposten.no/av/eirik-wallem-fossan (mailto «Send e-post»). Not invented.
 - Org: 890412882
 - Do not invent reporter inboxes beyond what those pages print.
 
 **Key facts.**
 - Tips page: relevant tips, preferably with facts; debatt@aftenposten.no is for opinions, not this book.
 - GitHub public repos include story datasets (e.g. toppbyråkrater, barnehage, covid departures, valg).
-- E24 and Kommunal Rapport are weaker than this published six-person desk (see skipped).
+- E24 and Kommunal Rapport are weaker than Aftenposten's published data desk (see skipped). Journalisten is the source for «seks»; aftenposten.no does not print that count on the pages opened.
+
+**Deepen (27 Aug 2026).** Author page: «Jeg leder et team med datajournalister og visuelle journalister». Named story: https://www.aftenposten.no/norge/i/oAk8j0/slik-blir-kvikkleiren-livsfarlig-sjekk-skredfaren-der-du-bor.
 
 **Sources opened 2026-08-27.**
 - https://www.aftenposten.no/tips
+- https://www.aftenposten.no/av/eirik-wallem-fossan
+- https://www.aftenposten.no/norge/i/oAk8j0/slik-blir-kvikkleiren-livsfarlig-sjekk-skredfaren-der-du-bor
 - https://www.journalisten.no/notice/677965
 - https://github.com/Aftenposten
 - https://www.kampanje.com/medier/aftenposten-satser-mer-pa-datajournalistikk/1013592
@@ -527,7 +549,14 @@ Keep these notes in the living book. They are not leads.
 - **Bellona** — building a data product.
 - **PwC / Itera** — weaker published data-platform programmes than Knowit.
 - **Bekk** — close peer to Bouvet / Knowit (including the 2026 Kartverket rammeavtale); not a separate lead.
-- **E24 / Kommunal Rapport** — weaker than Aftenposten's published six-person data desk.
+- **E24 / Kommunal Rapport** — weaker than Aftenposten's published data desk (Journalisten is the source for desk size «seks»).
+
+---
+
+## Changelog
+
+- **27 Aug 2026, 10:00 Europe/Oslo.** First 15 sourced entries. No outreach.
+- **27 Aug 2026, 10:15 Europe/Oslo.** Five deepen notes: Oslo DIG Tildelingsbrev 2026 datadeling + 45,5 mill. PC-ownership klimabudsjett measure (do not treat 817 699 / 75 000 as kroner) and DIG etat emails; Stavanger live Regnsensordata (updated 27 Aug 2026 02:01 CEST) and printed staff-ID next to opendata@; Bouvet Kartverket 477 mill. five-year grant (no Bouvet contract price) plus Kaasa phone and 200 vs 50/250 headcount print; Aftenposten Fossan mailto + author line + kvikkleire story (seks = Journalisten only); Statsbygg SIMBA 2.1 PDF dates and tungt.no 13,6 mrd marked second-hand.
 
 ---
 
