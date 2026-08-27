@@ -80,6 +80,7 @@ from public_data_agent.sources.nibio import (
     is_nibio_url,
     nibio_table_id,
 )
+from public_data_agent.sources.oslo import is_oslo_statbank_url, oslo_table_id
 from public_data_agent.sources.udir import (
     cells_from_udir,
     is_udir_nsr_url,
@@ -268,9 +269,13 @@ def fetch_observations(
     if is_miljodir_url(access_path):
         return _fetch_miljodir(registry, dataset, http=http)
     client = http or HttpClient(timeout=60.0, max_retries=4)
-    if _is_ssb_table_url(access_path):
+    if _is_ssb_table_url(access_path) or is_oslo_statbank_url(access_path):
         request_url = access_path.rstrip("/")
-        table_id = request_url.rsplit("/", 1)[-1]
+        table_id = (
+            oslo_table_id(access_path)
+            if is_oslo_statbank_url(access_path)
+            else request_url.rsplit("/", 1)[-1]
+        )
     else:
         request_url = pxweb_api_url(access_path, table_id)
     started = utc_now()
