@@ -180,6 +180,7 @@ def test_printed_license_url_copies_swagger_license() -> None:
 def test_sunrise_is_a_registered_source() -> None:
     assert "sunrise" in SOURCE_IDS
     assert "tidalwater" in SOURCE_IDS
+    assert "oceanforecast" in SOURCE_IDS
     source = build_source("sunrise")
     assert isinstance(source, SunriseSource)
     assert source.source_id == "sunrise"

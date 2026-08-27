@@ -168,12 +168,13 @@
     "fetch_runs_after": 1
   },
   "notes": [
-    "Ids are copied from printed swagger path last segments. access_path is swagger origin + printed basePath + path. No sunrise id was written onto a met, nowcast, airquality, tidalwater, or datanorge row.",
+    "Ids are copied from printed swagger path last segments. access_path is swagger origin + printed basePath + path. No sunrise id was written onto a met, nowcast, airquality, tidalwater, oceanforecast, or datanorge row.",
     "License is the printed swagger CC BY 4.0 URL http://creativecommons.org/licenses/by/4.0. Publisher is null: the spec does not print a publisher.",
     "Original harvested swagger metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
-    "Tidalwater is now on main as --source tidalwater after PR 101. Airqualityforecast stays --source airquality. Nowcast stays --source nowcast. Metalerts stays --source met. Oceanforecast stays unused as PR 102.",
+    "Tidalwater is now on main as --source tidalwater after PR 101. Oceanforecast is now on main as --source oceanforecast after PR 102. Airqualityforecast stays --source airquality. Nowcast stays --source nowcast. Metalerts stays --source met.",
+    "Rebased onto origin/main after Oceanforecast 102 merge 33796a6. oceanforecast adapter files were not edited.",
     "/sun and /moon are printed untemplated GET paths and were ingested. Fetch in this slice uses /locations so lat/lon filters are not invented.",
-    "python3 -m pytest 491 passed, 1 skipped, 1 deselected.",
+    "python3 -m pytest after rebase: 501 passed, 1 skipped, 1 deselected.",
     "Not a numeric time series with two or more periods."
   ]
 }
