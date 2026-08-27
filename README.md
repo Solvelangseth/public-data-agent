@@ -1927,6 +1927,38 @@ TOP_BOR_MOH, BORE_DIAM.
 (`no observations matched entity/measure; available=[]`).
 Proof is `data/riksantikvaren_source_proof.json`.
 
+## Meteorologisk institutt Airqualityforecast source
+
+`pda ingest --source airquality` is another replaceable adapter. It lists printed
+collection GET paths on the official MET Airqualityforecast swagger
+`https://api.met.no/weatherapi/airqualityforecast/0.1/swagger`, capped at 10.
+Templated `{format}` paths and the root `/` path (no printed last segment)
+are skipped. Dataset ids are the last printed path segment. `access_path` is
+the swagger origin + printed `basePath` + path. License is the printed swagger
+CC BY 4.0 URL. Publisher stays null. This is not Metalerts (`--source met`),
+not Nowcast (`--source nowcast`), and not Riksantikvaren MABYGIS
+(`--source riksantikvaren`, now on main). `/met` stays unused for fetch in this
+slice: that printed path requires `station`.
+
+```bash
+pda ingest --source airquality --db data/registry.sqlite --limit 10
+pda search stations --db data/registry.sqlite
+pda fetch --dataset airquality:stations --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored collection URL. Observation values are copied
+from printed station `name`. License is the printed swagger CC BY 4.0 URL.
+Publisher stays null: the spec does not print a publisher.
+
+Live ingest 2026-08-27: 10 printed untemplated GET paths (catalog prints
+11 paths, 1 root path with no last segment, cap 10). Live search
+`stations` returns `airquality:stations`. Live fetch GETs
+`https://api.met.no/weatherapi/airqualityforecast/0.1/stations` HTTP 200,
+82 station-name rows. Sample printed values: Alnabru, Alvim,
+Backeparken. `pda methods` is not applicable: station names, not a
+numeric time series (`no observations matched entity/measure; available=[]`).
+Proof is `data/airquality_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists

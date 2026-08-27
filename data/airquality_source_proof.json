@@ -1,0 +1,213 @@
+{
+  "produced_at": "2026-08-27T21:19:02Z",
+  "bound": {
+    "list_api": "https://api.met.no/weatherapi/airqualityforecast/0.1/swagger",
+    "walk": "copy printed untemplated GET paths from the official MET Airqualityforecast swagger; native ids are the last printed path segment; access_path is swagger origin + printed basePath + path; skip root / because it prints no last segment; do not invent dataset ids or station filters",
+    "cap": 10,
+    "how": "pda ingest --source airquality --limit 10. The official MET Airqualityforecast swagger prints 11 paths. The adapter copies the 10 untemplated GET paths that have a printed last segment. GET uses the printed /stations collection with no invented query filters."
+  },
+  "discarded": [
+    {
+      "candidate": "Riksantikvaren MABYGIS",
+      "url": "PR 99 --source riksantikvaren",
+      "why": "Already on main after PR 99. Do not re-add. Lane A picked a different source."
+    },
+    {
+      "candidate": "Meteorologisk institutt Nowcast",
+      "url": "https://api.met.no/weatherapi/nowcast/2.0/swagger",
+      "why": "Already on main as --source nowcast after PR 98. Do not re-add."
+    },
+    {
+      "candidate": "Kartverket Høydedata",
+      "url": "https://ws.geonorge.no/hoydedata/v1/openapi.json",
+      "why": "Already on main as --source hoydedata after PR 97. Do not re-add."
+    },
+    {
+      "candidate": "NGU OGC API Features",
+      "url": "https://geo.ngu.no/api/features",
+      "why": "Already on main as --source ngu after PR 96. Do not re-add."
+    },
+    {
+      "candidate": "Artsdatabanken NiN Kode API",
+      "url": "https://nin-kode-api.artsdatabanken.no/swagger/v3.0/swagger.json",
+      "why": "Already on main as --source nin after PR 95. Do not re-add."
+    },
+    {
+      "candidate": "Kartverket Kommuneinfo",
+      "url": "https://api.kartverket.no/kommuneinfo/v1/openapi.json",
+      "why": "Already on main as --source kommuneinfo after PR 94. Do not re-add."
+    },
+    {
+      "candidate": "MET Locationforecast swagger",
+      "url": "https://api.met.no/weatherapi/locationforecast/2.0/swagger",
+      "why": "Known unused: untemplated /classic and /complete require lat and lon. Do not retry as a collection catalog."
+    },
+    {
+      "candidate": "MET textforecast swagger",
+      "url": "https://api.met.no/weatherapi/textforecast/2.0/swagger",
+      "why": "HTTP 500. Do not retry."
+    },
+    {
+      "candidate": "MET forestfireindex swagger",
+      "url": "https://api.met.no/weatherapi/forestfireindex/1.1/swagger",
+      "why": "HTTP 500. Do not retry."
+    },
+    {
+      "candidate": "Digdir dataservice catalog",
+      "url": "https://dataservice-catalog.fellesdatakatalog.digdir.no/dataservices",
+      "why": "HTTP 200 HTML-only. Do not retry."
+    },
+    {
+      "candidate": "Digdir informationmodels",
+      "url": "https://informationmodels.fellesdatakatalog.digdir.no/informationmodels",
+      "why": "HTTP 404. Do not retry."
+    },
+    {
+      "candidate": "Udir Grep kl06",
+      "url": "https://data.udir.no/kl06/",
+      "why": "HTTP 200 HTML-only. Do not retry."
+    },
+    {
+      "candidate": "Geonorge nedlasting api",
+      "url": "https://nedlasting.geonorge.no/api",
+      "why": "HTTP 200 HTML-only. Do not retry."
+    },
+    {
+      "candidate": "NVE flood forecast swagger",
+      "url": "https://api.nve.no/hydrology/forecast/flood/v1.0.0/swagger",
+      "why": "HTTP 404. Do not retry."
+    },
+    {
+      "candidate": "Drammen / Lillestrøm / Asker CKAN package_list",
+      "url": "https://opendata.drammen.kommune.no/api/3/action/package_list",
+      "why": "DNS failure. Do not retry."
+    },
+    {
+      "candidate": "NVDB Les V3 OpenAPI",
+      "url": "https://nvdbapiles-v3.atlas.vegvesen.no/dokumentasjon/openapi.json",
+      "why": "Known skip: HTTP 400 User-Agent. Do not retry."
+    },
+    {
+      "candidate": "Vegvesen Trafikkdata swagger / trafikkdata-api",
+      "url": "https://trafikkdata.atlas.vegvesen.no/",
+      "why": "Known skip: swagger HTML-only; trafikkdata-api 410. Do not retry."
+    },
+    {
+      "candidate": "Kartverket Eiendom /geokoding",
+      "url": "https://api.kartverket.no/eiendom/v1/geokoding",
+      "why": "Known skip: HTTP 400 without matrikkel params. Do not retry."
+    },
+    {
+      "candidate": "Udir Statistikkbanken /data",
+      "url": "Udir Statistikkbanken /Eksport/{id}/data",
+      "why": "Known skip: requires invented filters. Do not retry."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source airquality --db /tmp/pda-airquality-proof/registry.sqlite --limit 10",
+    "listed": 10,
+    "inserted": 10,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "airquality:aqi_description",
+        "access_path": "https://api.met.no/weatherapi/airqualityforecast/0.1/aqi_description"
+      },
+      {
+        "id": "airquality:areaclasses",
+        "access_path": "https://api.met.no/weatherapi/airqualityforecast/0.1/areaclasses"
+      },
+      {
+        "id": "airquality:areas",
+        "access_path": "https://api.met.no/weatherapi/airqualityforecast/0.1/areas"
+      },
+      {
+        "id": "airquality:changelog",
+        "access_path": "https://api.met.no/weatherapi/airqualityforecast/0.1/changelog"
+      },
+      {
+        "id": "airquality:healthz",
+        "access_path": "https://api.met.no/weatherapi/airqualityforecast/0.1/healthz"
+      },
+      {
+        "id": "airquality:met",
+        "access_path": "https://api.met.no/weatherapi/airqualityforecast/0.1/met"
+      },
+      {
+        "id": "airquality:met_description",
+        "access_path": "https://api.met.no/weatherapi/airqualityforecast/0.1/met_description"
+      },
+      {
+        "id": "airquality:reftimes",
+        "access_path": "https://api.met.no/weatherapi/airqualityforecast/0.1/reftimes"
+      },
+      {
+        "id": "airquality:stations",
+        "access_path": "https://api.met.no/weatherapi/airqualityforecast/0.1/stations"
+      },
+      {
+        "id": "airquality:values",
+        "access_path": "https://api.met.no/weatherapi/airqualityforecast/0.1/values"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search stations --db /tmp/pda-airquality-proof/registry.sqlite --limit 5",
+    "query": "stations",
+    "returned": 1,
+    "hit_id": "airquality:stations",
+    "title": "stations",
+    "source_id": "airquality"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset airquality:stations --db /tmp/pda-airquality-proof/registry.sqlite",
+    "dataset": "airquality:stations",
+    "table_id": "stations",
+    "access_path": "https://api.met.no/weatherapi/airqualityforecast/0.1/stations",
+    "request_url": "https://api.met.no/weatherapi/airqualityforecast/0.1/stations",
+    "http_status": 200,
+    "listed": 82,
+    "inserted": 82,
+    "license": "http://creativecommons.org/licenses/by/4.0",
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "name",
+        "value": "Alnabru"
+      },
+      {
+        "measure": "name",
+        "value": "Alvim"
+      },
+      {
+        "measure": "name",
+        "value": "Backeparken"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset airquality:stations --table stations --entity \"\" --measure \"\" --db /tmp/pda-airquality-proof/registry.sqlite --out /tmp/pda-airquality-proof/methods",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "Airqualityforecast /stations prints station names (Alnabru, Alvim, …). That is not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed swagger path last segments. access_path is swagger origin + printed basePath + path. No airquality id was written onto a met, nowcast, hoydedata, or datanorge row.",
+    "License is the printed swagger CC BY 4.0 URL http://creativecommons.org/licenses/by/4.0. Publisher is null: the spec prints contact.name Developer Support, not a publisher.",
+    "Original harvested swagger metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "Nowcast stays --source nowcast. Metalerts stays --source met. Riksantikvaren stays --source riksantikvaren after PR 99. This source does not re-implement those.",
+    "/met is a printed untemplated GET path and was ingested. Fetch in this slice uses /stations so station is not invented.",
+    "python3 -m pytest 462 passed, 1 skipped, 1 deselected.",
+    "Not a numeric time series with two or more periods."
+  ]
+}
