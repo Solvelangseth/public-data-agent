@@ -75,12 +75,13 @@ class NveMagasinSource(SourceBase):
         title = str(operation.get("summary") or ref.source_native_id or path)
         info = spec.get("info") if isinstance(spec.get("info"), dict) else {}
         description = info.get("description")
+        publisher_name = printed_publisher(info)
         payload = {
             "id": ref.source_native_id,
             "uri": ref.source_native_uri,
             "title": {"no": title},
             "description": {"no": description} if isinstance(description, str) else None,
-            "publisher": {"name": PRINTED_PUBLISHER},
+            "publisher": {"name": publisher_name} if publisher_name else None,
             "license": None,
             "distribution": [
                 {
@@ -115,6 +116,13 @@ class NveMagasinSource(SourceBase):
             raise SourceError(f"NVE OpenAPI is not a JSON object: {self.openapi_url}")
         self._spec = spec
         return spec
+
+
+def printed_publisher(info: dict[str, Any]) -> str | None:
+    text = info.get("description")
+    if isinstance(text, str) and PRINTED_PUBLISHER in text:
+        return PRINTED_PUBLISHER
+    return None
 
 
 def printed_operation_id(path: str) -> str:

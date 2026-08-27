@@ -59,6 +59,8 @@
     "http_status": 200,
     "listed": 45,
     "inserted": 45,
+    "source_records": 9,
+    "cells_note": "45 observation cells from 9 printed area rows, one cell per printed float field",
     "license": null,
     "publisher_name": "Norges vassdrags- og energidirektorat (NVE)",
     "sample": [

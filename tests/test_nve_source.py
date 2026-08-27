@@ -14,6 +14,7 @@ from public_data_agent.sources.nve import (
     is_nve_magasin_url,
     printed_endpoint_url,
     printed_operation_id,
+    printed_publisher,
     requestable_url,
 )
 
@@ -88,6 +89,11 @@ class FetchHttp:
 
     def post_json_response(self, url: str, body, *, headers=None) -> JsonResponse:
         raise AssertionError(f"unexpected POST {url}")
+
+
+def test_printed_publisher_copies_name_from_openapi_description() -> None:
+    assert printed_publisher(OPENAPI["info"]) == "Norges vassdrags- og energidirektorat (NVE)"
+    assert printed_publisher({"description": "no publisher name here"}) is None
 
 
 def test_printed_operation_id_copies_last_path_segment() -> None:
