@@ -1532,6 +1532,32 @@ names, not a numeric time series
 (`no observations matched entity/measure; available=[]`).
 Proof is `data/nxr_source_proof.json`.
 
+## Udir Barnehagefakta source
+
+`pda ingest --source baf` is another replaceable adapter. It lists printed
+collection GET paths on the official Barnehagefakta swagger
+`https://www.barnehagefakta.no/swagger/docs/v1`, capped at 10. Templated
+paths such as `/api/Barnehage/{id}` are skipped. Dataset ids are the
+printed last path segments. `access_path` is the printed path joined to
+the printed swagger host.
+
+```bash
+pda ingest --source baf --db data/registry.sqlite --limit 10
+pda search fylker --db data/registry.sqlite
+pda fetch --dataset baf:Fylker --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored collection URL. Observation values are copied
+from printed `fylkesnavn` on a printed `fylker` array, or printed `navn`
+on a location list. License and publisher stay null: the swagger does
+not print a license URL or publisher name.
+
+This source is Udir Barnehagefakta (`www.barnehagefakta.no`), not NBR
+(`--source nbr`), NSR (`--source udir`), NFR (`--source nfr`), or NXR
+(`--source nxr`).
+
+Proof is `data/baf_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
