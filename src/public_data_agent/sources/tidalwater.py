@@ -23,13 +23,7 @@ NAME_FIELDS = ("name", "title", "id")
 
 
 class TidalwaterSource(SourceBase):
-    """Replaceable ingest adapter for MET Tidalwater.
-
-    Listing copies collection GET paths the official swagger document prints.
-    It skips templated paths and the root path, which has no last-segment id.
-    It does not invent endpoint ids. This first slice stays inside that
-    document and caps the walk.
-    """
+    """Replaceable ingest adapter for MET Tidalwater."""
 
     source_id = SOURCE_ID
     source_name = SOURCE_NAME
@@ -148,11 +142,7 @@ def printed_operation_id(path: str) -> str:
 
 
 def printed_endpoint_url(spec: dict[str, Any], path: str, openapi_url: str) -> str:
-    """Join a printed swagger 2.0 host/basePath/path, or the document origin.
-
-    The live Tidalwater spec prints `basePath` and no `host`. Those printed
-    values are copied. No table id is invented.
-    """
+    """Join a printed swagger 2.0 host/basePath/path, or the document origin."""
 
     host = spec.get("host")
     base_path = spec.get("basePath")
@@ -192,12 +182,7 @@ def tidalwater_table_id(access_path: str) -> str:
 
 
 def cells_from_tidalwater(payload: Any) -> list[tuple[str, Any, dict[str, str]]]:
-    """Copy printed Tidalwater GeoJSON feature properties into observation cells.
-
-    Feature `properties` keep printed `name` when present, otherwise `title`
-    or `id`. Other scalars stay as dimensions. Geometry and arrays are not
-    copied.
-    """
+    """Copy printed Tidalwater GeoJSON feature properties into observation cells."""
 
     if not isinstance(payload, dict) or payload.get("type") != "FeatureCollection":
         raise ValueError("tidalwater payload is not a GeoJSON FeatureCollection")
