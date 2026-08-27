@@ -1,0 +1,203 @@
+{
+  "produced_at": "2026-08-27T21:51:46Z",
+  "bound": {
+    "list_api": "https://api.met.no/weatherapi/textforecast/3.0/swagger",
+    "walk": "copy printed untemplated GET paths from the official MET Textforecast 3.0 swagger that print no required query parameters; native ids are the last printed path segment; access_path is swagger origin + printed basePath + path; skip templated {format} paths and the root / path that prints required forecast; do not invent dataset ids or forecast filters",
+    "cap": 10,
+    "how": "pda ingest --source textforecast --limit 10. The official MET Textforecast 3.0 swagger prints 21 paths. The adapter copies the 12 untemplated GET paths that have a printed last segment and no required query parameter, then caps at 10. GET uses the printed /landoverview collection with no invented query filters."
+  },
+  "discarded": [
+    {
+      "candidate": "MET Spotwind",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/105",
+      "why": "Lane B open PR 105 --source spotwind. Do not pick the same source."
+    },
+    {
+      "candidate": "Meteorologisk institutt Radar",
+      "url": "https://api.met.no/weatherapi/radar/2.0/swagger",
+      "why": "Already on main as --source radar after PR 104 merge e7120e6. Do not re-add."
+    },
+    {
+      "candidate": "MET Sunrise",
+      "url": "https://api.met.no/weatherapi/sunrise/3.0/swagger",
+      "why": "Already on main as --source sunrise after PR 103. Do not re-add."
+    },
+    {
+      "candidate": "Meteorologisk institutt Oceanforecast",
+      "url": "https://api.met.no/weatherapi/oceanforecast/2.0/swagger",
+      "why": "Already on main as --source oceanforecast after PR 102. Do not re-add."
+    },
+    {
+      "candidate": "Meteorologisk institutt Tidalwater",
+      "url": "https://api.met.no/weatherapi/tidalwater/1.1/swagger",
+      "why": "Already on main as --source tidalwater after PR 101. Do not re-add."
+    },
+    {
+      "candidate": "Meteorologisk institutt Airqualityforecast",
+      "url": "https://api.met.no/weatherapi/airqualityforecast/0.1/swagger",
+      "why": "Already on main as --source airquality after PR 100. Do not re-add."
+    },
+    {
+      "candidate": "MET textforecast 2.0 swagger",
+      "url": "https://api.met.no/weatherapi/textforecast/2.0/swagger",
+      "why": "Known skip: HTTP 500. Do not retry. Version 3.0 swagger is the printed catalog used here."
+    },
+    {
+      "candidate": "MET subjectivesummary swagger",
+      "url": "https://api.met.no/weatherapi/subjectivesummary/0.1/swagger",
+      "why": "HTTP 500. Do not retry."
+    },
+    {
+      "candidate": "MET isobaricgrib swagger",
+      "url": "https://api.met.no/weatherapi/isobaricgrib/1.0/swagger",
+      "why": "HTTP 200 swagger. Leftover unused: GRIB binary product; /available is a file list, not a JSON collection of datasets."
+    },
+    {
+      "candidate": "MET tafmetar swagger",
+      "url": "https://api.met.no/weatherapi/tafmetar/1.0/swagger",
+      "why": "HTTP 200 swagger. Leftover unused: Textforecast 3.0 already prints a JSON collection catalog."
+    },
+    {
+      "candidate": "MET weathericon swagger",
+      "url": "https://api.met.no/weatherapi/weathericon/2.0/swagger",
+      "why": "Known skip: HTTP 500. Do not retry."
+    },
+    {
+      "candidate": "MET aviationforecast swagger",
+      "url": "https://api.met.no/weatherapi/aviationforecast/1.6/swagger",
+      "why": "Known skip: HTTP 500. Do not retry."
+    },
+    {
+      "candidate": "MET turbulence swagger",
+      "url": "https://api.met.no/weatherapi/turbulence/1.1/swagger",
+      "why": "Known skip: HTTP 500. Do not retry."
+    },
+    {
+      "candidate": "NVDB Les V3 OpenAPI",
+      "url": "https://nvdbapiles-v3.atlas.vegvesen.no/dokumentasjon/openapi.json",
+      "why": "Known skip: HTTP 400 User-Agent. Do not retry."
+    },
+    {
+      "candidate": "Vegvesen Trafikkdata swagger / trafikkdata-api",
+      "url": "https://trafikkdata.atlas.vegvesen.no/",
+      "why": "Known skip: swagger HTML-only; trafikkdata-api 410. Do not retry."
+    },
+    {
+      "candidate": "Kartverket Eiendom /geokoding",
+      "url": "https://api.kartverket.no/eiendom/v1/geokoding",
+      "why": "Known skip: HTTP 400 without matrikkel params. Do not retry."
+    },
+    {
+      "candidate": "Udir Statistikkbanken /data",
+      "url": "Udir Statistikkbanken /Eksport/{id}/data",
+      "why": "Known skip: requires invented filters. Do not retry."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source textforecast --db /tmp/pda-textforecast-proof/registry.sqlite --limit 10",
+    "listed": 10,
+    "inserted": 10,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "textforecast:available",
+        "access_path": "https://api.met.no/weatherapi/textforecast/3.0/available"
+      },
+      {
+        "id": "textforecast:changelog",
+        "access_path": "https://api.met.no/weatherapi/textforecast/3.0/changelog"
+      },
+      {
+        "id": "textforecast:coast_en",
+        "access_path": "https://api.met.no/weatherapi/textforecast/3.0/coast_en"
+      },
+      {
+        "id": "textforecast:coast_no",
+        "access_path": "https://api.met.no/weatherapi/textforecast/3.0/coast_no"
+      },
+      {
+        "id": "textforecast:features",
+        "access_path": "https://api.met.no/weatherapi/textforecast/3.0/features"
+      },
+      {
+        "id": "textforecast:healthz",
+        "access_path": "https://api.met.no/weatherapi/textforecast/3.0/healthz"
+      },
+      {
+        "id": "textforecast:landoverview",
+        "access_path": "https://api.met.no/weatherapi/textforecast/3.0/landoverview"
+      },
+      {
+        "id": "textforecast:sea_en",
+        "access_path": "https://api.met.no/weatherapi/textforecast/3.0/sea_en"
+      },
+      {
+        "id": "textforecast:sea_no",
+        "access_path": "https://api.met.no/weatherapi/textforecast/3.0/sea_no"
+      },
+      {
+        "id": "textforecast:sea_wmo",
+        "access_path": "https://api.met.no/weatherapi/textforecast/3.0/sea_wmo"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search landoverview --db /tmp/pda-textforecast-proof/registry.sqlite --limit 5",
+    "query": "landoverview",
+    "returned": 1,
+    "hit_id": "textforecast:landoverview",
+    "title": "landoverview",
+    "source_id": "textforecast"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset textforecast:landoverview --db /tmp/pda-textforecast-proof/registry.sqlite",
+    "dataset": "textforecast:landoverview",
+    "table_id": "landoverview",
+    "access_path": "https://api.met.no/weatherapi/textforecast/3.0/landoverview",
+    "request_url": "https://api.met.no/weatherapi/textforecast/3.0/landoverview",
+    "http_status": 200,
+    "listed": 35,
+    "inserted": 35,
+    "license": "http://creativecommons.org/licenses/by/4.0",
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "area",
+        "value": "Østlandet"
+      },
+      {
+        "measure": "area",
+        "value": "Agder"
+      },
+      {
+        "measure": "area",
+        "value": "Fjellet i Sør-Norge"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset textforecast:landoverview --table landoverview --entity \"\" --measure \"\" --db /tmp/pda-textforecast-proof/registry.sqlite --out /tmp/pda-textforecast-proof/methods",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "Textforecast /landoverview prints feature area names (Østlandet, Agder, …) and forecast text. That is not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed swagger path last segments. access_path is swagger origin + printed basePath + path. No textforecast id was written onto a met, nowcast, radar, oceanforecast, airquality, tidalwater, sunrise, or datanorge row.",
+    "License is the printed swagger CC BY 4.0 URL http://creativecommons.org/licenses/by/4.0. Publisher is null: the spec prints contact.name Developer Support, not a publisher.",
+    "Original harvested swagger metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "Nowcast stays --source nowcast. Metalerts stays --source met. Airqualityforecast stays --source airquality. Tidalwater stays --source tidalwater. Oceanforecast stays --source oceanforecast. Sunrise stays --source sunrise. Radar stays --source radar after PR 104. Lane B Spotwind stays PR 105. This source does not re-implement those.",
+    "The root / path prints required forecast and was not ingested. Fetch in this slice uses /landoverview so forecast is not invented.",
+    "python3 -m pytest 522 passed, 1 skipped, 1 deselected.",
+    "Not a numeric time series with two or more periods."
+  ]
+}
