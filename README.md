@@ -2451,6 +2451,38 @@ not applicable: GeoJSON feature timestamps, not a numeric time series
 (`no observations matched entity/measure; available=[]`). Proof is
 `data/subjectiveforecast_source_proof.json`.
 
+`pda ingest --source polarsatellite` is another replaceable adapter. It lists printed
+collection GET paths on the official MET Polarsatellite swagger
+`https://api.met.no/weatherapi/polarsatellite/1.1/swagger`, capped at 10.
+Templated `{format}` paths and GET operations that print required query
+parameters are skipped. Dataset ids are the last printed path segment.
+`access_path` is the swagger origin + printed `basePath` + path. License
+is the printed swagger CC BY 4.0 URL. Publisher stays null.
+This is not Metalerts (`--source met`), not Nowcast (`--source nowcast`),
+not MET Airqualityforecast (`--source airquality`), not MET Tidalwater
+(`--source tidalwater`), not MET Oceanforecast (`--source oceanforecast`),
+not MET Sunrise (`--source sunrise`), not MET Radar (`--source radar`),
+not MET Spotwind (`--source spotwind`), not MET Textforecast
+(`--source textforecast`), not MET Icemap (`--source icemap`), not MET
+NCAgalewarnings (`--source ncagalewarnings`), not MET Tafmetar
+(`--source tafmetar`), not MET Subseasonal (`--source subseasonal`),
+not MET Geosatellite (`--source geosatellite`), not MET Metgm
+(`--source metgm`, now on main after PR 112), and not MET
+Subjectiveforecast (`--source subjectiveforecast`, now on main after
+PR 113). The root product path prints required `satellite` so it stays
+unused for fetch. `/available` prints XML so it stays unused for fetch.
+
+```bash
+pda ingest --source polarsatellite --db data/registry.sqlite --limit 10
+pda search locations --db data/registry.sqlite
+pda fetch --dataset polarsatellite:locations --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored collection URL. Observation values are copied
+from printed GeoJSON feature `name` when present, otherwise the printed
+Feature `id`. License is the printed swagger CC BY 4.0 URL. Publisher
+stays null: the spec does not print a publisher.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
