@@ -1182,6 +1182,15 @@ from printed `Navn`. License is copied from the printed OpenAPI
 `info.license.url` when present. Publisher stays null: the spec does not
 print a publisher name.
 
+Live ingest 2026-08-27: 8 printed collection GET paths. Live search
+`barnehagekategorier` returns `nbr:barnehagekategorier`. Live fetch GETs
+`https://data-nbr.udir.no/v3/barnehagekategorier` HTTP 200, 10
+kindergarten-type rows. Sample printed names: Offentlig barnehage,
+Kommunal barnehage, Privat barnehage, Fylkeskommunal barnehage,
+Statlig barnehage. `pda methods` is not applicable: names, not a
+numeric time series (`no observations matched entity/measure; available=[]`).
+Proof is `data/nbr_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
