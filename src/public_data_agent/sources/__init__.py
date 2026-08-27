@@ -23,6 +23,7 @@ from public_data_agent.sources.nve import NveMagasinSource
 from public_data_agent.sources.oslo import OsloStatbankSource
 from public_data_agent.sources.ssb import SsbStatbankSource
 from public_data_agent.sources.statnett import StatnettDriftsdataSource
+from public_data_agent.sources.stedsnavn import StedsnavnSource
 from public_data_agent.sources.trondheim import TrondheimOpenDataSource
 from public_data_agent.sources.udir import UdirNsrSource
 from public_data_agent.sources.utdanning import UtdanningSource
@@ -53,6 +54,7 @@ SOURCE_IDS = (
     "nbr",
     "norgesbank",
     "npolar",
+    "stedsnavn",
 )
 
 
@@ -107,6 +109,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return NorgesBankSource()
     if source_id == "npolar":
         return NpolarSource()
+    if source_id == "stedsnavn":
+        return StedsnavnSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -134,6 +138,7 @@ __all__ = [
     "SOURCE_IDS",
     "SourceBase",
     "StatnettDriftsdataSource",
+    "StedsnavnSource",
     "TrondheimOpenDataSource",
     "UdirNsrSource",
     "UtdanningSource",

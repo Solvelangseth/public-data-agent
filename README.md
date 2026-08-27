@@ -1246,6 +1246,36 @@ North Korea, Oman, Poland, Nauru, Chad.
 (`no observations matched entity/measure; available=[]`).
 Proof is `data/npolar_source_proof.json`.
 
+## Kartverket Stedsnavn source
+
+`pda ingest --source stedsnavn` is another replaceable adapter. It lists printed
+collection GET paths on the official Kartverket Stedsnavn OpenAPI
+`https://ws.geonorge.no/stedsnavn/v1/openapi.json`, capped at 10. Dataset ids
+are the printed path's last segment. `access_path` is the printed OpenAPI
+`servers[0].url` plus the printed path.
+
+```bash
+pda ingest --source stedsnavn --db data/registry.sqlite --limit 10
+pda search navneobjekttyper --db data/registry.sqlite
+pda fetch --dataset stedsnavn:navneobjekttyper --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored path. Observation values are copied from a
+printed name field (`navneobjekttype`, `språk`, `name`, `title`, or `navn`)
+when present. Nested objects are not copied. License and publisher stay
+null: the OpenAPI `info` object does not print those fields.
+
+This source is Kartverket's Stedsnavn search API, not Geonorge Kartkatalog.
+
+Live ingest 2026-08-27: 5 printed collection GET paths (the catalog prints
+5, cap 10). Live search `navneobjekttyper` returns
+`stedsnavn:navneobjekttyper`. Live fetch GETs
+`https://api.kartverket.no/stedsnavn/v1/navneobjekttyper` HTTP 200, 291
+navneobjekttype rows. Sample printed names: Militært bygg/anlegg,
+Fornøyelsespark, Idrettshall. `pda methods` is not applicable: names, not
+a numeric time series (`no observations matched entity/measure;
+available=[]`). Proof is `data/stedsnavn_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
