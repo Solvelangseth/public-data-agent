@@ -1,0 +1,137 @@
+{
+  "produced_at": "2026-08-27T16:26:58Z",
+  "bound": {
+    "list_api": "https://www.barnehagefakta.no/swagger/docs/v1",
+    "walk": "copy printed collection GET paths from the official Barnehagefakta swagger; skip templated paths; join each path to the printed swagger host because the live document is Swagger 2.0 with host/schemes and no servers array; do not invent path ids",
+    "cap": 10,
+    "how": "pda ingest --source baf --limit 10. The official Barnehagefakta swagger prints 12 paths. 2 untemplated collection GETs are /api/Fylker and /api/Location. Templated {id}/{orgnr}/{kommunenummer}/{fylkesnummer}/lat-lng paths are skipped. The adapter copies the printed untemplated GET paths joined to https://www.barnehagefakta.no."
+  },
+  "discarded": [
+    {
+      "candidate": "Udir NXR Fellestjeneste",
+      "url": "PR 87 cursor/norwegian-source-064f --source nxr",
+      "why": "Already in flight. Do not touch that branch, PR, or nxr adapter files. This branch starts from origin/main only."
+    },
+    {
+      "candidate": "Udir NFR / Nasjonalt register for skolefritidsordningen",
+      "url": "https://data-nfr.udir.no/swagger/v4/swagger.json",
+      "why": "Already ingested on main as --source nfr. Do not re-add."
+    },
+    {
+      "candidate": "Udir NPR / Nasjonalt register for PP-tjenester",
+      "url": "https://data-npr.udir.no/swagger/v4/swagger.json",
+      "why": "Already ingested on main as --source npr. Do not re-add."
+    },
+    {
+      "candidate": "Udir NOR / Nasjonalt register for opplæringskontorer",
+      "url": "https://data-nor.udir.no/swagger/v4/swagger.json",
+      "why": "Already ingested on main as --source nor. Do not re-add."
+    },
+    {
+      "candidate": "Udir NSR / Nasjonalt skoleregister",
+      "url": "https://data-nsr.udir.no/",
+      "why": "Already ingested on main as --source udir. Different register."
+    },
+    {
+      "candidate": "Udir NBR / Nasjonalt barnehageregister",
+      "url": "https://data-nbr.udir.no/",
+      "why": "Already ingested on main as --source nbr. Different host and register. Barnehagefakta is www.barnehagefakta.no."
+    },
+    {
+      "candidate": "Fiskeridirektoratet miljøundersøkelser",
+      "url": "https://api.fiskeridir.no/envreportreg-public/v3/api-docs",
+      "why": "OpenAPI HTTP 200 but untemplated paths are /api/v2/report/search and /api/v1/report/search. Search API, not a collection catalog. Do not invent report ids."
+    },
+    {
+      "candidate": "NVDB Les V3 OpenAPI",
+      "url": "https://nvdbapiles-v3.atlas.vegvesen.no/dokumentasjon/openapi.json",
+      "why": "Known skip: HTTP 400 User-Agent. Do not retry."
+    },
+    {
+      "candidate": "Vegvesen Trafikkdata swagger / trafikkdata-api",
+      "url": "https://trafikkdata.atlas.vegvesen.no/",
+      "why": "Known skip: swagger HTML-only; trafikkdata-api 410. Do not retry."
+    },
+    {
+      "candidate": "Kartverket Eiendom /geokoding",
+      "url": "https://api.kartverket.no/eiendom/v1/geokoding",
+      "why": "Known skip: HTTP 400 without matrikkel params. Search API, not a collection catalog. Do not retry."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source baf --db /tmp/pda-baf-proof/registry.sqlite --limit 10",
+    "listed": 2,
+    "inserted": 2,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "baf:Fylker",
+        "access_path": "https://www.barnehagefakta.no/api/Fylker"
+      },
+      {
+        "id": "baf:Location",
+        "access_path": "https://www.barnehagefakta.no/api/Location"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search fylker --db /tmp/pda-baf-proof/registry.sqlite --limit 5",
+    "query": "fylker",
+    "returned": 1,
+    "hit_id": "baf:Fylker",
+    "title": "Returnerer struktur med fylker / kommuner",
+    "source_id": "baf"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset baf:Fylker --db /tmp/pda-baf-proof/registry.sqlite",
+    "dataset": "baf:Fylker",
+    "table_id": "Fylker",
+    "access_path": "https://www.barnehagefakta.no/api/Fylker",
+    "request_url": "https://www.barnehagefakta.no/api/Fylker",
+    "http_status": 200,
+    "listed": 16,
+    "inserted": 16,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "fylkesnavn",
+        "value": "Oslo"
+      },
+      {
+        "measure": "fylkesnavn",
+        "value": "Rogaland"
+      },
+      {
+        "measure": "fylkesnavn",
+        "value": "Møre og Romsdal"
+      },
+      {
+        "measure": "fylkesnavn",
+        "value": "Nordland - Nordlánnda"
+      },
+      {
+        "measure": "fylkesnavn",
+        "value": "Svalbard"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset baf:Fylker --table Fylker --entity \"\" --measure \"\" --db /tmp/pda-baf-proof/registry.sqlite --out /tmp/pda-baf-proof/methods",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "BAF /api/Fylker prints county names. That is not a numeric time series. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed swagger path last segments. access_path is https://www.barnehagefakta.no/api/Fylker, joined from the printed swagger host and the printed untemplated GET path. No baf id was written onto a udir, nbr, nfr, npr, nor, or datanorge row.",
+    "License is null. Publisher is null. The swagger does not print info.license.url or a publisher name. No NLOD URL was invented.",
+    "Original harvested swagger metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "Udir NXR stays on PR 87. NSR, NBR, NOR, NPR, and NFR were not re-added. This source does not re-implement any of them.",
+    "python3 -m pytest 359 passed, 1 skipped, 1 deselected."
+  ]
+}
