@@ -2567,6 +2567,15 @@ from printed GeoJSON feature `name` when present, otherwise the printed
 Feature `id`. License is the printed swagger CC BY 4.0 URL. Publisher
 stays null: the spec does not print a publisher.
 
+Live ingest 2026-08-27: 8 printed untemplated GET paths (catalog prints
+8 paths with a last-segment id and no required query parameter, cap 10).
+Live search `locations` returns `soundprofile:locations`. Live fetch GETs
+`https://api.met.no/weatherapi/soundprofile/1.0/locations` HTTP 200, 48
+location-name cells. Sample printed value: `N5627_E00627`.
+`pda methods` is not applicable: GeoJSON location names, not a numeric
+time series (`no observations matched entity/measure; available=[]`).
+Proof is `data/soundprofile_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
