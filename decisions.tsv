@@ -88,3 +88,6 @@ ts	phase	decision	why	evidence	result
 2026-08-27T08:16:00Z	export	live pda ask wrote data/ask_export.csv	prove the Excel file from a real ask, not a rebuilt proof	15 rows HTTP 200; 030102 personer=67039; 030108 yoy=0.0184; methods.emit.emit wrote yoy_bar.png	live works
 2026-08-27T08:16:30Z	test	run pytest after the export commit	do not leave the count only in the PR body	python3 -m pytest 70 passed 1 deselected	tests green
 2026-08-27T08:17:00Z	pr	open Milestone 11 PR, do not merge	export is a reviewable PR	https://github.com/Solvelangseth/public-data-agent/pull/21	OPEN
+2026-08-27T08:23:32Z	obs	persist 11763 cells during pda join/ask, no new API	Methods Lab had 0 bydel rows in observations; join already POSTed table 11763	data/ask_export_proof.json observations_11763 count=36 sample 030102 Grünerløkka 67039 HTTP 200 license=null	live stored
+2026-08-27T08:23:32Z	obs	INSERT identity-only datasets row ssb:11763 for the FK	observations.dataset_id REFERENCES datasets(id); do not write harvested_payloads or enrichments	datasets ingest_reason=observation_store_identity; harvested_payloads 0; enrichments 0	harvest untouched
+2026-08-27T08:23:32Z	methods	pda methods on ssb:11763 used stored rows only	load_observations found 36 rows so it did not call pda fetch	pda methods --dataset ssb:11763 --entity "" --measure "" rows=30	no new API

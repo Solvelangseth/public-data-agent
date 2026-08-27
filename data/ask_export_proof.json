@@ -41,5 +41,31 @@
       "right_request_url": "https://data.ssb.no/api/v0/no/table/11763"
     }
   ],
-  "db": "data/registry.sqlite"
+  "db": "data/registry.sqlite",
+  "observations_11763": {
+    "dataset_id": "ssb:11763",
+    "table_id": "11763",
+    "count": 36,
+    "years": {
+      "2024": 18,
+      "2025": 18
+    },
+    "null_values": 6,
+    "request_url": "https://data.ssb.no/api/v0/no/table/11763",
+    "http_status": 200,
+    "publisher_name": "Statistisk sentralbyrå",
+    "license": null,
+    "harvested_payloads": 0,
+    "enrichments": 0,
+    "sample": {
+      "bydel_code": "030102",
+      "region": "Grünerløkka",
+      "år": "2025",
+      "measure": "Personer (antall)",
+      "value": 67039
+    },
+    "sql": "SELECT count(*) FROM observations WHERE dataset_id = 'ssb:11763'",
+    "methods_command": "pda methods --dataset ssb:11763 --table 11763 --entity \"\" --measure \"\" --db data/registry.sqlite --out /tmp/methods-11763",
+    "methods_rows": 30
+  }
 }
