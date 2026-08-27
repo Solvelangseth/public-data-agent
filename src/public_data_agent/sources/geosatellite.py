@@ -196,9 +196,9 @@ def cells_from_geosatellite(payload: Any) -> list[tuple[str, Any, dict[str, str]
     """Copy printed Geosatellite GeoJSON feature fields into observation cells.
 
     Feature `properties` keep printed `name` when present, otherwise `title`
-    or `id`. A printed feature-level `id` is copied when properties have no
-    `id`. Other scalars stay as dimensions. Geometry, `assets`, and arrays
-    are not copied.
+    or `id`. Live Geosatellite features print `datetime` in properties and
+    `id` on the feature; the printed feature `id` is copied as a dimension.
+    Geometry, `assets`, and arrays are not copied.
     """
 
     if not isinstance(payload, dict) or payload.get("type") != "FeatureCollection":
@@ -212,12 +212,16 @@ def cells_from_geosatellite(payload: Any) -> list[tuple[str, Any, dict[str, str]
             continue
         props = feature.get("properties")
         record: dict[str, Any] = dict(props) if isinstance(props, dict) else {}
+        extra_dims: dict[str, str] = {}
         feature_id = feature.get("id")
-        if "id" not in record and feature_id is not None and _is_scalar(feature_id):
-            record["id"] = feature_id
-        if not record:
+        if feature_id is not None and _is_scalar(feature_id):
+            extra_dims["id"] = _as_dim(feature_id)
+        if not record and not extra_dims:
             continue
-        cells.extend(_cells_from_record(record))
+        if not record:
+            cells.append(("id", feature_id, {}))
+            continue
+        cells.extend(_cells_from_record(record, extra_dims=extra_dims))
     return cells
 
 
@@ -265,9 +269,16 @@ def _path_for_ref(spec: dict[str, Any], ref: DatasetRef) -> tuple[str, dict[str,
     )
 
 
-def _cells_from_record(item: dict[str, Any]) -> list[tuple[str, Any, dict[str, str]]]:
+def _cells_from_record(
+    item: dict[str, Any],
+    extra_dims: dict[str, str] | None = None,
+) -> list[tuple[str, Any, dict[str, str]]]:
     scalars = {key: value for key, value in item.items() if _is_scalar(value)}
+    extras = {key: value for key, value in (extra_dims or {}).items() if value != ""}
     if not scalars:
+        if "id" in extras:
+            dims = {key: value for key, value in extras.items() if key != "id"}
+            return [("id", extras["id"], dims)]
         return []
     measure = None
     value: Any = None
@@ -279,6 +290,9 @@ def _cells_from_record(item: dict[str, Any]) -> list[tuple[str, Any, dict[str, s
     if measure is None:
         measure, value = next(iter(scalars.items()))
     dims = {key: _as_dim(other) for key, other in scalars.items() if key != measure}
+    for key, dim in extras.items():
+        if key != measure and key not in dims:
+            dims[key] = dim
     return [(measure, value, dims)]
 
 

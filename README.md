@@ -2342,16 +2342,26 @@ that printed path returns XML.
 
 ```bash
 pda ingest --source geosatellite --db data/registry.sqlite --limit 10
-pda search features --db data/registry.sqlite
+pda search featurecollection --db data/registry.sqlite
 pda fetch --dataset geosatellite:features --db data/registry.sqlite
 ```
 
 `pda fetch` GETs the stored collection URL. Observation values are copied
-from the printed GeoJSON feature `id`. License is the printed swagger
-CC BY 4.0 URL. Publisher stays null: the spec does not print a publisher.
+from the printed GeoJSON feature `datetime`; the printed feature `id`
+stays a dimension. License is the printed swagger CC BY 4.0 URL.
+Publisher stays null: the spec does not print a publisher.
 
-Live ingest and fetch counts are recorded in `data/geosatellite_source_proof.json`
-after the throwaway-registry proof.
+Live ingest 2026-08-27: 5 printed untemplated collection GET paths
+(catalog prints 8 paths; templated `{format}` paths and root `/` skipped).
+Live search `featurecollection` returns `geosatellite:features`. Live
+fetch GETs `https://api.met.no/weatherapi/geosatellite/1.4/features`
+HTTP 200, 2710 printed feature rows (2708 inserted; 2 duplicate
+feature ids stayed unchanged). Sample printed values: datetime
+2026-08-25T22:00:00Z with ids Mediterranean-Sea-IR-20260825220000,
+Europe-IR-20260825220000, Africa-IR-20260825220000. `pda methods` is
+not applicable: GeoJSON feature timestamps, not a numeric time series
+(`no observations matched entity/measure; available=[]`). Proof is
+`data/geosatellite_source_proof.json`.
 
 ## Architecture (long term)
 

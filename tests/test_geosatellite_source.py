@@ -247,14 +247,17 @@ def test_fetch_gets_printed_features(tmp_path: Path) -> None:
     assert result.http_status == 200
     assert result.counts.listed == 2
     rows = registry.list_observations(DATASET_ID)
-    by_value = {json.loads(row["value_json"]): row for row in rows}
-    assert set(by_value) == {
+    by_id = {json.loads(row["dimensions_json"]).get("id"): row for row in rows}
+    assert set(by_id) == {
         "Mediterranean-Sea-VIS-20240601074500",
         "Europe-IR-20240601080000",
     }
-    assert by_value["Mediterranean-Sea-VIS-20240601074500"]["measure"] == "id"
-    dims = json.loads(by_value["Mediterranean-Sea-VIS-20240601074500"]["dimensions_json"])
-    assert dims["datetime"] == "2024-06-01T07:45:00Z"
+    assert by_id["Mediterranean-Sea-VIS-20240601074500"]["measure"] == "datetime"
+    assert json.loads(by_id["Mediterranean-Sea-VIS-20240601074500"]["value_json"]) == (
+        "2024-06-01T07:45:00Z"
+    )
+    dims = json.loads(by_id["Mediterranean-Sea-VIS-20240601074500"]["dimensions_json"])
+    assert dims["id"] == "Mediterranean-Sea-VIS-20240601074500"
     assert "assets" not in dims
     assert "geometry" not in dims
     assert all(row["publisher_name"] is None for row in rows)
@@ -267,9 +270,9 @@ def test_cells_copy_printed_feature_id() -> None:
     cells = cells_from_geosatellite(FEATURES_BODY)
     assert len(cells) == 2
     measure, value, dims = cells[0]
-    assert measure == "id"
-    assert value == "Mediterranean-Sea-VIS-20240601074500"
-    assert dims["datetime"] == "2024-06-01T07:45:00Z"
+    assert measure == "datetime"
+    assert value == "2024-06-01T07:45:00Z"
+    assert dims["id"] == "Mediterranean-Sea-VIS-20240601074500"
     assert "assets" not in dims
     fallback = cells_from_geosatellite(
         {

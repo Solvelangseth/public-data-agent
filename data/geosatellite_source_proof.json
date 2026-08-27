@@ -1,0 +1,224 @@
+{
+  "produced_at": "2026-08-27T22:25:28Z",
+  "bound": {
+    "list_api": "https://api.met.no/weatherapi/geosatellite/1.4/swagger",
+    "walk": "copy printed untemplated GET paths from the official MET Geosatellite swagger that have a last path segment; skip templated {format} paths and the root / image product; native ids are the last printed path segment; access_path is swagger origin + printed basePath + path; optional area/size/type/time query filters are not invented",
+    "cap": 10,
+    "how": "pda ingest --source geosatellite --limit 10. The official MET Geosatellite swagger prints 8 paths. The adapter copies the 5 untemplated GET paths that have a printed last segment (available, changelog, features, healthz, values). GET uses the printed /features collection with no invented query filters."
+  },
+  "discarded": [
+    {
+      "candidate": "MET Subseasonal",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/110",
+      "why": "Lane B open PR 110 --source subseasonal. Do not pick the same source."
+    },
+    {
+      "candidate": "Meteorologisk institutt Tafmetar",
+      "url": "https://api.met.no/weatherapi/tafmetar/1.0/swagger",
+      "why": "Already on main as --source tafmetar after PR 109 merge a5cacbc. Do not re-add."
+    },
+    {
+      "candidate": "MET NCAgalewarnings",
+      "url": "https://api.met.no/weatherapi/ncagalewarnings/1.0/swagger",
+      "why": "Already on main as --source ncagalewarnings after PR 107. Do not re-add."
+    },
+    {
+      "candidate": "Meteorologisk institutt Icemap",
+      "url": "https://api.met.no/weatherapi/icemap/1.0/swagger",
+      "why": "Already on main as --source icemap after PR 108. Do not re-add."
+    },
+    {
+      "candidate": "Meteorologisk institutt Textforecast",
+      "url": "https://api.met.no/weatherapi/textforecast/3.0/swagger",
+      "why": "Already on main as --source textforecast. Do not re-add."
+    },
+    {
+      "candidate": "MET Spotwind",
+      "url": "https://api.met.no/weatherapi/spotwind/1.1/swagger",
+      "why": "Already on main as --source spotwind. Do not re-add."
+    },
+    {
+      "candidate": "Meteorologisk institutt Radar",
+      "url": "https://api.met.no/weatherapi/radar/2.0/swagger",
+      "why": "Already on main as --source radar. Do not re-add."
+    },
+    {
+      "candidate": "MET Sunrise",
+      "url": "https://api.met.no/weatherapi/sunrise/3.0/swagger",
+      "why": "Already on main as --source sunrise. Do not re-add."
+    },
+    {
+      "candidate": "Meteorologisk institutt Oceanforecast",
+      "url": "https://api.met.no/weatherapi/oceanforecast/2.0/swagger",
+      "why": "Already on main as --source oceanforecast. Do not re-add."
+    },
+    {
+      "candidate": "Meteorologisk institutt Tidalwater",
+      "url": "https://api.met.no/weatherapi/tidalwater/1.1/swagger",
+      "why": "Already on main as --source tidalwater. Do not re-add."
+    },
+    {
+      "candidate": "Meteorologisk institutt Airqualityforecast",
+      "url": "https://api.met.no/weatherapi/airqualityforecast/0.1/swagger",
+      "why": "Already on main as --source airquality. Do not re-add."
+    },
+    {
+      "candidate": "MET Metgm /features",
+      "url": "https://api.met.no/weatherapi/metgm/1.0/swagger",
+      "why": "HTTP 200 swagger and /features 200 GeoJSON. Leftover unused: Geosatellite /features is the printed collection used here."
+    },
+    {
+      "candidate": "MET Subjectiveforecast /features",
+      "url": "https://api.met.no/weatherapi/subjectiveforecast/1.0/swagger",
+      "why": "HTTP 200 swagger and /features 200 GeoJSON. Leftover unused: Geosatellite /features is the printed collection used here."
+    },
+    {
+      "candidate": "MET Locationforecast /classic /compact /complete",
+      "url": "https://api.met.no/weatherapi/locationforecast/2.0/swagger",
+      "why": "Printed forecast paths require lat/lon. Unused for fetch."
+    },
+    {
+      "candidate": "MET weathericon swagger",
+      "url": "https://api.met.no/weatherapi/weathericon/2.0/swagger",
+      "why": "Known skip: HTTP 500. Do not retry."
+    },
+    {
+      "candidate": "MET aviationforecast swagger",
+      "url": "https://api.met.no/weatherapi/aviationforecast/1.6/swagger",
+      "why": "Known skip: HTTP 500. Do not retry."
+    },
+    {
+      "candidate": "MET turbulence swagger",
+      "url": "https://api.met.no/weatherapi/turbulence/1.1/swagger",
+      "why": "Known skip: HTTP 500. Do not retry."
+    },
+    {
+      "candidate": "Frost MET sources",
+      "url": "https://frost.met.no/sources/v0.jsonld",
+      "why": "Known skip: HTTP 401. Do not retry."
+    },
+    {
+      "candidate": "NVDB Les V3 OpenAPI",
+      "url": "https://nvdbapiles-v3.atlas.vegvesen.no/dokumentasjon/openapi.json",
+      "why": "Known skip: HTTP 400 User-Agent. Do not retry."
+    },
+    {
+      "candidate": "Vegvesen Trafikkdata swagger / trafikkdata-api",
+      "url": "https://trafikkdata.atlas.vegvesen.no/",
+      "why": "Known skip: swagger HTML-only; trafikkdata-api 410. Do not retry."
+    },
+    {
+      "candidate": "Kartverket Eiendom /geokoding",
+      "url": "https://api.kartverket.no/eiendom/v1/geokoding",
+      "why": "Known skip: HTTP 400 without matrikkel params. Do not retry."
+    },
+    {
+      "candidate": "Udir Statistikkbanken /data",
+      "url": "Udir Statistikkbanken /Eksport/{id}/data",
+      "why": "Known skip: requires invented filters. Do not retry."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source geosatellite --db /tmp/pda-geosatellite-proof/registry.sqlite --limit 10",
+    "listed": 5,
+    "inserted": 5,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "geosatellite:available",
+        "access_path": "https://api.met.no/weatherapi/geosatellite/1.4/available"
+      },
+      {
+        "id": "geosatellite:changelog",
+        "access_path": "https://api.met.no/weatherapi/geosatellite/1.4/changelog"
+      },
+      {
+        "id": "geosatellite:features",
+        "access_path": "https://api.met.no/weatherapi/geosatellite/1.4/features"
+      },
+      {
+        "id": "geosatellite:healthz",
+        "access_path": "https://api.met.no/weatherapi/geosatellite/1.4/healthz"
+      },
+      {
+        "id": "geosatellite:values",
+        "access_path": "https://api.met.no/weatherapi/geosatellite/1.4/values"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search featurecollection --db /tmp/pda-geosatellite-proof/registry.sqlite --limit 5",
+    "query": "featurecollection",
+    "returned": 1,
+    "hit_id": "geosatellite:features",
+    "title": "List available resources as OGC API FeatureCollection",
+    "source_id": "geosatellite",
+    "publisher": null,
+    "license": "http://creativecommons.org/licenses/by/4.0",
+    "access_path": "https://api.met.no/weatherapi/geosatellite/1.4/features",
+    "original_source": "https://api.met.no/weatherapi/geosatellite/1.4/swagger",
+    "why_picked": "title matched featurecollection"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset geosatellite:features --db /tmp/pda-geosatellite-proof/registry.sqlite",
+    "dataset": "geosatellite:features",
+    "table_id": "features",
+    "access_path": "https://api.met.no/weatherapi/geosatellite/1.4/features",
+    "request_url": "https://api.met.no/weatherapi/geosatellite/1.4/features",
+    "http_status": 200,
+    "listed": 2710,
+    "inserted": 2708,
+    "updated": 0,
+    "unchanged": 2,
+    "license": "http://creativecommons.org/licenses/by/4.0",
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "datetime",
+        "value": "2026-08-25T22:00:00Z",
+        "dimensions": {
+          "id": "Mediterranean-Sea-IR-20260825220000"
+        }
+      },
+      {
+        "measure": "datetime",
+        "value": "2026-08-25T22:00:00Z",
+        "dimensions": {
+          "id": "Europe-IR-20260825220000"
+        }
+      },
+      {
+        "measure": "datetime",
+        "value": "2026-08-25T22:00:00Z",
+        "dimensions": {
+          "id": "Africa-IR-20260825220000"
+        }
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset geosatellite:features --table features --entity \"\" --measure \"\" --db /tmp/pda-geosatellite-proof/registry.sqlite --out /tmp/pda-geosatellite-proof/methods",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "Geosatellite /features prints feature datetime stamps and image ids (Mediterranean-Sea-IR-20260825220000, …). That is not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed swagger path last segments. access_path is swagger origin + printed basePath + path. No geosatellite id was written onto a met, nowcast, radar, oceanforecast, airquality, tidalwater, sunrise, spotwind, textforecast, icemap, ncagalewarnings, tafmetar, or datanorge row.",
+    "License is the printed swagger CC BY 4.0 URL http://creativecommons.org/licenses/by/4.0. Publisher is null: the spec prints contact.name Developer Support, not a publisher.",
+    "Original harvested swagger metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "Nowcast stays --source nowcast. Metalerts stays --source met. Airqualityforecast stays --source airquality. Tidalwater stays --source tidalwater. Oceanforecast stays --source oceanforecast. Sunrise stays --source sunrise. Radar stays --source radar. Spotwind stays --source spotwind. Textforecast stays --source textforecast. Icemap stays --source icemap. NCAgalewarnings stays --source ncagalewarnings. Tafmetar stays --source tafmetar after PR 109. Lane B Subseasonal stays PR 110. This source does not re-implement those.",
+    "Root / is an image product with no last path segment and was not ingested. Optional area/size/type/time filters were not invented. Fetch in this slice uses /features.",
+    "python3 -m pytest 572 passed, 1 skipped, 1 deselected.",
+    "Not a numeric time series with two or more periods."
+  ]
+}
