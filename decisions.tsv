@@ -126,3 +126,4 @@ ts	phase	decision	why	evidence	result
 2026-08-27T09:16:20Z	methods	pda methods reads 06683 from the store	8 numeric rows; did not call pda fetch	rows=8 yoy Stebarn=0.1683; fetch_runs=1	numeric
 2026-08-27T09:16:30Z	test	run pytest after the SSB source	do not leave the count only in the PR body	python3 -m pytest 97 passed 1 deselected	tests green
 2026-08-27T09:17:10Z	pr	open SSB Statbank source PR, do not merge	bounded ingest plus 06683 fetch and methods	https://github.com/Solvelangseth/public-data-agent/pull/35	OPEN
+2026-08-27T10:16:34Z	geonorge	add GeonorgeKartkatalogSource; list Kartkatalog REST-API, fetch OpenAPI-printed /kommuner	next replaceable source after Data.norge + Oslo PxWeb + SSB + user files; Kartverket kommuneinfo listed its own endpoints; no license URI printed	pda ingest --source geonorge listed=8; pda search kommuneinfo hit geonorge:3fcce35c; GET /kommuner 200 listed=357; methods skipped names not a numeric series	live works

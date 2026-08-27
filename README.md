@@ -658,6 +658,31 @@ from the response: Utenlandsadopsjoner 34 then 24, Stebarn 202 then 236.
 `pda methods` reads those 8 stored rows and does not call `pda fetch`.
 It returns numeric series with YoY. Proof is `data/ssb_source_proof.json`.
 
+## Geonorge Kartkatalog source
+
+`pda ingest --source geonorge` is another replaceable adapter. It searches
+the official Kartkatalog list API and keeps Kartverket `W3C:REST` items
+under the printed `REST-API` text, capped at 8. Dataset ids are the printed
+Uuid. `access_path` is the printed `DistributionUrl`.
+
+```bash
+pda ingest --source geonorge --db data/registry.sqlite --limit 8
+pda search kommuneinfo --db data/registry.sqlite
+pda fetch --dataset geonorge:3fcce35c-759b-4c6e-adb9-f03478c6fb72 \
+  --db data/registry.sqlite
+```
+
+`pda fetch` GETs the OpenAPI document the stored API root prints, then GETs
+a parameter-free collection path from that document (`/kommuner` when
+printed). License stays null unless Kartkatalog prints a license URI.
+
+Live ingest 2026-08-27: 8 Kartverket REST-API rows. Live search
+`kommuneinfo` returns `geonorge:3fcce35c-759b-4c6e-adb9-f03478c6fb72`.
+Live fetch GETs `https://ws.geonorge.no/kommuneinfo/v1/kommuner` HTTP 200,
+357 kommune rows. Sample printed values: Våler 3419, Oslo 0301.
+`pda methods` is not applicable: the payload is names, not a numeric time
+series (`available=[]`). Proof is `data/geonorge_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
