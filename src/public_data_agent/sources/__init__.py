@@ -22,6 +22,7 @@ from public_data_agent.sources.miljodir import MiljodirVannmiljoSource
 from public_data_agent.sources.nbr import NbrSource
 from public_data_agent.sources.nfr import NfrSource
 from public_data_agent.sources.nibio import NibioWeatherSource
+from public_data_agent.sources.nin import NinSource
 from public_data_agent.sources.nor import NorSource
 from public_data_agent.sources.npr import NprSource
 from public_data_agent.sources.norgesbank import NorgesBankSource
@@ -85,6 +86,7 @@ SOURCE_IDS = (
     "opencom",
     "sodir",
     "kommuneinfo",
+    "nin",
 )
 
 
@@ -171,6 +173,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return SodirSource()
     if source_id == "kommuneinfo":
         return KommuneinfoSource()
+    if source_id == "nin":
+        return NinSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -195,6 +199,7 @@ __all__ = [
     "NbrSource",
     "NfrSource",
     "NibioWeatherSource",
+    "NinSource",
     "NorSource",
     "NprSource",
     "NorgesBankSource",

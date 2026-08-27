@@ -1766,6 +1766,37 @@ Agder, Rogaland. `pda methods` is not applicable: county names, not a
 numeric time series (`no observations matched entity/measure; available=[]`).
 Proof is `data/kommuneinfo_source_proof.json`.
 
+## Artsdatabanken Natur i Norge source
+
+`pda ingest --source nin` is another replaceable adapter. It lists printed
+collection GET paths on the official Artsdatabanken NiN Kode API OpenAPI
+`https://nin-kode-api.artsdatabanken.no/swagger/v3.0/swagger.json`,
+capped at 10. Dataset ids are the printed paths. `access_path` is the
+printed path joined to the OpenAPI origin. Templated `{kortkode}` paths
+are skipped. This is not Kartverket Kommuneinfo (`--source kommuneinfo`,
+now on main), not Sokkeldirektoratet FactMaps (`--source sodir`), and not
+Stavanger Opencom (`--source opencom`).
+
+```bash
+pda ingest --source nin --db data/registry.sqlite --limit 10
+pda search allekoder --db data/registry.sqlite
+pda fetch --dataset nin:v3.0/typer/allekoder --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored collection URL. Observation values are copied
+from printed type `navn` when it is a non-empty string. Publisher and
+license stay null: the OpenAPI document does not print those fields.
+
+Live ingest 2026-08-27: 6 printed collection GET paths (catalog prints 16
+GET paths, 6 untemplated, cap 10). Live search `allekoder` returns
+`nin:v3.0/typer/allekoder`. Live fetch GETs
+`https://nin-kode-api.artsdatabanken.no/v3.0/typer/allekoder`
+HTTP 200, 10 type-name rows. Sample printed values: Bremassiv, Elveløp,
+Landformer i fast fjell og løsmasser, Innsjøbasseng, Torvmarksmassiv.
+`pda methods` is not applicable: type names, not a numeric time series
+(`no observations matched entity/measure; available=[]`).
+Proof is `data/nin_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
