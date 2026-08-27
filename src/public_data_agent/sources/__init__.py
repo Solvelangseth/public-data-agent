@@ -11,6 +11,7 @@ from public_data_agent.sources.geonorge import GeonorgeKartkatalogSource
 from public_data_agent.sources.mattilsynet import MattilsynetPlantevernSource
 from public_data_agent.sources.nve import NveMagasinSource
 from public_data_agent.sources.ssb import SsbStatbankSource
+from public_data_agent.sources.udir import UdirNsrSource
 from public_data_agent.sources.valg import ValgresultatSource
 
 SOURCE_IDS = (
@@ -23,6 +24,7 @@ SOURCE_IDS = (
     "valg",
     "fhi",
     "mattilsynet",
+    "udir",
 )
 
 
@@ -47,6 +49,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return FhiStatistikkSource()
     if source_id == "mattilsynet":
         return MattilsynetPlantevernSource()
+    if source_id == "udir":
+        return UdirNsrSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -62,6 +66,7 @@ __all__ = [
     "SsbStatbankSource",
     "SOURCE_IDS",
     "SourceBase",
+    "UdirNsrSource",
     "ValgresultatSource",
     "build_source",
 ]

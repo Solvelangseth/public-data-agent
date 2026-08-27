@@ -831,6 +831,34 @@ Beloukha Garden RTU, Biltema Ugressdreper, Doff Snegler Stop.
 (`no observations matched entity/measure; available=[]`).
 Proof is `data/mattilsynet_source_proof.json`.
 
+## Utdanningsdirektoratet Nasjonalt skoleregister source
+
+`pda ingest --source udir` is another replaceable adapter. It lists printed
+collection GET paths on the official Nasjonalt skoleregister OpenAPI
+`https://data-nsr.udir.no/swagger/v1/swagger.json`, capped at 10. Templated
+paths such as `/enhet/{id}` are skipped. Dataset ids are the printed last
+path segments. `access_path` is the printed path joined to the OpenAPI
+document origin.
+
+```bash
+pda ingest --source udir --db data/registry.sqlite --limit 10
+pda search skoletyper --db data/registry.sqlite
+pda fetch --dataset udir:skoletyper --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored collection URL. Observation values are copied
+from printed `Navn`. License is copied from the printed OpenAPI
+`info.license.url` when present. Publisher stays null: the spec does not
+print a publisher name.
+
+Live ingest 2026-08-27: 6 printed collection GET paths. Live search
+`skoletyper` returns `udir:skoletyper`. Live fetch GETs
+`https://data-nsr.udir.no/skoletyper` HTTP 200, 16 school-type rows.
+Sample printed names: Grunnskole, Videregående skole, Offentlig skole,
+Privatskole, Kommunal. `pda methods` is not applicable: names, not a
+numeric time series (`no observations matched entity/measure; available=[]`).
+Proof is `data/udir_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
