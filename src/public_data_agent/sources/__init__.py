@@ -73,6 +73,7 @@ from public_data_agent.sources.udir import UdirNsrSource
 from public_data_agent.sources.utdanning import UtdanningSource
 from public_data_agent.sources.valg import ValgresultatSource
 from public_data_agent.sources.vegvesen import VegvesenSource
+from public_data_agent.sources.volcanicashforecast import VolcanicashforecastSource
 
 SOURCE_IDS = (
     "datanorge",
@@ -145,6 +146,7 @@ SOURCE_IDS = (
     "turbulence",
     "nlaroutes",
     "sigcharts",
+    "volcanicashforecast",
 )
 
 
@@ -291,6 +293,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return NlaroutesSource()
     if source_id == "sigcharts":
         return SigchartsSource()
+    if source_id == "volcanicashforecast":
+        return VolcanicashforecastSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -368,5 +372,6 @@ __all__ = [
     "UtdanningSource",
     "ValgresultatSource",
     "VegvesenSource",
+    "VolcanicashforecastSource",
     "build_source",
 ]

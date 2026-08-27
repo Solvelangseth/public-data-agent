@@ -1,0 +1,246 @@
+{
+  "produced_at": "2026-08-27T23:46:18Z",
+  "bound": {
+    "list_api": "https://api.met.no/weatherapi/volcanicashforecast/0.1/swagger",
+    "walk": "copy printed untemplated GET paths from the official MET Volcanicashforecast swagger; skip templated {format} paths, the root path with no last-segment id, and GET operations that print required query parameters; native ids are the last printed path segment; access_path is swagger origin + printed basePath + path; do not invent dataset ids or name/reftime/resource filters",
+    "cap": 10,
+    "how": "pda ingest --source volcanicashforecast --limit 10. The official MET Volcanicashforecast swagger prints 4 untemplated GET paths that have a last-segment id and no required query parameter. The adapter copies those paths. GET uses the printed /reftimes collection with no invented query filters. /changelog prints RSS and /healthz prints plain text so they stay unused for fetch. /resources prints a JSON array of file paths so it stays unused for this first fetch."
+  },
+  "discarded": [
+    {
+      "candidate": "MET Sigcharts /locations",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/124",
+      "why": "Assigned skip for this lane. Open Lane A PR 124 (cursor/sigcharts-met-source-8f4a). Do not pick sigcharts."
+    },
+    {
+      "candidate": "MET NLAroutes",
+      "url": "PR 123 --source nlaroutes, now on main",
+      "why": "Assigned skip for this lane. Already on main after merge de4cce7. Do not re-add."
+    },
+    {
+      "candidate": "MET Turbulence",
+      "url": "PR 122 --source turbulence, now on main",
+      "why": "Assigned skip for this lane. Already on main. Do not re-add."
+    },
+    {
+      "candidate": "MET Offshoremaps",
+      "url": "PR 121 --source offshoremaps, now on main",
+      "why": "Assigned skip for this lane. Already on main. Do not re-add."
+    },
+    {
+      "candidate": "MET Isobaricgrib",
+      "url": "PR 120 --source isobaricgrib, now on main",
+      "why": "Assigned skip for this lane. Already on main. Do not re-add."
+    },
+    {
+      "candidate": "MET Oslofjord",
+      "url": "PR 119 --source oslofjord, now on main",
+      "why": "Assigned skip for this lane. Already on main. Do not re-add."
+    },
+    {
+      "candidate": "MET Metgc",
+      "url": "PR 118 --source metgc, now on main",
+      "why": "Assigned skip for this lane. Already on main. Do not re-add."
+    },
+    {
+      "candidate": "MET Gribfiles",
+      "url": "PR 117 --source gribfiles, now on main",
+      "why": "Assigned skip for this lane. Already on main. Do not re-add."
+    },
+    {
+      "candidate": "MET Soundprofile",
+      "url": "PR 116 --source soundprofile, now on main",
+      "why": "Assigned skip for this lane. Already on main. Do not re-add."
+    },
+    {
+      "candidate": "Kartverket Transformering",
+      "url": "PR 115 --source transformering, now on main",
+      "why": "Assigned skip for this lane. Already on main. Do not re-add."
+    },
+    {
+      "candidate": "MET Polarsatellite",
+      "url": "PR 114 --source polarsatellite, now on main",
+      "why": "Assigned skip for this lane. Already on main. Do not re-add."
+    },
+    {
+      "candidate": "MET Subjectiveforecast",
+      "url": "PR 113 --source subjectiveforecast, now on main",
+      "why": "Assigned skip for this lane. Do not re-add."
+    },
+    {
+      "candidate": "MET Metgm",
+      "url": "PR 112 --source metgm, now on main",
+      "why": "Assigned skip for this lane. Already on main. Do not re-add."
+    },
+    {
+      "candidate": "MET Geosatellite",
+      "url": "PR 111 --source geosatellite, now on main",
+      "why": "Assigned skip for this lane. Do not re-add."
+    },
+    {
+      "candidate": "MET Subseasonal",
+      "url": "PR 110 --source subseasonal, now on main",
+      "why": "Assigned skip for this lane. Do not re-add."
+    },
+    {
+      "candidate": "MET Tafmetar",
+      "url": "PR 109 --source tafmetar, now on main",
+      "why": "Assigned skip for this lane. Do not re-add."
+    },
+    {
+      "candidate": "MET NCAgalewarnings",
+      "url": "PR 107 --source ncagalewarnings, now on main",
+      "why": "Assigned skip for this lane. Do not re-add."
+    },
+    {
+      "candidate": "MET Icemap",
+      "url": "https://api.met.no/weatherapi/icemap/1.0/swagger",
+      "why": "Assigned skip for this lane. Already on main as --source icemap. Do not re-add."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    },
+    {
+      "candidate": "MET Aviationforecast 2.0 swagger",
+      "url": "https://api.met.no/weatherapi/aviationforecast/2.0/swagger",
+      "why": "Leftover MET swagger with live GET swagger HTTP 200. Unused this slice so a later lane can take it. Not needed after Volcanicashforecast /reftimes worked."
+    },
+    {
+      "candidate": "MET Sigmets 2.0 swagger",
+      "url": "https://api.met.no/weatherapi/sigmets/2.0/swagger",
+      "why": "Leftover MET swagger with live GET swagger HTTP 200. Unused this slice so a later lane can take it."
+    },
+    {
+      "candidate": "MET Routeforecast 2.0 swagger",
+      "url": "https://api.met.no/weatherapi/routeforecast/2.0/swagger",
+      "why": "Leftover MET swagger with live GET swagger HTTP 200. Unused this slice so a later lane can take it."
+    },
+    {
+      "candidate": "MET Locationforecast /classic /compact /complete",
+      "url": "https://api.met.no/weatherapi/locationforecast/2.0/swagger",
+      "why": "Printed forecast paths require lat/lon. Unused for fetch."
+    },
+    {
+      "candidate": "MET weathericon / aviationforecast 1.0 / verticalprofile / forecastmap / routeforecast 1.0 / sigmets 1.0 / icing / thredds swagger",
+      "url": "https://api.met.no/weatherapi/",
+      "why": "Known skip: swagger HTTP 500 HTML. Do not retry."
+    },
+    {
+      "candidate": "Frost MET sources",
+      "url": "https://frost.met.no/sources/v0.jsonld",
+      "why": "HTTP 401. Do not retry."
+    },
+    {
+      "candidate": "NVDB Les V3 OpenAPI",
+      "url": "https://nvdbapiles-v3.atlas.vegvesen.no/dokumentasjon/openapi.json",
+      "why": "Known skip: HTTP 400 User-Agent. Do not retry."
+    },
+    {
+      "candidate": "Vegvesen Trafikkdata swagger / trafikkdata-api",
+      "url": "https://trafikkdata.atlas.vegvesen.no/",
+      "why": "Known skip: swagger HTML-only; trafikkdata-api 410. Do not retry."
+    },
+    {
+      "candidate": "Kartverket Eiendom /geokoding",
+      "url": "https://api.kartverket.no/eiendom/v1/geokoding",
+      "why": "Known skip: HTTP 400 without matrikkel params. Do not retry."
+    },
+    {
+      "candidate": "Kartverket Adresser /sok",
+      "url": "https://ws.geonorge.no/adresser/v1/sok",
+      "why": "OpenAPI prints /sok, but live GET without search params is HTTP 400. Do not invent a query."
+    },
+    {
+      "candidate": "Kartverket skred / kvikkleire / hoydekurver / seeiendom OpenAPI",
+      "url": "https://ws.geonorge.no/skred/v1/openapi.json",
+      "why": "Live GET OpenAPI is HTTP 403. Do not invent an auth workaround."
+    },
+    {
+      "candidate": "NVE HydAPI /api/v1/Parameters",
+      "url": "https://hydapi.nve.no/swagger/v1/swagger.json",
+      "why": "HTTP 401. Do not retry."
+    },
+    {
+      "candidate": "Udir Statistikkbanken /data",
+      "url": "Udir Statistikkbanken /Eksport/{id}/data",
+      "why": "Known skip: requires invented filters. Do not retry."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source volcanicashforecast --db /tmp/pda-volcanicashforecast-proof/registry.sqlite --limit 10",
+    "listed": 4,
+    "inserted": 4,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "volcanicashforecast:changelog",
+        "access_path": "https://api.met.no/weatherapi/volcanicashforecast/0.1/changelog"
+      },
+      {
+        "id": "volcanicashforecast:healthz",
+        "access_path": "https://api.met.no/weatherapi/volcanicashforecast/0.1/healthz"
+      },
+      {
+        "id": "volcanicashforecast:reftimes",
+        "access_path": "https://api.met.no/weatherapi/volcanicashforecast/0.1/reftimes"
+      },
+      {
+        "id": "volcanicashforecast:resources",
+        "access_path": "https://api.met.no/weatherapi/volcanicashforecast/0.1/resources"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search something --db /tmp/pda-volcanicashforecast-proof/registry.sqlite --limit 5",
+    "query": "something",
+    "returned": 4,
+    "hit_id": "volcanicashforecast:reftimes",
+    "title": "Something goes here...",
+    "source_id": "volcanicashforecast",
+    "publisher": null,
+    "license": "http://creativecommons.org/licenses/by/4.0",
+    "access_path": "https://api.met.no/weatherapi/volcanicashforecast/0.1/reftimes",
+    "original_source": "https://api.met.no/weatherapi/volcanicashforecast/0.1/swagger",
+    "why_picked": "title matched something"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset volcanicashforecast:reftimes --db /tmp/pda-volcanicashforecast-proof/registry.sqlite",
+    "dataset": "volcanicashforecast:reftimes",
+    "table_id": "reftimes",
+    "access_path": "https://api.met.no/weatherapi/volcanicashforecast/0.1/reftimes",
+    "request_url": "https://api.met.no/weatherapi/volcanicashforecast/0.1/reftimes",
+    "http_status": 200,
+    "listed": 27,
+    "inserted": 27,
+    "updated": 0,
+    "license": "http://creativecommons.org/licenses/by/4.0",
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "reftimes",
+        "value": "2026-06-09T11:00:00Z"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset volcanicashforecast:reftimes --table reftimes --entity \"\" --measure \"\" --db /tmp/pda-volcanicashforecast-proof/registry.sqlite --out /tmp/pda-volcanicashforecast-proof/methods",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "Volcanicashforecast /reftimes prints ISO timestamp strings under the printed key reftimes. Those are not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed swagger path last segments. access_path is swagger origin + printed basePath + path. No volcanicashforecast id was written onto a met, nlaroutes, turbulence, offshoremaps, isobaricgrib, oslofjord, metgc, gribfiles, nowcast, airquality, tidalwater, oceanforecast, sunrise, radar, spotwind, textforecast, icemap, ncagalewarnings, tafmetar, subseasonal, geosatellite, metgm, subjectiveforecast, polarsatellite, soundprofile, transformering, sigcharts, or datanorge row.",
+    "License is the printed swagger CC BY 4.0 URL http://creativecommons.org/licenses/by/4.0. Publisher is null: the spec does not print a publisher.",
+    "Original harvested swagger metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "python3 -m pytest after Volcanicashforecast adapter: 710 passed, 1 skipped, 1 deselected.",
+    "Not a numeric time series with two or more periods. Fetch listed 27 printed reftime cells (sample 2026-06-09T11:00:00Z).",
+    "Open PR check at pickup found Lane A PR 124 MET Sigcharts. That source stayed unused. aviationforecast 2.0, sigmets 2.0, and routeforecast 2.0 leftover unused."
+  ]
+}
