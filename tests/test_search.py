@@ -406,6 +406,55 @@ def test_single_token_publisher_is_ranked(tmp_path: Path) -> None:
     registry.close()
 
 
+def test_publisher_score_keeps_genitive_title_above_keyword_only(tmp_path: Path) -> None:
+    payloads = [
+        {
+            "id": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+            "uri": "https://example.org/helseregister",
+            "type": "datasets",
+            "title": {"nb": "Forsvarets helseregister"},
+            "description": {
+                "nb": "Registeret omfatter alle som er eller har vært ansatt i Forsvaret."
+            },
+            "keyword": [{"nb": "Helse"}],
+            "publisher": {"name": "Forsvaret"},
+            "harvest": {
+                "modified": "2026-01-01T00:00:00Z",
+                "firstHarvested": "2026-01-01T00:00:00Z",
+            },
+        },
+        {
+            "id": "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
+            "uri": "https://example.org/skytefelt",
+            "type": "datasets",
+            "title": {"nb": "Forsvarets skyte- og øvingsfelt land"},
+            "description": {"nb": "skytefelt"},
+            "keyword": [{"nb": "forsvaret"}],
+            "publisher": {"name": "Forsvarsbygg"},
+            "harvest": {
+                "modified": "2026-01-01T00:00:00Z",
+                "firstHarvested": "2026-01-01T00:00:00Z",
+            },
+        },
+    ]
+    registry = Registry(tmp_path / "registry.sqlite")
+    harvest(registry, FixtureSource(payloads))
+    assert tokenize("Forsvarets helseregister") == ["forsvarets", "helseregister"]
+    hits = search(registry, "Forsvaret")
+    assert [hit.dataset_id for hit in hits] == [
+        "fixture:aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+        "fixture:bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
+    ]
+    gold, weaker = hits
+    assert {match.field for match in gold.matches} == {"description", "publisher_name"}
+    assert {match.token for match in gold.matches} == {"forsvaret"}
+    assert gold.relevance == 7
+    assert "publisher_name matched forsvaret" in gold.why
+    assert {match.field for match in weaker.matches} == {"keyword"}
+    assert weaker.relevance == 5
+    registry.close()
+
+
 def test_coverage_is_complete_when_and_hits_cover_every_requirement(tmp_path: Path) -> None:
     registry = _registry(tmp_path)
     report = search_report(registry, "statistisk sentralbyrå")

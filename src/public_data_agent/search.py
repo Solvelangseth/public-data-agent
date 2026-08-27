@@ -530,6 +530,7 @@ def _rank_rows(
                 )
             continue
         matches = score_document(query_tokens, fields)
+        matches.extend(_publisher_matches(query_tokens, row.get("publisher_name")))
         if not matches:
             matches = (
                 _requirement_matches(
@@ -590,6 +591,20 @@ def _select_hits(hits: list[SearchHit], limit: int) -> list[SearchHit]:
         selected.append(pick)
         covered |= _matched_tokens(pick)
     return selected
+
+
+def _publisher_matches(
+    query_tokens: list[str], publisher_name: str | None
+) -> list[FieldMatch]:
+    publisher_tokens = set(tokenize(publisher_name))
+    matches: list[FieldMatch] = []
+    for token in query_tokens:
+        stored = _first_stored_token(token, publisher_tokens)
+        if stored is not None:
+            matches.append(
+                FieldMatch(field="publisher_name", token=stored, weight=PUBLISHER_WEIGHT)
+            )
+    return matches
 
 
 def _requirement_satisfied(tokens: tuple[str, ...], matched: set[str]) -> bool:
