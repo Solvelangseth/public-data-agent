@@ -1600,6 +1600,31 @@ ALBANIA. `pda methods` is not applicable: names, not a numeric time
 series (`no observations matched entity/measure; available=[]`).
 Proof is `data/aqua_source_proof.json`.
 
+## Fiskeridirektoratet Akvakulturforskning source
+
+`pda ingest --source research` is another replaceable adapter. It lists printed
+collection GET paths on the official Akvakulturforskning OpenAPI
+`https://api.fiskeridir.no/aqua-research-project-api-public/v3/api-docs`,
+capped at 10. Templated paths such as
+`/api/v1/research-project/{projectNumber}` are skipped. Dataset ids are
+the printed last path segments. `access_path` is the printed path joined
+to the printed `servers[0].url`. This is a different Fiskeridirektoratet
+register from `--source fiskeridir` (Fartøyregisteret), `--source buyer`
+(Kjøperregisteret), `--source nytek` (NYTEK), and `--source aqua`
+(Akvakulturregister).
+
+```bash
+pda ingest --source research --db data/registry.sqlite --limit 10
+pda search forskningsprosjekter --db data/registry.sqlite
+pda fetch --dataset research:research-projects --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored collection URL. Observation values are copied
+from printed `name` when it is a non-empty string, otherwise
+`projectNumber`. License is copied from the printed OpenAPI
+`info.license.url` when present. Publisher stays null: the spec does not
+print a publisher name.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
