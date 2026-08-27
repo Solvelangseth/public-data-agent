@@ -1,0 +1,179 @@
+{
+  "produced_at": "2026-08-27T13:08:42Z",
+  "bound": {
+    "list_api": "https://irh.nibio.no/weather/openapi.json",
+    "walk": "copy printed collection GET paths from the official NIBIO IPM Resource Hub OpenAPI; skip templated paths",
+    "cap": 10,
+    "how": "pda ingest --source nibio --limit 10. The official OpenAPI prints collection GET paths. The adapter copies those printed paths joined to the OpenAPI origin because servers is absent. Templated paths such as /weather/weatherdatasource/{id} are skipped."
+  },
+  "discarded": [
+    {
+      "candidate": "Kystverket Kystdatahuset swagger",
+      "url": "https://kystdatahuset.no/ws/swagger/v1/swagger.json",
+      "why": "Already an open slice on PR 71 (cursor/kystverket-source-04ee). Do not re-implement Kystverket Kystdatahuset."
+    },
+    {
+      "candidate": "NIBIO LMT stations",
+      "url": "https://lmt.nibio.no/services/rest/weatherstations",
+      "why": "Already discarded on main in data/statnett_source_proof.json and data/hi_source_proof.json: HTTP 404."
+    },
+    {
+      "candidate": "Nasjonalbiblioteket catalog v1",
+      "url": "https://api.nb.no/catalog/v1/",
+      "why": "HTTP 404 nginx HTML. swagger.json and openapi.json also 404. Do not wrap HTML docs."
+    },
+    {
+      "candidate": "Ordbøkene API root",
+      "url": "https://ord.uib.no/api",
+      "why": "HTTP 400. Not a list API."
+    },
+    {
+      "candidate": "Digitalarkivet media API v1",
+      "url": "https://media.digitalarkivet.no/api/v1/",
+      "why": "HTTP 404 HTML. Do not wrap HTML docs."
+    },
+    {
+      "candidate": "Sikt NVA OpenAPI",
+      "url": "https://api.nva.sikt.no/openapi.json",
+      "why": "DNS Name or service not known."
+    },
+    {
+      "candidate": "Husbanken swagger",
+      "url": "https://api.husbanken.no/swagger/v1/swagger.json",
+      "why": "HTTP 404 JSON not found."
+    },
+    {
+      "candidate": "NIBIO IRH /weather root",
+      "url": "https://irh.nibio.no/weather",
+      "why": "Printed OpenAPI path. Live GET with Accept application/json is HTTP 404 HTML. The printed path is still ingested. Fetch uses /weather/parameter, which answers 200 without inventing a query param."
+    },
+    {
+      "candidate": "NIBIO IRH amalgamate without params",
+      "url": "https://irh.nibio.no/weather/amalgamation/amalgamate",
+      "why": "HTTP 400 no weather parameters requested. Do not invent query parameters. Fetch uses parameter."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source nibio --db /tmp/pda-nibio-proof/registry.sqlite --limit 10",
+    "listed": 10,
+    "inserted": 10,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "nibio:weather",
+        "access_path": "https://irh.nibio.no/weather"
+      },
+      {
+        "id": "nibio:amalgamate",
+        "access_path": "https://irh.nibio.no/weather/amalgamation/amalgamate"
+      },
+      {
+        "id": "nibio:proxy",
+        "access_path": "https://irh.nibio.no/weather/amalgamation/amalgamate/proxy"
+      },
+      {
+        "id": "nibio:heartbeat",
+        "access_path": "https://irh.nibio.no/weather/amalgamation/heartbeat"
+      },
+      {
+        "id": "nibio:interpolate",
+        "access_path": "https://irh.nibio.no/weather/amalgamation/interpolate"
+      },
+      {
+        "id": "nibio:amalgamationType",
+        "access_path": "https://irh.nibio.no/weather/amalgamationType"
+      },
+      {
+        "id": "nibio:parameter",
+        "access_path": "https://irh.nibio.no/weather/parameter"
+      },
+      {
+        "id": "nibio:qc",
+        "access_path": "https://irh.nibio.no/weather/qc"
+      },
+      {
+        "id": "nibio:temperature",
+        "access_path": "https://irh.nibio.no/weather/rest/testdata/weather/interpolation/temperature"
+      },
+      {
+        "id": "nibio:qualitycontrol",
+        "access_path": "https://irh.nibio.no/weather/rest/testdata/weather/qualitycontrol"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search parameters --db /tmp/pda-nibio-proof/registry.sqlite --limit 5",
+    "query": "parameters",
+    "returned": 5,
+    "hit_id": "nibio:parameter",
+    "title": "List all the weather parameters defined in the platform",
+    "source_id": "nibio"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset nibio:parameter --db /tmp/pda-nibio-proof/registry.sqlite",
+    "dataset": "nibio:parameter",
+    "table_id": "parameter",
+    "access_path": "https://irh.nibio.no/weather/parameter",
+    "request_url": "https://irh.nibio.no/weather/parameter",
+    "http_status": 200,
+    "listed": 44,
+    "inserted": 44,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "name",
+        "value": "Instantaneous temperature at 2m",
+        "dimensions": {
+          "id": "1001",
+          "description": "",
+          "unit": "Celcius",
+          "aggregationType": "AVERAGE",
+          "dailyUnit": "",
+          "dailyAggregationType": ""
+        }
+      },
+      {
+        "measure": "name",
+        "value": "Mean air temperature at 2m",
+        "dimensions": {
+          "id": "1002",
+          "description": "",
+          "unit": "Celcius",
+          "aggregationType": "AVERAGE",
+          "dailyUnit": "",
+          "dailyAggregationType": ""
+        }
+      },
+      {
+        "measure": "name",
+        "value": "Minimum air temperature at 2m",
+        "dimensions": {
+          "id": "1003",
+          "description": "",
+          "unit": "Celcius",
+          "aggregationType": "MINIMUM",
+          "dailyUnit": "",
+          "dailyAggregationType": ""
+        }
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset nibio:parameter --table parameter --entity \"\" --measure \"\" --db /tmp/pda-nibio-proof/registry.sqlite --out /tmp/pda-nibio-proof/methods",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "Parameter prints names (name plus id and unit). That is not a numeric time series. methods.clean drops the rows because they have no period. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from the printed last path segment. access_path is the printed path joined to the origin of https://irh.nibio.no/weather/openapi.json because the spec prints no servers array. No NIBIO id was written onto a datanorge row.",
+    "Fetch GETs the stored collection URL. Observation values are printed name. Nested objects are not copied as dimensions.",
+    "License and publisher stay null: the OpenAPI info object does not print those fields.",
+    "Kystverket Kystdatahuset stayed on PR 71. This source does not re-implement it. Havforskningsinstituttet OGC Features stayed on main (PR 70)."
+  ]
+}

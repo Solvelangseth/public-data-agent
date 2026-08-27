@@ -1062,7 +1062,7 @@ the printed path.
 
 ```bash
 pda ingest --source nibio --db data/registry.sqlite --limit 10
-pda search parameter --db data/registry.sqlite
+pda search parameters --db data/registry.sqlite
 pda fetch --dataset nibio:parameter --db data/registry.sqlite
 ```
 
@@ -1070,6 +1070,15 @@ pda fetch --dataset nibio:parameter --db data/registry.sqlite
 printed name field (`name`, `title`, `navn`, or `id`) when present. Nested
 objects are not copied. License and publisher stay null: the OpenAPI
 `info` object does not print those fields.
+
+Live ingest 2026-08-27: 10 printed collection GET paths. Live search
+`parameters` returns `nibio:parameter`. Live fetch GETs
+`https://irh.nibio.no/weather/parameter` HTTP 200, 44 parameter rows.
+Sample printed names: Instantaneous temperature at 2m, Mean air
+temperature at 2m, Minimum air temperature at 2m. `pda methods` is not
+applicable: names, not a numeric time series
+(`no observations matched entity/measure; available=[]`).
+Proof is `data/nibio_source_proof.json`.
 
 ## Architecture (long term)
 
