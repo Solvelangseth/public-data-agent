@@ -701,6 +701,32 @@ Live fetch GETs `https://ws.geonorge.no/kommuneinfo/v1/kommuner` HTTP 200,
 `pda methods` is not applicable: the payload is names, not a numeric time
 series (`available=[]`). Proof is `data/geonorge_source_proof.json`.
 
+## NVE Magasinstatistikk source
+
+Data.norge and SSB are ingest adapters. `pda ingest --source nve` is another.
+It copies GET paths from the official NVE Magasinstatistikk OpenAPI at
+`https://biapi.nve.no/magasinstatistikk/swagger/v1/swagger.json`.
+This slice keeps at most 10 printed paths. Dataset ids are the printed
+operation names. `access_path` is the printed endpoint URL.
+
+```bash
+pda ingest --source nve --db data/registry.sqlite --limit 10
+pda search magasinstatistikk --db data/registry.sqlite
+pda fetch --dataset nve:HentOffentligDataSisteUke --db data/registry.sqlite
+```
+
+Live ingest 2026-08-27: 4 printed GET paths, access paths such as
+`https://biapi.nve.no/magasinstatistikk/api/Magasinstatistikk/HentOffentligDataSisteUke`.
+License is null.
+
+Live fetch of `HentOffentligDataSisteUke`: GET 200, 45 cells for ISO week 34
+of 2026. Sample printed `fyllingsgrad` values: EL area 3 = 0.63724726,
+EL area 2 = 0.46631882, VASS area 3 = 0.82981455.
+
+`pda search magasinstatistikk` returns `nve:HentOffentligDataSisteUke`.
+The payload is one week across areas, not a time series, so methods
+was not used. Proof is `data/nve_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
