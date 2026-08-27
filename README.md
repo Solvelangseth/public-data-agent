@@ -632,6 +632,32 @@ have no period. The command exits 1 with
 `no observations matched entity/measure; available=[]`.
 Proof is `data/connector3_proof.json`.
 
+## SSB Statbank source
+
+Data.norge is one ingest adapter. `pda ingest --source ssb` is another.
+It walks the public PxWeb catalog at `https://data.ssb.no/api/v0/no/table`.
+This slice stays in the printed `be` (Befolkning) folder and keeps the
+first 8 `type=t` tables in BFS order. Table ids come from the leading
+five-digit number SSB prints in each item `text`.
+
+```bash
+pda ingest --source ssb --db data/registry.sqlite --limit 8
+pda fetch --dataset ssb:06683 --table 06683 \
+  --from-year 2023 --to-year 2024 --db data/registry.sqlite
+pda methods --dataset ssb:06683 --table 06683 --entity "" --measure "" \
+  --db data/registry.sqlite --out /tmp/pda-methods-06683
+```
+
+Live ingest 2026-08-27: 8 tables, access paths such as
+`https://data.ssb.no/api/v0/no/table/06683`. 07459 was not in that list
+and was not written onto a datanorge row. License is null.
+
+Live fetch of 06683: POST 200, 8 cells for 2023 and 2024. Sample values
+from the response: Utenlandsadopsjoner 34 then 24, Stebarn 202 then 236.
+
+`pda methods` reads those 8 stored rows and does not call `pda fetch`.
+It returns numeric series with YoY. Proof is `data/ssb_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
