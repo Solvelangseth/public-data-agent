@@ -2232,6 +2232,15 @@ pda fetch --dataset ncagalewarnings:locations --db data/registry.sqlite
 from printed GeoJSON feature `name`. License is the printed swagger
 CC BY 4.0 URL. Publisher stays null: the spec does not print a publisher.
 
+Live ingest 2026-08-27: 8 printed untemplated GET paths (catalog prints
+8 paths with a last-segment id, cap 10). Live search `locations` returns
+`ncagalewarnings:locations`. Live fetch GETs
+`https://api.met.no/weatherapi/ncagalewarnings/1.0/locations` HTTP 200, 8
+location-name rows. Sample printed values: Stad, Hustadvika, Folda 1.
+`pda methods` is not applicable: GeoJSON feature names, not a numeric
+time series (`no observations matched entity/measure; available=[]`).
+Proof is `data/ncagalewarnings_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
