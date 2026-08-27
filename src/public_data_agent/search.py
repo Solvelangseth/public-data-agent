@@ -111,14 +111,14 @@ class Coverage:
     requirements: list[str]
     covered: list[str]
     missing: list[str]
-    confidence: float
+    requirement_coverage: float
 
     def to_dict(self) -> dict[str, Any]:
         return {
             "requirements": self.requirements,
             "covered": self.covered,
             "missing": self.missing,
-            "confidence": self.confidence,
+            "requirement_coverage": self.requirement_coverage,
         }
 
 
@@ -302,7 +302,7 @@ def search_report(
         if queries:
             follow = {
                 "ran": True,
-                "reason": "confidence below 1.0 on stored fields of the first-pass hits",
+                "reason": "requirement coverage below 1.0 on stored fields of the first-pass hits",
                 "queries": queries,
                 "added": [
                     {"id": hit.dataset_id, "title": hit.title}
@@ -312,8 +312,8 @@ def search_report(
                 "skipped_same_query": [
                     text for text in coverage.missing if tokenize(text) == original_tokens
                 ],
-                "confidence_before": coverage.confidence,
-                "confidence_after": coverage_after.confidence,
+                "requirement_coverage_before": coverage.requirement_coverage,
+                "requirement_coverage_after": coverage_after.requirement_coverage,
             }
         else:
             follow = {
@@ -339,12 +339,12 @@ def assess_coverage(
             covered.append(req.text)
         else:
             missing.append(req.text)
-    confidence = (len(covered) / len(requirements)) if requirements else 0.0
+    requirement_coverage = (len(covered) / len(requirements)) if requirements else 0.0
     return Coverage(
         requirements=texts,
         covered=covered,
         missing=missing,
-        confidence=confidence,
+        requirement_coverage=requirement_coverage,
     )
 
 
