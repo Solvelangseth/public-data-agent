@@ -10,7 +10,7 @@ import pytest
 from methods.clean import CleanError, clean
 from methods.cli import run as run_methods
 from methods.derive import derive, derive_yoy
-from methods.emit import emit, yoy_bar_points
+from methods.emit import emit, index_line_series, yoy_bar_points
 from methods.types import DerivedValue, Lineage, INDEX, INDEX_FORMULA, YOY_GROWTH, YOY_GROWTH_FORMULA
 from public_data_agent.cli import main
 from public_data_agent.harvest import harvest
@@ -155,7 +155,7 @@ def test_index_default_base_is_first_period() -> None:
         assert row.index.lineage.source_periods
 
 
-def test_index_two_entities_each_have_own_base() -> None:
+def test_index_two_entities_each_have_own_base(tmp_path: Path) -> None:
     # Fixture Town A/B — not Oslo. Each (entity, measure) series has its own 100.
     rows = clean(
         [
@@ -173,6 +173,12 @@ def test_index_two_entities_each_have_own_base() -> None:
     assert by_key[("Fixture B", "2001")].index.value == pytest.approx(50.0)
     assert by_key[("Fixture A", "2001")].index.lineage.base_observation_id == "a-1"
     assert by_key[("Fixture B", "2001")].index.lineage.base_observation_id == "b-1"
+    series = index_line_series(derived)
+    assert [item[0] for item in series] == ["Fixture A", "Fixture B"]
+    assert series[0][2][0] == ("2000", 100.0)
+    assert series[1][2][0] == ("2000", 100.0)
+    paths = emit(derived, tmp_path)
+    assert paths["index_line"].read_bytes().startswith(b"\x89PNG")
 
 
 def test_index_configurable_base_period() -> None:
@@ -260,6 +266,14 @@ def test_emit_writes_table_chart_and_lineage(tmp_path: Path) -> None:
     assert [period for period, _rate in points] == ["2001", "2002"]
     assert points[0][1] == pytest.approx(0.1)
     assert points[1][1] == pytest.approx((80 - 110) / 110)
+    index_png = paths["index_line"].read_bytes()
+    assert index_png.startswith(b"\x89PNG")
+    series = index_line_series(derived)
+    assert len(series) == 1
+    assert series[0][0] == FIXTURE_TOWN
+    assert [period for period, _value in series[0][2]] == ["2000", "2001", "2002"]
+    assert series[0][2][0][1] == 100.0
+    assert series[0][2][1][1] == pytest.approx(110.0)
 
 
 def test_methods_modules_do_not_import_connectors() -> None:

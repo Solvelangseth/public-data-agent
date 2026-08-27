@@ -5,9 +5,8 @@ No email, call, or outbound post from this file. Contacts are only what the org 
 
 Product sold: registry of Norwegian public datasets (Data.norge first ingest, sources replaceable), natural-language search, first fetch of actual rows. Later analysis. LLM for intent and explanation. Deterministic retrieval. Provenance (source, publisher, license, access path) on every hit.
 Repo: https://github.com/Solvelangseth/public-data-agent
-Competitor note: offentligdata.no is a competitor, not a customer. Do not treat that site as a lead.
 
-Status 27 Aug 2026, 10:15 Europe/Oslo: 15 sourced leads. Mix: 4 municipalities, 3 consultancies, 2 media, 2 property/infra, 2 research, 2 NGOs. Five deepen notes added same day (Oslo DIG tildelingsbrev, Stavanger Regnsensordata, Bouvet Kartverket grant, Aftenposten Fossan mailto, Statsbygg SIMBA 2.1 + tungt.no second-hand). No invented emails. No outreach.
+Status 27 Aug 2026, 10:40 Europe/Oslo: 28 sourced leads. Mix: 9 municipalities, 5 energy, 3 health, 3 consultancies, 2 media, 2 property/infra, 2 research, 2 NGOs. Wave-2 (13): FHI, Helsedirektoratet, Helse Sør-Øst RHF, Statnett, Eviny, Hafslund, Tensio, Lnett, Fredrikstad, Sandnes, Bodø, Kristiansand, Lillestrøm. Contacts only as listed. No invented emails. No outreach.
 
 How to read a lead: why they would pay is tied to a named programme, not "they use data." Service shape is always search → fetch → later analysis. If a field says none published, do not invent one.
 
@@ -201,7 +200,7 @@ Sources below were opened 2026-08-27 from official pages and the named press/pro
 **Search → fetch → later analysis.**
 - Search: registry query excluding or de-prioritising SVV's own already-known NVDB records; surface other publishers.
 - Fetch: first rows from the other agency's access path.
-- Later analysis: overlay on Vegkart / NVDB geometry; do not treat offentligdata.no as a customer path.
+- Later analysis: overlay on Vegkart / NVDB geometry.
 
 **Public contact (only published).**
 - firmapost@vegvesen.no — printed as "E-postadresse" on Faktura-, post- og besøksadresser.
@@ -539,6 +538,400 @@ Sources below were opened 2026-08-27 from official pages and the named press/pro
 
 ---
 
+## 16. Folkehelseinstituttet (FHI) — Folkehelserapporten + FIDA/KoSy
+
+**Why they would pay.** Folkehelserapporten describes helsetilstanden in Norway from helseregistre, helseundersøkelser, rapporter and forskningspublikasjoner. The *Befolkningen i Norge* chapter prints SSB as the default source unless another is named. FIDA (Folkehelseinstituttets integrerte data- og analysetjenester) is an FHI+KS infrastructure, financed through Digdir's medfinansieringsordning, for mottak, lagring, sammenstilling, analyse and deling of statistikkprodukter. KoSy (Kommunens sykdomsoversikt) is the first published FIDA product (launched September 2025): dagsaktuell statistikk for kommuneoverleger from MSIS, MSIS labdatabase, NorSySS and SYSVAK. Those programmes already own FHI registers. They would pay to find and fetch SSB/KOSTRA and other agencies' municipal series that sit *next to* those registers — befolkning, levekår, kommunehelse — with provenance, not for another FHI portal.
+
+**Concrete use case.** A Folkehelserapporten / FIDA analyst needs the latest SSB befolkning and KOSTRA helse- og omsorg tables for a municipality, fetched as rows with license and access path, before later joining them to FHI register series used in the report or in FIDA products.
+
+**Search → fetch → later analysis.**
+- Search: municipality + "befolkning" / "KOSTRA helse omsorg" with publisher filters (SSB, Helsedirektoratet, kommune); do not assume FHI registers cover those tables.
+- Fetch: first PxWeb / API rows from the recorded access path; keep license and publisher.
+- Later analysis: join to Folkehelserapporten / FIDA series; deterministic residuals, not invented rates.
+
+**Public contact (only published / listed).**
+- folkehelseinstituttet@fhi.no — printed as sentralbord e-post on the åpningstider/kontakt page
+- Telephone: 21 07 70 00
+- Org: 983744516
+- Do not invent a Folkehelserapporten or FIDA inbox.
+
+**Key facts.**
+- Postboks 222 Skøyen, 0213 Oslo; EHF 0192:983744516.
+- Folkehelserapporten is a living nettutgave (temautgave 2026: De viktigste folkehelseutfordringene). Ansvarlig redaktør printed: direktør Guri Rørtveit.
+- FIDA user groups printed on Helsedirektoratet's e-helse veikart: kommune and fylkeskommune. KoSy is restricted to kommuneoverleger for the named smitte/vaksine series.
+
+**Sources opened 2026-08-27.**
+- https://www.fhi.no/om/fhi/apningstider-ansattoversikt-adresser-til-folkehelseinstituttet/
+- https://www.fhi.no/he/fr/folkehelserapporten/om-rapporten/om-folkehelserapporten/
+- https://www.fhi.no/he/fr/folkehelserapporten/samfunn/befolkningen/
+- https://www.fhi.no/hd/kommunens-sykdomsoversikt--kosy/
+- https://www.helsedirektoratet.no/digitalisering-og-e-helse/veikart-for-nasjonal-e-helsestrategi/folkehelseinstituttet
+- https://data.brreg.no/enhetsregisteret/oppslag/enheter/983744516
+
+---
+
+## 17. Helsedirektoratet — Folkehelseprofiler §24 + SAMDATA
+
+**Why they would pay.** Folkehelseloven §24 assigns Helsedirektoratet to understøtte kommuner and fylkeskommuner by making statistics available for their oversikt over helsetilstand and påvirkningsfaktorer. That grunnlag is published as Folkehelseprofiler, oppvekstprofiler and statistikkbanken Folkehelsestatistikk (data from sentrale registre and other municipal-level sources). SAMDATA kommune hunts IPLOS, KOSTRA and KUHR for kommunal helse- og omsorgsvariasjon; SAMDATA spesialisthelsetjenesten hunts NPR for ressursinnsats and tjenestebruk. The discovery gap is finding and fetching the FHI / SSB / KOSTRA / NPR series as they actually exist across those publishers — not another profile PDF.
+
+**Concrete use case.** A Folkehelseprofil or SAMDATA analyst needs a municipal KOSTRA or NPR series that is not already in this year's profile pack, resolved to a licensed access path and a first row fetch before later indicator work.
+
+**Search → fetch → later analysis.**
+- Search: municipality / HF + "KOSTRA" / "NPR" / folkehelseindikator with publisher (SSB, FHI, Helsedirektoratet, NPR).
+- Fetch: first rows from the recorded access path; license and publisher on every hit.
+- Later analysis: feed Folkehelsestatistikk or SAMDATA indicators; do not invent rates.
+
+**Public contact (only published / listed).**
+- postmottak@helsedir.no
+- Telephone: 47 47 20 20 (printed (+47) 47 47 20 20)
+- Org: 983544622
+- Do not invent a Folkehelseprofil or SAMDATA inbox.
+
+**Key facts.**
+- Folkehelseprofiler: four-page annual report per kommune, fylke and bydeler in Oslo, Bergen, Stavanger and Trondheim.
+- Oppvekstprofiler developed with AVdir, Bufdir, FHI, IMDi, KS, Udir and Helsedirektoratet.
+- SAMDATA spesialisthelsetjenesten: no annual report after 2021; statistics pages remain the published path. Direktoratet for e-helse and Helsedirektoratet are slått sammen (printed on kontakt-oss).
+
+**Sources opened 2026-08-27.**
+- https://www.helsedirektoratet.no/om-oss/kontakt-oss
+- https://www.helsedirektoratet.no/forebygging-diagnose-og-behandling/forebygging-og-levevaner/folkehelsestatistikk-og-profiler/om-folkehelse-og-oppvekstprofilene
+- https://www.helsedirektoratet.no/veiledere/oppfolging-av-personer-med-store-og-sammensatte-behov/metoder-og-verktoy-for-systematisk-kvalitetsforbedring-for-helhetlige-og-koordinerte-tjenester/det-ma-benyttes-tilgjengelige-styringsdata-fra-ulike-datakilder-til-kvalitetsforbedring-og-tjenesteutvikling
+- https://www.helsedirektoratet.no/rapporter/samdata-spesialisthelsetjenesten
+- https://data.brreg.no/enhetsregisteret/oppslag/enheter/983544622
+
+---
+
+## 18. Helse Sør-Øst RHF — Klinisk dashboard (NPR / FHI / Kreftregisteret)
+
+**Why they would pay.** Klinisk dashboard was built in HSØ after a 2023 konsernrevisjon found boards and leaders focused more on økonomi/HR than on klinisk kvalitet. HSØ launched it as a styringsverktøy with data from Norsk pasientregister (NPR), Folkehelseinstituttet (FHI) and Kreftregisteret, to identify uønsket variasjon in kvalitet, pasientsikkerhet and ressursbruk against the regional «sørge-for-ansvar». From 1 July 2025 SKDE publishes the interregional version nationally. HSØ still owns 11 helseforetak and still consumes those three publishers plus adjacent public series. They would pay to search and fetch NPR / FHI / Kreftregisteret and neighbouring agency tables with provenance — not to replace SKDE's dashboard.
+
+**Concrete use case.** An HSØ analyst preparing a quality brief for one of the 11 HF needs the latest NPR styringsdata, FHI definitions and Kreftregisteret 5-års overlevelse series, fetched as rows with license and access path before later overlay on the dashboard indicators.
+
+**Search → fetch → later analysis.**
+- Search: "NPR styringsdata" / kreft overlevelse / pasientsikkerhet + publisher (FHI, Kreftregisteret, Helsedirektoratet).
+- Fetch: first rows from the recorded access path (FHI publishes aggregated NPR files for RHF styring).
+- Later analysis: compare HF / sykehusområde against national rates; keep provenance; do not invent clinical figures.
+
+**Public contact (only published / listed).**
+- postmottak@helse-sorost.no
+- Telephone: 62 58 55 00
+- Org: 991324968
+- Do not invent a dashboard or SKDE inbox for HSØ.
+
+**Key facts.**
+- Hovedkontor Parkgata 36, Hamar; Postboks 404, 2303 Hamar; open 08.00–16.00.
+- Named on the 10 July 2025 news page: prosjektdirektør Ole Tjomsland and senioranalytiker Christian Thoresen developed and forvaltet the dashboard content.
+- SKDE page: dashboard uses NPR-SOM / NPR-AvtaleSOM; 5-års relativ overlevelse from Kreftregisteret; NPR definitions from FHI.
+
+**Sources opened 2026-08-27.**
+- https://www.helse-sorost.no/om-oss/kontakt-oss
+- https://www.helse-sorost.no/nyheter/styringsverktoy-for-kvalitet-er-tilgjengelig-nasjonalt/
+- https://www.skde.no/vare-oppdrag/interregionalt-klinisk-dashbord/
+- https://data.brreg.no/enhetsregisteret/oppslag/enheter/991324968
+
+---
+
+## 19. Statnett SF — SUP 2025 + 10 områdeplaner + Omstillingsplan 2026
+
+**Why they would pay.** Systemutviklingsplan 2025 (published 3 Nov 2025) is Statnett's overordnet plan for transmisjonsnett, markedsløsninger and systemdrift (150–200 mrd kroner over the next ten years in nett and digitalisering). Ten geografiske områdeplaner, updated in dialog with regionale nettselskap, are a printed building block of SUP. Omstillingsplan 2026 (published February 2026) is the sustainability plan toward 2050 (klima, natur, mennesker, styring). Those programmes need forbruksprognoser, industri, produksjon, fornyelse and nature/climate layers that do *not* all live on statnett.no: NVE, SSB, municipalities, Miljødirektoratet. They would pay to search and fetch those rows with provenance, then later analyse against SUP / områdeplan assumptions — not another Statnett portal.
+
+**Concrete use case.** An områdeplan team needs municipal plan, SSB nærings/befolkning and NVE/Miljødirektoratet nature layers for one of the ten areas, fetched as rows/features with license before later overlay on the målnett.
+
+**Search → fetch → later analysis.**
+- Search: area name + "arealplan" / "forbruk" / "naturtype" with publisher (NVE, SSB, kommune, Miljødirektoratet).
+- Fetch: first rows / features from the recorded access path.
+- Later analysis: feed områdeplan behov and Omstillingsplan nature/climate follow-up; keep provenance.
+
+**Public contact (only published / listed).**
+- firmapost@statnett.no — printed on the Oslo hovedkontor block
+- Telephone: 23 90 30 00
+- Org: 962986633
+- Do not invent a SUP or områdeplan inbox.
+
+**Key facts.**
+- Hovedkontor: Nydalen allé 33, 0484 Oslo; PB 4904 Nydalen, 0423 Oslo.
+- SUP 2025 is the second edition (after 2023); områdeplaner established 2022, normally updated every other year.
+- Omstillingsplan 2026: implementering into processes and finansiell planlegging in 2026.
+
+**Sources opened 2026-08-27.**
+- https://www.statnett.no/om-statnett/kontakt-oss/
+- https://www.statnett.no/om-statnett/nyheter-og-pressemeldinger/nyhetsarkiv-2025/systemutviklingsplan-2025/
+- https://www.statnett.no/planer-for-stromnettet/omradeplaner/
+- https://www.statnett.no/om-statnett/barekraft/omstillingsplan/
+- https://www.statnett.no/globalassets/om-statnett/barekraft/statnetts-omstillingsplan.pdf
+- https://data.brreg.no/enhetsregisteret/oppslag/enheter/962986633
+
+---
+
+## 20. Eviny AS — 100-på-10 / PIA / dataflyt
+
+**Why they would pay.** Konsernstrategi *100 på 10* (defined 2024) says Eviny will invest over the next ten years what it built over the previous hundred: 2,5 TWh ny fornybar energi, 30 percent more effekt, double regional nettkapasitet. The published dataflyt/dataanalyse page says good decisions need sanntidsdata on kraftmarkedet, kraftpriser, sensordata and værprognoser; Digital sjef Trond Stokken is printed there. PIA (Plattform for Innsikt og Analyse) is named on Bouvet's Eviny case as the lake where sources are landed, kvalitetssikret and analysed (Microsoft building blocks; Eviny/Bouvet delivery). They already have a platform. They would pay to discover and fetch *other* public series (NVE, MET, SSB, Statnett) into that stack with provenance — not to replace PIA.
+
+**Concrete use case.** The dataflyt team needs a public vær / hydrologi / prisområde series that is not already in PIA, resolved to a licensed access path and a first row fetch before later landing it in Kafka / Delta Lake.
+
+**Search → fetch → later analysis.**
+- Search: "værprognose" / "magasin" / "kraftpris område" with publisher (MET, NVE, Statnett, SSB).
+- Fetch: first rows / API sample; license and access path on every hit.
+- Later analysis: land in PIA; this product does not replace Eviny's engineering.
+
+**Public contact (only published / listed).**
+- trond.stokken@eviny.no — printed on the dataflyt page as Digital sjef, Eviny Fornybar
+- hei@eviny.no — printed on https://www.eviny.no/kundeservice as "Skriv til oss"
+- Org: 880309102
+- Do not invent a PIA or dataflyt team inbox.
+
+**Key facts.**
+- Eviny AS is morselskap; hovedkontor Bergen; eies of Statkraft, 17 Vestland kommuner, Tysnes Kraftlag AS and Etne Elektrisitetslag AS (printed on the 100-på-10 news page / årsrapport).
+- Dataflyt stack printed: Kafka (Redpanda), Delta Lake, Postgres, Materialize, Nix/NixOS, Python.
+- PIA name is Bouvet's published case name, not printed on the Eviny dataflyt page itself.
+
+**Sources opened 2026-08-27.**
+- https://www.eviny.no/jobb-med-oss/dataflyt-og-dataanalyse
+- https://www.eviny.no/kundeservice
+- https://www.eviny.no/nyheter/et-av-de-mest-verdiskapende-selskapene-i-norge
+- https://www.bouvet.no/prosjekter/pa-vei-til-a-bli-datadrevet
+- https://data.brreg.no/enhetsregisteret/oppslag/enheter/880309102
+
+---
+
+## 21. Hafslund AS — Naturkompasset with NVE / Miljødirektoratet
+
+**Why they would pay.** Hafslund prints that it helped develop *Naturkompasset*, the Fornybar Norge project-based naturregnskap method, with Miljødirektoratet and NVE in the external referansegruppe (Asplan Viak, Multiconsult, Rambøll as consultants). Ambition: naturregnskap in all new utbygginger. In 2026 the method goes into Låvi (effekt vann), Hol 1 (vann) and Trysil (vind); pilots already run at Aremark Sør and Hemsil 3. The method needs GIS layers and nature-type data that live at NVE, Miljødirektoratet, Kartverket and municipalities. They would pay to search and fetch those layers with provenance, then later score naturpoeng — not another Hafslund GIS.
+
+**Concrete use case.** A project team for Låvi / Hol 1 / Trysil needs current Miljødirektoratet nature-type and NVE flood/vassdrag layers for the site, fetched as features with license before later Naturkompasset baseline.
+
+**Search → fetch → later analysis.**
+- Search: project area + naturtype / myr / vassdrag / INON with publisher (Miljødirektoratet, NVE, Kartverket, kommune).
+- Fetch: first features/rows; record license (often NLOD) and publisher.
+- Later analysis: Naturkompasset baseline vs inngrep; do not invent naturpoeng.
+
+**Public contact (only published / listed).**
+- post@hafslund.no — printed as sentralbord / generelle henvendelser
+- Telephone: 24 11 65 00
+- Org: 920596509
+- Do not invent a Naturkompasset inbox.
+
+**Key facts.**
+- Hafslund has used naturregnskap since 2022 (UK Biodiversity Metric on two wind parks) before Naturkompasset.
+- Fornybar Norge PDF lists Statkraft, Statnett, Hafslund, Hydro Energi, Equinor in the prosjektgruppe; ekstern referansegruppe is Miljødirektoratet and NVE.
+- Hafslund page published 29 June 2026.
+
+**Sources opened 2026-08-27.**
+- https://www.hafslund.no/no/hjelp-og-kontakt
+- https://www.hafslund.no/no/om-oss/baerekraft-i-hafslund/naturtiltak/naturregnskap-i-praksis
+- https://www.fornybarnorge.no/nyheter/2026/lanserer-naturkompass/
+- https://www.fornybarnorge.no/contentassets/35d377cfb07c4e37b381bf158ad2573e/260330-naturkompasset.pdf
+- https://data.brreg.no/enhetsregisteret/oppslag/enheter/920596509
+
+---
+
+## 22. Tensio AS — områdestudier replace KSU
+
+**Why they would pay.** Tensio's 28 Feb 2025 (updated 22 Apr 2025) innspillsmøte page states that områdestudier for energiutviklingen in Trøndelag *skal erstatte* the former regionale kraftsystemutredninger (KSU). Meetings present nåsituasjon and the new konsept; local/regional actors are asked for utviklingstrekk. Drivers printed: elektrifisering of industri and transport, grønn næringsutvikling, mer ikke-regulerbar kraft, befolkningsvekst, new forbruksmønstre; lange ledetider and kø in transmisjonsnettet mean traditional nettutbygging is not enough. Energikoordinering is named as a new tool. Those studies need municipal plans, SSB forbruk/næring, NVE and Statnett områdeplan Midt series that do not live on tensio.no. They would pay to search and fetch those rows with provenance, then later feed prognoser — not to replace Tensio's own nett model.
+
+**Concrete use case.** The områdestudie project needs current municipal arealplaner and SSB/NVE series for one of the five meeting regions (Namsos, Orkanger, Fosen, Stjørdal/Innherred, Stor-Trondheim), fetched with license before later prognose work.
+
+**Search → fetch → later analysis.**
+- Search: region + "arealplan" / "industri" / "effekt" with publisher (kommune, SSB, NVE, Statnett).
+- Fetch: first rows / features from the recorded access path.
+- Later analysis: områdestudie behovsanalyse; keep provenance.
+
+**Public contact (only published / listed).**
+- kristin.fagerli@tensio.no — printed as prosjektleder for områdemøtene
+- Org: 922828172
+- No generic inbox listed on the innspillsmøte page. Do not invent one.
+
+**Key facts.**
+- Five open regional meetings around Easter 2025 (31 Mar–10 Apr).
+- Energikoordinator is also a 2024–2026 pilot with Lnett and Elvia (printed on Lnett utredninger); NVE, RME and Statnett sit in that referansegruppe.
+
+**Sources opened 2026-08-27.**
+- https://www.tensio.no/no/proff/nyheter-proff/innspillsmote-energiutvikling-omradestudier
+- https://www.l-nett.no/utredninger/
+- https://data.brreg.no/enhetsregisteret/oppslag/enheter/922828172
+
+---
+
+## 23. Lnett AS (Lyse) — NVE nettutviklingskoordinator + Energikoordinator
+
+**Why they would pay.** Lnett is NVE's nettutviklingskoordinator for Sør-Rogaland: it coordinates nettutredninger across eiere, gives innspill to other utredere, and can utrede/melde tiltak on others' behalf. As nettutreder it produces effektprognoser (≥20 years, not older than two years), områdestudier (behovsanalyse, 20 years, updated at least every other year) and KVU (40-year samfunnsøkonomi). Energikoordinator is a 2024–2026 pilot with Tensio and Elvia; referansegruppe is NVE, RME and Statnett. Those roles consume municipal plans, næringsutvikling, Statnett SUP/områdeplaner and NVE PlanNett — datasets that do not all live on l-nett.no. They would pay to search and fetch those rows with provenance, then later feed prognoser — not to replace PlanNett.
+
+**Concrete use case.** An utredning officer needs a municipal plan or Statnett områdeplan Sør-Rogaland og Agder layer that is not in Lnett's own effektprognose, fetched as rows/features with license before later KVU.
+
+**Search → fetch → later analysis.**
+- Search: "Sør-Rogaland" / kommune + arealplan / industri / effekt with publisher (Statnett, NVE, kommune, SSB).
+- Fetch: first rows from the recorded access path.
+- Later analysis: effektprognose / områdestudie / KVU; keep provenance.
+
+**Public contact (only published / listed).**
+- epost@l-nett.no — printed on https://www.l-nett.no/elinstallatorer/vare-tjenester/ (byggestrøm / fjerning)
+- Org: 980038408
+- The utredninger page does not print a separate utredning inbox. Do not invent one.
+
+**Key facts.**
+- PlanNett is NVE's portal for områdestudier and KVU summaries.
+- Lnett points to Statnett SUP and områdeplaner as the transmisjonsnett path.
+- Postboks 8124, 4068 Stavanger; org printed on åpningstid-og-adresser.
+
+**Sources opened 2026-08-27.**
+- https://www.l-nett.no/utredninger/
+- https://www.l-nett.no/elinstallatorer/vare-tjenester/
+- https://www.l-nett.no/apningstid-og-adresser/
+- https://www.statnett.no/om-statnett/nyheter-og-pressemeldinger/nyhetsarkiv-2025/systemutviklingsplan-2025/
+- https://www.statnett.no/planer-for-stromnettet/omradeplaner/
+- https://data.brreg.no/enhetsregisteret/oppslag/enheter/980038408
+
+---
+
+## 24. Fredrikstad kommune — Åpne data Hub + kart@
+
+**Why they would pay.** Fredrikstad runs an ArcGIS Hub for åpne data (API download/connect). The Hub front page says the datasets there are the municipality's own, and that *other* datasets are available via data.norge.no or Geonorge.no. The kartdata page says Fredrikstad is in Norge Digitalt, that most digital kartdata are on Geonorge, and that the Hub/API is the path for users without Geonorge access (NLOD; Euref89 UTM 32N / NN2000). They already publish. They would pay to search and fetch the *other* publishers' layers named on their own Hub — Kartverket, NVE, SSB, neighbouring municipalities — with provenance, then later join to Hub layers.
+
+**Concrete use case.** Virksomhet geomatikk wants a national flood, plan or SSB series that matches a Hub dataset (eiendom, planer, beredskap), fetched under a named license so a combined product can cite both sources.
+
+**Search → fetch → later analysis.**
+- Search: national registry / Geonorge access paths for the matching theme; return license and publisher.
+- Fetch: first rows / features; do not scrape the Hub as if it were this product.
+- Later analysis: join Hub tables to national series; provenance on every hit.
+
+**Public contact (only published / listed).**
+- kart@fredrikstad.kommune.no — printed on the digitale-kartdata page and as Hub contactUs mailto
+- Org: 940039541
+- Do not invent a Hub editor inbox.
+
+**Key facts.**
+- Hub categories printed: miljø, kretser, næring, beredskap, utdanning, helse og omsorg, eiendom, samferdsel, park/kultur/idrett/friluftsliv, IOT, planer.
+- Kommunevåpen footer on the Hub also prints org 940039541 and kommunenummer 0106.
+- Plandata (KPA 2023–2035 and gjeldende regulering) have a free SOSI self-service path; FKB is Geovekst / paid for non-parties.
+
+**Sources opened 2026-08-27.**
+- https://hub-frstadkomm.opendata.arcgis.com/
+- https://www.fredrikstad.kommune.no/tjenester/byggesak-regulering-og-kart/kart-og-oppmaaling/tilgang-til-digitale-kartdata/
+- https://data.brreg.no/enhetsregisteret/oppslag/enheter/940039541
+
+---
+
+## 25. Sandnes kommune — Prinsipp 6 «Vi deler og tar i bruk åpne data»
+
+**Why they would pay.** *Sandnes – helt enkelt* (digitalisering, smartby and innovasjon) takes the national smartby veikart's eight principles. Prinsipp 6 is printed as «Vi deler og tar i bruk åpne data»: åpne data are a råvare for innovasjon and effektivisering; the municipality will tilgjengeliggjøre and *use* data for effektivisering, kvalitetsforbedring, innovasjon and næringsutvikling, while protecting personvern and giving innbyggere grunnlag for beslutninger. Geodata is the printed unit for matrikkel/kart (postmottak.geodata@). They would pay to find and fetch *other* agencies' and municipalities' open datasets into that "ta i bruk" side — not to replace the matrikkel.
+
+**Concrete use case.** Geodata / innovasjon needs a Kartverket or SSB series that matches a local plan or eiendom layer, fetched with license and access path before later use in a tjeneste or åpne-data product.
+
+**Search → fetch → later analysis.**
+- Search: national registry for the matching publisher + theme; return NLOD vs other license.
+- Fetch: first rows / API sample.
+- Later analysis: join to municipal geodata; keep provenance.
+
+**Public contact (only published / listed).**
+- postmottak.geodata@sandnes.kommune.no — printed on the Eiendomsregisteret / Geodata block
+- Org: 964965137
+- Do not invent an innovasjon or åpne-data inbox.
+
+**Key facts.**
+- Strategy published 16.10.2019, last changed 07.02.2023; Enhet for innovasjon og digitalisering is named as pådriver; Innovasjon- og digitaliseringsfondet can finance tiltak.
+- Geodata: Postboks 583, 4302 Sandnes; Rådhusgata 1; telephone 959 89 568 printed on the matrikkel page (not used as a second outreach number here).
+- Prinsipp 2 also prints further collaboration on nasjonal and lokal bruk og deling av data.
+
+**Sources opened 2026-08-27.**
+- https://www.sandnes.kommune.no/sti/planer-strategier-og-analyser/vedtatte-strategier/sandnes-helt-enkelt/
+- https://www.sandnes.kommune.no/sti/bolig-og-byutvikling/kart-og-eiendomsinformasjon/eiendomsopplysninger/
+- https://data.brreg.no/enhetsregisteret/oppslag/enheter/964965137
+
+---
+
+## 26. Bodø kommune — Bodøkart + Geonorge
+
+**Why they would pay.** Bodø forvalter and updates many kart types; Bodøkart is the published digital-kart inngang (ansatte get utvida tilgang). Bodø kommune is also a Geonorge organisation: plan and byutvikling datasets sit in Kartkatalogen next to national layers. The gap is finding and fetching Kartverket / NVE / SSB / neighbouring-municipality series that sit beside Bodøkart, with license and access path — they already have a kartklient.
+
+**Concrete use case.** A Byutvikling / kart officer needs a national flood, plan or SSB series that matches a Bodøkart layer, fetched as features/rows before later overlay.
+
+**Search → fetch → later analysis.**
+- Search: "Bodø" + theme across the national registry and Geonorge access paths; do not assume Bodøkart is complete.
+- Fetch: first features/rows; record publisher and license.
+- Later analysis: overlay on Bodøkart; provenance on every hit.
+
+**Public contact (only published / listed).**
+- Sveinung.Bertnes.Raheim@bodo.kommune.no — printed on the Bodøkart page as Rådgiver, Byutvikling Prosjekt og Mobilitet
+- Org: 972418013
+- No generic kart inbox printed on that page. Do not invent one.
+
+**Key facts.**
+- Bodøkart page contact block also prints telephone 75 55 52 88 and mobil 91 86 81 86 (not listed as extra inboxes).
+- Geonorge Kartkatalogen filter: organizations=Bodø kommune.
+- Sibling pages: bestille digitale kart og eiendomsinformasjon; Eiendomsregisteret via Kartverket.
+
+**Sources opened 2026-08-27.**
+- https://bodo.kommune.no/tjenester/plan-bygg-og-eiendom/kart-og-eiendomsinformasjon/bodokart/
+- https://bodo.kommune.no/tjenester/plan-bygg-og-eiendom/kart-og-eiendomsinformasjon/
+- https://kartkatalog.geonorge.no/?organizations=Bod%C3%B8+kommune
+- https://data.brreg.no/enhetsregisteret/oppslag/enheter/972418013
+
+---
+
+## 27. Kristiansand kommune — Økonomiplan 2026–2029 (datadeling + klimabudsjett)
+
+**Why they would pay.** Økonomiplan 2026–2029, vedtatt bystyret 17.12.2025, is the current mandate — not only the 2022 *Smartere sammen* title. Kap. 5.4 («Kristiansand kommune skal være en digital og innovativ organisasjon») prints the focus area «Økt datadeling og utnytte mulighetene i data»: data shall be tilgjengelige, gjenfinnbare, mulig å bruke and kunne sammenstilles so they give verdi in tjenesteutvikling; «Det bør etableres tydeligere interne retningslinje for hvordan man må gå frem for å få tilgang til data.» Kap. 6 uses Miljødirektoratets kommunefordelte klimagassstatistikk as basisgrunnlaget for the municipal klimabudsjett (Klima- og miljøbarometeret is the published indicator surface). They would pay to find and fetch those Miljødirektoratet / SSB / neighbour series with provenance, then later sammenstille them — the printed gap is gjenfinnbarhet, access rules and sammenstilling, not another strategy PDF.
+
+**Concrete use case.** Klima / digitalisering needs the latest Miljødirektoratet kommunefordelte tall and related SSB series for the next klimabudsjett and barometer update, fetched as rows with license and access path before later overlay on Kap. 6 sectors (veitrafikk, industri, annen mobil forbrenning, jordbruk).
+
+**Search → fetch → later analysis.**
+- Search: Kristiansand + klimagass / veitrafikk / «kommunefordelt» with publisher (Miljødirektoratet, SSB).
+- Fetch: first rows from the recorded access path; license and publisher on every hit.
+- Later analysis: feed klimabudsjett / Klima- og miljøbarometeret; do not invent tonnes.
+
+**Public contact (only published / listed).**
+- post@kristiansand.kommune.no — printed on kontakt-oss and on the barometer footer
+- post.byutvikling@kristiansand.kommune.no — printed on the klima- og miljøstrategi page (Klima og arealutvikling)
+- Org: 820852982
+- Do not invent a digitalisering or klima inbox.
+
+**Key facts.**
+- Økonomiplan 2026–2029: bystyret 17. desember 2025. Kap. 5.4 also names Kommune Los 4.0 / Støtte Los and a new municipal architecture-principles veileder.
+- Kap. 6.4: Miljødirektoratets kommunefordelte statistikk «publiseres årlig og utgjør basisgrunnlaget for Kristiansands klimabudsjett.» 2022–2023: 10,4 % reduction year-on-year (printed).
+- Klima- og miljøbarometeret: samfunn vs organisasjon views; page updated 10. november 2025. Postboks 4, 4685 Nodeland; kommunenummer 4204.
+
+**Sources opened 2026-08-27.**
+- https://www.kristiansand.kommune.no/contentassets/712daaa8832d482180d6d7cfd9ef1c38/okonomiplan-2026-2029---kristiansand-kommune.pdf
+- https://www.kristiansand.kommune.no/kontakt-oss
+- https://www.kristiansand.kommune.no/navigasjon/bolig-kart-og-eiendom/miljo-og-klima/klima--og-miljoledelse/klimaogmiljostrategi/
+- https://www.baerekraftigkristiansand.no/temasider/klima-og-miljobarometer
+- https://data.brreg.no/enhetsregisteret/oppslag/enheter/820852982
+
+---
+
+## 28. Lillestrøm kommune — digitalisering 2020–2025 + klimabudsjett
+
+**Why they would pay.** *Strategi for digitalisering 2020–2025* prints «Data skal deles, gjenbrukes og forvaltes» as a platform requirement, and under Informasjonsforvaltning: «En datadrevet offentlig forvaltning, med åpne og tilgjengelige data». Digitaliseringsavdelingen understøtter digitaliseringsinitiativ and owns architecture/forvaltning. *Plan for klimanøytral drift* (klimanøytral 2027) prints the årlige klimabudsjett as «det viktigste styringsverktøyet» for that plan. No first-party open-data portal is printed; municipal datasets sit on data.norge / Geonorge. They would pay to find and fetch SSB, Miljødirektoratet, NVE and neighbour Nedre Romerike series with provenance — not another municipal portal.
+
+**Concrete use case.** Digitaliseringsavdelingen finds and fetches SSB / Miljødirektoratet / NVE and neighbour Nedre Romerike (Rælingen, Lørenskog, Nittedal, Aurskog-Høland) series for the next klimabudsjett and the Klimasats klimaplanlegger / dialogverktøy (Apr 2026–Nov 2027; 410 000 kroner; with Akershus fylkeskommune).
+
+**Search → fetch → later analysis.**
+- Search: Lillestrøm / Nedre Romerike + klimagass / areal / energi with publisher (SSB, Miljødirektoratet, NVE, neighbour kommuner).
+- Fetch: first rows / features from data.norge or Geonorge access paths; license and publisher on every hit.
+- Later analysis: feed klimabudsjett indicators and the klimaplanlegger; do not invent tonnes.
+
+**Public contact (only published / listed).**
+- Torbjørn Pedersen, Direktør for digitalisering: torbjorn.pedersen@lillestrom.kommune.no, 93 46 18 00 — printed on the digitalisering strategy page
+- postmottak@lillestrom.kommune.no — printed on kontakt-oss
+- Sentralbord: 66 93 80 00
+- Org: 820710592
+- Kommunenummer: 3205
+- Do not invent a klima or åpne-data inbox.
+
+**Key facts.**
+- Postboks 313, 2001 Lillestrøm; Jonas Lies gate 18, 2000 Lillestrøm.
+- Klimanøytral drift target 2027 (interpellasjon 17.12.19; klimastrategi 16.06.21). Klimabudsjett is the annual handlingsplan for that plan.
+- Klimasats project printed on miljodirektoratet.no: under gjennomføring, Apr 2026–Nov 2027; tilpasset ny energiutredning for Nedre Romerike.
+
+**Sources opened 2026-08-27.**
+- https://www.lillestrom.kommune.no/politikk-og-administrasjon/digitalisering-i-lillestrom-kommune/digi/
+- https://www.lillestrom.kommune.no/politikk-og-administrasjon/kontakt-oss/
+- https://www.lillestrom.kommune.no/energi-klima-og-miljo/klimanoytral-drift/
+- https://www.miljodirektoratet.no/ansvarsomrader/klima/for-myndigheter/kutte-utslipp-av-klimagasser/klimasats/2026/klimaplanleggerdialogverktoy-for-nedre-romerike/
+- https://data.brreg.no/enhetsregisteret/oppslag/enheter/820710592
+
+---
+
 ## Skipped, with reasons
 
 Keep these notes in the living book. They are not leads.
@@ -557,6 +950,9 @@ Keep these notes in the living book. They are not leads.
 
 - **27 Aug 2026, 10:00 Europe/Oslo.** First 15 sourced entries. No outreach.
 - **27 Aug 2026, 10:15 Europe/Oslo.** Five deepen notes: Oslo DIG Tildelingsbrev 2026 datadeling + 45,5 mill. PC-ownership klimabudsjett measure (do not treat 817 699 / 75 000 as kroner) and DIG etat emails; Stavanger live Regnsensordata (updated 27 Aug 2026 02:01 CEST) and printed staff-ID next to opendata@; Bouvet Kartverket 477 mill. five-year grant (no Bouvet contract price) plus Kaasa phone and 200 vs 50/250 headcount print; Aftenposten Fossan mailto + author line + kvikkleire story (seks = Journalisten only); Statsbygg SIMBA 2.1 PDF dates and tungt.no 13,6 mrd marked second-hand.
+- **27 Aug 2026, 10:25 Europe/Oslo.** Wave-2: 12 sourced entries (3 health, 5 energy, 4 mid-size kommuner). Contacts only as listed. No outreach.
+- **27 Aug 2026, 10:30 Europe/Oslo.** Wave-2 add: Lillestrøm kommune (digitalisering 2020–2025 + klimabudsjett / Klimasats klimaplanlegger). Contacts only as printed. No outreach.
+- **27 Aug 2026, 10:40 Europe/Oslo.** Kristiansand mandate is Økonomiplan 2026–2029 (bystyret 17.12.2025) kap. 5.4 datadeling + kap. 6 klimabudsjett / Miljødir kommunefordelte tall. Contacts post@ and post.byutvikling@. No competitor section.
 
 ---
 

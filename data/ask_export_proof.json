@@ -1,0 +1,71 @@
+{
+  "command": "pda ask \"Hvilke Oslo-bydeler er størst og hvilke vokser mest?\" --year 2025 --prior-year 2024 --db data/registry.sqlite --out data/ask_export.csv",
+  "question": "Hvilke Oslo-bydeler er størst og hvilke vokser mest?",
+  "csv": "data/ask_export.csv",
+  "csv_columns": [
+    "bydel_code",
+    "name",
+    "year",
+    "personer",
+    "yoy",
+    "klass_publisher",
+    "klass_license",
+    "ssb_publisher",
+    "ssb_license",
+    "join_key",
+    "lineage"
+  ],
+  "csv_rows": 15,
+  "joined_rows": 36,
+  "chart_helper": "methods.emit.emit",
+  "charts": {
+    "csv": "data/ask_export_charts/table.csv",
+    "markdown": "data/ask_export_charts/table.md",
+    "lineage": "data/ask_export_charts/lineage.json",
+    "chart": "data/ask_export_charts/chart.png",
+    "yoy_bar": "data/ask_export_charts/yoy_bar.png"
+  },
+  "joins": [
+    {
+      "year": "2024",
+      "left_http_status": 200,
+      "right_http_status": 200,
+      "left_request_url": "https://data.ssb.no/api/klass/v1/versions/1168.json",
+      "right_request_url": "https://data.ssb.no/api/v0/no/table/11763"
+    },
+    {
+      "year": "2025",
+      "left_http_status": 200,
+      "right_http_status": 200,
+      "left_request_url": "https://data.ssb.no/api/klass/v1/versions/1168.json",
+      "right_request_url": "https://data.ssb.no/api/v0/no/table/11763"
+    }
+  ],
+  "db": "data/registry.sqlite",
+  "observations_11763": {
+    "dataset_id": "ssb:11763",
+    "table_id": "11763",
+    "count": 36,
+    "years": {
+      "2024": 18,
+      "2025": 18
+    },
+    "null_values": 6,
+    "request_url": "https://data.ssb.no/api/v0/no/table/11763",
+    "http_status": 200,
+    "publisher_name": "Statistisk sentralbyrå",
+    "license": null,
+    "harvested_payloads": 0,
+    "enrichments": 0,
+    "sample": {
+      "bydel_code": "030102",
+      "region": "Grünerløkka",
+      "år": "2025",
+      "measure": "Personer (antall)",
+      "value": 67039
+    },
+    "sql": "SELECT count(*) FROM observations WHERE dataset_id = 'ssb:11763'",
+    "methods_command": "pda methods --dataset ssb:11763 --table 11763 --entity \"\" --measure \"\" --db data/registry.sqlite --out /tmp/methods-11763",
+    "methods_rows": 30
+  }
+}

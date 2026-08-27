@@ -157,9 +157,27 @@ def test_join_on_exact_bydel_code_and_leaves_harvest_untouched(tmp_path: Path) -
     assert result.counts.listed == 2
     assert result.counts.inserted == 2
     assert registry.joined_row_count() == 2
-    assert registry.observation_count() == 3
+    stored_11763 = registry.list_observations("ssb:11763")
+    assert len(stored_11763) == 2
+    assert registry.observation_count() == 5
+    grunnerlokka = next(
+        row
+        for row in stored_11763
+        if json.loads(row["dimensions_json"])["bydel_code"] == "030102"
+    )
+    assert json.loads(grunnerlokka["value_json"]) == 67039
+    assert json.loads(grunnerlokka["dimensions_json"])["region"] == "Grünerløkka"
+    assert json.loads(grunnerlokka["dimensions_json"])["år"] == "2025"
+    assert grunnerlokka["request_url"] == SSB_URL
+    assert grunnerlokka["http_status"] == 200
+    assert grunnerlokka["publisher_name"] == "Statistisk sentralbyrå"
+    assert grunnerlokka["license"] is None
+    assert grunnerlokka["access_path"] == SSB_URL
     assert _harvest_bytes(registry) == before
     assert registry.enrichment_count() == enrich_before
+    assert registry.conn.execute(
+        "SELECT COUNT(*) AS n FROM harvested_payloads"
+    ).fetchone()["n"] == 3
     first = result.sample[0]
     assert first["join_key_value"] == "030101"
     assert first["population"] == 64920
@@ -215,7 +233,7 @@ def test_cli_join_writes_proof(tmp_path: Path, monkeypatch) -> None:
     payload = json.loads(out.read_text(encoding="utf-8"))
     assert payload["join_key"] == "bydel_code"
     assert payload["counts"]["joined"] == 2
-    assert payload["counts"]["datasets_unchanged"] == 3
+    assert payload["counts"]["datasets_unchanged"] == 4
     assert payload["sample"][0]["population"] == 64920
     assert payload["sources"]["left"]["http_status"] == 200
     assert payload["sources"]["right"]["http_status"] == 200

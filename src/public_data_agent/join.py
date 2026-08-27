@@ -5,10 +5,15 @@ import json
 from dataclasses import dataclass, field
 from typing import Any
 
-from public_data_agent.fetch import JsonHttp, fetch_observations
+from public_data_agent.fetch import JsonHttp, _store_cells, fetch_observations
 from public_data_agent.models import HarvestCounts
 from public_data_agent.registry import Registry, utc_now
-from public_data_agent.ssb_pxweb import DEFAULT_SSB_TABLE, DEFAULT_SSB_TABLE_URL, fetch_ssb_table
+from public_data_agent.ssb_pxweb import (
+    DEFAULT_SSB_TABLE,
+    DEFAULT_SSB_TABLE_URL,
+    SsbTableResult,
+    fetch_ssb_table,
+)
 
 DEFAULT_KLASS_DATASET = "datanorge:0c89041e-ae88-32ef-a765-8e1ccbd64fdd"
 JOIN_KEY = "bydel_code"
@@ -87,6 +92,7 @@ def join_bydel_population(
         right_url = ssb.request_url
         right_title = ssb.label
         right_publisher = ssb.source or SSB_PUBLISHER
+        _persist_ssb_observations(registry, ssb, right_dataset_id)
         klass_by_code = _klass_by_code(registry.list_observations(klass_dataset_id))
         retrieved_left = utc_now()
         for cell in ssb.cells:
@@ -226,6 +232,68 @@ def join_proof_payload(
         "sample": result.sample,
         "rows": result.rows,
     }
+
+
+def _persist_ssb_observations(registry: Registry, ssb: SsbTableResult, dataset_id: str) -> None:
+    """Write the 11763 cells already in hand into the M7 observations store."""
+
+    registry.ensure_observation_dataset(
+        dataset_id=dataset_id,
+        title=ssb.label,
+        publisher_name=ssb.source or SSB_PUBLISHER,
+        access_path=ssb.request_url,
+        license=None,
+    )
+    dataset = registry.get_dataset(dataset_id)
+    if dataset is None:
+        raise ValueError(f"unknown dataset {dataset_id}")
+    run_id = registry.start_fetch_run(
+        dataset_id=dataset_id,
+        table_id=ssb.table_id,
+        request_url=ssb.request_url,
+        request_method="POST",
+        started_at=ssb.retrieved_at,
+    )
+    counts = HarvestCounts()
+    status = "failed"
+    cells: list[tuple[str, Any, dict[str, str]]] = []
+    try:
+        for cell in ssb.cells:
+            code = _region_code(cell.codes)
+            if code is None:
+                continue
+            year_label = cell.labels.get("Tid") or cell.codes.get("Tid") or ""
+            region_label = (
+                cell.labels.get("KOKbydelsregion0000") or cell.labels.get("Region") or code
+            )
+            cells.append(
+                (
+                    cell.measure,
+                    cell.value,
+                    {"region": region_label, "år": year_label, "bydel_code": code},
+                )
+            )
+        counts.listed = len(cells)
+        _store_cells(
+            registry,
+            dataset,
+            run_id,
+            table_id=ssb.table_id,
+            cells=cells,
+            retrieved_at=ssb.retrieved_at,
+            request_url=ssb.request_url,
+            http_status=ssb.http_status,
+            counts=counts,
+        )
+        status = "completed"
+    except Exception as exc:
+        counts.failed += 1
+        counts.errors.append({"error": str(exc), "url": ssb.request_url})
+        raise
+    finally:
+        registry.finish_fetch_run(
+            run_id, counts, status=status, http_status=ssb.http_status
+        )
 
 
 def _klass_by_code(rows: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
