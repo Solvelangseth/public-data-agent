@@ -1,0 +1,103 @@
+{
+  "version": 1,
+  "kind": "live_prompt_pack",
+  "rule": "Ungolded Norwegian questions. A miss is an observation on the live search_report, not a gold lookup.",
+  "questions": [
+    {
+      "id": "lp01",
+      "query": "folketall i oslo"
+    },
+    {
+      "id": "lp02",
+      "query": "befolkning på tromsø"
+    },
+    {
+      "id": "lp03",
+      "query": "innbyggere i bergen"
+    },
+    {
+      "id": "lp04",
+      "query": "folketall for trondheim"
+    },
+    {
+      "id": "lp05",
+      "query": "helse og omsorg stavanger"
+    },
+    {
+      "id": "lp06",
+      "query": "fastlege i kristiansand"
+    },
+    {
+      "id": "lp07",
+      "query": "sykehus på ahus"
+    },
+    {
+      "id": "lp08",
+      "query": "folkehelseprofil kommune"
+    },
+    {
+      "id": "lp09",
+      "query": "kommunehelsa statistikkbank"
+    },
+    {
+      "id": "lp10",
+      "query": "energi og strøm oslo"
+    },
+    {
+      "id": "lp11",
+      "query": "vindkraft på fosen"
+    },
+    {
+      "id": "lp12",
+      "query": "vannkraft i telemark"
+    },
+    {
+      "id": "lp13",
+      "query": "fjernvarme i bergen"
+    },
+    {
+      "id": "lp14",
+      "query": "kraftsituasjonen nve"
+    },
+    {
+      "id": "lp15",
+      "query": "befolkningsvekst i lillestrøm"
+    },
+    {
+      "id": "lp16",
+      "query": "eldre i befolkningen"
+    },
+    {
+      "id": "lp17",
+      "query": "psykisk helse i kommunen"
+    },
+    {
+      "id": "lp18",
+      "query": "nettleie for husholdning"
+    },
+    {
+      "id": "lp19",
+      "query": "solenergi på tak"
+    },
+    {
+      "id": "lp20",
+      "query": "legevakt i oslo"
+    },
+    {
+      "id": "lp21",
+      "query": "drikkevann i bærum"
+    },
+    {
+      "id": "lp22",
+      "query": "innvandring og befolkning oslo"
+    },
+    {
+      "id": "lp23",
+      "query": "barnehelse i kommune"
+    },
+    {
+      "id": "lp24",
+      "query": "strømforbruk i hamar"
+    }
+  ]
+}

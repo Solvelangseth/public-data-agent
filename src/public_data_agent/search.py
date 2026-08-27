@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import re
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any
 
 from public_data_agent.mapping import localized_text
@@ -578,3 +579,62 @@ def _json_list(value: Any) -> list[Any]:
         loaded = json.loads(value)
         return loaded if isinstance(loaded, list) else []
     return []
+
+
+def load_prompt_pack(path: Path) -> dict[str, Any]:
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    questions = payload.get("questions")
+    if not isinstance(questions, list) or not questions:
+        raise ValueError(f"{path} has no questions")
+    for question in questions:
+        if not isinstance(question, dict) or not str(question.get("query") or "").strip():
+            raise ValueError(f"{path} has a question without query")
+        if question.get("expected") or question.get("dataset_id"):
+            raise ValueError(f"{path}: live pack questions must not carry gold ids")
+    return payload
+
+
+def run_search_pack(
+    registry: Registry,
+    payload: dict[str, Any],
+    *,
+    limit: int = 10,
+    decompose_query: bool = True,
+) -> dict[str, Any]:
+    rows: list[dict[str, Any]] = []
+    for question in payload["questions"]:
+        query = question["query"]
+        report = search_report(
+            registry, query, limit=limit, decompose_query=decompose_query
+        )
+        rows.append(
+            {
+                "id": question.get("id"),
+                "query": query,
+                "tokens": tokenize(query),
+                "returned": len(report.hits),
+                "coverage": report.coverage.to_dict(),
+                "follow_up": report.follow_up,
+                "hits": [
+                    {
+                        "id": hit.dataset_id,
+                        "title": hit.title,
+                        "why": hit.why,
+                        "matches": [
+                            {
+                                "field": match.field,
+                                "token": match.token,
+                                "weight": match.weight,
+                            }
+                            for match in hit.matches
+                        ],
+                    }
+                    for hit in report.hits
+                ],
+            }
+        )
+    return {
+        "kind": "live_prompt_pack_report",
+        "question_count": len(rows),
+        "questions": rows,
+    }

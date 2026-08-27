@@ -658,6 +658,24 @@ from the response: Utenlandsadopsjoner 34 then 24, Stebarn 202 then 236.
 `pda methods` reads those 8 stored rows and does not call `pda fetch`.
 It returns numeric series with YoY. Proof is `data/ssb_source_proof.json`.
 
+The next batch pages the same printed `be` walk:
+
+```bash
+pda ingest --source ssb --db data/registry.sqlite --limit 8 --offset 8
+pda fetch --dataset ssb:06831 --table 06831 \
+  --from-year 2021 --to-year 2022 --db data/registry.sqlite
+pda search 06831 --db data/registry.sqlite
+```
+
+Live ingest 2026-08-27: 8 more tables (08135, 08136, 08134, 06831, 06854,
+14746, 14747, 14748). 07459 was not in that list.
+
+Live fetch of 06831: POST 200, 132 cells for 2021 and 2022. Sample values
+from the response: Kvinner 16-19 Samboere 3 then 2, Kvinner 20-24
+Samboere 23 then 23.
+
+`pda search 06831` returns `ssb:06831`. Proof is `data/ssb_expand_proof.json`.
+
 ## Geonorge Kartkatalog source
 
 `pda ingest --source geonorge` is another replaceable adapter. It searches
