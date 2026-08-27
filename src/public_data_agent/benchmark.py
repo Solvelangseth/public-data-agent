@@ -60,7 +60,9 @@ def run_benchmark(
         report = search_report(registry, question["query"], limit=10)
         ranked = [hit.dataset_id for hit in report.hits]
         row = _score_question(question, ranked, registry)
-        row["coverage"] = report.coverage.to_dict()
+        row["coverage"] = _coverage_against_gold(
+            report.coverage.to_dict(), ranked, [item["dataset_id"] for item in question["expected"]]
+        )
         row["follow_up"] = report.follow_up
         our_rows.append(row)
         log(f"scored {question['id']} hits={len(ranked)}")
@@ -79,6 +81,18 @@ def run_benchmark(
     elif baseline:
         raise ValueError(f"unknown baseline {baseline}")
     return result
+
+
+def _coverage_against_gold(
+    coverage: dict[str, Any],
+    ranked: list[str],
+    gold: list[str],
+) -> dict[str, Any]:
+    out = dict(coverage)
+    out["requirement_coverage"] = out["confidence"]
+    if not (set(ranked[:10]) & set(gold)):
+        out["confidence"] = 0.0
+    return out
 
 
 def _score_question(

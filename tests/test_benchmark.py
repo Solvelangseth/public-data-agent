@@ -14,6 +14,7 @@ from public_data_agent.sources.fixture import FixtureSource
 FIXTURES = Path(__file__).parent / "fixtures"
 QUESTIONS = Path(__file__).parent / "benchmark_questions.json"
 STRANDSONE_ID = "fixture:b2864e84-b474-31ae-97b1-8b94a71f5b0f"
+SPARSE_ID = "fixture:00000000-0000-4000-8000-000000000001"
 
 
 def _registry(tmp_path: Path) -> Registry:
@@ -42,9 +43,41 @@ def test_fixture_benchmark_scores_title_and_keyword_gold(tmp_path: Path) -> None
     assert by_id["fx-simple"]["recall_at_5"] == 1.0
     assert by_id["fx-simple"]["mrr"] == 1.0
     assert by_id["fx-simple"]["ranked"][0] == STRANDSONE_ID
+    assert by_id["fx-simple"]["coverage"]["confidence"] == 1.0
+    assert by_id["fx-simple"]["coverage"]["requirement_coverage"] == 1.0
     assert by_id["fx-synonym"]["recall_at_5"] == 1.0
     assert by_id["fx-hard"]["recall_at_5"] == 0.0
     assert by_id["fx-hard"]["mrr"] == 0.0
+    registry.close()
+
+
+def test_confidence_is_zero_when_gold_is_outside_retrieved_set(tmp_path: Path) -> None:
+    registry = _registry(tmp_path)
+    payload = {
+        "questions": [
+            {
+                "id": "fx-token-cover-gold-miss",
+                "kind": "indirect",
+                "query": "ssb",
+                "expected": [
+                    {
+                        "dataset_id": SPARSE_ID,
+                        "reasons": [{"field": "title", "stored": "Sparse fixture"}],
+                    }
+                ],
+                "requirements": [
+                    {"id": "ssb", "kind": "token", "field": "title", "token": "ssb"}
+                ],
+            }
+        ]
+    }
+    result = run_benchmark(registry, payload)
+    row = result["questions"][0]
+    assert row["recall_at_10"] == 0.0
+    assert SPARSE_ID not in row["ranked"]
+    assert row["coverage"]["covered"] == ["ssb"]
+    assert row["coverage"]["requirement_coverage"] == 1.0
+    assert row["coverage"]["confidence"] == 0.0
     registry.close()
 
 
