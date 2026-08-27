@@ -317,8 +317,7 @@ def search_report(
                 hits.append(extra)
         kept_ids = set()
         if added:
-            hits.sort(key=lambda hit: (-hit.relevance, hit.title or "", hit.dataset_id))
-            hits = hits[:limit]
+            hits = _select_hits(hits, limit)
             kept_ids = {hit.dataset_id for hit in hits}
         coverage_after = assess_coverage(registry, hits, requirements)
         if queries:
@@ -432,8 +431,7 @@ def _search_requirements(
                 requirements=req_texts,
             )
         )
-    hits.sort(key=lambda hit: (-hit.relevance, hit.title or "", hit.dataset_id))
-    return hits[:limit]
+    return _select_hits(hits, limit)
 
 
 def _theme_string_matches(query_tokens: list[str], themes: list[str]) -> list[FieldMatch]:
@@ -482,8 +480,7 @@ def _rank_rows(
             continue
         other_hits.append(_hit_from_row(row, payload, keywords, matches, why=why_summary(matches)))
     hits = theme_hits if theme_hits else other_hits
-    hits.sort(key=lambda hit: (-hit.relevance, hit.title or "", hit.dataset_id))
-    return hits[:limit]
+    return _select_hits(hits, limit)
 
 
 def _iter_scored_rows(registry: Registry):
@@ -502,6 +499,30 @@ def _iter_scored_rows(registry: Registry):
             "description": tokenize(description_text),
         }
         yield row, fields, keywords, payload
+
+
+def _matched_tokens(hit: SearchHit) -> set[str]:
+    return {match.token for match in hit.matches}
+
+
+def _select_hits(hits: list[SearchHit], limit: int) -> list[SearchHit]:
+    selected: list[SearchHit] = []
+    remaining = list(hits)
+    covered: set[str] = set()
+    while remaining and len(selected) < limit:
+        remaining.sort(
+            key=lambda hit: (
+                -len(_matched_tokens(hit) - covered),
+                -len(_matched_tokens(hit)),
+                -hit.relevance,
+                hit.title or "",
+                hit.dataset_id,
+            )
+        )
+        pick = remaining.pop(0)
+        selected.append(pick)
+        covered |= _matched_tokens(pick)
+    return selected
 
 
 def _requirement_matches(
