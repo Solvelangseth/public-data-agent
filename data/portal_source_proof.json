@@ -1,0 +1,133 @@
+{
+  "produced_at": "2026-08-27T17:08:35Z",
+  "bound": {
+    "list_api": "https://api.fiskeridir.no/aqua-portal-api-public/v3/api-docs",
+    "walk": "copy printed collection GET paths from the official Akvakultursøknader OpenAPI; skip templated paths; join each path to printed servers[0].url https://api.fiskeridir.no/aqua-portal-api-public; do not invent path ids",
+    "cap": 10,
+    "how": "pda ingest --source portal --limit 10. The official Akvakultursøknader OpenAPI prints 5 paths. 1 untemplated collection GET is /api/v1/applications. The live spec also prints /api/v1/application/{applicationNo}, /api/v1/application/{applicationNo}/submissions, /api/v1/application/{applicationNo}/submission/{submissionId}/data, and /api/v1/evaluation/{aquaApplicationNo}; those templated paths are skipped. The adapter copies the printed untemplated path joined to the printed servers[0].url. GET uses the printed path with no invented query filters."
+  },
+  "discarded": [
+    {
+      "candidate": "Fiskeridirektoratet Akvakulturforskning",
+      "url": "PR 90 --source research, now on main",
+      "why": "Already on main as --source research. Do not re-add. This branch starts from origin/main only."
+    },
+    {
+      "candidate": "Fiskeridirektoratet Offentlig Akvakulturregister",
+      "url": "https://api.fiskeridir.no/pub-aqua/api/api-docs",
+      "why": "Already on main as --source aqua. Do not re-add."
+    },
+    {
+      "candidate": "Fiskeridirektoratet NYTEK",
+      "url": "https://api.fiskeridir.no/nytek-public/v3/api-docs",
+      "why": "Already ingested on main as --source nytek. Do not re-add."
+    },
+    {
+      "candidate": "Fiskeridirektoratet Kjøperregisteret / Fartøyregisteret",
+      "url": "https://api.fiskeridir.no/buyer-api/openapi",
+      "why": "Already ingested on main as --source buyer and --source fiskeridir. Different registers."
+    },
+    {
+      "candidate": "Fiskeridirektoratet miljøundersøkelser",
+      "url": "https://api.fiskeridir.no/envreportreg-public/v3/api-docs",
+      "why": "Already discarded on main: untemplated paths are /api/v2/report/search and /api/v1/report/search. Search API, not a collection catalog. Do not invent report ids."
+    },
+    {
+      "candidate": "Fiskeridirektoratet omregningsfaktor havressurs",
+      "url": "https://api.fiskeridir.no/conversion-factor-api/swagger/api",
+      "why": "Already discarded on main: the only printed path is /api/v1/conversionfactors/search. Search API, not a collection catalog. Do not invent factor ids."
+    },
+    {
+      "candidate": "NVDB Les V3 OpenAPI",
+      "url": "https://nvdbapiles-v3.atlas.vegvesen.no/dokumentasjon/openapi.json",
+      "why": "Known skip: HTTP 400 User-Agent. Do not retry."
+    },
+    {
+      "candidate": "Vegvesen Trafikkdata swagger / trafikkdata-api",
+      "url": "https://trafikkdata.atlas.vegvesen.no/",
+      "why": "Known skip: swagger HTML-only; trafikkdata-api 410. Do not retry."
+    },
+    {
+      "candidate": "Kartverket Eiendom /geokoding",
+      "url": "https://api.kartverket.no/eiendom/v1/geokoding",
+      "why": "Known skip: HTTP 400 without matrikkel params. Search API, not a collection catalog. Do not retry."
+    },
+    {
+      "candidate": "Udir Statistikkbanken /data",
+      "url": "Udir Statistikkbanken /Eksport/{id}/data",
+      "why": "Known skip: requires invented filters. Do not retry."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source portal --db /tmp/pda-portal-proof/registry.sqlite --limit 10",
+    "listed": 1,
+    "inserted": 1,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "portal:applications",
+        "access_path": "https://api.fiskeridir.no/aqua-portal-api-public/api/v1/applications"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search akvakultursøknader --db /tmp/pda-portal-proof/registry.sqlite --limit 5",
+    "query": "akvakultursøknader",
+    "returned": 1,
+    "hit_id": "portal:applications",
+    "title": "Søk etter akvakultursøknader",
+    "source_id": "portal"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset portal:applications --db /tmp/pda-portal-proof/registry.sqlite",
+    "dataset": "portal:applications",
+    "table_id": "applications",
+    "access_path": "https://api.fiskeridir.no/aqua-portal-api-public/api/v1/applications",
+    "request_url": "https://api.fiskeridir.no/aqua-portal-api-public/api/v1/applications",
+    "http_status": 200,
+    "listed": 10,
+    "inserted": 10,
+    "license": "https://www.fiskeridir.no/Tall-og-analyse/Lisens-for-bruk-av-Fiskeridirektoratets-data",
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "title",
+        "value": "HUNDBERGAN"
+      },
+      {
+        "measure": "title",
+        "value": "Segløygrunna"
+      },
+      {
+        "measure": "title",
+        "value": "SØRVÆRET"
+      },
+      {
+        "measure": "title",
+        "value": "VARHOLMEN"
+      },
+      {
+        "measure": "title",
+        "value": "JAMNUNGEN"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset portal:applications --table applications --entity \"\" --measure \"\" --db /tmp/pda-portal-proof/registry.sqlite --out /tmp/pda-portal-proof/methods",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "Akvakultursøknader /api/v1/applications prints application titles. That is not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed OpenAPI path last segments. access_path is https://api.fiskeridir.no/aqua-portal-api-public/api/v1/applications, joined from printed servers[0].url and the printed untemplated GET path. No portal id was written onto a fiskeridir, buyer, nytek, aqua, research, or datanorge row.",
+    "License is the printed OpenAPI info.license.url. Publisher is null. The spec does not print a publisher name.",
+    "Original harvested OpenAPI metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "Akvakulturforskning stays --source research. Fartøyregisteret, Kjøperregisteret, NYTEK, and Akvakulturregister were not re-added. This source does not re-implement any of them.",
+    "python3 -m pytest 391 passed, 1 skipped, 1 deselected."
+  ]
+}

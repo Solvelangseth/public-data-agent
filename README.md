@@ -1663,6 +1663,15 @@ from printed `title` when it is a non-empty string, otherwise
 `info.license.url` when present. Publisher stays null: the spec does not
 print a publisher name.
 
+Live ingest 2026-08-27: 1 printed collection GET path. Live search
+`akvakultursøknader` returns `portal:applications`. Live fetch GETs
+`https://api.fiskeridir.no/aqua-portal-api-public/api/v1/applications`
+HTTP 200, 10 søknad-title rows. Sample printed values: HUNDBERGAN,
+Segløygrunna, SØRVÆRET, VARHOLMEN, JAMNUNGEN.
+`pda methods` is not applicable: application titles, not a numeric time
+series (`no observations matched entity/measure; available=[]`).
+Proof is `data/portal_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
