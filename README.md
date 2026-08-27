@@ -12,7 +12,7 @@ system finds the right data for you.
 
 ## Current status
 
-Milestone 1 through 10 are in this repo: a local SQLite dataset registry, ingest from
+Milestone 1 through 11 are in this repo: a local SQLite dataset registry, ingest from
 Data.norge / Felles datakatalog, token-overlap search over that file, deterministic
 enrichment in a separate `enrichments` table, a sourced search benchmark,
 AND-decomposition of multi-token queries, a coverage report after retrieval,
@@ -582,6 +582,10 @@ Empty `yoy` means the methods helper had no prior year, not a guessed zero.
 
 PR 19 is on main. The CSV writer calls `methods.emit.emit` for the companion
 charts. It does not draw its own figure. Charts land in `data/ask_export_charts/`.
+
+Live run 2026-08-27: both years HTTP 200, 15 CSV rows from 36 joined cells.
+First row is Grünerløkka 67039. Nordre Aker yoy is 0.0184. Proof is
+`data/ask_export.csv` and `data/ask_export_proof.json`.
 
 This milestone does not add a UI or MCP.
 

@@ -1,0 +1,117 @@
+{
+  "derived_columns": [
+    {
+      "name": "yoy_growth",
+      "formula": "(v_t - v_{t-1}) / v_{t-1}",
+      "input_columns": [
+        "value"
+      ],
+      "units": "ratio",
+      "rows": [
+        {
+          "value": null,
+          "lineage": {
+            "name": "yoy_growth",
+            "formula": "(v_t - v_{t-1}) / v_{t-1}",
+            "input_columns": [
+              "value"
+            ],
+            "units": "ratio",
+            "source_observation_ids": [
+              "030108:2024"
+            ],
+            "source_periods": [
+              "2024"
+            ],
+            "note": "undefined: no prior period"
+          },
+          "entity": "030108",
+          "period": "2024",
+          "measure": "Personer (antall)",
+          "observation_id": "030108:2024"
+        },
+        {
+          "value": 0.01839712790469216,
+          "lineage": {
+            "name": "yoy_growth",
+            "formula": "(v_t - v_{t-1}) / v_{t-1}",
+            "input_columns": [
+              "value"
+            ],
+            "units": "ratio",
+            "source_observation_ids": [
+              "030108:2024",
+              "030108:2025"
+            ],
+            "source_periods": [
+              "2024",
+              "2025"
+            ]
+          },
+          "entity": "030108",
+          "period": "2025",
+          "measure": "Personer (antall)",
+          "observation_id": "030108:2025"
+        }
+      ]
+    },
+    {
+      "name": "index",
+      "formula": "100 * v_t / v_base",
+      "input_columns": [
+        "value"
+      ],
+      "units": "index (base = 100)",
+      "rows": [
+        {
+          "value": 100.0,
+          "lineage": {
+            "name": "index",
+            "formula": "100 * v_t / v_base",
+            "input_columns": [
+              "value"
+            ],
+            "units": "index (base = 100)",
+            "source_observation_ids": [
+              "030108:2024"
+            ],
+            "source_periods": [
+              "2024"
+            ],
+            "base_period": "2024",
+            "base_observation_id": "030108:2024"
+          },
+          "entity": "030108",
+          "period": "2024",
+          "measure": "Personer (antall)",
+          "observation_id": "030108:2024"
+        },
+        {
+          "value": 101.83971279046922,
+          "lineage": {
+            "name": "index",
+            "formula": "100 * v_t / v_base",
+            "input_columns": [
+              "value"
+            ],
+            "units": "index (base = 100)",
+            "source_observation_ids": [
+              "030108:2024",
+              "030108:2025"
+            ],
+            "source_periods": [
+              "2024",
+              "2025"
+            ],
+            "base_period": "2024",
+            "base_observation_id": "030108:2024"
+          },
+          "entity": "030108",
+          "period": "2025",
+          "measure": "Personer (antall)",
+          "observation_id": "030108:2025"
+        }
+      ]
+    }
+  ]
+}

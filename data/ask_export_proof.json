@@ -1,0 +1,45 @@
+{
+  "command": "pda ask \"Hvilke Oslo-bydeler er størst og hvilke vokser mest?\" --year 2025 --prior-year 2024 --db data/registry.sqlite --out data/ask_export.csv",
+  "question": "Hvilke Oslo-bydeler er størst og hvilke vokser mest?",
+  "csv": "data/ask_export.csv",
+  "csv_columns": [
+    "bydel_code",
+    "name",
+    "year",
+    "personer",
+    "yoy",
+    "klass_publisher",
+    "klass_license",
+    "ssb_publisher",
+    "ssb_license",
+    "join_key",
+    "lineage"
+  ],
+  "csv_rows": 15,
+  "joined_rows": 36,
+  "chart_helper": "methods.emit.emit",
+  "charts": {
+    "csv": "data/ask_export_charts/table.csv",
+    "markdown": "data/ask_export_charts/table.md",
+    "lineage": "data/ask_export_charts/lineage.json",
+    "chart": "data/ask_export_charts/chart.png",
+    "yoy_bar": "data/ask_export_charts/yoy_bar.png"
+  },
+  "joins": [
+    {
+      "year": "2024",
+      "left_http_status": 200,
+      "right_http_status": 200,
+      "left_request_url": "https://data.ssb.no/api/klass/v1/versions/1168.json",
+      "right_request_url": "https://data.ssb.no/api/v0/no/table/11763"
+    },
+    {
+      "year": "2025",
+      "left_http_status": 200,
+      "right_http_status": 200,
+      "left_request_url": "https://data.ssb.no/api/klass/v1/versions/1168.json",
+      "right_request_url": "https://data.ssb.no/api/v0/no/table/11763"
+    }
+  ],
+  "db": "data/registry.sqlite"
+}
