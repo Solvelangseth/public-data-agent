@@ -822,7 +822,14 @@ from printed `navn`. License is copied from the printed OpenAPI
 `info.license.url` when present. Publisher is `Mattilsynet` only when that
 token is printed in `info.description`.
 
-Live proof will follow.
+Live ingest 2026-08-27: 10 printed collection GET paths. Live search
+`hobbybruk` returns `mattilsynet:hobby_preparater`. Live fetch GETs
+`https://api.plantevernmidler.mattilsynet.io/hobby_preparater` HTTP 200,
+54 product rows. Sample printed names: ANDERcontrol, Beloukha Garden,
+Beloukha Garden RTU, Biltema Ugressdreper, Doff Snegler Stop.
+`pda methods` is not applicable: product names, not a numeric time series
+(`no observations matched entity/measure; available=[]`).
+Proof is `data/mattilsynet_source_proof.json`.
 
 ## Architecture (long term)
 

@@ -1,0 +1,178 @@
+{
+  "produced_at": "2026-08-27T11:18:34Z",
+  "bound": {
+    "list_api": "https://api.plantevernmidler.mattilsynet.io/json",
+    "walk": "copy collection GET paths printed in OpenAPI paths; skip templated {id} paths",
+    "cap": 10,
+    "how": "pda ingest --source mattilsynet --limit 10. The adapter stops after 10 printed collection GET paths."
+  },
+  "discarded": [
+    {
+      "candidate": "UDI statistikk",
+      "url": "https://www.udi.no/statistikk-og-analyse",
+      "why": "HTML pages only. No official list API."
+    },
+    {
+      "candidate": "Politiet",
+      "url": "https://api.politiet.no",
+      "why": "TLS failed. District geometry already lives on Geonorge."
+    },
+    {
+      "candidate": "Domstolene",
+      "url": "https://www.domstol.no/api",
+      "why": "No official bulk list API."
+    },
+    {
+      "candidate": "Kartverket transformasjon",
+      "url": "https://ws.geonorge.no/transformasjon/v1",
+      "why": "HTTP 403. Adresser and stedsnavn already sit on Geonorge."
+    },
+    {
+      "candidate": "NVE avalanche swagger",
+      "url": "https://api01.nve.no/hydrology/forecast/avalanche/v6.3.2/api/swagger.json",
+      "why": "HTTP 404. Magasinstatistikk is already on main."
+    },
+    {
+      "candidate": "Mattilsynet Kjøttkontroll kodeverk",
+      "url": "https://kodeverk.kjottkontroll.mattilsynet.io/v1/kodeverk",
+      "why": "HAL list printed 24 hrefs. Detail GET returned 406 unless Accept is application/hal+json. No license URI printed. Plantevernmidler OpenAPI already listed collection GET paths and printed NLOD 2.0."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source mattilsynet --db /tmp/pda-mattilsynet-proof/registry.sqlite --limit 10",
+    "listed": 10,
+    "inserted": 10,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "mattilsynet:hobby_preparater",
+        "access_path": "https://api.plantevernmidler.mattilsynet.io/hobby_preparater"
+      },
+      {
+        "id": "mattilsynet:godkjente_kjemiske_mikrobiologiske_preparater",
+        "access_path": "https://api.plantevernmidler.mattilsynet.io/godkjente_kjemiske_mikrobiologiske_preparater"
+      },
+      {
+        "id": "mattilsynet:midlertidige_tillatelser",
+        "access_path": "https://api.plantevernmidler.mattilsynet.io/midlertidige_tillatelser"
+      },
+      {
+        "id": "mattilsynet:minor_use_utvidelser",
+        "access_path": "https://api.plantevernmidler.mattilsynet.io/minor_use_utvidelser"
+      },
+      {
+        "id": "mattilsynet:off_label_preparater",
+        "access_path": "https://api.plantevernmidler.mattilsynet.io/off_label_preparater"
+      },
+      {
+        "id": "mattilsynet:preparater_avviklingsperiode",
+        "access_path": "https://api.plantevernmidler.mattilsynet.io/preparater_avviklingsperiode"
+      },
+      {
+        "id": "mattilsynet:preparater_til_okologisk_landbruk",
+        "access_path": "https://api.plantevernmidler.mattilsynet.io/preparater_til_okologisk_landbruk"
+      },
+      {
+        "id": "mattilsynet:utgaatte_midlertidige_tillatelser",
+        "access_path": "https://api.plantevernmidler.mattilsynet.io/utgaatte_midlertidige_tillatelser"
+      },
+      {
+        "id": "mattilsynet:utgaatte_preparater",
+        "access_path": "https://api.plantevernmidler.mattilsynet.io/utgaatte_preparater"
+      },
+      {
+        "id": "mattilsynet:godkjente_nytteorganismer",
+        "access_path": "https://api.plantevernmidler.mattilsynet.io/godkjente_nytteorganismer"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search hobbybruk --db /tmp/pda-mattilsynet-proof/registry.sqlite --limit 5",
+    "query": "hobbybruk",
+    "returned": 1,
+    "hit_id": "mattilsynet:hobby_preparater",
+    "title": "Alle godkjente preparater for hobbybruk.",
+    "source_id": "mattilsynet"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset mattilsynet:hobby_preparater --db /tmp/pda-mattilsynet-proof/registry.sqlite",
+    "dataset": "mattilsynet:hobby_preparater",
+    "table_id": "hobby_preparater",
+    "access_path": "https://api.plantevernmidler.mattilsynet.io/hobby_preparater",
+    "request_url": "https://api.plantevernmidler.mattilsynet.io/hobby_preparater",
+    "http_status": 200,
+    "listed": 54,
+    "inserted": 54,
+    "license": "https://data.norge.no/nlod/no/2.0",
+    "publisher": "Mattilsynet",
+    "sample": [
+      {
+        "measure": "navn",
+        "value": "ANDERcontrol",
+        "dimensions": {
+          "id": "4572",
+          "form": "Rovmidd",
+          "status": "Godkjent",
+          "hobbyPreparat": "True"
+        }
+      },
+      {
+        "measure": "navn",
+        "value": "Beloukha Garden",
+        "dimensions": {
+          "id": "4282",
+          "form": "Emulsjonskonsentrat",
+          "status": "Godkjent",
+          "hobbyPreparat": "True"
+        }
+      },
+      {
+        "measure": "navn",
+        "value": "Beloukha Garden RTU",
+        "dimensions": {
+          "id": "4280",
+          "form": "Andre væsker til ufortynnet bruk",
+          "status": "Godkjent",
+          "hobbyPreparat": "True"
+        }
+      },
+      {
+        "measure": "navn",
+        "value": "Biltema Ugressdreper",
+        "dimensions": {
+          "id": "3109",
+          "form": "Oppløsning",
+          "status": "Godkjent",
+          "hobbyPreparat": "True"
+        }
+      },
+      {
+        "measure": "navn",
+        "value": "Doff Snegler Stop",
+        "dimensions": {
+          "id": "4456",
+          "form": "Klart-til-bruk agn (granulat)",
+          "status": "Godkjent",
+          "hobbyPreparat": "True"
+        }
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset mattilsynet:hobby_preparater --table hobby_preparater --entity \"\" --measure \"\" --db /tmp/pda-mattilsynet-proof/registry.sqlite --out /tmp/pda-mattilsynet-proof/methods",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "hobby_preparater prints product names, not a numeric time series. methods.clean has no period to derive YoY from. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed OpenAPI path segments. access_path is the joined collection URL on api.plantevernmidler.mattilsynet.io. No Mattilsynet id was written onto a datanorge row.",
+    "License is the printed OpenAPI info.license.url NLOD 2.0 URI. Publisher is copied because info.description prints Mattilsynet.",
+    "Templated OpenAPI paths such as /preparat/{id} were skipped so no id was invented.",
+    "FHI Statistikk stayed on main (PR 54). This source does not re-implement it."
+  ]
+}
