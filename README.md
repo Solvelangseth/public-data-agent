@@ -2519,7 +2519,8 @@ pda fetch --dataset transformering:projeksjoner --db data/registry.sqlite
 from printed `name`. License and publisher stay null.
 
 This source is Kartverket Transformering (`ws.geonorge.no/transformering`),
-not Høydedata, Kommuneinfo, Stedsnavn, or Geonorge Kartkatalog.
+not Høydedata, Kommuneinfo, Stedsnavn, Geonorge Kartkatalog, or
+Polarsatellite.
 
 Live ingest 2026-08-27: 1 printed untemplated collection GET path
 (catalog prints 2 paths; `/transformer` required-parameter GET skipped).
