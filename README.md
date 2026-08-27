@@ -1787,6 +1787,16 @@ pda fetch --dataset nin:v3.0/typer/allekoder --db data/registry.sqlite
 from printed type `navn` when it is a non-empty string. Publisher and
 license stay null: the OpenAPI document does not print those fields.
 
+Live ingest 2026-08-27: 6 printed collection GET paths (catalog prints 16
+GET paths, 6 untemplated, cap 10). Live search `allekoder` returns
+`nin:v3.0/typer/allekoder`. Live fetch GETs
+`https://nin-kode-api.artsdatabanken.no/v3.0/typer/allekoder`
+HTTP 200, 10 type-name rows. Sample printed values: Bremassiv, Elveløp,
+Landformer i fast fjell og løsmasser, Innsjøbasseng, Torvmarksmassiv.
+`pda methods` is not applicable: type names, not a numeric time series
+(`no observations matched entity/measure; available=[]`).
+Proof is `data/nin_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists

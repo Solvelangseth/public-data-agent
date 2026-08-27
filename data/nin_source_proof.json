@@ -1,0 +1,153 @@
+{
+  "produced_at": "2026-08-27T20:46:36Z",
+  "bound": {
+    "list_api": "https://nin-kode-api.artsdatabanken.no/swagger/v3.0/swagger.json",
+    "walk": "copy printed untemplated collection GET paths from the official Artsdatabanken NiN Kode API OpenAPI paths object; native ids are those printed paths without a leading slash; access_path is the printed path joined to the OpenAPI origin; skip templated {kortkode} paths; do not invent endpoint ids",
+    "cap": 10,
+    "how": "pda ingest --source nin --limit 10. The official Artsdatabanken NiN Kode API OpenAPI prints 16 GET paths, of which 6 are untemplated collection paths. The adapter copies those 6 printed paths and joins each to the OpenAPI origin. GET uses the printed path with no invented query filters."
+  },
+  "discarded": [
+    {
+      "candidate": "Kartverket Kommuneinfo",
+      "url": "PR 94 --source kommuneinfo",
+      "why": "Lane B must not pick Kommuneinfo. Already an open next-source PR."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Forbidden by the standing order. Do not pick."
+    },
+    {
+      "candidate": "Fiskeridirektoratet aqua-* APIs",
+      "url": "vessel/buyer/nytek/aqua/research/portal already on main",
+      "why": "Lane B must not pick a Fiskeridir aqua-* API. Already on main."
+    },
+    {
+      "candidate": "Artsdatabanken /api/Resource",
+      "url": "https://artsdatabanken.no/api/Resource",
+      "why": "HTTP 200 JSON list of printed resource ids. Left unused because the NiN Kode API OpenAPI already prints a collection catalog of endpoints, matching the existing OpenAPI adapter shape."
+    },
+    {
+      "candidate": "Cristin API v2 root",
+      "url": "https://api.cristin.no/v2/",
+      "why": "HTTP 200 HTML docs only. /v2/institutions is a resource dump, not a printed collection catalog of endpoints. Already logged on main as HTML docs only."
+    },
+    {
+      "candidate": "Digdir Hotell",
+      "url": "https://hotell.difi.no/api/json",
+      "why": "DNS NXDOMAIN. Not a live list API."
+    },
+    {
+      "candidate": "NVDB Les V3 OpenAPI",
+      "url": "https://nvdbapiles-v3.atlas.vegvesen.no/dokumentasjon/openapi.json",
+      "why": "Known skip: HTTP 400 User-Agent. Do not retry."
+    },
+    {
+      "candidate": "Vegvesen Trafikkdata swagger / trafikkdata-api",
+      "url": "https://trafikkdata.atlas.vegvesen.no/",
+      "why": "Known skip: swagger HTML-only; trafikkdata-api 410. Do not retry."
+    },
+    {
+      "candidate": "Kartverket Eiendom /geokoding",
+      "url": "https://api.kartverket.no/eiendom/v1/geokoding",
+      "why": "Known skip: HTTP 400 without matrikkel params. Search API, not a collection catalog. Do not retry."
+    },
+    {
+      "candidate": "Udir Statistikkbanken /data",
+      "url": "Udir Statistikkbanken /Eksport/{id}/data",
+      "why": "Known skip: requires invented filters. Do not retry."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source nin --db /tmp/pda-nin-proof/registry.sqlite --limit 10",
+    "listed": 6,
+    "inserted": 6,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "nin:v3.0/soek/enkeltSoek",
+        "access_path": "https://nin-kode-api.artsdatabanken.no/v3.0/soek/enkeltSoek"
+      },
+      {
+        "id": "nin:v3.0/rapporter/kodeoversikt",
+        "access_path": "https://nin-kode-api.artsdatabanken.no/v3.0/rapporter/kodeoversikt"
+      },
+      {
+        "id": "nin:v3.0/rapporter/exceldata",
+        "access_path": "https://nin-kode-api.artsdatabanken.no/v3.0/rapporter/exceldata"
+      },
+      {
+        "id": "nin:v3.0/rapporter/dataDateTime",
+        "access_path": "https://nin-kode-api.artsdatabanken.no/v3.0/rapporter/dataDateTime"
+      },
+      {
+        "id": "nin:v3.0/typer/allekoder",
+        "access_path": "https://nin-kode-api.artsdatabanken.no/v3.0/typer/allekoder"
+      },
+      {
+        "id": "nin:v3.0/variabler/allekoder",
+        "access_path": "https://nin-kode-api.artsdatabanken.no/v3.0/variabler/allekoder"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search allekoder --db /tmp/pda-nin-proof/registry.sqlite --limit 5",
+    "query": "allekoder",
+    "returned": 2,
+    "hit_id": "nin:v3.0/typer/allekoder",
+    "title": "v3.0/typer/allekoder",
+    "source_id": "nin"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset nin:v3.0/typer/allekoder --db /tmp/pda-nin-proof/registry.sqlite",
+    "dataset": "nin:v3.0/typer/allekoder",
+    "table_id": "allekoder",
+    "access_path": "https://nin-kode-api.artsdatabanken.no/v3.0/typer/allekoder",
+    "request_url": "https://nin-kode-api.artsdatabanken.no/v3.0/typer/allekoder",
+    "http_status": 200,
+    "listed": 10,
+    "inserted": 10,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "navn",
+        "value": "Bremassiv"
+      },
+      {
+        "measure": "navn",
+        "value": "Elveløp"
+      },
+      {
+        "measure": "navn",
+        "value": "Landformer i fast fjell og løsmasser"
+      },
+      {
+        "measure": "navn",
+        "value": "Innsjøbasseng"
+      },
+      {
+        "measure": "navn",
+        "value": "Torvmarksmassiv"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset nin:v3.0/typer/allekoder --table allekoder --entity \"\" --measure \"\" --db /tmp/pda-nin-proof/registry.sqlite --out /tmp/pda-nin-proof/methods",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "NiN typer/allekoder prints type names. That is not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed OpenAPI paths. access_path is https://nin-kode-api.artsdatabanken.no/v3.0/typer/allekoder, joined from the printed list origin and printed path /v3.0/typer/allekoder. No nin id was written onto a geonorge, sodir, opencom, or datanorge row.",
+    "Publisher and license are null. The OpenAPI document does not print those fields.",
+    "Original harvested OpenAPI metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "Kartverket Kommuneinfo stays on PR 94. This source does not re-implement it.",
+    "python3 -m pytest 417 passed, 1 skipped, 1 deselected."
+  ]
+}
