@@ -6,7 +6,7 @@ No email, call, or outbound post from this file. Contacts are only what the org 
 Product sold: registry of Norwegian public datasets (Data.norge first ingest, sources replaceable), natural-language search, first fetch of actual rows. Later analysis. LLM for intent and explanation. Deterministic retrieval. Provenance (source, publisher, license, access path) on every hit.
 Repo: https://github.com/Solvelangseth/public-data-agent
 
-Status 27 Aug 2026, 14:10 Europe/Oslo: 63 sourced leads. Mix: 20 municipalities, 17 energy, 15 health, 3 consultancies, 2 media, 2 property/infra, 2 research, 2 NGOs. Wave-2 (13): FHI, Helsedirektoratet, Helse Sør-Øst RHF, Statnett, Eviny, Hafslund, Tensio, Lnett, Fredrikstad, Sandnes, Bodø, Kristiansand, Lillestrøm. Wave-3 (11): Helse Vest RHF, Helse Midt-Norge RHF, Helse Nord RHF, Elvia, Glitre Nett, Linea, Tønsberg, Larvik, Porsgrunn, Sarpsborg, Skien. Wave-4 (8): Oslo universitetssykehus HF, Helse Bergen HF, Universitetssykehuset Nord-Norge HF, Arva, Lede, Fagne, Moss, Haugesund. Wave-5 (8): Akershus universitetssykehus HF, Vestre Viken HF, Sykehuset Østfold HF, Vissi, Elinett, Linja, Molde, Gjøvik. Wave-6 (8): Sykehuset Innlandet HF, Sykehuset Telemark HF, Sykehuset i Vestfold HF, Jæren Everk, Midtnett, S-Nett, Karmøy, Kongsberg. Contacts only as listed. No invented emails. No outreach.
+Status 27 Aug 2026, 11:48 Europe/Oslo: 71 sourced leads. PR 38 merged. Wave 7 in the living file: health (Førde, Sunnaas, Diakonhjemmet), energy (Barents Nett, Noranett, Enida), mid-size (Hamar, Askøy). Arendal held. Horten/Rana were forslag-only this pass. No invented emails. No outreach.
 
 How to read a lead: why they would pay is tied to a named programme, not "they use data." Service shape is always search → fetch → later analysis. If a field says none published, do not invent one.
 
@@ -1025,6 +1025,73 @@ Sources below were opened 2026-08-27 from official pages and the named press/pro
 
 ---
 
+### Helse Førde HF
+
+- **Why they would pay.** Helseatlas (seksjon for forsking og innovasjon; landing 24.08.2026) consumes specialist-helseteneste activity they do not host (NPR / KPR). HOD-oppdraget is shared with SKDE — SKDE is already a taken seat; Førde is the Helse Vest shop. Strategi 2025–2028 for Sogn og Fjordane helsefellesskap names styringsdata and framskrivingsverktøy. Not a Data.norge publisher (0 hits).
+- **Concrete use case.** Helseatlasteamet finds and first-fetches official NPR and KPR catalogue rows before the next atlas or helsefellesskap styringsnotat, with provenance on every hit.
+- **How the service should look.**
+  - Search: data.norge first (NPR, KPR, Helsedataservice). Førde is the consumer.
+  - Fetch: first official metadata/distribution row. NPR/KPR are NON_PUBLIC — landing helsedata.no.
+  - Later analysis: geografisk variasjon / framskriving. Helsedata søknad stays theirs.
+- **Public contact.**
+  - Role / unit: Helseatlas / seksjon for forsking og innovasjon (Jagrati Jani-Bølstad, Oddne Skrede named).
+  - Email: `jagrati.jani-bolstad@helse-forde.no`; `oddne.skrede@helse-forde.no`; `samhandling@helse-forde.no`
+  - Phone: 57 83 90 00
+  - Form/URL: https://www.helse-forde.no/helseatlas
+- **Key facts.** Org.nr 983 974 732. Postboks 1000, 6807 Førde.
+- **Sources** (opened 2026-08-27).
+  - https://www.helse-forde.no/helseatlas
+  - https://www.helse-forde.no/om-oss/kontaktinformasjon/
+  - https://www.helse-forde.no/samhandling/
+  - https://data.norge.no/nb/datasets/e842f90c-0555-3f56-8b66-540a9d9d911d/norsk-pasientregister
+  - https://virksomhet.brreg.no/nb/oppslag/enheter/983974732
+  - https://data.brreg.no/enhetsregisteret/api/enheter/983974732
+
+### Sunnaas sykehus HF
+
+- **Why they would pay.** NorREHAB (landing 02.06.2026; Hdir nasjonal status juni 2026) names NPR as an external data source. Parallel: Afasi og registerdata samarbeider with FHI and Helsedirektoratet. Own kvalitetsregister is in-house capture, not the buy reason. Not a Data.norge publisher (0 hits).
+- **Concrete use case.** NorREHAB finds and first-fetches the official NPR catalogue row before dekningsgrad / automatisk datafangst against own rehabilitering counts.
+- **How the service should look.**
+  - Search: data.norge first (NPR, Helsedataservice). NorREHAB is not harvested yet.
+  - Fetch: first official NPR row. Helsedata søknad stays theirs.
+  - Later analysis: oppstart-dekningsgrad vs NPR.
+- **Public contact.**
+  - Role / unit: NorREHAB (Frank Becker named; no personal inbox).
+  - Email: `norskrehabregister@sunnaas.no`; `firmapost@sunnaas.no`
+  - Phone: 66 96 90 00
+  - Form/URL: https://www.sunnaas.no/om-oss/mer-om-oss/kvalitet-og-pasientsikkerhet/norsk-rehabiliteringsregister/
+- **Key facts.** Org.nr 883 971 752. Bjørnemyrveien 11, 1453 Bjørnemyr.
+- **Sources** (opened 2026-08-27).
+  - https://www.sunnaas.no/om-oss/mer-om-oss/kvalitet-og-pasientsikkerhet/norsk-rehabiliteringsregister/
+  - https://www.sunnaas.no/om-oss/kontakt-oss
+  - https://www.sunnaas.no/fag-og-forskning/forskning/forskningsgrupper/Afasi-og-registerdata/
+  - https://data.norge.no/nb/datasets/e842f90c-0555-3f56-8b66-540a9d9d911d/norsk-pasientregister
+  - https://virksomhet.brreg.no/nb/oppslag/enheter/883971752
+  - https://data.brreg.no/enhetsregisteret/api/enheter/883971752
+
+### Diakonhjemmet sykehus AS
+
+- **Why they would pay.** REMEDY WP6: «kobling til nasjonale registre.» NOR-ECON already links NOR-DMARD to DÅR, Kreftregisteret, NPR, Leddproteser, SYSVAK, FD-trygd, A-ordningen and extracts from NPR + SSB. Hosting NOR-DMARD is publisher-side; those catalogues are the consume. Not a Data.norge publisher (0 hits).
+- **Concrete use case.** REMEDY WP6 / NOR-ECON finds and first-fetches official NPR, DÅR and Kreftregisteret rows before a helseøkonomi / arbeidsdeltagelse kobling.
+- **How the service should look.**
+  - Search: data.norge first (NPR, DÅR, Kreftregisteret, Helsedataservice).
+  - Fetch: first official row/landing. Helsedata / SSB søknad stays theirs.
+  - Later analysis: langtids-sikkerhet / arbeidsdeltagelse after kobling.
+- **Public contact.**
+  - Role / unit: REMEDY / Avdeling for forskning og innovasjon (Provan, Uhlig, Hagen named; no personal inboxes).
+  - Email: `postmottak@diakonsyk.no`; `personvern@diakonsyk.no`
+  - Phone: 22 45 15 00
+  - Form/URL: https://www.diakonhjemmetsykehus.no/om-diakonhjemmet-sykehus/kontakt-oss
+- **Key facts.** Org.nr 982 791 952. Postboks 23 Vinderen, 0319 Oslo.
+- **Sources** (opened 2026-08-27).
+  - https://www.diakonhjemmetsykehus.no/om-diakonhjemmet-sykehus/kontakt-oss
+  - https://www.diakonhjemmetsykehus.no/fag-forskning-og-innovasjon
+  - https://data.norge.no/nb/datasets/e842f90c-0555-3f56-8b66-540a9d9d911d/norsk-pasientregister
+  - https://virksomhet.brreg.no/nb/oppslag/enheter/982791952
+  - https://data.brreg.no/enhetsregisteret/api/enheter/982791952
+
+---
+
 ## 31. Statnett SF — SUP 2025 + 10 områdeplaner + Omstillingsplan 2026
 
 **Why they would pay.** Systemutviklingsplan 2025 (published 3 Nov 2025) is Statnett's overordnet plan for transmisjonsnett, markedsløsninger and systemdrift (150–200 mrd kroner over the next ten years in nett and digitalisering). Ten geografiske områdeplaner, updated in dialog with regionale nettselskap, are a printed building block of SUP. Omstillingsplan 2026 (published February 2026) is the sustainability plan toward 2050 (klima, natur, mennesker, styring). Those programmes need forbruksprognoser, industri, produksjon, fornyelse and nature/climate layers that do *not* all live on statnett.no: NVE, SSB, municipalities, Miljødirektoratet. They would pay to search and fetch those rows with provenance, then later analyse against SUP / områdeplan assumptions — not another Statnett portal.
@@ -1570,6 +1637,91 @@ Sources below were opened 2026-08-27 from official pages and the named press/pro
 
 ---
 
+### Barents Nett AS
+
+- **Why they would pay.** NVE NUK for Finnmark (minus Vissi’s slivers in Kautokeino / Loppa; plus Alut’s sliver in Kvænangen). Named programme: Tilko for ≥1 MW + Fornybar Norge modenhetsmatrise — «Alle søknader på 1 MW eller mer og modenhetsvurderinger går gjennom Tilko.» Køordning: umodne projects block modnere ones; every uttak >5 MW or 20 GWh/year must be approved by Barents Nett and Statnett; forespurt lokasjon «skal være regulert for formålet». WattApp is the printed kapasitetskart (NVE § 15). DF-vurdering from 1 Jan 2026. Dialogmøte Kirkenes 16 Jan 2025 on Områdeplan Nord. ~17 500 nettkunder; ~70 ansatte; HQ Vadsø; ~550 km regionalnett + ~2750 km fordelingsnett; Plan/prosjekt avdeling. 100 % Varanger Kraft AS. Those NUK / Tilko / DF files pull Statnett Områdeplan Nord, NVE PlanNett / Atlas, municipal arealplan, FeFo / Sametinget and SSB that WattApp does not host.
+- **Concrete use case.** Plan/prosjekt first-fetches Statnett Områdeplan Nord / KVU, NVE PlanNett / Atlas, kommuneplan/regulering, Seeiendom / Geonorge, FeFo / Sametinget / Statsforvalter and SSB for a named Finnmark NUK områdestudie or Tilko ≥1 MW sak (Skaidi–Varangerbotn 420 kV interface, Kirkenes / Sør-Varanger industri, or Vadsø–Båtsfjord regionalnett) so the modenhetsmatrise and PlanNett drop cite official rows.
+- **How the service should look.**
+  - Search: data.norge first, then PlanNett, Statnett, Geonorge / municipal plan, SSB. Queries such as «NVE PlanNett områdestudie Finnmark / Vadsø / Sør-Varanger», «Statnett Områdeplan Nord / KVU Skaidi–Varangerbotn».
+  - Fetch: first official rows / GeoJSON / PDF. Not a replacement for Tilko, WattApp, Elsmart or own NIS.
+  - Later analysis: corridor overlay of plan + hazard + SSB against WattApp and the ≥1 MW kø. Out of first-fetch scope.
+- **Public contact.**
+  - Role / unit: kundeservice. No named-person emails printed (Jens Betsi quote only). Leftover `firmapost@varanger-kraft.no` unused.
+  - Email: `kundeservice@barents-nett.no`
+  - Phone: 78 96 26 10
+  - Form/URL: https://www.barents-nett.no/kontakt/
+- **Key facts.** Org.nr 971 058 854. Nyborgveien 70, 9800 Vadsø. Kommune 5607. Historisk navn VARANGER KRAFTNETT AS (to 28.01.2022). NUK Finnmark.
+- **Sources** (opened 2026-08-27).
+  - https://www.barents-nett.no/
+  - https://www.barents-nett.no/om-barents-nett/
+  - https://www.barents-nett.no/kontakt/
+  - https://www.barents-nett.no/aktuelt/barents-nett-tar-i-bruk-tilko-ny-nasjonal-losning-for-nettilknytning
+  - https://www.barents-nett.no/kundeservice/bygge-grave-rive/tilknytning-til-nett-storre-anlegg/modenhetsvurderinger/
+  - https://www.barents-nett.no/kundeservice/bygge-grave-rive/koordning-for-storre-tilknytninger-til-stromnettet/
+  - https://www.barents-nett.no/kundeservice/bygge-grave-rive/tilknytning-til-nett-storre-anlegg/kapasitetskart/
+  - https://www.barents-nett.no/kundeservice/bygge-grave-rive/tilknytning-til-nett-storre-anlegg/driftsmessig-forsvarlig-vurdering-df-vurdering/
+  - https://veiledere.nve.no/forskrift-om-energiutredninger/roller/nettutviklingskoordinator/
+  - https://veiledere.nve.no/forskrift-om-energiutredninger/ledig-kapasitet/
+  - https://plannett.nve.no/
+  - https://virksomhet.brreg.no/nb/oppslag/enheter/971058854
+  - https://data.brreg.no/enhetsregisteret/api/enheter/971058854
+
+### Noranett AS
+
+- **Why they would pay.** NVE NUK for Nordre-Nordland og Sør-Troms. Named programme: Tilko for ≥1 MW — «Noranett bruker Tilko – bransjens felles portal for større tilknytninger.» DF-vurdering + utredningsavtale; normalt forbruk under 1 MW; vestsnittet already at a 1 MW Statnett floor. Joint Vestall / Elmea press: innmeldt fremtidig effektbehov «om lag 1300 MW»; first byggetrinn 420 kV Kvandal–Kilbotn. Lødingen trafo + 16 km for Torghatten Nord’s 9,2 MW elferge. After Nordkraft / Trollfjord / Andøy Energi fusion the three grids stay separate legal persons; NUK seat is Noranett AS (Hålogaland) — Hadsel / Andøy are sister DSOs, not this seat. Combined brand «om lag 52 000» kunder; Noranett AS ca. 42 000 / 4 200 km / 1 147 GWh. Those NUK / Tilko / DF / KVU files pull Statnett Områdeplan Nord / Kvandal–Kilbotn, NVE PlanNett / Atlas, municipal arealplan and SSB that Serviceportal / Tilko do not host.
+- **Concrete use case.** Nettplan / NUK first-fetches NVE PlanNett, Statnett Områdeplan Nord / KVU Kvandal–Kilbotn, municipal arealplan/regulering and SSB for a named NUK områdestudie or DF / Tilko ≥1 MW sak (Lødingen trafo + 9,2 MW elferge, Harstad / vestsnittet, or the 420 kV first byggetrinn) so the DF note and the NUK annual meeting cite official rows.
+- **How the service should look.**
+  - Search: data.norge first, then PlanNett, Statnett, Geonorge / municipal plan, SSB. Queries such as «NVE PlanNett områdestudie Nordre-Nordland / Sør-Troms / Harstad / Narvik», «Statnett KVU Kvandal Kilbotn / Områdeplan Nord».
+  - Fetch: first official PDF / GeoJSON / table. Not a replacement for Tilko, Serviceportal, Elsmart, Elwin or own NIS.
+  - Later analysis: overlay municipal + NVE + Statnett layers on the vestsnittet 1 MW kø and the Lødingen / Kvandal–Kilbotn files. Out of first-fetch scope.
+- **Public contact.**
+  - Role / unit: Hålogaland / Noranett AS. Hadsel and Andøy stay on their own printed addresses and are not this seat. No mailbox for Molund or Brendvik.
+  - Email: `haalogaland@noranett.no`
+  - Phone: 77 04 26 26
+  - Form/URL: https://www.noranett.no/kontakt-oss/
+- **Key facts.** Org.nr 985 411 131. Rødbergveien 14, 9408 Harstad. Kommune 5503. Historisk navn HÅLOGALAND KRAFT NETT AS (to 06.03.2023). NUK Nordre-Nordland og Sør-Troms. Sister DSOs Noranett Hadsel AS and Noranett Andøy AS are not this seat.
+- **Sources** (opened 2026-08-27).
+  - https://www.noranett.no/
+  - https://www.noranett.no/om-noranett/
+  - https://www.noranett.no/kontakt-oss/
+  - https://www.noranett.no/media/artikler/noranett-tar-i-bruk-tilko-for-storre-tilknytninger
+  - https://www.noranett.no/nettjenester/bygge-nytt-rive-grave-endre/driftsmessig-forsvarlig-vurderinger/
+  - https://www.noranett.no/media/pressemeldinger/uenighet-om-veien-videre-for-stromnettet-i-nord
+  - https://www.noranett.no/media/pressemeldinger/felles-pressemelding-fra-noranett-vestall-og-elmea
+  - https://www.noranett.no/media/pressemeldinger/betydelig-mer-nettkapasitet-i-lodingen
+  - https://veiledere.nve.no/forskrift-om-energiutredninger/roller/nettutviklingskoordinator/
+  - https://plannett.nve.no/
+  - https://virksomhet.brreg.no/nb/oppslag/enheter/985411131
+  - https://data.brreg.no/enhetsregisteret/api/enheter/985411131
+
+### Enida AS
+
+- **Why they would pay.** PlanNett actor (ENIDA AS 918312730 on the public aktørliste — anleggskonsesjon over 46 kV). Not the NUK; sits inside Lnett’s NUK Sør-Rogaland (Eigersund, Bjerkreim, Lund, Sokndal). Named programme: Tilko for ≥1 MW — «sømløs koordinering mellom Statnett og andre nettselskaper»; «bedre datagrunnlag for nettplanlegging og kapasitetsvurderinger»; støtte for myndighetspålagte modenhetsvurderinger. Avdelingsleder Plan og Prosjekt Karl-Einar Svendsen (`kes@enida.no`). Second programme: 132 kV Kjelland–Kaupanes (Eigerøy) + Kaupanes TS konsesjon; NVE, Eigersund kommune and Statsforvalteren i Rogaland have already moved the trasé (fuglefredningsområde at Fotlandsvatnet). Those KU / Tilko / PlanNett files pull Statnett områdeplan Sør-Rogaland, Lnett NUK layers, NVE PlanNett / Atlas, municipal arealplan and SSB that Tilko does not host.
+- **Concrete use case.** Plan og Prosjekt first-fetches Statnett områdeplan Sør-Rogaland, NVE PlanNett / Atlas, Eigersund kommuneplan/regulering, Statsforvalter / fuglefredning and Seeiendom for the Kjelland–Kaupanes 132 kV / Kaupanes TS file (or the next ≥1 MW Tilko sak on Eigerøy industri) so the revised konsesjonssøknad and the PlanNett tiltak cite official rows.
+- **How the service should look.**
+  - Search: data.norge first, then PlanNett, Statnett Sør-Rogaland, Geonorge / Eigersund plan, SSB. Queries such as «NVE PlanNett tiltak Dalane / Eigerøy / Eigersund», «Statnett områdeplan Sør-Rogaland», «kommuneplan Kaupanes / Eigerøy industri».
+  - Fetch: first official PDF / GeoJSON / table. Not a replacement for Tilko, Elsmart or Enida’s kundeportal.
+  - Later analysis: overlay municipal + NVE + Statnett layers on the two Eigerøy traséalternativer and the ≥1 MW kø. Out of first-fetch scope.
+- **Public contact.**
+  - Role / unit: firmapost / Plan og Prosjekt. Do not invent a mailbox for Hjørungnes.
+  - Email: `firmapost@enida.no`; `kes@enida.no` (Karl-Einar Svendsen, avdelingsleder Plan og Prosjekt)
+  - Phone: sentralbord 51 46 25 01; Svendsen 476 29 881
+  - Form/URL: https://enida.no/kontaktinfo
+- **Key facts.** Org.nr 918 312 730. Elganeveien 1, 4373 Egersund. Kommune 1101. Historisk navn DALANE NETT AS (to 19.08.2020). 39 ansatte. PlanNett aktør. Sits in Lnett NUK Sør-Rogaland. Not the NUK.
+- **Sources** (opened 2026-08-27).
+  - https://enida.no/
+  - https://enida.no/str%C3%B8mtilknytning-st%C3%B8rre-eller-lik-1-megawatt
+  - https://enida.no/t-dag-i-enida
+  - https://enida.no/ny-hoyspentledning-til-eigeroy
+  - https://enida.no/kontaktinfo
+  - https://plannett.nve.no/
+  - https://plannett.nve.no/aktoerliste
+  - https://veiledere.nve.no/forskrift-om-energiutredninger/roller/nettutviklingskoordinator/
+  - https://virksomhet.brreg.no/nb/oppslag/enheter/918312730
+  - https://data.brreg.no/enhetsregisteret/api/enheter/918312730
+
+---
+
 ## 48. Fredrikstad kommune — Åpne data Hub + kart@
 
 **Why they would pay.** Fredrikstad runs an ArcGIS Hub for åpne data (API download/connect). The Hub front page says the datasets there are the municipality's own, and that *other* datasets are available via data.norge.no or Geonorge.no. The kartdata page says Fredrikstad is in Norge Digitalt, that most digital kartdata are on Geonorge, and that the Hub/API is the path for users without Geonorge access (NLOD; Euref89 UTM 32N / NN2000). They already publish. They would pay to search and fetch the *other* publishers' layers named on their own Hub — Kartverket, NVE, SSB, neighbouring municipalities — with provenance, then later join to Hub layers.
@@ -2063,6 +2215,54 @@ Sources below were opened 2026-08-27 from official pages and the named press/pro
 
 ---
 
+### Hamar kommune
+
+- **Why they would pay.** Handlings- og økonomiplan 2026–2029 Framsikt title is **Kommunestyrets vedtak**. Named **Klimabudsjett** chapter: 55 % vs 2015 (141 kt → 77,5 kt cut); 2023 still 115 kt / −19,7 % («reduksjonen går for sakte»). The chapter already names two Miljødirektoratet ledgers (geografiske direkteutslipp by sector, and skog/arealbruk). Yearly job is to re-pull kommune 3403 into the 2015 / 2023 / 2030 rows, not another Framsikt rebuild.
+- **Concrete use case.** Klima owners first-fetch Miljødirektoratet kommune 3403 sector series and overlay the chapter’s 2015 / 2023 / 2030 rows, then Mdir skog/arealbruk plus SSB KOSTRA 09574 for the −30 % / 2016 bygg-energi line.
+- **How the service should look.**
+  - Search: data.norge first, then Mdir kommuneregnskap, SSB 09574.
+  - Fetch: first official Excel/PxWeb rows. Their Framsikt chapter stays theirs.
+  - Later analysis: 2023→2024/2025 refresh on the 77 500 t / 2030 gap; keep Trehørningen and arealbruk hogst as residuals.
+- **Public contact.**
+  - Role / unit: klima- og miljø-satsingsområde (Lise Urset, Karoline Finstad Vold named).
+  - Email: `postmottak@hamar.kommune.no`; `Lise.Wenche.Dufseth.Urset@hamar.kommune.no`; `karoline.finstad.vold@hamar.kommune.no`
+  - Phone: 62 56 30 00; Vold 962 27 215
+  - Form/URL: https://www.hamar.kommune.no/klima/klima-og-miljo-som-satsingsomrade/
+- **Key facts.** Org.nr 970 540 008. Kommunenr. 3403. Postboks 4063, 2306 Hamar.
+- **Sources** (opened 2026-08-27).
+  - https://www.hamar.kommune.no/politikk-og-administrasjon/planer-i-en-kommune/temabaserte-planer/handlings-og-okonomiplan-2026-2029-1/
+  - https://pub.framsikt.net/2026/hamar/bm-2026-hop26-29
+  - https://pub.framsikt.net/2026/hamar/bm-2026-hop26-29/#/generic/summary/climatesummary
+  - https://www.hamar.kommune.no/klima/klima-og-miljo-som-satsingsomrade/
+  - https://data.brreg.no/enhetsregisteret/api/enheter/970540008
+  - https://www.miljodirektoratet.no/tjenester/klimagassutslipp-kommuner/
+
+---
+
+### Askøy kommune
+
+- **Why they would pay.** Handlingsprogram 2026 / økonomiplan 2026–2029 Framsikt title is **Kommunestyrets vedtak 16.12.2025 sak 134/25** (`bm-2026-vedtatt_budsjett`). Named **Klimabudsjett** chapter (tidlig-generasjon; KS method). Miljødirektoratet «publiserer årlig kommunefordelt statistikk over klimagassutslipp med utgangspunkt i kommunen som geografisk enhet» — the source of record. Old KDP target 1 t CO2 per innbygger in 2020 was missed; now ca. 1,65 t (2023). Sjøfart + veitrafikk are the largest lines. The forslag slug `bm-2026-ohp_2026_2029_askoy` is not this document.
+- **Concrete use case.** Klima owners first-fetch Miljødirektoratet kommune 4627 sector series and overlay the chapter’s 2020-mål / 2023 / 1,65 t rows, then SSB KOSTRA 09574 for formålsbygg energy.
+- **How the service should look.**
+  - Search: data.norge first, then Mdir kommuneregnskap, SSB 09574.
+  - Fetch: first official Excel/PxWeb rows. Their Framsikt chapter stays theirs.
+  - Later analysis: 2023→2024/2025 refresh; keep sjøfart as residual.
+- **Public contact.**
+  - Role / unit: postmottak / Kundetorget. Plan, oppmåling, miljø og landbruk phone only (no unit inbox).
+  - Email: `postmottak@askoy.kommune.no`
+  - Phone: 56 15 80 00
+  - Form/URL: https://www.askoy.kommune.no/kontakt-oss
+- **Key facts.** Org.nr 964 338 442. Kommunenr. 4627. Postboks 33, 5321 Kleppestø.
+- **Sources** (opened 2026-08-27).
+  - https://askoy.kommune.no/politikk-og-innsyn/politikk/budsjett-regnskap-og-arsmeldinger/budsjett-og-okonomiplaner/budsjett-2026-og-okonomiplan-2026-2029
+  - https://pub.framsikt.net/2026/askøy/bm-2026-vedtatt_budsjett
+  - https://pub.framsikt.net/2026/askøy/bm-2026-vedtatt_budsjett/#/generic/summary/climatesummary
+  - https://www.askoy.kommune.no/kontakt-oss
+  - https://data.brreg.no/enhetsregisteret/api/enheter/964338442
+  - https://www.miljodirektoratet.no/tjenester/klimagassutslipp-kommuner/
+
+---
+
 ## Skipped, with reasons
 
 Keep these notes in the living book. They are not leads.
@@ -2094,6 +2294,10 @@ Keep these notes in the living book. They are not leads.
 - **27 Aug 2026, 13:10 Europe/Oslo.** Wave-5: 8 sourced entries (Akershus universitetssykehus HF, Vestre Viken HF, Sykehuset Østfold HF, Vissi, Elinett, Linja, Molde, Gjøvik). Contacts only as listed. No invented emails (no firmapost@morenett.no; no named-person emails for Elinett). 2026 klimabudsjett cells not opened for Molde or Gjøvik — not invented. TROLL/NOR-ITP noted as own registers, not the buy. Linja is not Linea. No outreach. No competitor section.
 - **27 Aug 2026, 13:25 Europe/Oslo.** Arendal kommune pulled / skipped: 2026 klimabudsjett is only in kommunedirektørens forslag; vedtatt HØP (bystyret 11.12.2025) has no Klimabudsjett chapter. Same skip as an un-vedtatt skisse. Not a lead. Wave-5 stays the eight. No outreach. No competitor section.
 - **27 Aug 2026, 14:10 Europe/Oslo.** Wave-6: 8 sourced entries (Sykehuset Innlandet HF, Sykehuset Telemark HF, Sykehuset i Vestfold HF, Jæren Everk, Midtnett, S-Nett, Karmøy, Kongsberg). Contacts only as listed. No invented emails (no nett@svorka.no). Arendal held (klimabudsjett only in kommunedirektørens forslag; vedtatt HØP 11.12.2025 has no Klimabudsjett chapter). Asker / Bærum / Ålesund / Tromsø / Drammen stay skipped. No outreach. No competitor section.
+- 2026-08-27: Added Barents Nett, Noranett and Enida.
+- 2026-08-27: Added Helse Førde, Sunnaas and Diakonhjemmet.
+- 2026-08-27: Added Hamar kommune (vedtatt HØP klimabudsjett). Wave 7 mid-size closed. Still no outreach.
+- 2026-08-27: Added Askøy kommune (vedtatt slug bm-2026-vedtatt_budsjett; earlier skip was the forslag slug).
 
 ---
 
