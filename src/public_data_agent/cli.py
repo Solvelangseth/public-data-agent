@@ -20,7 +20,7 @@ from public_data_agent.ssb_pxweb import DEFAULT_SSB_TABLE
 from public_data_agent.harvest import harvest, stderr_progress
 from public_data_agent.registry import Registry
 from public_data_agent.scan_table_urls import scan_printed_table_urls, scan_proof_payload
-from public_data_agent.search import search_report
+from public_data_agent.search import load_prompt_pack, run_search_pack, search_report
 from public_data_agent.sources import SOURCE_IDS, build_source
 
 DEFAULT_DB = Path("data/registry.sqlite")
@@ -56,9 +56,25 @@ def main(argv: list[str] | None = None) -> int:
     stats.add_argument("--out", type=Path, default=None)
 
     search_cmd = sub.add_parser("search", help="Rank datasets in the local registry")
-    search_cmd.add_argument("query", help="Natural-language query, matched as tokens")
+    search_cmd.add_argument(
+        "query",
+        nargs="?",
+        help="Natural-language query, matched as tokens",
+    )
     search_cmd.add_argument("--db", type=Path, default=DEFAULT_DB)
     search_cmd.add_argument("--limit", type=int, default=10)
+    search_cmd.add_argument(
+        "--questions",
+        type=Path,
+        default=None,
+        help="Ungolded question list. Emits a compact search_report per query.",
+    )
+    search_cmd.add_argument(
+        "--out",
+        type=Path,
+        default=None,
+        help="Write JSON for --questions. Printed either way.",
+    )
     search_cmd.add_argument(
         "--decompose",
         action=argparse.BooleanOptionalAction,
@@ -567,8 +583,17 @@ def _mcp(args: argparse.Namespace) -> int:
 
 
 def _search(args: argparse.Namespace) -> int:
+    if args.questions and args.query:
+        print("search --questions does not take a query argument", file=sys.stderr)
+        return 1
+    if not args.questions and not args.query:
+        print("search needs a query or --questions", file=sys.stderr)
+        return 1
     if not Path(args.db).exists() and str(args.db) != ":memory:":
         print(f"no registry at {args.db}", file=sys.stderr)
+        return 1
+    if args.questions and not Path(args.questions).exists():
+        print(f"no questions at {args.questions}", file=sys.stderr)
         return 1
     registry = Registry(args.db)
     try:
@@ -577,6 +602,30 @@ def _search(args: argparse.Namespace) -> int:
             ensure_user_hits,
             ingest_user_file,
         )
+
+        if args.questions:
+            pack = load_prompt_pack(args.questions)
+            payload = run_search_pack(
+                registry,
+                pack,
+                limit=args.limit,
+                decompose_query=args.decompose,
+            )
+            payload["db"] = str(args.db)
+            payload["questions_path"] = str(args.questions)
+            payload["registry_rows"] = registry.dataset_count()
+            payload["limit"] = args.limit
+            payload["decompose"] = args.decompose
+            payload["command"] = (
+                f"pda search --questions {args.questions} --out {args.out or '-'} "
+                f"--db {args.db} --limit {args.limit}"
+            )
+            text = json.dumps(payload, ensure_ascii=False, indent=2)
+            if args.out:
+                args.out.parent.mkdir(parents=True, exist_ok=True)
+                args.out.write_text(text + "\n", encoding="utf-8")
+            print(text)
+            return 0
 
         user_path = args.user_file or args.user_db
         if user_path is not None:

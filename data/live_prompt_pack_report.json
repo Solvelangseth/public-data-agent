@@ -1,0 +1,5290 @@
+{
+  "kind": "live_prompt_pack_report",
+  "question_count": 24,
+  "questions": [
+    {
+      "id": "lp01",
+      "query": "folketall i oslo",
+      "tokens": [
+        "folketall",
+        "oslo"
+      ],
+      "returned": 10,
+      "coverage": {
+        "requirements": [
+          "folketall",
+          "oslo"
+        ],
+        "covered": [
+          "oslo"
+        ],
+        "missing": [
+          "folketall"
+        ],
+        "requirement_coverage": 0.5
+      },
+      "follow_up": {
+        "ran": true,
+        "reason": "requirement coverage below 1.0 on stored fields of the first-pass hits",
+        "queries": [
+          "folketall",
+          "oslo"
+        ],
+        "added": [
+          {
+            "id": "datanorge:911ea3f5-30cb-3e37-87be-dfdc3a21b797",
+            "title": "Ortofoto Oslo - Bekkelaget 1977"
+          },
+          {
+            "id": "datanorge:3f85f3c0-de60-38ae-b031-b057d89bcde2",
+            "title": "Ortofoto Oslo - Follo - Romerike SV 1956"
+          },
+          {
+            "id": "datanorge:49362745-703f-3d56-af0b-e11135e43897",
+            "title": "Ortofoto Oslo - Furuset 1977"
+          },
+          {
+            "id": "datanorge:582df164-d621-31f1-9ac5-7fa778f4867e",
+            "title": "Ortofoto Oslo - Holmlia 1989"
+          },
+          {
+            "id": "datanorge:d7c92bb7-28c2-3e8d-9027-8e0444fcff29",
+            "title": "Ortofoto Oslo - Ullevål 1977"
+          },
+          {
+            "id": "datanorge:25dba859-5618-3203-9ad4-61f0f76cb07f",
+            "title": "Ortofoto Oslo - indre øyer 1960"
+          },
+          {
+            "id": "datanorge:81059b49-2365-309e-8658-3b41e4783cdd",
+            "title": "Ortofoto Oslo 1937"
+          },
+          {
+            "id": "datanorge:963a0060-f861-36ee-9838-35dec4e79b01",
+            "title": "Ortofoto Oslo 1947"
+          },
+          {
+            "id": "datanorge:b6c09abf-06c6-3d07-ab89-1b43e5ab67ed",
+            "title": "Ortofoto Oslo 1971"
+          },
+          {
+            "id": "datanorge:3ea0ecb9-3359-3cb9-ac81-efc47fa2b27b",
+            "title": "Ortofoto Oslo 1974"
+          }
+        ],
+        "skipped_same_query": [],
+        "requirement_coverage_before": 0.0,
+        "requirement_coverage_after": 0.5
+      },
+      "hits": [
+        {
+          "id": "datanorge:911ea3f5-30cb-3e37-87be-dfdc3a21b797",
+          "title": "Ortofoto Oslo - Bekkelaget 1977",
+          "why": "title matched oslo; keyword matched oslo",
+          "matches": [
+            {
+              "field": "title",
+              "token": "oslo",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "oslo",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:3f85f3c0-de60-38ae-b031-b057d89bcde2",
+          "title": "Ortofoto Oslo - Follo - Romerike SV 1956",
+          "why": "title matched oslo; keyword matched oslo",
+          "matches": [
+            {
+              "field": "title",
+              "token": "oslo",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "oslo",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:49362745-703f-3d56-af0b-e11135e43897",
+          "title": "Ortofoto Oslo - Furuset 1977",
+          "why": "title matched oslo; keyword matched oslo",
+          "matches": [
+            {
+              "field": "title",
+              "token": "oslo",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "oslo",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:582df164-d621-31f1-9ac5-7fa778f4867e",
+          "title": "Ortofoto Oslo - Holmlia 1989",
+          "why": "title matched oslo; keyword matched oslo",
+          "matches": [
+            {
+              "field": "title",
+              "token": "oslo",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "oslo",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:d7c92bb7-28c2-3e8d-9027-8e0444fcff29",
+          "title": "Ortofoto Oslo - Ullevål 1977",
+          "why": "title matched oslo; keyword matched oslo",
+          "matches": [
+            {
+              "field": "title",
+              "token": "oslo",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "oslo",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:25dba859-5618-3203-9ad4-61f0f76cb07f",
+          "title": "Ortofoto Oslo - indre øyer 1960",
+          "why": "title matched oslo; keyword matched oslo",
+          "matches": [
+            {
+              "field": "title",
+              "token": "oslo",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "oslo",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:81059b49-2365-309e-8658-3b41e4783cdd",
+          "title": "Ortofoto Oslo 1937",
+          "why": "title matched oslo; keyword matched oslo",
+          "matches": [
+            {
+              "field": "title",
+              "token": "oslo",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "oslo",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:963a0060-f861-36ee-9838-35dec4e79b01",
+          "title": "Ortofoto Oslo 1947",
+          "why": "title matched oslo; keyword matched oslo",
+          "matches": [
+            {
+              "field": "title",
+              "token": "oslo",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "oslo",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:b6c09abf-06c6-3d07-ab89-1b43e5ab67ed",
+          "title": "Ortofoto Oslo 1971",
+          "why": "title matched oslo; keyword matched oslo",
+          "matches": [
+            {
+              "field": "title",
+              "token": "oslo",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "oslo",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:3ea0ecb9-3359-3cb9-ac81-efc47fa2b27b",
+          "title": "Ortofoto Oslo 1974",
+          "why": "title matched oslo; keyword matched oslo",
+          "matches": [
+            {
+              "field": "title",
+              "token": "oslo",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "oslo",
+              "weight": 5
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "lp02",
+      "query": "befolkning på tromsø",
+      "tokens": [
+        "befolkning",
+        "tromsø"
+      ],
+      "returned": 10,
+      "coverage": {
+        "requirements": [
+          "befolkning",
+          "tromsø"
+        ],
+        "covered": [
+          "befolkning"
+        ],
+        "missing": [
+          "tromsø"
+        ],
+        "requirement_coverage": 0.5
+      },
+      "follow_up": {
+        "ran": true,
+        "reason": "requirement coverage below 1.0 on stored fields of the first-pass hits",
+        "queries": [
+          "befolkning",
+          "tromsø"
+        ],
+        "added": [
+          {
+            "id": "datanorge:dcd21089-ea29-3cab-b16f-b01bbcd9b790",
+            "title": "Befolkning på grunnkretsnivå"
+          },
+          {
+            "id": "datanorge:a090226c-c574-337d-bf1d-7955e398487a",
+            "title": "Befolkning på grunnkretsnivå - historiske versjoner"
+          },
+          {
+            "id": "datanorge:4520ea60-819a-3592-b4eb-59a5eba27a95",
+            "title": "Befolkning på grunnkretsnivå 2016"
+          },
+          {
+            "id": "datanorge:5c665db8-6e4d-3f14-a92a-9fb692c8c10f",
+            "title": "Befolkning på grunnkretsnivå 2017"
+          },
+          {
+            "id": "datanorge:668c2ceb-b7dc-37e4-9c53-1883e1986770",
+            "title": "Befolkning på grunnkretsnivå 2018"
+          },
+          {
+            "id": "datanorge:51122783-642d-3054-adfd-1d42c82148c9",
+            "title": "Befolkning på grunnkretsnivå 2019"
+          },
+          {
+            "id": "datanorge:e5230b68-bbc8-3b2f-9b7c-48aee6a1d7af",
+            "title": "Befolkning på grunnkretsnivå 2020"
+          },
+          {
+            "id": "datanorge:1084664a-12f8-3434-bfd8-97bbbc5db3aa",
+            "title": "Befolkning på grunnkretsnivå 2021"
+          },
+          {
+            "id": "datanorge:1ccc9ebf-4a99-3db6-8a01-31a4c0d2f46f",
+            "title": "Befolkning på grunnkretsnivå 2022"
+          },
+          {
+            "id": "datanorge:0cdfa8e5-ed7a-31b4-b63e-dd8cfddfba61",
+            "title": "Befolkning på grunnkretsnivå 2023"
+          }
+        ],
+        "skipped_same_query": [],
+        "requirement_coverage_before": 0.0,
+        "requirement_coverage_after": 0.5
+      },
+      "hits": [
+        {
+          "id": "datanorge:dcd21089-ea29-3cab-b16f-b01bbcd9b790",
+          "title": "Befolkning på grunnkretsnivå",
+          "why": "title matched befolkning; keyword matched befolkning; theme matched befolkning; description matched befolkning",
+          "matches": [
+            {
+              "field": "title",
+              "token": "befolkning",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "befolkning",
+              "weight": 5
+            },
+            {
+              "field": "theme",
+              "token": "befolkning",
+              "weight": 5
+            },
+            {
+              "field": "description",
+              "token": "befolkning",
+              "weight": 2
+            }
+          ]
+        },
+        {
+          "id": "datanorge:a090226c-c574-337d-bf1d-7955e398487a",
+          "title": "Befolkning på grunnkretsnivå - historiske versjoner",
+          "why": "title matched befolkning; keyword matched befolkning; theme matched befolkning; description matched befolkning",
+          "matches": [
+            {
+              "field": "title",
+              "token": "befolkning",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "befolkning",
+              "weight": 5
+            },
+            {
+              "field": "theme",
+              "token": "befolkning",
+              "weight": 5
+            },
+            {
+              "field": "description",
+              "token": "befolkning",
+              "weight": 2
+            }
+          ]
+        },
+        {
+          "id": "datanorge:4520ea60-819a-3592-b4eb-59a5eba27a95",
+          "title": "Befolkning på grunnkretsnivå 2016",
+          "why": "title matched befolkning; keyword matched befolkning; theme matched befolkning; description matched befolkning",
+          "matches": [
+            {
+              "field": "title",
+              "token": "befolkning",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "befolkning",
+              "weight": 5
+            },
+            {
+              "field": "theme",
+              "token": "befolkning",
+              "weight": 5
+            },
+            {
+              "field": "description",
+              "token": "befolkning",
+              "weight": 2
+            }
+          ]
+        },
+        {
+          "id": "datanorge:5c665db8-6e4d-3f14-a92a-9fb692c8c10f",
+          "title": "Befolkning på grunnkretsnivå 2017",
+          "why": "title matched befolkning; keyword matched befolkning; theme matched befolkning; description matched befolkning",
+          "matches": [
+            {
+              "field": "title",
+              "token": "befolkning",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "befolkning",
+              "weight": 5
+            },
+            {
+              "field": "theme",
+              "token": "befolkning",
+              "weight": 5
+            },
+            {
+              "field": "description",
+              "token": "befolkning",
+              "weight": 2
+            }
+          ]
+        },
+        {
+          "id": "datanorge:668c2ceb-b7dc-37e4-9c53-1883e1986770",
+          "title": "Befolkning på grunnkretsnivå 2018",
+          "why": "title matched befolkning; keyword matched befolkning; theme matched befolkning; description matched befolkning",
+          "matches": [
+            {
+              "field": "title",
+              "token": "befolkning",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "befolkning",
+              "weight": 5
+            },
+            {
+              "field": "theme",
+              "token": "befolkning",
+              "weight": 5
+            },
+            {
+              "field": "description",
+              "token": "befolkning",
+              "weight": 2
+            }
+          ]
+        },
+        {
+          "id": "datanorge:51122783-642d-3054-adfd-1d42c82148c9",
+          "title": "Befolkning på grunnkretsnivå 2019",
+          "why": "title matched befolkning; keyword matched befolkning; theme matched befolkning; description matched befolkning",
+          "matches": [
+            {
+              "field": "title",
+              "token": "befolkning",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "befolkning",
+              "weight": 5
+            },
+            {
+              "field": "theme",
+              "token": "befolkning",
+              "weight": 5
+            },
+            {
+              "field": "description",
+              "token": "befolkning",
+              "weight": 2
+            }
+          ]
+        },
+        {
+          "id": "datanorge:e5230b68-bbc8-3b2f-9b7c-48aee6a1d7af",
+          "title": "Befolkning på grunnkretsnivå 2020",
+          "why": "title matched befolkning; keyword matched befolkning; theme matched befolkning; description matched befolkning",
+          "matches": [
+            {
+              "field": "title",
+              "token": "befolkning",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "befolkning",
+              "weight": 5
+            },
+            {
+              "field": "theme",
+              "token": "befolkning",
+              "weight": 5
+            },
+            {
+              "field": "description",
+              "token": "befolkning",
+              "weight": 2
+            }
+          ]
+        },
+        {
+          "id": "datanorge:1084664a-12f8-3434-bfd8-97bbbc5db3aa",
+          "title": "Befolkning på grunnkretsnivå 2021",
+          "why": "title matched befolkning; keyword matched befolkning; theme matched befolkning; description matched befolkning",
+          "matches": [
+            {
+              "field": "title",
+              "token": "befolkning",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "befolkning",
+              "weight": 5
+            },
+            {
+              "field": "theme",
+              "token": "befolkning",
+              "weight": 5
+            },
+            {
+              "field": "description",
+              "token": "befolkning",
+              "weight": 2
+            }
+          ]
+        },
+        {
+          "id": "datanorge:1ccc9ebf-4a99-3db6-8a01-31a4c0d2f46f",
+          "title": "Befolkning på grunnkretsnivå 2022",
+          "why": "title matched befolkning; keyword matched befolkning; theme matched befolkning; description matched befolkning",
+          "matches": [
+            {
+              "field": "title",
+              "token": "befolkning",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "befolkning",
+              "weight": 5
+            },
+            {
+              "field": "theme",
+              "token": "befolkning",
+              "weight": 5
+            },
+            {
+              "field": "description",
+              "token": "befolkning",
+              "weight": 2
+            }
+          ]
+        },
+        {
+          "id": "datanorge:0cdfa8e5-ed7a-31b4-b63e-dd8cfddfba61",
+          "title": "Befolkning på grunnkretsnivå 2023",
+          "why": "title matched befolkning; keyword matched befolkning; theme matched befolkning; description matched befolkning",
+          "matches": [
+            {
+              "field": "title",
+              "token": "befolkning",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "befolkning",
+              "weight": 5
+            },
+            {
+              "field": "theme",
+              "token": "befolkning",
+              "weight": 5
+            },
+            {
+              "field": "description",
+              "token": "befolkning",
+              "weight": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "lp03",
+      "query": "innbyggere i bergen",
+      "tokens": [
+        "innbyggere",
+        "bergen"
+      ],
+      "returned": 8,
+      "coverage": {
+        "requirements": [
+          "innbyggere",
+          "bergen"
+        ],
+        "covered": [
+          "innbyggere",
+          "bergen"
+        ],
+        "missing": [],
+        "requirement_coverage": 1.0
+      },
+      "follow_up": null,
+      "hits": [
+        {
+          "id": "datanorge:29b0454e-9d27-3be9-b754-7e493100b6b7",
+          "title": "Forslag budsjett og økonomiplan 2012-2015 for Bergen kommune",
+          "why": "requirements innbyggere AND bergen; description matched innbyggere, bergen; title matched bergen",
+          "matches": [
+            {
+              "field": "description",
+              "token": "innbyggere",
+              "weight": 2
+            },
+            {
+              "field": "title",
+              "token": "bergen",
+              "weight": 10
+            },
+            {
+              "field": "description",
+              "token": "bergen",
+              "weight": 2
+            }
+          ]
+        },
+        {
+          "id": "datanorge:13e83601-8ec7-3e02-bdc9-dd740030a4c8",
+          "title": "Forslag budsjett og økonomiplan 2013-2016 for Bergen kommune",
+          "why": "requirements innbyggere AND bergen; description matched innbyggere, bergen; title matched bergen",
+          "matches": [
+            {
+              "field": "description",
+              "token": "innbyggere",
+              "weight": 2
+            },
+            {
+              "field": "title",
+              "token": "bergen",
+              "weight": 10
+            },
+            {
+              "field": "description",
+              "token": "bergen",
+              "weight": 2
+            }
+          ]
+        },
+        {
+          "id": "datanorge:b8a69ff8-2e3c-3caa-b53a-5e91610c3ed0",
+          "title": "Forslag budsjett og økonomiplan 2014-2017 for Bergen kommune",
+          "why": "requirements innbyggere AND bergen; description matched innbyggere, bergen; title matched bergen",
+          "matches": [
+            {
+              "field": "description",
+              "token": "innbyggere",
+              "weight": 2
+            },
+            {
+              "field": "title",
+              "token": "bergen",
+              "weight": 10
+            },
+            {
+              "field": "description",
+              "token": "bergen",
+              "weight": 2
+            }
+          ]
+        },
+        {
+          "id": "datanorge:2f6cf2d6-b829-31da-a141-da0415eefc22",
+          "title": "Forslag budsjett og økonomiplan 2015-2018 for Bergen kommune",
+          "why": "requirements innbyggere AND bergen; description matched innbyggere, bergen; title matched bergen",
+          "matches": [
+            {
+              "field": "description",
+              "token": "innbyggere",
+              "weight": 2
+            },
+            {
+              "field": "title",
+              "token": "bergen",
+              "weight": 10
+            },
+            {
+              "field": "description",
+              "token": "bergen",
+              "weight": 2
+            }
+          ]
+        },
+        {
+          "id": "datanorge:6ba97a82-abc4-3d94-8647-d5707066c425",
+          "title": "Forslag budsjett og økonomiplan 2016-2019 for Bergen kommune",
+          "why": "requirements innbyggere AND bergen; description matched innbyggere, bergen; title matched bergen",
+          "matches": [
+            {
+              "field": "description",
+              "token": "innbyggere",
+              "weight": 2
+            },
+            {
+              "field": "title",
+              "token": "bergen",
+              "weight": 10
+            },
+            {
+              "field": "description",
+              "token": "bergen",
+              "weight": 2
+            }
+          ]
+        },
+        {
+          "id": "datanorge:99fe07ac-0721-321a-822e-87c59545ebcc",
+          "title": "Forslag budsjett og økonomiplan 2017-2020 for Bergen kommune",
+          "why": "requirements innbyggere AND bergen; description matched innbyggere, bergen; title matched bergen",
+          "matches": [
+            {
+              "field": "description",
+              "token": "innbyggere",
+              "weight": 2
+            },
+            {
+              "field": "title",
+              "token": "bergen",
+              "weight": 10
+            },
+            {
+              "field": "description",
+              "token": "bergen",
+              "weight": 2
+            }
+          ]
+        },
+        {
+          "id": "datanorge:4a6016f8-3a64-38e6-8bdc-8a05168e0989",
+          "title": "Støykart - strategisk støykartlegging (Støydirektivet)",
+          "why": "requirements innbyggere AND bergen; description matched innbyggere, bergen",
+          "matches": [
+            {
+              "field": "description",
+              "token": "innbyggere",
+              "weight": 2
+            },
+            {
+              "field": "description",
+              "token": "bergen",
+              "weight": 2
+            }
+          ]
+        },
+        {
+          "id": "datanorge:f262f922-8db2-3049-9c33-09bce9752cde",
+          "title": "Vedtatt budsjett 2018 og handlings- og økonomiplan 2018-2021",
+          "why": "requirements innbyggere AND bergen; description matched innbyggere, bergen",
+          "matches": [
+            {
+              "field": "description",
+              "token": "innbyggere",
+              "weight": 2
+            },
+            {
+              "field": "description",
+              "token": "bergen",
+              "weight": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "lp04",
+      "query": "folketall for trondheim",
+      "tokens": [
+        "folketall",
+        "trondheim"
+      ],
+      "returned": 10,
+      "coverage": {
+        "requirements": [
+          "folketall",
+          "trondheim"
+        ],
+        "covered": [
+          "trondheim"
+        ],
+        "missing": [
+          "folketall"
+        ],
+        "requirement_coverage": 0.5
+      },
+      "follow_up": {
+        "ran": true,
+        "reason": "requirement coverage below 1.0 on stored fields of the first-pass hits",
+        "queries": [
+          "folketall",
+          "trondheim"
+        ],
+        "added": [
+          {
+            "id": "datanorge:2bcc0069-aeb4-3ddd-bbe3-675d840ce86f",
+            "title": "Ortofoto Bymarka Trondheim 1974"
+          },
+          {
+            "id": "datanorge:ca25244a-2a57-37e7-a844-f8cdb1647056",
+            "title": "Ortofoto Byneset-Trondheim-Stjørdal 1997"
+          },
+          {
+            "id": "datanorge:1922b755-9967-3912-b54b-2a776c5d8fcf",
+            "title": "Ortofoto Melhus-Trondheim 1986"
+          },
+          {
+            "id": "datanorge:746c3740-e2bd-35f6-9ca9-6e8fa554cb4d",
+            "title": "Ortofoto Trondheim 1969"
+          },
+          {
+            "id": "datanorge:308a61fc-f62b-3e0b-be77-c937ae05e768",
+            "title": "Ortofoto Trondheim 1971"
+          },
+          {
+            "id": "datanorge:82c1e2f7-96e1-3ddc-9758-9caefed33d32",
+            "title": "Ortofoto Trondheim 1976"
+          },
+          {
+            "id": "datanorge:300c0076-f43d-32b2-b520-5d32debf5037",
+            "title": "Ortofoto Trondheim 1977"
+          },
+          {
+            "id": "datanorge:8b7fe13f-56d2-3761-ae1a-0be97e653b6a",
+            "title": "Ortofoto Trondheim 1979"
+          },
+          {
+            "id": "datanorge:848af6c4-54cf-381f-9e32-7e0df92406d7",
+            "title": "Ortofoto Trondheim 1982"
+          },
+          {
+            "id": "datanorge:ee946d5b-4a77-3ecc-8cbf-de3a01f8f253",
+            "title": "Ortofoto Trondheim 1983"
+          }
+        ],
+        "skipped_same_query": [],
+        "requirement_coverage_before": 0.0,
+        "requirement_coverage_after": 0.5
+      },
+      "hits": [
+        {
+          "id": "datanorge:2bcc0069-aeb4-3ddd-bbe3-675d840ce86f",
+          "title": "Ortofoto Bymarka Trondheim 1974",
+          "why": "title matched trondheim; keyword matched trondheim",
+          "matches": [
+            {
+              "field": "title",
+              "token": "trondheim",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "trondheim",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:ca25244a-2a57-37e7-a844-f8cdb1647056",
+          "title": "Ortofoto Byneset-Trondheim-Stjørdal 1997",
+          "why": "title matched trondheim; keyword matched trondheim",
+          "matches": [
+            {
+              "field": "title",
+              "token": "trondheim",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "trondheim",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:1922b755-9967-3912-b54b-2a776c5d8fcf",
+          "title": "Ortofoto Melhus-Trondheim 1986",
+          "why": "title matched trondheim; keyword matched trondheim",
+          "matches": [
+            {
+              "field": "title",
+              "token": "trondheim",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "trondheim",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:746c3740-e2bd-35f6-9ca9-6e8fa554cb4d",
+          "title": "Ortofoto Trondheim 1969",
+          "why": "title matched trondheim; keyword matched trondheim",
+          "matches": [
+            {
+              "field": "title",
+              "token": "trondheim",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "trondheim",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:308a61fc-f62b-3e0b-be77-c937ae05e768",
+          "title": "Ortofoto Trondheim 1971",
+          "why": "title matched trondheim; keyword matched trondheim",
+          "matches": [
+            {
+              "field": "title",
+              "token": "trondheim",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "trondheim",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:82c1e2f7-96e1-3ddc-9758-9caefed33d32",
+          "title": "Ortofoto Trondheim 1976",
+          "why": "title matched trondheim; keyword matched trondheim",
+          "matches": [
+            {
+              "field": "title",
+              "token": "trondheim",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "trondheim",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:300c0076-f43d-32b2-b520-5d32debf5037",
+          "title": "Ortofoto Trondheim 1977",
+          "why": "title matched trondheim; keyword matched trondheim",
+          "matches": [
+            {
+              "field": "title",
+              "token": "trondheim",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "trondheim",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:8b7fe13f-56d2-3761-ae1a-0be97e653b6a",
+          "title": "Ortofoto Trondheim 1979",
+          "why": "title matched trondheim; keyword matched trondheim",
+          "matches": [
+            {
+              "field": "title",
+              "token": "trondheim",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "trondheim",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:848af6c4-54cf-381f-9e32-7e0df92406d7",
+          "title": "Ortofoto Trondheim 1982",
+          "why": "title matched trondheim; keyword matched trondheim",
+          "matches": [
+            {
+              "field": "title",
+              "token": "trondheim",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "trondheim",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:ee946d5b-4a77-3ecc-8cbf-de3a01f8f253",
+          "title": "Ortofoto Trondheim 1983",
+          "why": "title matched trondheim; keyword matched trondheim",
+          "matches": [
+            {
+              "field": "title",
+              "token": "trondheim",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "trondheim",
+              "weight": 5
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "lp05",
+      "query": "helse og omsorg stavanger",
+      "tokens": [
+        "helse",
+        "omsorg",
+        "stavanger"
+      ],
+      "returned": 10,
+      "coverage": {
+        "requirements": [
+          "helse",
+          "omsorg",
+          "stavanger"
+        ],
+        "covered": [
+          "helse",
+          "omsorg",
+          "stavanger"
+        ],
+        "missing": [],
+        "requirement_coverage": 1.0
+      },
+      "follow_up": null,
+      "hits": [
+        {
+          "id": "datanorge:ff0ee4d9-c584-3a5c-b752-a93c7a2f0311",
+          "title": "Levekår Stavanger: Alderstandardiserte dødsrater - Kvinner",
+          "why": "requirements helse AND omsorg AND stavanger; theme matched helse, omsorg; title matched stavanger; description matched stavanger",
+          "matches": [
+            {
+              "field": "theme",
+              "token": "helse",
+              "weight": 5
+            },
+            {
+              "field": "theme",
+              "token": "omsorg",
+              "weight": 5
+            },
+            {
+              "field": "title",
+              "token": "stavanger",
+              "weight": 10
+            },
+            {
+              "field": "description",
+              "token": "stavanger",
+              "weight": 2
+            }
+          ]
+        },
+        {
+          "id": "datanorge:5a6d1d26-f6d1-3be2-9560-97fe9582f7ab",
+          "title": "Levekår Stavanger: Alderstandardiserte dødsrater - Menn",
+          "why": "requirements helse AND omsorg AND stavanger; theme matched helse, omsorg; title matched stavanger; description matched stavanger",
+          "matches": [
+            {
+              "field": "theme",
+              "token": "helse",
+              "weight": 5
+            },
+            {
+              "field": "theme",
+              "token": "omsorg",
+              "weight": 5
+            },
+            {
+              "field": "title",
+              "token": "stavanger",
+              "weight": 10
+            },
+            {
+              "field": "description",
+              "token": "stavanger",
+              "weight": 2
+            }
+          ]
+        },
+        {
+          "id": "datanorge:3c73846f-2743-3643-91c6-5837e9999591",
+          "title": "Levekår Stavanger: Aleneboende i % av befolkningen",
+          "why": "requirements helse AND omsorg AND stavanger; theme matched helse, omsorg; title matched stavanger; description matched stavanger",
+          "matches": [
+            {
+              "field": "theme",
+              "token": "helse",
+              "weight": 5
+            },
+            {
+              "field": "theme",
+              "token": "omsorg",
+              "weight": 5
+            },
+            {
+              "field": "title",
+              "token": "stavanger",
+              "weight": 10
+            },
+            {
+              "field": "description",
+              "token": "stavanger",
+              "weight": 2
+            }
+          ]
+        },
+        {
+          "id": "datanorge:43dfeb19-c429-3b2e-8be6-65f801d64d75",
+          "title": "Levekår Stavanger: Barn i lavinntektshusholdninger EU50",
+          "why": "requirements helse AND omsorg AND stavanger; theme matched helse, omsorg; title matched stavanger; description matched stavanger",
+          "matches": [
+            {
+              "field": "theme",
+              "token": "helse",
+              "weight": 5
+            },
+            {
+              "field": "theme",
+              "token": "omsorg",
+              "weight": 5
+            },
+            {
+              "field": "title",
+              "token": "stavanger",
+              "weight": 10
+            },
+            {
+              "field": "description",
+              "token": "stavanger",
+              "weight": 2
+            }
+          ]
+        },
+        {
+          "id": "datanorge:81aab433-5cda-39fa-b763-24efb6cbd749",
+          "title": "Levekår Stavanger: Barn i lavinntektshusholdninger EU60",
+          "why": "requirements helse AND omsorg AND stavanger; theme matched helse, omsorg; title matched stavanger; description matched stavanger",
+          "matches": [
+            {
+              "field": "theme",
+              "token": "helse",
+              "weight": 5
+            },
+            {
+              "field": "theme",
+              "token": "omsorg",
+              "weight": 5
+            },
+            {
+              "field": "title",
+              "token": "stavanger",
+              "weight": 10
+            },
+            {
+              "field": "description",
+              "token": "stavanger",
+              "weight": 2
+            }
+          ]
+        },
+        {
+          "id": "datanorge:eb6e20aa-4b59-3a1a-86f5-64b51b072163",
+          "title": "Levekår Stavanger: Barn med barnevernstiltak",
+          "why": "requirements helse AND omsorg AND stavanger; theme matched helse, omsorg; title matched stavanger; description matched stavanger",
+          "matches": [
+            {
+              "field": "theme",
+              "token": "helse",
+              "weight": 5
+            },
+            {
+              "field": "theme",
+              "token": "omsorg",
+              "weight": 5
+            },
+            {
+              "field": "title",
+              "token": "stavanger",
+              "weight": 10
+            },
+            {
+              "field": "description",
+              "token": "stavanger",
+              "weight": 2
+            }
+          ]
+        },
+        {
+          "id": "datanorge:49bdc2da-7a52-3ca9-8eed-3c8173210e2a",
+          "title": "Levekår Stavanger: Barn med enslige foreldre",
+          "why": "requirements helse AND omsorg AND stavanger; theme matched helse, omsorg; title matched stavanger; description matched stavanger",
+          "matches": [
+            {
+              "field": "theme",
+              "token": "helse",
+              "weight": 5
+            },
+            {
+              "field": "theme",
+              "token": "omsorg",
+              "weight": 5
+            },
+            {
+              "field": "title",
+              "token": "stavanger",
+              "weight": 10
+            },
+            {
+              "field": "description",
+              "token": "stavanger",
+              "weight": 2
+            }
+          ]
+        },
+        {
+          "id": "datanorge:a62747f9-8136-3b27-bb38-6d553da10fe2",
+          "title": "Levekår Stavanger: Barneutflyttinger",
+          "why": "requirements helse AND omsorg AND stavanger; theme matched helse, omsorg; title matched stavanger; description matched stavanger",
+          "matches": [
+            {
+              "field": "theme",
+              "token": "helse",
+              "weight": 5
+            },
+            {
+              "field": "theme",
+              "token": "omsorg",
+              "weight": 5
+            },
+            {
+              "field": "title",
+              "token": "stavanger",
+              "weight": 10
+            },
+            {
+              "field": "description",
+              "token": "stavanger",
+              "weight": 2
+            }
+          ]
+        },
+        {
+          "id": "datanorge:85428268-5776-3c2e-adab-55e33117288b",
+          "title": "Levekår Stavanger: Gjeld over 3 ganger samlet inntekt",
+          "why": "requirements helse AND omsorg AND stavanger; theme matched helse, omsorg; title matched stavanger; description matched stavanger",
+          "matches": [
+            {
+              "field": "theme",
+              "token": "helse",
+              "weight": 5
+            },
+            {
+              "field": "theme",
+              "token": "omsorg",
+              "weight": 5
+            },
+            {
+              "field": "title",
+              "token": "stavanger",
+              "weight": 10
+            },
+            {
+              "field": "description",
+              "token": "stavanger",
+              "weight": 2
+            }
+          ]
+        },
+        {
+          "id": "datanorge:e38a2c15-f681-3202-a572-2e0d620ace4a",
+          "title": "Levekår Stavanger: Høy utdanning",
+          "why": "requirements helse AND omsorg AND stavanger; theme matched helse, omsorg; title matched stavanger; description matched stavanger",
+          "matches": [
+            {
+              "field": "theme",
+              "token": "helse",
+              "weight": 5
+            },
+            {
+              "field": "theme",
+              "token": "omsorg",
+              "weight": 5
+            },
+            {
+              "field": "title",
+              "token": "stavanger",
+              "weight": 10
+            },
+            {
+              "field": "description",
+              "token": "stavanger",
+              "weight": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "lp06",
+      "query": "fastlege i kristiansand",
+      "tokens": [
+        "fastlege",
+        "kristiansand"
+      ],
+      "returned": 10,
+      "coverage": {
+        "requirements": [
+          "fastlege",
+          "kristiansand"
+        ],
+        "covered": [
+          "kristiansand"
+        ],
+        "missing": [
+          "fastlege"
+        ],
+        "requirement_coverage": 0.5
+      },
+      "follow_up": {
+        "ran": true,
+        "reason": "requirement coverage below 1.0 on stored fields of the first-pass hits",
+        "queries": [
+          "fastlege",
+          "kristiansand"
+        ],
+        "added": [
+          {
+            "id": "datanorge:b04ea4f8-53d6-3979-8eb0-4d671d9a971a",
+            "title": "Ortofoto E39 Kristiansand Vest - Mandal Øst 2022"
+          },
+          {
+            "id": "datanorge:207646f6-254e-3637-ab20-80082859e501",
+            "title": "Ortofoto E39 Kristiansand vest - Mandal øst 2019"
+          },
+          {
+            "id": "datanorge:4efa05b1-1898-3fbf-812b-524b6c0ee7df",
+            "title": "Ortofoto Kristiansand 1988"
+          },
+          {
+            "id": "datanorge:65afa15b-7432-3b22-ba99-71bb548a1b6d",
+            "title": "Ortofoto Kristiansand 1993"
+          },
+          {
+            "id": "datanorge:3abeb93c-bcf6-362f-bd3b-a1a442e4a821",
+            "title": "Ortofoto Kristiansand 1997"
+          },
+          {
+            "id": "datanorge:397aaf25-2144-39ed-8794-ed3f6d8998c7",
+            "title": "Ortofoto Kristiansand 2005"
+          },
+          {
+            "id": "datanorge:d96b6b86-f1d3-3dbf-8070-5ed907c1880c",
+            "title": "Ortofoto Kristiansand 2006"
+          },
+          {
+            "id": "datanorge:64dfa934-74f6-321a-8b73-5247c3222971",
+            "title": "Ortofoto Kristiansand 2007"
+          },
+          {
+            "id": "datanorge:7090e3e3-4477-3fc4-b498-64c386308b3c",
+            "title": "Ortofoto Kristiansand 2008"
+          },
+          {
+            "id": "datanorge:06587255-97f0-306a-afc9-83ec2fe06770",
+            "title": "Ortofoto Kristiansand 2009"
+          }
+        ],
+        "skipped_same_query": [],
+        "requirement_coverage_before": 0.0,
+        "requirement_coverage_after": 0.5
+      },
+      "hits": [
+        {
+          "id": "datanorge:b04ea4f8-53d6-3979-8eb0-4d671d9a971a",
+          "title": "Ortofoto E39 Kristiansand Vest - Mandal Øst 2022",
+          "why": "title matched kristiansand; keyword matched kristiansand",
+          "matches": [
+            {
+              "field": "title",
+              "token": "kristiansand",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "kristiansand",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:207646f6-254e-3637-ab20-80082859e501",
+          "title": "Ortofoto E39 Kristiansand vest - Mandal øst 2019",
+          "why": "title matched kristiansand; keyword matched kristiansand",
+          "matches": [
+            {
+              "field": "title",
+              "token": "kristiansand",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "kristiansand",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:4efa05b1-1898-3fbf-812b-524b6c0ee7df",
+          "title": "Ortofoto Kristiansand 1988",
+          "why": "title matched kristiansand; keyword matched kristiansand",
+          "matches": [
+            {
+              "field": "title",
+              "token": "kristiansand",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "kristiansand",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:65afa15b-7432-3b22-ba99-71bb548a1b6d",
+          "title": "Ortofoto Kristiansand 1993",
+          "why": "title matched kristiansand; keyword matched kristiansand",
+          "matches": [
+            {
+              "field": "title",
+              "token": "kristiansand",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "kristiansand",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:3abeb93c-bcf6-362f-bd3b-a1a442e4a821",
+          "title": "Ortofoto Kristiansand 1997",
+          "why": "title matched kristiansand; keyword matched kristiansand",
+          "matches": [
+            {
+              "field": "title",
+              "token": "kristiansand",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "kristiansand",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:397aaf25-2144-39ed-8794-ed3f6d8998c7",
+          "title": "Ortofoto Kristiansand 2005",
+          "why": "title matched kristiansand; keyword matched kristiansand",
+          "matches": [
+            {
+              "field": "title",
+              "token": "kristiansand",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "kristiansand",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:d96b6b86-f1d3-3dbf-8070-5ed907c1880c",
+          "title": "Ortofoto Kristiansand 2006",
+          "why": "title matched kristiansand; keyword matched kristiansand",
+          "matches": [
+            {
+              "field": "title",
+              "token": "kristiansand",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "kristiansand",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:64dfa934-74f6-321a-8b73-5247c3222971",
+          "title": "Ortofoto Kristiansand 2007",
+          "why": "title matched kristiansand; keyword matched kristiansand",
+          "matches": [
+            {
+              "field": "title",
+              "token": "kristiansand",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "kristiansand",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:7090e3e3-4477-3fc4-b498-64c386308b3c",
+          "title": "Ortofoto Kristiansand 2008",
+          "why": "title matched kristiansand; keyword matched kristiansand",
+          "matches": [
+            {
+              "field": "title",
+              "token": "kristiansand",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "kristiansand",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:06587255-97f0-306a-afc9-83ec2fe06770",
+          "title": "Ortofoto Kristiansand 2009",
+          "why": "title matched kristiansand; keyword matched kristiansand",
+          "matches": [
+            {
+              "field": "title",
+              "token": "kristiansand",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "kristiansand",
+              "weight": 5
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "lp07",
+      "query": "sykehus på ahus",
+      "tokens": [
+        "sykehus",
+        "ahus"
+      ],
+      "returned": 10,
+      "coverage": {
+        "requirements": [
+          "sykehus",
+          "ahus"
+        ],
+        "covered": [
+          "sykehus"
+        ],
+        "missing": [
+          "ahus"
+        ],
+        "requirement_coverage": 0.5
+      },
+      "follow_up": {
+        "ran": true,
+        "reason": "requirement coverage below 1.0 on stored fields of the first-pass hits",
+        "queries": [
+          "sykehus",
+          "ahus"
+        ],
+        "added": [
+          {
+            "id": "datanorge:4455437a-189c-3d88-aa05-d0c9ddecce3a",
+            "title": "Covid-19 - antall innlagte pasienter på sykehus"
+          },
+          {
+            "id": "datanorge:09baaca8-61ba-38a2-9097-7a6bc2e5b172",
+            "title": "FEST (Forskrivnings- og ekspedisjonsstøtte)"
+          },
+          {
+            "id": "datanorge:60e2ffc7-b98e-3a9b-b48b-672cd2586a9c",
+            "title": "Hjerte- og karregisteret"
+          },
+          {
+            "id": "datanorge:dba98b4c-36f3-31b4-8eb6-b3896041c024",
+            "title": "Nasjonalt Barnehofteregister"
+          },
+          {
+            "id": "datanorge:74312c7c-105e-368a-bafb-9f67dcc6f522",
+            "title": "Nasjonalt kvalitetsregister for ryggkirurgi (NKR), degenerativ nakke."
+          },
+          {
+            "id": "datanorge:ff52d550-863f-37b3-b303-e81ec6bb8f93",
+            "title": "Nasjonalt kvalitetsregister for ryggkirurgi (NKR), degenerativ rygg."
+          },
+          {
+            "id": "datanorge:cb55e903-5567-37e3-ae2a-d8e1cbc47010",
+            "title": "Nasjonalt kvalitetsregister for smertebehandling"
+          },
+          {
+            "id": "datanorge:0bb4638c-2683-35f4-a649-c07c2db9bb3e",
+            "title": "Norsk kvinnelig inkontinensregister"
+          },
+          {
+            "id": "datanorge:e842f90c-0555-3f56-8b66-540a9d9d911d",
+            "title": "Norsk pasientregister"
+          },
+          {
+            "id": "datanorge:92d37fdf-8749-357d-b63a-b939215c05e3",
+            "title": "Norsk register for gastrokirurgi"
+          }
+        ],
+        "skipped_same_query": [],
+        "requirement_coverage_before": 0.0,
+        "requirement_coverage_after": 0.5
+      },
+      "hits": [
+        {
+          "id": "datanorge:4455437a-189c-3d88-aa05-d0c9ddecce3a",
+          "title": "Covid-19 - antall innlagte pasienter på sykehus",
+          "why": "title matched sykehus; description matched sykehus",
+          "matches": [
+            {
+              "field": "title",
+              "token": "sykehus",
+              "weight": 10
+            },
+            {
+              "field": "description",
+              "token": "sykehus",
+              "weight": 2
+            }
+          ]
+        },
+        {
+          "id": "datanorge:09baaca8-61ba-38a2-9097-7a6bc2e5b172",
+          "title": "FEST (Forskrivnings- og ekspedisjonsstøtte)",
+          "why": "description matched sykehus",
+          "matches": [
+            {
+              "field": "description",
+              "token": "sykehus",
+              "weight": 2
+            }
+          ]
+        },
+        {
+          "id": "datanorge:60e2ffc7-b98e-3a9b-b48b-672cd2586a9c",
+          "title": "Hjerte- og karregisteret",
+          "why": "description matched sykehus",
+          "matches": [
+            {
+              "field": "description",
+              "token": "sykehus",
+              "weight": 2
+            }
+          ]
+        },
+        {
+          "id": "datanorge:dba98b4c-36f3-31b4-8eb6-b3896041c024",
+          "title": "Nasjonalt Barnehofteregister",
+          "why": "description matched sykehus",
+          "matches": [
+            {
+              "field": "description",
+              "token": "sykehus",
+              "weight": 2
+            }
+          ]
+        },
+        {
+          "id": "datanorge:74312c7c-105e-368a-bafb-9f67dcc6f522",
+          "title": "Nasjonalt kvalitetsregister for ryggkirurgi (NKR), degenerativ nakke.",
+          "why": "description matched sykehus",
+          "matches": [
+            {
+              "field": "description",
+              "token": "sykehus",
+              "weight": 2
+            }
+          ]
+        },
+        {
+          "id": "datanorge:ff52d550-863f-37b3-b303-e81ec6bb8f93",
+          "title": "Nasjonalt kvalitetsregister for ryggkirurgi (NKR), degenerativ rygg.",
+          "why": "description matched sykehus",
+          "matches": [
+            {
+              "field": "description",
+              "token": "sykehus",
+              "weight": 2
+            }
+          ]
+        },
+        {
+          "id": "datanorge:cb55e903-5567-37e3-ae2a-d8e1cbc47010",
+          "title": "Nasjonalt kvalitetsregister for smertebehandling",
+          "why": "description matched sykehus",
+          "matches": [
+            {
+              "field": "description",
+              "token": "sykehus",
+              "weight": 2
+            }
+          ]
+        },
+        {
+          "id": "datanorge:0bb4638c-2683-35f4-a649-c07c2db9bb3e",
+          "title": "Norsk kvinnelig inkontinensregister",
+          "why": "description matched sykehus",
+          "matches": [
+            {
+              "field": "description",
+              "token": "sykehus",
+              "weight": 2
+            }
+          ]
+        },
+        {
+          "id": "datanorge:e842f90c-0555-3f56-8b66-540a9d9d911d",
+          "title": "Norsk pasientregister",
+          "why": "description matched sykehus",
+          "matches": [
+            {
+              "field": "description",
+              "token": "sykehus",
+              "weight": 2
+            }
+          ]
+        },
+        {
+          "id": "datanorge:92d37fdf-8749-357d-b63a-b939215c05e3",
+          "title": "Norsk register for gastrokirurgi",
+          "why": "description matched sykehus",
+          "matches": [
+            {
+              "field": "description",
+              "token": "sykehus",
+              "weight": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "lp08",
+      "query": "folkehelseprofil kommune",
+      "tokens": [
+        "folkehelseprofil",
+        "kommune"
+      ],
+      "returned": 10,
+      "coverage": {
+        "requirements": [
+          "folkehelseprofil",
+          "kommune"
+        ],
+        "covered": [
+          "kommune"
+        ],
+        "missing": [
+          "folkehelseprofil"
+        ],
+        "requirement_coverage": 0.5
+      },
+      "follow_up": {
+        "ran": true,
+        "reason": "requirement coverage below 1.0 on stored fields of the first-pass hits",
+        "queries": [
+          "folkehelseprofil",
+          "kommune"
+        ],
+        "added": [
+          {
+            "id": "datanorge:77765f01-5e37-3e45-94db-00dee43030b5",
+            "title": "5050 VA - base for Nærøysund kommune"
+          },
+          {
+            "id": "datanorge:2ed73efb-7d76-3726-9db2-d8ba5ae25711",
+            "title": "Flomaktsomhet beregnet, Os kommune"
+          },
+          {
+            "id": "datanorge:bcfca869-33f4-3b90-98ea-fc7a586c9160",
+            "title": "Flomaktsomhet beregnet, Røros kommune"
+          },
+          {
+            "id": "datanorge:2a819a1c-861d-3632-82aa-cc20cf5626bd",
+            "title": "Forbudssoner for avfyring av fyrverkeri i Halden kommune"
+          },
+          {
+            "id": "datanorge:f4b80d36-7f75-3c8a-9565-45e17c1c4337",
+            "title": "Forurenset grunn i tidligere Skedsmo kommune - lokale data"
+          },
+          {
+            "id": "datanorge:06a7c7f4-892f-339b-8501-c61e0755b498",
+            "title": "Graveforbudssoner i Lillestrøm kommune - lokale data"
+          },
+          {
+            "id": "datanorge:edfc3137-e893-34bc-b281-b8acdfe31ae0",
+            "title": "Kommunedelplaner Indre Østfold kommune"
+          },
+          {
+            "id": "datanorge:fc89b77c-657e-38fc-bbe5-4b6b97184be5",
+            "title": "Kommuneplanens arealdel Indre Østfold kommune"
+          },
+          {
+            "id": "datanorge:638cb3df-8803-3126-a885-4bfeaac8a198",
+            "title": "Konsesjonsområde fjernvarme Lillestrøm kommune - lokale data"
+          },
+          {
+            "id": "datanorge:49811d88-5e21-3850-801c-3f497ed4c989",
+            "title": "Krav til parkeringsdekning i Lillestrøm kommune - lokale data"
+          }
+        ],
+        "skipped_same_query": [],
+        "requirement_coverage_before": 0.0,
+        "requirement_coverage_after": 0.5
+      },
+      "hits": [
+        {
+          "id": "datanorge:77765f01-5e37-3e45-94db-00dee43030b5",
+          "title": "5050 VA - base for Nærøysund kommune",
+          "why": "title matched kommune; keyword matched kommune; description matched kommune",
+          "matches": [
+            {
+              "field": "title",
+              "token": "kommune",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "kommune",
+              "weight": 5
+            },
+            {
+              "field": "description",
+              "token": "kommune",
+              "weight": 2
+            }
+          ]
+        },
+        {
+          "id": "datanorge:2ed73efb-7d76-3726-9db2-d8ba5ae25711",
+          "title": "Flomaktsomhet beregnet, Os kommune",
+          "why": "title matched kommune; keyword matched kommune; description matched kommune",
+          "matches": [
+            {
+              "field": "title",
+              "token": "kommune",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "kommune",
+              "weight": 5
+            },
+            {
+              "field": "description",
+              "token": "kommune",
+              "weight": 2
+            }
+          ]
+        },
+        {
+          "id": "datanorge:bcfca869-33f4-3b90-98ea-fc7a586c9160",
+          "title": "Flomaktsomhet beregnet, Røros kommune",
+          "why": "title matched kommune; keyword matched kommune; description matched kommune",
+          "matches": [
+            {
+              "field": "title",
+              "token": "kommune",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "kommune",
+              "weight": 5
+            },
+            {
+              "field": "description",
+              "token": "kommune",
+              "weight": 2
+            }
+          ]
+        },
+        {
+          "id": "datanorge:2a819a1c-861d-3632-82aa-cc20cf5626bd",
+          "title": "Forbudssoner for avfyring av fyrverkeri i Halden kommune",
+          "why": "title matched kommune; keyword matched kommune; description matched kommune",
+          "matches": [
+            {
+              "field": "title",
+              "token": "kommune",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "kommune",
+              "weight": 5
+            },
+            {
+              "field": "description",
+              "token": "kommune",
+              "weight": 2
+            }
+          ]
+        },
+        {
+          "id": "datanorge:f4b80d36-7f75-3c8a-9565-45e17c1c4337",
+          "title": "Forurenset grunn i tidligere Skedsmo kommune - lokale data",
+          "why": "title matched kommune; keyword matched kommune; description matched kommune",
+          "matches": [
+            {
+              "field": "title",
+              "token": "kommune",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "kommune",
+              "weight": 5
+            },
+            {
+              "field": "description",
+              "token": "kommune",
+              "weight": 2
+            }
+          ]
+        },
+        {
+          "id": "datanorge:06a7c7f4-892f-339b-8501-c61e0755b498",
+          "title": "Graveforbudssoner i Lillestrøm kommune - lokale data",
+          "why": "title matched kommune; keyword matched kommune; description matched kommune",
+          "matches": [
+            {
+              "field": "title",
+              "token": "kommune",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "kommune",
+              "weight": 5
+            },
+            {
+              "field": "description",
+              "token": "kommune",
+              "weight": 2
+            }
+          ]
+        },
+        {
+          "id": "datanorge:edfc3137-e893-34bc-b281-b8acdfe31ae0",
+          "title": "Kommunedelplaner Indre Østfold kommune",
+          "why": "title matched kommune; keyword matched kommune; description matched kommune",
+          "matches": [
+            {
+              "field": "title",
+              "token": "kommune",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "kommune",
+              "weight": 5
+            },
+            {
+              "field": "description",
+              "token": "kommune",
+              "weight": 2
+            }
+          ]
+        },
+        {
+          "id": "datanorge:fc89b77c-657e-38fc-bbe5-4b6b97184be5",
+          "title": "Kommuneplanens arealdel Indre Østfold kommune",
+          "why": "title matched kommune; keyword matched kommune; description matched kommune",
+          "matches": [
+            {
+              "field": "title",
+              "token": "kommune",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "kommune",
+              "weight": 5
+            },
+            {
+              "field": "description",
+              "token": "kommune",
+              "weight": 2
+            }
+          ]
+        },
+        {
+          "id": "datanorge:638cb3df-8803-3126-a885-4bfeaac8a198",
+          "title": "Konsesjonsområde fjernvarme Lillestrøm kommune - lokale data",
+          "why": "title matched kommune; keyword matched kommune; description matched kommune",
+          "matches": [
+            {
+              "field": "title",
+              "token": "kommune",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "kommune",
+              "weight": 5
+            },
+            {
+              "field": "description",
+              "token": "kommune",
+              "weight": 2
+            }
+          ]
+        },
+        {
+          "id": "datanorge:49811d88-5e21-3850-801c-3f497ed4c989",
+          "title": "Krav til parkeringsdekning i Lillestrøm kommune - lokale data",
+          "why": "title matched kommune; keyword matched kommune; description matched kommune",
+          "matches": [
+            {
+              "field": "title",
+              "token": "kommune",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "kommune",
+              "weight": 5
+            },
+            {
+              "field": "description",
+              "token": "kommune",
+              "weight": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "lp09",
+      "query": "kommunehelsa statistikkbank",
+      "tokens": [
+        "kommunehelsa",
+        "statistikkbank"
+      ],
+      "returned": 2,
+      "coverage": {
+        "requirements": [
+          "kommunehelsa",
+          "statistikkbank"
+        ],
+        "covered": [
+          "kommunehelsa",
+          "statistikkbank"
+        ],
+        "missing": [],
+        "requirement_coverage": 1.0
+      },
+      "follow_up": null,
+      "hits": [
+        {
+          "id": "datanorge:ea389e4e-fbaf-3e33-91f9-142c7c8f43f6",
+          "title": "Helsestatistikk fra Folkehelseinstituttet",
+          "why": "requirements kommunehelsa AND statistikkbank; description matched kommunehelsa, statistikkbank",
+          "matches": [
+            {
+              "field": "description",
+              "token": "kommunehelsa",
+              "weight": 2
+            },
+            {
+              "field": "description",
+              "token": "statistikkbank",
+              "weight": 2
+            }
+          ]
+        },
+        {
+          "id": "datanorge:388245e6-d976-3344-81c9-4734742244be",
+          "title": "Sysvak",
+          "why": "requirements kommunehelsa AND statistikkbank; description matched kommunehelsa, statistikkbank",
+          "matches": [
+            {
+              "field": "description",
+              "token": "kommunehelsa",
+              "weight": 2
+            },
+            {
+              "field": "description",
+              "token": "statistikkbank",
+              "weight": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "lp10",
+      "query": "energi og strøm oslo",
+      "tokens": [
+        "energi",
+        "strøm",
+        "oslo"
+      ],
+      "returned": 10,
+      "coverage": {
+        "requirements": [
+          "energi",
+          "strøm",
+          "oslo"
+        ],
+        "covered": [
+          "energi",
+          "oslo"
+        ],
+        "missing": [
+          "strøm"
+        ],
+        "requirement_coverage": 0.6666666666666666
+      },
+      "follow_up": {
+        "ran": true,
+        "reason": "requirement coverage below 1.0 on stored fields of the first-pass hits",
+        "queries": [
+          "energi",
+          "strøm",
+          "oslo"
+        ],
+        "added": [
+          {
+            "id": "datanorge:60deec7c-e648-34c1-b4d2-4fa2b4b22f3c",
+            "title": "Magasinstatistikk"
+          },
+          {
+            "id": "datanorge:911ea3f5-30cb-3e37-87be-dfdc3a21b797",
+            "title": "Ortofoto Oslo - Bekkelaget 1977"
+          },
+          {
+            "id": "datanorge:3f85f3c0-de60-38ae-b031-b057d89bcde2",
+            "title": "Ortofoto Oslo - Follo - Romerike SV 1956"
+          },
+          {
+            "id": "datanorge:49362745-703f-3d56-af0b-e11135e43897",
+            "title": "Ortofoto Oslo - Furuset 1977"
+          },
+          {
+            "id": "datanorge:582df164-d621-31f1-9ac5-7fa778f4867e",
+            "title": "Ortofoto Oslo - Holmlia 1989"
+          },
+          {
+            "id": "datanorge:d7c92bb7-28c2-3e8d-9027-8e0444fcff29",
+            "title": "Ortofoto Oslo - Ullevål 1977"
+          },
+          {
+            "id": "datanorge:25dba859-5618-3203-9ad4-61f0f76cb07f",
+            "title": "Ortofoto Oslo - indre øyer 1960"
+          },
+          {
+            "id": "datanorge:81059b49-2365-309e-8658-3b41e4783cdd",
+            "title": "Ortofoto Oslo 1937"
+          },
+          {
+            "id": "datanorge:963a0060-f861-36ee-9838-35dec4e79b01",
+            "title": "Ortofoto Oslo 1947"
+          },
+          {
+            "id": "datanorge:b6c09abf-06c6-3d07-ab89-1b43e5ab67ed",
+            "title": "Ortofoto Oslo 1971"
+          }
+        ],
+        "skipped_same_query": [],
+        "requirement_coverage_before": 0.0,
+        "requirement_coverage_after": 0.6666666666666666
+      },
+      "hits": [
+        {
+          "id": "datanorge:60deec7c-e648-34c1-b4d2-4fa2b4b22f3c",
+          "title": "Magasinstatistikk",
+          "why": "theme matched energi, energi, energi",
+          "matches": [
+            {
+              "field": "theme",
+              "token": "energi",
+              "weight": 5
+            },
+            {
+              "field": "theme",
+              "token": "energi",
+              "weight": 5
+            },
+            {
+              "field": "theme",
+              "token": "energi",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:911ea3f5-30cb-3e37-87be-dfdc3a21b797",
+          "title": "Ortofoto Oslo - Bekkelaget 1977",
+          "why": "title matched oslo; keyword matched oslo",
+          "matches": [
+            {
+              "field": "title",
+              "token": "oslo",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "oslo",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:3f85f3c0-de60-38ae-b031-b057d89bcde2",
+          "title": "Ortofoto Oslo - Follo - Romerike SV 1956",
+          "why": "title matched oslo; keyword matched oslo",
+          "matches": [
+            {
+              "field": "title",
+              "token": "oslo",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "oslo",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:49362745-703f-3d56-af0b-e11135e43897",
+          "title": "Ortofoto Oslo - Furuset 1977",
+          "why": "title matched oslo; keyword matched oslo",
+          "matches": [
+            {
+              "field": "title",
+              "token": "oslo",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "oslo",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:582df164-d621-31f1-9ac5-7fa778f4867e",
+          "title": "Ortofoto Oslo - Holmlia 1989",
+          "why": "title matched oslo; keyword matched oslo",
+          "matches": [
+            {
+              "field": "title",
+              "token": "oslo",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "oslo",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:d7c92bb7-28c2-3e8d-9027-8e0444fcff29",
+          "title": "Ortofoto Oslo - Ullevål 1977",
+          "why": "title matched oslo; keyword matched oslo",
+          "matches": [
+            {
+              "field": "title",
+              "token": "oslo",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "oslo",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:25dba859-5618-3203-9ad4-61f0f76cb07f",
+          "title": "Ortofoto Oslo - indre øyer 1960",
+          "why": "title matched oslo; keyword matched oslo",
+          "matches": [
+            {
+              "field": "title",
+              "token": "oslo",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "oslo",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:81059b49-2365-309e-8658-3b41e4783cdd",
+          "title": "Ortofoto Oslo 1937",
+          "why": "title matched oslo; keyword matched oslo",
+          "matches": [
+            {
+              "field": "title",
+              "token": "oslo",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "oslo",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:963a0060-f861-36ee-9838-35dec4e79b01",
+          "title": "Ortofoto Oslo 1947",
+          "why": "title matched oslo; keyword matched oslo",
+          "matches": [
+            {
+              "field": "title",
+              "token": "oslo",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "oslo",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:b6c09abf-06c6-3d07-ab89-1b43e5ab67ed",
+          "title": "Ortofoto Oslo 1971",
+          "why": "title matched oslo; keyword matched oslo",
+          "matches": [
+            {
+              "field": "title",
+              "token": "oslo",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "oslo",
+              "weight": 5
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "lp11",
+      "query": "vindkraft på fosen",
+      "tokens": [
+        "vindkraft",
+        "fosen"
+      ],
+      "returned": 3,
+      "coverage": {
+        "requirements": [
+          "vindkraft",
+          "fosen"
+        ],
+        "covered": [
+          "vindkraft",
+          "fosen"
+        ],
+        "missing": [],
+        "requirement_coverage": 1.0
+      },
+      "follow_up": {
+        "ran": true,
+        "reason": "requirement coverage below 1.0 on stored fields of the first-pass hits",
+        "queries": [
+          "vindkraft",
+          "fosen"
+        ],
+        "added": [
+          {
+            "id": "datanorge:363af211-1914-3814-a365-8439d12466cf",
+            "title": "Vindkraftverk"
+          },
+          {
+            "id": "datanorge:937e36d0-6445-3e18-9c26-f2d3f3774f82",
+            "title": "Ortofoto Fosen sør 2017"
+          },
+          {
+            "id": "datanorge:4d1070de-72b5-3b9a-9f1a-6ff0d840af51",
+            "title": "Ortofoto Indre Fosen 2018"
+          }
+        ],
+        "skipped_same_query": [],
+        "requirement_coverage_before": 0.0,
+        "requirement_coverage_after": 1.0
+      },
+      "hits": [
+        {
+          "id": "datanorge:937e36d0-6445-3e18-9c26-f2d3f3774f82",
+          "title": "Ortofoto Fosen sør 2017",
+          "why": "title matched fosen; keyword matched fosen",
+          "matches": [
+            {
+              "field": "title",
+              "token": "fosen",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "fosen",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:4d1070de-72b5-3b9a-9f1a-6ff0d840af51",
+          "title": "Ortofoto Indre Fosen 2018",
+          "why": "title matched fosen; keyword matched fosen",
+          "matches": [
+            {
+              "field": "title",
+              "token": "fosen",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "fosen",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:363af211-1914-3814-a365-8439d12466cf",
+          "title": "Vindkraftverk",
+          "why": "description matched vindkraft",
+          "matches": [
+            {
+              "field": "description",
+              "token": "vindkraft",
+              "weight": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "lp12",
+      "query": "vannkraft i telemark",
+      "tokens": [
+        "vannkraft",
+        "telemark"
+      ],
+      "returned": 10,
+      "coverage": {
+        "requirements": [
+          "vannkraft",
+          "telemark"
+        ],
+        "covered": [
+          "vannkraft",
+          "telemark"
+        ],
+        "missing": [],
+        "requirement_coverage": 1.0
+      },
+      "follow_up": {
+        "ran": true,
+        "reason": "requirement coverage below 1.0 on stored fields of the first-pass hits",
+        "queries": [
+          "vannkraft",
+          "telemark"
+        ],
+        "added": [
+          {
+            "id": "datanorge:d6947126-4459-3f02-b686-bb9bda9486dc",
+            "title": "Vannkraft, Utbygd og ikke utbygd"
+          },
+          {
+            "id": "datanorge:ad292fe1-7c62-31bf-bd5c-1048de185730",
+            "title": "Delfelt vannkraft"
+          },
+          {
+            "id": "datanorge:163a6553-862e-332e-981a-5f7e894ab7f7",
+            "title": "Ortofoto Agder og Telemark 2021"
+          },
+          {
+            "id": "datanorge:61b98747-e21c-3e5c-beff-8fdc4714787c",
+            "title": "Ortofoto Agder og Telemark CIR 2021"
+          },
+          {
+            "id": "datanorge:0e3586c0-78ae-3613-98df-5f09ba5f9820",
+            "title": "Ortofoto Agder og Telemark midlertidig 2021"
+          },
+          {
+            "id": "datanorge:03cc3be1-1baf-340e-a364-303e56e35075",
+            "title": "Ortofoto Midt-Telemark 2011"
+          },
+          {
+            "id": "datanorge:ed64a265-955a-3071-850f-4674cb13f841",
+            "title": "Ortofoto Midt-Telemark 2019"
+          },
+          {
+            "id": "datanorge:14b2b7c3-6ae9-35de-837d-7e98f186f317",
+            "title": "Ortofoto Midt-Telemark IR 2015"
+          },
+          {
+            "id": "datanorge:9788bd3d-dcbb-3107-9291-cc72ebeec7ff",
+            "title": "Ortofoto Nedre Telemark MOF 2026"
+          },
+          {
+            "id": "datanorge:7e51a3e2-56e8-3948-872b-761f9dca4729",
+            "title": "Ortofoto Telemark 2004"
+          }
+        ],
+        "skipped_same_query": [],
+        "requirement_coverage_before": 0.0,
+        "requirement_coverage_after": 1.0
+      },
+      "hits": [
+        {
+          "id": "datanorge:d6947126-4459-3f02-b686-bb9bda9486dc",
+          "title": "Vannkraft, Utbygd og ikke utbygd",
+          "why": "title matched vannkraft; keyword matched vannkraft; description matched vannkraft",
+          "matches": [
+            {
+              "field": "title",
+              "token": "vannkraft",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "vannkraft",
+              "weight": 5
+            },
+            {
+              "field": "description",
+              "token": "vannkraft",
+              "weight": 2
+            }
+          ]
+        },
+        {
+          "id": "datanorge:ad292fe1-7c62-31bf-bd5c-1048de185730",
+          "title": "Delfelt vannkraft",
+          "why": "title matched vannkraft; keyword matched vannkraft",
+          "matches": [
+            {
+              "field": "title",
+              "token": "vannkraft",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "vannkraft",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:163a6553-862e-332e-981a-5f7e894ab7f7",
+          "title": "Ortofoto Agder og Telemark 2021",
+          "why": "title matched telemark; keyword matched telemark",
+          "matches": [
+            {
+              "field": "title",
+              "token": "telemark",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "telemark",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:61b98747-e21c-3e5c-beff-8fdc4714787c",
+          "title": "Ortofoto Agder og Telemark CIR 2021",
+          "why": "title matched telemark; keyword matched telemark",
+          "matches": [
+            {
+              "field": "title",
+              "token": "telemark",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "telemark",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:0e3586c0-78ae-3613-98df-5f09ba5f9820",
+          "title": "Ortofoto Agder og Telemark midlertidig 2021",
+          "why": "title matched telemark; keyword matched telemark",
+          "matches": [
+            {
+              "field": "title",
+              "token": "telemark",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "telemark",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:03cc3be1-1baf-340e-a364-303e56e35075",
+          "title": "Ortofoto Midt-Telemark 2011",
+          "why": "title matched telemark; keyword matched telemark",
+          "matches": [
+            {
+              "field": "title",
+              "token": "telemark",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "telemark",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:ed64a265-955a-3071-850f-4674cb13f841",
+          "title": "Ortofoto Midt-Telemark 2019",
+          "why": "title matched telemark; keyword matched telemark",
+          "matches": [
+            {
+              "field": "title",
+              "token": "telemark",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "telemark",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:14b2b7c3-6ae9-35de-837d-7e98f186f317",
+          "title": "Ortofoto Midt-Telemark IR 2015",
+          "why": "title matched telemark; keyword matched telemark",
+          "matches": [
+            {
+              "field": "title",
+              "token": "telemark",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "telemark",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:9788bd3d-dcbb-3107-9291-cc72ebeec7ff",
+          "title": "Ortofoto Nedre Telemark MOF 2026",
+          "why": "title matched telemark; keyword matched telemark",
+          "matches": [
+            {
+              "field": "title",
+              "token": "telemark",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "telemark",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:7e51a3e2-56e8-3948-872b-761f9dca4729",
+          "title": "Ortofoto Telemark 2004",
+          "why": "title matched telemark; keyword matched telemark",
+          "matches": [
+            {
+              "field": "title",
+              "token": "telemark",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "telemark",
+              "weight": 5
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "lp13",
+      "query": "fjernvarme i bergen",
+      "tokens": [
+        "fjernvarme",
+        "bergen"
+      ],
+      "returned": 10,
+      "coverage": {
+        "requirements": [
+          "fjernvarme",
+          "bergen"
+        ],
+        "covered": [
+          "fjernvarme",
+          "bergen"
+        ],
+        "missing": [],
+        "requirement_coverage": 1.0
+      },
+      "follow_up": {
+        "ran": true,
+        "reason": "requirement coverage below 1.0 on stored fields of the first-pass hits",
+        "queries": [
+          "fjernvarme",
+          "bergen"
+        ],
+        "added": [
+          {
+            "id": "datanorge:9f44bcb4-4ecc-3b66-8253-742a3892ffb3",
+            "title": "Fjernvarme-konsesjon avgrensning Stjørdal kommune"
+          },
+          {
+            "id": "datanorge:638cb3df-8803-3126-a885-4bfeaac8a198",
+            "title": "Konsesjonsområde fjernvarme Lillestrøm kommune - lokale data"
+          },
+          {
+            "id": "datanorge:e4b7896c-7363-38b2-b510-3d1893c52c22",
+            "title": "Konsesjonsområde for fjernvarme Vestby kommune"
+          },
+          {
+            "id": "datanorge:bcefcf62-15d8-3b86-9a06-5824cc867f71",
+            "title": "Høydedata Bergen 2pkt 2011"
+          },
+          {
+            "id": "datanorge:a2c77f0e-1df9-35a8-86ae-58615a252957",
+            "title": "Kommuneplan Bergen 2018"
+          },
+          {
+            "id": "datanorge:83f11b90-0fcd-3261-bd50-a9fb86648c57",
+            "title": "Ortofoto Askøy-Bergen-Os-Osterøy 1949"
+          },
+          {
+            "id": "datanorge:6dc85d92-bffc-3206-a761-20b6d1bbf47e",
+            "title": "Ortofoto Askøy-Bergen-Osterøy 1973"
+          },
+          {
+            "id": "datanorge:ac7739b8-89c2-319b-91aa-cc3235a04fe5",
+            "title": "Ortofoto Bergen 1948"
+          },
+          {
+            "id": "datanorge:7a810eca-09e2-337f-8aae-8bf2bb974862",
+            "title": "Ortofoto Bergen 1951"
+          },
+          {
+            "id": "datanorge:85289703-d271-3155-9adf-99cda964df70",
+            "title": "Ortofoto Bergen 1970"
+          }
+        ],
+        "skipped_same_query": [],
+        "requirement_coverage_before": 0.0,
+        "requirement_coverage_after": 1.0
+      },
+      "hits": [
+        {
+          "id": "datanorge:9f44bcb4-4ecc-3b66-8253-742a3892ffb3",
+          "title": "Fjernvarme-konsesjon avgrensning Stjørdal kommune",
+          "why": "title matched fjernvarme; keyword matched fjernvarme; description matched fjernvarme",
+          "matches": [
+            {
+              "field": "title",
+              "token": "fjernvarme",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "fjernvarme",
+              "weight": 5
+            },
+            {
+              "field": "description",
+              "token": "fjernvarme",
+              "weight": 2
+            }
+          ]
+        },
+        {
+          "id": "datanorge:638cb3df-8803-3126-a885-4bfeaac8a198",
+          "title": "Konsesjonsområde fjernvarme Lillestrøm kommune - lokale data",
+          "why": "title matched fjernvarme; keyword matched fjernvarme; description matched fjernvarme",
+          "matches": [
+            {
+              "field": "title",
+              "token": "fjernvarme",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "fjernvarme",
+              "weight": 5
+            },
+            {
+              "field": "description",
+              "token": "fjernvarme",
+              "weight": 2
+            }
+          ]
+        },
+        {
+          "id": "datanorge:e4b7896c-7363-38b2-b510-3d1893c52c22",
+          "title": "Konsesjonsområde for fjernvarme Vestby kommune",
+          "why": "title matched fjernvarme; keyword matched fjernvarme; description matched fjernvarme",
+          "matches": [
+            {
+              "field": "title",
+              "token": "fjernvarme",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "fjernvarme",
+              "weight": 5
+            },
+            {
+              "field": "description",
+              "token": "fjernvarme",
+              "weight": 2
+            }
+          ]
+        },
+        {
+          "id": "datanorge:bcefcf62-15d8-3b86-9a06-5824cc867f71",
+          "title": "Høydedata Bergen 2pkt 2011",
+          "why": "title matched bergen; keyword matched bergen",
+          "matches": [
+            {
+              "field": "title",
+              "token": "bergen",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "bergen",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:a2c77f0e-1df9-35a8-86ae-58615a252957",
+          "title": "Kommuneplan Bergen 2018",
+          "why": "title matched bergen; keyword matched bergen",
+          "matches": [
+            {
+              "field": "title",
+              "token": "bergen",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "bergen",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:83f11b90-0fcd-3261-bd50-a9fb86648c57",
+          "title": "Ortofoto Askøy-Bergen-Os-Osterøy 1949",
+          "why": "title matched bergen; keyword matched bergen",
+          "matches": [
+            {
+              "field": "title",
+              "token": "bergen",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "bergen",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:6dc85d92-bffc-3206-a761-20b6d1bbf47e",
+          "title": "Ortofoto Askøy-Bergen-Osterøy 1973",
+          "why": "title matched bergen; keyword matched bergen",
+          "matches": [
+            {
+              "field": "title",
+              "token": "bergen",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "bergen",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:ac7739b8-89c2-319b-91aa-cc3235a04fe5",
+          "title": "Ortofoto Bergen 1948",
+          "why": "title matched bergen; keyword matched bergen",
+          "matches": [
+            {
+              "field": "title",
+              "token": "bergen",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "bergen",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:7a810eca-09e2-337f-8aae-8bf2bb974862",
+          "title": "Ortofoto Bergen 1951",
+          "why": "title matched bergen; keyword matched bergen",
+          "matches": [
+            {
+              "field": "title",
+              "token": "bergen",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "bergen",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:85289703-d271-3155-9adf-99cda964df70",
+          "title": "Ortofoto Bergen 1970",
+          "why": "title matched bergen; keyword matched bergen",
+          "matches": [
+            {
+              "field": "title",
+              "token": "bergen",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "bergen",
+              "weight": 5
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "lp14",
+      "query": "kraftsituasjonen nve",
+      "tokens": [
+        "kraftsituasjonen",
+        "nve"
+      ],
+      "returned": 10,
+      "coverage": {
+        "requirements": [
+          "kraftsituasjonen",
+          "nve"
+        ],
+        "covered": [
+          "nve"
+        ],
+        "missing": [
+          "kraftsituasjonen"
+        ],
+        "requirement_coverage": 0.5
+      },
+      "follow_up": {
+        "ran": true,
+        "reason": "requirement coverage below 1.0 on stored fields of the first-pass hits",
+        "queries": [
+          "kraftsituasjonen",
+          "nve"
+        ],
+        "added": [
+          {
+            "id": "datanorge:f9a428a4-d734-3a40-9195-06dadd6b6545",
+            "title": "Ortofoto NVE Dirdalsåna 2026"
+          },
+          {
+            "id": "datanorge:9f746dce-6cd7-30df-a4e7-c37cf5d3f9fa",
+            "title": "Ortofoto NVE Frafjordåna 2026"
+          },
+          {
+            "id": "datanorge:17cb8f51-39f1-38b3-a808-f0874876ddf9",
+            "title": "Ortofoto NVE Jostedøla-Gaupne 2026"
+          },
+          {
+            "id": "datanorge:bde557f7-67cc-3fdb-a7f3-3ff1543fccb3",
+            "title": "Ortofoto NVE Nesttun-Apeltun 2026"
+          },
+          {
+            "id": "datanorge:6abf9567-a652-31ac-8109-bf30cc4213f8",
+            "title": "Ortofoto NVE Oselva 2026"
+          },
+          {
+            "id": "datanorge:f1180375-cb8e-3214-afb4-874098c76ec0",
+            "title": "Ortofoto NVE Suldalslågen 2025"
+          },
+          {
+            "id": "datanorge:37a518f6-a038-3be3-b262-a9fc66307e38",
+            "title": "Ortofoto NVE Valldøla 2026"
+          },
+          {
+            "id": "datanorge:42c2e9f0-0c33-3ac8-ab6f-de057d9baa5c",
+            "title": "Ortofoto NVE Vikedalsåna 2026"
+          },
+          {
+            "id": "datanorge:d83e3f4e-1c19-3772-8165-8665a0f998c3",
+            "title": "Ortofoto NVE Ørstaelva 2026"
+          },
+          {
+            "id": "datanorge:38341759-3fcf-3839-b754-331447ffb596",
+            "title": "Høydedata NVE - Litleåna-Kvina 4pkt 2018"
+          }
+        ],
+        "skipped_same_query": [],
+        "requirement_coverage_before": 0.0,
+        "requirement_coverage_after": 0.5
+      },
+      "hits": [
+        {
+          "id": "datanorge:f9a428a4-d734-3a40-9195-06dadd6b6545",
+          "title": "Ortofoto NVE Dirdalsåna 2026",
+          "why": "title matched nve; keyword matched nve",
+          "matches": [
+            {
+              "field": "title",
+              "token": "nve",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "nve",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:9f746dce-6cd7-30df-a4e7-c37cf5d3f9fa",
+          "title": "Ortofoto NVE Frafjordåna 2026",
+          "why": "title matched nve; keyword matched nve",
+          "matches": [
+            {
+              "field": "title",
+              "token": "nve",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "nve",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:17cb8f51-39f1-38b3-a808-f0874876ddf9",
+          "title": "Ortofoto NVE Jostedøla-Gaupne 2026",
+          "why": "title matched nve; keyword matched nve",
+          "matches": [
+            {
+              "field": "title",
+              "token": "nve",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "nve",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:bde557f7-67cc-3fdb-a7f3-3ff1543fccb3",
+          "title": "Ortofoto NVE Nesttun-Apeltun 2026",
+          "why": "title matched nve; keyword matched nve",
+          "matches": [
+            {
+              "field": "title",
+              "token": "nve",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "nve",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:6abf9567-a652-31ac-8109-bf30cc4213f8",
+          "title": "Ortofoto NVE Oselva 2026",
+          "why": "title matched nve; keyword matched nve",
+          "matches": [
+            {
+              "field": "title",
+              "token": "nve",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "nve",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:f1180375-cb8e-3214-afb4-874098c76ec0",
+          "title": "Ortofoto NVE Suldalslågen 2025",
+          "why": "title matched nve; keyword matched nve",
+          "matches": [
+            {
+              "field": "title",
+              "token": "nve",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "nve",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:37a518f6-a038-3be3-b262-a9fc66307e38",
+          "title": "Ortofoto NVE Valldøla 2026",
+          "why": "title matched nve; keyword matched nve",
+          "matches": [
+            {
+              "field": "title",
+              "token": "nve",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "nve",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:42c2e9f0-0c33-3ac8-ab6f-de057d9baa5c",
+          "title": "Ortofoto NVE Vikedalsåna 2026",
+          "why": "title matched nve; keyword matched nve",
+          "matches": [
+            {
+              "field": "title",
+              "token": "nve",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "nve",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:d83e3f4e-1c19-3772-8165-8665a0f998c3",
+          "title": "Ortofoto NVE Ørstaelva 2026",
+          "why": "title matched nve; keyword matched nve",
+          "matches": [
+            {
+              "field": "title",
+              "token": "nve",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "nve",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:38341759-3fcf-3839-b754-331447ffb596",
+          "title": "Høydedata NVE - Litleåna-Kvina 4pkt 2018",
+          "why": "title matched nve",
+          "matches": [
+            {
+              "field": "title",
+              "token": "nve",
+              "weight": 10
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "lp15",
+      "query": "befolkningsvekst i lillestrøm",
+      "tokens": [
+        "befolkningsvekst",
+        "lillestrøm"
+      ],
+      "returned": 10,
+      "coverage": {
+        "requirements": [
+          "befolkningsvekst",
+          "lillestrøm"
+        ],
+        "covered": [
+          "lillestrøm"
+        ],
+        "missing": [
+          "befolkningsvekst"
+        ],
+        "requirement_coverage": 0.5
+      },
+      "follow_up": {
+        "ran": true,
+        "reason": "requirement coverage below 1.0 on stored fields of the first-pass hits",
+        "queries": [
+          "befolkningsvekst",
+          "lillestrøm"
+        ],
+        "added": [
+          {
+            "id": "datanorge:4fb75b36-2bbf-38a9-84c0-225f93eb0304",
+            "title": "Dreneringslinjer i Lillestrøm Kommune - lokale data"
+          },
+          {
+            "id": "datanorge:06a7c7f4-892f-339b-8501-c61e0755b498",
+            "title": "Graveforbudssoner i Lillestrøm kommune - lokale data"
+          },
+          {
+            "id": "datanorge:638cb3df-8803-3126-a885-4bfeaac8a198",
+            "title": "Konsesjonsområde fjernvarme Lillestrøm kommune - lokale data"
+          },
+          {
+            "id": "datanorge:49811d88-5e21-3850-801c-3f497ed4c989",
+            "title": "Krav til parkeringsdekning i Lillestrøm kommune - lokale data"
+          },
+          {
+            "id": "datanorge:aaf82d7a-d9c4-3e14-9195-eb8c9f7f437a",
+            "title": "Prioriterte vekstområder i Lillestrøm kommune - lokale data"
+          },
+          {
+            "id": "datanorge:5fbb218d-bc90-3256-853b-bb055fe310c5",
+            "title": "Støysoner for skytebaner i Lillestrøm kommune - lokale data"
+          },
+          {
+            "id": "datanorge:a9bcf266-ef9c-3ea9-b018-61543d3ddb3c",
+            "title": "Temadata til Kommuneplanen 2023-2035, Indre- og Ytre soner, Lillestrøm kommune - Lokale data"
+          },
+          {
+            "id": "datanorge:211b56a4-851f-3450-8001-b32150b26bf1",
+            "title": "Differensierte støykrav i Kommuneplanen 2023-2035, Lillestrøm kommune -  Lokale data"
+          },
+          {
+            "id": "datanorge:fd99cc8b-d719-3fb7-b515-5e3437a19537",
+            "title": "Ortofoto Lillestrøm 1939"
+          },
+          {
+            "id": "datanorge:50969408-5b94-33d3-94bb-6f7f3092ba21",
+            "title": "Ortofoto Lillestrøm 1998"
+          }
+        ],
+        "skipped_same_query": [],
+        "requirement_coverage_before": 0.0,
+        "requirement_coverage_after": 0.5
+      },
+      "hits": [
+        {
+          "id": "datanorge:4fb75b36-2bbf-38a9-84c0-225f93eb0304",
+          "title": "Dreneringslinjer i Lillestrøm Kommune - lokale data",
+          "why": "title matched lillestrøm; keyword matched lillestrøm; description matched lillestrøm",
+          "matches": [
+            {
+              "field": "title",
+              "token": "lillestrøm",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "lillestrøm",
+              "weight": 5
+            },
+            {
+              "field": "description",
+              "token": "lillestrøm",
+              "weight": 2
+            }
+          ]
+        },
+        {
+          "id": "datanorge:06a7c7f4-892f-339b-8501-c61e0755b498",
+          "title": "Graveforbudssoner i Lillestrøm kommune - lokale data",
+          "why": "title matched lillestrøm; keyword matched lillestrøm; description matched lillestrøm",
+          "matches": [
+            {
+              "field": "title",
+              "token": "lillestrøm",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "lillestrøm",
+              "weight": 5
+            },
+            {
+              "field": "description",
+              "token": "lillestrøm",
+              "weight": 2
+            }
+          ]
+        },
+        {
+          "id": "datanorge:638cb3df-8803-3126-a885-4bfeaac8a198",
+          "title": "Konsesjonsområde fjernvarme Lillestrøm kommune - lokale data",
+          "why": "title matched lillestrøm; keyword matched lillestrøm; description matched lillestrøm",
+          "matches": [
+            {
+              "field": "title",
+              "token": "lillestrøm",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "lillestrøm",
+              "weight": 5
+            },
+            {
+              "field": "description",
+              "token": "lillestrøm",
+              "weight": 2
+            }
+          ]
+        },
+        {
+          "id": "datanorge:49811d88-5e21-3850-801c-3f497ed4c989",
+          "title": "Krav til parkeringsdekning i Lillestrøm kommune - lokale data",
+          "why": "title matched lillestrøm; keyword matched lillestrøm; description matched lillestrøm",
+          "matches": [
+            {
+              "field": "title",
+              "token": "lillestrøm",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "lillestrøm",
+              "weight": 5
+            },
+            {
+              "field": "description",
+              "token": "lillestrøm",
+              "weight": 2
+            }
+          ]
+        },
+        {
+          "id": "datanorge:aaf82d7a-d9c4-3e14-9195-eb8c9f7f437a",
+          "title": "Prioriterte vekstområder i Lillestrøm kommune - lokale data",
+          "why": "title matched lillestrøm; keyword matched lillestrøm; description matched lillestrøm",
+          "matches": [
+            {
+              "field": "title",
+              "token": "lillestrøm",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "lillestrøm",
+              "weight": 5
+            },
+            {
+              "field": "description",
+              "token": "lillestrøm",
+              "weight": 2
+            }
+          ]
+        },
+        {
+          "id": "datanorge:5fbb218d-bc90-3256-853b-bb055fe310c5",
+          "title": "Støysoner for skytebaner i Lillestrøm kommune - lokale data",
+          "why": "title matched lillestrøm; keyword matched lillestrøm; description matched lillestrøm",
+          "matches": [
+            {
+              "field": "title",
+              "token": "lillestrøm",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "lillestrøm",
+              "weight": 5
+            },
+            {
+              "field": "description",
+              "token": "lillestrøm",
+              "weight": 2
+            }
+          ]
+        },
+        {
+          "id": "datanorge:a9bcf266-ef9c-3ea9-b018-61543d3ddb3c",
+          "title": "Temadata til Kommuneplanen 2023-2035, Indre- og Ytre soner, Lillestrøm kommune - Lokale data",
+          "why": "title matched lillestrøm; keyword matched lillestrøm; description matched lillestrøm",
+          "matches": [
+            {
+              "field": "title",
+              "token": "lillestrøm",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "lillestrøm",
+              "weight": 5
+            },
+            {
+              "field": "description",
+              "token": "lillestrøm",
+              "weight": 2
+            }
+          ]
+        },
+        {
+          "id": "datanorge:211b56a4-851f-3450-8001-b32150b26bf1",
+          "title": "Differensierte støykrav i Kommuneplanen 2023-2035, Lillestrøm kommune -  Lokale data",
+          "why": "title matched lillestrøm; keyword matched lillestrøm",
+          "matches": [
+            {
+              "field": "title",
+              "token": "lillestrøm",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "lillestrøm",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:fd99cc8b-d719-3fb7-b515-5e3437a19537",
+          "title": "Ortofoto Lillestrøm 1939",
+          "why": "title matched lillestrøm; keyword matched lillestrøm",
+          "matches": [
+            {
+              "field": "title",
+              "token": "lillestrøm",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "lillestrøm",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:50969408-5b94-33d3-94bb-6f7f3092ba21",
+          "title": "Ortofoto Lillestrøm 1998",
+          "why": "title matched lillestrøm; keyword matched lillestrøm",
+          "matches": [
+            {
+              "field": "title",
+              "token": "lillestrøm",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "lillestrøm",
+              "weight": 5
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "lp16",
+      "query": "eldre i befolkningen",
+      "tokens": [
+        "eldre",
+        "befolkningen"
+      ],
+      "returned": 10,
+      "coverage": {
+        "requirements": [
+          "eldre",
+          "befolkningen"
+        ],
+        "covered": [
+          "eldre",
+          "befolkningen"
+        ],
+        "missing": [],
+        "requirement_coverage": 1.0
+      },
+      "follow_up": {
+        "ran": true,
+        "reason": "requirement coverage below 1.0 on stored fields of the first-pass hits",
+        "queries": [
+          "eldre",
+          "befolkningen"
+        ],
+        "added": [
+          {
+            "id": "datanorge:68ba1e74-1d8f-3652-a76e-047d0e89ea86",
+            "title": "Understellsregister for eldre kjøretøy"
+          },
+          {
+            "id": "datanorge:09123a60-2545-3720-ac43-9e958a678446",
+            "title": "ESS round 3 - 2006. Timing of life, Personal wellbeing"
+          },
+          {
+            "id": "datanorge:26522d06-448e-3869-9a40-9ef2512245a4",
+            "title": "ESS round 4 - 2008. Welfare attitudes, Ageism"
+          },
+          {
+            "id": "datanorge:f917de40-a369-373d-ab6d-f2f6e47c4120",
+            "title": "ESS round 9 - 2018. Timing of life, Justice and fairness"
+          },
+          {
+            "id": "datanorge:1c02031d-a4cf-3730-b71d-31d781107176",
+            "title": "DTM 10 Terrengmodell (UTM33) - Historiske versjoner"
+          },
+          {
+            "id": "datanorge:f543272b-6d94-30cc-b5eb-d81454fae6df",
+            "title": "DTM 10 Terrengmodell (UTM33) 2018"
+          },
+          {
+            "id": "datanorge:fddd9b75-3844-3eff-af9c-66b20e1cbe1f",
+            "title": "DTM 10 Terrengmodell (UTM33) 2019"
+          },
+          {
+            "id": "datanorge:f9bbaf1a-6805-3876-82b4-12355366ef7e",
+            "title": "DTM 10 Terrengmodell (UTM33) 2020"
+          },
+          {
+            "id": "datanorge:da75f514-c8e4-324e-b2b8-089141db1846",
+            "title": "DTM 10 Terrengmodell (UTM33) 2021"
+          },
+          {
+            "id": "datanorge:3c73846f-2743-3643-91c6-5837e9999591",
+            "title": "Levekår Stavanger: Aleneboende i % av befolkningen"
+          }
+        ],
+        "skipped_same_query": [],
+        "requirement_coverage_before": 0.0,
+        "requirement_coverage_after": 1.0
+      },
+      "hits": [
+        {
+          "id": "datanorge:3c73846f-2743-3643-91c6-5837e9999591",
+          "title": "Levekår Stavanger: Aleneboende i % av befolkningen",
+          "why": "title matched befolkningen",
+          "matches": [
+            {
+              "field": "title",
+              "token": "befolkningen",
+              "weight": 10
+            }
+          ]
+        },
+        {
+          "id": "datanorge:68ba1e74-1d8f-3652-a76e-047d0e89ea86",
+          "title": "Understellsregister for eldre kjøretøy",
+          "why": "title matched eldre",
+          "matches": [
+            {
+              "field": "title",
+              "token": "eldre",
+              "weight": 10
+            }
+          ]
+        },
+        {
+          "id": "datanorge:09123a60-2545-3720-ac43-9e958a678446",
+          "title": "ESS round 3 - 2006. Timing of life, Personal wellbeing",
+          "why": "keyword matched eldre",
+          "matches": [
+            {
+              "field": "keyword",
+              "token": "eldre",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:26522d06-448e-3869-9a40-9ef2512245a4",
+          "title": "ESS round 4 - 2008. Welfare attitudes, Ageism",
+          "why": "keyword matched eldre",
+          "matches": [
+            {
+              "field": "keyword",
+              "token": "eldre",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:f917de40-a369-373d-ab6d-f2f6e47c4120",
+          "title": "ESS round 9 - 2018. Timing of life, Justice and fairness",
+          "why": "keyword matched eldre",
+          "matches": [
+            {
+              "field": "keyword",
+              "token": "eldre",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:1c02031d-a4cf-3730-b71d-31d781107176",
+          "title": "DTM 10 Terrengmodell (UTM33) - Historiske versjoner",
+          "why": "description matched eldre",
+          "matches": [
+            {
+              "field": "description",
+              "token": "eldre",
+              "weight": 2
+            }
+          ]
+        },
+        {
+          "id": "datanorge:f543272b-6d94-30cc-b5eb-d81454fae6df",
+          "title": "DTM 10 Terrengmodell (UTM33) 2018",
+          "why": "description matched eldre",
+          "matches": [
+            {
+              "field": "description",
+              "token": "eldre",
+              "weight": 2
+            }
+          ]
+        },
+        {
+          "id": "datanorge:fddd9b75-3844-3eff-af9c-66b20e1cbe1f",
+          "title": "DTM 10 Terrengmodell (UTM33) 2019",
+          "why": "description matched eldre",
+          "matches": [
+            {
+              "field": "description",
+              "token": "eldre",
+              "weight": 2
+            }
+          ]
+        },
+        {
+          "id": "datanorge:f9bbaf1a-6805-3876-82b4-12355366ef7e",
+          "title": "DTM 10 Terrengmodell (UTM33) 2020",
+          "why": "description matched eldre",
+          "matches": [
+            {
+              "field": "description",
+              "token": "eldre",
+              "weight": 2
+            }
+          ]
+        },
+        {
+          "id": "datanorge:da75f514-c8e4-324e-b2b8-089141db1846",
+          "title": "DTM 10 Terrengmodell (UTM33) 2021",
+          "why": "description matched eldre",
+          "matches": [
+            {
+              "field": "description",
+              "token": "eldre",
+              "weight": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "lp17",
+      "query": "psykisk helse i kommunen",
+      "tokens": [
+        "psykisk",
+        "helse",
+        "kommunen"
+      ],
+      "returned": 10,
+      "coverage": {
+        "requirements": [
+          "psykisk",
+          "helse",
+          "kommunen"
+        ],
+        "covered": [
+          "helse"
+        ],
+        "missing": [
+          "psykisk",
+          "kommunen"
+        ],
+        "requirement_coverage": 0.3333333333333333
+      },
+      "follow_up": {
+        "ran": true,
+        "reason": "requirement coverage below 1.0 on stored fields of the first-pass hits",
+        "queries": [
+          "psykisk",
+          "helse",
+          "kommunen"
+        ],
+        "added": [
+          {
+            "id": "datanorge:f083e403-b4d3-3488-9372-9a77d575132b",
+            "title": "52 hverdagsturer. Tur 2: Lundsnesturen"
+          },
+          {
+            "id": "datanorge:a8d08015-b8a8-3b7b-8bb7-c3573178b35d",
+            "title": "52 hverdagsturer. Tur 3: Storhaugturen"
+          },
+          {
+            "id": "datanorge:d42b15ca-f95e-3a0f-86f3-013411245cb6",
+            "title": "52 hverdagsturer. Tur 4: Sundeturen"
+          },
+          {
+            "id": "datanorge:29b59cba-9784-3405-b807-4f8918c85dee",
+            "title": "52 hverdagsturer. Tur 6: Jåttåturen"
+          },
+          {
+            "id": "datanorge:3fd3beda-b905-361e-8b7c-3f55115aceda",
+            "title": "ATC indeks for legemidler 2021"
+          },
+          {
+            "id": "datanorge:11490576-d3e4-3f68-a4d1-31b77f6fbfa7",
+            "title": "Arbeidstilsynets statistikk over arbeidsskadedødsfall fordelt på fylke"
+          },
+          {
+            "id": "datanorge:907d6e7a-37fa-3a0c-9278-8f0710667a05",
+            "title": "Arbeidstilsynets statistikk over arbeidsskadedødsfall fordelt på kjønn"
+          },
+          {
+            "id": "datanorge:c6ae1018-5e22-37d3-b619-bbce9385fbe7",
+            "title": "Arbeidstilsynets statistikk over arbeidsskadedødsfall fordelt på måned"
+          },
+          {
+            "id": "datanorge:fd3866b2-d246-3546-9f15-4e6b294b8d8d",
+            "title": "Arbeidstilsynets statistikk over arbeidsskadedødsfall fordelt på næring"
+          },
+          {
+            "id": "datanorge:2d82a68c-9729-3d08-b4ac-552b700048b1",
+            "title": "Arbeidstilsynets statistikk over arbeidsskadedødsfall fordelt på ulykkestype"
+          }
+        ],
+        "skipped_same_query": [],
+        "requirement_coverage_before": 0.0,
+        "requirement_coverage_after": 0.3333333333333333
+      },
+      "hits": [
+        {
+          "id": "datanorge:f083e403-b4d3-3488-9372-9a77d575132b",
+          "title": "52 hverdagsturer. Tur 2: Lundsnesturen",
+          "why": "theme matched helse, helse, helse",
+          "matches": [
+            {
+              "field": "theme",
+              "token": "helse",
+              "weight": 5
+            },
+            {
+              "field": "theme",
+              "token": "helse",
+              "weight": 5
+            },
+            {
+              "field": "theme",
+              "token": "helse",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:a8d08015-b8a8-3b7b-8bb7-c3573178b35d",
+          "title": "52 hverdagsturer. Tur 3: Storhaugturen",
+          "why": "theme matched helse, helse, helse",
+          "matches": [
+            {
+              "field": "theme",
+              "token": "helse",
+              "weight": 5
+            },
+            {
+              "field": "theme",
+              "token": "helse",
+              "weight": 5
+            },
+            {
+              "field": "theme",
+              "token": "helse",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:d42b15ca-f95e-3a0f-86f3-013411245cb6",
+          "title": "52 hverdagsturer. Tur 4: Sundeturen",
+          "why": "theme matched helse, helse, helse",
+          "matches": [
+            {
+              "field": "theme",
+              "token": "helse",
+              "weight": 5
+            },
+            {
+              "field": "theme",
+              "token": "helse",
+              "weight": 5
+            },
+            {
+              "field": "theme",
+              "token": "helse",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:29b59cba-9784-3405-b807-4f8918c85dee",
+          "title": "52 hverdagsturer. Tur 6: Jåttåturen",
+          "why": "theme matched helse, helse, helse",
+          "matches": [
+            {
+              "field": "theme",
+              "token": "helse",
+              "weight": 5
+            },
+            {
+              "field": "theme",
+              "token": "helse",
+              "weight": 5
+            },
+            {
+              "field": "theme",
+              "token": "helse",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:3fd3beda-b905-361e-8b7c-3f55115aceda",
+          "title": "ATC indeks for legemidler 2021",
+          "why": "theme matched helse, helse, helse",
+          "matches": [
+            {
+              "field": "theme",
+              "token": "helse",
+              "weight": 5
+            },
+            {
+              "field": "theme",
+              "token": "helse",
+              "weight": 5
+            },
+            {
+              "field": "theme",
+              "token": "helse",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:11490576-d3e4-3f68-a4d1-31b77f6fbfa7",
+          "title": "Arbeidstilsynets statistikk over arbeidsskadedødsfall fordelt på fylke",
+          "why": "theme matched helse, helse, helse",
+          "matches": [
+            {
+              "field": "theme",
+              "token": "helse",
+              "weight": 5
+            },
+            {
+              "field": "theme",
+              "token": "helse",
+              "weight": 5
+            },
+            {
+              "field": "theme",
+              "token": "helse",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:907d6e7a-37fa-3a0c-9278-8f0710667a05",
+          "title": "Arbeidstilsynets statistikk over arbeidsskadedødsfall fordelt på kjønn",
+          "why": "theme matched helse, helse, helse",
+          "matches": [
+            {
+              "field": "theme",
+              "token": "helse",
+              "weight": 5
+            },
+            {
+              "field": "theme",
+              "token": "helse",
+              "weight": 5
+            },
+            {
+              "field": "theme",
+              "token": "helse",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:c6ae1018-5e22-37d3-b619-bbce9385fbe7",
+          "title": "Arbeidstilsynets statistikk over arbeidsskadedødsfall fordelt på måned",
+          "why": "theme matched helse, helse, helse",
+          "matches": [
+            {
+              "field": "theme",
+              "token": "helse",
+              "weight": 5
+            },
+            {
+              "field": "theme",
+              "token": "helse",
+              "weight": 5
+            },
+            {
+              "field": "theme",
+              "token": "helse",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:fd3866b2-d246-3546-9f15-4e6b294b8d8d",
+          "title": "Arbeidstilsynets statistikk over arbeidsskadedødsfall fordelt på næring",
+          "why": "theme matched helse, helse, helse",
+          "matches": [
+            {
+              "field": "theme",
+              "token": "helse",
+              "weight": 5
+            },
+            {
+              "field": "theme",
+              "token": "helse",
+              "weight": 5
+            },
+            {
+              "field": "theme",
+              "token": "helse",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:2d82a68c-9729-3d08-b4ac-552b700048b1",
+          "title": "Arbeidstilsynets statistikk over arbeidsskadedødsfall fordelt på ulykkestype",
+          "why": "theme matched helse, helse, helse",
+          "matches": [
+            {
+              "field": "theme",
+              "token": "helse",
+              "weight": 5
+            },
+            {
+              "field": "theme",
+              "token": "helse",
+              "weight": 5
+            },
+            {
+              "field": "theme",
+              "token": "helse",
+              "weight": 5
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "lp18",
+      "query": "nettleie for husholdning",
+      "tokens": [
+        "nettleie",
+        "husholdning"
+      ],
+      "returned": 3,
+      "coverage": {
+        "requirements": [
+          "nettleie",
+          "husholdning"
+        ],
+        "covered": [
+          "nettleie",
+          "husholdning"
+        ],
+        "missing": [],
+        "requirement_coverage": 1.0
+      },
+      "follow_up": {
+        "ran": true,
+        "reason": "requirement coverage below 1.0 on stored fields of the first-pass hits",
+        "queries": [
+          "nettleie",
+          "husholdning"
+        ],
+        "added": [
+          {
+            "id": "datanorge:7dae91e0-9e69-3319-9dcb-1e2765d81c32",
+            "title": "Nettleiestatistikk"
+          },
+          {
+            "id": "datanorge:43dfeb19-c429-3b2e-8be6-65f801d64d75",
+            "title": "Levekår Stavanger: Barn i lavinntektshusholdninger EU50"
+          },
+          {
+            "id": "datanorge:81aab433-5cda-39fa-b763-24efb6cbd749",
+            "title": "Levekår Stavanger: Barn i lavinntektshusholdninger EU60"
+          }
+        ],
+        "skipped_same_query": [],
+        "requirement_coverage_before": 0.0,
+        "requirement_coverage_after": 1.0
+      },
+      "hits": [
+        {
+          "id": "datanorge:43dfeb19-c429-3b2e-8be6-65f801d64d75",
+          "title": "Levekår Stavanger: Barn i lavinntektshusholdninger EU50",
+          "why": "keyword matched husholdning; description matched husholdning",
+          "matches": [
+            {
+              "field": "keyword",
+              "token": "husholdning",
+              "weight": 5
+            },
+            {
+              "field": "description",
+              "token": "husholdning",
+              "weight": 2
+            }
+          ]
+        },
+        {
+          "id": "datanorge:81aab433-5cda-39fa-b763-24efb6cbd749",
+          "title": "Levekår Stavanger: Barn i lavinntektshusholdninger EU60",
+          "why": "keyword matched husholdning; description matched husholdning",
+          "matches": [
+            {
+              "field": "keyword",
+              "token": "husholdning",
+              "weight": 5
+            },
+            {
+              "field": "description",
+              "token": "husholdning",
+              "weight": 2
+            }
+          ]
+        },
+        {
+          "id": "datanorge:7dae91e0-9e69-3319-9dcb-1e2765d81c32",
+          "title": "Nettleiestatistikk",
+          "why": "keyword matched nettleie; description matched nettleie",
+          "matches": [
+            {
+              "field": "keyword",
+              "token": "nettleie",
+              "weight": 5
+            },
+            {
+              "field": "description",
+              "token": "nettleie",
+              "weight": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "lp19",
+      "query": "solenergi på tak",
+      "tokens": [
+        "solenergi",
+        "tak"
+      ],
+      "returned": 1,
+      "coverage": {
+        "requirements": [
+          "solenergi",
+          "tak"
+        ],
+        "covered": [
+          "tak"
+        ],
+        "missing": [
+          "solenergi"
+        ],
+        "requirement_coverage": 0.5
+      },
+      "follow_up": {
+        "ran": true,
+        "reason": "requirement coverage below 1.0 on stored fields of the first-pass hits",
+        "queries": [
+          "solenergi",
+          "tak"
+        ],
+        "added": [
+          {
+            "id": "datanorge:d40f8220-c715-3024-9c56-65920e2e447f",
+            "title": "Digital 3D-bymodell for deler av Trondheim kommune"
+          }
+        ],
+        "skipped_same_query": [],
+        "requirement_coverage_before": 0.0,
+        "requirement_coverage_after": 0.5
+      },
+      "hits": [
+        {
+          "id": "datanorge:d40f8220-c715-3024-9c56-65920e2e447f",
+          "title": "Digital 3D-bymodell for deler av Trondheim kommune",
+          "why": "description matched tak",
+          "matches": [
+            {
+              "field": "description",
+              "token": "tak",
+              "weight": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "lp20",
+      "query": "legevakt i oslo",
+      "tokens": [
+        "legevakt",
+        "oslo"
+      ],
+      "returned": 10,
+      "coverage": {
+        "requirements": [
+          "legevakt",
+          "oslo"
+        ],
+        "covered": [
+          "oslo"
+        ],
+        "missing": [
+          "legevakt"
+        ],
+        "requirement_coverage": 0.5
+      },
+      "follow_up": {
+        "ran": true,
+        "reason": "requirement coverage below 1.0 on stored fields of the first-pass hits",
+        "queries": [
+          "legevakt",
+          "oslo"
+        ],
+        "added": [
+          {
+            "id": "datanorge:911ea3f5-30cb-3e37-87be-dfdc3a21b797",
+            "title": "Ortofoto Oslo - Bekkelaget 1977"
+          },
+          {
+            "id": "datanorge:3f85f3c0-de60-38ae-b031-b057d89bcde2",
+            "title": "Ortofoto Oslo - Follo - Romerike SV 1956"
+          },
+          {
+            "id": "datanorge:49362745-703f-3d56-af0b-e11135e43897",
+            "title": "Ortofoto Oslo - Furuset 1977"
+          },
+          {
+            "id": "datanorge:582df164-d621-31f1-9ac5-7fa778f4867e",
+            "title": "Ortofoto Oslo - Holmlia 1989"
+          },
+          {
+            "id": "datanorge:d7c92bb7-28c2-3e8d-9027-8e0444fcff29",
+            "title": "Ortofoto Oslo - Ullevål 1977"
+          },
+          {
+            "id": "datanorge:25dba859-5618-3203-9ad4-61f0f76cb07f",
+            "title": "Ortofoto Oslo - indre øyer 1960"
+          },
+          {
+            "id": "datanorge:81059b49-2365-309e-8658-3b41e4783cdd",
+            "title": "Ortofoto Oslo 1937"
+          },
+          {
+            "id": "datanorge:963a0060-f861-36ee-9838-35dec4e79b01",
+            "title": "Ortofoto Oslo 1947"
+          },
+          {
+            "id": "datanorge:b6c09abf-06c6-3d07-ab89-1b43e5ab67ed",
+            "title": "Ortofoto Oslo 1971"
+          },
+          {
+            "id": "datanorge:3ea0ecb9-3359-3cb9-ac81-efc47fa2b27b",
+            "title": "Ortofoto Oslo 1974"
+          }
+        ],
+        "skipped_same_query": [],
+        "requirement_coverage_before": 0.0,
+        "requirement_coverage_after": 0.5
+      },
+      "hits": [
+        {
+          "id": "datanorge:911ea3f5-30cb-3e37-87be-dfdc3a21b797",
+          "title": "Ortofoto Oslo - Bekkelaget 1977",
+          "why": "title matched oslo; keyword matched oslo",
+          "matches": [
+            {
+              "field": "title",
+              "token": "oslo",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "oslo",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:3f85f3c0-de60-38ae-b031-b057d89bcde2",
+          "title": "Ortofoto Oslo - Follo - Romerike SV 1956",
+          "why": "title matched oslo; keyword matched oslo",
+          "matches": [
+            {
+              "field": "title",
+              "token": "oslo",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "oslo",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:49362745-703f-3d56-af0b-e11135e43897",
+          "title": "Ortofoto Oslo - Furuset 1977",
+          "why": "title matched oslo; keyword matched oslo",
+          "matches": [
+            {
+              "field": "title",
+              "token": "oslo",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "oslo",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:582df164-d621-31f1-9ac5-7fa778f4867e",
+          "title": "Ortofoto Oslo - Holmlia 1989",
+          "why": "title matched oslo; keyword matched oslo",
+          "matches": [
+            {
+              "field": "title",
+              "token": "oslo",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "oslo",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:d7c92bb7-28c2-3e8d-9027-8e0444fcff29",
+          "title": "Ortofoto Oslo - Ullevål 1977",
+          "why": "title matched oslo; keyword matched oslo",
+          "matches": [
+            {
+              "field": "title",
+              "token": "oslo",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "oslo",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:25dba859-5618-3203-9ad4-61f0f76cb07f",
+          "title": "Ortofoto Oslo - indre øyer 1960",
+          "why": "title matched oslo; keyword matched oslo",
+          "matches": [
+            {
+              "field": "title",
+              "token": "oslo",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "oslo",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:81059b49-2365-309e-8658-3b41e4783cdd",
+          "title": "Ortofoto Oslo 1937",
+          "why": "title matched oslo; keyword matched oslo",
+          "matches": [
+            {
+              "field": "title",
+              "token": "oslo",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "oslo",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:963a0060-f861-36ee-9838-35dec4e79b01",
+          "title": "Ortofoto Oslo 1947",
+          "why": "title matched oslo; keyword matched oslo",
+          "matches": [
+            {
+              "field": "title",
+              "token": "oslo",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "oslo",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:b6c09abf-06c6-3d07-ab89-1b43e5ab67ed",
+          "title": "Ortofoto Oslo 1971",
+          "why": "title matched oslo; keyword matched oslo",
+          "matches": [
+            {
+              "field": "title",
+              "token": "oslo",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "oslo",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:3ea0ecb9-3359-3cb9-ac81-efc47fa2b27b",
+          "title": "Ortofoto Oslo 1974",
+          "why": "title matched oslo; keyword matched oslo",
+          "matches": [
+            {
+              "field": "title",
+              "token": "oslo",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "oslo",
+              "weight": 5
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "lp21",
+      "query": "drikkevann i bærum",
+      "tokens": [
+        "drikkevann",
+        "bærum"
+      ],
+      "returned": 10,
+      "coverage": {
+        "requirements": [
+          "drikkevann",
+          "bærum"
+        ],
+        "covered": [
+          "drikkevann",
+          "bærum"
+        ],
+        "missing": [],
+        "requirement_coverage": 1.0
+      },
+      "follow_up": {
+        "ran": true,
+        "reason": "requirement coverage below 1.0 on stored fields of the first-pass hits",
+        "queries": [
+          "drikkevann",
+          "bærum"
+        ],
+        "added": [
+          {
+            "id": "datanorge:37d2754d-5c2f-3d76-907c-8dea253bb676",
+            "title": "Drikkevann - inntakspunkter"
+          },
+          {
+            "id": "datanorge:7ae45575-2f0c-3de1-8bdd-6178e36073a0",
+            "title": "Ortofoto Asker - Bærum MOF 2026"
+          },
+          {
+            "id": "datanorge:adf951ff-d66a-3db5-b117-45b1f01d3257",
+            "title": "Ortofoto Asker Bærum 2020"
+          },
+          {
+            "id": "datanorge:a74f29bd-8dd9-30d8-b657-4475a119f162",
+            "title": "Ortofoto Asker Bærum 2024"
+          },
+          {
+            "id": "datanorge:17487dde-afe7-3c4e-8c24-037bae0a62f2",
+            "title": "Ortofoto Asker Bærum MOF 2020"
+          },
+          {
+            "id": "datanorge:cc0bf6f4-0825-334f-8bf4-1b17ebf1e67b",
+            "title": "Ortofoto Asker Bærum MOF 2024"
+          },
+          {
+            "id": "datanorge:d0f935d4-6bfa-35c8-aa74-264484010fc9",
+            "title": "Ortofoto Asker og Bærum 2012"
+          },
+          {
+            "id": "datanorge:3a1c7ac6-e477-38d8-a5bb-6579814fbadb",
+            "title": "Ortofoto Asker og Bærum IR 2012"
+          },
+          {
+            "id": "datanorge:7411778a-a99f-3636-aba0-b4484462785e",
+            "title": "Ortofoto Bærum 1980"
+          },
+          {
+            "id": "datanorge:dd847080-014b-3ea5-8b1b-b36dbbb9c2a7",
+            "title": "Ortofoto Bærum 2004-2007"
+          }
+        ],
+        "skipped_same_query": [],
+        "requirement_coverage_before": 0.0,
+        "requirement_coverage_after": 1.0
+      },
+      "hits": [
+        {
+          "id": "datanorge:37d2754d-5c2f-3d76-907c-8dea253bb676",
+          "title": "Drikkevann - inntakspunkter",
+          "why": "title matched drikkevann; keyword matched drikkevann",
+          "matches": [
+            {
+              "field": "title",
+              "token": "drikkevann",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "drikkevann",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:7ae45575-2f0c-3de1-8bdd-6178e36073a0",
+          "title": "Ortofoto Asker - Bærum MOF 2026",
+          "why": "title matched bærum; keyword matched bærum",
+          "matches": [
+            {
+              "field": "title",
+              "token": "bærum",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "bærum",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:adf951ff-d66a-3db5-b117-45b1f01d3257",
+          "title": "Ortofoto Asker Bærum 2020",
+          "why": "title matched bærum; keyword matched bærum",
+          "matches": [
+            {
+              "field": "title",
+              "token": "bærum",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "bærum",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:a74f29bd-8dd9-30d8-b657-4475a119f162",
+          "title": "Ortofoto Asker Bærum 2024",
+          "why": "title matched bærum; keyword matched bærum",
+          "matches": [
+            {
+              "field": "title",
+              "token": "bærum",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "bærum",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:17487dde-afe7-3c4e-8c24-037bae0a62f2",
+          "title": "Ortofoto Asker Bærum MOF 2020",
+          "why": "title matched bærum; keyword matched bærum",
+          "matches": [
+            {
+              "field": "title",
+              "token": "bærum",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "bærum",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:cc0bf6f4-0825-334f-8bf4-1b17ebf1e67b",
+          "title": "Ortofoto Asker Bærum MOF 2024",
+          "why": "title matched bærum; keyword matched bærum",
+          "matches": [
+            {
+              "field": "title",
+              "token": "bærum",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "bærum",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:d0f935d4-6bfa-35c8-aa74-264484010fc9",
+          "title": "Ortofoto Asker og Bærum 2012",
+          "why": "title matched bærum; keyword matched bærum",
+          "matches": [
+            {
+              "field": "title",
+              "token": "bærum",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "bærum",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:3a1c7ac6-e477-38d8-a5bb-6579814fbadb",
+          "title": "Ortofoto Asker og Bærum IR 2012",
+          "why": "title matched bærum; keyword matched bærum",
+          "matches": [
+            {
+              "field": "title",
+              "token": "bærum",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "bærum",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:7411778a-a99f-3636-aba0-b4484462785e",
+          "title": "Ortofoto Bærum 1980",
+          "why": "title matched bærum; keyword matched bærum",
+          "matches": [
+            {
+              "field": "title",
+              "token": "bærum",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "bærum",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:dd847080-014b-3ea5-8b1b-b36dbbb9c2a7",
+          "title": "Ortofoto Bærum 2004-2007",
+          "why": "title matched bærum; keyword matched bærum",
+          "matches": [
+            {
+              "field": "title",
+              "token": "bærum",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "bærum",
+              "weight": 5
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "lp22",
+      "query": "innvandring og befolkning oslo",
+      "tokens": [
+        "innvandring",
+        "befolkning",
+        "oslo"
+      ],
+      "returned": 1,
+      "coverage": {
+        "requirements": [
+          "innvandring",
+          "befolkning",
+          "oslo"
+        ],
+        "covered": [
+          "innvandring",
+          "befolkning",
+          "oslo"
+        ],
+        "missing": [],
+        "requirement_coverage": 1.0
+      },
+      "follow_up": null,
+      "hits": [
+        {
+          "id": "datanorge:fd5816a6-37da-33f9-8391-544a9ba5d9c2",
+          "title": "Statistikk om innvandring og integrering",
+          "why": "requirements innvandring AND befolkning AND oslo; title matched innvandring; keyword matched innvandring, befolkning; description matched innvandring, befolkning, oslo; theme matched befolkning",
+          "matches": [
+            {
+              "field": "title",
+              "token": "innvandring",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "innvandring",
+              "weight": 5
+            },
+            {
+              "field": "description",
+              "token": "innvandring",
+              "weight": 2
+            },
+            {
+              "field": "keyword",
+              "token": "befolkning",
+              "weight": 5
+            },
+            {
+              "field": "theme",
+              "token": "befolkning",
+              "weight": 5
+            },
+            {
+              "field": "description",
+              "token": "befolkning",
+              "weight": 2
+            },
+            {
+              "field": "description",
+              "token": "oslo",
+              "weight": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "lp23",
+      "query": "barnehelse i kommune",
+      "tokens": [
+        "barnehelse",
+        "kommune"
+      ],
+      "returned": 10,
+      "coverage": {
+        "requirements": [
+          "barnehelse",
+          "kommune"
+        ],
+        "covered": [
+          "kommune"
+        ],
+        "missing": [
+          "barnehelse"
+        ],
+        "requirement_coverage": 0.5
+      },
+      "follow_up": {
+        "ran": true,
+        "reason": "requirement coverage below 1.0 on stored fields of the first-pass hits",
+        "queries": [
+          "barnehelse",
+          "kommune"
+        ],
+        "added": [
+          {
+            "id": "datanorge:77765f01-5e37-3e45-94db-00dee43030b5",
+            "title": "5050 VA - base for Nærøysund kommune"
+          },
+          {
+            "id": "datanorge:2ed73efb-7d76-3726-9db2-d8ba5ae25711",
+            "title": "Flomaktsomhet beregnet, Os kommune"
+          },
+          {
+            "id": "datanorge:bcfca869-33f4-3b90-98ea-fc7a586c9160",
+            "title": "Flomaktsomhet beregnet, Røros kommune"
+          },
+          {
+            "id": "datanorge:2a819a1c-861d-3632-82aa-cc20cf5626bd",
+            "title": "Forbudssoner for avfyring av fyrverkeri i Halden kommune"
+          },
+          {
+            "id": "datanorge:f4b80d36-7f75-3c8a-9565-45e17c1c4337",
+            "title": "Forurenset grunn i tidligere Skedsmo kommune - lokale data"
+          },
+          {
+            "id": "datanorge:06a7c7f4-892f-339b-8501-c61e0755b498",
+            "title": "Graveforbudssoner i Lillestrøm kommune - lokale data"
+          },
+          {
+            "id": "datanorge:edfc3137-e893-34bc-b281-b8acdfe31ae0",
+            "title": "Kommunedelplaner Indre Østfold kommune"
+          },
+          {
+            "id": "datanorge:fc89b77c-657e-38fc-bbe5-4b6b97184be5",
+            "title": "Kommuneplanens arealdel Indre Østfold kommune"
+          },
+          {
+            "id": "datanorge:638cb3df-8803-3126-a885-4bfeaac8a198",
+            "title": "Konsesjonsområde fjernvarme Lillestrøm kommune - lokale data"
+          },
+          {
+            "id": "datanorge:49811d88-5e21-3850-801c-3f497ed4c989",
+            "title": "Krav til parkeringsdekning i Lillestrøm kommune - lokale data"
+          }
+        ],
+        "skipped_same_query": [],
+        "requirement_coverage_before": 0.0,
+        "requirement_coverage_after": 0.5
+      },
+      "hits": [
+        {
+          "id": "datanorge:77765f01-5e37-3e45-94db-00dee43030b5",
+          "title": "5050 VA - base for Nærøysund kommune",
+          "why": "title matched kommune; keyword matched kommune; description matched kommune",
+          "matches": [
+            {
+              "field": "title",
+              "token": "kommune",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "kommune",
+              "weight": 5
+            },
+            {
+              "field": "description",
+              "token": "kommune",
+              "weight": 2
+            }
+          ]
+        },
+        {
+          "id": "datanorge:2ed73efb-7d76-3726-9db2-d8ba5ae25711",
+          "title": "Flomaktsomhet beregnet, Os kommune",
+          "why": "title matched kommune; keyword matched kommune; description matched kommune",
+          "matches": [
+            {
+              "field": "title",
+              "token": "kommune",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "kommune",
+              "weight": 5
+            },
+            {
+              "field": "description",
+              "token": "kommune",
+              "weight": 2
+            }
+          ]
+        },
+        {
+          "id": "datanorge:bcfca869-33f4-3b90-98ea-fc7a586c9160",
+          "title": "Flomaktsomhet beregnet, Røros kommune",
+          "why": "title matched kommune; keyword matched kommune; description matched kommune",
+          "matches": [
+            {
+              "field": "title",
+              "token": "kommune",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "kommune",
+              "weight": 5
+            },
+            {
+              "field": "description",
+              "token": "kommune",
+              "weight": 2
+            }
+          ]
+        },
+        {
+          "id": "datanorge:2a819a1c-861d-3632-82aa-cc20cf5626bd",
+          "title": "Forbudssoner for avfyring av fyrverkeri i Halden kommune",
+          "why": "title matched kommune; keyword matched kommune; description matched kommune",
+          "matches": [
+            {
+              "field": "title",
+              "token": "kommune",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "kommune",
+              "weight": 5
+            },
+            {
+              "field": "description",
+              "token": "kommune",
+              "weight": 2
+            }
+          ]
+        },
+        {
+          "id": "datanorge:f4b80d36-7f75-3c8a-9565-45e17c1c4337",
+          "title": "Forurenset grunn i tidligere Skedsmo kommune - lokale data",
+          "why": "title matched kommune; keyword matched kommune; description matched kommune",
+          "matches": [
+            {
+              "field": "title",
+              "token": "kommune",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "kommune",
+              "weight": 5
+            },
+            {
+              "field": "description",
+              "token": "kommune",
+              "weight": 2
+            }
+          ]
+        },
+        {
+          "id": "datanorge:06a7c7f4-892f-339b-8501-c61e0755b498",
+          "title": "Graveforbudssoner i Lillestrøm kommune - lokale data",
+          "why": "title matched kommune; keyword matched kommune; description matched kommune",
+          "matches": [
+            {
+              "field": "title",
+              "token": "kommune",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "kommune",
+              "weight": 5
+            },
+            {
+              "field": "description",
+              "token": "kommune",
+              "weight": 2
+            }
+          ]
+        },
+        {
+          "id": "datanorge:edfc3137-e893-34bc-b281-b8acdfe31ae0",
+          "title": "Kommunedelplaner Indre Østfold kommune",
+          "why": "title matched kommune; keyword matched kommune; description matched kommune",
+          "matches": [
+            {
+              "field": "title",
+              "token": "kommune",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "kommune",
+              "weight": 5
+            },
+            {
+              "field": "description",
+              "token": "kommune",
+              "weight": 2
+            }
+          ]
+        },
+        {
+          "id": "datanorge:fc89b77c-657e-38fc-bbe5-4b6b97184be5",
+          "title": "Kommuneplanens arealdel Indre Østfold kommune",
+          "why": "title matched kommune; keyword matched kommune; description matched kommune",
+          "matches": [
+            {
+              "field": "title",
+              "token": "kommune",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "kommune",
+              "weight": 5
+            },
+            {
+              "field": "description",
+              "token": "kommune",
+              "weight": 2
+            }
+          ]
+        },
+        {
+          "id": "datanorge:638cb3df-8803-3126-a885-4bfeaac8a198",
+          "title": "Konsesjonsområde fjernvarme Lillestrøm kommune - lokale data",
+          "why": "title matched kommune; keyword matched kommune; description matched kommune",
+          "matches": [
+            {
+              "field": "title",
+              "token": "kommune",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "kommune",
+              "weight": 5
+            },
+            {
+              "field": "description",
+              "token": "kommune",
+              "weight": 2
+            }
+          ]
+        },
+        {
+          "id": "datanorge:49811d88-5e21-3850-801c-3f497ed4c989",
+          "title": "Krav til parkeringsdekning i Lillestrøm kommune - lokale data",
+          "why": "title matched kommune; keyword matched kommune; description matched kommune",
+          "matches": [
+            {
+              "field": "title",
+              "token": "kommune",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "kommune",
+              "weight": 5
+            },
+            {
+              "field": "description",
+              "token": "kommune",
+              "weight": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "lp24",
+      "query": "strømforbruk i hamar",
+      "tokens": [
+        "strømforbruk",
+        "hamar"
+      ],
+      "returned": 10,
+      "coverage": {
+        "requirements": [
+          "strømforbruk",
+          "hamar"
+        ],
+        "covered": [
+          "hamar"
+        ],
+        "missing": [
+          "strømforbruk"
+        ],
+        "requirement_coverage": 0.5
+      },
+      "follow_up": {
+        "ran": true,
+        "reason": "requirement coverage below 1.0 on stored fields of the first-pass hits",
+        "queries": [
+          "strømforbruk",
+          "hamar"
+        ],
+        "added": [
+          {
+            "id": "datanorge:df8192ac-0225-36c6-bb59-a398c3f93af6",
+            "title": "Midlertidige flomsoner for Mjøsa for Hamar, Stange og Ringsaker"
+          },
+          {
+            "id": "datanorge:cd962f40-33ae-382b-8e68-d017255b296a",
+            "title": "Ortofoto Hamar - Ringebu 1988"
+          },
+          {
+            "id": "datanorge:774fc2f4-1a5a-3db8-92cd-30f98b8752bb",
+            "title": "Ortofoto Hamar - Ringsaker - Løten 1956"
+          },
+          {
+            "id": "datanorge:96a8d898-24a1-3ee4-99a9-c91da0ea1704",
+            "title": "Ortofoto Hamar 1947"
+          },
+          {
+            "id": "datanorge:828045df-a4e4-3e7e-9816-2ab519b1b6e1",
+            "title": "Ortofoto Hamar 1997"
+          },
+          {
+            "id": "datanorge:be577684-7dea-381f-8dab-5284847353c3",
+            "title": "Ortofoto Hamar flom 2023"
+          },
+          {
+            "id": "datanorge:2048bfa3-44f6-31db-8c58-9769b95342af",
+            "title": "Ortofoto Hamar sentrum 1997"
+          },
+          {
+            "id": "datanorge:cd417531-2302-35b7-b60d-e0417b2d8666",
+            "title": "Ortofoto Hamar sentrum 1997"
+          },
+          {
+            "id": "datanorge:bcaf46ab-b68d-3ccc-9a2b-11d3b4d5c354",
+            "title": "Ortofoto Hamar strandlinje 2022"
+          },
+          {
+            "id": "datanorge:d2ac2de8-88de-3db7-aa7e-e62d1a9c157b",
+            "title": "Ortofoto Hamar-Løten IR 2016"
+          }
+        ],
+        "skipped_same_query": [],
+        "requirement_coverage_before": 0.0,
+        "requirement_coverage_after": 0.5
+      },
+      "hits": [
+        {
+          "id": "datanorge:df8192ac-0225-36c6-bb59-a398c3f93af6",
+          "title": "Midlertidige flomsoner for Mjøsa for Hamar, Stange og Ringsaker",
+          "why": "title matched hamar; keyword matched hamar; description matched hamar",
+          "matches": [
+            {
+              "field": "title",
+              "token": "hamar",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "hamar",
+              "weight": 5
+            },
+            {
+              "field": "description",
+              "token": "hamar",
+              "weight": 2
+            }
+          ]
+        },
+        {
+          "id": "datanorge:cd962f40-33ae-382b-8e68-d017255b296a",
+          "title": "Ortofoto Hamar - Ringebu 1988",
+          "why": "title matched hamar; keyword matched hamar",
+          "matches": [
+            {
+              "field": "title",
+              "token": "hamar",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "hamar",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:774fc2f4-1a5a-3db8-92cd-30f98b8752bb",
+          "title": "Ortofoto Hamar - Ringsaker - Løten 1956",
+          "why": "title matched hamar; keyword matched hamar",
+          "matches": [
+            {
+              "field": "title",
+              "token": "hamar",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "hamar",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:96a8d898-24a1-3ee4-99a9-c91da0ea1704",
+          "title": "Ortofoto Hamar 1947",
+          "why": "title matched hamar; keyword matched hamar",
+          "matches": [
+            {
+              "field": "title",
+              "token": "hamar",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "hamar",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:828045df-a4e4-3e7e-9816-2ab519b1b6e1",
+          "title": "Ortofoto Hamar 1997",
+          "why": "title matched hamar; keyword matched hamar",
+          "matches": [
+            {
+              "field": "title",
+              "token": "hamar",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "hamar",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:be577684-7dea-381f-8dab-5284847353c3",
+          "title": "Ortofoto Hamar flom 2023",
+          "why": "title matched hamar; keyword matched hamar",
+          "matches": [
+            {
+              "field": "title",
+              "token": "hamar",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "hamar",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:2048bfa3-44f6-31db-8c58-9769b95342af",
+          "title": "Ortofoto Hamar sentrum 1997",
+          "why": "title matched hamar; keyword matched hamar",
+          "matches": [
+            {
+              "field": "title",
+              "token": "hamar",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "hamar",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:cd417531-2302-35b7-b60d-e0417b2d8666",
+          "title": "Ortofoto Hamar sentrum 1997",
+          "why": "title matched hamar; keyword matched hamar",
+          "matches": [
+            {
+              "field": "title",
+              "token": "hamar",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "hamar",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:bcaf46ab-b68d-3ccc-9a2b-11d3b4d5c354",
+          "title": "Ortofoto Hamar strandlinje 2022",
+          "why": "title matched hamar; keyword matched hamar",
+          "matches": [
+            {
+              "field": "title",
+              "token": "hamar",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "hamar",
+              "weight": 5
+            }
+          ]
+        },
+        {
+          "id": "datanorge:d2ac2de8-88de-3db7-aa7e-e62d1a9c157b",
+          "title": "Ortofoto Hamar-Løten IR 2016",
+          "why": "title matched hamar; keyword matched hamar",
+          "matches": [
+            {
+              "field": "title",
+              "token": "hamar",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "hamar",
+              "weight": 5
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "db": "data/registry.sqlite",
+  "questions_path": "data/live_prompt_pack.json",
+  "registry_rows": 9121,
+  "limit": 10,
+  "decompose": true,
+  "command": "pda search --questions data/live_prompt_pack.json --out data/live_prompt_pack_report.json --db data/registry.sqlite --limit 10"
+}

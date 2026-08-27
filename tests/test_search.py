@@ -10,6 +10,8 @@ from public_data_agent.search import (
     VARIABLES_UNKNOWN_REASON,
     decompose,
     keywords_from_payload,
+    load_prompt_pack,
+    run_search_pack,
     search,
     search_report,
     tokenize,
@@ -253,3 +255,86 @@ def test_cli_search_uses_fixture_registry(tmp_path: Path, capsys) -> None:
     assert payload["coverage"]["requirement_coverage"] == 1.0
     assert "confidence" not in payload["coverage"]
     assert payload["coverage"]["covered"] == ["strandsone"]
+
+
+def test_load_prompt_pack_rejects_gold_ids(tmp_path: Path) -> None:
+    path = tmp_path / "pack.json"
+    path.write_text(
+        json.dumps(
+            {
+                "questions": [
+                    {
+                        "id": "bad",
+                        "query": "folketall i oslo",
+                        "expected": [{"dataset_id": "datanorge:x"}],
+                    }
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+    try:
+        load_prompt_pack(path)
+    except ValueError as exc:
+        assert "gold ids" in str(exc)
+    else:
+        raise AssertionError("expected gold id rejection")
+
+
+def test_search_pack_emits_tokens_and_search_report_hits(tmp_path: Path, capsys) -> None:
+    db = tmp_path / "registry.sqlite"
+    questions = tmp_path / "pack.json"
+    out = tmp_path / "report.json"
+    questions.write_text(
+        json.dumps(
+            {
+                "kind": "live_prompt_pack",
+                "questions": [
+                    {"id": "fx-lp", "query": "strandsone i"},
+                    {"id": "fx-empty", "query": "qxzzzyyqq"},
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+    assert main(["ingest", "--source", "fixture", "--fixtures", str(FIXTURES), "--db", str(db), "--quiet"]) == 0
+    capsys.readouterr()
+    registry = Registry(db)
+    packed = run_search_pack(registry, load_prompt_pack(questions), limit=5)
+    registry.close()
+    by_id = {row["id"]: row for row in packed["questions"]}
+    assert by_id["fx-lp"]["tokens"] == ["strandsone"]
+    assert by_id["fx-lp"]["returned"] == 1
+    assert by_id["fx-lp"]["hits"][0]["id"] == STRANDSONE_ID
+    assert by_id["fx-lp"]["coverage"]["covered"]
+    assert by_id["fx-empty"]["returned"] == 0
+    assert main(
+        [
+            "search",
+            "--questions",
+            str(questions),
+            "--out",
+            str(out),
+            "--db",
+            str(db),
+            "--limit",
+            "5",
+        ]
+    ) == 0
+    payload = json.loads(capsys.readouterr().out)
+    assert payload["kind"] == "live_prompt_pack_report"
+    assert payload["question_count"] == 2
+    assert payload["registry_rows"] == 3
+    assert json.loads(out.read_text(encoding="utf-8"))["question_count"] == 2
+
+
+def test_live_prompt_pack_queries_are_not_gold_queries() -> None:
+    gold = json.loads(Path("data/benchmark_questions.json").read_text(encoding="utf-8"))
+    pack = json.loads(Path("data/live_prompt_pack.json").read_text(encoding="utf-8"))
+    gold_queries = {item["query"] for item in gold["questions"]}
+    pack_queries = [item["query"] for item in pack["questions"]]
+    pack_ids = [item["id"] for item in pack["questions"]]
+    assert 15 <= len(pack_queries) <= 30
+    assert not (set(pack_queries) & gold_queries)
+    assert not (set(pack_ids) & {item["id"] for item in gold["questions"]})
+    assert all("expected" not in item and "dataset_id" not in item for item in pack["questions"])
