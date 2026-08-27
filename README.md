@@ -1080,6 +1080,27 @@ applicable: names, not a numeric time series
 (`no observations matched entity/measure; available=[]`).
 Proof is `data/nibio_source_proof.json`.
 
+## Miljødirektoratet Vannmiljø source
+
+`pda ingest --source miljodir` is another replaceable adapter. It lists printed
+collection GET paths on the official Vannmiljø swagger
+`https://vannmiljoapi.miljodirektoratet.no/swagger/docs/v1`, capped at 10.
+Templated `{id}` paths are skipped. Dataset ids are the printed swagger
+`operationId` values. `access_path` is the printed host + basePath + path.
+License and publisher stay null: the spec does not print those fields.
+
+```bash
+pda ingest --source miljodir --db data/registry.sqlite --limit 10
+pda search Medium --db data/registry.sqlite
+pda fetch --dataset miljodir:Public_GetMediumList --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored collection URL. Observation values are copied
+from a printed name field (`Name`, `name`, `title`, `MediumID`, or `id`)
+when present. License and publisher stay null.
+
+Proof is `data/miljodir_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
