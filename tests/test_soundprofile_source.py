@@ -217,6 +217,7 @@ def test_soundprofile_is_a_registered_source() -> None:
     assert "soundprofile" in SOURCE_IDS
     assert "polarsatellite" in SOURCE_IDS
     assert "subjectiveforecast" in SOURCE_IDS
+    assert "transformering" in SOURCE_IDS
     source = build_source("soundprofile")
     assert isinstance(source, SoundprofileSource)
     assert source.source_id == "soundprofile"

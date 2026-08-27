@@ -215,7 +215,7 @@
     "License is the printed swagger CC BY 4.0 URL http://creativecommons.org/licenses/by/4.0. Publisher is null: the spec does not print a publisher.",
     "Original harvested swagger metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
     "Lane A opened PR 115 for Kartverket Transformering. Polarsatellite stays --source polarsatellite after PR 114. Subjectiveforecast stays --source subjectiveforecast. Metgm stays --source metgm.",
-    "python3 -m pytest: 622 passed, 1 skipped, 1 deselected.",
+    "python3 -m pytest after rebase onto Transformering 115: 630 passed, 1 skipped, 1 deselected.",
     "Not a numeric time series with two or more periods. Fetch listed 48 printed location-name cells."
   ]
 }
