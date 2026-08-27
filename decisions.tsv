@@ -96,3 +96,7 @@ ts	phase	decision	why	evidence	result
 2026-08-27T08:29:30Z	mcp	three tools wrap search_report, ask, fetch/join	do not invent a retrieval stack; join is fetch join=true, already implemented	TOOLS search ask fetch	smallest
 2026-08-27T08:31:55Z	mcp	live pda mcp --call search against data/registry.sqlite	prove the tool on the live file, not fixtures	data/mcp_proof.json returned=5 values_from=registry; top hit datanorge:265a14e9 NVE NLOD_1_0 why=og token	live works
 2026-08-27T08:31:55Z	pr	open Milestone 12 PR, do not merge	MCP is a reviewable PR	https://github.com/Solvelangseth/public-data-agent/pull/24	OPEN
+2026-08-27T08:45:06Z	merge	merge PR 24 after CI green	first CI failed on tests.test_ask import; fix 6c0ad69 then CI test + GitGuardian SUCCESS	gh pr view 24 MERGED mergeCommit 3dc35fdca2490331a36e97752382b356288e9aa8	MERGED
+2026-08-27T08:46:30Z	user	harvest local CSV/SQLite as source_id=user for this search run	do not retune scoring; map columns onto the existing document shape	src/public_data_agent/sources/user.py UserFileSource	adapter only
+2026-08-27T08:49:27Z	user	live pda search returns a user hit and a datanorge hit	follow-up truncation dropped the user row; CLI prepends matching user hits	data/user_source_proof.json user:user-bydel-notes user_supplied=true; public datanorge:265a14e9	live works
+2026-08-27T08:49:27Z	pr	open Milestone 13 first-slice PR, do not merge	user file is a reviewable PR	https://github.com/Solvelangseth/public-data-agent/pull/27	OPEN

@@ -1,0 +1,31 @@
+{
+  "command": "pda search \"Hvilke Oslo-bydeler er størst og hvilke vokser mest?\" --db data/registry.sqlite --user-file data/examples/user_bydel.csv --limit 10",
+  "query": "Hvilke Oslo-bydeler er størst og hvilke vokser mest?",
+  "db": "data/registry.sqlite",
+  "user_file": "data/examples/user_bydel.csv",
+  "returned": 10,
+  "hits": [
+    {
+      "id": "user:user-bydel-notes",
+      "title": "Oslo-bydeler og folketall",
+      "source": "user",
+      "user_supplied": true,
+      "why": "title matched oslo, bydeler, og; keyword matched oslo, bydeler; description matched oslo",
+      "publisher": "user",
+      "license": null,
+      "access_path": "data/examples/user_bydel.csv",
+      "original_source": "file:///workspace/data/examples/user_bydel.csv#user-bydel-notes"
+    },
+    {
+      "id": "datanorge:265a14e9-39b4-3324-a043-81a59d05e097",
+      "title": "Aktsomhetskart for jord- og flomskred",
+      "source": "datanorge",
+      "user_supplied": false,
+      "why": "title matched og; keyword matched og; theme matched og; description matched og",
+      "publisher": "Norges vassdrags- og energidirektorat",
+      "license": "http://publications.europa.eu/resource/authority/licence/NLOD_1_0",
+      "access_path": "https://kartkatalog.geonorge.no/metadata/uuid/30e1883e-70e9-4510-9e97-00edbdcddc02",
+      "original_source": "https://kartkatalog.geonorge.no/Metadata/uuid/30e1883e-70e9-4510-9e97-00edbdcddc02"
+    }
+  ]
+}

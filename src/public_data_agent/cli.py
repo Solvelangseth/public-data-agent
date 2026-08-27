@@ -64,6 +64,18 @@ def main(argv: list[str] | None = None) -> int:
         default=True,
         help="Split multi-token queries into AND requirements. Default on.",
     )
+    search_cmd.add_argument(
+        "--user-file",
+        type=Path,
+        default=None,
+        help="Local CSV searched next to the public catalog this run.",
+    )
+    search_cmd.add_argument(
+        "--user-db",
+        type=Path,
+        default=None,
+        help="Local SQLite table searched next to the public catalog this run.",
+    )
 
     enrich_cmd = sub.add_parser("enrich", help="Project stored harvest fields into enrichments")
     enrich_cmd.add_argument("--db", type=Path, default=DEFAULT_DB)
@@ -516,25 +528,41 @@ def _search(args: argparse.Namespace) -> int:
         return 1
     registry = Registry(args.db)
     try:
+        from public_data_agent.sources.user import (
+            annotate_search_hits,
+            ensure_user_hits,
+            ingest_user_file,
+        )
+
+        user_path = args.user_file or args.user_db
+        if user_path is not None:
+            ingest_user_file(registry, user_path)
         report = search_report(
             registry,
             args.query,
             limit=args.limit,
             decompose_query=args.decompose,
         )
+        payload = {
+            "db": str(args.db),
+            "query": args.query,
+            "limit": args.limit,
+            "decompose": args.decompose,
+            **report.to_dict(),
+        }
+        if user_path is not None:
+            payload["user_file"] = str(user_path)
+            payload["results"] = ensure_user_hits(
+                payload.get("results") or [],
+                registry,
+                args.query,
+                limit=args.limit,
+            )
+        annotate_search_hits(payload.get("results") or [], registry)
+    except (FileNotFoundError, ValueError) as exc:
+        print(str(exc), file=sys.stderr)
+        return 1
     finally:
         registry.close()
-    print(
-        json.dumps(
-            {
-                "db": str(args.db),
-                "query": args.query,
-                "limit": args.limit,
-                "decompose": args.decompose,
-                **report.to_dict(),
-            },
-            ensure_ascii=False,
-            indent=2,
-        )
-    )
+    print(json.dumps(payload, ensure_ascii=False, indent=2))
     return 0
