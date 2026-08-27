@@ -1,0 +1,446 @@
+{
+  "derived_columns": [
+    {
+      "name": "yoy_growth",
+      "formula": "(v_t - v_{t-1}) / v_{t-1}",
+      "input_columns": [
+        "value"
+      ],
+      "units": "ratio",
+      "rows": [
+        {
+          "value": null,
+          "lineage": {
+            "name": "yoy_growth",
+            "formula": "(v_t - v_{t-1}) / v_{t-1}",
+            "input_columns": [
+              "value"
+            ],
+            "units": "ratio",
+            "source_observation_ids": [
+              "81e014346d5be156e8604196c87611b17cc05229"
+            ],
+            "source_periods": [
+              "2021"
+            ],
+            "note": "undefined: no prior period"
+          },
+          "entity": "16-19 år / Kvinner / Samboere",
+          "period": "2021",
+          "measure": "06831: Andel personer (prosent), etter samlivsform, kjønn, alder, statistikkvariabel og år",
+          "observation_id": "81e014346d5be156e8604196c87611b17cc05229"
+        },
+        {
+          "value": -0.3333333333333333,
+          "lineage": {
+            "name": "yoy_growth",
+            "formula": "(v_t - v_{t-1}) / v_{t-1}",
+            "input_columns": [
+              "value"
+            ],
+            "units": "ratio",
+            "source_observation_ids": [
+              "81e014346d5be156e8604196c87611b17cc05229",
+              "48ddb1a78ce5bd1c41a1321568f95a818b545be9"
+            ],
+            "source_periods": [
+              "2021",
+              "2022"
+            ]
+          },
+          "entity": "16-19 år / Kvinner / Samboere",
+          "period": "2022",
+          "measure": "06831: Andel personer (prosent), etter samlivsform, kjønn, alder, statistikkvariabel og år",
+          "observation_id": "48ddb1a78ce5bd1c41a1321568f95a818b545be9"
+        },
+        {
+          "value": null,
+          "lineage": {
+            "name": "yoy_growth",
+            "formula": "(v_t - v_{t-1}) / v_{t-1}",
+            "input_columns": [
+              "value"
+            ],
+            "units": "ratio",
+            "source_observation_ids": [
+              "fdf49768b007ae1f825fa117b97616134503ad85"
+            ],
+            "source_periods": [
+              "2021"
+            ],
+            "note": "undefined: no prior period"
+          },
+          "entity": "20-24 år / Kvinner / Samboere",
+          "period": "2021",
+          "measure": "06831: Andel personer (prosent), etter samlivsform, kjønn, alder, statistikkvariabel og år",
+          "observation_id": "fdf49768b007ae1f825fa117b97616134503ad85"
+        },
+        {
+          "value": 0.0,
+          "lineage": {
+            "name": "yoy_growth",
+            "formula": "(v_t - v_{t-1}) / v_{t-1}",
+            "input_columns": [
+              "value"
+            ],
+            "units": "ratio",
+            "source_observation_ids": [
+              "fdf49768b007ae1f825fa117b97616134503ad85",
+              "5aa6ecf9688fb152016f02db8a249993787abbbf"
+            ],
+            "source_periods": [
+              "2021",
+              "2022"
+            ]
+          },
+          "entity": "20-24 år / Kvinner / Samboere",
+          "period": "2022",
+          "measure": "06831: Andel personer (prosent), etter samlivsform, kjønn, alder, statistikkvariabel og år",
+          "observation_id": "5aa6ecf9688fb152016f02db8a249993787abbbf"
+        }
+      ]
+    },
+    {
+      "name": "index",
+      "formula": "100 * v_t / v_base",
+      "input_columns": [
+        "value"
+      ],
+      "units": "index (base = 100)",
+      "rows": [
+        {
+          "value": 100.0,
+          "lineage": {
+            "name": "index",
+            "formula": "100 * v_t / v_base",
+            "input_columns": [
+              "value"
+            ],
+            "units": "index (base = 100)",
+            "source_observation_ids": [
+              "81e014346d5be156e8604196c87611b17cc05229"
+            ],
+            "source_periods": [
+              "2021"
+            ],
+            "base_period": "2021",
+            "base_observation_id": "81e014346d5be156e8604196c87611b17cc05229"
+          },
+          "entity": "16-19 år / Kvinner / Samboere",
+          "period": "2021",
+          "measure": "06831: Andel personer (prosent), etter samlivsform, kjønn, alder, statistikkvariabel og år",
+          "observation_id": "81e014346d5be156e8604196c87611b17cc05229"
+        },
+        {
+          "value": 66.66666666666667,
+          "lineage": {
+            "name": "index",
+            "formula": "100 * v_t / v_base",
+            "input_columns": [
+              "value"
+            ],
+            "units": "index (base = 100)",
+            "source_observation_ids": [
+              "81e014346d5be156e8604196c87611b17cc05229",
+              "48ddb1a78ce5bd1c41a1321568f95a818b545be9"
+            ],
+            "source_periods": [
+              "2021",
+              "2022"
+            ],
+            "base_period": "2021",
+            "base_observation_id": "81e014346d5be156e8604196c87611b17cc05229"
+          },
+          "entity": "16-19 år / Kvinner / Samboere",
+          "period": "2022",
+          "measure": "06831: Andel personer (prosent), etter samlivsform, kjønn, alder, statistikkvariabel og år",
+          "observation_id": "48ddb1a78ce5bd1c41a1321568f95a818b545be9"
+        },
+        {
+          "value": 100.0,
+          "lineage": {
+            "name": "index",
+            "formula": "100 * v_t / v_base",
+            "input_columns": [
+              "value"
+            ],
+            "units": "index (base = 100)",
+            "source_observation_ids": [
+              "fdf49768b007ae1f825fa117b97616134503ad85"
+            ],
+            "source_periods": [
+              "2021"
+            ],
+            "base_period": "2021",
+            "base_observation_id": "fdf49768b007ae1f825fa117b97616134503ad85"
+          },
+          "entity": "20-24 år / Kvinner / Samboere",
+          "period": "2021",
+          "measure": "06831: Andel personer (prosent), etter samlivsform, kjønn, alder, statistikkvariabel og år",
+          "observation_id": "fdf49768b007ae1f825fa117b97616134503ad85"
+        },
+        {
+          "value": 100.0,
+          "lineage": {
+            "name": "index",
+            "formula": "100 * v_t / v_base",
+            "input_columns": [
+              "value"
+            ],
+            "units": "index (base = 100)",
+            "source_observation_ids": [
+              "fdf49768b007ae1f825fa117b97616134503ad85",
+              "5aa6ecf9688fb152016f02db8a249993787abbbf"
+            ],
+            "source_periods": [
+              "2021",
+              "2022"
+            ],
+            "base_period": "2021",
+            "base_observation_id": "fdf49768b007ae1f825fa117b97616134503ad85"
+          },
+          "entity": "20-24 år / Kvinner / Samboere",
+          "period": "2022",
+          "measure": "06831: Andel personer (prosent), etter samlivsform, kjønn, alder, statistikkvariabel og år",
+          "observation_id": "5aa6ecf9688fb152016f02db8a249993787abbbf"
+        }
+      ]
+    },
+    {
+      "name": "rank",
+      "formula": "1 + count(peers in (period, measure) with value > v_t)",
+      "input_columns": [
+        "value"
+      ],
+      "units": "rank (1 = highest)",
+      "rows": [
+        {
+          "value": 2.0,
+          "lineage": {
+            "name": "rank",
+            "formula": "1 + count(peers in (period, measure) with value > v_t)",
+            "input_columns": [
+              "value"
+            ],
+            "units": "rank (1 = highest)",
+            "source_observation_ids": [
+              "81e014346d5be156e8604196c87611b17cc05229"
+            ],
+            "source_periods": [
+              "2021"
+            ],
+            "note": "competition/min: equal values share this rank; the next rank skips",
+            "peer_observation_ids": [
+              "81e014346d5be156e8604196c87611b17cc05229",
+              "fdf49768b007ae1f825fa117b97616134503ad85"
+            ]
+          },
+          "entity": "16-19 år / Kvinner / Samboere",
+          "period": "2021",
+          "measure": "06831: Andel personer (prosent), etter samlivsform, kjønn, alder, statistikkvariabel og år",
+          "observation_id": "81e014346d5be156e8604196c87611b17cc05229"
+        },
+        {
+          "value": 2.0,
+          "lineage": {
+            "name": "rank",
+            "formula": "1 + count(peers in (period, measure) with value > v_t)",
+            "input_columns": [
+              "value"
+            ],
+            "units": "rank (1 = highest)",
+            "source_observation_ids": [
+              "48ddb1a78ce5bd1c41a1321568f95a818b545be9"
+            ],
+            "source_periods": [
+              "2022"
+            ],
+            "note": "competition/min: equal values share this rank; the next rank skips",
+            "peer_observation_ids": [
+              "48ddb1a78ce5bd1c41a1321568f95a818b545be9",
+              "5aa6ecf9688fb152016f02db8a249993787abbbf"
+            ]
+          },
+          "entity": "16-19 år / Kvinner / Samboere",
+          "period": "2022",
+          "measure": "06831: Andel personer (prosent), etter samlivsform, kjønn, alder, statistikkvariabel og år",
+          "observation_id": "48ddb1a78ce5bd1c41a1321568f95a818b545be9"
+        },
+        {
+          "value": 1.0,
+          "lineage": {
+            "name": "rank",
+            "formula": "1 + count(peers in (period, measure) with value > v_t)",
+            "input_columns": [
+              "value"
+            ],
+            "units": "rank (1 = highest)",
+            "source_observation_ids": [
+              "fdf49768b007ae1f825fa117b97616134503ad85"
+            ],
+            "source_periods": [
+              "2021"
+            ],
+            "note": "competition/min: equal values share this rank; the next rank skips",
+            "peer_observation_ids": [
+              "81e014346d5be156e8604196c87611b17cc05229",
+              "fdf49768b007ae1f825fa117b97616134503ad85"
+            ]
+          },
+          "entity": "20-24 år / Kvinner / Samboere",
+          "period": "2021",
+          "measure": "06831: Andel personer (prosent), etter samlivsform, kjønn, alder, statistikkvariabel og år",
+          "observation_id": "fdf49768b007ae1f825fa117b97616134503ad85"
+        },
+        {
+          "value": 1.0,
+          "lineage": {
+            "name": "rank",
+            "formula": "1 + count(peers in (period, measure) with value > v_t)",
+            "input_columns": [
+              "value"
+            ],
+            "units": "rank (1 = highest)",
+            "source_observation_ids": [
+              "5aa6ecf9688fb152016f02db8a249993787abbbf"
+            ],
+            "source_periods": [
+              "2022"
+            ],
+            "note": "competition/min: equal values share this rank; the next rank skips",
+            "peer_observation_ids": [
+              "48ddb1a78ce5bd1c41a1321568f95a818b545be9",
+              "5aa6ecf9688fb152016f02db8a249993787abbbf"
+            ]
+          },
+          "entity": "20-24 år / Kvinner / Samboere",
+          "period": "2022",
+          "measure": "06831: Andel personer (prosent), etter samlivsform, kjønn, alder, statistikkvariabel og år",
+          "observation_id": "5aa6ecf9688fb152016f02db8a249993787abbbf"
+        }
+      ]
+    },
+    {
+      "name": "rank_change",
+      "formula": "rank_{t-1} - rank_t",
+      "input_columns": [
+        "rank"
+      ],
+      "units": "rank positions (positive = moved up)",
+      "rows": [
+        {
+          "value": null,
+          "lineage": {
+            "name": "rank_change",
+            "formula": "rank_{t-1} - rank_t",
+            "input_columns": [
+              "rank"
+            ],
+            "units": "rank positions (positive = moved up)",
+            "source_observation_ids": [
+              "81e014346d5be156e8604196c87611b17cc05229"
+            ],
+            "source_periods": [
+              "2021"
+            ],
+            "note": "undefined: no prior period; positive would mean moved up",
+            "peer_observation_ids": [
+              "81e014346d5be156e8604196c87611b17cc05229",
+              "fdf49768b007ae1f825fa117b97616134503ad85"
+            ]
+          },
+          "entity": "16-19 år / Kvinner / Samboere",
+          "period": "2021",
+          "measure": "06831: Andel personer (prosent), etter samlivsform, kjønn, alder, statistikkvariabel og år",
+          "observation_id": "81e014346d5be156e8604196c87611b17cc05229"
+        },
+        {
+          "value": 0.0,
+          "lineage": {
+            "name": "rank_change",
+            "formula": "rank_{t-1} - rank_t",
+            "input_columns": [
+              "rank"
+            ],
+            "units": "rank positions (positive = moved up)",
+            "source_observation_ids": [
+              "81e014346d5be156e8604196c87611b17cc05229",
+              "48ddb1a78ce5bd1c41a1321568f95a818b545be9"
+            ],
+            "source_periods": [
+              "2021",
+              "2022"
+            ],
+            "note": "positive = moved up (lower rank number)",
+            "peer_observation_ids": [
+              "48ddb1a78ce5bd1c41a1321568f95a818b545be9",
+              "5aa6ecf9688fb152016f02db8a249993787abbbf",
+              "81e014346d5be156e8604196c87611b17cc05229",
+              "fdf49768b007ae1f825fa117b97616134503ad85"
+            ]
+          },
+          "entity": "16-19 år / Kvinner / Samboere",
+          "period": "2022",
+          "measure": "06831: Andel personer (prosent), etter samlivsform, kjønn, alder, statistikkvariabel og år",
+          "observation_id": "48ddb1a78ce5bd1c41a1321568f95a818b545be9"
+        },
+        {
+          "value": null,
+          "lineage": {
+            "name": "rank_change",
+            "formula": "rank_{t-1} - rank_t",
+            "input_columns": [
+              "rank"
+            ],
+            "units": "rank positions (positive = moved up)",
+            "source_observation_ids": [
+              "fdf49768b007ae1f825fa117b97616134503ad85"
+            ],
+            "source_periods": [
+              "2021"
+            ],
+            "note": "undefined: no prior period; positive would mean moved up",
+            "peer_observation_ids": [
+              "81e014346d5be156e8604196c87611b17cc05229",
+              "fdf49768b007ae1f825fa117b97616134503ad85"
+            ]
+          },
+          "entity": "20-24 år / Kvinner / Samboere",
+          "period": "2021",
+          "measure": "06831: Andel personer (prosent), etter samlivsform, kjønn, alder, statistikkvariabel og år",
+          "observation_id": "fdf49768b007ae1f825fa117b97616134503ad85"
+        },
+        {
+          "value": 0.0,
+          "lineage": {
+            "name": "rank_change",
+            "formula": "rank_{t-1} - rank_t",
+            "input_columns": [
+              "rank"
+            ],
+            "units": "rank positions (positive = moved up)",
+            "source_observation_ids": [
+              "fdf49768b007ae1f825fa117b97616134503ad85",
+              "5aa6ecf9688fb152016f02db8a249993787abbbf"
+            ],
+            "source_periods": [
+              "2021",
+              "2022"
+            ],
+            "note": "positive = moved up (lower rank number)",
+            "peer_observation_ids": [
+              "48ddb1a78ce5bd1c41a1321568f95a818b545be9",
+              "5aa6ecf9688fb152016f02db8a249993787abbbf",
+              "81e014346d5be156e8604196c87611b17cc05229",
+              "fdf49768b007ae1f825fa117b97616134503ad85"
+            ]
+          },
+          "entity": "20-24 år / Kvinner / Samboere",
+          "period": "2022",
+          "measure": "06831: Andel personer (prosent), etter samlivsform, kjønn, alder, statistikkvariabel og år",
+          "observation_id": "5aa6ecf9688fb152016f02db8a249993787abbbf"
+        }
+      ]
+    }
+  ]
+}

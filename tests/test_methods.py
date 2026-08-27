@@ -102,6 +102,26 @@ def test_clean_rejects_missing_schema_fields() -> None:
         clean([{**FIXTURE_ROWS[0], "dimensions": {"entity": FIXTURE_TOWN}}])
 
 
+def test_clean_joins_multiple_leftover_dimensions_as_entity() -> None:
+    rows = clean(
+        [
+            {
+                **FIXTURE_ROWS[0],
+                "id": "multi-dim",
+                "dimensions": {
+                    "samlivsform": "Samboere",
+                    "kjønn": "Kvinner",
+                    "alder": "16-19 år",
+                    "år": "2021",
+                },
+            }
+        ]
+    )
+    assert len(rows) == 1
+    assert rows[0].entity == "16-19 år / Kvinner / Samboere"
+    assert rows[0].period == "2021"
+
+
 def test_clean_parses_registry_json_columns() -> None:
     rows = clean(
         [
