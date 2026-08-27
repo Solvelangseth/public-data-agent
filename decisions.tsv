@@ -117,3 +117,4 @@ ts	phase	decision	why	evidence	result
 2026-08-27T09:08:00Z	scan	persist printed table URLs in a side table	do not overwrite harvested_payloads or access_path	schema.sql printed_table_urls; pda scan-table-urls	selected
 2026-08-27T09:08:30Z	scan	live harvest has no unused printed PxWeb table URL	9121 payloads, 0 table/ or *.px api strings that are not already access_path; 07459 absent	data/table_url_scan_proof.json new_stored=0 sit=true klass_skipped=85	sit
 2026-08-27T09:08:40Z	test	run pytest after the scan	do not leave the count only in the PR body	python3 -m pytest 92 passed 1 deselected	tests green
+2026-08-27T09:09:20Z	pr	open harvest table-url scan PR, do not merge	live scan sat at new_stored=0	https://github.com/Solvelangseth/public-data-agent/pull/33	OPEN
