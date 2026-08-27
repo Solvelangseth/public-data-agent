@@ -6,7 +6,7 @@ No email, call, or outbound post from this file. Contacts are only what the org 
 Product sold: registry of Norwegian public datasets (Data.norge first ingest, sources replaceable), natural-language search, first fetch of actual rows. Later analysis. LLM for intent and explanation. Deterministic retrieval. Provenance (source, publisher, license, access path) on every hit.
 Repo: https://github.com/Solvelangseth/public-data-agent
 
-Status 27 Aug 2026, 10:30 Europe/Oslo: 28 sourced leads. Mix: 9 municipalities, 5 energy, 3 health, 3 consultancies, 2 media, 2 property/infra, 2 research, 2 NGOs. Wave-2 (13) added same day: FHI, Helsedirektoratet, Helse Sør-Øst RHF, Statnett, Eviny, Hafslund, Tensio, Lnett, Fredrikstad, Sandnes, Bodø, Kristiansand, Lillestrøm. Contacts only as listed. No invented emails. No outreach.
+Status 27 Aug 2026, 10:35 Europe/Oslo: 28 sourced leads. Mix: 9 municipalities, 5 energy, 3 health, 3 consultancies, 2 media, 2 property/infra, 2 research, 2 NGOs. Wave-2 (13): FHI, Helsedirektoratet, Helse Sør-Øst RHF, Statnett, Eviny, Hafslund, Tensio, Lnett, Fredrikstad, Sandnes, Bodø, Kristiansand, Lillestrøm. Competitor section added (not a lead; no customer contact). Contacts only as listed. No invented emails. No outreach.
 
 How to read a lead: why they would pay is tied to a named programme, not "they use data." Service shape is always search → fetch → later analysis. If a field says none published, do not invent one.
 
@@ -387,6 +387,7 @@ Sources below were opened 2026-08-27 from official pages and the named press/pro
 - Kartverket news 26 June 2026: Per Gunnar Tronsli (Bouvet) and Frithjof Ugelstad Frederiksen (Bekk) quoted; Jørgen Kaasa listed as Bouvet region contact on that page.
 - Faktavarehus 2.0: Kjetil Molaug, Thao Ha, Bjarte Gudmundsen named in Bouvet/CW coverage.
 - Bekk is a close peer on the Kartverket agreement; Bekk is skipped as a *lead* (see skipped notes), not as a fact about Bouvet.
+- Free chat over a 19-source index is not a Kartverket or kommune appendix.
 
 **Deepen (27 Aug 2026).** Kartverket 26 June 2026 announcement of Bekk/Bouvet contracts prints a 2026 statsbudsjett grant of 477 million kroner over five years for nasjonale fellesløsninger. No Bouvet contract price on that page. Practice page still says 200 konsulenter; Oslo job ad 25 Aug 2026 says 50 Oslo / about 250 across Bouvet.
 
@@ -524,6 +525,7 @@ Sources below were opened 2026-08-27 from official pages and the named press/pro
 - Tips page: relevant tips, preferably with facts; debatt@aftenposten.no is for opinions, not this book.
 - GitHub public repos include story datasets (e.g. toppbyråkrater, barnehage, covid departures, valg).
 - E24 and Kommunal Rapport are weaker than Aftenposten's published data desk (see skipped). Journalisten is the source for «seks»; aftenposten.no does not print that count on the pages opened.
+- Free chat over a 19-source index is not a methods citation.
 
 **Deepen (27 Aug 2026).** Author page: «Jeg leder et team med datajournalister og visuelle journalister». Named story: https://www.aftenposten.no/norge/i/oAk8j0/slik-blir-kvikkleiren-livsfarlig-sjekk-skredfaren-der-du-bor.
 
@@ -932,6 +934,18 @@ Sources below were opened 2026-08-27 from official pages and the named press/pro
 
 ---
 
+## Competitor (not a lead)
+
+Not a numbered lead. Do not treat as a customer. No customer contact listed.
+
+A private AI chat + explorer over 19 indexed sources (Brønnøysund, SSB, Kartverket, Skatteetaten, Innovasjon Norge, NGU, SVV, Miljødirektoratet), plus eierkart, solkart and Excel. Product of Acax Development AS. Independent, not a public authority. Free for now. Terms dated 31 Jan 2026 warn that AI can be inaccurate and users should verify originals. Facts from the 27 Aug 2026 brief (Internet Archive; live site Cloudflare-blocked).
+
+Why our leads pay us instead: replaceable registry (not their 19-source index); deterministic first fetch of the official distribution; provenance (source, publisher, license, access path, retrieval time) on every hit; coverage that index does not claim (municipal hubs, NVE/PlanNett, FHI, Hdir SAMDATA, Geonorge plans, Doffin).
+
+For Aftenposten and Bouvet: free chat is not a methods citation or a Kartverket/kommune appendix.
+
+---
+
 ## Skipped, with reasons
 
 Keep these notes in the living book. They are not leads.
@@ -943,6 +957,7 @@ Keep these notes in the living book. They are not leads.
 - **PwC / Itera** — weaker published data-platform programmes than Knowit.
 - **Bekk** — close peer to Bouvet / Knowit (including the 2026 Kartverket rammeavtale); not a separate lead.
 - **E24 / Kommunal Rapport** — weaker than Aftenposten's published data desk (Journalisten is the source for desk size «seks»).
+- **Acax Development AS** — operator of the private 19-source chat/explorer in Competitor (not a lead). Do not list a customer contact.
 
 ---
 
@@ -952,6 +967,7 @@ Keep these notes in the living book. They are not leads.
 - **27 Aug 2026, 10:15 Europe/Oslo.** Five deepen notes: Oslo DIG Tildelingsbrev 2026 datadeling + 45,5 mill. PC-ownership klimabudsjett measure (do not treat 817 699 / 75 000 as kroner) and DIG etat emails; Stavanger live Regnsensordata (updated 27 Aug 2026 02:01 CEST) and printed staff-ID next to opendata@; Bouvet Kartverket 477 mill. five-year grant (no Bouvet contract price) plus Kaasa phone and 200 vs 50/250 headcount print; Aftenposten Fossan mailto + author line + kvikkleire story (seks = Journalisten only); Statsbygg SIMBA 2.1 PDF dates and tungt.no 13,6 mrd marked second-hand.
 - **27 Aug 2026, 10:25 Europe/Oslo.** Wave-2: 12 sourced entries (3 health, 5 energy, 4 mid-size kommuner). Contacts only as listed. No outreach.
 - **27 Aug 2026, 10:30 Europe/Oslo.** Wave-2 add: Lillestrøm kommune (digitalisering 2020–2025 + klimabudsjett / Klimasats klimaplanlegger). Contacts only as printed. No outreach.
+- **27 Aug 2026, 10:35 Europe/Oslo.** Competitor section (not a lead; no customer contact). One sentence on Aftenposten (not a methods citation) and Bouvet (not a Kartverket/kommune appendix).
 
 ---
 
