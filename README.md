@@ -985,7 +985,16 @@ pda fetch --dataset met:locations --db data/registry.sqlite
 ```
 
 `pda fetch` GETs the stored collection URL. Observation values are copied
-from printed GeoJSON feature `name`.
+from printed GeoJSON feature `name`. License is the printed swagger
+CC BY 4.0 URL. Publisher stays null: the spec does not print a publisher.
+
+Live ingest 2026-08-27: 10 printed collection GET paths. Live search
+`locations` returns `met:locations`. Live fetch GETs
+`https://api.met.no/weatherapi/metalerts/2.0/locations` HTTP 200, 71
+county/area rows. Sample printed names: Oslo, Rogaland, Møre og Romsdal,
+Nordland, Østfold. `pda methods` is not applicable: names, not a numeric
+time series (`no observations matched entity/measure; available=[]`).
+Proof is `data/met_source_proof.json`.
 
 ## Architecture (long term)
 
