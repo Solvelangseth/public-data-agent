@@ -6,7 +6,7 @@ No email, call, or outbound post from this file. Contacts are only what the org 
 Product sold: registry of Norwegian public datasets (Data.norge first ingest, sources replaceable), natural-language search, first fetch of actual rows. Later analysis. LLM for intent and explanation. Deterministic retrieval. Provenance (source, publisher, license, access path) on every hit.
 Repo: https://github.com/Solvelangseth/public-data-agent
 
-Status 27 Aug 2026, 13:50 Europe/Oslo: 95 sourced leads. PR 57 merged (00b00e2). Wave 11 add: Nes kommune (Akershus). Printed href area=571 is Gjøvik; official Nes areaId is 547. Aurskog-Høland / Hemsil Nett skipped. Arendal held. No outreach.
+Status 27 Aug 2026, 13:55 Europe/Oslo: 97 sourced leads. PR 63 merged (5b2630a). Wave 11 add: Vevig AS, Eidsvoll kommune. Aurskog-Høland / Hemsil Nett skipped. Arendal held. No outreach.
 
 How to read a lead: why they would pay is tied to a named programme, not "they use data." Service shape is always search → fetch → later analysis. If a field says none published, do not invent one.
 
@@ -2035,6 +2035,34 @@ Sources below were opened 2026-08-27 from official pages and the named press/pro
   - https://virksomhet.brreg.no/nb/oppslag/enheter/923993355
   - https://data.brreg.no/enhetsregisteret/api/enheter/923993355
 
+### Vevig AS
+
+- **Why they would pay.** Own published PlanNett **områdestudie 20250003 «Midt Gudbrandsdal»** plus published KVUs **20250069** (Nettilgang Glocal Green – Øyer), **20250199** (nytt regionalnett Ringebu / Nedre Vinstra), **20250215** (nytt regionalnett Nord-Fron), **20250254** (økt kapasitet Sør-Fron) and **20220667** (økt fleksibilitet 66 kV Øyer). Those files consume Statnett **Områdeplan Innlandet 2025** / Nedre Vinstra 420/132 and Statnett KVU **20230169**. Those are external official layers they do not host. Tilko ≥1 MW is Elbits host (`tk.elbits.no`) and would skip alone. PlanNett actor isManagedBy taken Elvia — do not pad. Not a Gudbrandsdal Energi brand.
+- **Concrete use case.** Nettutvikling first-fetches PlanNett 20250003 / 20250069 / 20250199 / 20250215 / 20250254 / 20220667, Statnett Områdeplan Innlandet / Nedre Vinstra 420/132 / KVU 20230169, and Øyer / Ringebu / Sør-Fron / Nord-Fron kommuneplan so the Midt-Gudbrandsdal study and the regionalnett KVUs cite the same official list.
+- **How the service should look.**
+  - Search: data.norge first, then PlanNett 20250003 / 20250069 / 20250199 / 20250215 / 20250254 / 20220667, Statnett Innlandet / Nedre Vinstra / 20230169, NVE Atlas, municipal plan, SSB.
+  - Fetch: first official PlanNett JSON / PDF plus Statnett / kommuneplan files. Not a replacement for Tilko or leftover Elwin.
+  - Later analysis: overlay on the Ringebu–Nedre Vinstra and Øyer 66 kV residuals.
+- **Public contact.**
+  - Role / unit: post / kundeservice. PlanNett 20250003 prints postmottak `post@vevig.no`. Do not invent a Bleken mailbox. Do not use leftover `gudbrandsdalenergi.no` inboxes.
+  - Email: `post@vevig.no` (vevig.no / PlanNett); `kundeservice@vevig.no` (Enhetsregisteret)
+  - Phone: 61 29 46 00
+  - Form/URL: https://www.vevig.no/; https://plannett.nve.no/
+- **Key facts.** Org.nr 916 319 908. Historisk GUDBRANDSDAL ENERGI NETT AS (to 28.01.2021). Strandgata 39, 2640 Vinstra. Kommune 3436 Nord-Fron. 68 ansatte (12.08.2026). Own PlanNett 20250003 and KVUs 20250069 / 20250199 / 20250215 / 20250254 / 20220667.
+- **Sources** (opened 2026-08-27).
+  - https://www.vevig.no/
+  - https://api-plannett.nve.no/api/Omraadestudie/20250003
+  - https://api-plannett.nve.no/api/Konseptvalgutredning/20250069
+  - https://api-plannett.nve.no/api/Konseptvalgutredning/20250199
+  - https://api-plannett.nve.no/api/Konseptvalgutredning/20250215
+  - https://api-plannett.nve.no/api/Konseptvalgutredning/20250254
+  - https://api-plannett.nve.no/api/Konseptvalgutredning/20220667
+  - https://www.statnett.no/globalassets/for-aktorer-i-kraftsystemet/planer-og-analyser/omradeplaner/innlandet/omradeplan-innlandet-2025.pdf
+  - https://tk.elbits.no/
+  - https://plannett.nve.no/
+  - https://virksomhet.brreg.no/nb/oppslag/enheter/916319908
+  - https://data.brreg.no/enhetsregisteret/api/enheter/916319908
+
 ---
 
 ## 48. Fredrikstad kommune — Åpne data Hub + kart@
@@ -2843,6 +2871,30 @@ Sources below were opened 2026-08-27 from official pages and the named press/pro
   - https://www.miljodirektoratet.no/tjenester/klimagassutslipp-kommuner/?area=547&sector=-2
   - https://www.miljodirektoratet.no/greenhousegas/api/summary?areaId=547
 
+### Eidsvoll kommune
+
+- **Why they would pay.** Handlings- og økonomiplan 2026–2029 Framsikt slug `bm-2026-hop26-29ks`: title.json documentTitle1 is **Handlings- og økonomiplan 2026-2029 KS 25/137**; documentTitle2 is **Budsjett 2026**; documentTitle3 is **Kommunestyrets vedtak av 16.12.2026** (printed date; news/kst 16.12.2025). Named **Klimabudsjett** (`summary/climatesummary`) cites Miljødirektoratet kommunefordelte utslippsregnskap. Printed href area=548 is the correct Eidsvoll row. Official 2024 vintage is 93 742,4 t / −2,7 %; chapter is still on 2023. Yearly job is to re-pull kommune 3240 / areaId 548 into those rows, not another Framsikt rebuild.
+- **Concrete use case.** Klima owners first-fetch Miljødirektoratet kommune 3240 / areaId 548 sector series and overlay the vedtatt 2023 Klimabudsjett rows. Official 2024 first-fetch is 93 742,4 t (−2,7 %); chapter is still on 2023 (92 006,5 t).
+- **How the service should look.**
+  - Search: data.norge first, then Mdir kommuneregnskap, SSB.
+  - Fetch: first official Excel rows for areaId 548. Their Framsikt chapter stays theirs.
+  - Later analysis: refresh 2023→2024/2025 into the residual; keep veitrafikk as a named hole.
+- **Public contact.**
+  - Role / unit: postmottak. No named klimarådgiver mailbox — do not invent one.
+  - Email: `postmottak@eidsvoll.kommune.no`
+  - Phone: 66 10 70 00
+  - Form/URL: https://www.eidsvoll.kommune.no/tjenester/okonomi-skatt-og-avgifter/
+- **Key facts.** Org.nr 964 950 113. Kommunenr. 3240. Rådhusgata 1, 2080 Eidsvoll. Printed href area=548 is the correct Eidsvoll row. title3 prints 16.12.2026; news/kst is 16.12.2025.
+- **Sources** (opened 2026-08-27).
+  - https://pub.framsikt.net/2026/eidsvoll/bm-2026-hop26-29ks
+  - https://pub.framsikt.net/2026/eidsvoll/bm-2026-hop26-29ks/#/generic/summary/climatesummary
+  - https://pub.framsikt.net/2026/eidsvoll/bm-2026-hop26-29ks/content/data/title.json
+  - https://pub.framsikt.net/2026/eidsvoll/bm-2026-hop26-29ks/content/text/summary/ClimateSummary/t-7/description.json
+  - https://www.eidsvoll.kommune.no/tjenester/okonomi-skatt-og-avgifter/
+  - https://data.brreg.no/enhetsregisteret/api/enheter/964950113
+  - https://www.miljodirektoratet.no/tjenester/klimagassutslipp-kommuner/?area=548&sector=-2
+  - https://www.miljodirektoratet.no/greenhousegas/api/summary?areaId=548
+
 ---
 
 ## Skipped, with reasons
@@ -2916,6 +2968,7 @@ Keep these notes in the living book. They are not leads.
 - 2026-08-27: Area Nett AS skip reversed. Qualifies on NVE 14080 / 202307744 Adamselv–Kjøllefjord–Mehamn and NVE 20436 / 202410617 Skaidi–Smørfjord I–Honningsvåg (UP 25.06.2025). Added after Fjellnett. 94 sourced. Wave 11 add: Bømlo Kraftnett, Mellom, Rælingen, Kystnett, Fjellnett, Area Nett, Nesodden, Frogn. Enebakk kommune skipped (slug bm-2026-vedtatt_handlingsprogram_2026-2029_enebakk_kommune; title1 Kommunestyrets vedtak; title2/3 empty; no named Klimabudsjett; no Holen mailbox). Nittedal / Ås / TNett skipped. Arendal held. Still no outreach.
 - 2026-08-27: Area Nett AS deepened (still 94, not a new lead): own PlanNett områdestudie 20250220 «Vindkraft på Porsangerhalvøya» + KVU 20220170 «132kV linje Skaidi - Smørfjord 2» (names Statnett 420 kV Skaidi–Lebesby 20220748; publicContact `stein.isaksen@area.no`). Do not pad taken Barents. Leftover `post@rksa.no` unused. Arendal held. Still no outreach.
 - 2026-08-27: Added Nes kommune (Akershus, knr 3228) from wave-11 mid-size (vedtatt slug bm-2026-vedtatt_okonomiplan_2026-2029; title2 Kommunestyrets vedtak; Klimabudsjett cites Mdir 2023 vintage). Printed href area=571 is Gjøvik; official Nes areaId is 547. 95 sourced. Aurskog-Høland / Hemsil Nett skipped. Bømlo already on main. Arendal held. Still no outreach.
+- 2026-08-27: Added Vevig AS (ex Gudbrandsdal Energi Nett; PlanNett 20250003 + KVUs 20250069 / 20250199 / 20250215 / 20250254 / 20220667) and Eidsvoll kommune (slug bm-2026-hop26-29ks; title3 printed 16.12.2026 / news 16.12.2025; Mdir area=548). 97 sourced. No Bleken mailbox. Leftover gudbrandsdalenergi.no unused. No klimarådgiver mailbox. Arendal held. Still no outreach.
 
 ---
 
