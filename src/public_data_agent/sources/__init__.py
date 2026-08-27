@@ -49,6 +49,7 @@ from public_data_agent.sources.spotwind import SpotwindSource
 from public_data_agent.sources.ssb import SsbStatbankSource
 from public_data_agent.sources.statnett import StatnettDriftsdataSource
 from public_data_agent.sources.stedsnavn import StedsnavnSource
+from public_data_agent.sources.subseasonal import SubseasonalSource
 from public_data_agent.sources.sunrise import SunriseSource
 from public_data_agent.sources.tafmetar import TafmetarSource
 from public_data_agent.sources.textforecast import TextforecastSource
@@ -115,6 +116,7 @@ SOURCE_IDS = (
     "icemap",
     "ncagalewarnings",
     "tafmetar",
+    "subseasonal",
 )
 
 
@@ -231,6 +233,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return NcagalewarningsSource()
     if source_id == "tafmetar":
         return TafmetarSource()
+    if source_id == "subseasonal":
+        return SubseasonalSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -284,6 +288,7 @@ __all__ = [
     "SourceBase",
     "StatnettDriftsdataSource",
     "StedsnavnSource",
+    "SubseasonalSource",
     "SunriseSource",
     "TafmetarSource",
     "TextforecastSource",

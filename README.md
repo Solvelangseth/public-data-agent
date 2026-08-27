@@ -2282,6 +2282,43 @@ NOTODDEN, SANDANE/ANDA. `pda methods` is not applicable: GeoJSON
 feature names, not a numeric time series (`no observations matched
 entity/measure; available=[]`). Proof is `data/tafmetar_source_proof.json`.
 
+## Meteorologisk institutt Subseasonal source
+
+`pda ingest --source subseasonal` is another replaceable adapter. It lists printed
+collection GET paths on the official MET Subseasonal swagger
+`https://api.met.no/weatherapi/subseasonal/1.0/swagger`, capped at 10.
+Templated `{format}` paths are skipped. Dataset ids are the last printed
+path segment. `access_path` is the swagger origin + printed `basePath` +
+path. License is the printed swagger CC BY 4.0 URL. Publisher stays null.
+This is not Metalerts (`--source met`), not Nowcast (`--source nowcast`),
+not MET Airqualityforecast (`--source airquality`), not MET Tidalwater
+(`--source tidalwater`), not MET Oceanforecast (`--source oceanforecast`),
+not MET Sunrise (`--source sunrise`), not MET Radar (`--source radar`),
+not MET Spotwind (`--source spotwind`), not MET Textforecast
+(`--source textforecast`), not MET Icemap (`--source icemap`), not MET NCAgalewarnings
+(`--source ncagalewarnings`, now on main after PR 107), and not MET
+Tafmetar (`--source tafmetar`, now on main after PR 109). `/complete`
+prints required `lat`/`lon` so it stays unused for fetch.
+
+```bash
+pda ingest --source subseasonal --db data/registry.sqlite --limit 10
+pda search locations --db data/registry.sqlite
+pda fetch --dataset subseasonal:locations --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored collection URL. Observation values are copied
+from printed GeoJSON feature `name`. License is the printed swagger
+CC BY 4.0 URL. Publisher stays null: the spec does not print a publisher.
+
+Live ingest 2026-08-27: 6 printed untemplated GET paths (catalog prints
+6 paths with a last-segment id, cap 10). Live search `locations` returns
+`subseasonal:locations`. Live fetch GETs
+`https://api.met.no/weatherapi/subseasonal/1.0/locations` HTTP 200, 1
+location-name row. Sample printed value: MEPS area.
+`pda methods` is not applicable: GeoJSON feature names, not a numeric
+time series (`no observations matched entity/measure; available=[]`).
+Proof is `data/subseasonal_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
