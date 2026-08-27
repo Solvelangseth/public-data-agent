@@ -1,0 +1,171 @@
+{
+  "produced_at": "2026-08-27T12:15:21Z",
+  "bound": {
+    "list_api": "https://api.utdanning.no/openapi.json",
+    "walk": "copy printed collection GET paths from the official Utdanning.no OpenAPI; skip templated paths",
+    "cap": 10,
+    "how": "pda ingest --source utdanning --limit 10. The official OpenAPI prints collection GET paths. The adapter copies those printed paths joined to the OpenAPI origin because servers is absent. Templated paths such as /vgs/skole/{vilbli_org_id} are skipped."
+  },
+  "discarded": [
+    {
+      "candidate": "Statnett Driftsdata swagger",
+      "url": "https://driftsdata.statnett.no/restapi/swagger/docs/v1",
+      "why": "Already an open slice on PR 66 (cursor/next-official-source-1608). Do not re-implement Statnett."
+    },
+    {
+      "candidate": "Utdanning.no old API OpenAPI",
+      "url": "https://old.api.utdanning.no/docs.json",
+      "why": "HTTP 200 OpenAPI 3.0. Current production OpenAPI at https://api.utdanning.no/openapi.json already lists endpoints with no auth."
+    },
+    {
+      "candidate": "Utdanning.no Swagger UI HTML",
+      "url": "https://v3.api.utdanning.no/",
+      "why": "HTTP 200 HTML. Do not wrap HTML docs. The OpenAPI JSON already lists endpoints."
+    },
+    {
+      "candidate": "Utdanning.no campus_yrke without uno_id",
+      "url": "https://api.utdanning.no/arbeidsmarkedskart/campus_yrke",
+      "why": "HTTP 422 missing query uno_id. The printed path is still ingested. Fetch uses stedsvelger, which answers 200 without inventing a query param."
+    },
+    {
+      "candidate": "Legemiddelverket FHIR metadata",
+      "url": "https://api.legemiddelverket.no/fhir-r4/metadata",
+      "why": "Already failed on main in data/fiskeridir_source_proof.json: HTTP 401 missing subscription key. Do not invent a token."
+    },
+    {
+      "candidate": "Kystdatahuset swagger",
+      "url": "https://kystdatahuset.no/swagger/v1/swagger.json",
+      "why": "Already failed on main in data/fiskeridir_source_proof.json: HTTP 406 HTML."
+    },
+    {
+      "candidate": "NGU geo swagger",
+      "url": "https://geo.ngu.no/api/v1/swagger.json",
+      "why": "Already failed on main in data/fiskeridir_source_proof.json: HTTP 503."
+    },
+    {
+      "candidate": "Husbanken openapi.json",
+      "url": "https://apidocs.husbanken.no/openapi.json",
+      "why": "Already failed on main in data/fiskeridir_source_proof.json: HTTP 404 HTML docs site."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source utdanning --db /tmp/pda-utdanning-proof/registry.sqlite --limit 10",
+    "listed": 10,
+    "inserted": 10,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "utdanning:campus_yrke",
+        "access_path": "https://api.utdanning.no/arbeidsmarkedskart/campus_yrke"
+      },
+      {
+        "id": "utdanning:endring_arbeidsmarked",
+        "access_path": "https://api.utdanning.no/arbeidsmarkedskart/endring_arbeidsmarked"
+      },
+      {
+        "id": "utdanning:stedsvelger",
+        "access_path": "https://api.utdanning.no/arbeidsmarkedskart/stedsvelger"
+      },
+      {
+        "id": "utdanning:tidsserie",
+        "access_path": "https://api.utdanning.no/arbeidsmarkedskart/tidsserie"
+      },
+      {
+        "id": "utdanning:fagskole_programomraade_velger_programomraade",
+        "access_path": "https://api.utdanning.no/drupal_import/fagskole_programomraade_velger_programomraade"
+      },
+      {
+        "id": "utdanning:fagskole_programomraade_velger_utdanningsprogram",
+        "access_path": "https://api.utdanning.no/drupal_import/fagskole_programomraade_velger_utdanningsprogram"
+      },
+      {
+        "id": "utdanning:vgs",
+        "access_path": "https://api.utdanning.no/drupal_import/vgs"
+      },
+      {
+        "id": "utdanning:example",
+        "access_path": "https://api.utdanning.no/example/"
+      },
+      {
+        "id": "utdanning:fagskole",
+        "access_path": "https://api.utdanning.no/fagskolevelgeren/fagskole"
+      },
+      {
+        "id": "utdanning:sluttkompetanse",
+        "access_path": "https://api.utdanning.no/fagskolevelgeren/sluttkompetanse"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search stedsvelger --db /tmp/pda-utdanning-proof/registry.sqlite --limit 5",
+    "query": "stedsvelger",
+    "returned": 1,
+    "hit_id": "utdanning:stedsvelger",
+    "title": "Retrieves the collection of Stedsvelger_Fylke resources.",
+    "source_id": "utdanning"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset utdanning:stedsvelger --db /tmp/pda-utdanning-proof/registry.sqlite",
+    "dataset": "utdanning:stedsvelger",
+    "table_id": "stedsvelger",
+    "access_path": "https://api.utdanning.no/arbeidsmarkedskart/stedsvelger",
+    "request_url": "https://api.utdanning.no/arbeidsmarkedskart/stedsvelger",
+    "http_status": 200,
+    "listed": 24,
+    "inserted": 24,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "fylkenavn",
+        "value": "Jan Mayen",
+        "dimensions": {
+          "fylkenr": "22",
+          "fylketype": "EXTRA",
+          "har_videregaende_skoler": "False",
+          "har_bedrifter": "True",
+          "region": ""
+        }
+      },
+      {
+        "measure": "fylkenavn",
+        "value": "Kontinentalsokkelen",
+        "dimensions": {
+          "fylkenr": "23",
+          "fylketype": "EXTRA",
+          "har_videregaende_skoler": "False",
+          "har_bedrifter": "False",
+          "region": ""
+        }
+      },
+      {
+        "measure": "fylkenavn",
+        "value": "Oslo",
+        "dimensions": {
+          "fylkenr": "03",
+          "fylketype": "HOVED",
+          "har_videregaende_skoler": "True",
+          "har_bedrifter": "True",
+          "region": "Østlandet"
+        }
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset utdanning:stedsvelger --table stedsvelger --entity \"\" --measure \"\" --db /tmp/pda-utdanning-proof/registry.sqlite --out /tmp/pda-utdanning-proof/methods",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "Stedsvelger prints fylke names (fylkenavn plus fylkenr). That is not a numeric time series. methods.clean drops the rows because they have no period. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from the printed last path segment. access_path is the printed path joined to the origin of https://api.utdanning.no/openapi.json because the spec prints no servers array. No Utdanning.no id was written onto a datanorge row.",
+    "Fetch GETs the stored collection URL. Observation values are printed fylkenavn. Nested objects such as kommuner are not copied as dimensions.",
+    "License and publisher stay null: the OpenAPI info object does not print those fields.",
+    "Statnett Driftsdata stayed on PR 66. This source does not re-implement it. Fiskeridirektoratet Fartøyregisteret stayed on main (PR 65)."
+  ]
+}

@@ -961,6 +961,14 @@ from a printed name field (`fylkenavn`, `tittel`, `name`, `navn`, or
 `yrke_navn`) when present. License and publisher stay null: the spec does
 not print those fields.
 
+Live ingest 2026-08-27: 10 printed collection GET paths. Live search
+`stedsvelger` returns `utdanning:stedsvelger`. Live fetch GETs
+`https://api.utdanning.no/arbeidsmarkedskart/stedsvelger` HTTP 200, 24
+fylke-name rows. Sample printed names: Jan Mayen, Kontinentalsokkelen,
+Oslo. `pda methods` is not applicable: names, not a numeric time series
+(`no observations matched entity/measure; available=[]`).
+Proof is `data/utdanning_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
