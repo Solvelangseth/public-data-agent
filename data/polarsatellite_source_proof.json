@@ -185,7 +185,7 @@
     "License is the printed swagger CC BY 4.0 URL http://creativecommons.org/licenses/by/4.0. Publisher is null: the spec does not print a publisher.",
     "Original harvested swagger metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
     "Lane A opened PR 113 for MET Subjectiveforecast. Metgm is now on main as --source metgm after PR 112. Geosatellite stays --source geosatellite. Subseasonal stays --source subseasonal. Tafmetar stays --source tafmetar. NCAgalewarnings stays --source ncagalewarnings. Icemap stays --source icemap.",
-    "python3 -m pytest: existing suite plus new polarsatellite tests stayed green.",
+    "python3 -m pytest: 602 passed, 1 skipped, 1 deselected.",
     "Not a numeric time series with two or more periods. Fetch listed 8 printed location-name cells."
   ]
 }
