@@ -1,0 +1,92 @@
+{
+  "command": "pda mcp --call search --query \"Hvilke Oslo-bydeler er størst og hvilke vokser mest?\" --db data/registry.sqlite --out data/mcp_proof.json",
+  "tool": "search",
+  "arguments": {
+    "db": "data/registry.sqlite",
+    "query": "Hvilke Oslo-bydeler er størst og hvilke vokser mest?",
+    "limit": 5
+  },
+  "values_from": "registry",
+  "db": "data/registry.sqlite",
+  "returned": 5,
+  "results": [
+    {
+      "id": "datanorge:265a14e9-39b4-3324-a043-81a59d05e097",
+      "title": "Aktsomhetskart for jord- og flomskred",
+      "relevance": 22,
+      "why": "title matched og; keyword matched og; theme matched og; description matched og",
+      "publisher": "Norges vassdrags- og energidirektorat",
+      "license": "http://publications.europa.eu/resource/authority/licence/NLOD_1_0",
+      "access_path": "https://kartkatalog.geonorge.no/metadata/uuid/30e1883e-70e9-4510-9e97-00edbdcddc02",
+      "original_source": "https://kartkatalog.geonorge.no/Metadata/uuid/30e1883e-70e9-4510-9e97-00edbdcddc02"
+    },
+    {
+      "id": "datanorge:29b0454e-9d27-3be9-b754-7e493100b6b7",
+      "title": "Forslag budsjett og økonomiplan 2012-2015 for Bergen kommune",
+      "relevance": 22,
+      "why": "title matched og; keyword matched og; theme matched og; description matched og",
+      "publisher": "BERGEN KOMMUNE",
+      "license": "http://publications.europa.eu/resource/authority/licence/NLOD_2_0",
+      "access_path": "https://datahotellet.github.io/dataset-archive/datasets/bergen/budsjett-2012/driftsbudsjett/dataset.csv",
+      "original_source": "https://data.norge.no/node/116"
+    },
+    {
+      "id": "datanorge:0fc39f00-97d2-34b4-9a9c-7acc606bb016",
+      "title": "Forsvarets skyte- og øvingsfelt i sjø",
+      "relevance": 22,
+      "why": "title matched og; keyword matched og; theme matched og; description matched og",
+      "publisher": "Forsvarsbygg",
+      "license": "http://publications.europa.eu/resource/authority/licence/NLOD_1_0",
+      "access_path": "https://kartkatalog.geonorge.no/metadata/uuid/b7f89a26-75af-4ab8-9c78-8b232cfb4e5c",
+      "original_source": "https://kartkatalog.geonorge.no/Metadata/uuid/b7f89a26-75af-4ab8-9c78-8b232cfb4e5c"
+    },
+    {
+      "id": "datanorge:66bf7840-a46b-32c1-8ff6-6a85abb53295",
+      "title": "Forsvarets skyte- og øvingsfelt land",
+      "relevance": 22,
+      "why": "title matched og; keyword matched og; theme matched og; description matched og",
+      "publisher": "Forsvarsbygg",
+      "license": "http://data.norge.no/nlod/no/1.0",
+      "access_path": "http://nedlasting.geonorge.no/geonorge/ATOM-feeds/SkyteOvingsfeltSjo_AtomFeedGML.xml",
+      "original_source": "https://kartkatalog.geonorge.no/Metadata/uuid/3d0fe246-ae76-4e88-af1f-c0b0405e83c1"
+    },
+    {
+      "id": "datanorge:0d3026c4-f8bd-336b-ac63-efa1fb23d5da",
+      "title": "Hav og is - Iskart (shapefil)",
+      "relevance": 22,
+      "why": "title matched og; keyword matched og; theme matched og; description matched og",
+      "publisher": "Meteorologisk institutt",
+      "license": "http://inspire.ec.europa.eu/metadata-codelist/ConditionsApplyingToAccessAndUse/noConditionsApply",
+      "access_path": "https://cryo.met.no/",
+      "original_source": "https://kartkatalog.geonorge.no/Metadata/uuid/79013154-92ee-4647-b160-925cbc148601"
+    }
+  ],
+  "coverage": {
+    "requirements": [
+      "hvilke",
+      "oslo",
+      "bydeler",
+      "er",
+      "størst",
+      "og",
+      "hvilke",
+      "vokser",
+      "mest"
+    ],
+    "covered": [
+      "er",
+      "og",
+      "mest"
+    ],
+    "missing": [
+      "hvilke",
+      "oslo",
+      "bydeler",
+      "størst",
+      "hvilke",
+      "vokser"
+    ],
+    "confidence": 0.3333333333333333
+  },
+  "note": "Rows are the live search_report hits. Publisher, license, access_path, and original_source are copied from the registry. The og-token ranking is a known Chef gap; search.py was not edited."
+}

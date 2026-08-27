@@ -23,7 +23,8 @@ Discovery MVP is milestones 1 through 6. Milestone 7 fetches Oslo PxWeb cells.
 Milestone 8 fetches SSB Klass classification rows. Milestone 9 joins those
 Klass codes to a national befolkning table. Milestone 10 answers one Oslo-bydel
 question from that join. Milestone 11 exports that answer as a stable CSV.
-UI and MCP are later.
+Milestone 12 exposes search, ask, and fetch over stdio MCP. See [MCP.md](MCP.md).
+UI is later.
 Measured gaps that we are not fixing in that slice live in [GAPS.md](GAPS.md).
 
 Data.norge is the first ingest source, not the product.
@@ -588,6 +589,20 @@ First row is Grünerløkka 67039. Nordre Aker yoy is 0.0184. Proof is
 `data/ask_export.csv` and `data/ask_export_proof.json`.
 
 This milestone does not add a UI or MCP.
+
+## Milestone 12: MCP
+
+`pda mcp` is a stdio server. The tools call the same `search_report`, `ask`,
+and `fetch` / `join` functions the CLI already uses. How to run it, and a
+Cursor config snippet, live in [MCP.md](MCP.md).
+
+```bash
+pda mcp --call search \
+  --query "Hvilke Oslo-bydeler er størst og hvilke vokser mest?" \
+  --db data/registry.sqlite \
+  --limit 5 \
+  --out data/mcp_proof.json
+```
 
 ## Architecture (long term)
 
