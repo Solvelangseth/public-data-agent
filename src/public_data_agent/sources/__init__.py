@@ -3,13 +3,14 @@ from __future__ import annotations
 from pathlib import Path
 
 from public_data_agent.sources.base import CatalogSource, SourceBase
+from public_data_agent.sources.brreg import BrregEnhetsregisterSource
 from public_data_agent.sources.datanorge import DataNorgeSource
 from public_data_agent.sources.fixture import FixtureSource
 from public_data_agent.sources.geonorge import GeonorgeKartkatalogSource
 from public_data_agent.sources.nve import NveMagasinSource
 from public_data_agent.sources.ssb import SsbStatbankSource
 
-SOURCE_IDS = ("datanorge", "fixture", "ssb", "geonorge", "nve")
+SOURCE_IDS = ("datanorge", "fixture", "ssb", "geonorge", "nve", "brreg")
 
 
 def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSource:
@@ -25,10 +26,13 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return GeonorgeKartkatalogSource()
     if source_id == "nve":
         return NveMagasinSource()
+    if source_id == "brreg":
+        return BrregEnhetsregisterSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
 __all__ = [
+    "BrregEnhetsregisterSource",
     "CatalogSource",
     "DataNorgeSource",
     "FixtureSource",

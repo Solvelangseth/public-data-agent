@@ -1,0 +1,142 @@
+{
+  "produced_at": "2026-08-27T10:42:00Z",
+  "bound": {
+    "list_api": "https://data.brreg.no/enhetsregisteret/api",
+    "walk": "copy printed HAL _links except self",
+    "cap": 10,
+    "how": "pda ingest --source brreg --limit 10. The official Enhetsregisteret HAL root lists collection hrefs. The adapter copies those printed relations and stops at 10."
+  },
+  "discarded": [
+    {
+      "candidate": "Statens vegvesen NVDB Les V4",
+      "url": "https://nvdbapiles.atlas.vegvesen.no/datakatalog/api/v1/vegobjekttyper",
+      "why": "HTTP 400: X-Client must be set"
+    },
+    {
+      "candidate": "Kartverket adresser",
+      "url": "https://ws.geonorge.no/adresser/v1/",
+      "why": "already ingested as geonorge:44eeffdc-6069-4000-a49b-2d6bfc59ac61"
+    },
+    {
+      "candidate": "NVE HydAPI",
+      "url": "https://hydapi.nve.no/station/list",
+      "why": "HTTP 404; Magasinstatistikk already on main via PR 48"
+    },
+    {
+      "candidate": "MET Frost",
+      "url": "https://frost.met.no/",
+      "why": "already failed with 401 without a client id; do not add one"
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source brreg --db /tmp/pda-brreg-proof/registry.sqlite --limit 10",
+    "listed": 6,
+    "inserted": 6,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "brreg:enheter",
+        "access_path": "https://data.brreg.no/enhetsregisteret/api/enheter"
+      },
+      {
+        "id": "brreg:underenheter",
+        "access_path": "https://data.brreg.no/enhetsregisteret/api/underenheter"
+      },
+      {
+        "id": "brreg:organisasjonsformer",
+        "access_path": "https://data.brreg.no/enhetsregisteret/api/organisasjonsformer"
+      },
+      {
+        "id": "brreg:oppdateringer/enheter",
+        "access_path": "https://data.brreg.no/enhetsregisteret/api/oppdateringer/enheter"
+      },
+      {
+        "id": "brreg:oppdateringer/underenheter",
+        "access_path": "https://data.brreg.no/enhetsregisteret/api/oppdateringer/underenheter"
+      },
+      {
+        "id": "brreg:kommuner",
+        "access_path": "https://data.brreg.no/enhetsregisteret/api/kommuner"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search organisasjonsformer --db /tmp/pda-brreg-proof/registry.sqlite --limit 5",
+    "query": "organisasjonsformer",
+    "returned": 1,
+    "hit_id": "brreg:organisasjonsformer",
+    "title": "organisasjonsformer",
+    "source_id": "brreg"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset brreg:organisasjonsformer --db /tmp/pda-brreg-proof/registry.sqlite",
+    "dataset": "brreg:organisasjonsformer",
+    "table_id": "organisasjonsformer",
+    "access_path": "https://data.brreg.no/enhetsregisteret/api/organisasjonsformer",
+    "request_url": "https://data.brreg.no/enhetsregisteret/api/organisasjonsformer",
+    "http_status": 200,
+    "listed": 44,
+    "inserted": 44,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "organisasjonsformer",
+        "value": "AAFY",
+        "dimensions": {
+          "kode": "AAFY",
+          "beskrivelse": "Underenhet til ikke-næringsdrivende"
+        }
+      },
+      {
+        "measure": "organisasjonsformer",
+        "value": "ADOS",
+        "dimensions": {
+          "kode": "ADOS",
+          "beskrivelse": "Administrativ enhet - offentlig sektor"
+        }
+      },
+      {
+        "measure": "organisasjonsformer",
+        "value": "ANNA",
+        "dimensions": {
+          "kode": "ANNA",
+          "beskrivelse": "Annen juridisk person"
+        }
+      },
+      {
+        "measure": "organisasjonsformer",
+        "value": "ANS",
+        "dimensions": {
+          "kode": "ANS",
+          "beskrivelse": "Ansvarlig selskap med solidarisk ansvar"
+        }
+      },
+      {
+        "measure": "organisasjonsformer",
+        "value": "AS",
+        "dimensions": {
+          "kode": "AS",
+          "beskrivelse": "Aksjeselskap"
+        }
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset brreg:organisasjonsformer --table organisasjonsformer --entity \"\" --measure \"\" --db /tmp/pda-brreg-proof/registry.sqlite --out /tmp/pda-brreg-proof/methods",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "Enhetsregisteret /organisasjonsformer prints kode and beskrivelse strings, not a numeric time series. methods.clean drops non-numeric values and there is no period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids and access_path values are copied from printed HAL _links relation names and hrefs. No Brønnøysund id was written onto a datanorge row.",
+    "License is null. The Enhetsregisteret HAL JSON does not print a license URI.",
+    "Publisher is null. The Enhetsregisteret HAL JSON does not print a publisher name.",
+    "NVE Magasinstatistikk stayed on main (PR 48). This source does not re-implement it."
+  ]
+}

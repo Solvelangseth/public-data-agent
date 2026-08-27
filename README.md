@@ -727,6 +727,31 @@ EL area 2 = 0.46631882, VASS area 3 = 0.82981455.
 The payload is one week across areas, not a time series, so methods
 was not used. Proof is `data/nve_source_proof.json`.
 
+## Brønnøysundregistrene Enhetsregisteret source
+
+`pda ingest --source brreg` is another replaceable adapter. It lists the
+printed HAL `_links` on the official Enhetsregisteret API root
+`https://data.brreg.no/enhetsregisteret/api`, skipping `self`, capped at 10.
+Dataset ids are the printed relation names. `access_path` is the printed href.
+
+```bash
+pda ingest --source brreg --db data/registry.sqlite --limit 10
+pda search organisasjonsformer --db data/registry.sqlite
+pda fetch --dataset brreg:organisasjonsformer --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored href. Observation values are copied from printed
+scalar fields on the first `_embedded` list of dicts (prefer `kode`, then
+`navn`, then `beskrivelse`). License and publisher stay null unless the API
+prints them.
+
+Live ingest 2026-08-27: 6 printed HAL relations. Live search
+`organisasjonsformer` returns `brreg:organisasjonsformer`. Live fetch GETs
+`https://data.brreg.no/enhetsregisteret/api/organisasjonsformer` HTTP 200,
+44 organisation-form rows. Sample printed values: AAFY, ADOS, ANNA, ANS, AS.
+`pda methods` is not applicable: the payload is codes and names, not a
+numeric time series (`available=[]`). Proof is `data/brreg_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
