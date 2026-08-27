@@ -182,6 +182,8 @@ def join_proof_payload(
     command: str,
     db: str,
     klass_dataset: dict[str, Any] | None,
+    datasets: int | None = None,
+    enrichments: int | None = None,
 ) -> dict[str, Any]:
     return {
         "produced_at": utc_now(),
@@ -218,6 +220,8 @@ def join_proof_payload(
             "updated": result.counts.updated,
             "unchanged": result.counts.unchanged,
             "failed": result.counts.failed,
+            "datasets_unchanged": datasets,
+            "enrichments_unchanged": enrichments,
         },
         "sample": result.sample,
         "rows": result.rows,

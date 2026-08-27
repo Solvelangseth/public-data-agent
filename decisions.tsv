@@ -70,4 +70,8 @@ ts	phase	decision	why	evidence	result
 2026-08-27T08:06:00Z	join	07459 is live with 0301 but is kommune-only	registry access_path count for 07459 is still 0; GET table metadata 200; 0301 is Oslo, no 0301xx	https://data.ssb.no/api/v0/no/table/07459	skipped as join partner
 2026-08-27T08:07:00Z	join	do not use 10826 unsuffixed 030101	those codes are the 1988-2003 series; 030101 is Bygdøy-Frogner there, Gamle Oslo in Klass 1168	10826 metadata 030101 vs 030101a Gamle Oslo	skipped
 2026-08-27T08:08:00Z	join	use SSB 11763 plus Klass 1168 on exact bydel_code	11763 Region 030101 is Gamle Oslo and matches Klass code and name; no-auth PxWeb POST 200	POST 11763 2025 I alt 030101=64920	selected
-2026-08-27T08:09:00Z	schema	store join output in join_runs and joined_rows	do not write datasets, harvested_payloads, or enrichments; 11763 has no registry dataset so skip observations for it	schema.sql join_runs joined_rows	pending live proof
+2026-08-27T08:09:00Z	schema	store join output in join_runs and joined_rows	do not write datasets, harvested_payloads, or enrichments; 11763 has no registry dataset so skip observations for it	schema.sql join_runs joined_rows	live tables used
+2026-08-27T08:05:11Z	join	live pda join Klass 1168 to SSB 11763 for 2025	prove a real inner join on bydel_code, not city-total glue	data/join_proof.json both HTTP 200 joined=18 030101=64920 030102=67039	live works
+2026-08-27T08:06:00Z	join	second live join is unchanged	idempotent on the same 18 codes	pda join counts unchanged=18 inserted=0 datasets=9120	idempotent
+2026-08-27T08:06:30Z	test	run pytest after the join commit	do not leave the count only in the PR body	python3 -m pytest 50 passed 1 deselected	tests green
+2026-08-27T08:07:00Z	pr	open Milestone 9 PR, do not merge	first join is a reviewable PR	https://github.com/Solvelangseth/public-data-agent/pull/14	OPEN

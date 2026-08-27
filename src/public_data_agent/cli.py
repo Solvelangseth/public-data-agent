@@ -313,6 +313,8 @@ def _join(args: argparse.Namespace) -> int:
             command=command,
             db=str(args.db),
             klass_dataset=registry.get_dataset(args.dataset),
+            datasets=registry.dataset_count(),
+            enrichments=registry.enrichment_count(),
         )
         text = json.dumps(payload, ensure_ascii=False, indent=2)
         if args.out:

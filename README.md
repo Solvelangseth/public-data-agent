@@ -523,6 +523,11 @@ registry, so those cells stay on the join row.
 Each joined row stores both source ids, publishers, licenses, access paths,
 request URLs, `retrieved_at`, the join key, and why the row matched.
 
+Live run 2026-08-27: both HTTP 200, 18 joined rows, no auth. Sample values
+from the responses: `030101` Gamle Oslo 64920, `030102` Grünerløkka 67039.
+`030116` Sentrum, `030117` Marka, and `030199` are null in the 11763 body.
+A second run was unchanged=18. Proof is `data/join_proof.json`.
+
 This milestone does not add a UI or MCP.
 
 ## Architecture (long term)

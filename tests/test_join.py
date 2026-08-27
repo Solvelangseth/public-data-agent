@@ -215,6 +215,7 @@ def test_cli_join_writes_proof(tmp_path: Path, monkeypatch) -> None:
     payload = json.loads(out.read_text(encoding="utf-8"))
     assert payload["join_key"] == "bydel_code"
     assert payload["counts"]["joined"] == 2
+    assert payload["counts"]["datasets_unchanged"] == 3
     assert payload["sample"][0]["population"] == 64920
     assert payload["sources"]["left"]["http_status"] == 200
     assert payload["sources"]["right"]["http_status"] == 200

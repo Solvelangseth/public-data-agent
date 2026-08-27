@@ -1,0 +1,283 @@
+{
+  "produced_at": "2026-08-27T08:05:46Z",
+  "command": "pda join --dataset datanorge:0c89041e-ae88-32ef-a765-8e1ccbd64fdd --table 11763 --year 2025 --db data/registry.sqlite --out data/join_proof.json",
+  "why_not_m7_m8": "OK-BEF008 is Oslo city totals with no bydel or kommune code. Klass 1168 is classification names keyed by 0301xx. Those two do not share a key to a metric.",
+  "why_not_07459": "07459 is live at data.ssb.no/api/v0/no/table/07459 and has kommune 0301, but it is still not an access_path in the registry and it has no bydel codes. Joining one Oslo total onto 42 bydels is the same glue the milestone forbids.",
+  "why_this_table": "Table 11763 is a public no-auth SSB PxWeb befolkning/bydel table. Its Region codes 030101-030117 and 030199 are the same strings Klass 1168 stores. 07459 and 11763 are both absent from stored access_path values.",
+  "join_key": "bydel_code",
+  "sources": {
+    "left": {
+      "dataset_id": "datanorge:0c89041e-ae88-32ef-a765-8e1ccbd64fdd",
+      "title": "Bydelsinndeling",
+      "publisher_name": "STATISTISK SENTRALBYRÅ",
+      "license": "http://publications.europa.eu/resource/authority/licence/NLOD_2_0",
+      "access_path": "https://data.ssb.no/api/klass/v1/versions/1168.json",
+      "request_url": "https://data.ssb.no/api/klass/v1/versions/1168.json",
+      "http_status": 200
+    },
+    "right": {
+      "dataset_id": "ssb:11763",
+      "title": "11763: Folkemengde 31.12., etter alder, region, statistikkvariabel og år",
+      "publisher_name": "Statistisk sentralbyrå",
+      "license": null,
+      "access_path": "https://data.ssb.no/api/v0/no/table/11763",
+      "request_url": "https://data.ssb.no/api/v0/no/table/11763",
+      "http_status": 200,
+      "auth": "none"
+    }
+  },
+  "db": "data/registry.sqlite",
+  "counts": {
+    "joined": 18,
+    "inserted": 0,
+    "updated": 0,
+    "unchanged": 18,
+    "failed": 0,
+    "datasets_unchanged": 9120,
+    "enrichments_unchanged": 9120
+  },
+  "sample": [
+    {
+      "join_key": "bydel_code",
+      "join_key_value": "030101",
+      "why_matched": "exact bydel_code 030101 in SSB 11763 Region and Klass classificationItems.code",
+      "bydel_code": "030101",
+      "year": "2025",
+      "age": "I alt",
+      "population": 64920,
+      "population_measure": "Personer (antall)",
+      "ssb_region_label": "Gamle Oslo",
+      "klass_name": "Gamle Oslo"
+    },
+    {
+      "join_key": "bydel_code",
+      "join_key_value": "030102",
+      "why_matched": "exact bydel_code 030102 in SSB 11763 Region and Klass classificationItems.code",
+      "bydel_code": "030102",
+      "year": "2025",
+      "age": "I alt",
+      "population": 67039,
+      "population_measure": "Personer (antall)",
+      "ssb_region_label": "Grünerløkka",
+      "klass_name": "Grünerløkka"
+    },
+    {
+      "join_key": "bydel_code",
+      "join_key_value": "030103",
+      "why_matched": "exact bydel_code 030103 in SSB 11763 Region and Klass classificationItems.code",
+      "bydel_code": "030103",
+      "year": "2025",
+      "age": "I alt",
+      "population": 48325,
+      "population_measure": "Personer (antall)",
+      "ssb_region_label": "Sagene",
+      "klass_name": "Sagene"
+    },
+    {
+      "join_key": "bydel_code",
+      "join_key_value": "030104",
+      "why_matched": "exact bydel_code 030104 in SSB 11763 Region and Klass classificationItems.code",
+      "bydel_code": "030104",
+      "year": "2025",
+      "age": "I alt",
+      "population": 41379,
+      "population_measure": "Personer (antall)",
+      "ssb_region_label": "St. Hanshaugen",
+      "klass_name": "St. Hanshaugen"
+    },
+    {
+      "join_key": "bydel_code",
+      "join_key_value": "030105",
+      "why_matched": "exact bydel_code 030105 in SSB 11763 Region and Klass classificationItems.code",
+      "bydel_code": "030105",
+      "year": "2025",
+      "age": "I alt",
+      "population": 60321,
+      "population_measure": "Personer (antall)",
+      "ssb_region_label": "Frogner",
+      "klass_name": "Frogner"
+    }
+  ],
+  "rows": [
+    {
+      "bydel_code": "030101",
+      "year": "2025",
+      "age": "I alt",
+      "population": 64920,
+      "population_measure": "Personer (antall)",
+      "ssb_region_label": "Gamle Oslo",
+      "klass_name": "Gamle Oslo",
+      "why_matched": "exact bydel_code 030101 in SSB 11763 Region and Klass classificationItems.code"
+    },
+    {
+      "bydel_code": "030102",
+      "year": "2025",
+      "age": "I alt",
+      "population": 67039,
+      "population_measure": "Personer (antall)",
+      "ssb_region_label": "Grünerløkka",
+      "klass_name": "Grünerløkka",
+      "why_matched": "exact bydel_code 030102 in SSB 11763 Region and Klass classificationItems.code"
+    },
+    {
+      "bydel_code": "030103",
+      "year": "2025",
+      "age": "I alt",
+      "population": 48325,
+      "population_measure": "Personer (antall)",
+      "ssb_region_label": "Sagene",
+      "klass_name": "Sagene",
+      "why_matched": "exact bydel_code 030103 in SSB 11763 Region and Klass classificationItems.code"
+    },
+    {
+      "bydel_code": "030104",
+      "year": "2025",
+      "age": "I alt",
+      "population": 41379,
+      "population_measure": "Personer (antall)",
+      "ssb_region_label": "St. Hanshaugen",
+      "klass_name": "St. Hanshaugen",
+      "why_matched": "exact bydel_code 030104 in SSB 11763 Region and Klass classificationItems.code"
+    },
+    {
+      "bydel_code": "030105",
+      "year": "2025",
+      "age": "I alt",
+      "population": 60321,
+      "population_measure": "Personer (antall)",
+      "ssb_region_label": "Frogner",
+      "klass_name": "Frogner",
+      "why_matched": "exact bydel_code 030105 in SSB 11763 Region and Klass classificationItems.code"
+    },
+    {
+      "bydel_code": "030106",
+      "year": "2025",
+      "age": "I alt",
+      "population": 35805,
+      "population_measure": "Personer (antall)",
+      "ssb_region_label": "Ullern",
+      "klass_name": "Ullern",
+      "why_matched": "exact bydel_code 030106 in SSB 11763 Region and Klass classificationItems.code"
+    },
+    {
+      "bydel_code": "030107",
+      "year": "2025",
+      "age": "I alt",
+      "population": 53304,
+      "population_measure": "Personer (antall)",
+      "ssb_region_label": "Vestre Aker",
+      "klass_name": "Vestre Aker",
+      "why_matched": "exact bydel_code 030107 in SSB 11763 Region and Klass classificationItems.code"
+    },
+    {
+      "bydel_code": "030108",
+      "year": "2025",
+      "age": "I alt",
+      "population": 57017,
+      "population_measure": "Personer (antall)",
+      "ssb_region_label": "Nordre Aker",
+      "klass_name": "Nordre Aker",
+      "why_matched": "exact bydel_code 030108 in SSB 11763 Region and Klass classificationItems.code"
+    },
+    {
+      "bydel_code": "030109",
+      "year": "2025",
+      "age": "I alt",
+      "population": 37538,
+      "population_measure": "Personer (antall)",
+      "ssb_region_label": "Bjerke",
+      "klass_name": "Bjerke",
+      "why_matched": "exact bydel_code 030109 in SSB 11763 Region and Klass classificationItems.code"
+    },
+    {
+      "bydel_code": "030110",
+      "year": "2025",
+      "age": "I alt",
+      "population": 28369,
+      "population_measure": "Personer (antall)",
+      "ssb_region_label": "Grorud",
+      "klass_name": "Grorud",
+      "why_matched": "exact bydel_code 030110 in SSB 11763 Region and Klass classificationItems.code"
+    },
+    {
+      "bydel_code": "030111",
+      "year": "2025",
+      "age": "I alt",
+      "population": 34709,
+      "population_measure": "Personer (antall)",
+      "ssb_region_label": "Stovner",
+      "klass_name": "Stovner",
+      "why_matched": "exact bydel_code 030111 in SSB 11763 Region and Klass classificationItems.code"
+    },
+    {
+      "bydel_code": "030112",
+      "year": "2025",
+      "age": "I alt",
+      "population": 50793,
+      "population_measure": "Personer (antall)",
+      "ssb_region_label": "Alna",
+      "klass_name": "Alna",
+      "why_matched": "exact bydel_code 030112 in SSB 11763 Region and Klass classificationItems.code"
+    },
+    {
+      "bydel_code": "030113",
+      "year": "2025",
+      "age": "I alt",
+      "population": 52374,
+      "population_measure": "Personer (antall)",
+      "ssb_region_label": "Østensjø",
+      "klass_name": "Østensjø",
+      "why_matched": "exact bydel_code 030113 in SSB 11763 Region and Klass classificationItems.code"
+    },
+    {
+      "bydel_code": "030114",
+      "year": "2025",
+      "age": "I alt",
+      "population": 55286,
+      "population_measure": "Personer (antall)",
+      "ssb_region_label": "Nordstrand",
+      "klass_name": "Nordstrand",
+      "why_matched": "exact bydel_code 030114 in SSB 11763 Region and Klass classificationItems.code"
+    },
+    {
+      "bydel_code": "030115",
+      "year": "2025",
+      "age": "I alt",
+      "population": 39365,
+      "population_measure": "Personer (antall)",
+      "ssb_region_label": "Søndre Nordstrand",
+      "klass_name": "Søndre Nordstrand",
+      "why_matched": "exact bydel_code 030115 in SSB 11763 Region and Klass classificationItems.code"
+    },
+    {
+      "bydel_code": "030116",
+      "year": "2025",
+      "age": "I alt",
+      "population": null,
+      "population_measure": "Personer (antall)",
+      "ssb_region_label": "Sentrum",
+      "klass_name": "Sentrum",
+      "why_matched": "exact bydel_code 030116 in SSB 11763 Region and Klass classificationItems.code"
+    },
+    {
+      "bydel_code": "030117",
+      "year": "2025",
+      "age": "I alt",
+      "population": null,
+      "population_measure": "Personer (antall)",
+      "ssb_region_label": "Marka",
+      "klass_name": "Marka",
+      "why_matched": "exact bydel_code 030117 in SSB 11763 Region and Klass classificationItems.code"
+    },
+    {
+      "bydel_code": "030199",
+      "year": "2025",
+      "age": "I alt",
+      "population": null,
+      "population_measure": "Personer (antall)",
+      "ssb_region_label": "Oslo kommune sektor overgripende for Oslo Bydeler",
+      "klass_name": "Uoppgitt",
+      "why_matched": "exact bydel_code 030199 in SSB 11763 Region and Klass classificationItems.code"
+    }
+  ]
+}
