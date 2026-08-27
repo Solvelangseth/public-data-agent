@@ -1,0 +1,184 @@
+{
+  "produced_at": "2026-08-27T12:07:02Z",
+  "bound": {
+    "list_api": "https://driftsdata.statnett.no/restapi/swagger/docs/v1",
+    "walk": "copy printed collection GET paths from the official Driftsdata swagger; skip templated paths; native ids are printed operationId values",
+    "cap": 10,
+    "how": "pda ingest --source statnett --limit 10. The official swagger prints host, basePath, schemes, and GET paths. The adapter copies those printed values. Two LastChanges paths stay distinct because the printed operationId is stored, not the last path segment."
+  },
+  "discarded": [
+    {
+      "candidate": "Utdanning.no OpenAPI",
+      "url": "https://api.utdanning.no/openapi.json",
+      "why": "HTTP 200 OpenAPI 3.1 with 116 GET paths and live collection records. Left as a later source after Statnett printed a no-auth swagger with named elspot records."
+    },
+    {
+      "candidate": "Avinor XmlFeed",
+      "url": "https://asrv.avinor.no/XmlFeed/v1.0",
+      "why": "HTTP 400 required parameter airport is not present. Not a list API."
+    },
+    {
+      "candidate": "Bane NOR swagger",
+      "url": "https://api.banenor.no/swagger/v1/swagger.json",
+      "why": "HTTP 404."
+    },
+    {
+      "candidate": "Sjøfartsdirektoratet swagger",
+      "url": "https://api.sdir.no/swagger/v1/swagger.json",
+      "why": "HTTP 404."
+    },
+    {
+      "candidate": "NIBIO LMT stations",
+      "url": "https://lmt.nibio.no/services/rest/weatherstations",
+      "why": "HTTP 404."
+    },
+    {
+      "candidate": "Vann-Nett portal-api swagger",
+      "url": "https://vann-nett.no/portal-api/swagger/v1/swagger.json",
+      "why": "TLS certificate verify failed."
+    },
+    {
+      "candidate": "Finanstilsynet /api",
+      "url": "https://www.finanstilsynet.no/api",
+      "why": "HTTP 200 empty body. HTML docs page is not a list API."
+    },
+    {
+      "candidate": "Nasjonalbiblioteket catalog OpenAPI",
+      "url": "https://api.nb.no/catalog/v1/items/api-docs",
+      "why": "Already discarded on main in data/fiskeridir_source_proof.json: search API, aggregations HTTP 500."
+    },
+    {
+      "candidate": "Legemiddelverket FHIR metadata",
+      "url": "https://api.legemiddelverket.no/fhir-r4/metadata",
+      "why": "Already discarded on main: HTTP 401 missing subscription key."
+    },
+    {
+      "candidate": "Husbanken openapi.json",
+      "url": "https://apidocs.husbanken.no/openapi.json",
+      "why": "Already discarded on main: HTTP 404 HTML docs site."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source statnett --db /tmp/pda-statnett-proof/registry.sqlite --limit 10",
+    "listed": 10,
+    "inserted": 10,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "statnett:ElspotPowerSituation_LastChanges",
+        "access_path": "https://driftsdata.statnett.no/RestApi/ElspotPowerSituation/LastChanges"
+      },
+      {
+        "id": "statnett:ElspotPowerSituation_GetPowerSituations",
+        "access_path": "https://driftsdata.statnett.no/RestApi/ElspotPowerSituation/GetPowerSituations"
+      },
+      {
+        "id": "statnett:ElspotSeparatorLine_LastChanges",
+        "access_path": "https://driftsdata.statnett.no/RestApi/ElspotSeparatorLine/LastChanges"
+      },
+      {
+        "id": "statnett:ElspotSeparatorLine_ChangeInformation",
+        "access_path": "https://driftsdata.statnett.no/RestApi/ElspotSeparatorLine/ChangeInformation"
+      },
+      {
+        "id": "statnett:ElspotSeparatorLine_LineData",
+        "access_path": "https://driftsdata.statnett.no/RestApi/ElspotSeparatorLine/LineData"
+      },
+      {
+        "id": "statnett:ElspotSeparatorLine_AsPng",
+        "access_path": "https://driftsdata.statnett.no/RestApi/ElspotSeparatorLine/AsPng"
+      },
+      {
+        "id": "statnett:Frequency_ByMinute",
+        "access_path": "https://driftsdata.statnett.no/RestApi/Frequency/ByMinute"
+      },
+      {
+        "id": "statnett:Frequency_BySecond",
+        "access_path": "https://driftsdata.statnett.no/RestApi/Frequency/BySecond"
+      },
+      {
+        "id": "statnett:Frequency_BySecondWithXy",
+        "access_path": "https://driftsdata.statnett.no/RestApi/Frequency/BySecondWithXy"
+      },
+      {
+        "id": "statnett:PhysicalFlow_GetData",
+        "access_path": "https://driftsdata.statnett.no/RestApi/PhysicalFlow/GetData"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search elspot --db /tmp/pda-statnett-proof/registry.sqlite --limit 5",
+    "query": "elspot",
+    "returned": 5,
+    "hit_id": "statnett:ElspotPowerSituation_GetPowerSituations",
+    "title": "Returns Elspot power situation information for a given time.",
+    "source_id": "statnett"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset statnett:ElspotPowerSituation_GetPowerSituations --db /tmp/pda-statnett-proof/registry.sqlite",
+    "dataset": "statnett:ElspotPowerSituation_GetPowerSituations",
+    "table_id": "GetPowerSituations",
+    "access_path": "https://driftsdata.statnett.no/RestApi/ElspotPowerSituation/GetPowerSituations",
+    "request_url": "https://driftsdata.statnett.no/RestApi/ElspotPowerSituation/GetPowerSituations",
+    "http_status": 200,
+    "listed": 5,
+    "inserted": 5,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "elspotId",
+        "value": "NO3",
+        "dimensions": {
+          "powerSituation": "Normal"
+        }
+      },
+      {
+        "measure": "elspotId",
+        "value": "NO4",
+        "dimensions": {
+          "powerSituation": "Normal"
+        }
+      },
+      {
+        "measure": "elspotId",
+        "value": "NO1",
+        "dimensions": {
+          "powerSituation": "Normal"
+        }
+      },
+      {
+        "measure": "elspotId",
+        "value": "NO2",
+        "dimensions": {
+          "powerSituation": "Normal"
+        }
+      },
+      {
+        "measure": "elspotId",
+        "value": "NO5",
+        "dimensions": {
+          "powerSituation": "Normal"
+        }
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset statnett:ElspotPowerSituation_GetPowerSituations --db /tmp/pda-statnett-proof/registry.sqlite --entity \"\" --measure \"\"",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "GetPowerSituations prints elspot area ids (elspotId plus powerSituation). That is not a numeric time series. methods.clean drops the rows because they have no period. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from the printed swagger operationId. access_path is the printed host + basePath + path. No Statnett id was written onto a datanorge row.",
+    "Fetch GETs the stored collection URL. Observation values are printed elspotId. Nested objects such as translatedText are not copied as dimensions. Printed elspotCoordinates were stored on every row and omitted from this sample only because they are long map strings.",
+    "License and publisher stay null: the spec does not print them.",
+    "Frequency collection GETs return empty Measurements without a time window. Those paths were ingested as printed swagger entries and were not fetched. AsPng was ingested as a printed GET and was not fetched.",
+    "Fiskeridir Fartøyregisteret stayed on main (PR 65). This source does not re-implement it."
+  ]
+}
