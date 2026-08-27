@@ -117,6 +117,8 @@
     "Values are copied from the HTTP JSON-stat response. None were invented.",
     "28 cells = 7 years x 2 geographies x 2 measures.",
     "Observations are stored in the observations table. datasets and enrichments were not written.",
-    "The uncommitted local sqlite file may hold extra rows from an earlier identity-key run. Git does not contain registry.sqlite."
+    "The uncommitted local sqlite file may hold extra rows from an earlier identity-key run. Git does not contain registry.sqlite.",
+    "Cause of those extra rows: the first live run stored measure as the table title, the second used Statistikkvariabel. Identity is sha256(dataset, table, measure, dimensions), so the second run inserted 28 new keys instead of unchanged=28. Fixture tests still prove idempotency when measure is stable.",
+    "SSB table 07459: 0 registry rows match id, title, or access_path containing 07459."
   ]
 }

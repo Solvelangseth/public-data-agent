@@ -55,3 +55,7 @@ ts	phase	decision	why	evidence	result
 2026-08-27T04:24:00Z	fetch	store observations in their own tables	do not write datasets, harvested_payloads, or enrichments	schema.sql fetch_runs + observations	pending live proof
 2026-08-27T04:25:00Z	fetch	live pda fetch Oslo population 2020-2026	prove a real HTTP response, no invented numbers	data/connector_proof.json HTTP 200 listed 28 Oslo totals 693494..728714	live works
 2026-08-27T04:26:00Z	pr	open Milestone 7 PR, do not merge, do not start M8	first connector is a reviewable PR	https://github.com/Solvelangseth/public-data-agent/pull/8	OPEN
+2026-08-27T04:27:00Z	test	run pytest after the fetch commits	earlier trail review said a pytest count must not live only in the PR body	python3 -m pytest 39 passed 1 deselected; CI green on b37455d	tests green
+2026-08-27T04:27:00Z	fetch	confirm SSB 07459 is absent from the live registry	trail review said the negative search was not evidenced	sqlite count of id/title/access_path like %07459% = 0	absent
+2026-08-27T04:27:00Z	fetch	log live identity-key drift, do not add a history table	first live run used table-title measure, second used Statistikkvariabel, so inserted=28 twice	data/connector_proof.json notes; fixture test_fetch still unchanged=2	logged, no history table
+2026-08-27T04:27:00Z	trail	cross-model review of the M7 decision trail	show-me-your-work requires a different model family	claude-sonnet-5: identity drift, missing pytest row, 07459 evidence, value overwrite	logged
