@@ -1,0 +1,18 @@
+{
+  "command": "pda scan-table-urls --db data/registry.sqlite --out data/table_url_scan_proof.json",
+  "db": "data/registry.sqlite",
+  "datasets_scanned": 9122,
+  "payloads_scanned": 9121,
+  "printed_table_urls": 0,
+  "new_stored": 0,
+  "already_access_path": 0,
+  "inserted": 0,
+  "updated": 0,
+  "unchanged": 0,
+  "klass_skipped": 85,
+  "constructed_07459": false,
+  "sample_printed_urls": [],
+  "probes": [],
+  "get_200_json": 0,
+  "sit": true
+}

@@ -112,3 +112,9 @@ ts	phase	decision	why	evidence	result
 2026-08-27T08:57:10Z	methods	pda methods reads 683 from the store, then clean drops names	load_observations found 7127 rows so it did not call pda fetch; names are not a numeric series	exit 1 available=[]; fetch_runs still 1	honest miss
 2026-08-27T08:58:00Z	test	run pytest after the Klass 683 proof	do not leave the count only in the PR body	python3 -m pytest 88 passed 1 deselected	tests green
 2026-08-27T08:58:40Z	pr	open Klass 683 fetch PR, do not merge	third stored-API fetch is a reviewable PR	https://github.com/Solvelangseth/public-data-agent/pull/30	OPEN
+2026-08-27T09:01:26Z	merge	merge PR 30 after CI green	CI test + GitGuardian SUCCESS; Klass 683 is a real fetch	gh pr view 30 MERGED mergeCommit 4d70a14123ff4125a52092f48512a655cec488e4	MERGED
+2026-08-27T09:06:43Z	pr	close PR 32 without merging	trail only, no fetch; chief of staff forbade merge	gh pr view 32 CLOSED mergedAt=null	CLOSED
+2026-08-27T09:08:00Z	scan	persist printed table URLs in a side table	do not overwrite harvested_payloads or access_path	schema.sql printed_table_urls; pda scan-table-urls	selected
+2026-08-27T09:08:30Z	scan	live harvest has no unused printed PxWeb table URL	9121 payloads, 0 table/ or *.px api strings that are not already access_path; 07459 absent	data/table_url_scan_proof.json new_stored=0 sit=true klass_skipped=85	sit
+2026-08-27T09:08:40Z	test	run pytest after the scan	do not leave the count only in the PR body	python3 -m pytest 92 passed 1 deselected	tests green
+2026-08-27T09:09:20Z	pr	open harvest table-url scan PR, do not merge	live scan sat at new_stored=0	https://github.com/Solvelangseth/public-data-agent/pull/33	OPEN

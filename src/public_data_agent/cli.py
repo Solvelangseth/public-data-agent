@@ -19,6 +19,7 @@ from public_data_agent.join import (
 from public_data_agent.ssb_pxweb import DEFAULT_SSB_TABLE
 from public_data_agent.harvest import harvest, stderr_progress
 from public_data_agent.registry import Registry
+from public_data_agent.scan_table_urls import scan_printed_table_urls, scan_proof_payload
 from public_data_agent.search import search_report
 from public_data_agent.sources import SOURCE_IDS, build_source
 
@@ -132,6 +133,20 @@ def main(argv: list[str] | None = None) -> int:
     ask_cmd.add_argument("--out", type=Path, default=None)
     ask_cmd.add_argument("--limit", type=int, default=10)
 
+    scan_cmd = sub.add_parser(
+        "scan-table-urls",
+        help="Copy harvest-printed PxWeb/JSON-stat table URLs into printed_table_urls",
+    )
+    scan_cmd.add_argument("--db", type=Path, default=DEFAULT_DB)
+    scan_cmd.add_argument("--out", type=Path, default=None)
+    scan_cmd.add_argument(
+        "--probe",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="GET each new stored URL and record status plus content-type.",
+    )
+    scan_cmd.add_argument("--probe-limit", type=int, default=20)
+
     mcp_cmd = sub.add_parser("mcp", help="Run the stdio MCP server or call one tool")
     mcp_cmd.add_argument("--call", choices=["search", "ask", "fetch"], default=None)
     mcp_cmd.add_argument("--query", default=None)
@@ -168,6 +183,8 @@ def main(argv: list[str] | None = None) -> int:
         return _methods(args)
     if args.command == "ask":
         return _ask(args)
+    if args.command == "scan-table-urls":
+        return _scan_table_urls(args)
     if args.command == "mcp":
         return _mcp(args)
     parser.error(f"unknown command {args.command}")
@@ -248,6 +265,33 @@ def _stats(args: argparse.Namespace) -> int:
         args.out.write_text(text + "\n", encoding="utf-8")
     print(text)
     return 0
+
+
+def _scan_table_urls(args: argparse.Namespace) -> int:
+    if not Path(args.db).exists() and str(args.db) != ":memory:":
+        print(f"no registry at {args.db}", file=sys.stderr)
+        return 1
+    registry = Registry(args.db)
+    try:
+        result = scan_printed_table_urls(
+            registry,
+            probe=args.probe,
+            probe_limit=args.probe_limit,
+        )
+        command = f"pda scan-table-urls --db {args.db}"
+        if args.out:
+            command += f" --out {args.out}"
+        if not args.probe:
+            command += " --no-probe"
+        payload = scan_proof_payload(result, command=command, db=str(args.db))
+        text = json.dumps(payload, ensure_ascii=False, indent=2)
+        if args.out:
+            args.out.parent.mkdir(parents=True, exist_ok=True)
+            args.out.write_text(text + "\n", encoding="utf-8")
+        print(text)
+        return 1 if result.counts.failed else 0
+    finally:
+        registry.close()
 
 
 def _enrich(args: argparse.Namespace) -> int:
