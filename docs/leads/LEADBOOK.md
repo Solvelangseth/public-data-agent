@@ -6,7 +6,7 @@ No email, call, or outbound post from this file. Contacts are only what the org 
 Product sold: registry of Norwegian public datasets (Data.norge first ingest, sources replaceable), natural-language search, first fetch of actual rows. Later analysis. LLM for intent and explanation. Deterministic retrieval. Provenance (source, publisher, license, access path) on every hit.
 Repo: https://github.com/Solvelangseth/public-data-agent
 
-Status 27 Aug 2026, 13:20 Europe/Oslo: 56 sourced leads. Mix: 19 municipalities, 14 energy, 12 health, 3 consultancies, 2 media, 2 property/infra, 2 research, 2 NGOs. Wave-2 (13): FHI, Helsedirektoratet, Helse Sør-Øst RHF, Statnett, Eviny, Hafslund, Tensio, Lnett, Fredrikstad, Sandnes, Bodø, Kristiansand, Lillestrøm. Wave-3 (11): Helse Vest RHF, Helse Midt-Norge RHF, Helse Nord RHF, Elvia, Glitre Nett, Linea, Tønsberg, Larvik, Porsgrunn, Sarpsborg, Skien. Wave-4 (8): Oslo universitetssykehus HF, Helse Bergen HF, Universitetssykehuset Nord-Norge HF, Arva, Lede, Fagne, Moss, Haugesund. Wave-5 (9): Akershus universitetssykehus HF, Vestre Viken HF, Sykehuset Østfold HF, Vissi, Elinett, Linja, Molde, Gjøvik, Arendal. Contacts only as listed. No invented emails. No outreach.
+Status 27 Aug 2026, 13:25 Europe/Oslo: 55 sourced leads. Mix: 18 municipalities, 14 energy, 12 health, 3 consultancies, 2 media, 2 property/infra, 2 research, 2 NGOs. Wave-2 (13): FHI, Helsedirektoratet, Helse Sør-Øst RHF, Statnett, Eviny, Hafslund, Tensio, Lnett, Fredrikstad, Sandnes, Bodø, Kristiansand, Lillestrøm. Wave-3 (11): Helse Vest RHF, Helse Midt-Norge RHF, Helse Nord RHF, Elvia, Glitre Nett, Linea, Tønsberg, Larvik, Porsgrunn, Sarpsborg, Skien. Wave-4 (8): Oslo universitetssykehus HF, Helse Bergen HF, Universitetssykehuset Nord-Norge HF, Arva, Lede, Fagne, Moss, Haugesund. Wave-5 (8): Akershus universitetssykehus HF, Vestre Viken HF, Sykehuset Østfold HF, Vissi, Elinett, Linja, Molde, Gjøvik. Contacts only as listed. No invented emails. No outreach.
 
 How to read a lead: why they would pay is tied to a named programme, not "they use data." Service shape is always search → fetch → later analysis. If a field says none published, do not invent one.
 
@@ -1829,39 +1829,6 @@ Sources below were opened 2026-08-27 from official pages and the named press/pro
 
 ---
 
-## 56. Arendal kommune — HØP 2026–2029 Klimabudsjett
-
-**Why they would pay.** Handlings- og økonomiplan 2026–2029 has a named Klimabudsjett chapter (kommunedirektørens forslag PDF opened; bystyre 11.12.2025). The klima page prints the klimabudsjett as a styringsverktøy in the ordinary budsjettprosess / HØP. Miljødirektoratet is the printed grunnlag. No first-party åpne-data or datadeling programme is published. Framsikt 2026 returned HTTP 500 — do not invent cells. They would pay to find and fetch the latest Miljødirektoratet / SSB series with provenance for that chapter — not another HØP PDF.
-
-**Concrete use case.** Klima / økonomi needs the latest kommunefordelte klimagassstatistikk and related SSB series for Arendal (knr 4203), fetched as rows with license and access path before later overlay on the HØP 2026–2029 klimabudsjett (2026 tiltakstabell prints 270/382 t).
-
-**Search → fetch → later analysis.**
-- Search: Arendal + klimagass / «kommunefordelt» with publisher (Miljødirektoratet, SSB).
-- Fetch: first rows from the recorded access path; license and publisher on every hit.
-- Later analysis: feed klimabudsjett; do not invent tonnes. Do not invent Framsikt cells.
-
-**Public contact (only published / listed).**
-- ragnhild.hammer@arendal.kommune.no — printed on klimamal-planer-og-tall as klima- og miljørådgiver
-- postmottak@arendal.kommune.no — printed on kontakt-oss
-- Telephone: 37 01 30 00
-- Org: 940493021
-- Kommunenummer: 4203
-- Do not invent an åpne-data inbox.
-
-**Key facts.**
-- Klimabudsjett is a named chapter of HØP 2026–2029, not a separate portal.
-- 2026 tiltakstabell 270/382 t is in the kommunedirektørens forslag PDF. Framsikt 2026 HTTP 500.
-- No first-party åpne-data / datadeling page opened.
-
-**Sources opened 2026-08-27.**
-- https://www.arendal.kommune.no/politikk-og-medvirkning/kommunens-planer/handlings-og-okonomiplan/
-- https://www.arendal.kommune.no/arendal-mot-2040/slik-jobber-vi/klima-og-miljo/slik-jobber-vi-med-klima/
-- https://www.arendal.kommune.no/arendal-mot-2040/slik-jobber-vi/klima-og-miljo/klimamal-planer-og-tall/
-- https://www.arendal.kommune.no/om-arendal-kommune/kontakt-oss/
-- https://data.brreg.no/enhetsregisteret/api/enheter/940493021
-
----
-
 ## Skipped, with reasons
 
 Keep these notes in the living book. They are not leads.
@@ -1875,6 +1842,7 @@ Keep these notes in the living book. They are not leads.
 - **E24 / Kommunal Rapport** — weaker than Aftenposten's published data desk (Journalisten is the source for desk size «seks»).
 - **DIS (Helse Nord)** — Digitale innbygger- og samhandlingstjenester; clinical patient-journey / documents, not a discovery buyer. Helse Nord programme in this book is Helseatlas / SKDE.
 - **Norgesnett** — folded into Glitre Nett; not a fourth energy seat.
+- **Arendal kommune** — 2026 klimabudsjett is only in kommunedirektørens forslag; the vedtatt HØP (bystyret 11.12.2025) has no Klimabudsjett chapter. Same skip as an un-vedtatt skisse.
 
 ---
 
@@ -1889,7 +1857,7 @@ Keep these notes in the living book. They are not leads.
 - **27 Aug 2026, 11:20 Europe/Oslo.** Wave-3 add: Sarpsborg (Plattform for digitalisering 02.02.2023 + KDP klima) and Skien (HP 2025–2028 klimabudsjett; digitaliseringsstrategi announced, not vedtatt). Porsgrunn HP 2026–2029 PDF opened (Klimabudsjett from s. 54); timeout caveat dropped. Contacts only as listed. No competitor section.
 - **27 Aug 2026, 12:40 Europe/Oslo.** Wave-4: 8 sourced entries (Oslo universitetssykehus HF, Helse Bergen HF, Universitetssykehuset Nord-Norge HF, Arva, Lede, Fagne, Moss, Haugesund). Skien Why they would pay updated to HP 2026–2029 Framsikt klimabudsjett (Klimakost stopped after 2023; 7 mill. kr pot; needs arealverktøy); contacts stay post@skien.kommune.no. Arva Kapasitetskart: NVE §15 cite kept; arva.no/Kapasitetskart 404 on 27 Aug 2026 — do not claim the page is live. No invented emails (no Golde@, no post@arva.no). No outreach. No competitor section.
 - **27 Aug 2026, 13:10 Europe/Oslo.** Wave-5: 8 sourced entries (Akershus universitetssykehus HF, Vestre Viken HF, Sykehuset Østfold HF, Vissi, Elinett, Linja, Molde, Gjøvik). Contacts only as listed. No invented emails (no firmapost@morenett.no; no named-person emails for Elinett). 2026 klimabudsjett cells not opened for Molde or Gjøvik — not invented. TROLL/NOR-ITP noted as own registers, not the buy. Linja is not Linea. No outreach. No competitor section.
-- **27 Aug 2026, 13:20 Europe/Oslo.** Wave-5 add: Arendal kommune (HØP 2026–2029 klimabudsjett; kommunedirektørens forslag PDF; bystyre 11.12.2025; Mdir grunnlag; 2026 tiltakstabell 270/382 t). Framsikt 2026 HTTP 500 — cells not invented. No first-party åpne-data / datadeling. Contacts ragnhild.hammer@ and postmottak@. No outreach. No competitor section.
+- **27 Aug 2026, 13:25 Europe/Oslo.** Arendal kommune pulled / skipped: 2026 klimabudsjett is only in kommunedirektørens forslag; vedtatt HØP (bystyret 11.12.2025) has no Klimabudsjett chapter. Same skip as an un-vedtatt skisse. Not a lead. Wave-5 stays the eight. No outreach. No competitor section.
 
 ---
 
