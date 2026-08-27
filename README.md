@@ -1432,6 +1432,29 @@ OTERNESET, GISSØYSUNDET S, SKJELLESVIKA.
 (`no observations matched entity/measure; available=[]`).
 Proof is `data/nytek_source_proof.json`.
 
+## Udir Nasjonalt register for PP-tjenester source
+
+`pda ingest --source npr` is another replaceable adapter. It lists printed
+collection GET paths on the official Nasjonalt register for PP-tjenester
+OpenAPI `https://data-npr.udir.no/swagger/v4/swagger.json`, capped at 10.
+Templated paths such as `/v4/enhet/{organisasjonsnummer}` are skipped.
+Dataset ids are the printed last path segments. `access_path` is the
+printed path joined to the OpenAPI document origin.
+
+```bash
+pda ingest --source npr --db data/registry.sqlite --limit 10
+pda search næringskoder --db data/registry.sqlite
+pda fetch --dataset npr:naeringskoder --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored collection URL. Observation values are copied
+from printed `Navn` on a printed `*Liste` array. License is copied from
+the printed OpenAPI `info.license.url` when present. Publisher stays
+null: the spec does not print a publisher name.
+
+This source is Udir NPR (`data-npr.udir.no`), not NSR (`--source udir`),
+not NBR (`--source nbr`), and not NOR (`--source nor`).
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
