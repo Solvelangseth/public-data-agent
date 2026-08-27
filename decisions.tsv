@@ -61,3 +61,17 @@ ts	phase	decision	why	evidence	result
 2026-08-27T04:27:00Z	fetch	confirm SSB 07459 is absent from the live registry	trail review said the negative search was not evidenced	sqlite count of id/title/access_path like %07459% = 0	absent
 2026-08-27T04:27:00Z	fetch	log live identity-key drift, do not add a history table	first live run used table-title measure, second used Statistikkvariabel, so inserted=28 twice	data/connector_proof.json notes; fixture test_fetch still unchanged=2	logged, no history table
 2026-08-27T04:27:00Z	trail	cross-model review of the M7 decision trail	show-me-your-work requires a different model family	claude-sonnet-5: identity drift, missing pytest row, 07459 evidence, value overwrite	logged
+2026-08-27T07:50:00Z	fetch	07459 still absent; skip stale Kommuneinndeling 1160.json	sqlite 07459 count 0; Klass versions/1160.json HTTP 404	live GET 404 and registry query	skipped
+2026-08-27T07:51:00Z	fetch	use SSB Klass Bydelsinndeling as the second source	stored access_path is a working national API, not Oslo PxWeb	datanorge:0c89041e-ae88-32ef-a765-8e1ccbd64fdd GET 200 listed 42	selected
+2026-08-27T07:52:00Z	test	run pytest after the klass adapter	do not leave the count only in the PR body	python3 -m pytest 45 passed 1 deselected	tests green
+2026-08-27T07:53:00Z	pr	open Milestone 8 PR, do not merge, do not start M9	second source is a reviewable PR	https://github.com/Solvelangseth/public-data-agent/pull/12	OPEN
+2026-08-27T07:57:49Z	merge	treat PR 12 as merged on main	gh pr view is the required proof	https://github.com/Solvelangseth/public-data-agent/pull/12 mergeCommit 6b0a13c9b5dfea2a45a847c0f08aa6ceec17c777	MERGED 2026-08-27T07:57:49Z
+2026-08-27T08:05:00Z	join	do not join OK-BEF008 totals to Klass 1168 names	city total has no bydel or kommune code; that glue is the forbidden nonsense join	M7 connector_proof.json Oslo i alt; M8 codes 030101..	skipped
+2026-08-27T08:06:00Z	join	07459 is live with 0301 but is kommune-only	registry access_path count for 07459 is still 0; GET table metadata 200; 0301 is Oslo, no 0301xx	https://data.ssb.no/api/v0/no/table/07459	skipped as join partner
+2026-08-27T08:07:00Z	join	do not use 10826 unsuffixed 030101	those codes are the 1988-2003 series; 030101 is Bygdøy-Frogner there, Gamle Oslo in Klass 1168	10826 metadata 030101 vs 030101a Gamle Oslo	skipped
+2026-08-27T08:08:00Z	join	use SSB 11763 plus Klass 1168 on exact bydel_code	11763 Region 030101 is Gamle Oslo and matches Klass code and name; no-auth PxWeb POST 200	POST 11763 2025 I alt 030101=64920	selected
+2026-08-27T08:09:00Z	schema	store join output in join_runs and joined_rows	do not write datasets, harvested_payloads, or enrichments; 11763 has no registry dataset so skip observations for it	schema.sql join_runs joined_rows	live tables used
+2026-08-27T08:05:11Z	join	live pda join Klass 1168 to SSB 11763 for 2025	prove a real inner join on bydel_code, not city-total glue	data/join_proof.json both HTTP 200 joined=18 030101=64920 030102=67039	live works
+2026-08-27T08:06:00Z	join	second live join is unchanged	idempotent on the same 18 codes	pda join counts unchanged=18 inserted=0 datasets=9120	idempotent
+2026-08-27T08:06:30Z	test	run pytest after the join commit	do not leave the count only in the PR body	python3 -m pytest 50 passed 1 deselected	tests green
+2026-08-27T08:07:00Z	pr	open Milestone 9 PR, do not merge	first join is a reviewable PR	https://github.com/Solvelangseth/public-data-agent/pull/14	OPEN

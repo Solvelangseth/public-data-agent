@@ -12,15 +12,16 @@ system finds the right data for you.
 
 ## Current status
 
-Milestone 1 through 7 are in this repo: a local SQLite dataset registry, ingest from
+Milestone 1 through 9 are in this repo: a local SQLite dataset registry, ingest from
 Data.norge / Felles datakatalog, token-overlap search over that file, deterministic
 enrichment in a separate `enrichments` table, a sourced search benchmark,
 AND-decomposition of multi-token queries, a coverage report after retrieval,
-and a first observation-row fetch from a public PxWeb API.
+observation-row fetch from two public APIs, and one cross-source join.
 
-Discovery MVP is milestones 1 through 6. Milestone 7 is the first observation-row fetch.
-A second source, joins, UI, and MCP are later. Measured gaps that we are not
-fixing in that slice live in [GAPS.md](GAPS.md).
+Discovery MVP is milestones 1 through 6. Milestone 7 fetches Oslo PxWeb cells.
+Milestone 8 fetches SSB Klass classification rows. Milestone 9 joins those
+Klass codes to a national befolkning table. UI and MCP are later.
+Measured gaps that we are not fixing in that slice live in [GAPS.md](GAPS.md).
 
 Data.norge is the first ingest source, not the product.
 
@@ -472,6 +473,63 @@ Live run 2026-08-27: HTTP 200, 28 cells, no auth. Oslo total population
 
 This milestone does not add a second source, a join, a UI, or MCP.
 
+## Milestone 8: second data source
+
+A second registry dataset, not Oslo kommunes statistikkbank. SSB table 07459
+is still not an `access_path` on any of the 9120 rows. Stored
+`versions/1160.json` (Kommuneinndeling) returns 404. Bydelsinndeling stores
+a working Klass GET URL.
+
+```bash
+pda fetch --dataset datanorge:0c89041e-ae88-32ef-a765-8e1ccbd64fdd \
+  --db data/registry.sqlite
+```
+
+`pda fetch` sees `data.ssb.no/api/klass/` and GETs the stored access path.
+It copies `classificationItems` into `observations`. Publisher is
+STATISTISK SENTRALBYRÅ. No auth.
+
+Live run 2026-08-27: HTTP 200, 42 rows. Sample codes 030101 Gamle Oslo,
+030102 Grünerløkka. Proof is `data/connector2_proof.json`.
+
+This milestone does not join the two sources. It does not add a UI or MCP.
+
+## Milestone 9: first cross-source join
+
+OK-BEF008 (Oslo city totals) plus Bydelsinndeling (Klass 1168) do not share a
+key to a metric. A join of the city total onto classification names is glue,
+not a join. SSB table 07459 is live and has kommune `0301`, but it is still
+not a stored `access_path` and it has no bydel codes.
+
+SSB table 11763 is a public no-auth PxWeb befolkning/bydel table. Its Region
+codes `030101`..`030117` and `030199` are the same strings Klass 1168 stores.
+Names match on the current Oslo bydels (`030101` Gamle Oslo on both sides).
+Table 10826 reuses unsuffixed `030101` for the 1988-2003 series
+(Bygdøy-Frogner), so it was not used.
+
+```bash
+pda join --dataset datanorge:0c89041e-ae88-32ef-a765-8e1ccbd64fdd \
+  --table 11763 --year 2025 \
+  --db data/registry.sqlite --out data/join_proof.json
+```
+
+The command GETs the stored Klass `access_path`, POSTs
+`https://data.ssb.no/api/v0/no/table/11763`, and inner-joins on exact
+`bydel_code`. Rows land in `joined_rows`, with a `join_runs` row. The command
+does not write `datasets`, `harvested_payloads`, or `enrichments`. Klass cells
+may still land in `observations` through `pda fetch`. 11763 is not in the
+registry, so those cells stay on the join row.
+
+Each joined row stores both source ids, publishers, licenses, access paths,
+request URLs, `retrieved_at`, the join key, and why the row matched.
+
+Live run 2026-08-27: both HTTP 200, 18 joined rows, no auth. Sample values
+from the responses: `030101` Gamle Oslo 64920, `030102` Grünerløkka 67039.
+`030116` Sentrum, `030117` Marka, and `030199` are null in the 11763 body.
+A second run was unchanged=18. Proof is `data/join_proof.json`.
+
+This milestone does not add a UI or MCP.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
@@ -495,7 +553,7 @@ the analytical question. It answers: **"which data do I need in order to answer 
 | 5 | Query decomposition |
 | 6 | Coverage checker — **discovery MVP complete** |
 | 7 | First data connector. Observation rows from one public API |
-| 8 | Two independent data sources |
+| 8 | Two independent data sources. SSB Klass plus Oslo PxWeb |
 | 9 | First cross-source join |
 | 10 | End-to-end natural-language analysis |
 | 11 | Visualization and export |

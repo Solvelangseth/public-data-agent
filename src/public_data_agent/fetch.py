@@ -9,6 +9,7 @@ from urllib.parse import urljoin
 from public_data_agent.http_util import HttpClient, JsonResponse
 from public_data_agent.models import HarvestCounts
 from public_data_agent.registry import Registry, utc_now
+from public_data_agent.ssb_klass import cells_from_klass, is_klass_url, klass_table_id
 
 PXWEB_UI_MARK = "/statbank/pxweb/"
 PXWEB_API_MARK = "/statbank/api/v1/"
@@ -150,8 +151,11 @@ def fetch_observations(
     dataset = registry.get_dataset(dataset_id)
     if dataset is None:
         raise ValueError(f"unknown dataset {dataset_id}")
+    access_path = dataset.get("access_path") or ""
+    if is_klass_url(access_path):
+        return _fetch_klass(registry, dataset, http=http)
     client = http or HttpClient(timeout=60.0, max_retries=4)
-    request_url = pxweb_api_url(dataset.get("access_path") or "", table_id)
+    request_url = pxweb_api_url(access_path, table_id)
     started = utc_now()
     run_id = registry.start_fetch_run(
         dataset_id=dataset_id,
@@ -174,53 +178,17 @@ def fetch_observations(
         cells = cells_from_jsonstat(posted.body)
         counts.listed = len(cells)
         retrieved_at = utc_now()
-        for measure, value, dims in cells:
-            observation = Observation(
-                dataset_id=dataset_id,
-                table_id=table_id,
-                measure=measure,
-                value=value,
-                dimensions=dims,
-                retrieved_at=retrieved_at,
-                request_url=request_url,
-                http_status=http_status,
-                publisher_name=dataset.get("publisher_name"),
-                license=dataset.get("license"),
-                access_path=dataset.get("access_path"),
-                source_native_uri=dataset.get("source_native_uri"),
-            )
-            action = registry.upsert_observation(
-                {
-                    "id": observation.identity_key(),
-                    "dataset_id": observation.dataset_id,
-                    "table_id": observation.table_id,
-                    "measure": observation.measure,
-                    "value": observation.value,
-                    "dimensions": observation.dimensions,
-                    "retrieved_at": observation.retrieved_at,
-                    "request_url": observation.request_url,
-                    "http_status": observation.http_status,
-                    "publisher_name": observation.publisher_name,
-                    "license": observation.license,
-                    "access_path": observation.access_path,
-                    "source_native_uri": observation.source_native_uri,
-                },
-                run_id,
-            )
-            if action == "inserted":
-                counts.inserted += 1
-            elif action == "updated":
-                counts.updated += 1
-            else:
-                counts.unchanged += 1
-            if len(sample) < 5:
-                sample.append(
-                    {
-                        "measure": measure,
-                        "value": value,
-                        "dimensions": dims,
-                    }
-                )
+        sample = _store_cells(
+            registry,
+            dataset,
+            run_id,
+            table_id=table_id,
+            cells=cells,
+            retrieved_at=retrieved_at,
+            request_url=request_url,
+            http_status=http_status,
+            counts=counts,
+        )
         status = "completed"
     except Exception as exc:
         counts.failed += 1
@@ -236,6 +204,121 @@ def fetch_observations(
         counts=counts,
         sample=sample,
     )
+
+
+def _fetch_klass(
+    registry: Registry,
+    dataset: dict[str, Any],
+    *,
+    http: JsonHttp | None = None,
+) -> FetchResult:
+    access_path = dataset.get("access_path") or ""
+    client = http or HttpClient(timeout=60.0, max_retries=4)
+    started = utc_now()
+    run_id = registry.start_fetch_run(
+        dataset_id=dataset["id"],
+        table_id="klass",
+        request_url=access_path,
+        request_method="GET",
+        started_at=started,
+    )
+    counts = HarvestCounts()
+    status = "failed"
+    http_status = 0
+    table_id = "klass"
+    sample: list[dict[str, Any]] = []
+    try:
+        got = client.get_json_response(access_path)
+        http_status = got.status
+        if not isinstance(got.body, dict):
+            raise ValueError("klass response is not a JSON object")
+        table_id = klass_table_id(got.body, access_path)
+        registry.set_fetch_request(run_id, request_url=access_path, request_body={"method": "GET"})
+        cells = cells_from_klass(got.body)
+        counts.listed = len(cells)
+        sample = _store_cells(
+            registry,
+            dataset,
+            run_id,
+            table_id=table_id,
+            cells=cells,
+            retrieved_at=utc_now(),
+            request_url=access_path,
+            http_status=http_status,
+            counts=counts,
+        )
+        status = "completed"
+    except Exception as exc:
+        counts.failed += 1
+        counts.errors.append({"error": str(exc), "url": access_path})
+        raise
+    finally:
+        registry.finish_fetch_run(run_id, counts, status=status, http_status=http_status)
+    return FetchResult(
+        dataset_id=dataset["id"],
+        table_id=table_id,
+        request_url=access_path,
+        http_status=http_status,
+        counts=counts,
+        sample=sample,
+    )
+
+
+def _store_cells(
+    registry: Registry,
+    dataset: dict[str, Any],
+    run_id: int,
+    *,
+    table_id: str,
+    cells: list[tuple[str, Any, dict[str, str]]],
+    retrieved_at: str,
+    request_url: str,
+    http_status: int,
+    counts: HarvestCounts,
+) -> list[dict[str, Any]]:
+    sample: list[dict[str, Any]] = []
+    for measure, value, dims in cells:
+        observation = Observation(
+            dataset_id=dataset["id"],
+            table_id=table_id,
+            measure=measure,
+            value=value,
+            dimensions=dims,
+            retrieved_at=retrieved_at,
+            request_url=request_url,
+            http_status=http_status,
+            publisher_name=dataset.get("publisher_name"),
+            license=dataset.get("license"),
+            access_path=dataset.get("access_path"),
+            source_native_uri=dataset.get("source_native_uri"),
+        )
+        action = registry.upsert_observation(
+            {
+                "id": observation.identity_key(),
+                "dataset_id": observation.dataset_id,
+                "table_id": observation.table_id,
+                "measure": observation.measure,
+                "value": observation.value,
+                "dimensions": observation.dimensions,
+                "retrieved_at": observation.retrieved_at,
+                "request_url": observation.request_url,
+                "http_status": observation.http_status,
+                "publisher_name": observation.publisher_name,
+                "license": observation.license,
+                "access_path": observation.access_path,
+                "source_native_uri": observation.source_native_uri,
+            },
+            run_id,
+        )
+        if action == "inserted":
+            counts.inserted += 1
+        elif action == "updated":
+            counts.updated += 1
+        else:
+            counts.unchanged += 1
+        if len(sample) < 5:
+            sample.append({"measure": measure, "value": value, "dimensions": dims})
+    return sample
 
 
 def _pxweb_query(meta: dict[str, Any], time_code: str, time_values: list[str]) -> dict[str, Any]:

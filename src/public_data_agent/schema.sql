@@ -141,7 +141,52 @@ CREATE TABLE IF NOT EXISTS observations (
     FOREIGN KEY (fetch_run_id) REFERENCES fetch_runs(id)
 );
 
+-- joined_rows: output of a cross-source join. Never write datasets,
+-- harvested_payloads, enrichments, or observations from these tables.
+CREATE TABLE IF NOT EXISTS join_runs (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    join_key TEXT NOT NULL,
+    left_dataset_id TEXT,
+    right_dataset_id TEXT,
+    left_request_url TEXT NOT NULL,
+    right_request_url TEXT NOT NULL,
+    left_http_status INTEGER,
+    right_http_status INTEGER,
+    started_at TEXT NOT NULL,
+    finished_at TEXT,
+    status TEXT NOT NULL,
+    listed INTEGER NOT NULL DEFAULT 0,
+    inserted INTEGER NOT NULL DEFAULT 0,
+    updated INTEGER NOT NULL DEFAULT 0,
+    unchanged INTEGER NOT NULL DEFAULT 0,
+    failed INTEGER NOT NULL DEFAULT 0,
+    errors_json TEXT
+);
+
+CREATE TABLE IF NOT EXISTS joined_rows (
+    id TEXT PRIMARY KEY,
+    join_run_id INTEGER NOT NULL,
+    join_key TEXT NOT NULL,
+    join_key_value TEXT NOT NULL,
+    why_matched TEXT NOT NULL,
+    left_dataset_id TEXT,
+    right_dataset_id TEXT,
+    left_publisher_name TEXT,
+    right_publisher_name TEXT,
+    left_license TEXT,
+    right_license TEXT,
+    left_access_path TEXT,
+    right_access_path TEXT,
+    left_request_url TEXT,
+    right_request_url TEXT,
+    left_retrieved_at TEXT,
+    right_retrieved_at TEXT,
+    payload_json TEXT NOT NULL,
+    FOREIGN KEY (join_run_id) REFERENCES join_runs(id)
+);
+
 CREATE INDEX IF NOT EXISTS idx_datasets_source ON datasets(source_id);
 CREATE INDEX IF NOT EXISTS idx_datasets_publisher ON datasets(publisher_id);
 CREATE INDEX IF NOT EXISTS idx_harvest_runs_source ON harvest_runs(source_id, started_at);
 CREATE INDEX IF NOT EXISTS idx_observations_dataset ON observations(dataset_id, table_id);
+CREATE INDEX IF NOT EXISTS idx_joined_rows_key ON joined_rows(join_key, join_key_value);
