@@ -390,6 +390,61 @@ class Registry:
         self.conn.commit()
         return "updated"
 
+    def upsert_printed_table_url(
+        self,
+        *,
+        dataset_id: str,
+        url: str,
+        kind: str,
+        found_in: str,
+    ) -> str:
+        """Persist a harvest-printed table URL. Does not write harvest blobs."""
+
+        stamp = utc_now()
+        existing = self.conn.execute(
+            "SELECT url, kind, found_in FROM printed_table_urls WHERE dataset_id = ? AND url = ?",
+            (dataset_id, url),
+        ).fetchone()
+        if existing is None:
+            self.conn.execute(
+                """
+                INSERT INTO printed_table_urls (
+                    dataset_id, url, kind, found_in, first_seen_at, last_seen_at
+                ) VALUES (?, ?, ?, ?, ?, ?)
+                """,
+                (dataset_id, url, kind, found_in, stamp, stamp),
+            )
+            self.conn.commit()
+            return "inserted"
+        self.conn.execute(
+            """
+            UPDATE printed_table_urls
+            SET kind = ?, found_in = ?, last_seen_at = ?
+            WHERE dataset_id = ? AND url = ?
+            """,
+            (kind, found_in, stamp, dataset_id, url),
+        )
+        self.conn.commit()
+        if existing["kind"] == kind and existing["found_in"] == found_in:
+            return "unchanged"
+        return "updated"
+
+    def list_printed_table_urls(self, dataset_id: str | None = None) -> list[dict[str, Any]]:
+        if dataset_id is None:
+            rows = self.conn.execute(
+                "SELECT * FROM printed_table_urls ORDER BY dataset_id, url"
+            ).fetchall()
+        else:
+            rows = self.conn.execute(
+                "SELECT * FROM printed_table_urls WHERE dataset_id = ? ORDER BY url",
+                (dataset_id,),
+            ).fetchall()
+        return [dict(row) for row in rows]
+
+    def printed_table_url_count(self) -> int:
+        row = self.conn.execute("SELECT COUNT(*) AS n FROM printed_table_urls").fetchone()
+        return int(row["n"])
+
     def start_join_run(
         self,
         *,

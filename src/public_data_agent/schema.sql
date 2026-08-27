@@ -187,8 +187,22 @@ CREATE TABLE IF NOT EXISTS joined_rows (
     FOREIGN KEY (join_run_id) REFERENCES join_runs(id)
 );
 
+-- printed_table_urls: PxWeb/JSON-stat table endpoints copied from harvest
+-- text. Never write harvested_payloads or overwrite datasets.access_path.
+CREATE TABLE IF NOT EXISTS printed_table_urls (
+    dataset_id TEXT NOT NULL,
+    url TEXT NOT NULL,
+    kind TEXT NOT NULL,
+    found_in TEXT NOT NULL,
+    first_seen_at TEXT NOT NULL,
+    last_seen_at TEXT NOT NULL,
+    PRIMARY KEY (dataset_id, url),
+    FOREIGN KEY (dataset_id) REFERENCES datasets(id)
+);
+
 CREATE INDEX IF NOT EXISTS idx_datasets_source ON datasets(source_id);
 CREATE INDEX IF NOT EXISTS idx_datasets_publisher ON datasets(publisher_id);
 CREATE INDEX IF NOT EXISTS idx_harvest_runs_source ON harvest_runs(source_id, started_at);
 CREATE INDEX IF NOT EXISTS idx_observations_dataset ON observations(dataset_id, table_id);
 CREATE INDEX IF NOT EXISTS idx_joined_rows_key ON joined_rows(join_key, join_key_value);
+CREATE INDEX IF NOT EXISTS idx_printed_table_urls_dataset ON printed_table_urls(dataset_id);
