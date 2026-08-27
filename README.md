@@ -1015,6 +1015,13 @@ a printed name field (`navn`, `Description`, `Station`, `title`, `name`,
 `id`, or `fid`) when present. Nested geometry is not copied. License and
 publisher stay null: the collections document does not print those fields.
 
+Live ingest 2026-08-27: 10 printed collections. Live search `Strandnot`
+returns `hi:hi_basemap:Strandnot`. Live fetch GETs
+`https://kart.hi.no/data/ogc/features/v1/collections/hi_basemap:Strandnot/items?f=application%2Fjson`
+HTTP 200, 163 station rows. Sample printed descriptions: Holme utenfor
+Skarsnes, Hvaler; Knudrete fjell nord for strand. `pda methods` is not
+applicable: names, not a numeric time series
+(`no observations matched entity/measure; available=[]`).
 Proof is `data/hi_source_proof.json`.
 
 ## Architecture (long term)
