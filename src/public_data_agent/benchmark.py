@@ -89,9 +89,12 @@ def _coverage_against_gold(
     gold: list[str],
 ) -> dict[str, Any]:
     out = dict(coverage)
-    out["requirement_coverage"] = out["confidence"]
+    ratio = out.get("requirement_coverage", out.get("confidence"))
+    out["requirement_coverage"] = ratio
     if not (set(ranked[:10]) & set(gold)):
         out["confidence"] = 0.0
+    else:
+        out["confidence"] = ratio
     return out
 
 

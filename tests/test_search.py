@@ -155,7 +155,8 @@ def test_single_token_publisher_is_ranked(tmp_path: Path) -> None:
 def test_coverage_is_complete_when_and_hits_cover_every_requirement(tmp_path: Path) -> None:
     registry = _registry(tmp_path)
     report = search_report(registry, "statistisk sentralbyrå")
-    assert report.coverage.confidence == 1.0
+    assert report.coverage.requirement_coverage == 1.0
+    assert "confidence" not in report.coverage.to_dict()
     assert report.coverage.missing == []
     assert report.follow_up is None
     registry.close()
@@ -168,7 +169,8 @@ def test_empty_and_triggers_follow_up_on_each_missing_requirement(tmp_path: Path
     assert report.follow_up["ran"] is True
     assert set(report.follow_up["queries"]) == {"strandsone", "sparse"}
     assert {hit.dataset_id for hit in report.hits} == {STRANDSONE_ID, SPARSE_ID}
-    assert report.coverage.confidence == 1.0
+    assert report.coverage.requirement_coverage == 1.0
+    assert "confidence" not in report.coverage.to_dict()
     registry.close()
 
 
@@ -176,7 +178,8 @@ def test_same_query_follow_up_is_skipped(tmp_path: Path) -> None:
     registry = _registry(tmp_path)
     report = search_report(registry, "qxzzzyyqq")
     assert report.hits == []
-    assert report.coverage.confidence == 0.0
+    assert report.coverage.requirement_coverage == 0.0
+    assert "confidence" not in report.coverage.to_dict()
     assert report.follow_up is not None
     assert report.follow_up["ran"] is False
     registry.close()
@@ -191,7 +194,8 @@ def test_theme_code_participates_in_score_and_coverage(tmp_path: Path) -> None:
         for hit in hits
     )
     report = search_report(registry, "HEAL")
-    assert report.coverage.confidence == 1.0
+    assert report.coverage.requirement_coverage == 1.0
+    assert "confidence" not in report.coverage.to_dict()
     assert report.coverage.covered == ["heal"]
     registry.close()
 
@@ -232,5 +236,6 @@ def test_cli_search_uses_fixture_registry(tmp_path: Path, capsys) -> None:
     assert payload["results"][0]["id"] == STRANDSONE_ID
     assert payload["results"][0]["why"]["matches"]
     assert payload["results"][0]["publisher"]["name"] == "Statistisk sentralbyrå"
-    assert payload["coverage"]["confidence"] == 1.0
+    assert payload["coverage"]["requirement_coverage"] == 1.0
+    assert "confidence" not in payload["coverage"]
     assert payload["coverage"]["covered"] == ["strandsone"]
