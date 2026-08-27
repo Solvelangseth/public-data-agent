@@ -5,9 +5,8 @@ No email, call, or outbound post from this file. Contacts are only what the org 
 
 Product sold: registry of Norwegian public datasets (Data.norge first ingest, sources replaceable), natural-language search, first fetch of actual rows. Later analysis. LLM for intent and explanation. Deterministic retrieval. Provenance (source, publisher, license, access path) on every hit.
 Repo: https://github.com/Solvelangseth/public-data-agent
-Competitor note: offentligdata.no is a competitor, not a customer. Do not treat that site as a lead.
 
-Status 27 Aug 2026, 10:25 Europe/Oslo: 27 sourced leads. Mix: 8 municipalities, 5 energy, 3 health, 3 consultancies, 2 media, 2 property/infra, 2 research, 2 NGOs. Wave-2 (12) added same day: FHI, Helsedirektoratet, Helse Sør-Øst RHF, Statnett, Eviny, Hafslund, Tensio, Lnett, Fredrikstad, Sandnes, Bodø, Kristiansand. Contacts only as listed. No invented emails. No outreach.
+Status 27 Aug 2026, 10:30 Europe/Oslo: 28 sourced leads. Mix: 9 municipalities, 5 energy, 3 health, 3 consultancies, 2 media, 2 property/infra, 2 research, 2 NGOs. Wave-2 (13) added same day: FHI, Helsedirektoratet, Helse Sør-Øst RHF, Statnett, Eviny, Hafslund, Tensio, Lnett, Fredrikstad, Sandnes, Bodø, Kristiansand, Lillestrøm. Contacts only as listed. No invented emails. No outreach.
 
 How to read a lead: why they would pay is tied to a named programme, not "they use data." Service shape is always search → fetch → later analysis. If a field says none published, do not invent one.
 
@@ -201,7 +200,7 @@ Sources below were opened 2026-08-27 from official pages and the named press/pro
 **Search → fetch → later analysis.**
 - Search: registry query excluding or de-prioritising SVV's own already-known NVDB records; surface other publishers.
 - Fetch: first rows from the other agency's access path.
-- Later analysis: overlay on Vegkart / NVDB geometry; do not treat offentligdata.no as a customer path.
+- Later analysis: overlay on Vegkart / NVDB geometry.
 
 **Public contact (only published).**
 - firmapost@vegvesen.no — printed as "E-postadresse" on Faktura-, post- og besøksadresser.
@@ -900,6 +899,39 @@ Sources below were opened 2026-08-27 from official pages and the named press/pro
 
 ---
 
+## 28. Lillestrøm kommune — digitalisering 2020–2025 + klimabudsjett
+
+**Why they would pay.** *Strategi for digitalisering 2020–2025* prints «Data skal deles, gjenbrukes og forvaltes» as a platform requirement, and under Informasjonsforvaltning: «En datadrevet offentlig forvaltning, med åpne og tilgjengelige data». Digitaliseringsavdelingen understøtter digitaliseringsinitiativ and owns architecture/forvaltning. *Plan for klimanøytral drift* (klimanøytral 2027) prints the årlige klimabudsjett as «det viktigste styringsverktøyet» for that plan. No first-party open-data portal is printed; municipal datasets sit on data.norge / Geonorge. They would pay to find and fetch SSB, Miljødirektoratet, NVE and neighbour Nedre Romerike series with provenance — not another municipal portal.
+
+**Concrete use case.** Digitaliseringsavdelingen finds and fetches SSB / Miljødirektoratet / NVE and neighbour Nedre Romerike (Rælingen, Lørenskog, Nittedal, Aurskog-Høland) series for the next klimabudsjett and the Klimasats klimaplanlegger / dialogverktøy (Apr 2026–Nov 2027; 410 000 kroner; with Akershus fylkeskommune).
+
+**Search → fetch → later analysis.**
+- Search: Lillestrøm / Nedre Romerike + klimagass / areal / energi with publisher (SSB, Miljødirektoratet, NVE, neighbour kommuner).
+- Fetch: first rows / features from data.norge or Geonorge access paths; license and publisher on every hit.
+- Later analysis: feed klimabudsjett indicators and the klimaplanlegger; do not invent tonnes.
+
+**Public contact (only published / listed).**
+- Torbjørn Pedersen, Direktør for digitalisering: torbjorn.pedersen@lillestrom.kommune.no, 93 46 18 00 — printed on the digitalisering strategy page
+- postmottak@lillestrom.kommune.no — printed on kontakt-oss
+- Sentralbord: 66 93 80 00
+- Org: 820710592
+- Kommunenummer: 3205
+- Do not invent a klima or åpne-data inbox.
+
+**Key facts.**
+- Postboks 313, 2001 Lillestrøm; Jonas Lies gate 18, 2000 Lillestrøm.
+- Klimanøytral drift target 2027 (interpellasjon 17.12.19; klimastrategi 16.06.21). Klimabudsjett is the annual handlingsplan for that plan.
+- Klimasats project printed on miljodirektoratet.no: under gjennomføring, Apr 2026–Nov 2027; tilpasset ny energiutredning for Nedre Romerike.
+
+**Sources opened 2026-08-27.**
+- https://www.lillestrom.kommune.no/politikk-og-administrasjon/digitalisering-i-lillestrom-kommune/digi/
+- https://www.lillestrom.kommune.no/politikk-og-administrasjon/kontakt-oss/
+- https://www.lillestrom.kommune.no/energi-klima-og-miljo/klimanoytral-drift/
+- https://www.miljodirektoratet.no/ansvarsomrader/klima/for-myndigheter/kutte-utslipp-av-klimagasser/klimasats/2026/klimaplanleggerdialogverktoy-for-nedre-romerike/
+- https://data.brreg.no/enhetsregisteret/oppslag/enheter/820710592
+
+---
+
 ## Skipped, with reasons
 
 Keep these notes in the living book. They are not leads.
@@ -919,6 +951,7 @@ Keep these notes in the living book. They are not leads.
 - **27 Aug 2026, 10:00 Europe/Oslo.** First 15 sourced entries. No outreach.
 - **27 Aug 2026, 10:15 Europe/Oslo.** Five deepen notes: Oslo DIG Tildelingsbrev 2026 datadeling + 45,5 mill. PC-ownership klimabudsjett measure (do not treat 817 699 / 75 000 as kroner) and DIG etat emails; Stavanger live Regnsensordata (updated 27 Aug 2026 02:01 CEST) and printed staff-ID next to opendata@; Bouvet Kartverket 477 mill. five-year grant (no Bouvet contract price) plus Kaasa phone and 200 vs 50/250 headcount print; Aftenposten Fossan mailto + author line + kvikkleire story (seks = Journalisten only); Statsbygg SIMBA 2.1 PDF dates and tungt.no 13,6 mrd marked second-hand.
 - **27 Aug 2026, 10:25 Europe/Oslo.** Wave-2: 12 sourced entries (3 health, 5 energy, 4 mid-size kommuner). Contacts only as listed. No outreach.
+- **27 Aug 2026, 10:30 Europe/Oslo.** Wave-2 add: Lillestrøm kommune (digitalisering 2020–2025 + klimabudsjett / Klimasats klimaplanlegger). Contacts only as printed. No outreach.
 
 ---
 
