@@ -38,6 +38,9 @@ STOP_TOKENS = frozenset({
 QUERY_SYNONYMS = {
     "folketall": "befolkning",
 }
+QUERY_COMPOUND_SPLITS = {
+    "kraftsituasjonen": ("kraft", "situasjonen"),
+}
 PUBLISHER_WEIGHT = 5
 VARIABLES_UNKNOWN_REASON = (
     "no variable or column list is stored in the registry or harvested payload"
@@ -243,13 +246,28 @@ def variables_from_stored(payload: dict[str, Any] | None) -> dict[str, Any]:
     return {"status": "unknown", "reason": VARIABLES_UNKNOWN_REASON}
 
 
+def _token_alts(token: str) -> tuple[str, ...]:
+    parts = QUERY_COMPOUND_SPLITS.get(token)
+    if parts is None:
+        return (token,)
+    return (token, *parts)
+
+
+def _first_stored_token(token: str, field_tokens: set[str]) -> str | None:
+    for alt in _token_alts(token):
+        if alt in field_tokens:
+            return alt
+    return None
+
+
 def score_document(query_tokens: list[str], fields: dict[str, list[str]]) -> list[FieldMatch]:
     matches: list[FieldMatch] = []
     for field_name, weight in FIELD_WEIGHTS.items():
         field_tokens = set(fields.get(field_name, []))
         for token in query_tokens:
-            if token in field_tokens:
-                matches.append(FieldMatch(field=field_name, token=token, weight=weight))
+            stored = _first_stored_token(token, field_tokens)
+            if stored is not None:
+                matches.append(FieldMatch(field=field_name, token=stored, weight=weight))
     return matches
 
 
@@ -445,8 +463,9 @@ def _theme_string_matches(query_tokens: list[str], themes: list[str]) -> list[Fi
         seen.add(key)
         theme_tokens = set(tokenize(theme))
         for token in query_tokens:
-            if token in theme_tokens:
-                matches.append(FieldMatch(field="theme", token=token, weight=weight))
+            stored = _first_stored_token(token, theme_tokens)
+            if stored is not None:
+                matches.append(FieldMatch(field="theme", token=stored, weight=weight))
     return matches
 
 
@@ -525,6 +544,10 @@ def _select_hits(hits: list[SearchHit], limit: int) -> list[SearchHit]:
     return selected
 
 
+def _requirement_satisfied(tokens: tuple[str, ...], matched: set[str]) -> bool:
+    return all(any(alt in matched for alt in _token_alts(token)) for token in tokens)
+
+
 def _requirement_matches(
     tokens: tuple[str, ...],
     fields: dict[str, list[str]],
@@ -532,12 +555,16 @@ def _requirement_matches(
 ) -> list[FieldMatch] | None:
     matches = score_document(list(tokens), fields)
     matched = {match.token for match in matches}
-    if set(tokens) <= matched:
+    if _requirement_satisfied(tokens, matched):
         return matches
     publisher_tokens = set(tokenize(publisher_name))
-    if set(tokens) <= publisher_tokens:
+    if _requirement_satisfied(tokens, publisher_tokens):
         return [
-            FieldMatch(field="publisher_name", token=token, weight=PUBLISHER_WEIGHT)
+            FieldMatch(
+                field="publisher_name",
+                token=_first_stored_token(token, publisher_tokens) or token,
+                weight=PUBLISHER_WEIGHT,
+            )
             for token in tokens
         ]
     return None

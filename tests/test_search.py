@@ -59,6 +59,57 @@ def test_tokenize_maps_folketall_to_stored_befolkning() -> None:
     assert tokenize("befolkning på tromsø") == ["befolkning", "tromsø"]
 
 
+def test_kraftsituasjonen_query_matches_stored_kraft_and_nve(tmp_path: Path) -> None:
+    payloads = [
+        {
+            "id": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+            "uri": "https://example.org/elsertifikater",
+            "type": "datasets",
+            "title": {"nb": "Elsertifikater"},
+            "description": {
+                "nb": (
+                    "Elsertifikater er en støtteordning for kraft produsert fra "
+                    "fornybare energikilder."
+                )
+            },
+            "publisher": {"name": "Norges vassdrags- og energidirektorat (nve)"},
+            "harvest": {
+                "modified": "2026-01-01T00:00:00Z",
+                "firstHarvested": "2026-01-01T00:00:00Z",
+            },
+        },
+        {
+            "id": "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
+            "uri": "https://example.org/ortofoto-nve",
+            "type": "datasets",
+            "title": {"nb": "Ortofoto NVE Dirdalsåna 2026"},
+            "description": {"nb": "flyfoto"},
+            "keyword": [{"nb": "nve"}],
+            "harvest": {
+                "modified": "2026-01-01T00:00:00Z",
+                "firstHarvested": "2026-01-01T00:00:00Z",
+            },
+        },
+    ]
+    registry = Registry(tmp_path / "registry.sqlite")
+    harvest(registry, FixtureSource(payloads))
+    assert tokenize("kraftsituasjonen nve") == ["kraftsituasjonen", "nve"]
+    hits = search(registry, "kraftsituasjonen nve")
+    assert [hit.dataset_id for hit in hits] == [
+        "fixture:aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa"
+    ]
+    tokens = {match.token for match in hits[0].matches}
+    assert "kraft" in tokens
+    assert "nve" in tokens
+    assert "description matched kraft" in hits[0].why
+    assert "nve" in hits[0].why
+    report = search_report(registry, "kraftsituasjonen nve")
+    assert report.coverage.missing == []
+    assert "kraftsituasjonen" in report.coverage.covered
+    assert "nve" in report.coverage.covered
+    registry.close()
+
+
 def test_folketall_query_matches_stored_befolkning_and_place(tmp_path: Path) -> None:
     payloads = [
         {
