@@ -64,3 +64,4 @@ ts	phase	decision	why	evidence	result
 2026-08-27T07:50:00Z	fetch	07459 still absent; skip stale Kommuneinndeling 1160.json	sqlite 07459 count 0; Klass versions/1160.json HTTP 404	live GET 404 and registry query	skipped
 2026-08-27T07:51:00Z	fetch	use SSB Klass Bydelsinndeling as the second source	stored access_path is a working national API, not Oslo PxWeb	datanorge:0c89041e-ae88-32ef-a765-8e1ccbd64fdd GET 200 listed 42	selected
 2026-08-27T07:52:00Z	test	run pytest after the klass adapter	do not leave the count only in the PR body	python3 -m pytest 45 passed 1 deselected	tests green
+2026-08-27T07:53:00Z	pr	open Milestone 8 PR, do not merge, do not start M9	second source is a reviewable PR	https://github.com/Solvelangseth/public-data-agent/pull/12	OPEN
