@@ -6,7 +6,7 @@ No email, call, or outbound post from this file. Contacts are only what the org 
 Product sold: registry of Norwegian public datasets (Data.norge first ingest, sources replaceable), natural-language search, first fetch of actual rows. Later analysis. LLM for intent and explanation. Deterministic retrieval. Provenance (source, publisher, license, access path) on every hit.
 Repo: https://github.com/Solvelangseth/public-data-agent
 
-Status 27 Aug 2026, 10:35 Europe/Oslo: 28 sourced leads. Mix: 9 municipalities, 5 energy, 3 health, 3 consultancies, 2 media, 2 property/infra, 2 research, 2 NGOs. Wave-2 (13): FHI, Helsedirektoratet, Helse Sør-Øst RHF, Statnett, Eviny, Hafslund, Tensio, Lnett, Fredrikstad, Sandnes, Bodø, Kristiansand, Lillestrøm. Competitor section added (not a lead; no customer contact). Contacts only as listed. No invented emails. No outreach.
+Status 27 Aug 2026, 10:40 Europe/Oslo: 28 sourced leads. Mix: 9 municipalities, 5 energy, 3 health, 3 consultancies, 2 media, 2 property/infra, 2 research, 2 NGOs. Wave-2 (13): FHI, Helsedirektoratet, Helse Sør-Øst RHF, Statnett, Eviny, Hafslund, Tensio, Lnett, Fredrikstad, Sandnes, Bodø, Kristiansand, Lillestrøm. Contacts only as listed. No invented emails. No outreach.
 
 How to read a lead: why they would pay is tied to a named programme, not "they use data." Service shape is always search → fetch → later analysis. If a field says none published, do not invent one.
 
@@ -387,7 +387,6 @@ Sources below were opened 2026-08-27 from official pages and the named press/pro
 - Kartverket news 26 June 2026: Per Gunnar Tronsli (Bouvet) and Frithjof Ugelstad Frederiksen (Bekk) quoted; Jørgen Kaasa listed as Bouvet region contact on that page.
 - Faktavarehus 2.0: Kjetil Molaug, Thao Ha, Bjarte Gudmundsen named in Bouvet/CW coverage.
 - Bekk is a close peer on the Kartverket agreement; Bekk is skipped as a *lead* (see skipped notes), not as a fact about Bouvet.
-- Free chat over a 19-source index is not a Kartverket or kommune appendix.
 
 **Deepen (27 Aug 2026).** Kartverket 26 June 2026 announcement of Bekk/Bouvet contracts prints a 2026 statsbudsjett grant of 477 million kroner over five years for nasjonale fellesløsninger. No Bouvet contract price on that page. Practice page still says 200 konsulenter; Oslo job ad 25 Aug 2026 says 50 Oslo / about 250 across Bouvet.
 
@@ -525,7 +524,6 @@ Sources below were opened 2026-08-27 from official pages and the named press/pro
 - Tips page: relevant tips, preferably with facts; debatt@aftenposten.no is for opinions, not this book.
 - GitHub public repos include story datasets (e.g. toppbyråkrater, barnehage, covid departures, valg).
 - E24 and Kommunal Rapport are weaker than Aftenposten's published data desk (see skipped). Journalisten is the source for «seks»; aftenposten.no does not print that count on the pages opened.
-- Free chat over a 19-source index is not a methods citation.
 
 **Deepen (27 Aug 2026).** Author page: «Jeg leder et team med datajournalister og visuelle journalister». Named story: https://www.aftenposten.no/norge/i/oAk8j0/slik-blir-kvikkleiren-livsfarlig-sjekk-skredfaren-der-du-bor.
 
@@ -870,33 +868,33 @@ Sources below were opened 2026-08-27 from official pages and the named press/pro
 
 ---
 
-## 27. Kristiansand kommune — Smartere sammen 2022–2030 + samfunnsdel public-data sentence
+## 27. Kristiansand kommune — Økonomiplan 2026–2029 (datadeling + klimabudsjett)
 
-**Why they would pay.** *Smartere sammen* (digitaliseringsstrategi 2022–2030) is the organisational digital-transformasjon strategy under kommuneplanens samfunnsdel. The 2020 samfunnsdel prints: «Kommunens offentlige data skal gjøres mer tilgjengelige for forskning og utvikling av nye tjenester.» The strategy's målbilde repeats that kommunens offentlige data skal være tilgjengelig for forskning and danne grunnlag for nye tjenester; tiltak include «Legger bedre til rette for deling av åpne data» and «Benytter data fra ulike aktuelle og relevante kilder» for beslutningsstøtte, innsikt, analyse and tjenesteutvikling. They would pay to search those *various sources* (other municipalities, SSB, Kartverket, helse, energy) and fetch first rows with provenance — the printed gap is that municipal data are "ikke nødvendigvis tilgjengelig eller tilrettelagt for bruk av de som trenger dem."
+**Why they would pay.** Økonomiplan 2026–2029, vedtatt bystyret 17.12.2025, is the current mandate — not only the 2022 *Smartere sammen* title. Kap. 5.4 («Kristiansand kommune skal være en digital og innovativ organisasjon») prints the focus area «Økt datadeling og utnytte mulighetene i data»: data shall be tilgjengelige, gjenfinnbare, mulig å bruke and kunne sammenstilles so they give verdi in tjenesteutvikling; «Det bør etableres tydeligere interne retningslinje for hvordan man må gå frem for å få tilgang til data.» Kap. 6 uses Miljødirektoratets kommunefordelte klimagassstatistikk as basisgrunnlaget for the municipal klimabudsjett (Klima- og miljøbarometeret is the published indicator surface). They would pay to find and fetch those Miljødirektoratet / SSB / neighbour series with provenance, then later sammenstille them — the printed gap is gjenfinnbarhet, access rules and sammenstilling, not another strategy PDF.
 
-**Concrete use case.** Digitalisering / a fagenhet needs a national or peer-city dataset for a Smartere-sammen tjeneste or forskningsutlevering, finds it only after portal-hopping, and needs a licensed first fetch before later analyse.
+**Concrete use case.** Klima / digitalisering needs the latest Miljødirektoratet kommunefordelte tall and related SSB series for the next klimabudsjett and barometer update, fetched as rows with license and access path before later overlay on Kap. 6 sectors (veitrafikk, industri, annen mobil forbrenning, jordbruk).
 
 **Search → fetch → later analysis.**
-- Search: the tjeneste question over the national registry; publisher + license on each hit.
-- Fetch: first rows from the access path.
-- Later analysis: municipal beslutningsstøtte or åpne-data product; this product stays deterministic on retrieval.
+- Search: Kristiansand + klimagass / veitrafikk / «kommunefordelt» with publisher (Miljødirektoratet, SSB).
+- Fetch: first rows from the recorded access path; license and publisher on every hit.
+- Later analysis: feed klimabudsjett / Klima- og miljøbarometeret; do not invent tonnes.
 
 **Public contact (only published / listed).**
-- post@kristiansand.kommune.no — printed on kontakt-oss (vanlig e-post when not personsensitive)
+- post@kristiansand.kommune.no — printed on kontakt-oss and on the barometer footer
+- post.byutvikling@kristiansand.kommune.no — printed on the klima- og miljøstrategi page (Klima og arealutvikling)
 - Org: 820852982
-- The contact page says employee emails are not on the site for personvern/IT-sikkerhet. Do not invent a digitalisering inbox.
+- Do not invent a digitalisering or klima inbox.
 
 **Key facts.**
-- Strategy PDF: Digitaliseringsstrategi for Kristiansand kommune 2022–2030 Smartere sammen, listed under Forskning, innovasjon og digitalisering on the plans page. Samfunnsdel adjusted and vedtatt 26 March 2025.
-- Contact page updated 03.08.2026; Postboks 4, 4685 Nodeland; kommunenummer 4204.
-- Sikker post is eDialog; post@ is the printed ordinary-email path.
+- Økonomiplan 2026–2029: bystyret 17. desember 2025. Kap. 5.4 also names Kommune Los 4.0 / Støtte Los and a new municipal architecture-principles veileder.
+- Kap. 6.4: Miljødirektoratets kommunefordelte statistikk «publiseres årlig og utgjør basisgrunnlaget for Kristiansands klimabudsjett.» 2022–2023: 10,4 % reduction year-on-year (printed).
+- Klima- og miljøbarometeret: samfunn vs organisasjon views; page updated 10. november 2025. Postboks 4, 4685 Nodeland; kommunenummer 4204.
 
 **Sources opened 2026-08-27.**
+- https://www.kristiansand.kommune.no/contentassets/712daaa8832d482180d6d7cfd9ef1c38/okonomiplan-2026-2029---kristiansand-kommune.pdf
 - https://www.kristiansand.kommune.no/kontakt-oss
-- https://www.kristiansand.kommune.no/navigasjon/politikk-og-organisasjon/planer-og-strategier/planer-og-strategier/
-- https://www.kristiansand.kommune.no/contentassets/6ba5acec23c0445aa1fe1ad1906fc280/digitaliseringsstrategi-20223.pdf
-- https://www.kristiansand.kommune.no/globalassets/felles/politikk-og-organisasjon/planer-rapporter-og-meldinger/planer/sterkere-sammen--kristiansand-mot-2030-kommuneplanens-samfunnsdel-2020-2030-vedtatt-i-bystyret-23.09.2020-.pdf
-- https://www.kristiansand.kommune.no/navigasjon/politikk-og-organisasjon/samfunnsutvikling/sterkere-sammen---kristiansand-mot-2030/
+- https://www.kristiansand.kommune.no/navigasjon/bolig-kart-og-eiendom/miljo-og-klima/klima--og-miljoledelse/klimaogmiljostrategi/
+- https://www.baerekraftigkristiansand.no/temasider/klima-og-miljobarometer
 - https://data.brreg.no/enhetsregisteret/oppslag/enheter/820852982
 
 ---
@@ -934,18 +932,6 @@ Sources below were opened 2026-08-27 from official pages and the named press/pro
 
 ---
 
-## Competitor (not a lead)
-
-Not a numbered lead. Do not treat as a customer. No customer contact listed.
-
-A private AI chat + explorer over 19 indexed sources (Brønnøysund, SSB, Kartverket, Skatteetaten, Innovasjon Norge, NGU, SVV, Miljødirektoratet), plus eierkart, solkart and Excel. Product of Acax Development AS. Independent, not a public authority. Free for now. Terms dated 31 Jan 2026 warn that AI can be inaccurate and users should verify originals. Facts from the 27 Aug 2026 brief (Internet Archive; live site Cloudflare-blocked).
-
-Why our leads pay us instead: replaceable registry (not their 19-source index); deterministic first fetch of the official distribution; provenance (source, publisher, license, access path, retrieval time) on every hit; coverage that index does not claim (municipal hubs, NVE/PlanNett, FHI, Hdir SAMDATA, Geonorge plans, Doffin).
-
-For Aftenposten and Bouvet: free chat is not a methods citation or a Kartverket/kommune appendix.
-
----
-
 ## Skipped, with reasons
 
 Keep these notes in the living book. They are not leads.
@@ -957,7 +943,6 @@ Keep these notes in the living book. They are not leads.
 - **PwC / Itera** — weaker published data-platform programmes than Knowit.
 - **Bekk** — close peer to Bouvet / Knowit (including the 2026 Kartverket rammeavtale); not a separate lead.
 - **E24 / Kommunal Rapport** — weaker than Aftenposten's published data desk (Journalisten is the source for desk size «seks»).
-- **Acax Development AS** — operator of the private 19-source chat/explorer in Competitor (not a lead). Do not list a customer contact.
 
 ---
 
@@ -967,7 +952,7 @@ Keep these notes in the living book. They are not leads.
 - **27 Aug 2026, 10:15 Europe/Oslo.** Five deepen notes: Oslo DIG Tildelingsbrev 2026 datadeling + 45,5 mill. PC-ownership klimabudsjett measure (do not treat 817 699 / 75 000 as kroner) and DIG etat emails; Stavanger live Regnsensordata (updated 27 Aug 2026 02:01 CEST) and printed staff-ID next to opendata@; Bouvet Kartverket 477 mill. five-year grant (no Bouvet contract price) plus Kaasa phone and 200 vs 50/250 headcount print; Aftenposten Fossan mailto + author line + kvikkleire story (seks = Journalisten only); Statsbygg SIMBA 2.1 PDF dates and tungt.no 13,6 mrd marked second-hand.
 - **27 Aug 2026, 10:25 Europe/Oslo.** Wave-2: 12 sourced entries (3 health, 5 energy, 4 mid-size kommuner). Contacts only as listed. No outreach.
 - **27 Aug 2026, 10:30 Europe/Oslo.** Wave-2 add: Lillestrøm kommune (digitalisering 2020–2025 + klimabudsjett / Klimasats klimaplanlegger). Contacts only as printed. No outreach.
-- **27 Aug 2026, 10:35 Europe/Oslo.** Competitor section (not a lead; no customer contact). One sentence on Aftenposten (not a methods citation) and Bouvet (not a Kartverket/kommune appendix).
+- **27 Aug 2026, 10:40 Europe/Oslo.** Kristiansand mandate is Økonomiplan 2026–2029 (bystyret 17.12.2025) kap. 5.4 datadeling + kap. 6 klimabudsjett / Miljødir kommunefordelte tall. Contacts post@ and post.byutvikling@. No competitor section.
 
 ---
 
