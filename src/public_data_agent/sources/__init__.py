@@ -14,6 +14,7 @@ from public_data_agent.sources.hi import HiFeaturesSource
 from public_data_agent.sources.kystverket import KystverketSource
 from public_data_agent.sources.mattilsynet import MattilsynetPlantevernSource
 from public_data_agent.sources.met import MetMetalertsSource
+from public_data_agent.sources.nibio import NibioWeatherSource
 from public_data_agent.sources.nve import NveMagasinSource
 from public_data_agent.sources.ssb import SsbStatbankSource
 from public_data_agent.sources.statnett import StatnettDriftsdataSource
@@ -39,6 +40,7 @@ SOURCE_IDS = (
     "met",
     "hi",
     "kystverket",
+    "nibio",
 )
 
 
@@ -79,6 +81,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return HiFeaturesSource()
     if source_id == "kystverket":
         return KystverketSource()
+    if source_id == "nibio":
+        return NibioWeatherSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -95,6 +99,7 @@ __all__ = [
     "KystverketSource",
     "MattilsynetPlantevernSource",
     "MetMetalertsSource",
+    "NibioWeatherSource",
     "NveMagasinSource",
     "SsbStatbankSource",
     "SOURCE_IDS",
