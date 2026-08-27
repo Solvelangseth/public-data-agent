@@ -40,3 +40,5 @@ This file does not add theme to the scorer. It does not rewrite ranking. It does
 
 - **Norsk Polarinstitutt OGC Features is still absent.** `https://geodata.npolar.no/ogc/features/v1/collections` was not used. The working printed catalog is `https://api.npolar.no/service/?q=*&format=json` (5 service paths). A GET of `/service` without `q=*` returns `count=51` and zero entries. We do not invent the missing 46. Source: live GET 2026-08-27T14:33:41Z and `data/npolar_source_proof.json` discarded list.
 
+- **Sikt DataverseNO OpenAPI is not the walk.** `https://dataverse.no/openapi` is HTTP 200 YAML for the generic Dataverse 6.6 software API (414 paths, 134 untemplated, mostly `/admin`). The working printed catalog is `https://dataverse.no/api/dataverses/:root/contents` (31 members; 18 titled dataverses). Root datasets print no title. We do not invent aliases or licenses. Source: live GET 2026-08-27T15:00:41Z and `data/sikt_source_proof.json` discarded list.
+

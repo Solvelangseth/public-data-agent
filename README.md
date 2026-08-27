@@ -1276,6 +1276,35 @@ Fornøyelsespark, Idrettshall. `pda methods` is not applicable: names, not
 a numeric time series (`no observations matched entity/measure;
 available=[]`). Proof is `data/stedsnavn_source_proof.json`.
 
+## Sikt DataverseNO source
+
+`pda ingest --source sikt` is another replaceable adapter. It lists printed
+titled dataverses on the official Sikt DataverseNO collection catalog
+`https://dataverse.no/api/dataverses/:root/contents`, capped at 10. Dataset
+ids are the printed collection `id` values. `access_path` keeps the
+catalog's own `/api/dataverses/:root/contents` path and substitutes the
+printed id for `:root`. Root members without a printed title (datasets)
+are left unused.
+
+```bash
+pda ingest --source sikt --db data/registry.sqlite --limit 10
+pda search TROLLing --db data/registry.sqlite
+pda fetch --dataset sikt:3 --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored collection URL. Observation values are copied
+from printed `title` or `identifier`. License and publisher stay null: the
+collection catalog does not print those fields.
+
+Live ingest 2026-08-27: 10 printed titled dataverses. Live search
+`TROLLing` returns `sikt:3`. Live fetch GETs
+`https://dataverse.no/api/dataverses/3/contents` HTTP 200, 254
+collection-member rows. Sample printed values: AcqVA Aurora, ASTRID,
+S5SXRG, T6KSX4, 2NKJPG.
+`pda methods` is not applicable: titles and identifiers, not a numeric
+time series (`no observations matched entity/measure; available=[]`).
+Proof is `data/sikt_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
