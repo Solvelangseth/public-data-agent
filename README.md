@@ -1736,6 +1736,36 @@ blcNpdidBlock, blcArea, qadName.
 (`no observations matched entity/measure; available=[]`).
 Proof is `data/sodir_source_proof.json`.
 
+## Kartverket Kommuneinfo source
+
+`pda ingest --source kommuneinfo` is another replaceable adapter. It lists printed
+collection GET paths on the official Kartverket Kommuneinfo OpenAPI
+`https://api.kartverket.no/kommuneinfo/v1/openapi.json`, capped at 10.
+Dataset ids are the last printed path segment. `access_path` is the
+printed path joined to the spec's own `servers[0].url`. This is not
+Geonorge Kartkatalog (`--source geonorge`), not Kartverket Stedsnavn
+(`--source stedsnavn`), and not Sokkeldirektoratet FactMaps
+(`--source sodir`).
+
+```bash
+pda ingest --source kommuneinfo --db data/registry.sqlite --limit 10
+pda search fylker --db data/registry.sqlite
+pda fetch --dataset kommuneinfo:fylker --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored collection URL. Observation values are
+copied from printed `fylkesnavn` when present. License and publisher
+stay null: the OpenAPI document prints neither a license URL nor a
+publisher. No license URI is invented.
+
+Live ingest 2026-08-27: 6 printed untemplated GET paths (catalog prints
+6, cap 10). Live search `fylker` returns `kommuneinfo:fylker`. Live
+fetch GETs `https://api.kartverket.no/kommuneinfo/v1/fylker` HTTP 200,
+15 county-name rows. Sample printed values: Troms, Finnmark, Buskerud,
+Agder, Rogaland. `pda methods` is not applicable: county names, not a
+numeric time series (`no observations matched entity/measure; available=[]`).
+Proof is `data/kommuneinfo_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
