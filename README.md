@@ -2363,6 +2363,50 @@ not applicable: GeoJSON feature timestamps, not a numeric time series
 (`no observations matched entity/measure; available=[]`). Proof is
 `data/geosatellite_source_proof.json`.
 
+## Meteorologisk institutt Metgm source
+
+`pda ingest --source metgm` is another replaceable adapter. It lists printed
+collection GET paths on the official MET Metgm swagger
+`https://api.met.no/weatherapi/metgm/1.0/swagger`, capped at 10.
+Templated `{format}` paths and GET operations that print required query
+parameters are skipped. Dataset ids are the last printed path segment.
+`access_path` is the swagger origin + printed `basePath` + path. License
+is the printed swagger CC BY 4.0 URL. Publisher stays null.
+This is not Metalerts (`--source met`), not Nowcast (`--source nowcast`),
+not MET Airqualityforecast (`--source airquality`), not MET Tidalwater
+(`--source tidalwater`), not MET Oceanforecast (`--source oceanforecast`),
+not MET Sunrise (`--source sunrise`), not MET Radar (`--source radar`),
+not MET Spotwind (`--source spotwind`), not MET Textforecast
+(`--source textforecast`), not MET Icemap (`--source icemap`), not MET
+NCAgalewarnings (`--source ncagalewarnings`), not MET Tafmetar
+(`--source tafmetar`), not MET Subseasonal (`--source subseasonal`),
+and not MET Geosatellite (`--source geosatellite`, now on main after
+PR 111). The root product path prints required `area`/`time` so it
+stays unused for fetch. `/available` prints XML so it stays unused
+for fetch.
+
+```bash
+pda ingest --source metgm --db data/registry.sqlite --limit 10
+pda search featurecollection --db data/registry.sqlite
+pda fetch --dataset metgm:features --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored collection URL. Observation values are copied
+from printed GeoJSON feature `name` when present, otherwise the printed
+Feature `id`. License is the printed swagger CC BY 4.0 URL. Publisher
+stays null: the spec does not print a publisher.
+
+Live ingest 2026-08-27: 5 printed untemplated GET paths (catalog prints
+5 paths with a last-segment id and no required query parameter, cap 10).
+Live search `featurecollection` returns `metgm:features`. Live fetch GETs
+`https://api.met.no/weatherapi/metgm/1.0/features` HTTP 200, 112
+feature-id cells (16 inserted / 96 updated on shared datetime
+dimensions). Sample printed value:
+`ostland2_F_20260823_2100Z_0_NOR0_1150E_6150N`.
+`pda methods` is not applicable: GeoJSON feature ids, not a numeric
+time series (`no observations matched entity/measure; available=[]`).
+Proof is `data/metgm_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists

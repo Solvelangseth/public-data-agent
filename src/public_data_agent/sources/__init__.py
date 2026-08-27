@@ -22,6 +22,7 @@ from public_data_agent.sources.kommuneinfo import KommuneinfoSource
 from public_data_agent.sources.kystverket import KystverketSource
 from public_data_agent.sources.mattilsynet import MattilsynetPlantevernSource
 from public_data_agent.sources.met import MetMetalertsSource
+from public_data_agent.sources.metgm import MetgmSource
 from public_data_agent.sources.miljodir import MiljodirVannmiljoSource
 from public_data_agent.sources.nbr import NbrSource
 from public_data_agent.sources.nfr import NfrSource
@@ -119,6 +120,7 @@ SOURCE_IDS = (
     "tafmetar",
     "subseasonal",
     "geosatellite",
+    "metgm",
 )
 
 
@@ -239,6 +241,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return SubseasonalSource()
     if source_id == "geosatellite":
         return GeosatelliteSource()
+    if source_id == "metgm":
+        return MetgmSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -263,6 +267,7 @@ __all__ = [
     "KystverketSource",
     "MattilsynetPlantevernSource",
     "MetMetalertsSource",
+    "MetgmSource",
     "MiljodirVannmiljoSource",
     "NbrSource",
     "NcagalewarningsSource",
