@@ -2128,6 +2128,34 @@ is not applicable: GeoJSON feature names, not a numeric time series
 (`no observations matched entity/measure; available=[]`). Proof is
 `data/spotwind_source_proof.json`.
 
+## Meteorologisk institutt Textforecast source
+
+`pda ingest --source textforecast` is another replaceable adapter. It lists
+printed collection GET paths on the official MET Textforecast swagger
+`https://api.met.no/weatherapi/textforecast/3.0/swagger`, capped at 10.
+Templated `{format}` paths are skipped. GET paths that print a required
+query parameter (`forecast`) stay unused: the root `/` path is a filter
+search, not a collection list. Dataset ids are the last printed path
+segment. `access_path` is the swagger origin + printed `basePath` + path.
+License is the printed swagger CC BY 4.0 URL. Publisher stays null. This is
+not Metalerts (`--source met`), not Nowcast (`--source nowcast`), not
+Airqualityforecast (`--source airquality`), not Tidalwater
+(`--source tidalwater`), not Oceanforecast (`--source oceanforecast`),
+not MET Sunrise (`--source sunrise`), not Radar (`--source radar`), and
+not MET Spotwind (`--source spotwind`, now on main after PR 105).
+`/available` stays unused for fetch in this slice: that printed path
+returns XML.
+
+```bash
+pda ingest --source textforecast --db data/registry.sqlite --limit 10
+pda search landoverview --db data/registry.sqlite
+pda fetch --dataset textforecast:landoverview --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored collection URL. Observation values are copied
+from printed feature `area`. License is the printed swagger CC BY 4.0 URL.
+Publisher stays null: the spec does not print a publisher.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
