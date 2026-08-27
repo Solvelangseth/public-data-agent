@@ -1237,6 +1237,15 @@ pda fetch --dataset npolar:country-api --db data/registry.sqlite
 from printed `name` or `title`. License and publisher stay null: the
 service catalog does not print those fields.
 
+Live ingest 2026-08-27: 5 printed service paths. Live search
+`Country` returns `npolar:country-api`. Live fetch GETs
+`https://api.npolar.no/country/?q=*&format=json` HTTP 200, 100
+country-name rows (the catalog's default page). Sample printed names:
+North Korea, Oman, Poland, Nauru, Chad.
+`pda methods` is not applicable: names, not a numeric time series
+(`no observations matched entity/measure; available=[]`).
+Proof is `data/npolar_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists

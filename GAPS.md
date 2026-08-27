@@ -38,5 +38,5 @@ This file does not add theme to the scorer. It does not rewrite ranking. It does
 
 ## Later source probes
 
-- **Norsk Polarinstitutt OGC Features is still absent.** `https://geodata.npolar.no/ogc/features/v1/collections` was not used. The working printed catalog is `https://api.npolar.no/service/?q=*&format=json` (5 service paths). A GET of `/service` without `q=*` returns `count=51` and zero entries. We do not invent the missing 46. Source: live GET 2026-08-27T14:28Z and `data/npolar_source_proof.json` discarded list.
+- **Norsk Polarinstitutt OGC Features is still absent.** `https://geodata.npolar.no/ogc/features/v1/collections` was not used. The working printed catalog is `https://api.npolar.no/service/?q=*&format=json` (5 service paths). A GET of `/service` without `q=*` returns `count=51` and zero entries. We do not invent the missing 46. Source: live GET 2026-08-27T14:33:41Z and `data/npolar_source_proof.json` discarded list.
 
