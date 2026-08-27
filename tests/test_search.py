@@ -196,6 +196,32 @@ def test_theme_code_participates_in_score_and_coverage(tmp_path: Path) -> None:
     registry.close()
 
 
+def test_theme_label_query_counts_theme_strings_and_drops_title_flood(tmp_path: Path) -> None:
+    payloads = [
+        json.loads((FIXTURES / name).read_text(encoding="utf-8"))
+        for name in ("ssb-strandsone.json", "helsedata-ssb.json", "sparse.json")
+    ]
+    payloads.append(
+        {
+            "id": "11111111-1111-4111-8111-111111111111",
+            "uri": "https://example.org/health-title",
+            "type": "datasets",
+            "title": {"en": "Health title flood"},
+            "description": {"en": "health"},
+            "keyword": [{"en": "health"}],
+            "harvest": {"modified": "2026-01-01T00:00:00Z", "firstHarvested": "2026-01-01T00:00:00Z"},
+        }
+    )
+    registry = Registry(tmp_path / "registry.sqlite")
+    harvest(registry, FixtureSource(payloads))
+    hits = search(registry, "Health")
+    assert [hit.dataset_id for hit in hits] == [HELSEDATA_ID, STRANDSONE_ID]
+    assert hits[0].relevance == 10
+    assert hits[1].relevance == 5
+    assert all(match.field == "theme" for hit in hits for match in hit.matches)
+    registry.close()
+
+
 def test_cli_search_uses_fixture_registry(tmp_path: Path, capsys) -> None:
     db = tmp_path / "registry.sqlite"
     assert main(["ingest", "--source", "fixture", "--fixtures", str(FIXTURES), "--db", str(db), "--quiet"]) == 0

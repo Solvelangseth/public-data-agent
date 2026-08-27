@@ -414,14 +414,40 @@ def _search_requirements(
     return hits[:limit]
 
 
+def _theme_string_matches(query_tokens: list[str], themes: list[str]) -> list[FieldMatch]:
+    matches: list[FieldMatch] = []
+    seen: set[str] = set()
+    weight = FIELD_WEIGHTS["theme"]
+    for theme in themes:
+        key = theme.casefold()
+        if key in seen:
+            continue
+        seen.add(key)
+        theme_tokens = set(tokenize(theme))
+        for token in query_tokens:
+            if token in theme_tokens:
+                matches.append(FieldMatch(field="theme", token=token, weight=weight))
+    return matches
+
+
 def _rank_rows(
     registry: Registry,
     query_tokens: list[str],
     *,
     limit: int,
 ) -> list[SearchHit]:
-    hits: list[SearchHit] = []
+    query_text = " ".join(query_tokens)
+    theme_hits: list[SearchHit] = []
+    other_hits: list[SearchHit] = []
     for row, fields, keywords, payload in _iter_scored_rows(registry):
+        themes = themes_from_payload(payload)
+        if any(theme.casefold() == query_text for theme in themes):
+            matches = _theme_string_matches(query_tokens, themes)
+            if matches:
+                theme_hits.append(
+                    _hit_from_row(row, payload, keywords, matches, why=why_summary(matches))
+                )
+            continue
         matches = score_document(query_tokens, fields)
         if not matches:
             matches = (
@@ -432,7 +458,8 @@ def _rank_rows(
             )
         if not matches:
             continue
-        hits.append(_hit_from_row(row, payload, keywords, matches, why=why_summary(matches)))
+        other_hits.append(_hit_from_row(row, payload, keywords, matches, why=why_summary(matches)))
+    hits = theme_hits if theme_hits else other_hits
     hits.sort(key=lambda hit: (-hit.relevance, hit.title or "", hit.dataset_id))
     return hits[:limit]
 
