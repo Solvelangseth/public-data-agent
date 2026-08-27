@@ -35,6 +35,9 @@ STOP_TOKENS = frozenset({
     "på",
     "til",
 })
+QUERY_SYNONYMS = {
+    "folketall": "befolkning",
+}
 PUBLISHER_WEIGHT = 5
 VARIABLES_UNKNOWN_REASON = (
     "no variable or column list is stored in the registry or harvested payload"
@@ -156,7 +159,7 @@ def tokenize(text: str | None) -> list[str]:
     if not text:
         return []
     return [
-        tok
+        QUERY_SYNONYMS.get(tok, tok)
         for tok in TOKEN_RE.findall(text.casefold())
         if len(tok) >= MIN_TOKEN_LEN and tok not in STOP_TOKENS
     ]

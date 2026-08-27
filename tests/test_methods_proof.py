@@ -836,3 +836,356 @@ def test_committed_ssb06683_proof_artifacts() -> None:
         ("Utenlandsadopsjoner", "2023"): 34,
         ("Utenlandsadopsjoner", "2024"): 24,
     }
+
+
+SSB_06831 = "ssb:06831"
+SSB_06831_PROOF_DIR = Path(__file__).resolve().parents[1] / "methods" / "proof" / "ssb06831"
+SSB_06831_STORE = SSB_06831_PROOF_DIR / "store.json"
+SSB_06831_ENTITY_16 = "16-19 år / Kvinner / Samboere"
+SSB_06831_ENTITY_20 = "20-24 år / Kvinner / Samboere"
+SSB_06831_VALUES = {
+    (SSB_06831_ENTITY_16, "2021"): 3.0,
+    (SSB_06831_ENTITY_16, "2022"): 2.0,
+    (SSB_06831_ENTITY_20, "2021"): 23.0,
+    (SSB_06831_ENTITY_20, "2022"): 23.0,
+}
+
+
+def _ssb06831_stored_rows() -> list[dict]:
+    """Read stored ssb:06831 rows. Prefer the live sqlite; else the committed dump."""
+
+    if REGISTRY.exists():
+        from public_data_agent.registry import Registry
+
+        registry = Registry(REGISTRY)
+        try:
+            stored = registry.list_observations(SSB_06831)
+        finally:
+            registry.close()
+        if stored:
+            return stored
+    if not SSB_06831_STORE.is_file():
+        pytest.skip("no stored ssb:06831 rows")
+    dump = json.loads(SSB_06831_STORE.read_text(encoding="utf-8"))
+    assert dump["posted"] is False
+    return dump["rows"]
+
+
+def test_live_ssb06831_store_matches_formula_and_lineage() -> None:
+    stored = _ssb06831_stored_rows()
+    assert len(stored) == 4
+    numeric = [row for row in stored if _numeric_value(row) is not None]
+    assert len(numeric) == 4
+    cleaned = clean(stored)
+    assert len(cleaned) == 4
+    entities = {row.entity for row in cleaned}
+    periods = {row.period for row in cleaned}
+    assert entities == {SSB_06831_ENTITY_16, SSB_06831_ENTITY_20}
+    assert periods == {"2021", "2022"}
+    for row in cleaned:
+        assert row.value == SSB_06831_VALUES[(row.entity, row.period)]
+        assert row.source == SSB_06831
+    derived = derive(cleaned)
+
+    by_key = {(row.observation.entity, row.observation.period): row for row in derived}
+    assert len(derived) == 4
+    for entity in entities:
+        base = by_key[(entity, "2021")]
+        latest = by_key[(entity, "2022")]
+        assert base.yoy_growth.value is None
+        assert base.yoy_growth.lineage.note == "undefined: no prior period"
+        assert base.index.value == 100.0
+        assert base.index.lineage.base_period == "2021"
+        assert base.index.lineage.base_observation_id == base.observation.id
+        expected = (latest.observation.value - base.observation.value) / base.observation.value
+        assert latest.yoy_growth.value == pytest.approx(expected)
+        assert latest.index.value == pytest.approx(
+            100.0 * latest.observation.value / base.observation.value
+        )
+        assert latest.index.lineage.base_period == "2021"
+        assert latest.index.lineage.base_observation_id == base.observation.id
+        assert base.rank_change.value is None
+        assert latest.rank_change.value == pytest.approx(base.rank.value - latest.rank.value)
+        for row in (base, latest):
+            assert row.yoy_growth.lineage.name == YOY_GROWTH
+            assert row.yoy_growth.lineage.formula == YOY_GROWTH_FORMULA
+            assert row.yoy_growth.lineage.input_columns == ("value",)
+            assert row.yoy_growth.lineage.source_observation_ids
+            assert row.yoy_growth.lineage.source_periods
+            assert row.index.lineage.name == INDEX
+            assert row.index.lineage.formula == INDEX_FORMULA
+            assert row.index.lineage.source_observation_ids
+            assert row.index.lineage.source_periods
+            assert row.index.lineage.base_period
+            assert row.rank.lineage.name == RANK
+            assert row.rank.lineage.formula == RANK_FORMULA
+            assert row.rank.lineage.peer_observation_ids
+            assert len(row.rank.lineage.peer_observation_ids) == 2
+            assert row.rank_change.lineage.name == RANK_CHANGE
+            assert row.rank_change.lineage.formula == RANK_CHANGE_FORMULA
+            assert row.rank_change.lineage.peer_observation_ids
+            assert row.observation.source == SSB_06831
+            for derived_col in row.derived_columns():
+                assert derived_col.lineage.name
+                assert derived_col.lineage.formula
+                assert derived_col.lineage.source_observation_ids
+                assert derived_col.lineage.source_periods
+
+    young_2022 = by_key[(SSB_06831_ENTITY_16, "2022")]
+    older_2022 = by_key[(SSB_06831_ENTITY_20, "2022")]
+    assert young_2022.yoy_growth.value == pytest.approx((2 - 3) / 3)
+    assert older_2022.yoy_growth.value == pytest.approx((23 - 23) / 23)
+    assert young_2022.index.value == pytest.approx(100.0 * 2 / 3)
+    assert older_2022.index.value == pytest.approx(100.0)
+    assert by_key[(SSB_06831_ENTITY_20, "2021")].rank.value == 1
+    assert by_key[(SSB_06831_ENTITY_16, "2021")].rank.value == 2
+
+    bars = yoy_bar_points(derived)
+    assert len(bars) == 2
+    assert {period for period, _rate in bars} == {"2022"}
+    plotted = index_line_series(derived)
+    assert len(plotted) == 2
+    for _entity, _measure, points in plotted:
+        assert [period for period, _value in points] == ["2021", "2022"]
+        assert points[0][1] == 100.0
+
+
+def test_ssb06831_cli_reads_store_and_does_not_fetch(tmp_path: Path) -> None:
+    from public_data_agent.models import HarvestCounts
+    from public_data_agent.registry import Registry
+
+    from methods.cli import run as run_methods
+    import methods.cli as methods_cli
+
+    dump = json.loads(SSB_06831_STORE.read_text(encoding="utf-8"))
+    assert dump["posted"] is False
+    db = tmp_path / "registry.sqlite"
+    registry = Registry(db)
+    registry.ensure_observation_dataset(
+        dataset_id=SSB_06831,
+        title="06831: Andel personer (prosent), etter samlivsform, kjønn, alder, statistikkvariabel og år",
+        publisher_name="Statistisk sentralbyrå",
+        access_path="https://data.ssb.no/api/v0/no/table/06831",
+        license=None,
+    )
+    run_id = registry.start_fetch_run(
+        dataset_id=SSB_06831,
+        table_id="06831",
+        request_url="https://data.ssb.no/api/v0/no/table/06831",
+        request_method="SEED",
+    )
+    for row in dump["rows"]:
+        registry.upsert_observation(row, run_id)
+    registry.finish_fetch_run(
+        run_id,
+        HarvestCounts(listed=len(dump["rows"]), inserted=len(dump["rows"])),
+        status="completed",
+        http_status=200,
+    )
+    stored = registry.list_observations(SSB_06831)
+    registry.close()
+    assert len(stored) == 4
+
+    fetch_calls: list[object] = []
+
+    def _forbid_fetch(*_args, **_kwargs):
+        fetch_calls.append((_args, _kwargs))
+        raise AssertionError("pda fetch must not run for ssb:06831")
+
+    original = methods_cli._call_existing_fetch
+    methods_cli._call_existing_fetch = _forbid_fetch  # type: ignore[method-assign]
+    try:
+        derived = run_methods(
+            dataset_id=SSB_06831,
+            db=db,
+            out=tmp_path / "out",
+            table_id="06831",
+            from_year=2021,
+            to_year=2022,
+            entity="Oslo (Kristiania og Aker) i alt",
+            measure="Folkemengden i alt (antall personer)",
+        )
+    finally:
+        methods_cli._call_existing_fetch = original  # type: ignore[method-assign]
+
+    assert fetch_calls == []
+    assert len(derived) == 4
+    assert {row.observation.period for row in derived} == {"2021", "2022"}
+    assert {row.observation.entity for row in derived} == {
+        SSB_06831_ENTITY_16,
+        SSB_06831_ENTITY_20,
+    }
+    assert all(row.observation.source == SSB_06831 for row in derived)
+    by_id = {row["id"]: _numeric_value(row) for row in stored}
+    for row in derived:
+        assert row.observation.value == float(by_id[row.observation.id])
+        assert row.yoy_growth.lineage.formula == YOY_GROWTH_FORMULA
+        assert row.index.lineage.formula == INDEX_FORMULA
+        assert row.rank.lineage.formula == RANK_FORMULA
+        assert row.rank_change.lineage.formula == RANK_CHANGE_FORMULA
+
+
+def test_ssb06831_empty_store_does_not_post() -> None:
+    from methods.cli import run as run_methods
+    import methods.cli as methods_cli
+
+    fetch_calls: list[object] = []
+
+    def _forbid_fetch(*_args, **_kwargs):
+        fetch_calls.append((_args, _kwargs))
+        raise AssertionError("pda fetch must not run for ssb:06831")
+
+    original = methods_cli._call_existing_fetch
+    methods_cli._call_existing_fetch = _forbid_fetch  # type: ignore[method-assign]
+    try:
+        with pytest.raises(ValueError, match="refusing to call pda fetch"):
+            run_methods(
+                dataset_id=SSB_06831,
+                db=Path("data/missing-registry-06831.sqlite"),
+                out=Path("/tmp/methods-06831-empty"),
+                table_id="06831",
+                from_year=2021,
+                to_year=2022,
+                entity=None,
+                measure=None,
+            )
+    finally:
+        methods_cli._call_existing_fetch = original  # type: ignore[method-assign]
+    assert fetch_calls == []
+
+
+def test_committed_ssb06831_proof_artifacts() -> None:
+    csv_path = SSB_06831_PROOF_DIR / "table.csv"
+    md_path = SSB_06831_PROOF_DIR / "table.md"
+    lineage_path = SSB_06831_PROOF_DIR / "lineage.json"
+    chart_path = SSB_06831_PROOF_DIR / "chart.png"
+    bar_path = SSB_06831_PROOF_DIR / "yoy_bar.png"
+    index_path = SSB_06831_PROOF_DIR / "index_line.png"
+    assert csv_path.is_file()
+    assert md_path.is_file()
+    assert lineage_path.is_file()
+    assert chart_path.is_file()
+    assert bar_path.is_file()
+    assert index_path.is_file()
+    assert chart_path.read_bytes().startswith(b"\x89PNG")
+    assert bar_path.read_bytes().startswith(b"\x89PNG")
+    assert index_path.read_bytes().startswith(b"\x89PNG")
+    assert (PROOF_DIR / "table.csv").is_file()
+    oslo = (PROOF_DIR / "table.csv").read_text(encoding="utf-8")
+    assert "Oslo (Kristiania og Aker) i alt" in oslo
+    assert "ssb:06831" not in oslo
+    ssb11763 = (SSB_PROOF_DIR / "table.csv").read_text(encoding="utf-8")
+    assert "ssb:11763" in ssb11763
+    assert "ssb:06831" not in ssb11763
+    ssb06683 = (SSB_06683_PROOF_DIR / "table.csv").read_text(encoding="utf-8")
+    assert "ssb:06683" in ssb06683
+    assert "ssb:06831" not in ssb06683
+
+    with csv_path.open(encoding="utf-8", newline="") as handle:
+        table = list(csv.DictReader(handle))
+    assert len(table) == 4
+    entities = {row["entity"] for row in table}
+    periods = {row["period"] for row in table}
+    assert entities == {SSB_06831_ENTITY_16, SSB_06831_ENTITY_20}
+    assert periods == {"2021", "2022"}
+    by_key = {(row["entity"], row["period"]): row for row in table}
+    for entity in entities:
+        base = by_key[(entity, "2021")]
+        latest = by_key[(entity, "2022")]
+        assert base["yoy_growth"] == ""
+        assert float(base["index"]) == 100.0
+        previous = float(base["value"])
+        current = float(latest["value"])
+        assert previous == SSB_06831_VALUES[(entity, "2021")]
+        assert current == SSB_06831_VALUES[(entity, "2022")]
+        assert float(latest["yoy_growth"]) == pytest.approx((current - previous) / previous)
+        assert float(latest["index"]) == pytest.approx(100.0 * current / previous)
+        assert latest["source"] == SSB_06831
+        assert base["source"] == SSB_06831
+        assert base["rank_change"] == ""
+        assert float(latest["rank_change"]) == pytest.approx(float(base["rank"]) - float(latest["rank"]))
+
+    assert float(by_key[(SSB_06831_ENTITY_16, "2022")]["yoy_growth"]) == pytest.approx((2 - 3) / 3)
+    assert float(by_key[(SSB_06831_ENTITY_20, "2022")]["yoy_growth"]) == pytest.approx(0.0)
+    assert float(by_key[(SSB_06831_ENTITY_20, "2021")]["rank"]) == 1
+
+    lineage = json.loads(lineage_path.read_text(encoding="utf-8"))
+    names = [column["name"] for column in lineage["derived_columns"]]
+    assert names == [YOY_GROWTH, INDEX, RANK, RANK_CHANGE]
+    yoy = lineage["derived_columns"][0]
+    index = lineage["derived_columns"][1]
+    rank = lineage["derived_columns"][2]
+    rank_change = lineage["derived_columns"][3]
+    assert yoy["formula"] == YOY_GROWTH_FORMULA
+    assert index["formula"] == INDEX_FORMULA
+    assert rank["formula"] == RANK_FORMULA
+    assert rank_change["formula"] == RANK_CHANGE_FORMULA
+    assert len(yoy["rows"]) == 4
+    assert len(index["rows"]) == 4
+    assert len(rank["rows"]) == 4
+    assert len(rank_change["rows"]) == 4
+    for item in yoy["rows"]:
+        assert item["lineage"]["name"] == YOY_GROWTH
+        assert item["lineage"]["formula"] == YOY_GROWTH_FORMULA
+        assert item["lineage"]["input_columns"] == ["value"]
+        assert item["lineage"]["source_observation_ids"]
+        assert item["lineage"]["source_periods"]
+        if item["period"] == "2021":
+            assert item["value"] is None
+            assert item["lineage"]["note"] == "undefined: no prior period"
+        else:
+            assert item["value"] is not None
+    for item in index["rows"]:
+        assert item["lineage"]["name"] == INDEX
+        assert item["lineage"]["formula"] == INDEX_FORMULA
+        assert item["lineage"]["base_period"] == "2021"
+        assert item["lineage"]["source_observation_ids"]
+        assert item["lineage"]["source_periods"]
+        if item["value"] is not None:
+            assert item["lineage"]["base_observation_id"]
+        if item["period"] == "2021":
+            assert item["value"] == 100.0
+    for item in rank["rows"]:
+        assert item["lineage"]["name"] == RANK
+        assert item["lineage"]["formula"] == RANK_FORMULA
+        assert item["lineage"]["peer_observation_ids"]
+        assert len(item["lineage"]["peer_observation_ids"]) == 2
+        assert item["value"] is not None
+    for item in rank_change["rows"]:
+        assert item["lineage"]["name"] == RANK_CHANGE
+        assert item["lineage"]["formula"] == RANK_CHANGE_FORMULA
+        assert item["lineage"]["peer_observation_ids"]
+        if item["period"] == "2021":
+            assert item["value"] is None
+        else:
+            assert item["value"] is not None
+    md = md_path.read_text(encoding="utf-8")
+    assert YOY_GROWTH_FORMULA in md
+    assert INDEX_FORMULA in md
+    assert RANK_FORMULA in md
+    assert RANK_CHANGE_FORMULA in md
+    dump = json.loads(SSB_06831_STORE.read_text(encoding="utf-8"))
+    assert dump["posted"] is False
+    assert dump["counts"]["total"] == 4
+    assert dump["counts"]["numeric"] == 4
+    committed = json.loads(
+        (Path(__file__).resolve().parents[1] / "data" / "ssb_expand_proof.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    printed = {
+        (
+            item["dimensions"]["Alder"],
+            item["dimensions"]["Kjonn"],
+            item["dimensions"]["Samboere"],
+            item["dimensions"]["Tid"],
+        ): item["value"]
+        for item in committed["fetch"]["sample"]
+    }
+    assert printed == {
+        ("16-19 år", "Kvinner", "Samboere", "2021"): 3,
+        ("16-19 år", "Kvinner", "Samboere", "2022"): 2,
+        ("20-24 år", "Kvinner", "Samboere", "2021"): 23,
+        ("20-24 år", "Kvinner", "Samboere", "2022"): 23,
+    }
+    assert committed["fetch"]["listed"] == 132

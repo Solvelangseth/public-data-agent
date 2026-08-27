@@ -1,0 +1,117 @@
+{
+  "produced_at": "2026-08-27T10:16:34Z",
+  "bound": {
+    "list_api": "https://kartkatalog.geonorge.no/api/search",
+    "detail_api": "https://kartkatalog.geonorge.no/api/getdata",
+    "text": "REST-API",
+    "keep": "printed Organization=Kartverket and DistributionProtocol=W3C:REST",
+    "cap": 8,
+    "how": "pda ingest --source geonorge --limit 8. Kartkatalog search lists REST-API hits. The adapter keeps Kartverket W3C:REST rows and stops after 8."
+  },
+  "ingest": {
+    "command": "pda ingest --source geonorge --db data/registry.sqlite --limit 8",
+    "listed": 8,
+    "inserted": 8,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "geonorge:44eeffdc-6069-4000-a49b-2d6bfc59ac61",
+        "access_path": "https://ws.geonorge.no/adresser/v1/"
+      },
+      {
+        "id": "geonorge:9a1289da-d88d-436e-8aba-7b26feaa92a6",
+        "access_path": "https://api.kartverket.no/valgdata/v1/"
+      },
+      {
+        "id": "geonorge:3fcce35c-759b-4c6e-adb9-f03478c6fb72",
+        "access_path": "https://ws.geonorge.no/kommuneinfo/v1/"
+      },
+      {
+        "id": "geonorge:fd16464c-648a-4576-83e0-231f93d687ad",
+        "access_path": "https://api.kartverket.no/eiendom/v1/"
+      },
+      {
+        "id": "geonorge:71ad2bf9-06e8-469f-9ffa-296182274154",
+        "access_path": "https://ws.geonorge.no/hoydedata/v1/"
+      },
+      {
+        "id": "geonorge:1de88bc6-ecba-4e1b-a4f0-e9551eb1f2bd",
+        "access_path": "https://stormflo-konsekvens.kartverket.no/index.html#tag/Konsekvenser-ved-stormflo-og-havniva"
+      },
+      {
+        "id": "geonorge:d12de000-1a23-46b3-9192-3a1a98b2c994",
+        "access_path": "https://ws.geonorge.no/stedsnavn/v1/"
+      },
+      {
+        "id": "geonorge:cfec90aa-1fb5-485b-912b-e5672c3a9672",
+        "access_path": "https://ws.geonorge.no/transformering/v1/"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search kommuneinfo --db data/registry.sqlite --limit 5",
+    "query": "kommuneinfo",
+    "returned": 1,
+    "hit_id": "geonorge:3fcce35c-759b-4c6e-adb9-f03478c6fb72",
+    "title": "Administrative inndelinger REST-API",
+    "source_id": "geonorge"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset geonorge:3fcce35c-759b-4c6e-adb9-f03478c6fb72 --db data/registry.sqlite",
+    "dataset": "geonorge:3fcce35c-759b-4c6e-adb9-f03478c6fb72",
+    "table_id": "kommuner",
+    "access_path": "https://ws.geonorge.no/kommuneinfo/v1/",
+    "openapi_url": "https://ws.geonorge.no/kommuneinfo/v1/openapi.json",
+    "request_url": "https://ws.geonorge.no/kommuneinfo/v1/kommuner",
+    "http_status": 200,
+    "listed": 357,
+    "inserted": 357,
+    "license": null,
+    "publisher": "Kartverket",
+    "sample": [
+      {
+        "measure": "Administrative inndelinger REST-API",
+        "value": "Våler",
+        "dimensions": {
+          "kommunenavn": "Våler",
+          "kommunenavnNorsk": "Våler",
+          "kommunenummer": "3419"
+        }
+      },
+      {
+        "measure": "Administrative inndelinger REST-API",
+        "value": "Oslo",
+        "dimensions": {
+          "kommunenavn": "Oslo",
+          "kommunenavnNorsk": "Oslo",
+          "kommunenummer": "0301"
+        }
+      },
+      {
+        "measure": "Administrative inndelinger REST-API",
+        "value": "Hemsedal",
+        "dimensions": {
+          "kommunenavn": "Hemsedal",
+          "kommunenavnNorsk": "Hemsedal",
+          "kommunenummer": "3326"
+        }
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset geonorge:3fcce35c-759b-4c6e-adb9-f03478c6fb72 --table kommuner --entity \"\" --measure \"\" --db data/registry.sqlite --out /tmp/pda-methods-geonorge",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "Kartverket /kommuner prints kommunenavn strings, not a numeric time series. methods.clean drops non-numeric values and there is no period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids and access_path values are copied from Kartkatalog Uuid and DistributionUrl. No Geonorge id was written onto a datanorge row.",
+    "License is null. Kartkatalog getdata printed UseConstraints=Lisens and an INSPIRE conditions link, not a license URI.",
+    "Fetch GETs the OpenAPI document printed at the stored API root, then GETs /kommuner because that path is printed and has no required parameters."
+  ]
+}

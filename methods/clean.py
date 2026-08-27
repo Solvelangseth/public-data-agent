@@ -199,14 +199,16 @@ def _period_from_dimensions(dimensions: dict[str, str]) -> str | None:
 
 
 def _entity_from_dimensions(dimensions: dict[str, str]) -> str | None:
-    leftover: list[str] = []
+    leftover: list[tuple[str, str]] = []
     for key, value in dimensions.items():
         folded = key.casefold()
         if folded in PERIOD_ALIASES or _YEAR.match(value):
             continue
         if folded in ENTITY_ALIASES:
             return value
-        leftover.append(value)
+        leftover.append((key, value))
     if leftover:
-        return leftover[0]
+        leftover.sort(key=lambda item: item[0].casefold())
+        values = [value for _key, value in leftover]
+        return values[0] if len(values) == 1 else " / ".join(values)
     return None

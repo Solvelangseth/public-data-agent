@@ -53,6 +53,52 @@ def test_tokenize_drops_short_norwegian_function_words() -> None:
     assert tokenize("oslo i på for og bydeler") == ["oslo", "bydeler"]
 
 
+def test_tokenize_maps_folketall_to_stored_befolkning() -> None:
+    assert tokenize("folketall i oslo") == ["befolkning", "oslo"]
+    assert tokenize("folketall for trondheim") == ["befolkning", "trondheim"]
+    assert tokenize("befolkning på tromsø") == ["befolkning", "tromsø"]
+
+
+def test_folketall_query_matches_stored_befolkning_and_place(tmp_path: Path) -> None:
+    payloads = [
+        {
+            "id": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+            "uri": "https://example.org/oslo-befolkning",
+            "type": "datasets",
+            "title": {"nb": "Oslo befolkning"},
+            "description": {"nb": "statistikk"},
+            "keyword": [{"nb": "oslo"}],
+            "harvest": {
+                "modified": "2026-01-01T00:00:00Z",
+                "firstHarvested": "2026-01-01T00:00:00Z",
+            },
+        },
+        {
+            "id": "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
+            "uri": "https://example.org/ortofoto-oslo",
+            "type": "datasets",
+            "title": {"nb": "Ortofoto Oslo"},
+            "description": {"nb": "flyfoto"},
+            "keyword": [{"nb": "oslo"}],
+            "harvest": {
+                "modified": "2026-01-01T00:00:00Z",
+                "firstHarvested": "2026-01-01T00:00:00Z",
+            },
+        },
+    ]
+    registry = Registry(tmp_path / "registry.sqlite")
+    harvest(registry, FixtureSource(payloads))
+    hits = search(registry, "folketall i oslo")
+    assert [hit.dataset_id for hit in hits] == [
+        "fixture:aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa"
+    ]
+    tokens = {match.token for match in hits[0].matches}
+    assert tokens == {"befolkning", "oslo"}
+    assert "befolkning" in hits[0].why
+    assert "oslo" in hits[0].why
+    registry.close()
+
+
 def test_title_match_ranks_above_description_match(tmp_path: Path) -> None:
     registry = _registry(tmp_path)
     hits = search(registry, "ssb")

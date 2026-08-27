@@ -29,7 +29,8 @@ DEFAULT_DB = Path("data/registry.sqlite")
 DEFAULT_OUT = Path("methods/proof")
 SSB_11763 = "ssb:11763"
 SSB_06683 = "ssb:06683"
-STORE_ONLY_DATASETS = frozenset({SSB_11763, SSB_06683})
+SSB_06831 = "ssb:06831"
+STORE_ONLY_DATASETS = frozenset({SSB_11763, SSB_06683, SSB_06831})
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -160,8 +161,8 @@ def _select(rows, *, entity: str | None, measure: str | None):
     """Filter to entity/measure. Oslo CLI defaults fall back to every series.
 
     `pda methods` always forwards the Oslo city-total defaults. Those names
-    are not in ssb:11763 or ssb:06683, so an unmatched default keeps every
-    stored series instead of calling fetch or emitting an empty table.
+    are not in ssb:11763, ssb:06683, or ssb:06831, so an unmatched default
+    keeps every stored series instead of calling fetch or emitting an empty table.
     """
 
     selected = rows
