@@ -54,3 +54,4 @@ ts	phase	decision	why	evidence	result
 2026-08-27T04:23:00Z	fetch	use Oslo kommunes statistikkbank, not SSB 07459	07459 is not an access_path on a befolkning row in the 9120-row registry; Oslo PxWeb is	dataset datanorge:fc22c19b-5347-3b20-aa1b-ae534f178f57 GET/POST 200	selected
 2026-08-27T04:24:00Z	fetch	store observations in their own tables	do not write datasets, harvested_payloads, or enrichments	schema.sql fetch_runs + observations	pending live proof
 2026-08-27T04:25:00Z	fetch	live pda fetch Oslo population 2020-2026	prove a real HTTP response, no invented numbers	data/connector_proof.json HTTP 200 listed 28 Oslo totals 693494..728714	live works
+2026-08-27T04:26:00Z	pr	open Milestone 7 PR, do not merge, do not start M8	first connector is a reviewable PR	https://github.com/Solvelangseth/public-data-agent/pull/8	OPEN
