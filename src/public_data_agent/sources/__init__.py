@@ -22,6 +22,7 @@ from public_data_agent.sources.nor import NorSource
 from public_data_agent.sources.norgesbank import NorgesBankSource
 from public_data_agent.sources.npolar import NpolarSource
 from public_data_agent.sources.nve import NveMagasinSource
+from public_data_agent.sources.nytek import NytekSource
 from public_data_agent.sources.sikt import SiktSource
 from public_data_agent.sources.oslo import OsloStatbankSource
 from public_data_agent.sources.ssb import SsbStatbankSource
@@ -63,6 +64,7 @@ SOURCE_IDS = (
     "vegvesen",
     "buyer",
     "nor",
+    "nytek",
 )
 
 
@@ -127,6 +129,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return BuyerSource()
     if source_id == "nor":
         return NorSource()
+    if source_id == "nytek":
+        return NytekSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -151,6 +155,7 @@ __all__ = [
     "NorgesBankSource",
     "NpolarSource",
     "NveMagasinSource",
+    "NytekSource",
     "SiktSource",
     "OsloStatbankSource",
     "SsbStatbankSource",
