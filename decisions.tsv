@@ -111,3 +111,4 @@ ts	phase	decision	why	evidence	result
 2026-08-27T08:56:51Z	fetch	live pda fetch Klass 683 into observations	reuse _fetch_klass; no harvest or enrichment write	HTTP 200 listed=7127 inserted=7127 table=klass:683 datasets=9122	live works
 2026-08-27T08:57:10Z	methods	pda methods reads 683 from the store, then clean drops names	load_observations found 7127 rows so it did not call pda fetch; names are not a numeric series	exit 1 available=[]; fetch_runs still 1	honest miss
 2026-08-27T08:58:00Z	test	run pytest after the Klass 683 proof	do not leave the count only in the PR body	python3 -m pytest 88 passed 1 deselected	tests green
+2026-08-27T08:58:40Z	pr	open Klass 683 fetch PR, do not merge	third stored-API fetch is a reviewable PR	https://github.com/Solvelangseth/public-data-agent/pull/30	OPEN
