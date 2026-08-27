@@ -261,6 +261,8 @@ def fetch_observations(
     access_path = dataset.get("access_path") or ""
     if is_klass_url(access_path):
         return _fetch_klass(registry, dataset, http=http)
+    if is_stedsnavn_url(access_path):
+        return _fetch_stedsnavn(registry, dataset, http=http)
     if is_geonorge_rest_url(access_path):
         return _fetch_geonorge_rest(registry, dataset, http=http)
     if is_nve_magasin_url(access_path):
@@ -281,8 +283,6 @@ def fetch_observations(
         return _fetch_norgesbank(registry, dataset, http=http)
     if is_npolar_url(access_path):
         return _fetch_npolar(registry, dataset, http=http)
-    if is_stedsnavn_url(access_path):
-        return _fetch_stedsnavn(registry, dataset, http=http)
     if is_entur_gbfs_url(access_path):
         return _fetch_entur(registry, dataset, http=http)
     if is_fiskeridir_vessel_url(access_path):
