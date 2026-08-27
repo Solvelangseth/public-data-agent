@@ -1359,6 +1359,13 @@ from printed `name` when it is a non-empty string, otherwise `locationId`.
 License is copied from the printed OpenAPI `info.license.url` when present.
 Publisher stays null: the spec does not print a publisher name.
 
+Live ingest 2026-08-27: 1 printed collection GET path. Live search
+`kjøpssteder` returns `buyer:locations`. Live fetch GETs
+`https://api.fiskeridir.no/buyer-api/v1/locations` HTTP 200, 100
+kjøpssted rows. Sample printed values: 200092526, TOR GUNNAR OTTERLEI,
+OCEANBLOCK AS, DAG SELNES JOHANSEN.
+`pda methods` is not applicable: names and location ids, not a numeric
+time series (`no period in dimensions or period field`).
 Proof is `data/buyer_source_proof.json`.
 
 ## Architecture (long term)

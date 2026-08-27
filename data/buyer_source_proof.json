@@ -1,0 +1,170 @@
+{
+  "produced_at": "2026-08-27T15:28:16Z",
+  "bound": {
+    "list_api": "https://api.fiskeridir.no/buyer-api/openapi",
+    "walk": "copy printed collection GET paths from the official Kjøperregisteret OpenAPI; skip templated paths; join each path to printed servers[0].url https://api.fiskeridir.no; do not invent path ids",
+    "cap": 10,
+    "how": "pda ingest --source buyer --limit 10. The official Kjøperregisteret OpenAPI prints 2 paths. 1 untemplated collection GET is /buyer-api/v1/locations. The live spec also prints /buyer-api/v1/locations/{locationId}; that templated path is skipped. The adapter copies the printed untemplated path joined to the printed servers[0].url."
+  },
+  "discarded": [
+    {
+      "candidate": "Statens vegvesen Dataportalen",
+      "url": "PR 81 cursor/vegvesen-dataut-source-55c5 --source vegvesen",
+      "why": "Already in flight. Do not touch that branch, PR, or vegvesen adapter files. This branch starts from origin/main only."
+    },
+    {
+      "candidate": "Sikt DataverseNO",
+      "url": "https://dataverse.no/api/dataverses/:root/contents",
+      "why": "Already ingested on main at 3d12208. Do not re-add."
+    },
+    {
+      "candidate": "Fiskeridirektoratet Fartøyregisteret",
+      "url": "https://api.fiskeridir.no/vessel-api/api/openapi",
+      "why": "Already ingested on main as --source fiskeridir. Different register. Buyer-api is /buyer-api/, not /vessel-api/."
+    },
+    {
+      "candidate": "SSB PxWebApi 2 tables",
+      "url": "https://data.ssb.no/api/pxwebapi/v2/tables?lang=no",
+      "why": "HTTP 200 JSON table list. ssb and pxweb are already on main. Do not re-add."
+    },
+    {
+      "candidate": "NVDB Les V3 OpenAPI",
+      "url": "https://nvdbapiles-v3.atlas.vegvesen.no/dokumentasjon/openapi.json",
+      "why": "Known skip: HTTP 400 User-Agent. Do not retry."
+    },
+    {
+      "candidate": "Vegvesen Trafikkdata swagger / trafikkdata-api",
+      "url": "https://trafikkdata.atlas.vegvesen.no/",
+      "why": "Known skip: swagger HTML-only; trafikkdata-api 410. Do not retry."
+    },
+    {
+      "candidate": "Kartverket Eiendom /geokoding",
+      "url": "https://api.kartverket.no/eiendom/v1/geokoding",
+      "why": "Known skip: HTTP 400 without matrikkel params. Search API, not a collection catalog. Already a geonorge row for /eiendom/v1/. Do not retry."
+    },
+    {
+      "candidate": "Udir NOR / NPR / NFR OpenAPI",
+      "url": "https://data-nor.udir.no/swagger/v4/swagger.json",
+      "why": "HTTP 200 OpenAPI with live code collections. Publisher is Udir; NSR and NBR are already on main. Left unused after Kjøperregisteret printed a distinct Fiskeridirektoratet register."
+    },
+    {
+      "candidate": "Geonorge register list",
+      "url": "https://register.geonorge.no/api/register",
+      "why": "HTTP 500 JSON. /api/register/epsg-koder is 200 but that id is not printed by a working register catalog. Do not invent register ids."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source buyer --db /tmp/pda-buyer-proof/registry.sqlite --limit 10",
+    "listed": 1,
+    "inserted": 1,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "buyer:locations",
+        "access_path": "https://api.fiskeridir.no/buyer-api/v1/locations"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search kjøpssteder --db /tmp/pda-buyer-proof/registry.sqlite --limit 5",
+    "query": "kjøpssteder",
+    "returned": 1,
+    "hit_id": "buyer:locations",
+    "title": "Utlisting og søk etter aktive kjøpssteder",
+    "source_id": "buyer"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset buyer:locations --db /tmp/pda-buyer-proof/registry.sqlite",
+    "dataset": "buyer:locations",
+    "table_id": "locations",
+    "access_path": "https://api.fiskeridir.no/buyer-api/v1/locations",
+    "request_url": "https://api.fiskeridir.no/buyer-api/v1/locations",
+    "http_status": 200,
+    "listed": 100,
+    "inserted": 100,
+    "license": "https://www.fiskeridir.no/Tall-og-analyse/Lisens-for-bruk-av-Fiskeridirektoratets-data",
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "locationId",
+        "value": 200092526,
+        "dimensions": {
+          "created": "2026-08-27T06:40:11.516484",
+          "locationType": "DOCK_SALESPERSON_T",
+          "mainLegalEntityId": "990264554",
+          "parent": "200092518",
+          "parentLegalEntityId": "934729641",
+          "updated": "2026-08-27T06:40:11.952338"
+        }
+      },
+      {
+        "measure": "name",
+        "value": "TOR GUNNAR OTTERLEI",
+        "dimensions": {
+          "created": "2026-08-27T06:40:11.177318",
+          "legalEntityId": "934729641",
+          "locationId": "200092518",
+          "locationType": "DOCK_SALESPERSON_T",
+          "mainLegalEntityId": "990264554",
+          "parent": "200092500",
+          "parentLegalEntityId": "990264554",
+          "updated": "2026-08-27T06:40:11.900611"
+        }
+      },
+      {
+        "measure": "name",
+        "value": "TOR GUNNAR OTTERLEI",
+        "dimensions": {
+          "created": "2026-08-27T06:40:09.019654",
+          "legalEntityId": "990264554",
+          "locationId": "200092500",
+          "locationType": "DOCK_SALESPERSON_T",
+          "mainLegalEntityId": "990264554",
+          "updated": "2026-08-27T06:40:11.820837"
+        }
+      },
+      {
+        "measure": "name",
+        "value": "OCEANBLOCK AS",
+        "dimensions": {
+          "created": "2026-08-26T14:34:34.851391",
+          "legalEntityId": "937834667",
+          "locationId": "200092484",
+          "locationType": "LEGAL_ENTITY",
+          "mainLegalEntityId": "937834667",
+          "updated": "2026-08-26T14:34:36.358222"
+        }
+      },
+      {
+        "measure": "name",
+        "value": "DAG SELNES JOHANSEN",
+        "dimensions": {
+          "created": "2026-08-26T08:17:06.393649",
+          "legalEntityId": "996667197",
+          "locationId": "200092468",
+          "locationType": "LEGAL_ENTITY",
+          "mainLegalEntityId": "996667197",
+          "updated": "2026-08-26T08:17:09.404338"
+        }
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset buyer:locations --table locations --entity \"\" --measure \"\" --db /tmp/pda-buyer-proof/registry.sqlite --out /tmp/pda-buyer-proof/methods",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no period in dimensions or period field",
+    "why": "Kjøperregisteret /buyer-api/v1/locations prints kjøpssted names and location ids. That is not a numeric time series. methods.clean drops the rows because they have no period. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed OpenAPI path last segments. access_path is https://api.fiskeridir.no/buyer-api/v1/locations, joined from printed servers[0].url and the printed untemplated GET path. No buyer id was written onto a fiskeridir or datanorge row.",
+    "License is the printed OpenAPI info.license.url. Publisher is null. The spec does not print a publisher name.",
+    "Original harvested OpenAPI metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "Vegvesen Dataportalen stays on PR 81. Fartøyregisteret was not re-added. This source does not re-implement either.",
+    "python3 -m pytest 310 passed, 1 skipped, 1 deselected."
+  ]
+}
