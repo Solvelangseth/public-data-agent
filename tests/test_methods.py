@@ -352,6 +352,22 @@ def test_cli_methods_on_fixture_store(tmp_path: Path) -> None:
     assert "index" in table
 
 
+def test_select_oslo_defaults_keep_every_entity_when_unmatched() -> None:
+    from methods.cli import DEFAULT_ENTITY, DEFAULT_MEASURE, _select
+
+    rows = clean(
+        [
+            {**FIXTURE_ROWS[0], "id": "a-1", "dimensions": {"year": "2000", "entity": "Fixture A"}},
+            {**FIXTURE_ROWS[2], "id": "a-2", "dimensions": {"year": "2001", "entity": "Fixture A"}},
+            {**FIXTURE_ROWS[0], "id": "b-1", "dimensions": {"year": "2000", "entity": "Fixture B"}},
+        ]
+    )
+    kept = _select(rows, entity=DEFAULT_ENTITY, measure=DEFAULT_MEASURE)
+    assert {row.entity for row in kept} == {"Fixture A", "Fixture B"}
+    missing = _select(rows, entity="Not A Real Entity", measure=None)
+    assert missing == ()
+
+
 def test_run_methods_uses_stored_fixture_values(tmp_path: Path) -> None:
     db = _fixture_registry(tmp_path)
     derived = run_methods(

@@ -1,0 +1,1419 @@
+{
+  "derived_columns": [
+    {
+      "name": "yoy_growth",
+      "formula": "(v_t - v_{t-1}) / v_{t-1}",
+      "input_columns": [
+        "value"
+      ],
+      "units": "ratio",
+      "rows": [
+        {
+          "value": null,
+          "lineage": {
+            "name": "yoy_growth",
+            "formula": "(v_t - v_{t-1}) / v_{t-1}",
+            "input_columns": [
+              "value"
+            ],
+            "units": "ratio",
+            "source_observation_ids": [
+              "10f07a4dbc22de2437fd7b0b24b769ec4e9a264c"
+            ],
+            "source_periods": [
+              "2024"
+            ],
+            "note": "undefined: no prior period"
+          },
+          "entity": "Alna",
+          "period": "2024",
+          "measure": "Personer (antall)",
+          "observation_id": "10f07a4dbc22de2437fd7b0b24b769ec4e9a264c"
+        },
+        {
+          "value": 0.0022692292513516715,
+          "lineage": {
+            "name": "yoy_growth",
+            "formula": "(v_t - v_{t-1}) / v_{t-1}",
+            "input_columns": [
+              "value"
+            ],
+            "units": "ratio",
+            "source_observation_ids": [
+              "10f07a4dbc22de2437fd7b0b24b769ec4e9a264c",
+              "afec4b40b1c24a5fbede8adad3344298cde9100d"
+            ],
+            "source_periods": [
+              "2024",
+              "2025"
+            ]
+          },
+          "entity": "Alna",
+          "period": "2025",
+          "measure": "Personer (antall)",
+          "observation_id": "afec4b40b1c24a5fbede8adad3344298cde9100d"
+        },
+        {
+          "value": null,
+          "lineage": {
+            "name": "yoy_growth",
+            "formula": "(v_t - v_{t-1}) / v_{t-1}",
+            "input_columns": [
+              "value"
+            ],
+            "units": "ratio",
+            "source_observation_ids": [
+              "a05b28be69a33d028afff87e37b02a0d762e203e"
+            ],
+            "source_periods": [
+              "2024"
+            ],
+            "note": "undefined: no prior period"
+          },
+          "entity": "Bjerke",
+          "period": "2024",
+          "measure": "Personer (antall)",
+          "observation_id": "a05b28be69a33d028afff87e37b02a0d762e203e"
+        },
+        {
+          "value": 0.013089358486492321,
+          "lineage": {
+            "name": "yoy_growth",
+            "formula": "(v_t - v_{t-1}) / v_{t-1}",
+            "input_columns": [
+              "value"
+            ],
+            "units": "ratio",
+            "source_observation_ids": [
+              "a05b28be69a33d028afff87e37b02a0d762e203e",
+              "e0aca7c34b04362416eeb87015b04dc2ea22e3ba"
+            ],
+            "source_periods": [
+              "2024",
+              "2025"
+            ]
+          },
+          "entity": "Bjerke",
+          "period": "2025",
+          "measure": "Personer (antall)",
+          "observation_id": "e0aca7c34b04362416eeb87015b04dc2ea22e3ba"
+        },
+        {
+          "value": null,
+          "lineage": {
+            "name": "yoy_growth",
+            "formula": "(v_t - v_{t-1}) / v_{t-1}",
+            "input_columns": [
+              "value"
+            ],
+            "units": "ratio",
+            "source_observation_ids": [
+              "706e9d6da550a257fa4248209660e9d03f91a25e"
+            ],
+            "source_periods": [
+              "2024"
+            ],
+            "note": "undefined: no prior period"
+          },
+          "entity": "Frogner",
+          "period": "2024",
+          "measure": "Personer (antall)",
+          "observation_id": "706e9d6da550a257fa4248209660e9d03f91a25e"
+        },
+        {
+          "value": -0.0035022219285348486,
+          "lineage": {
+            "name": "yoy_growth",
+            "formula": "(v_t - v_{t-1}) / v_{t-1}",
+            "input_columns": [
+              "value"
+            ],
+            "units": "ratio",
+            "source_observation_ids": [
+              "706e9d6da550a257fa4248209660e9d03f91a25e",
+              "31dbcff4fa7e75c15f039dd7336a5cdc99289d84"
+            ],
+            "source_periods": [
+              "2024",
+              "2025"
+            ]
+          },
+          "entity": "Frogner",
+          "period": "2025",
+          "measure": "Personer (antall)",
+          "observation_id": "31dbcff4fa7e75c15f039dd7336a5cdc99289d84"
+        },
+        {
+          "value": null,
+          "lineage": {
+            "name": "yoy_growth",
+            "formula": "(v_t - v_{t-1}) / v_{t-1}",
+            "input_columns": [
+              "value"
+            ],
+            "units": "ratio",
+            "source_observation_ids": [
+              "226b2d3e8502fad1517b811207b382220a851038"
+            ],
+            "source_periods": [
+              "2024"
+            ],
+            "note": "undefined: no prior period"
+          },
+          "entity": "Gamle Oslo",
+          "period": "2024",
+          "measure": "Personer (antall)",
+          "observation_id": "226b2d3e8502fad1517b811207b382220a851038"
+        },
+        {
+          "value": 0.0056696719025931775,
+          "lineage": {
+            "name": "yoy_growth",
+            "formula": "(v_t - v_{t-1}) / v_{t-1}",
+            "input_columns": [
+              "value"
+            ],
+            "units": "ratio",
+            "source_observation_ids": [
+              "226b2d3e8502fad1517b811207b382220a851038",
+              "78918eef204e97fcce3ba8cba8d526c690acea04"
+            ],
+            "source_periods": [
+              "2024",
+              "2025"
+            ]
+          },
+          "entity": "Gamle Oslo",
+          "period": "2025",
+          "measure": "Personer (antall)",
+          "observation_id": "78918eef204e97fcce3ba8cba8d526c690acea04"
+        },
+        {
+          "value": null,
+          "lineage": {
+            "name": "yoy_growth",
+            "formula": "(v_t - v_{t-1}) / v_{t-1}",
+            "input_columns": [
+              "value"
+            ],
+            "units": "ratio",
+            "source_observation_ids": [
+              "d72f761f630a9bed7f33038b5d19d434dc63bb85"
+            ],
+            "source_periods": [
+              "2024"
+            ],
+            "note": "undefined: no prior period"
+          },
+          "entity": "Grorud",
+          "period": "2024",
+          "measure": "Personer (antall)",
+          "observation_id": "d72f761f630a9bed7f33038b5d19d434dc63bb85"
+        },
+        {
+          "value": 0.004781469150669406,
+          "lineage": {
+            "name": "yoy_growth",
+            "formula": "(v_t - v_{t-1}) / v_{t-1}",
+            "input_columns": [
+              "value"
+            ],
+            "units": "ratio",
+            "source_observation_ids": [
+              "d72f761f630a9bed7f33038b5d19d434dc63bb85",
+              "df4b6278a13d8a79449323fe7d3547e99dfe0a06"
+            ],
+            "source_periods": [
+              "2024",
+              "2025"
+            ]
+          },
+          "entity": "Grorud",
+          "period": "2025",
+          "measure": "Personer (antall)",
+          "observation_id": "df4b6278a13d8a79449323fe7d3547e99dfe0a06"
+        },
+        {
+          "value": null,
+          "lineage": {
+            "name": "yoy_growth",
+            "formula": "(v_t - v_{t-1}) / v_{t-1}",
+            "input_columns": [
+              "value"
+            ],
+            "units": "ratio",
+            "source_observation_ids": [
+              "468bd5c39c4855be5a6350dfe67af85bd36a1f1c"
+            ],
+            "source_periods": [
+              "2024"
+            ],
+            "note": "undefined: no prior period"
+          },
+          "entity": "Grünerløkka",
+          "period": "2024",
+          "measure": "Personer (antall)",
+          "observation_id": "468bd5c39c4855be5a6350dfe67af85bd36a1f1c"
+        },
+        {
+          "value": 0.009562676947171857,
+          "lineage": {
+            "name": "yoy_growth",
+            "formula": "(v_t - v_{t-1}) / v_{t-1}",
+            "input_columns": [
+              "value"
+            ],
+            "units": "ratio",
+            "source_observation_ids": [
+              "468bd5c39c4855be5a6350dfe67af85bd36a1f1c",
+              "248b6b3ff0b8229eb04abcad1053485b433a5982"
+            ],
+            "source_periods": [
+              "2024",
+              "2025"
+            ]
+          },
+          "entity": "Grünerløkka",
+          "period": "2025",
+          "measure": "Personer (antall)",
+          "observation_id": "248b6b3ff0b8229eb04abcad1053485b433a5982"
+        },
+        {
+          "value": null,
+          "lineage": {
+            "name": "yoy_growth",
+            "formula": "(v_t - v_{t-1}) / v_{t-1}",
+            "input_columns": [
+              "value"
+            ],
+            "units": "ratio",
+            "source_observation_ids": [
+              "9f37e3c43818935cfe71bdc0eee620df0657f72d"
+            ],
+            "source_periods": [
+              "2024"
+            ],
+            "note": "undefined: no prior period"
+          },
+          "entity": "Nordre Aker",
+          "period": "2024",
+          "measure": "Personer (antall)",
+          "observation_id": "9f37e3c43818935cfe71bdc0eee620df0657f72d"
+        },
+        {
+          "value": 0.01839712790469216,
+          "lineage": {
+            "name": "yoy_growth",
+            "formula": "(v_t - v_{t-1}) / v_{t-1}",
+            "input_columns": [
+              "value"
+            ],
+            "units": "ratio",
+            "source_observation_ids": [
+              "9f37e3c43818935cfe71bdc0eee620df0657f72d",
+              "5a39e1ce64e560bc4563f589c4d655cedbca20f8"
+            ],
+            "source_periods": [
+              "2024",
+              "2025"
+            ]
+          },
+          "entity": "Nordre Aker",
+          "period": "2025",
+          "measure": "Personer (antall)",
+          "observation_id": "5a39e1ce64e560bc4563f589c4d655cedbca20f8"
+        },
+        {
+          "value": null,
+          "lineage": {
+            "name": "yoy_growth",
+            "formula": "(v_t - v_{t-1}) / v_{t-1}",
+            "input_columns": [
+              "value"
+            ],
+            "units": "ratio",
+            "source_observation_ids": [
+              "edeea6037c02b9cd1e3e49835f98e0edb622c9cd"
+            ],
+            "source_periods": [
+              "2024"
+            ],
+            "note": "undefined: no prior period"
+          },
+          "entity": "Nordstrand",
+          "period": "2024",
+          "measure": "Personer (antall)",
+          "observation_id": "edeea6037c02b9cd1e3e49835f98e0edb622c9cd"
+        },
+        {
+          "value": 0.007342893063425833,
+          "lineage": {
+            "name": "yoy_growth",
+            "formula": "(v_t - v_{t-1}) / v_{t-1}",
+            "input_columns": [
+              "value"
+            ],
+            "units": "ratio",
+            "source_observation_ids": [
+              "edeea6037c02b9cd1e3e49835f98e0edb622c9cd",
+              "10c4d9820c9200967a9e484488a5c72b8bed045c"
+            ],
+            "source_periods": [
+              "2024",
+              "2025"
+            ]
+          },
+          "entity": "Nordstrand",
+          "period": "2025",
+          "measure": "Personer (antall)",
+          "observation_id": "10c4d9820c9200967a9e484488a5c72b8bed045c"
+        },
+        {
+          "value": null,
+          "lineage": {
+            "name": "yoy_growth",
+            "formula": "(v_t - v_{t-1}) / v_{t-1}",
+            "input_columns": [
+              "value"
+            ],
+            "units": "ratio",
+            "source_observation_ids": [
+              "ea05cd9ff8e4f3639d956e44213e163c5f511c98"
+            ],
+            "source_periods": [
+              "2024"
+            ],
+            "note": "undefined: no prior period"
+          },
+          "entity": "Sagene",
+          "period": "2024",
+          "measure": "Personer (antall)",
+          "observation_id": "ea05cd9ff8e4f3639d956e44213e163c5f511c98"
+        },
+        {
+          "value": 0.010962113763310391,
+          "lineage": {
+            "name": "yoy_growth",
+            "formula": "(v_t - v_{t-1}) / v_{t-1}",
+            "input_columns": [
+              "value"
+            ],
+            "units": "ratio",
+            "source_observation_ids": [
+              "ea05cd9ff8e4f3639d956e44213e163c5f511c98",
+              "50b60d43bb4d7bc8993c37dd7bd57613dd0fa9ef"
+            ],
+            "source_periods": [
+              "2024",
+              "2025"
+            ]
+          },
+          "entity": "Sagene",
+          "period": "2025",
+          "measure": "Personer (antall)",
+          "observation_id": "50b60d43bb4d7bc8993c37dd7bd57613dd0fa9ef"
+        },
+        {
+          "value": null,
+          "lineage": {
+            "name": "yoy_growth",
+            "formula": "(v_t - v_{t-1}) / v_{t-1}",
+            "input_columns": [
+              "value"
+            ],
+            "units": "ratio",
+            "source_observation_ids": [
+              "5c9cfcab07c85672d2e9b55f180a544eccd51e8e"
+            ],
+            "source_periods": [
+              "2024"
+            ],
+            "note": "undefined: no prior period"
+          },
+          "entity": "St. Hanshaugen",
+          "period": "2024",
+          "measure": "Personer (antall)",
+          "observation_id": "5c9cfcab07c85672d2e9b55f180a544eccd51e8e"
+        },
+        {
+          "value": 0.0004110052705381751,
+          "lineage": {
+            "name": "yoy_growth",
+            "formula": "(v_t - v_{t-1}) / v_{t-1}",
+            "input_columns": [
+              "value"
+            ],
+            "units": "ratio",
+            "source_observation_ids": [
+              "5c9cfcab07c85672d2e9b55f180a544eccd51e8e",
+              "fef6d5530e43f532166c351fb6c4bf708c2deb20"
+            ],
+            "source_periods": [
+              "2024",
+              "2025"
+            ]
+          },
+          "entity": "St. Hanshaugen",
+          "period": "2025",
+          "measure": "Personer (antall)",
+          "observation_id": "fef6d5530e43f532166c351fb6c4bf708c2deb20"
+        },
+        {
+          "value": null,
+          "lineage": {
+            "name": "yoy_growth",
+            "formula": "(v_t - v_{t-1}) / v_{t-1}",
+            "input_columns": [
+              "value"
+            ],
+            "units": "ratio",
+            "source_observation_ids": [
+              "797a32746d5aa915ffb5544921118a1eb102df20"
+            ],
+            "source_periods": [
+              "2024"
+            ],
+            "note": "undefined: no prior period"
+          },
+          "entity": "Stovner",
+          "period": "2024",
+          "measure": "Personer (antall)",
+          "observation_id": "797a32746d5aa915ffb5544921118a1eb102df20"
+        },
+        {
+          "value": 0.003817566590508141,
+          "lineage": {
+            "name": "yoy_growth",
+            "formula": "(v_t - v_{t-1}) / v_{t-1}",
+            "input_columns": [
+              "value"
+            ],
+            "units": "ratio",
+            "source_observation_ids": [
+              "797a32746d5aa915ffb5544921118a1eb102df20",
+              "14b0b07a2550b1f5d96fc424665461dea08caafb"
+            ],
+            "source_periods": [
+              "2024",
+              "2025"
+            ]
+          },
+          "entity": "Stovner",
+          "period": "2025",
+          "measure": "Personer (antall)",
+          "observation_id": "14b0b07a2550b1f5d96fc424665461dea08caafb"
+        },
+        {
+          "value": null,
+          "lineage": {
+            "name": "yoy_growth",
+            "formula": "(v_t - v_{t-1}) / v_{t-1}",
+            "input_columns": [
+              "value"
+            ],
+            "units": "ratio",
+            "source_observation_ids": [
+              "e2482823b926e3e3eb92c8fc889ad444cd8eb42f"
+            ],
+            "source_periods": [
+              "2024"
+            ],
+            "note": "undefined: no prior period"
+          },
+          "entity": "Søndre Nordstrand",
+          "period": "2024",
+          "measure": "Personer (antall)",
+          "observation_id": "e2482823b926e3e3eb92c8fc889ad444cd8eb42f"
+        },
+        {
+          "value": 0.00043204228931584835,
+          "lineage": {
+            "name": "yoy_growth",
+            "formula": "(v_t - v_{t-1}) / v_{t-1}",
+            "input_columns": [
+              "value"
+            ],
+            "units": "ratio",
+            "source_observation_ids": [
+              "e2482823b926e3e3eb92c8fc889ad444cd8eb42f",
+              "9ae5d16b20dab9d4a43cb8a7782d867c0498f6b5"
+            ],
+            "source_periods": [
+              "2024",
+              "2025"
+            ]
+          },
+          "entity": "Søndre Nordstrand",
+          "period": "2025",
+          "measure": "Personer (antall)",
+          "observation_id": "9ae5d16b20dab9d4a43cb8a7782d867c0498f6b5"
+        },
+        {
+          "value": null,
+          "lineage": {
+            "name": "yoy_growth",
+            "formula": "(v_t - v_{t-1}) / v_{t-1}",
+            "input_columns": [
+              "value"
+            ],
+            "units": "ratio",
+            "source_observation_ids": [
+              "cffb98e2d9ebfdb3e7deae5e5a78ed9611f44158"
+            ],
+            "source_periods": [
+              "2024"
+            ],
+            "note": "undefined: no prior period"
+          },
+          "entity": "Ullern",
+          "period": "2024",
+          "measure": "Personer (antall)",
+          "observation_id": "cffb98e2d9ebfdb3e7deae5e5a78ed9611f44158"
+        },
+        {
+          "value": 0.0038409779073679488,
+          "lineage": {
+            "name": "yoy_growth",
+            "formula": "(v_t - v_{t-1}) / v_{t-1}",
+            "input_columns": [
+              "value"
+            ],
+            "units": "ratio",
+            "source_observation_ids": [
+              "cffb98e2d9ebfdb3e7deae5e5a78ed9611f44158",
+              "9b6579e1a14cbfafb6ddba0b7e2549089c148d00"
+            ],
+            "source_periods": [
+              "2024",
+              "2025"
+            ]
+          },
+          "entity": "Ullern",
+          "period": "2025",
+          "measure": "Personer (antall)",
+          "observation_id": "9b6579e1a14cbfafb6ddba0b7e2549089c148d00"
+        },
+        {
+          "value": null,
+          "lineage": {
+            "name": "yoy_growth",
+            "formula": "(v_t - v_{t-1}) / v_{t-1}",
+            "input_columns": [
+              "value"
+            ],
+            "units": "ratio",
+            "source_observation_ids": [
+              "18df28559ef0299f19eec37f1881fec809e19aeb"
+            ],
+            "source_periods": [
+              "2024"
+            ],
+            "note": "undefined: no prior period"
+          },
+          "entity": "Vestre Aker",
+          "period": "2024",
+          "measure": "Personer (antall)",
+          "observation_id": "18df28559ef0299f19eec37f1881fec809e19aeb"
+        },
+        {
+          "value": 0.006457460065707488,
+          "lineage": {
+            "name": "yoy_growth",
+            "formula": "(v_t - v_{t-1}) / v_{t-1}",
+            "input_columns": [
+              "value"
+            ],
+            "units": "ratio",
+            "source_observation_ids": [
+              "18df28559ef0299f19eec37f1881fec809e19aeb",
+              "4823d879e973688e11539567b47d80352746a843"
+            ],
+            "source_periods": [
+              "2024",
+              "2025"
+            ]
+          },
+          "entity": "Vestre Aker",
+          "period": "2025",
+          "measure": "Personer (antall)",
+          "observation_id": "4823d879e973688e11539567b47d80352746a843"
+        },
+        {
+          "value": null,
+          "lineage": {
+            "name": "yoy_growth",
+            "formula": "(v_t - v_{t-1}) / v_{t-1}",
+            "input_columns": [
+              "value"
+            ],
+            "units": "ratio",
+            "source_observation_ids": [
+              "d7a7c8cdf631d1bb98161e63c2fed0d42990ad48"
+            ],
+            "source_periods": [
+              "2024"
+            ],
+            "note": "undefined: no prior period"
+          },
+          "entity": "Østensjø",
+          "period": "2024",
+          "measure": "Personer (antall)",
+          "observation_id": "d7a7c8cdf631d1bb98161e63c2fed0d42990ad48"
+        },
+        {
+          "value": 0.002680246582685607,
+          "lineage": {
+            "name": "yoy_growth",
+            "formula": "(v_t - v_{t-1}) / v_{t-1}",
+            "input_columns": [
+              "value"
+            ],
+            "units": "ratio",
+            "source_observation_ids": [
+              "d7a7c8cdf631d1bb98161e63c2fed0d42990ad48",
+              "ecdbb0fa3912ec5118901a0508b5192637bae46a"
+            ],
+            "source_periods": [
+              "2024",
+              "2025"
+            ]
+          },
+          "entity": "Østensjø",
+          "period": "2025",
+          "measure": "Personer (antall)",
+          "observation_id": "ecdbb0fa3912ec5118901a0508b5192637bae46a"
+        }
+      ]
+    },
+    {
+      "name": "index",
+      "formula": "100 * v_t / v_base",
+      "input_columns": [
+        "value"
+      ],
+      "units": "index (base = 100)",
+      "rows": [
+        {
+          "value": 100.0,
+          "lineage": {
+            "name": "index",
+            "formula": "100 * v_t / v_base",
+            "input_columns": [
+              "value"
+            ],
+            "units": "index (base = 100)",
+            "source_observation_ids": [
+              "10f07a4dbc22de2437fd7b0b24b769ec4e9a264c"
+            ],
+            "source_periods": [
+              "2024"
+            ],
+            "base_period": "2024",
+            "base_observation_id": "10f07a4dbc22de2437fd7b0b24b769ec4e9a264c"
+          },
+          "entity": "Alna",
+          "period": "2024",
+          "measure": "Personer (antall)",
+          "observation_id": "10f07a4dbc22de2437fd7b0b24b769ec4e9a264c"
+        },
+        {
+          "value": 100.22692292513517,
+          "lineage": {
+            "name": "index",
+            "formula": "100 * v_t / v_base",
+            "input_columns": [
+              "value"
+            ],
+            "units": "index (base = 100)",
+            "source_observation_ids": [
+              "10f07a4dbc22de2437fd7b0b24b769ec4e9a264c",
+              "afec4b40b1c24a5fbede8adad3344298cde9100d"
+            ],
+            "source_periods": [
+              "2024",
+              "2025"
+            ],
+            "base_period": "2024",
+            "base_observation_id": "10f07a4dbc22de2437fd7b0b24b769ec4e9a264c"
+          },
+          "entity": "Alna",
+          "period": "2025",
+          "measure": "Personer (antall)",
+          "observation_id": "afec4b40b1c24a5fbede8adad3344298cde9100d"
+        },
+        {
+          "value": 100.0,
+          "lineage": {
+            "name": "index",
+            "formula": "100 * v_t / v_base",
+            "input_columns": [
+              "value"
+            ],
+            "units": "index (base = 100)",
+            "source_observation_ids": [
+              "a05b28be69a33d028afff87e37b02a0d762e203e"
+            ],
+            "source_periods": [
+              "2024"
+            ],
+            "base_period": "2024",
+            "base_observation_id": "a05b28be69a33d028afff87e37b02a0d762e203e"
+          },
+          "entity": "Bjerke",
+          "period": "2024",
+          "measure": "Personer (antall)",
+          "observation_id": "a05b28be69a33d028afff87e37b02a0d762e203e"
+        },
+        {
+          "value": 101.30893584864923,
+          "lineage": {
+            "name": "index",
+            "formula": "100 * v_t / v_base",
+            "input_columns": [
+              "value"
+            ],
+            "units": "index (base = 100)",
+            "source_observation_ids": [
+              "a05b28be69a33d028afff87e37b02a0d762e203e",
+              "e0aca7c34b04362416eeb87015b04dc2ea22e3ba"
+            ],
+            "source_periods": [
+              "2024",
+              "2025"
+            ],
+            "base_period": "2024",
+            "base_observation_id": "a05b28be69a33d028afff87e37b02a0d762e203e"
+          },
+          "entity": "Bjerke",
+          "period": "2025",
+          "measure": "Personer (antall)",
+          "observation_id": "e0aca7c34b04362416eeb87015b04dc2ea22e3ba"
+        },
+        {
+          "value": 100.0,
+          "lineage": {
+            "name": "index",
+            "formula": "100 * v_t / v_base",
+            "input_columns": [
+              "value"
+            ],
+            "units": "index (base = 100)",
+            "source_observation_ids": [
+              "706e9d6da550a257fa4248209660e9d03f91a25e"
+            ],
+            "source_periods": [
+              "2024"
+            ],
+            "base_period": "2024",
+            "base_observation_id": "706e9d6da550a257fa4248209660e9d03f91a25e"
+          },
+          "entity": "Frogner",
+          "period": "2024",
+          "measure": "Personer (antall)",
+          "observation_id": "706e9d6da550a257fa4248209660e9d03f91a25e"
+        },
+        {
+          "value": 99.64977780714652,
+          "lineage": {
+            "name": "index",
+            "formula": "100 * v_t / v_base",
+            "input_columns": [
+              "value"
+            ],
+            "units": "index (base = 100)",
+            "source_observation_ids": [
+              "706e9d6da550a257fa4248209660e9d03f91a25e",
+              "31dbcff4fa7e75c15f039dd7336a5cdc99289d84"
+            ],
+            "source_periods": [
+              "2024",
+              "2025"
+            ],
+            "base_period": "2024",
+            "base_observation_id": "706e9d6da550a257fa4248209660e9d03f91a25e"
+          },
+          "entity": "Frogner",
+          "period": "2025",
+          "measure": "Personer (antall)",
+          "observation_id": "31dbcff4fa7e75c15f039dd7336a5cdc99289d84"
+        },
+        {
+          "value": 100.0,
+          "lineage": {
+            "name": "index",
+            "formula": "100 * v_t / v_base",
+            "input_columns": [
+              "value"
+            ],
+            "units": "index (base = 100)",
+            "source_observation_ids": [
+              "226b2d3e8502fad1517b811207b382220a851038"
+            ],
+            "source_periods": [
+              "2024"
+            ],
+            "base_period": "2024",
+            "base_observation_id": "226b2d3e8502fad1517b811207b382220a851038"
+          },
+          "entity": "Gamle Oslo",
+          "period": "2024",
+          "measure": "Personer (antall)",
+          "observation_id": "226b2d3e8502fad1517b811207b382220a851038"
+        },
+        {
+          "value": 100.56696719025932,
+          "lineage": {
+            "name": "index",
+            "formula": "100 * v_t / v_base",
+            "input_columns": [
+              "value"
+            ],
+            "units": "index (base = 100)",
+            "source_observation_ids": [
+              "226b2d3e8502fad1517b811207b382220a851038",
+              "78918eef204e97fcce3ba8cba8d526c690acea04"
+            ],
+            "source_periods": [
+              "2024",
+              "2025"
+            ],
+            "base_period": "2024",
+            "base_observation_id": "226b2d3e8502fad1517b811207b382220a851038"
+          },
+          "entity": "Gamle Oslo",
+          "period": "2025",
+          "measure": "Personer (antall)",
+          "observation_id": "78918eef204e97fcce3ba8cba8d526c690acea04"
+        },
+        {
+          "value": 100.0,
+          "lineage": {
+            "name": "index",
+            "formula": "100 * v_t / v_base",
+            "input_columns": [
+              "value"
+            ],
+            "units": "index (base = 100)",
+            "source_observation_ids": [
+              "d72f761f630a9bed7f33038b5d19d434dc63bb85"
+            ],
+            "source_periods": [
+              "2024"
+            ],
+            "base_period": "2024",
+            "base_observation_id": "d72f761f630a9bed7f33038b5d19d434dc63bb85"
+          },
+          "entity": "Grorud",
+          "period": "2024",
+          "measure": "Personer (antall)",
+          "observation_id": "d72f761f630a9bed7f33038b5d19d434dc63bb85"
+        },
+        {
+          "value": 100.47814691506694,
+          "lineage": {
+            "name": "index",
+            "formula": "100 * v_t / v_base",
+            "input_columns": [
+              "value"
+            ],
+            "units": "index (base = 100)",
+            "source_observation_ids": [
+              "d72f761f630a9bed7f33038b5d19d434dc63bb85",
+              "df4b6278a13d8a79449323fe7d3547e99dfe0a06"
+            ],
+            "source_periods": [
+              "2024",
+              "2025"
+            ],
+            "base_period": "2024",
+            "base_observation_id": "d72f761f630a9bed7f33038b5d19d434dc63bb85"
+          },
+          "entity": "Grorud",
+          "period": "2025",
+          "measure": "Personer (antall)",
+          "observation_id": "df4b6278a13d8a79449323fe7d3547e99dfe0a06"
+        },
+        {
+          "value": 100.0,
+          "lineage": {
+            "name": "index",
+            "formula": "100 * v_t / v_base",
+            "input_columns": [
+              "value"
+            ],
+            "units": "index (base = 100)",
+            "source_observation_ids": [
+              "468bd5c39c4855be5a6350dfe67af85bd36a1f1c"
+            ],
+            "source_periods": [
+              "2024"
+            ],
+            "base_period": "2024",
+            "base_observation_id": "468bd5c39c4855be5a6350dfe67af85bd36a1f1c"
+          },
+          "entity": "Grünerløkka",
+          "period": "2024",
+          "measure": "Personer (antall)",
+          "observation_id": "468bd5c39c4855be5a6350dfe67af85bd36a1f1c"
+        },
+        {
+          "value": 100.95626769471718,
+          "lineage": {
+            "name": "index",
+            "formula": "100 * v_t / v_base",
+            "input_columns": [
+              "value"
+            ],
+            "units": "index (base = 100)",
+            "source_observation_ids": [
+              "468bd5c39c4855be5a6350dfe67af85bd36a1f1c",
+              "248b6b3ff0b8229eb04abcad1053485b433a5982"
+            ],
+            "source_periods": [
+              "2024",
+              "2025"
+            ],
+            "base_period": "2024",
+            "base_observation_id": "468bd5c39c4855be5a6350dfe67af85bd36a1f1c"
+          },
+          "entity": "Grünerløkka",
+          "period": "2025",
+          "measure": "Personer (antall)",
+          "observation_id": "248b6b3ff0b8229eb04abcad1053485b433a5982"
+        },
+        {
+          "value": 100.0,
+          "lineage": {
+            "name": "index",
+            "formula": "100 * v_t / v_base",
+            "input_columns": [
+              "value"
+            ],
+            "units": "index (base = 100)",
+            "source_observation_ids": [
+              "9f37e3c43818935cfe71bdc0eee620df0657f72d"
+            ],
+            "source_periods": [
+              "2024"
+            ],
+            "base_period": "2024",
+            "base_observation_id": "9f37e3c43818935cfe71bdc0eee620df0657f72d"
+          },
+          "entity": "Nordre Aker",
+          "period": "2024",
+          "measure": "Personer (antall)",
+          "observation_id": "9f37e3c43818935cfe71bdc0eee620df0657f72d"
+        },
+        {
+          "value": 101.83971279046922,
+          "lineage": {
+            "name": "index",
+            "formula": "100 * v_t / v_base",
+            "input_columns": [
+              "value"
+            ],
+            "units": "index (base = 100)",
+            "source_observation_ids": [
+              "9f37e3c43818935cfe71bdc0eee620df0657f72d",
+              "5a39e1ce64e560bc4563f589c4d655cedbca20f8"
+            ],
+            "source_periods": [
+              "2024",
+              "2025"
+            ],
+            "base_period": "2024",
+            "base_observation_id": "9f37e3c43818935cfe71bdc0eee620df0657f72d"
+          },
+          "entity": "Nordre Aker",
+          "period": "2025",
+          "measure": "Personer (antall)",
+          "observation_id": "5a39e1ce64e560bc4563f589c4d655cedbca20f8"
+        },
+        {
+          "value": 100.0,
+          "lineage": {
+            "name": "index",
+            "formula": "100 * v_t / v_base",
+            "input_columns": [
+              "value"
+            ],
+            "units": "index (base = 100)",
+            "source_observation_ids": [
+              "edeea6037c02b9cd1e3e49835f98e0edb622c9cd"
+            ],
+            "source_periods": [
+              "2024"
+            ],
+            "base_period": "2024",
+            "base_observation_id": "edeea6037c02b9cd1e3e49835f98e0edb622c9cd"
+          },
+          "entity": "Nordstrand",
+          "period": "2024",
+          "measure": "Personer (antall)",
+          "observation_id": "edeea6037c02b9cd1e3e49835f98e0edb622c9cd"
+        },
+        {
+          "value": 100.73428930634259,
+          "lineage": {
+            "name": "index",
+            "formula": "100 * v_t / v_base",
+            "input_columns": [
+              "value"
+            ],
+            "units": "index (base = 100)",
+            "source_observation_ids": [
+              "edeea6037c02b9cd1e3e49835f98e0edb622c9cd",
+              "10c4d9820c9200967a9e484488a5c72b8bed045c"
+            ],
+            "source_periods": [
+              "2024",
+              "2025"
+            ],
+            "base_period": "2024",
+            "base_observation_id": "edeea6037c02b9cd1e3e49835f98e0edb622c9cd"
+          },
+          "entity": "Nordstrand",
+          "period": "2025",
+          "measure": "Personer (antall)",
+          "observation_id": "10c4d9820c9200967a9e484488a5c72b8bed045c"
+        },
+        {
+          "value": 100.0,
+          "lineage": {
+            "name": "index",
+            "formula": "100 * v_t / v_base",
+            "input_columns": [
+              "value"
+            ],
+            "units": "index (base = 100)",
+            "source_observation_ids": [
+              "ea05cd9ff8e4f3639d956e44213e163c5f511c98"
+            ],
+            "source_periods": [
+              "2024"
+            ],
+            "base_period": "2024",
+            "base_observation_id": "ea05cd9ff8e4f3639d956e44213e163c5f511c98"
+          },
+          "entity": "Sagene",
+          "period": "2024",
+          "measure": "Personer (antall)",
+          "observation_id": "ea05cd9ff8e4f3639d956e44213e163c5f511c98"
+        },
+        {
+          "value": 101.09621137633104,
+          "lineage": {
+            "name": "index",
+            "formula": "100 * v_t / v_base",
+            "input_columns": [
+              "value"
+            ],
+            "units": "index (base = 100)",
+            "source_observation_ids": [
+              "ea05cd9ff8e4f3639d956e44213e163c5f511c98",
+              "50b60d43bb4d7bc8993c37dd7bd57613dd0fa9ef"
+            ],
+            "source_periods": [
+              "2024",
+              "2025"
+            ],
+            "base_period": "2024",
+            "base_observation_id": "ea05cd9ff8e4f3639d956e44213e163c5f511c98"
+          },
+          "entity": "Sagene",
+          "period": "2025",
+          "measure": "Personer (antall)",
+          "observation_id": "50b60d43bb4d7bc8993c37dd7bd57613dd0fa9ef"
+        },
+        {
+          "value": 100.0,
+          "lineage": {
+            "name": "index",
+            "formula": "100 * v_t / v_base",
+            "input_columns": [
+              "value"
+            ],
+            "units": "index (base = 100)",
+            "source_observation_ids": [
+              "5c9cfcab07c85672d2e9b55f180a544eccd51e8e"
+            ],
+            "source_periods": [
+              "2024"
+            ],
+            "base_period": "2024",
+            "base_observation_id": "5c9cfcab07c85672d2e9b55f180a544eccd51e8e"
+          },
+          "entity": "St. Hanshaugen",
+          "period": "2024",
+          "measure": "Personer (antall)",
+          "observation_id": "5c9cfcab07c85672d2e9b55f180a544eccd51e8e"
+        },
+        {
+          "value": 100.04110052705381,
+          "lineage": {
+            "name": "index",
+            "formula": "100 * v_t / v_base",
+            "input_columns": [
+              "value"
+            ],
+            "units": "index (base = 100)",
+            "source_observation_ids": [
+              "5c9cfcab07c85672d2e9b55f180a544eccd51e8e",
+              "fef6d5530e43f532166c351fb6c4bf708c2deb20"
+            ],
+            "source_periods": [
+              "2024",
+              "2025"
+            ],
+            "base_period": "2024",
+            "base_observation_id": "5c9cfcab07c85672d2e9b55f180a544eccd51e8e"
+          },
+          "entity": "St. Hanshaugen",
+          "period": "2025",
+          "measure": "Personer (antall)",
+          "observation_id": "fef6d5530e43f532166c351fb6c4bf708c2deb20"
+        },
+        {
+          "value": 100.0,
+          "lineage": {
+            "name": "index",
+            "formula": "100 * v_t / v_base",
+            "input_columns": [
+              "value"
+            ],
+            "units": "index (base = 100)",
+            "source_observation_ids": [
+              "797a32746d5aa915ffb5544921118a1eb102df20"
+            ],
+            "source_periods": [
+              "2024"
+            ],
+            "base_period": "2024",
+            "base_observation_id": "797a32746d5aa915ffb5544921118a1eb102df20"
+          },
+          "entity": "Stovner",
+          "period": "2024",
+          "measure": "Personer (antall)",
+          "observation_id": "797a32746d5aa915ffb5544921118a1eb102df20"
+        },
+        {
+          "value": 100.38175665905081,
+          "lineage": {
+            "name": "index",
+            "formula": "100 * v_t / v_base",
+            "input_columns": [
+              "value"
+            ],
+            "units": "index (base = 100)",
+            "source_observation_ids": [
+              "797a32746d5aa915ffb5544921118a1eb102df20",
+              "14b0b07a2550b1f5d96fc424665461dea08caafb"
+            ],
+            "source_periods": [
+              "2024",
+              "2025"
+            ],
+            "base_period": "2024",
+            "base_observation_id": "797a32746d5aa915ffb5544921118a1eb102df20"
+          },
+          "entity": "Stovner",
+          "period": "2025",
+          "measure": "Personer (antall)",
+          "observation_id": "14b0b07a2550b1f5d96fc424665461dea08caafb"
+        },
+        {
+          "value": 100.0,
+          "lineage": {
+            "name": "index",
+            "formula": "100 * v_t / v_base",
+            "input_columns": [
+              "value"
+            ],
+            "units": "index (base = 100)",
+            "source_observation_ids": [
+              "e2482823b926e3e3eb92c8fc889ad444cd8eb42f"
+            ],
+            "source_periods": [
+              "2024"
+            ],
+            "base_period": "2024",
+            "base_observation_id": "e2482823b926e3e3eb92c8fc889ad444cd8eb42f"
+          },
+          "entity": "Søndre Nordstrand",
+          "period": "2024",
+          "measure": "Personer (antall)",
+          "observation_id": "e2482823b926e3e3eb92c8fc889ad444cd8eb42f"
+        },
+        {
+          "value": 100.04320422893159,
+          "lineage": {
+            "name": "index",
+            "formula": "100 * v_t / v_base",
+            "input_columns": [
+              "value"
+            ],
+            "units": "index (base = 100)",
+            "source_observation_ids": [
+              "e2482823b926e3e3eb92c8fc889ad444cd8eb42f",
+              "9ae5d16b20dab9d4a43cb8a7782d867c0498f6b5"
+            ],
+            "source_periods": [
+              "2024",
+              "2025"
+            ],
+            "base_period": "2024",
+            "base_observation_id": "e2482823b926e3e3eb92c8fc889ad444cd8eb42f"
+          },
+          "entity": "Søndre Nordstrand",
+          "period": "2025",
+          "measure": "Personer (antall)",
+          "observation_id": "9ae5d16b20dab9d4a43cb8a7782d867c0498f6b5"
+        },
+        {
+          "value": 100.0,
+          "lineage": {
+            "name": "index",
+            "formula": "100 * v_t / v_base",
+            "input_columns": [
+              "value"
+            ],
+            "units": "index (base = 100)",
+            "source_observation_ids": [
+              "cffb98e2d9ebfdb3e7deae5e5a78ed9611f44158"
+            ],
+            "source_periods": [
+              "2024"
+            ],
+            "base_period": "2024",
+            "base_observation_id": "cffb98e2d9ebfdb3e7deae5e5a78ed9611f44158"
+          },
+          "entity": "Ullern",
+          "period": "2024",
+          "measure": "Personer (antall)",
+          "observation_id": "cffb98e2d9ebfdb3e7deae5e5a78ed9611f44158"
+        },
+        {
+          "value": 100.38409779073679,
+          "lineage": {
+            "name": "index",
+            "formula": "100 * v_t / v_base",
+            "input_columns": [
+              "value"
+            ],
+            "units": "index (base = 100)",
+            "source_observation_ids": [
+              "cffb98e2d9ebfdb3e7deae5e5a78ed9611f44158",
+              "9b6579e1a14cbfafb6ddba0b7e2549089c148d00"
+            ],
+            "source_periods": [
+              "2024",
+              "2025"
+            ],
+            "base_period": "2024",
+            "base_observation_id": "cffb98e2d9ebfdb3e7deae5e5a78ed9611f44158"
+          },
+          "entity": "Ullern",
+          "period": "2025",
+          "measure": "Personer (antall)",
+          "observation_id": "9b6579e1a14cbfafb6ddba0b7e2549089c148d00"
+        },
+        {
+          "value": 100.0,
+          "lineage": {
+            "name": "index",
+            "formula": "100 * v_t / v_base",
+            "input_columns": [
+              "value"
+            ],
+            "units": "index (base = 100)",
+            "source_observation_ids": [
+              "18df28559ef0299f19eec37f1881fec809e19aeb"
+            ],
+            "source_periods": [
+              "2024"
+            ],
+            "base_period": "2024",
+            "base_observation_id": "18df28559ef0299f19eec37f1881fec809e19aeb"
+          },
+          "entity": "Vestre Aker",
+          "period": "2024",
+          "measure": "Personer (antall)",
+          "observation_id": "18df28559ef0299f19eec37f1881fec809e19aeb"
+        },
+        {
+          "value": 100.64574600657075,
+          "lineage": {
+            "name": "index",
+            "formula": "100 * v_t / v_base",
+            "input_columns": [
+              "value"
+            ],
+            "units": "index (base = 100)",
+            "source_observation_ids": [
+              "18df28559ef0299f19eec37f1881fec809e19aeb",
+              "4823d879e973688e11539567b47d80352746a843"
+            ],
+            "source_periods": [
+              "2024",
+              "2025"
+            ],
+            "base_period": "2024",
+            "base_observation_id": "18df28559ef0299f19eec37f1881fec809e19aeb"
+          },
+          "entity": "Vestre Aker",
+          "period": "2025",
+          "measure": "Personer (antall)",
+          "observation_id": "4823d879e973688e11539567b47d80352746a843"
+        },
+        {
+          "value": 100.0,
+          "lineage": {
+            "name": "index",
+            "formula": "100 * v_t / v_base",
+            "input_columns": [
+              "value"
+            ],
+            "units": "index (base = 100)",
+            "source_observation_ids": [
+              "d7a7c8cdf631d1bb98161e63c2fed0d42990ad48"
+            ],
+            "source_periods": [
+              "2024"
+            ],
+            "base_period": "2024",
+            "base_observation_id": "d7a7c8cdf631d1bb98161e63c2fed0d42990ad48"
+          },
+          "entity": "Østensjø",
+          "period": "2024",
+          "measure": "Personer (antall)",
+          "observation_id": "d7a7c8cdf631d1bb98161e63c2fed0d42990ad48"
+        },
+        {
+          "value": 100.26802465826856,
+          "lineage": {
+            "name": "index",
+            "formula": "100 * v_t / v_base",
+            "input_columns": [
+              "value"
+            ],
+            "units": "index (base = 100)",
+            "source_observation_ids": [
+              "d7a7c8cdf631d1bb98161e63c2fed0d42990ad48",
+              "ecdbb0fa3912ec5118901a0508b5192637bae46a"
+            ],
+            "source_periods": [
+              "2024",
+              "2025"
+            ],
+            "base_period": "2024",
+            "base_observation_id": "d7a7c8cdf631d1bb98161e63c2fed0d42990ad48"
+          },
+          "entity": "Østensjø",
+          "period": "2025",
+          "measure": "Personer (antall)",
+          "observation_id": "ecdbb0fa3912ec5118901a0508b5192637bae46a"
+        }
+      ]
+    }
+  ]
+}
