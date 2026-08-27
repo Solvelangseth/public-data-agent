@@ -141,6 +141,17 @@ def test_publisher_tokens_can_satisfy_a_requirement(tmp_path: Path) -> None:
     registry.close()
 
 
+def test_single_token_publisher_is_ranked(tmp_path: Path) -> None:
+    registry = _registry(tmp_path)
+    hits = search(registry, "sentralbyrå")
+    assert {hit.dataset_id for hit in hits} == {STRANDSONE_ID, HELSEDATA_ID}
+    assert all(
+        any(match.field == "publisher_name" and match.token == "sentralbyrå" for match in hit.matches)
+        for hit in hits
+    )
+    registry.close()
+
+
 def test_coverage_is_complete_when_and_hits_cover_every_requirement(tmp_path: Path) -> None:
     registry = _registry(tmp_path)
     report = search_report(registry, "statistisk sentralbyrå")
