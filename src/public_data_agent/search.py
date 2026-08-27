@@ -43,7 +43,7 @@ QUERY_COMPOUND_SPLITS = {
     "kraftsituasjonen": ("kraft", "situasjonen"),
 }
 PUBLISHER_WEIGHT = 5
-DISTRIBUTION_WEIGHT = 5
+DISTRIBUTION_WEIGHT = 2
 VARIABLES_UNKNOWN_REASON = (
     "no variable or column list is stored in the registry or harvested payload"
 )
@@ -305,6 +305,7 @@ def search(
     *,
     limit: int = 10,
     decompose_query: bool = True,
+    match_distribution: bool = False,
 ) -> list[SearchHit]:
     if limit <= 0:
         return []
@@ -314,7 +315,12 @@ def search(
     query_tokens = tokenize(query)
     if not query_tokens:
         return []
-    return _rank_rows(registry, query_tokens, limit=limit)
+    return _rank_rows(
+        registry,
+        query_tokens,
+        limit=limit,
+        match_distribution=match_distribution,
+    )
 
 
 def search_report(
@@ -327,9 +333,9 @@ def search_report(
 ) -> SearchReport:
     """Search, then report which requirements the retrieved rows cover.
 
-    Coverage uses stored title, keyword, theme, description, and publisher_name.
-    If any requirement is missing, one follow-up search runs per missing
-    requirement and new hits are merged.
+    Coverage uses stored title, keyword, theme, description, publisher_name,
+    and distribution titles. If any requirement is missing, one follow-up
+    search runs per missing requirement and new hits are merged.
     """
 
     requirements = _coverage_requirements(query, decompose_query=decompose_query)
@@ -345,7 +351,13 @@ def search_report(
             if tokenize(text) == original_tokens:
                 continue
             queries.append(text)
-            for extra in search(registry, text, limit=limit, decompose_query=False):
+            for extra in search(
+                registry,
+                text,
+                limit=limit,
+                decompose_query=False,
+                match_distribution=True,
+            ):
                 if extra.dataset_id in seen:
                     continue
                 seen.add(extra.dataset_id)
@@ -432,7 +444,15 @@ def _hit_covers(registry: Registry, dataset_id: str, req: Requirement) -> bool:
             " ".join(titles_from_distributions(_json_list(row.get("distributions_json"))))
         ),
     }
-    return _requirement_matches(req.tokens, fields, row.get("publisher_name")) is not None
+    return (
+        _requirement_matches(
+            req.tokens,
+            fields,
+            row.get("publisher_name"),
+            allow_distribution=True,
+        )
+        is not None
+    )
 
 
 def _search_requirements(
@@ -495,6 +515,7 @@ def _rank_rows(
     query_tokens: list[str],
     *,
     limit: int,
+    match_distribution: bool = False,
 ) -> list[SearchHit]:
     query_text = " ".join(query_tokens)
     theme_hits: list[SearchHit] = []
@@ -512,7 +533,10 @@ def _rank_rows(
         if not matches:
             matches = (
                 _requirement_matches(
-                    tuple(query_tokens), fields, row.get("publisher_name")
+                    tuple(query_tokens),
+                    fields,
+                    row.get("publisher_name"),
+                    allow_distribution=match_distribution,
                 )
                 or []
             )
@@ -576,6 +600,8 @@ def _requirement_matches(
     tokens: tuple[str, ...],
     fields: dict[str, list[str]],
     publisher_name: str | None,
+    *,
+    allow_distribution: bool = False,
 ) -> list[FieldMatch] | None:
     matches = score_document(list(tokens), fields)
     matched = {match.token for match in matches}
@@ -591,6 +617,8 @@ def _requirement_matches(
             )
             for token in tokens
         ]
+    if not allow_distribution:
+        return None
     distribution_tokens = set(fields.get("distribution", []))
     if _requirement_satisfied(tokens, distribution_tokens):
         return [

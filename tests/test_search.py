@@ -204,6 +204,50 @@ def test_distribution_title_covers_typed_token_absent_from_dataset_fields(
     assert {match.token for match in kpr.matches} == {"fastlege"}
     assert any(match.field == "distribution" for match in kpr.matches)
     assert "distribution matched fastlege" in kpr.why
+    first_pass = search(registry, "fastlege")
+    assert first_pass == []
+    registry.close()
+
+
+def test_single_token_search_ignores_distribution_titles(tmp_path: Path) -> None:
+    payloads = [
+        {
+            "id": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+            "uri": "https://example.org/ruteinndelinger",
+            "type": "datasets",
+            "title": {"nb": "Ruteinndelinger"},
+            "description": {"nb": "kartblad"},
+            "publisher": {"name": "Geonorge"},
+            "harvest": {
+                "modified": "2026-01-01T00:00:00Z",
+                "firstHarvested": "2026-01-01T00:00:00Z",
+            },
+        },
+        {
+            "id": "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
+            "uri": "https://example.org/filnedlastning",
+            "type": "datasets",
+            "title": {"nb": "3029_Max_Flom_Klimafaktor_20"},
+            "description": {"nb": "flom"},
+            "distribution": [
+                {
+                    "title": {"nb": "Geonorge filnedlastning"},
+                    "accessURL": ["https://example.org/dl"],
+                }
+            ],
+            "harvest": {
+                "modified": "2026-01-01T00:00:00Z",
+                "firstHarvested": "2026-01-01T00:00:00Z",
+            },
+        },
+    ]
+    registry = Registry(tmp_path / "registry.sqlite")
+    harvest(registry, FixtureSource(payloads))
+    hits = search(registry, "Geonorge")
+    assert [hit.dataset_id for hit in hits] == [
+        "fixture:aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa"
+    ]
+    assert all(match.field == "publisher_name" for hit in hits for match in hit.matches)
     registry.close()
 
 
