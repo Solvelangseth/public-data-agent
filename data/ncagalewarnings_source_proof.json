@@ -229,7 +229,7 @@
     "Original harvested swagger metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
     "Spotwind is now on main as --source spotwind after PR 105. Textforecast is now on main as --source textforecast after PR 106. Icemap is now on main as --source icemap after PR 108. Radar stays --source radar. Sunrise stays --source sunrise. Oceanforecast stays --source oceanforecast. Tidalwater stays --source tidalwater. Airqualityforecast stays --source airquality. Nowcast stays --source nowcast. Metalerts stays --source met.",
     "Rebased onto origin/main after Icemap 108 merge 0f43e15. icemap and textforecast adapter files were not edited.",
-    "python3 -m pytest after rebase: pending count on this commit.",
+    "python3 -m pytest after rebase: 552 passed, 1 skipped.",
     "Not a numeric time series with two or more periods."
   ]
 }
