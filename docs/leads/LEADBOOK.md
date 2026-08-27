@@ -6,7 +6,7 @@ No email, call, or outbound post from this file. Contacts are only what the org 
 Product sold: registry of Norwegian public datasets (Data.norge first ingest, sources replaceable), natural-language search, first fetch of actual rows. Later analysis. LLM for intent and explanation. Deterministic retrieval. Provenance (source, publisher, license, access path) on every hit.
 Repo: https://github.com/Solvelangseth/public-data-agent
 
-Status 27 Aug 2026, 13:35 Europe/Oslo: 93 sourced leads. PR 55 merged (e19d881). Wave 11 add: Bømlo Kraftnett, Mellom, Rælingen, Kystnett, Fjellnett, Nesodden, Frogn. Nittedal / Ås / TNett skipped. Arendal held. No outreach.
+Status 27 Aug 2026, 13:40 Europe/Oslo: 94 sourced leads. PR 55 merged (e19d881). Wave 11 add: Bømlo Kraftnett, Mellom, Rælingen, Kystnett, Fjellnett, Area Nett, Nesodden, Frogn. Nittedal / Ås / TNett / Enebakk skipped. Arendal held. No outreach.
 
 How to read a lead: why they would pay is tied to a named programme, not "they use data." Service shape is always search → fetch → later analysis. If a field says none published, do not invent one.
 
@@ -2009,6 +2009,30 @@ Sources below were opened 2026-08-27 from official pages and the named press/pro
   - https://tk.elbits.no/
   - https://www.statnett.no/globalassets/for-aktorer-i-kraftsystemet/planer-og-analyser/omradeplaner/innlandet/omradeplan-innlandet-2025.pdf
 
+### Area Nett AS
+
+- **Why they would pay.** Two live NVE-melding/KU, tiltakshaver AREA NETT AS, utredningsprogram fastsatt 25.06.2025: **132 kV Adamselv–Kjøllefjord–Mehamn** (NVE id 14080 / 202307744) and **132 kV Skaidi–Smørfjord I–Honningsvåg** (NVE id 20436 / 202410617; joint Fortum Nordkraft Vind on wind stubs). Opened meldinger consume kommuneplan (Lebesby/Gamvik; Nordkapp H370_2 / Porsanger / Hammerfest), NVE Atlas / Skrednett / aktsomhetskart, Naturbase / Kilden / Askeladden, Statnett Adamselv / Skaidi. Those are external official layers they do not host. Tilko host + Elsmart on area.no is not the qualifier. PlanNett actor isManagedBy taken Barents — do not pad.
+- **Concrete use case.** Nettplan first-fetches NVE 14080 / 202307744 and 20436 / 202410617, Statnett Adamselv / Skaidi, and Lebesby / Gamvik / Nordkapp / Porsanger / Hammerfest kommuneplan so the 66→132 kV upgrade KU and the wind-stub files cite the same official list.
+- **How the service should look.**
+  - Search: data.norge first, then NVE 14080 / 20436, Statnett Adamselv / Skaidi, Atlas / Skrednett, municipal plan, SSB.
+  - Fetch: first official NVE melding / UP PDF plus kommuneplan / Atlas files. Not a replacement for Tilko or Elsmart.
+  - Later analysis: overlay on the Nordkinnhalvøya and Porsangerhalvøya 66→132 kV corridors.
+- **Public contact.**
+  - Role / unit: post / nett. Håvard Pedersen printed on NVE 202307744. Stein Isaksen printed on NVE 202410617. Do not use leftover `post@rksa.no` / 78 47 68 00 / www.nettinord.no (stale Enhetsregisteret; same mailbox on Infranord Fiber).
+  - Email: `post@area.no` (live DSO); `havard.pedersen@area.no` (NVE 202307744); `stein.isaksen@area.no` (NVE 202410617)
+  - Phone: 78 46 44 00 (live DSO); 48 23 40 01 (Pedersen, NVE 202307744); 482 86 592 (Isaksen, NVE 202410617)
+  - Form/URL: https://area.no/; https://www.nve.no/14080/A; https://www.nve.no/20436/A
+- **Key facts.** Org.nr 923 993 355. Storgata 5, 9750 Honningsvåg. Kommune 5620 Nordkapp. Historisk REPVÅG NETT AS then NETTINORD AS (to 13.02.2024). 73 ansatte (12.08.2026). NVE 14080 / 202307744 and 20436 / 202410617; UP fastsatt 25.06.2025.
+- **Sources** (opened 2026-08-27).
+  - https://area.no/
+  - https://www.nve.no/14080/A
+  - https://www.nve.no/konsesjon/konsesjonssaker/konsesjonssak?id=14080&type=A
+  - https://www.nve.no/20436/A
+  - https://www.nve.no/konsesjon/konsesjonssaker/konsesjonssak?id=20436&type=A
+  - https://plannett.nve.no/
+  - https://virksomhet.brreg.no/nb/oppslag/enheter/923993355
+  - https://data.brreg.no/enhetsregisteret/api/enheter/923993355
+
 ---
 
 ## 48. Fredrikstad kommune — Åpne data Hub + kart@
@@ -2818,6 +2842,7 @@ Keep these notes in the living book. They are not leads.
 - **Nittedal kommune** — skipped: vedtatt HØP 2026–2029 has no Klimabudsjett chapter citing Miljødirektoratet geographic series.
 - **Ås kommune** — skipped: 2026 klimabudsjett in the PDF HP is virksomhet tiltak, not a vedtatt Framsikt Klimabudsjett chapter citing Miljødirektoratet geographic series.
 - **TNett AS** — skipped (live name TNett AS 925 803 375; ex Telemark Nett / Vest-Telemark Kraftlag Nett; tnett.no prints generic tilknytning / anleggsbidrag only; no opened Tilko ≥1 MW / PlanNett named consume).
+- **Enebakk kommune** — skipped: slug `bm-2026-vedtatt_handlingsprogram_2026-2029_enebakk_kommune`; title1 Kommunestyrets vedtak; title2/3 empty; no named Klimabudsjett. Do not invent a Holen mailbox.
 - **St. Olavs / Helse Møre og Romsdal / Helse Stavanger / Finnmarkssykehuset / Helgelandssykehuset / Lovisenberg / Helse Fonna** — no named consume.
 
 ---
@@ -2857,6 +2882,8 @@ Keep these notes in the living book. They are not leads.
 - 2026-08-27: Wave 11 facts aligned to living book: Mellom (Statnett 5 MW/20 000 MWh + NVE 132 kV Rensvik–Engviklia; leftover `neas@neas.mr.no` not used), Rælingen (Klimabudsjett cites Kostratall; no Langdalen mailbox), Kystnett (NVE 202411925 Kaldvåg–Ulvsvåg; leftover `firmapost@nordsaltenkraft.no` not used), Nesodden (Mdir area 536 + KOSTRA; no klimarådgiver mailbox). Bømlo and Frogn unchanged. Still no outreach.
 - 2026-08-27: Skipped Fjellnett AS first pass (Tilko ≥1 MW is Elbits host `tk.elbits.no`; PlanNett actor isManagedBy taken Elvia; NVE 8868 Kolbotn trukket). Not absorbed into Elvia. Arendal held. Still no outreach.
 - 2026-08-27: Fjellnett AS skip reversed. Qualifies on own PlanNett områdestudie Nord-Gudbrandsdalen 20240282 + KVU 66 kV Nedre–Midtre–Øvre Tessa 20250049. Added after Kystnett. 93 sourced. Wave 11 add: Bømlo Kraftnett, Mellom, Rælingen, Kystnett, Fjellnett, Nesodden, Frogn. Nittedal / Ås / TNett skipped. Arendal held. Still no outreach.
+- 2026-08-27: Skipped Area Nett AS first pass (Tilko host + Elsmart on area.no; PlanNett actor isManagedBy taken Barents). Arendal held. Still no outreach.
+- 2026-08-27: Area Nett AS skip reversed. Qualifies on NVE 14080 / 202307744 Adamselv–Kjøllefjord–Mehamn and NVE 20436 / 202410617 Skaidi–Smørfjord I–Honningsvåg (UP 25.06.2025). Added after Fjellnett. 94 sourced. Wave 11 add: Bømlo Kraftnett, Mellom, Rælingen, Kystnett, Fjellnett, Area Nett, Nesodden, Frogn. Enebakk kommune skipped (slug bm-2026-vedtatt_handlingsprogram_2026-2029_enebakk_kommune; title1 Kommunestyrets vedtak; title2/3 empty; no named Klimabudsjett; no Holen mailbox). Nittedal / Ås / TNett skipped. Arendal held. Still no outreach.
 
 ---
 
