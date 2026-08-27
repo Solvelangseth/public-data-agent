@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import csv
 import json
 from pathlib import Path
 
@@ -168,3 +169,64 @@ def test_cli_ask_writes_proof(tmp_path: Path, monkeypatch) -> None:
     assert payload["growing"][0]["bydel_code"] == "030101"
     assert payload["joins"][0]["left_http_status"] == 200
     assert payload["joins"][1]["right_http_status"] == 200
+
+
+def test_cli_ask_writes_stable_csv(tmp_path: Path, monkeypatch) -> None:
+    registry = _registry(tmp_path)
+    db = tmp_path / "registry.sqlite"
+    out = tmp_path / "ask_export.csv"
+    registry.close()
+
+    from public_data_agent import fetch as fetch_mod
+    from public_data_agent import ssb_pxweb as ssb_mod
+
+    monkeypatch.setattr(fetch_mod, "HttpClient", lambda **kwargs: AskHttp())
+    monkeypatch.setattr(ssb_mod, "HttpClient", lambda **kwargs: AskHttp())
+    assert (
+        main(
+            [
+                "ask",
+                DEMO_QUESTION,
+                "--dataset",
+                STRANDSONE_ID,
+                "--table",
+                "11763",
+                "--year",
+                "2025",
+                "--prior-year",
+                "2024",
+                "--db",
+                str(db),
+                "--out",
+                str(out),
+            ]
+        )
+        == 0
+    )
+    with out.open(encoding="utf-8", newline="") as handle:
+        rows = list(csv.DictReader(handle))
+    assert list(rows[0]) == [
+        "bydel_code",
+        "name",
+        "year",
+        "personer",
+        "yoy",
+        "klass_publisher",
+        "klass_license",
+        "ssb_publisher",
+        "ssb_license",
+        "join_key",
+        "lineage",
+    ]
+    assert rows[0]["bydel_code"] == "030102"
+    assert rows[0]["personer"] == "67039"
+    gamle = next(row for row in rows if row["bydel_code"] == "030101")
+    assert gamle["yoy"]
+    assert float(gamle["yoy"]) == (64920 - 60000) / 60000
+    assert gamle["join_key"] == "bydel_code"
+    charts = tmp_path / "ask_export_charts"
+    assert (charts / "yoy_bar.png").is_file()
+    assert (charts / "chart.png").is_file()
+    proof = json.loads((tmp_path / "ask_export_proof.json").read_text(encoding="utf-8"))
+    assert proof["csv_rows"] == 2
+    assert proof["chart_helper"] == "methods.emit.emit"

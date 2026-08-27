@@ -22,7 +22,8 @@ natural-language ask path.
 Discovery MVP is milestones 1 through 6. Milestone 7 fetches Oslo PxWeb cells.
 Milestone 8 fetches SSB Klass classification rows. Milestone 9 joins those
 Klass codes to a national befolkning table. Milestone 10 answers one Oslo-bydel
-question from that join. UI and MCP are later.
+question from that join. Milestone 11 exports that answer as a stable CSV.
+UI and MCP are later.
 Measured gaps that we are not fixing in that slice live in [GAPS.md](GAPS.md).
 
 Data.norge is the first ingest source, not the product.
@@ -561,6 +562,26 @@ Live run 2026-08-27: both years HTTP 200, 36 joined rows (18+18). Largest
 Nordre Aker 0.0184, then Bjerke 0.0131. Search ran and returned 10 hits.
 Those hits matched `og`. Klass and 11763 were still used because they are
 the M9 pair that shares `bydel_code`. Proof is `data/ask_proof.json`.
+
+This milestone does not add a UI or MCP.
+
+## Milestone 11: export the ask result
+
+`pda ask --out` writes JSON when the path ends in `.json`. A `.csv` path
+writes a stable table a human can open in Excel or Numbers.
+
+```bash
+pda ask "Hvilke Oslo-bydeler er størst og hvilke vokser mest?" \
+  --db data/registry.sqlite --out data/ask_export.csv
+```
+
+Columns are fixed: `bydel_code`, `name`, `year`, `personer`, `yoy`,
+`klass_publisher`, `klass_license`, `ssb_publisher`, `ssb_license`,
+`join_key`, `lineage`. Numbers come from the same joined cells as Milestone 10.
+Empty `yoy` means the methods helper had no prior year, not a guessed zero.
+
+PR 19 is on main. The CSV writer calls `methods.emit.emit` for the companion
+charts. It does not draw its own figure. Charts land in `data/ask_export_charts/`.
 
 This milestone does not add a UI or MCP.
 

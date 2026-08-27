@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from methods.derive import derive_yoy
-from methods.types import Observation
+from methods.types import Observation, SeriesRow
 from public_data_agent.fetch import JsonHttp
 from public_data_agent.join import (
     DEFAULT_KLASS_DATASET,
@@ -40,6 +40,7 @@ class AskResult:
     joins: list[JoinResult] = field(default_factory=list)
     largest: list[dict[str, Any]] = field(default_factory=list)
     growing: list[dict[str, Any]] = field(default_factory=list)
+    derived: tuple[SeriesRow, ...] = ()
     joined_rows: int = 0
 
 
@@ -88,6 +89,7 @@ def ask(
         joins=[prior, latest],
         largest=largest,
         growing=growing,
+        derived=derived,
         joined_rows=len(rows),
     )
 
