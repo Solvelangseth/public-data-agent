@@ -2180,8 +2180,9 @@ not Metalerts (`--source met`), not Nowcast (`--source nowcast`), not
 Airqualityforecast (`--source airquality`), not Tidalwater
 (`--source tidalwater`), not Oceanforecast (`--source oceanforecast`),
 not MET Sunrise (`--source sunrise`), not Radar (`--source radar`),
-not MET Spotwind (`--source spotwind`), and not Textforecast
-(`--source textforecast`, now on main after PR 106).
+not MET Spotwind (`--source spotwind`), not Textforecast
+(`--source textforecast`, now on main after PR 106), and not Lane B
+NCAgalewarnings (`--source ncagalewarnings`, open PR 107).
 `/available` stays unused for fetch in this slice: that printed path
 returns XML.
 
@@ -2194,6 +2195,16 @@ pda fetch --dataset icemap:locations --db data/registry.sqlite
 `pda fetch` GETs the stored collection URL. Observation values are copied
 from printed feature `name`. License is the printed swagger CC BY 4.0 URL.
 Publisher stays null: the spec does not print a publisher.
+
+Live ingest 2026-08-27: 6 printed untemplated collection GET paths
+(catalog prints 10 paths; templated `{format}` paths and image-product
+paths with required `area` skipped). Live search `locations` returns
+`icemap:locations`. Live fetch GETs
+`https://api.met.no/weatherapi/icemap/1.0/locations` HTTP 200, 6
+location-name rows. Sample printed values: Nord-Norge, Nord-Europa,
+Nord-Skandinavia. `pda methods` is not applicable: GeoJSON feature
+names, not a numeric time series (`no observations matched
+entity/measure; available=[]`). Proof is `data/icemap_source_proof.json`.
 
 ## Architecture (long term)
 
