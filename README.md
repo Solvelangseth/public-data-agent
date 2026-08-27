@@ -18,7 +18,8 @@ enrichment in a separate `enrichments` table, a sourced search benchmark,
 AND-decomposition of multi-token queries, and a coverage report after retrieval.
 
 Discovery MVP stops here. Data retrieval, connectors, observation rows, joins,
-and MCP are later.
+and MCP are later. Measured gaps that we are not fixing in that slice live in
+[GAPS.md](GAPS.md).
 
 Data.norge is the first ingest source, not the product. UI, joins, charts,
 observation-row loading, and MCP are later.
