@@ -1935,8 +1935,9 @@ collection GET paths on the official MET Airqualityforecast swagger
 Templated `{format}` paths and the root `/` path (no printed last segment)
 are skipped. Dataset ids are the last printed path segment. `access_path` is
 the swagger origin + printed `basePath` + path. License is the printed swagger
-CC BY 4.0 URL. Publisher stays null. This is not Metalerts (`--source met`)
-and not Nowcast (`--source nowcast`). `/met` stays unused for fetch in this
+CC BY 4.0 URL. Publisher stays null. This is not Metalerts (`--source met`),
+not Nowcast (`--source nowcast`), and not Riksantikvaren MABYGIS
+(`--source riksantikvaren`, now on main). `/met` stays unused for fetch in this
 slice: that printed path requires `station`.
 
 ```bash

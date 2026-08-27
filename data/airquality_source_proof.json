@@ -8,6 +8,11 @@
   },
   "discarded": [
     {
+      "candidate": "Riksantikvaren MABYGIS",
+      "url": "PR 99 --source riksantikvaren",
+      "why": "Already on main after PR 99. Do not re-add. Lane A picked a different source."
+    },
+    {
       "candidate": "Meteorologisk institutt Nowcast",
       "url": "https://api.met.no/weatherapi/nowcast/2.0/swagger",
       "why": "Already on main as --source nowcast after PR 98. Do not re-add."
@@ -200,7 +205,7 @@
     "Ids are copied from printed swagger path last segments. access_path is swagger origin + printed basePath + path. No airquality id was written onto a met, nowcast, hoydedata, or datanorge row.",
     "License is the printed swagger CC BY 4.0 URL http://creativecommons.org/licenses/by/4.0. Publisher is null: the spec prints contact.name Developer Support, not a publisher.",
     "Original harvested swagger metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
-    "Nowcast stays --source nowcast. Metalerts stays --source met. This source does not re-implement either.",
+    "Nowcast stays --source nowcast. Metalerts stays --source met. Riksantikvaren stays --source riksantikvaren after PR 99. This source does not re-implement those.",
     "/met is a printed untemplated GET path and was ingested. Fetch in this slice uses /stations so station is not invented.",
     "python3 -m pytest 462 passed, 1 skipped, 1 deselected.",
     "Not a numeric time series with two or more periods."
