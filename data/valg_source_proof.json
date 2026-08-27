@@ -1,0 +1,183 @@
+{
+  "produced_at": "2026-08-27T10:52:01Z",
+  "bound": {
+    "list_api": "https://valgresultat.no/api",
+    "walk": "copy printed _sublinks hrefs in JSON key order",
+    "cap": 10,
+    "how": "pda ingest --source valg --limit 10. The official Valgresultat HAL root lists election-type hrefs under _sublinks. The adapter copies those printed hrefs and stops at 10."
+  },
+  "discarded": [
+    {
+      "candidate": "Enova WebApi root",
+      "url": "https://api.enova.no",
+      "why": "HTTP 200 HTML application shell, no printed list of endpoints"
+    },
+    {
+      "candidate": "Miljødirektoratet data portal",
+      "url": "https://data.miljodirektoratet.no",
+      "why": "HTTP 200 HTML portal, not a list API that prints its own endpoints"
+    },
+    {
+      "candidate": "Norges Bank data API",
+      "url": "https://data.norges-bank.no/api",
+      "why": "Cloudflare 403 without a challenge token"
+    },
+    {
+      "candidate": "Stortinget eksport",
+      "url": "https://data.stortinget.no/eksport",
+      "why": "HTTP 404"
+    },
+    {
+      "candidate": "Artsdatabanken /Api",
+      "url": "https://artsdatabanken.no/Api",
+      "why": "HTTP 404"
+    },
+    {
+      "candidate": "valg.no/api",
+      "url": "https://www.valg.no/api",
+      "why": "HTTP 404 HTML; the live list API is valgresultat.no/api"
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source valg --db /tmp/pda-valg-proof/registry.sqlite --limit 10",
+    "listed": 10,
+    "inserted": 10,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "valg:2009/st",
+        "access_path": "https://valgresultat.no/api/2009/st"
+      },
+      {
+        "id": "valg:2011/fy",
+        "access_path": "https://valgresultat.no/api/2011/fy"
+      },
+      {
+        "id": "valg:2011/ko",
+        "access_path": "https://valgresultat.no/api/2011/ko"
+      },
+      {
+        "id": "valg:2013/sa",
+        "access_path": "https://valgresultat.no/api/2013/sa"
+      },
+      {
+        "id": "valg:2013/st",
+        "access_path": "https://valgresultat.no/api/2013/st"
+      },
+      {
+        "id": "valg:2015/fy",
+        "access_path": "https://valgresultat.no/api/2015/fy"
+      },
+      {
+        "id": "valg:2015/ko",
+        "access_path": "https://valgresultat.no/api/2015/ko"
+      },
+      {
+        "id": "valg:2017/ko",
+        "access_path": "https://valgresultat.no/api/2017/ko"
+      },
+      {
+        "id": "valg:2017/sa",
+        "access_path": "https://valgresultat.no/api/2017/sa"
+      },
+      {
+        "id": "valg:2017/st",
+        "access_path": "https://valgresultat.no/api/2017/st"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search 2009/st --db /tmp/pda-valg-proof/registry.sqlite --limit 5",
+    "query": "2009/st",
+    "returned": 1,
+    "hit_id": "valg:2009/st",
+    "title": "2009/st",
+    "source_id": "valg"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset valg:2009/st --db /tmp/pda-valg-proof/registry.sqlite",
+    "dataset": "valg:2009/st",
+    "table_id": "2009/st",
+    "access_path": "https://valgresultat.no/api/2009/st",
+    "request_url": "https://valgresultat.no/api/2009/st",
+    "http_status": 200,
+    "listed": 26,
+    "inserted": 26,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "Arbeiderpartiet",
+        "value": 949049,
+        "dimensions": {
+          "valgaar": "2009",
+          "valgtype": "ST",
+          "nivaa": "land",
+          "partikode": "A",
+          "navn": "Arbeiderpartiet"
+        }
+      },
+      {
+        "measure": "Sosialistisk Venstreparti",
+        "value": 166361,
+        "dimensions": {
+          "valgaar": "2009",
+          "valgtype": "ST",
+          "nivaa": "land",
+          "partikode": "SV",
+          "navn": "Sosialistisk Venstreparti"
+        }
+      },
+      {
+        "measure": "Rødt",
+        "value": 36219,
+        "dimensions": {
+          "valgaar": "2009",
+          "valgtype": "ST",
+          "nivaa": "land",
+          "partikode": "RØDT",
+          "navn": "Rødt"
+        }
+      },
+      {
+        "measure": "Senterpartiet",
+        "value": 165006,
+        "dimensions": {
+          "valgaar": "2009",
+          "valgtype": "ST",
+          "nivaa": "land",
+          "partikode": "SP",
+          "navn": "Senterpartiet"
+        }
+      },
+      {
+        "measure": "Kristelig Folkeparti",
+        "value": 148748,
+        "dimensions": {
+          "valgaar": "2009",
+          "valgtype": "ST",
+          "nivaa": "land",
+          "partikode": "KRF",
+          "navn": "Kristelig Folkeparti"
+        }
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset valg:2009/st --table 2009/st --entity \"\" --measure \"\" --db /tmp/pda-valg-proof/registry.sqlite --out /tmp/pda-valg-proof/methods",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no derived yoy_growth values to chart",
+    "why": "Valgresultat /2009/st prints party vote totals for one election year. methods.clean can read the stored numbers, but there is no prior period, so YoY is undefined. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids and access_path values are copied from printed _sublinks hrefs joined to https://valgresultat.no/api. No Valgresultat id was written onto a datanorge row.",
+    "License is null. The Valgresultat JSON does not print a license URI.",
+    "Publisher is null. The Valgresultat JSON does not print a publisher name.",
+    "BRREG Enhetsregisteret stayed on main (PR 50). This source does not re-implement it."
+  ]
+}
