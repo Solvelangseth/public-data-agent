@@ -11,6 +11,7 @@ from public_data_agent.sources.fiskeridir import FiskeridirVesselSource
 from public_data_agent.sources.fixture import FixtureSource
 from public_data_agent.sources.geonorge import GeonorgeKartkatalogSource
 from public_data_agent.sources.hi import HiFeaturesSource
+from public_data_agent.sources.kystverket import KystverketSource
 from public_data_agent.sources.mattilsynet import MattilsynetPlantevernSource
 from public_data_agent.sources.met import MetMetalertsSource
 from public_data_agent.sources.nve import NveMagasinSource
@@ -37,6 +38,7 @@ SOURCE_IDS = (
     "utdanning",
     "met",
     "hi",
+    "kystverket",
 )
 
 
@@ -75,6 +77,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return MetMetalertsSource()
     if source_id == "hi":
         return HiFeaturesSource()
+    if source_id == "kystverket":
+        return KystverketSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -88,6 +92,7 @@ __all__ = [
     "FixtureSource",
     "GeonorgeKartkatalogSource",
     "HiFeaturesSource",
+    "KystverketSource",
     "MattilsynetPlantevernSource",
     "MetMetalertsSource",
     "NveMagasinSource",

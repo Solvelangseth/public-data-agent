@@ -1,0 +1,184 @@
+{
+  "produced_at": "2026-08-27T12:59:01Z",
+  "bound": {
+    "list_api": "https://kystdatahuset.no/ws/swagger/v1/swagger.json",
+    "walk": "copy printed collection GET paths from the official Kystverket Kystdatahuset OpenAPI; skip templated {id} paths; native ids are the printed paths",
+    "cap": 10,
+    "how": "pda ingest --source kystverket --limit 10. The official OpenAPI prints servers[0].url=/ws and GET paths. The adapter copies those printed values joined to the swagger origin. Templated /api/location/{id} paths are skipped."
+  },
+  "discarded": [
+    {
+      "candidate": "Havforskningsinstituttet OGC Features",
+      "url": "https://kart.hi.no/data/ogc/features/v1/collections",
+      "why": "Left on open PR 70. This slice does not re-implement it."
+    },
+    {
+      "candidate": "MET Metalerts swagger",
+      "url": "https://api.met.no/weatherapi/metalerts/2.0/swagger",
+      "why": "Already on main via PR 69. This slice does not re-implement it."
+    },
+    {
+      "candidate": "Kystverket Data API",
+      "url": "https://api.kystverket.no/openapi.json",
+      "why": "HTTP 200 OpenAPI with three GET paths. Coastal navigation warnings return live JSON. Chosen instead: Kystdatahuset OpenAPI on the same publisher lists more collection GET paths and prints an NLOD license URL."
+    },
+    {
+      "candidate": "Riksantikvaren OGC Features",
+      "url": "https://api.ra.no/LokaliteterEnkeltminnerOgSikringssoner/collections",
+      "why": "Timed out. Same for /KulturminnerKulturmiljoer/collections and /collections."
+    },
+    {
+      "candidate": "NGU OGC Features collections",
+      "url": "https://geo.ngu.no/api/features/collections",
+      "why": "Landing page https://geo.ngu.no/api/features is HTTP 200 JSON. /collections is HTTP 404. /ogc/features/v1/collections is HTTP 503. NADAG innmelding OpenAPI needs Maskinporten."
+    },
+    {
+      "candidate": "Nasjonalmuseet Collection API",
+      "url": "https://beta.nasjonalmuseet.no/2021/18/nasjonalmuseets-api/",
+      "why": "v1 retired. DigitaltMuseum requires an API key. Do not invent a token."
+    },
+    {
+      "candidate": "Bane NOR open data",
+      "url": "https://www.banenor.no/apne-data-fa-togtidene-gratis-pa-nett-og-skjermer/",
+      "why": "HTML docs and SIRI. No public JSON/OpenAPI/HAL list of endpoints."
+    },
+    {
+      "candidate": "Nasjonalbiblioteket catalog",
+      "url": "https://api.nb.no/catalog/v1/items",
+      "why": "Already discarded on main in data/fiskeridir_source_proof.json: search API, aggregations HTTP 500."
+    },
+    {
+      "candidate": "Kartverket høydedata OpenAPI",
+      "url": "https://ws.geonorge.no/hoydedata/v1/openapi.json",
+      "why": "Already discarded on main: same Kartverket/Geonorge family as kommuneinfo."
+    },
+    {
+      "candidate": "Udir NFR swagger",
+      "url": "https://data-nfr.udir.no/swagger/v4/swagger.json",
+      "why": "Already discarded on main: same Udir publisher as Nasjonalt skoleregister."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source kystverket --db /tmp/pda-kystverket-proof/registry.sqlite --limit 10",
+    "listed": 10,
+    "inserted": 10,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "kystverket:api/ais/realtime/geojson",
+        "access_path": "https://kystdatahuset.no/ws/api/ais/realtime/geojson"
+      },
+      {
+        "id": "kystverket:api/ais/realtime/vessels-by-type",
+        "access_path": "https://kystdatahuset.no/ws/api/ais/realtime/vessels-by-type"
+      },
+      {
+        "id": "kystverket:api/anchorage/areas",
+        "access_path": "https://kystdatahuset.no/ws/api/anchorage/areas"
+      },
+      {
+        "id": "kystverket:api/location/all",
+        "access_path": "https://kystdatahuset.no/ws/api/location/all"
+      },
+      {
+        "id": "kystverket:api/location/counties",
+        "access_path": "https://kystdatahuset.no/ws/api/location/counties"
+      },
+      {
+        "id": "kystverket:api/location/norway/all",
+        "access_path": "https://kystdatahuset.no/ws/api/location/norway/all"
+      },
+      {
+        "id": "kystverket:api/location/norway/all/geojson",
+        "access_path": "https://kystdatahuset.no/ws/api/location/norway/all/geojson"
+      },
+      {
+        "id": "kystverket:api/maps/fvpomr/list",
+        "access_path": "https://kystdatahuset.no/ws/api/maps/fvpomr/list"
+      },
+      {
+        "id": "kystverket:api/maps/kommune/geojson",
+        "access_path": "https://kystdatahuset.no/ws/api/maps/kommune/geojson"
+      },
+      {
+        "id": "kystverket:api/maps/kommune/list",
+        "access_path": "https://kystdatahuset.no/ws/api/maps/kommune/list"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search counties --db /tmp/pda-kystverket-proof/registry.sqlite --limit 5",
+    "query": "counties",
+    "returned": 1,
+    "hit_id": "kystverket:api/location/counties",
+    "title": "Get all counties from NewShipRep location table",
+    "source_id": "kystverket"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset kystverket:api/location/counties --db /tmp/pda-kystverket-proof/registry.sqlite",
+    "dataset": "kystverket:api/location/counties",
+    "table_id": "counties",
+    "access_path": "https://kystdatahuset.no/ws/api/location/counties",
+    "request_url": "https://kystdatahuset.no/ws/api/location/counties",
+    "http_status": 200,
+    "listed": 17,
+    "inserted": 17,
+    "license": "https://data.norge.no/nlod/en/1.0",
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "countyname",
+        "value": "Agder",
+        "dimensions": {
+          "countyno": "42"
+        }
+      },
+      {
+        "measure": "countyname",
+        "value": "Akershus",
+        "dimensions": {
+          "countyno": "32"
+        }
+      },
+      {
+        "measure": "countyname",
+        "value": "Buskerud",
+        "dimensions": {
+          "countyno": "33"
+        }
+      },
+      {
+        "measure": "countyname",
+        "value": "Finnmark",
+        "dimensions": {
+          "countyno": "56"
+        }
+      },
+      {
+        "measure": "countyname",
+        "value": "Innlandet",
+        "dimensions": {
+          "countyno": "34"
+        }
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset kystverket:api/location/counties --db /tmp/pda-kystverket-proof/registry.sqlite --entity \"\" --measure \"\"",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "Counties prints county names (countyname plus countyno). That is not a numeric time series. methods.clean drops the rows because they have no period. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from the printed OpenAPI path without a leading slash. access_path is the printed origin + servers[0].url /ws + path. No Kystverket id was written onto a datanorge row.",
+    "Fetch GETs the stored collection URL. Observation values are printed countyname. Nested objects such as metadata are not copied as dimensions.",
+    "License is the printed OpenAPI NLOD 1.0 URL. Publisher stays null: the spec does not print a publisher field.",
+    "JWT-restricted paths such as /api/ship/combined/download were not in the first 10 printed collection GET paths and were not fetched.",
+    "Havforskningsinstituttet OGC Features stays on PR 70. This source does not re-implement it. MET Metalerts stayed on main (PR 69)."
+  ]
+}

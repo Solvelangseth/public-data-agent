@@ -1024,6 +1024,34 @@ applicable: names, not a numeric time series
 (`no observations matched entity/measure; available=[]`).
 Proof is `data/hi_source_proof.json`.
 
+## Kystverket Kystdatahuset source
+
+`pda ingest --source kystverket` is another replaceable adapter. It lists printed
+collection GET paths on the official Kystdatahuset OpenAPI
+`https://kystdatahuset.no/ws/swagger/v1/swagger.json`, capped at 10.
+Templated `{id}` paths are skipped. Dataset ids are the printed OpenAPI
+paths. `access_path` is the swagger origin + printed relative server `/ws`
++ path. License is the printed OpenAPI NLOD URL. Publisher stays null.
+
+```bash
+pda ingest --source kystverket --db data/registry.sqlite --limit 10
+pda search counties --db data/registry.sqlite
+pda fetch --dataset kystverket:api/location/counties --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored collection URL. Observation values are copied
+from a printed name field (`countyname`, `label`, `area_name`, `name`,
+`title`, or `code`) when present. License is the printed OpenAPI NLOD URL.
+Publisher stays null: the spec does not print a publisher field.
+
+Live ingest 2026-08-27: 10 printed collection GET paths. Live search
+`counties` returns `kystverket:api/location/counties`. Live fetch GETs
+`https://kystdatahuset.no/ws/api/location/counties` HTTP 200, 17
+county-name rows. Sample printed names: Agder, Akershus, Buskerud,
+Finnmark, Innlandet. `pda methods` is not applicable: names, not a
+numeric time series (`no observations matched entity/measure; available=[]`).
+Proof is `data/kystverket_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
