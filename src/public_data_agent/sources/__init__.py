@@ -42,6 +42,7 @@ from public_data_agent.sources.nve import NveMagasinSource
 from public_data_agent.sources.nxr import NxrSource
 from public_data_agent.sources.nytek import NytekSource
 from public_data_agent.sources.oceanforecast import OceanforecastSource
+from public_data_agent.sources.offshoremaps import OffshoremapsSource
 from public_data_agent.sources.opencom import OpencomSource
 from public_data_agent.sources.polarsatellite import PolarsatelliteSource
 from public_data_agent.sources.portal import PortalSource
@@ -137,6 +138,7 @@ SOURCE_IDS = (
     "metgc",
     "oslofjord",
     "isobaricgrib",
+    "offshoremaps",
 )
 
 
@@ -275,6 +277,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return OslofjordSource()
     if source_id == "isobaricgrib":
         return IsobaricgribSource()
+    if source_id == "offshoremaps":
+        return OffshoremapsSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -319,6 +323,7 @@ __all__ = [
     "NxrSource",
     "NytekSource",
     "OceanforecastSource",
+    "OffshoremapsSource",
     "OpencomSource",
     "PolarsatelliteSource",
     "PortalSource",
