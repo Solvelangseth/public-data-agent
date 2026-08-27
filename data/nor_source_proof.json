@@ -1,0 +1,165 @@
+{
+  "produced_at": "2026-08-27T15:37:57Z",
+  "bound": {
+    "list_api": "https://data-nor.udir.no/swagger/v4/swagger.json",
+    "walk": "copy collection GET paths printed in OpenAPI paths; skip templated {organisasjonsnummer} paths and POST /v4/enheter/sok; native ids are the printed last path segments; access_path joins each printed path to the OpenAPI document origin because servers is absent; do not invent path ids",
+    "cap": 10,
+    "how": "pda ingest --source nor --limit 10. The official Nasjonalt register for opplæringskontorer OpenAPI prints 6 untemplated collection GET paths. The adapter copies those printed paths and stops at the catalog size (under the cap of 10). No path id was invented."
+  },
+  "discarded": [
+    {
+      "candidate": "Fiskeridirektoratet Kjøperregisteret",
+      "url": "PR 82 cursor/buyer-kjoperregisteret-10d1 --source buyer",
+      "why": "Already in flight. Do not touch that branch, PR, or buyer adapter files. This branch starts from origin/main only."
+    },
+    {
+      "candidate": "Statens vegvesen Dataportalen",
+      "url": "https://dataut.vegvesen.no/api/3/action/package_list",
+      "why": "Already ingested on main at 6adedaa. Do not re-add."
+    },
+    {
+      "candidate": "Sikt DataverseNO",
+      "url": "https://dataverse.no/api/dataverses/:root/contents",
+      "why": "Already ingested on main. Do not re-add."
+    },
+    {
+      "candidate": "Udir NSR / NBR",
+      "url": "https://data-nsr.udir.no/swagger/v1/swagger.json",
+      "why": "Already ingested on main as --source udir and --source nbr. NOR is data-nor.udir.no, a different register."
+    },
+    {
+      "candidate": "Udir NPR / NFR OpenAPI",
+      "url": "https://data-npr.udir.no/swagger/v4/swagger.json",
+      "why": "HTTP 200 OpenAPI with live code collections. Left unused after NOR printed a distinct opplæringskontor register. NFR swagger/v4 also 200."
+    },
+    {
+      "candidate": "NVDB Les V3 OpenAPI",
+      "url": "https://nvdbapiles-v3.atlas.vegvesen.no/dokumentasjon/openapi.json",
+      "why": "Known skip: HTTP 400 User-Agent. Do not retry."
+    },
+    {
+      "candidate": "Vegvesen Trafikkdata swagger / trafikkdata-api",
+      "url": "https://trafikkdata.atlas.vegvesen.no/swagger/v1/swagger.json",
+      "why": "Known skip: swagger HTML-only; trafikkdata-api 410. Do not retry."
+    },
+    {
+      "candidate": "Kartverket Eiendom /geokoding",
+      "url": "https://api.kartverket.no/eiendom/v1/geokoding",
+      "why": "Known skip: HTTP 400 without matrikkel params. Search API, not a collection catalog. Do not retry."
+    },
+    {
+      "candidate": "Fiskeridir catch/landing/aqua OpenAPI",
+      "url": "https://api.fiskeridir.no/catch-api/openapi",
+      "why": "HTTP 404 JSON no Route matched. Same for /landing-api/openapi and /aqua-culture-api/openapi. Buyer-api stays on PR 82."
+    },
+    {
+      "candidate": "SODIR FactPages",
+      "url": "https://factpages.sodir.no/publicDatamodels",
+      "why": "HTTP 404 HTML. factpages.npd.no/swagger/index.html also 404."
+    },
+    {
+      "candidate": "Kartverket transformasjon OpenAPI",
+      "url": "https://ws.geonorge.no/transformasjon/v1/openapi.json",
+      "why": "HTTP 403 nginx HTML."
+    },
+    {
+      "candidate": "NOR enheter/endretetter",
+      "url": "https://data-nor.udir.no/v4/enheter/endretetter",
+      "why": "Printed untemplated GET path, ingested as nor:endretetter. Live GET without a printed date query returned HTTP 500. Not used as the fetch target. No date was invented."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source nor --db /tmp/pda-nor-proof/registry.sqlite --limit 10",
+    "listed": 6,
+    "inserted": 6,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "nor:enheter",
+        "access_path": "https://data-nor.udir.no/v4/enheter"
+      },
+      {
+        "id": "nor:endretetter",
+        "access_path": "https://data-nor.udir.no/v4/enheter/endretetter"
+      },
+      {
+        "id": "nor:maalformer",
+        "access_path": "https://data-nor.udir.no/v4/maalformer"
+      },
+      {
+        "id": "nor:organisasjonsformer",
+        "access_path": "https://data-nor.udir.no/v4/organisasjonsformer"
+      },
+      {
+        "id": "nor:utgaattyper",
+        "access_path": "https://data-nor.udir.no/v4/utgaattyper"
+      },
+      {
+        "id": "nor:relasjonstyper",
+        "access_path": "https://data-nor.udir.no/v4/relasjonstyper"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search målformer --db /tmp/pda-nor-proof/registry.sqlite --limit 5",
+    "query": "målformer",
+    "returned": 1,
+    "hit_id": "nor:maalformer",
+    "title": "Alle målformer",
+    "source_id": "nor"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset nor:maalformer --db /tmp/pda-nor-proof/registry.sqlite",
+    "dataset": "nor:maalformer",
+    "table_id": "maalformer",
+    "access_path": "https://data-nor.udir.no/v4/maalformer",
+    "request_url": "https://data-nor.udir.no/v4/maalformer",
+    "http_status": 200,
+    "listed": 3,
+    "inserted": 3,
+    "license": "https://data.norge.no/nlod/no",
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "Navn",
+        "value": "Udefinert",
+        "dimensions": {
+          "Id": ""
+        }
+      },
+      {
+        "measure": "Navn",
+        "value": "Bokmål",
+        "dimensions": {
+          "Id": "B"
+        }
+      },
+      {
+        "measure": "Navn",
+        "value": "Nynorsk",
+        "dimensions": {
+          "Id": "N"
+        }
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset nor:maalformer --table maalformer --entity \"\" --measure \"\" --db /tmp/pda-nor-proof/registry.sqlite --out /tmp/pda-nor-proof/methods",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "NOR /v4/maalformer prints language names (Navn plus Id). That is not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed OpenAPI collection path last segments. access_path joins each printed path to the origin of https://data-nor.udir.no/swagger/v4/swagger.json because the spec prints no servers array. A swagger-directory join 404s. No NOR id was written onto a datanorge, udir, or nbr row.",
+    "The catalog prints 6 untemplated collection GET paths. Ingest stored all 6 (under cap 10).",
+    "License is the printed OpenAPI info.license.url https://data.norge.no/nlod/no. The spec name is NLOD without a version path; the printed URL was copied as-is.",
+    "Publisher is null. The OpenAPI info object does not print a publisher name.",
+    "Original harvest metadata is in harvested_payloads. enrichments stayed 0 on the throwaway db.",
+    "Fiskeridirektoratet Kjøperregisteret stayed on PR 82. Vegvesen Dataportalen, NSR, and NBR stayed on main. This source does not re-implement those."
+  ]
+}

@@ -1380,7 +1380,7 @@ joined to the OpenAPI document origin.
 
 ```bash
 pda ingest --source nor --db data/registry.sqlite --limit 10
-pda search maalformer --db data/registry.sqlite
+pda search målformer --db data/registry.sqlite
 pda fetch --dataset nor:maalformer --db data/registry.sqlite
 ```
 
@@ -1391,6 +1391,14 @@ null: the spec does not print a publisher name.
 
 This source is Udir NOR (`data-nor.udir.no`), not NSR (`--source udir`)
 and not NBR (`--source nbr`).
+
+Live ingest 2026-08-27: 6 printed collection GET paths (catalog prints 6,
+cap 10). Live search `målformer` returns `nor:maalformer`. Live fetch
+GETs `https://data-nor.udir.no/v4/maalformer` HTTP 200, 3 language-name
+rows. Sample printed names: Udefinert, Bokmål, Nynorsk. `pda methods`
+is not applicable: names, not a numeric time series
+(`no observations matched entity/measure; available=[]`).
+Proof is `data/nor_source_proof.json`.
 
 ## Architecture (long term)
 
