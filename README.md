@@ -2156,6 +2156,16 @@ pda fetch --dataset textforecast:landoverview --db data/registry.sqlite
 from printed feature `area`. License is the printed swagger CC BY 4.0 URL.
 Publisher stays null: the spec does not print a publisher.
 
+Live ingest 2026-08-27: 10 printed untemplated collection GET paths
+(catalog prints 21 paths; templated `{format}` paths and the root `/`
+path with required `forecast` skipped, cap 10). Live search
+`landoverview` returns `textforecast:landoverview`. Live fetch GETs
+`https://api.met.no/weatherapi/textforecast/3.0/landoverview` HTTP 200,
+35 feature-area rows. Sample printed value: Østlandet.
+`pda methods` is not applicable: area names and forecast text, not a
+numeric time series (`no observations matched entity/measure;
+available=[]`). Proof is `data/textforecast_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
