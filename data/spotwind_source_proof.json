@@ -202,7 +202,7 @@
     "License is the printed swagger CC BY 4.0 URL http://creativecommons.org/licenses/by/4.0. Publisher is null: the spec does not print a publisher.",
     "Original harvested swagger metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
     "Sunrise is now on main as --source sunrise after PR 103. Oceanforecast stays --source oceanforecast. Tidalwater stays --source tidalwater. Airqualityforecast stays --source airquality. Nowcast stays --source nowcast. Metalerts stays --source met. Lane A Radar is PR 104.",
-    "python3 -m pytest: 504 passed, 1 skipped.",
+    "python3 -m pytest: 512 passed, 1 skipped.",
     "Not a numeric time series with two or more periods."
   ]
 }
