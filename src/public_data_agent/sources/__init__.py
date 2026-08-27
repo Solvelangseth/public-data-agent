@@ -58,6 +58,7 @@ from public_data_agent.sources.sunrise import SunriseSource
 from public_data_agent.sources.tafmetar import TafmetarSource
 from public_data_agent.sources.textforecast import TextforecastSource
 from public_data_agent.sources.tidalwater import TidalwaterSource
+from public_data_agent.sources.transformering import TransformeringSource
 from public_data_agent.sources.trondheim import TrondheimOpenDataSource
 from public_data_agent.sources.udir import UdirNsrSource
 from public_data_agent.sources.utdanning import UtdanningSource
@@ -125,6 +126,7 @@ SOURCE_IDS = (
     "metgm",
     "subjectiveforecast",
     "polarsatellite",
+    "transformering",
 )
 
 
@@ -251,6 +253,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return SubjectiveforecastSource()
     if source_id == "polarsatellite":
         return PolarsatelliteSource()
+    if source_id == "transformering":
+        return TransformeringSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -313,6 +317,7 @@ __all__ = [
     "TafmetarSource",
     "TextforecastSource",
     "TidalwaterSource",
+    "TransformeringSource",
     "TrondheimOpenDataSource",
     "UdirNsrSource",
     "UtdanningSource",

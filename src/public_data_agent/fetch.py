@@ -180,6 +180,11 @@ from public_data_agent.sources.hoydedata import (
     hoydedata_table_id,
     is_hoydedata_url,
 )
+from public_data_agent.sources.transformering import (
+    cells_from_transformering,
+    is_transformering_url,
+    transformering_table_id,
+)
 from public_data_agent.sources.kommuneinfo import (
     cells_from_kommuneinfo,
     is_kommuneinfo_url,
@@ -442,6 +447,8 @@ def fetch_observations(
         return _fetch_kommuneinfo(registry, dataset, http=http)
     if is_hoydedata_url(access_path):
         return _fetch_hoydedata(registry, dataset, http=http)
+    if is_transformering_url(access_path):
+        return _fetch_transformering(registry, dataset, http=http)
     if is_geonorge_rest_url(access_path):
         return _fetch_geonorge_rest(registry, dataset, http=http)
     if is_nve_magasin_url(access_path):
@@ -2080,6 +2087,61 @@ def _fetch_hoydedata(
         http_status = got.status
         registry.set_fetch_request(run_id, request_url=access_path, request_body={"method": "GET"})
         cells = cells_from_hoydedata(got.body)
+        counts.listed = len(cells)
+        sample = _store_cells(
+            registry,
+            dataset,
+            run_id,
+            table_id=table_id,
+            cells=cells,
+            retrieved_at=utc_now(),
+            request_url=access_path,
+            http_status=http_status,
+            counts=counts,
+        )
+        status = "completed"
+    except Exception as exc:
+        counts.failed += 1
+        counts.errors.append({"error": str(exc), "url": access_path})
+        raise
+    finally:
+        registry.finish_fetch_run(run_id, counts, status=status, http_status=http_status)
+    return FetchResult(
+        dataset_id=dataset["id"],
+        table_id=table_id,
+        request_url=access_path,
+        http_status=http_status,
+        counts=counts,
+        sample=sample,
+    )
+
+
+def _fetch_transformering(
+    registry: Registry,
+    dataset: dict[str, Any],
+    *,
+    http: JsonHttp | None = None,
+) -> FetchResult:
+    access_path = dataset.get("access_path") or ""
+    client = http or HttpClient(timeout=60.0, max_retries=4)
+    table_id = transformering_table_id(access_path)
+    started = utc_now()
+    run_id = registry.start_fetch_run(
+        dataset_id=dataset["id"],
+        table_id=table_id,
+        request_url=access_path,
+        request_method="GET",
+        started_at=started,
+    )
+    counts = HarvestCounts()
+    status = "failed"
+    http_status = 0
+    sample: list[dict[str, Any]] = []
+    try:
+        got = client.get_json_response(access_path)
+        http_status = got.status
+        registry.set_fetch_request(run_id, request_url=access_path, request_body={"method": "GET"})
+        cells = cells_from_transformering(got.body)
         counts.listed = len(cells)
         sample = _store_cells(
             registry,

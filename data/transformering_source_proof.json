@@ -1,0 +1,176 @@
+{
+  "produced_at": "2026-08-27T22:43:47Z",
+  "bound": {
+    "list_api": "https://ws.geonorge.no/transformering/v1/openapi.json",
+    "walk": "copy printed untemplated collection GET paths from the official Kartverket Transformering OpenAPI that have no required parameter; skip templated paths and GET /transformer (required x/y/fra/til); native ids are the last printed path segment; access_path is the printed path joined to the spec's own relative servers[0].url /transformering/v1 on the OpenAPI origin; optional kategori/system query filters are not invented",
+    "cap": 10,
+    "how": "pda ingest --source transformering --limit 10. The official Kartverket Transformering OpenAPI prints 2 paths. The adapter copies the 1 untemplated GET path that has no required parameter (projeksjoner). GET uses the printed /projeksjoner collection with no invented query filters."
+  },
+  "discarded": [
+    {
+      "candidate": "MET Polarsatellite",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/114",
+      "why": "Lane B already opened --source polarsatellite as PR 114 (now merged on main). Do not pick that source."
+    },
+    {
+      "candidate": "Meteorologisk institutt Subjectiveforecast",
+      "url": "https://api.met.no/weatherapi/subjectiveforecast/1.0/swagger",
+      "why": "Already on main as --source subjectiveforecast after PR 113. Do not re-add."
+    },
+    {
+      "candidate": "MET Metgm",
+      "url": "https://api.met.no/weatherapi/metgm/1.0/swagger",
+      "why": "Already on main as --source metgm after PR 112. Do not re-add."
+    },
+    {
+      "candidate": "MET Metgc",
+      "url": "https://api.met.no/weatherapi/metgc/1.0/swagger",
+      "why": "Official swagger HTTP 200 with /features. Left unused so Lane B could keep the MET chain; this lane picked Kartverket Transformering instead."
+    },
+    {
+      "candidate": "Udir Register for lærebedrifter (NLR)",
+      "url": "https://data-nlr.udir.no/v4/enheter",
+      "why": "Known skip: live collection GET is HTTP 401. Do not invent an auth workaround."
+    },
+    {
+      "candidate": "Kartverket Adresse /sok",
+      "url": "https://ws.geonorge.no/adresser/v1/sok",
+      "why": "OpenAPI HTTP 200 prints /sok and /punktsok. Live GET /sok is HTTP 400 without search parameters. /punktsok requires lat/lon/radius. Do not invent query filters."
+    },
+    {
+      "candidate": "NVE HydAPI",
+      "url": "https://hydapi.nve.no/api/v1/Parameters",
+      "why": "Swagger HTTP 200. Live collection GET is HTTP 401. Do not invent an auth workaround."
+    },
+    {
+      "candidate": "Kartverket Transformasjon OpenAPI",
+      "url": "https://ws.geonorge.no/transformasjon/v1/openapi.json",
+      "why": "Known skip from Høydedata proof: HTTP 403. Different path from Transformering. Do not retry."
+    },
+    {
+      "candidate": "MET Locationforecast /classic /compact /complete",
+      "url": "https://api.met.no/weatherapi/locationforecast/2.0/swagger",
+      "why": "Printed forecast paths require lat/lon. Unused for fetch."
+    },
+    {
+      "candidate": "MET weathericon / aviationforecast / turbulence / gribfiles / polarsatellite / routeforecast / sigcharts swagger",
+      "url": "https://api.met.no/weatherapi/",
+      "why": "Known skip: swagger HTTP 500, or Lane B polarsatellite. Do not retry 500s."
+    },
+    {
+      "candidate": "Frost MET sources",
+      "url": "https://frost.met.no/sources/v0.jsonld",
+      "why": "Known skip: HTTP 401. Do not retry."
+    },
+    {
+      "candidate": "NVDB Les V3 OpenAPI",
+      "url": "https://nvdbapiles-v3.atlas.vegvesen.no/dokumentasjon/openapi.json",
+      "why": "Known skip: HTTP 400 User-Agent. Do not retry."
+    },
+    {
+      "candidate": "Vegvesen Trafikkdata swagger / trafikkdata-api",
+      "url": "https://trafikkdata.atlas.vegvesen.no/",
+      "why": "Known skip: swagger HTML-only; trafikkdata-api 410. Do not retry."
+    },
+    {
+      "candidate": "Kartverket Eiendom /geokoding",
+      "url": "https://api.kartverket.no/eiendom/v1/geokoding",
+      "why": "Known skip: HTTP 400 without matrikkel params. Do not retry."
+    },
+    {
+      "candidate": "Udir Statistikkbanken /data",
+      "url": "Udir Statistikkbanken /Eksport/{id}/data",
+      "why": "Known skip: requires invented filters. Do not retry."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source transformering --db /tmp/pda-transformering-proof/registry.sqlite --limit 10",
+    "listed": 1,
+    "inserted": 1,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "transformering:projeksjoner",
+        "access_path": "https://ws.geonorge.no/transformering/v1/projeksjoner"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search koordinatsystemer --db /tmp/pda-transformering-proof/registry.sqlite --limit 5",
+    "query": "koordinatsystemer",
+    "returned": 1,
+    "hit_id": "transformering:projeksjoner",
+    "title": "Koordinatsystemer",
+    "source_id": "transformering",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://ws.geonorge.no/transformering/v1/projeksjoner",
+    "original_source": "https://ws.geonorge.no/transformering/v1/openapi.json",
+    "why_picked": "title matched koordinatsystemer; description matched koordinatsystemer"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset transformering:projeksjoner --db /tmp/pda-transformering-proof/registry.sqlite",
+    "dataset": "transformering:projeksjoner",
+    "table_id": "projeksjoner",
+    "access_path": "https://ws.geonorge.no/transformering/v1/projeksjoner",
+    "request_url": "https://ws.geonorge.no/transformering/v1/projeksjoner",
+    "http_status": 200,
+    "listed": 130,
+    "inserted": 130,
+    "updated": 0,
+    "unchanged": 0,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "name",
+        "value": "ETRS89 Geografisk 2D",
+        "dimensions": {
+          "degrees": "True",
+          "epsg": "4258"
+        }
+      },
+      {
+        "measure": "name",
+        "value": "ETRS89 Geografisk 3D",
+        "dimensions": {
+          "degrees": "True",
+          "epsg": "4937"
+        }
+      },
+      {
+        "measure": "name",
+        "value": "ETRS89 Geografisk NN2000",
+        "dimensions": {
+          "degrees": "True",
+          "epsg": "5942"
+        }
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset transformering:projeksjoner --table projeksjoner --entity \"\" --measure \"\" --db /tmp/pda-transformering-proof/registry.sqlite --out /tmp/pda-transformering-proof/methods",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "Transformering /projeksjoner prints coordinate-system names and EPSG codes (ETRS89 Geografisk 2D, …). That is not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed OpenAPI path last segments. access_path is OpenAPI origin + printed servers[0].url + path. No transformering id was written onto a hoydedata, kommuneinfo, stedsnavn, geonorge, subjectiveforecast, metgm, or datanorge row.",
+    "License is null: the spec prints no license URL. Publisher is null: the spec prints no publisher name.",
+    "Original harvested OpenAPI metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "Høydedata stays --source hoydedata. Kommuneinfo stays --source kommuneinfo. Stedsnavn stays --source stedsnavn. Geonorge Kartkatalog stays --source geonorge. Lane B Polarsatellite stays --source polarsatellite after PR 114. This source does not re-implement those.",
+    "/transformer GET prints required x/y/fra/til so it was not ingested. Optional kategori/system filters were not invented. Fetch in this slice uses /projeksjoner.",
+    "python3 -m pytest 610 passed, 1 skipped, 1 deselected.",
+    "Not a numeric time series with two or more periods."
+  ]
+}
