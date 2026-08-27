@@ -40,6 +40,7 @@ QUERY_SYNONYMS = {
 }
 QUERY_COMPOUND_SPLITS = {
     "befolkningsvekst": ("befolkning", "vekst"),
+    "kraftsituasjonen": ("kraft", "situasjonen"),
 }
 PUBLISHER_WEIGHT = 5
 VARIABLES_UNKNOWN_REASON = (
