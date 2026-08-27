@@ -1267,6 +1267,15 @@ null: the OpenAPI `info` object does not print those fields.
 
 This source is Kartverket's Stedsnavn search API, not Geonorge Kartkatalog.
 
+Live ingest 2026-08-27: 5 printed collection GET paths (the catalog prints
+5, cap 10). Live search `navneobjekttyper` returns
+`stedsnavn:navneobjekttyper`. Live fetch GETs
+`https://api.kartverket.no/stedsnavn/v1/navneobjekttyper` HTTP 200, 291
+navneobjekttype rows. Sample printed names: Militært bygg/anlegg,
+Fornøyelsespark, Idrettshall. `pda methods` is not applicable: names, not
+a numeric time series (`no observations matched entity/measure;
+available=[]`). Proof is `data/stedsnavn_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists

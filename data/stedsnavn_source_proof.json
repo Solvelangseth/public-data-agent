@@ -1,0 +1,145 @@
+{
+  "produced_at": "2026-08-27T14:47:10Z",
+  "bound": {
+    "list_api": "https://ws.geonorge.no/stedsnavn/v1/openapi.json",
+    "walk": "copy printed collection GET paths from OpenAPI paths; skip templated {id} paths; join each path to printed servers[0].url https://api.kartverket.no/stedsnavn/v1; do not invent path ids",
+    "cap": 10,
+    "how": "pda ingest --source stedsnavn --limit 10. The official Kartverket Stedsnavn OpenAPI prints 5 collection GET paths. The adapter copies those printed paths, joins each path to the printed servers[0].url, and stops at 10."
+  },
+  "discarded": [
+    {
+      "candidate": "Norsk Polarinstitutt Open Data API",
+      "url": "PR 78 cursor/next-norwegian-source-7b66 --source npolar",
+      "why": "Already in flight. Do not touch that branch, PR, or npolar adapter files. Polarinstituttet OGC remains a known 404 skip."
+    },
+    {
+      "candidate": "Norges Bank Open Data",
+      "url": "PR 77 cursor/next-norwegian-source-0fa8 --source norgesbank (already on main ceb83ef)",
+      "why": "Already ingested on main. Do not touch that branch, PR, or norgesbank adapter files."
+    },
+    {
+      "candidate": "Avinor Airports list",
+      "url": "https://avinor.no/Api/Airports",
+      "why": "HTTP 200 JSON list of airports, but printed url values are HTML flyplass pages. No OpenAPI path catalog and no per-airport JSON fetch endpoint."
+    },
+    {
+      "candidate": "Stortinget eksport",
+      "url": "https://data.stortinget.no/eksport/stortingsperioder",
+      "why": "HTTP 200 XML. Known skip was /eksport 404. The publisher's catalog is HTML documentation pages, not a printed list API, OpenAPI, or OGC collections."
+    },
+    {
+      "candidate": "NGU GeoServer WFS GetCapabilities",
+      "url": "https://geo.ngu.no/geoserver/ows?service=WFS&request=GetCapabilities",
+      "why": "HTTP 200 WFS capabilities XML. NGU /collections remains a known 404 skip. Left unused because Stedsnavn already printed an OpenAPI path catalog with live JSON collections."
+    },
+    {
+      "candidate": "Artsdatabanken Taxon",
+      "url": "https://artsdatabanken.no/Api/Taxon",
+      "why": "HTTP 200 taxon array, but /Api 404 is a known skip and the publisher prints no OpenAPI/path catalog of endpoints."
+    },
+    {
+      "candidate": "Husbanken / Helsedirektoratet PxWeb",
+      "url": "https://statistikk.husbanken.no/api/v1/ and statistikk.helsedirektoratet.no",
+      "why": "Husbanken api/v1 is HTML SPA. Helsedirektoratet host DNS failed."
+    },
+    {
+      "candidate": "BarentsWatch bwapi",
+      "url": "https://www.barentswatch.no/bwapi/v1/geodata/fishingfacility/swagger",
+      "why": "HTTP 401. Known skip is swagger 404."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source stedsnavn --db /tmp/pda-stedsnavn-proof/registry.sqlite --limit 10",
+    "listed": 5,
+    "inserted": 5,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "stedsnavn:navn",
+        "access_path": "https://api.kartverket.no/stedsnavn/v1/navn"
+      },
+      {
+        "id": "stedsnavn:navneobjekttyper",
+        "access_path": "https://api.kartverket.no/stedsnavn/v1/navneobjekttyper"
+      },
+      {
+        "id": "stedsnavn:punkt",
+        "access_path": "https://api.kartverket.no/stedsnavn/v1/punkt"
+      },
+      {
+        "id": "stedsnavn:sprak",
+        "access_path": "https://api.kartverket.no/stedsnavn/v1/sprak"
+      },
+      {
+        "id": "stedsnavn:sted",
+        "access_path": "https://api.kartverket.no/stedsnavn/v1/sted"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search navneobjekttyper --db /tmp/pda-stedsnavn-proof/registry.sqlite --limit 5",
+    "query": "navneobjekttyper",
+    "returned": 1,
+    "hit_id": "stedsnavn:navneobjekttyper",
+    "title": "Vis alle navneobjekttyper (f.eks by, elv, kirke) som et sted kan ha.",
+    "source_id": "stedsnavn"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset stedsnavn:navneobjekttyper --db /tmp/pda-stedsnavn-proof/registry.sqlite",
+    "dataset": "stedsnavn:navneobjekttyper",
+    "table_id": "navneobjekttyper",
+    "access_path": "https://api.kartverket.no/stedsnavn/v1/navneobjekttyper",
+    "request_url": "https://api.kartverket.no/stedsnavn/v1/navneobjekttyper",
+    "http_status": 200,
+    "listed": 291,
+    "inserted": 291,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "navneobjekttype",
+        "value": "Militært bygg/anlegg",
+        "dimensions": {"navneobjekttypekode": "militærtByggAnlegg"}
+      },
+      {
+        "measure": "navneobjekttype",
+        "value": "Fornøyelsespark",
+        "dimensions": {"navneobjekttypekode": "fornøyelsespark"}
+      },
+      {
+        "measure": "navneobjekttype",
+        "value": "Idrettshall",
+        "dimensions": {"navneobjekttypekode": "idrettshall"}
+      },
+      {
+        "measure": "navneobjekttype",
+        "value": "Alpinanlegg",
+        "dimensions": {"navneobjekttypekode": "alpinanlegg"}
+      },
+      {
+        "measure": "navneobjekttype",
+        "value": "Skiheis",
+        "dimensions": {"navneobjekttypekode": "skiheis"}
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset stedsnavn:navneobjekttyper --table navneobjekttyper --entity \"\" --measure \"\" --db /tmp/pda-stedsnavn-proof/registry.sqlite --out /tmp/pda-stedsnavn-proof/methods",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "navneobjekttyper prints place-type names, not a numeric time series. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed OpenAPI path last segments. access_path joins each printed path to https://api.kartverket.no/stedsnavn/v1 from servers[0].url. No Stedsnavn id was written onto a datanorge, geonorge, or norgesbank row.",
+    "The catalog prints 5 GET paths, so ingest stored 5 (cap 10).",
+    "License is null. The OpenAPI info object does not print a license URI.",
+    "Publisher is null. The OpenAPI info object does not print a publisher.",
+    "is_geonorge_rest_url matches any api.kartverket.no URL, so fetch_observations checks is_stedsnavn_url first. geonorge_rest.py was not edited.",
+    "Norges Bank stayed on main (PR 77). Norsk Polarinstitutt stayed on PR 78. This source does not re-implement either."
+  ]
+}
