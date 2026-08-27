@@ -86,11 +86,19 @@ class CatalogHttp:
                     "text": "07277: Adopsjoner, etter adopsjonstype (F) 2006 - 2024",
                     "updated": "2025-09-23T08:00:00",
                 },
+                {
+                    "id": "Samboere",
+                    "type": "t",
+                    "text": "06831: Andel samboere, gifte og ikke i samliv 1977 - 2022",
+                    "updated": "2025-09-23T08:00:00",
+                },
             ]
         if url == TABLE_URL:
             return META
         if url.endswith("/table/07277"):
             return {"title": "07277: other", "variables": []}
+        if url.endswith("/table/06831"):
+            return {"title": "06831: samboere", "variables": []}
         raise AssertionError(f"unexpected GET {url}")
 
 
@@ -107,6 +115,15 @@ class FetchHttp:
 def test_printed_table_id_copies_leading_number() -> None:
     assert printed_table_id({"id": "Adopsjoner01", "text": "06683: Adopsjoner"}) == "06683"
     assert printed_table_id({"id": "slug", "text": "no number"}) == "slug"
+
+
+def test_ssb_offset_skips_already_listed_tables() -> None:
+    source = SsbStatbankSource(http=CatalogHttp(), max_tables=8)
+    first = source.list_dataset_refs(limit=2, offset=0)
+    nxt = source.list_dataset_refs(limit=1, offset=2)
+    assert [ref.source_native_id for ref in first] == ["06683", "07277"]
+    assert [ref.source_native_id for ref in nxt] == ["06831"]
+    assert nxt[0].source_native_uri == "https://data.ssb.no/api/v0/no/table/06831"
 
 
 def test_ssb_is_a_registered_source() -> None:
