@@ -1864,6 +1864,31 @@ innsjohoyde. `pda methods` is not applicable: source names, not a
 numeric time series (`no observations matched entity/measure; available=[]`).
 Proof is `data/hoydedata_source_proof.json`.
 
+## Meteorologisk institutt Nowcast source
+
+`pda ingest --source nowcast` is another replaceable adapter. It lists printed
+collection GET paths on the official MET Nowcast swagger
+`https://api.met.no/weatherapi/nowcast/2.0/swagger`, capped at 10.
+Templated `{format}` paths are skipped. Dataset ids are the last printed
+path segment. `access_path` is the swagger origin + printed `basePath` +
+path. License is the printed swagger CC BY 4.0 URL. Publisher stays null.
+This is not Metalerts (`--source met`), not Kartverket Høydedata
+(`--source hoydedata`, now on main), and not NGU OGC Features
+(`--source ngu`). `/classic` and `/complete` stay unused for fetch in
+this slice: those printed paths require `lat` and `lon`.
+
+```bash
+pda ingest --source nowcast --db data/registry.sqlite --limit 10
+pda search locations --db data/registry.sqlite
+pda fetch --dataset nowcast:locations --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored collection URL. Observation values are copied
+from printed GeoJSON feature `name`. License is the printed swagger
+CC BY 4.0 URL. Publisher stays null: the spec does not print a publisher.
+
+Proof is `data/nowcast_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
