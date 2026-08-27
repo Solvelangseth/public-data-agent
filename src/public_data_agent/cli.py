@@ -81,6 +81,19 @@ def main(argv: list[str] | None = None) -> int:
     fetch_cmd.add_argument("--from-year", type=int, default=None)
     fetch_cmd.add_argument("--to-year", type=int, default=None)
 
+    methods_cmd = sub.add_parser(
+        "methods",
+        help="Clean stored observations, derive YoY rates, emit table and chart",
+    )
+    methods_cmd.add_argument("--dataset", default=DEFAULT_OSLO_DATASET)
+    methods_cmd.add_argument("--table", default=DEFAULT_OSLO_TABLE)
+    methods_cmd.add_argument("--db", type=Path, default=DEFAULT_DB)
+    methods_cmd.add_argument("--out", type=Path, default=Path("methods/proof"))
+    methods_cmd.add_argument("--from-year", type=int, default=2020)
+    methods_cmd.add_argument("--to-year", type=int, default=2026)
+    methods_cmd.add_argument("--entity", default="Oslo (Kristiania og Aker) i alt")
+    methods_cmd.add_argument("--measure", default="Folkemengden i alt (antall personer)")
+
     args = parser.parse_args(argv)
     if args.command == "ingest":
         return _ingest(args)
@@ -96,6 +109,8 @@ def main(argv: list[str] | None = None) -> int:
         return _benchmark(args)
     if args.command == "fetch":
         return _fetch(args)
+    if args.command == "methods":
+        return _methods(args)
     parser.error(f"unknown command {args.command}")
     return 2
 
@@ -273,6 +288,30 @@ def _fetch(args: argparse.Namespace) -> int:
         return 1
     finally:
         registry.close()
+
+
+def _methods(args: argparse.Namespace) -> int:
+    from methods.cli import main as methods_main
+
+    argv = [
+        "--dataset",
+        args.dataset,
+        "--table",
+        args.table,
+        "--db",
+        str(args.db),
+        "--out",
+        str(args.out),
+        "--entity",
+        args.entity,
+        "--measure",
+        args.measure,
+    ]
+    if args.from_year is not None:
+        argv.extend(["--from-year", str(args.from_year)])
+    if args.to_year is not None:
+        argv.extend(["--to-year", str(args.to_year)])
+    return methods_main(argv)
 
 
 def _search(args: argparse.Namespace) -> int:

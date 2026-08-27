@@ -8,7 +8,7 @@ version = "0.1.0"
 description = "Norwegian open-data discovery platform. Milestone 1 is a local dataset registry."
 readme = "README.md"
 requires-python = ">=3.11"
-dependencies = []
+dependencies = ["matplotlib>=3.8"]
 
 [project.optional-dependencies]
 dev = ["pytest>=8.0"]
@@ -17,7 +17,8 @@ dev = ["pytest>=8.0"]
 pda = "public_data_agent.cli:main"
 
 [tool.setuptools.packages.find]
-where = ["src"]
+where = ["src", "."]
+include = ["public_data_agent*", "methods"]
 
 [tool.setuptools.package-data]
 public_data_agent = ["schema.sql"]

@@ -1,0 +1,174 @@
+{
+  "derived_columns": [
+    {
+      "name": "yoy_growth",
+      "formula": "(v_t - v_{t-1}) / v_{t-1}",
+      "input_columns": [
+        "value"
+      ],
+      "units": "ratio",
+      "rows": [
+        {
+          "value": null,
+          "lineage": {
+            "name": "yoy_growth",
+            "formula": "(v_t - v_{t-1}) / v_{t-1}",
+            "input_columns": [
+              "value"
+            ],
+            "units": "ratio",
+            "source_observation_ids": [
+              "4bbaaebeedb1184d6ea24978291da4644ff24d18"
+            ],
+            "source_periods": [
+              "2020"
+            ],
+            "note": "undefined: no prior period"
+          },
+          "entity": "Oslo (Kristiania og Aker) i alt",
+          "period": "2020",
+          "measure": "Folkemengden i alt (antall personer)",
+          "observation_id": "4bbaaebeedb1184d6ea24978291da4644ff24d18"
+        },
+        {
+          "value": 0.005069978976025748,
+          "lineage": {
+            "name": "yoy_growth",
+            "formula": "(v_t - v_{t-1}) / v_{t-1}",
+            "input_columns": [
+              "value"
+            ],
+            "units": "ratio",
+            "source_observation_ids": [
+              "4bbaaebeedb1184d6ea24978291da4644ff24d18",
+              "5a1e6107fc5046770b1f0d8b2eaf3c137ee235ec"
+            ],
+            "source_periods": [
+              "2020",
+              "2021"
+            ]
+          },
+          "entity": "Oslo (Kristiania og Aker) i alt",
+          "period": "2021",
+          "measure": "Folkemengden i alt (antall personer)",
+          "observation_id": "5a1e6107fc5046770b1f0d8b2eaf3c137ee235ec"
+        },
+        {
+          "value": 0.0040415489017374216,
+          "lineage": {
+            "name": "yoy_growth",
+            "formula": "(v_t - v_{t-1}) / v_{t-1}",
+            "input_columns": [
+              "value"
+            ],
+            "units": "ratio",
+            "source_observation_ids": [
+              "5a1e6107fc5046770b1f0d8b2eaf3c137ee235ec",
+              "0e3f55d28c9e888bfc2011fa6f4605636e9534a0"
+            ],
+            "source_periods": [
+              "2021",
+              "2022"
+            ]
+          },
+          "entity": "Oslo (Kristiania og Aker) i alt",
+          "period": "2022",
+          "measure": "Folkemengden i alt (antall personer)",
+          "observation_id": "0e3f55d28c9e888bfc2011fa6f4605636e9534a0"
+        },
+        {
+          "value": 0.013160395354851985,
+          "lineage": {
+            "name": "yoy_growth",
+            "formula": "(v_t - v_{t-1}) / v_{t-1}",
+            "input_columns": [
+              "value"
+            ],
+            "units": "ratio",
+            "source_observation_ids": [
+              "0e3f55d28c9e888bfc2011fa6f4605636e9534a0",
+              "128650ba035ef623f99ee12a4051b7a28e0f8d21"
+            ],
+            "source_periods": [
+              "2022",
+              "2023"
+            ]
+          },
+          "entity": "Oslo (Kristiania og Aker) i alt",
+          "period": "2023",
+          "measure": "Folkemengden i alt (antall personer)",
+          "observation_id": "128650ba035ef623f99ee12a4051b7a28e0f8d21"
+        },
+        {
+          "value": 0.01223208379816568,
+          "lineage": {
+            "name": "yoy_growth",
+            "formula": "(v_t - v_{t-1}) / v_{t-1}",
+            "input_columns": [
+              "value"
+            ],
+            "units": "ratio",
+            "source_observation_ids": [
+              "128650ba035ef623f99ee12a4051b7a28e0f8d21",
+              "298b094b34d6c98d4a9c188e3b466e1ab7a3cbe2"
+            ],
+            "source_periods": [
+              "2023",
+              "2024"
+            ]
+          },
+          "entity": "Oslo (Kristiania og Aker) i alt",
+          "period": "2024",
+          "measure": "Folkemengden i alt (antall personer)",
+          "observation_id": "298b094b34d6c98d4a9c188e3b466e1ab7a3cbe2"
+        },
+        {
+          "value": 0.009168048376085048,
+          "lineage": {
+            "name": "yoy_growth",
+            "formula": "(v_t - v_{t-1}) / v_{t-1}",
+            "input_columns": [
+              "value"
+            ],
+            "units": "ratio",
+            "source_observation_ids": [
+              "298b094b34d6c98d4a9c188e3b466e1ab7a3cbe2",
+              "9a9a8db31b374047c6b1b792cf12d54efe1db81d"
+            ],
+            "source_periods": [
+              "2024",
+              "2025"
+            ]
+          },
+          "entity": "Oslo (Kristiania og Aker) i alt",
+          "period": "2025",
+          "measure": "Folkemengden i alt (antall personer)",
+          "observation_id": "9a9a8db31b374047c6b1b792cf12d54efe1db81d"
+        },
+        {
+          "value": 0.006108050642698367,
+          "lineage": {
+            "name": "yoy_growth",
+            "formula": "(v_t - v_{t-1}) / v_{t-1}",
+            "input_columns": [
+              "value"
+            ],
+            "units": "ratio",
+            "source_observation_ids": [
+              "9a9a8db31b374047c6b1b792cf12d54efe1db81d",
+              "01a055cacd3c3acbfa39465d6c33b6fee49e8a43"
+            ],
+            "source_periods": [
+              "2025",
+              "2026"
+            ]
+          },
+          "entity": "Oslo (Kristiania og Aker) i alt",
+          "period": "2026",
+          "measure": "Folkemengden i alt (antall personer)",
+          "observation_id": "01a055cacd3c3acbfa39465d6c33b6fee49e8a43"
+        }
+      ]
+    }
+  ]
+}
