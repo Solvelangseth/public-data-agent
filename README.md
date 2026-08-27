@@ -2050,7 +2050,13 @@ pda fetch --dataset sunrise:locations --db data/registry.sqlite
 from printed GeoJSON feature `name`. License is the printed swagger
 CC BY 4.0 URL. Publisher stays null: the spec does not print a publisher.
 
-Live ingest and fetch proof will be recorded after the first live run.
+Live ingest 2026-08-27: 6 printed untemplated GET paths (catalog prints
+6 paths, cap 10). Live search `locations` returns `sunrise:locations`.
+Live fetch GETs `https://api.met.no/weatherapi/sunrise/3.0/locations`
+HTTP 200, 1 location-name row. Sample printed value: Whole Earth
+Catalogue. `pda methods` is not applicable: one GeoJSON feature name,
+not a numeric time series (`no observations matched entity/measure;
+available=[]`). Proof is `data/sunrise_source_proof.json`.
 
 ## Architecture (long term)
 
