@@ -6,7 +6,7 @@ No email, call, or outbound post from this file. Contacts are only what the org 
 Product sold: registry of Norwegian public datasets (Data.norge first ingest, sources replaceable), natural-language search, first fetch of actual rows. Later analysis. LLM for intent and explanation. Deterministic retrieval. Provenance (source, publisher, license, access path) on every hit.
 Repo: https://github.com/Solvelangseth/public-data-agent
 
-Status 27 Aug 2026, 13:20 Europe/Oslo: 92 sourced leads. PR 49 merged (bf0f87b). Wave 11: Bømlo Kraftnett, Mellom, Rælingen, Kystnett, Nesodden, Frogn. Nittedal / Ås / TNett skipped. Arendal held. No outreach.
+Status 27 Aug 2026, 13:25 Europe/Oslo: 92 sourced leads. PR 55 merged (e19d881). Wave 11 cards aligned to living-book facts: Mellom (Statnett 5 MW/20 000 MWh + NVE 132 kV Rensvik–Engviklia), Rælingen (Klimabudsjett cites Kostratall), Kystnett (NVE 202411925 Kaldvåg–Ulvsvåg), Nesodden (Mdir 536 + KOSTRA). Bømlo and Frogn unchanged. No leftover parent inboxes. No outreach.
 
 How to read a lead: why they would pay is tied to a named programme, not "they use data." Service shape is always search → fetch → later analysis. If a field says none published, do not invent one.
 
@@ -1933,23 +1933,25 @@ Sources below were opened 2026-08-27 from official pages and the named press/pro
 
 ### Mellom AS
 
-- **Why they would pay.** Named **Over 1 MW** / store tilknytninger on the Tilknytning page, plus nettutreder under taken Elinett NUK **Romsdal og Nordmøre** (NVE lists Kristiansund, Aure, Smøla, Averøy, Tingvoll in that koordineringsområde). Those Tilko / NUK files pull Statnett områdeplan Midt-Norge, NVE PlanNett / Atlas, municipal arealplan and SSB that Elsmart / MinSide do not host. Own portal / Elsmart / Tilko host alone is not the buy reason. Not a NEAS brand.
-- **Concrete use case.** Nettplan first-fetches Elinett NUK Romsdal og Nordmøre / PlanNett, Statnett områdeplan Midt-Norge, and Kristiansund / Aure / Averøy / Smøla / Tingvoll plan for a Tilko ≥1 MW sak or a named Nordmøre lastprognose.
+- **Why they would pay.** Tilko for ≥1 MW (named **Over 1 MW** / store tilknytninger) plus Statnett **5 MW / 20 000 MWh** vanlig-forbruk floor (handoff to transmisjonsnettet) and NVE licence for **132 kV Rensvik–Engviklia** (Kristiansund–Averøy). Those Tilko / Statnett / NVE files pull PlanNett / Atlas, municipal arealplan and SSB that Elsmart / MinSide do not host. Own portal / Elsmart / Tilko host alone is not the buy reason. Not a NEAS brand.
+- **Concrete use case.** Nettplan first-fetches NVE 132 kV Rensvik–Engviklia, Statnett 5 MW / 20 000 MWh floor / områdeplan Midt, and Kristiansund / Averøy plan for a Tilko ≥1 MW sak or the live Rensvik–Engviklia file.
 - **How the service should look.**
-  - Search: data.norge first, then PlanNett, Statnett, Geonorge / municipal plan, SSB.
+  - Search: data.norge first, then PlanNett, Statnett 5 MW / 20 000 MWh, NVE Rensvik–Engviklia, Geonorge / municipal plan, SSB.
   - Fetch: first official PDF / GeoJSON. Not a replacement for Tilko, Elsmart or MinSide.
-  - Later analysis: overlay on Elinett’s NUK områdestudie.
+  - Later analysis: overlay on Elinett’s NUK områdestudie and the NVE 132 kV licence residual.
 - **Public contact.**
   - Role / unit: kundeservice / nett. Daglig leder Bjørn Hammer named (Enhetsregisteret / Proff); no mailbox printed — do not invent one.
-  - Email: `kundeservice@mellom.no` (Enhetsregisteret; priser-og-vilkår; personvern). Do not invent leftover `post@neas.no` / `kundeservice@neas.no`.
+  - Email: `kundeservice@mellom.no` (Enhetsregisteret; priser-og-vilkår; personvern). Do not use leftover `neas@neas.mr.no`.
   - Phone: 71 58 10 00
   - Form/URL: https://mellom.no/tjenester/tilknytning-til-stromnettet/; https://mellom.no/om-oss/
-- **Key facts.** Org.nr 925 668 389. Fosnagata 12, 6509 Kristiansund N. Kommune 1505. Historisk navn NEAS NETT AS (to 28.12.2021). 68 ansatte (12.08.2026). 100 % NEAS AS. Regionalnett Kristiansund, Aure, Tingvoll, Smøla og Averøy.
+- **Key facts.** Org.nr 925 668 389. Fosnagata 12, 6509 Kristiansund N. Kommune 1505. Historisk navn NEAS NETT AS (to 28.12.2021). 68 ansatte (12.08.2026). 100 % NEAS AS. Regionalnett Kristiansund, Aure, Tingvoll, Smøla og Averøy. NVE 132 kV Rensvik–Engviklia. Statnett 5 MW / 20 000 MWh floor.
 - **Sources** (opened 2026-08-27).
   - https://mellom.no/
   - https://mellom.no/om-oss/
   - https://mellom.no/tjenester/tilknytning-til-stromnettet/
   - https://mellom.no/tjenester/tilknytning-til-stromnettet/priser-og-vilkar/
+  - https://www.statnett.no/for-aktorer-i-kraftbransjen/nettkapasitet-til-produksjon-og-forbruk/hvordan-fa-okt-nettkapasitet/
+  - https://www.nve.no/nytt-fra-nve/nyheter-konsesjon/nve-har-gitt-tillatelse-til-en-ny-kraftledning-mellom-kristiansund-og-averoey/
   - https://www.elinett.no/om-oss/kraftsystemutredning
   - https://veiledere.nve.no/forskrift-om-energiutredninger/roller/nettutviklingskoordinator/
   - https://plannett.nve.no/
@@ -1958,21 +1960,23 @@ Sources below were opened 2026-08-27 from official pages and the named press/pro
 
 ### Kystnett AS
 
-- **Why they would pay.** Live NVE **konsesjon Ulvsvåg–Bognes 66 kV + Bognes transformatorstasjon** (Hamarøy) so Statens vegvesen can electrify the Bognes ferger; NVE prints that today’s nett lacks capacity and that the file also opens ladeinfrastruktur at Bognes fergekai. Those KU / MTA / municipal-plan files pull Statnett **områdeplan Helgeland og Salten** / Områdeplan Nord, NVE PlanNett / Atlas, Hamarøy plan and SSB that the kundeportal does not host. Own portal alone is not the buy reason. No live «Nord-Salten Kraft Nett».
-- **Concrete use case.** Nettplan first-fetches NVE konsesjon Ulvsvåg–Bognes / Bognes TS, Statnett områdeplan Helgeland og Salten / Områdeplan Nord, and Hamarøy / Steigen / Sørfold plan for the ferry-electrification file or a Tilko ≥1 MW sak on the same corridor.
+- **Why they would pay.** Live NVE case **202411925** — **66 kV Kaldvåg–Ulvsvåg** KU / søknad (Hamarøy; The Quartz Corp Drag + forsyningssikkerhet). Those KU / municipal-plan files pull Statnett **områdeplan Helgeland og Salten** / Områdeplan Nord, NVE PlanNett / Atlas, Hamarøy plan and SSB that the kundeportal does not host. Own portal alone is not the buy reason. No live «Nord-Salten Kraft Nett».
+- **Concrete use case.** Nettplan first-fetches NVE 202411925 Kaldvåg–Ulvsvåg KU, Statnett områdeplan Helgeland og Salten / Områdeplan Nord, and Hamarøy / Steigen / Sørfold plan for the 66 kV file or a Tilko ≥1 MW sak on the same corridor.
 - **How the service should look.**
-  - Search: data.norge first, then PlanNett, Statnett, Geonorge / Hamarøy plan, SSB.
+  - Search: data.norge first, then PlanNett, NVE 202411925, Statnett, Geonorge / Hamarøy plan, SSB.
   - Fetch: first official PDF / GeoJSON. Not a replacement for the kundeportal.
-  - Later analysis: overlay on the Bognes ferge / ladeinfrastruktur residual.
+  - Later analysis: overlay on the Kaldvåg–Ulvsvåg KU residual.
 - **Public contact.**
-  - Role / unit: firmapost. Daglig leder Helge Egil W Albertsen named (Proff / Enhetsregisteret roller); no mailbox printed — do not invent one.
-  - Email: `firmapost@kystnett.no` (Enhetsregisteret). Do not use leftover `kundeservice@nett.nordsaltenkraft.no` or `kundeservice@nordsaltenkraft.no`.
-  - Phone: 75 77 10 40 (Enhetsregisteret); vakt 75 77 16 07
-  - Form/URL: https://kystnett.no/; https://www.nve.no/nytt-fra-nve/nyheter-konsesjon/nve-gir-konsesjon-til-ny-kraftledning-og-transformatorstasjon-i-hamaroy-kommune/
-- **Key facts.** Org.nr 923 152 601. Strandveien 2, 8276 Ulvsvåg. Kommune 1875 Hamarøy. Historisk navn NORD-SALTEN KRAFT NETT AS (to 17.11.2020). 38 ansatte (12.08.2026). 100 % Nord-Salten Kraft Holding AS. Grid in Hamarøy, Steigen, Sørfold and former Tysfjord.
+  - Role / unit: firmapost / planlegging. Stig Johansen printed on NVE høring 202411925. Daglig leder Helge Egil W Albertsen named (Proff / Enhetsregisteret roller); no mailbox printed — do not invent one.
+  - Email: `firmapost@kystnett.no` (Enhetsregisteret); `stig.johansen@kystnett.no` (NVE høring 202411925). Do not use leftover `firmapost@nordsaltenkraft.no`.
+  - Phone: 75 77 10 40 (Enhetsregisteret); vakt 75 77 16 07; Stig Johansen 41 42 39 89 (NVE høring)
+  - Form/URL: https://kystnett.no/; https://www.nve.no/20441/A
+- **Key facts.** Org.nr 923 152 601. Strandveien 2, 8276 Ulvsvåg. Kommune 1875 Hamarøy. Historisk navn NORD-SALTEN KRAFT NETT AS (to 17.11.2020). 38 ansatte (12.08.2026). 100 % Nord-Salten Kraft Holding AS. Grid in Hamarøy, Steigen, Sørfold and former Tysfjord. NVE 202411925 66 kV Kaldvåg–Ulvsvåg KU.
 - **Sources** (opened 2026-08-27).
   - https://kystnett.no/
-  - https://www.nve.no/nytt-fra-nve/nyheter-konsesjon/nve-gir-konsesjon-til-ny-kraftledning-og-transformatorstasjon-i-hamaroy-kommune/
+  - https://www.nve.no/20441/A
+  - https://www.nve.no/konsesjonssaker/konsesjonssak?id=20441&ref=mainmenu
+  - https://webfileservice.nve.no/API/PublishedFiles/Download/a9a502d9-e17a-465f-b03e-3d55c54f0f51/202411925/3447860
   - https://www.statnett.no/om-statnett/nyheter-og-pressemeldinger/nyhetsarkiv-2025/omradeplan-nord--store-industriplaner-driver-nettutviklingen-i-nord/
   - https://plannett.nve.no/
   - https://virksomhet.brreg.no/nb/oppslag/enheter/923152601
@@ -2691,40 +2695,40 @@ Sources below were opened 2026-08-27 from official pages and the named press/pro
 
 ### Rælingen kommune
 
-- **Why they would pay.** Handlingsprogram 2026–2029 Framsikt slug `bm-2026-hp_2026-2029`: title.json documentTitle2 is **Kommunestyrets vedtak** (title3 empty; this tenant puts vedtak in title2). Named klima follow-up sits in the vedtatt HP and in the still-live **Klimabudsjett 2023–2030** / KDP klima, energi og sirkulærøkonomi (55 % vs 2009). Yearly job is to re-pull Miljødirektoratet kommune 3224 into those rows, not another Framsikt rebuild. Forslag slug `bm-2026-handlingsprogram_2026-2029` is **Formannskapets innstilling** — not this document.
-- **Concrete use case.** Klima owners first-fetch Miljødirektoratet kommune 3224 sector series and overlay the vedtatt HP / klimabudsjett 2009 / 2030 rows, then SSB KOSTRA for own-org energi/bygg.
+- **Why they would pay.** Handlingsprogram 2026–2029 Framsikt slug `bm-2026-hp_2026-2029`: title.json documentTitle2 is **Kommunestyrets vedtak** (title3 empty; this tenant puts vedtak in title2). Named **Klimabudsjett** in the vedtatt HP **cites Kostratall**. Yearly job is to re-pull those KOSTRA rows, not another Framsikt rebuild. Forslag slug `bm-2026-handlingsprogram_2026-2029` is **Formannskapets innstilling** — not this document.
+- **Concrete use case.** Klima owners first-fetch SSB KOSTRA / Kostratall cited in the Klimabudsjett and overlay the vedtatt HP rows.
 - **How the service should look.**
-  - Search: data.norge first, then Mdir kommuneregnskap, SSB 07459 / KOSTRA.
+  - Search: data.norge first, then SSB KOSTRA / Kostratall.
   - Fetch: first official Excel/PxWeb rows. Their Framsikt chapter stays theirs.
-  - Later analysis: refresh the latest Mdir year into the 55 % / 2009 residual; keep veitrafikk as a named hole.
+  - Later analysis: refresh the latest Kostratall year into the Klimabudsjett residual.
 - **Public contact.**
-  - Role / unit: postmottak. No named klimarådgiver mailbox printed — do not invent one.
+  - Role / unit: postmottak. Do not invent a Langdalen mailbox.
   - Email: `postmottak@ralingen.kommune.no` (Enhetsregisteret)
   - Phone: 63 83 51 00 (Enhetsregisteret)
   - Form/URL: https://www.ralingen.kommune.no/
-- **Key facts.** Org.nr 952 540 556. Kommunenr. 3224. Bjørnholthagan 6 / Postboks 100, 2025 Fjerdingby.
+- **Key facts.** Org.nr 952 540 556. Kommunenr. 3224. Bjørnholthagan 6 / Postboks 100, 2025 Fjerdingby. Klimabudsjett cites Kostratall.
 - **Sources** (opened 2026-08-27).
   - https://pub.framsikt.net/2026/rælingen/bm-2026-hp_2026-2029
   - https://pub.framsikt.net/2026/rælingen/bm-2026-hp_2026-2029/content/data/title.json
   - https://pub.framsikt.net/2026/rælingen/bm-2026-handlingsprogram_2026-2029/content/data/title.json
   - https://www.ralingen.kommune.no/
   - https://data.brreg.no/enhetsregisteret/api/enheter/952540556
-  - https://www.miljodirektoratet.no/tjenester/klimagassutslipp-kommuner/
+  - https://www.ssb.no/statbank/table/12842
 
 ### Nesodden kommune
 
-- **Why they would pay.** Budsjett og økonomiplan 2026–2029 Framsikt slug `bm-2026-kst_vedtak_26_29`: title.json documentTitle2 is **Kommunestyrets vedtak** (title3 empty). Kommunestyret 10.12.2025. The vedtatt news page names continued **klima- og beredskapstiltak** (solceller, flomsikring, digital sikkerhet) as part of the same document. Yearly job is to first-fetch Miljødirektoratet kommune 3212 into that follow-up, not another Framsikt rebuild. Forslag slug `bm-2026-bud_og_op_2026-2029` is **Kommunedirektørens forslag** — not this document.
-- **Concrete use case.** Klima owners first-fetch Miljødirektoratet kommune 3212 sector series and overlay the vedtatt 2026–2029 klima/beredskap lines, then SSB KOSTRA for own-org energi/bygg.
+- **Why they would pay.** Budsjett og økonomiplan 2026–2029 Framsikt slug `bm-2026-kst_vedtak_26_29`: title.json documentTitle2 is **Kommunestyrets vedtak** (title3 empty). Kommunestyret 10.12.2025. Named climate follow-up in the vedtatt KST book is **Miljødirektoratet area 536** (Nesodden) **and KOSTRA**. Yearly job is to first-fetch Mdir area 536 + KOSTRA into that follow-up, not another Framsikt rebuild. Forslag slug `bm-2026-bud_og_op_2026-2029` is **Kommunedirektørens forslag** — not this document.
+- **Concrete use case.** Klima owners first-fetch Miljødirektoratet area 536 sector series and SSB KOSTRA and overlay the vedtatt 2026–2029 klima lines.
 - **How the service should look.**
-  - Search: data.norge first, then Mdir kommuneregnskap, SSB.
-  - Fetch: first official Excel/PxWeb rows. Their Framsikt document stays theirs.
-  - Later analysis: refresh the latest Mdir year against the samfunnsdel klima lines; keep veitrafikk as a named hole.
+  - Search: data.norge first, then Mdir area 536, SSB KOSTRA.
+  - Fetch: first official Excel/PxWeb rows for areaId 536. Their Framsikt document stays theirs.
+  - Later analysis: refresh the latest Mdir / KOSTRA year against the samfunnsdel klima lines; keep veitrafikk as a named hole.
 - **Public contact.**
-  - Role / unit: postmottak / servicetorget. Kommunedirektør Hogne Eidissen and økonomisjef Siri Hatland named on the forslag news page; klimarådgiver role named in recruitment, no mailbox printed — do not invent firstname.lastname addresses.
-  - Email: `post@nesodden.kommune.no` (økonomi page); `postmottak@nesodden.kommune.no` (Enhetsregisteret)
+  - Role / unit: postmottak. Do not invent a klimarådgiver mailbox.
+  - Email: `postmottak@nesodden.kommune.no` (Enhetsregisteret)
   - Phone: 66 96 43 00 (Enhetsregisteret)
   - Form/URL: https://www.nesodden.kommune.no/om-kommunen/okonomi-budsjett-og-priser/
-- **Key facts.** Org.nr 944 383 565. Kommunenr. 3212. Kongleveien 2 / Postboks 123, 1451 Nesoddtangen. Kommunestyret 10.12.2025.
+- **Key facts.** Org.nr 944 383 565. Kommunenr. 3212. Kongleveien 2 / Postboks 123, 1451 Nesoddtangen. Kommunestyret 10.12.2025. Mdir area 536 + KOSTRA.
 - **Sources** (opened 2026-08-27).
   - https://pub.framsikt.net/2026/nesodden/bm-2026-kst_vedtak_26_29
   - https://pub.framsikt.net/2026/nesodden/bm-2026-kst_vedtak_26_29/content/data/title.json
@@ -2732,7 +2736,9 @@ Sources below were opened 2026-08-27 from official pages and the named press/pro
   - https://www.nesodden.kommune.no/aktuelt/kommunestyret-har-vedtatt-budsjett-og-okonomiplan-2026-2029.243964.aspx
   - https://www.nesodden.kommune.no/om-kommunen/okonomi-budsjett-og-priser/
   - https://data.brreg.no/enhetsregisteret/api/enheter/944383565
-  - https://www.miljodirektoratet.no/tjenester/klimagassutslipp-kommuner/
+  - https://www.miljodirektoratet.no/tjenester/klimagassutslipp-kommuner/?area=536&sector=-2
+  - https://www.miljodirektoratet.no/greenhousegas/api/summary?areaId=536
+  - https://www.ssb.no/statbank/table/12842
 
 ### Frogn kommune
 
@@ -2821,6 +2827,7 @@ Keep these notes in the living book. They are not leads.
 - 2026-08-27: Added Nesodden kommune from wave-11 mid-size (vedtatt slug bm-2026-kst_vedtak_26_29; title2 Kommunestyrets vedtak 10.12.2025). Nittedal / Ås / TNett skipped. Arendal held. Still no outreach.
 - 2026-08-27: Added Frogn kommune from wave-11 mid-size (vedtatt slug bm-2026-handlingsprogrammet_2026-2029; title2 Kommunestyrets vedtak; Klimabudsjett node cites Mdir area 535 / 44 043 t / 2023). No klimarådgiver mailbox. Arendal held. Still no outreach.
 - 2026-08-27: Wave 11 closed in the living file (Bømlo Kraftnett, Mellom, Rælingen, Kystnett, Nesodden, Frogn). Nittedal / Ås / TNett skipped. Health seats this wave skipped/exhausted. Still no outreach.
+- 2026-08-27: Wave 11 facts aligned to living book: Mellom (Statnett 5 MW/20 000 MWh + NVE 132 kV Rensvik–Engviklia; leftover `neas@neas.mr.no` not used), Rælingen (Klimabudsjett cites Kostratall; no Langdalen mailbox), Kystnett (NVE 202411925 Kaldvåg–Ulvsvåg; leftover `firmapost@nordsaltenkraft.no` not used), Nesodden (Mdir area 536 + KOSTRA; no klimarådgiver mailbox). Bømlo and Frogn unchanged. Still no outreach.
 
 ---
 
