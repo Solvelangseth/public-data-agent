@@ -1,0 +1,155 @@
+{
+  "produced_at": "2026-08-27T14:05:30Z",
+  "bound": {
+    "list_api": "https://data-nbr.udir.no/swagger/v3/swagger.json",
+    "walk": "copy collection GET paths printed in OpenAPI paths; skip templated {orgnr} paths",
+    "cap": 10,
+    "how": "pda ingest --source nbr --limit 10. The official Nasjonalt barnehageregister OpenAPI lists collection GET paths. The adapter copies those printed paths, joins each path to the OpenAPI document origin because servers is absent, and stops at 10."
+  },
+  "discarded": [
+    {
+      "candidate": "Trondheim kommune Åpne Data",
+      "url": "PR 75 cursor/trondheim-source-0001 --source trondheim",
+      "why": "Already in flight. Do not touch that branch, PR, or adapter files."
+    },
+    {
+      "candidate": "SODIR FactPages swagger",
+      "url": "https://factpages.sodir.no/swagger/v1/swagger.json",
+      "why": "HTTP 404 HTML."
+    },
+    {
+      "candidate": "Norges Bank API root",
+      "url": "https://data.norges-bank.no/api",
+      "why": "HTTP 403 Cloudflare HTML. /api/dataflow?format=sdmx-json later returned 200 JSON dataflows and was left as a later source after NBR printed collection GET paths and an NLOD license URI."
+    },
+    {
+      "candidate": "Udir statistikkbank",
+      "url": "https://api.statistikkbanken.udir.no/api/v1/no",
+      "why": "HTTP 404 JSON Resource not found. swagger/v1/swagger.json also 404."
+    },
+    {
+      "candidate": "Bergen kommune PxWeb",
+      "url": "https://statistikkbanken.bergen.kommune.no/statbank/api/v1/no",
+      "why": "DNS name not known."
+    },
+    {
+      "candidate": "Stavanger kommune PxWeb",
+      "url": "https://statistikk.stavanger.kommune.no/statbank/api/v1/no",
+      "why": "HTTP 301 then 404 HTML on the kommune site."
+    },
+    {
+      "candidate": "NBR swagger v1",
+      "url": "https://data-nbr.udir.no/swagger/v1/swagger.json",
+      "why": "HTTP 404. The host prints the catalog at swagger/v3/swagger.json."
+    },
+    {
+      "candidate": "NBR enheter/endretEtter",
+      "url": "https://data-nbr.udir.no/v3/enheter/endretEtter",
+      "why": "Printed untemplated GET path, ingested as nbr:endretEtter. Live GET without a printed query returned HTTP 500. Not used as the fetch target."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source nbr --db /tmp/pda-nbr-proof/registry.sqlite --limit 10",
+    "listed": 8,
+    "inserted": 8,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "nbr:enheter",
+        "access_path": "https://data-nbr.udir.no/v3/enheter"
+      },
+      {
+        "id": "nbr:endretEtter",
+        "access_path": "https://data-nbr.udir.no/v3/enheter/endretEtter"
+      },
+      {
+        "id": "nbr:naeringskoder",
+        "access_path": "https://data-nbr.udir.no/v3/naeringskoder"
+      },
+      {
+        "id": "nbr:maalformer",
+        "access_path": "https://data-nbr.udir.no/v3/maalformer"
+      },
+      {
+        "id": "nbr:organisasjonsformer",
+        "access_path": "https://data-nbr.udir.no/v3/organisasjonsformer"
+      },
+      {
+        "id": "nbr:utgaattyper",
+        "access_path": "https://data-nbr.udir.no/v3/utgaattyper"
+      },
+      {
+        "id": "nbr:relasjonstyper",
+        "access_path": "https://data-nbr.udir.no/v3/relasjonstyper"
+      },
+      {
+        "id": "nbr:barnehagekategorier",
+        "access_path": "https://data-nbr.udir.no/v3/barnehagekategorier"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search barnehagekategorier --db /tmp/pda-nbr-proof/registry.sqlite --limit 5",
+    "query": "barnehagekategorier",
+    "returned": 1,
+    "hit_id": "nbr:barnehagekategorier",
+    "title": "Alle barnehagekategorier",
+    "source_id": "nbr"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset nbr:barnehagekategorier --db /tmp/pda-nbr-proof/registry.sqlite",
+    "dataset": "nbr:barnehagekategorier",
+    "table_id": "barnehagekategorier",
+    "access_path": "https://data-nbr.udir.no/v3/barnehagekategorier",
+    "request_url": "https://data-nbr.udir.no/v3/barnehagekategorier",
+    "http_status": 200,
+    "listed": 10,
+    "inserted": 10,
+    "license": "https://data.norge.no/nlod/no",
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "Navn",
+        "value": "Ingen verdi",
+        "dimensions": {"Id": "0"}
+      },
+      {
+        "measure": "Navn",
+        "value": "Offentlig barnehage",
+        "dimensions": {"Id": "18"}
+      },
+      {
+        "measure": "Navn",
+        "value": "Kommunal barnehage",
+        "dimensions": {"Id": "19"}
+      },
+      {
+        "measure": "Navn",
+        "value": "Privat barnehage",
+        "dimensions": {"Id": "20"}
+      },
+      {
+        "measure": "Navn",
+        "value": "Fylkeskommunal barnehage",
+        "dimensions": {"Id": "21"}
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset nbr:barnehagekategorier --table barnehagekategorier --entity \"\" --measure \"\" --db /tmp/pda-nbr-proof/registry.sqlite --out /tmp/pda-nbr-proof/methods",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "NBR /v3/barnehagekategorier prints kindergarten-type names (Navn plus Id). That is not a numeric time series. methods.clean drops the rows because they have no period. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed OpenAPI collection path last segments. access_path joins each printed path to the origin of https://data-nbr.udir.no/swagger/v3/swagger.json because the spec prints no servers array. A swagger-directory join 404s. No NBR id was written onto a datanorge or udir row.",
+    "License is the printed OpenAPI info.license.url https://data.norge.no/nlod/no. The spec name is NLOD without a version path; the printed URL was copied as-is.",
+    "Publisher is null. The OpenAPI info object does not print a publisher name.",
+    "Oslo kommune Statistikkbank stayed on main (PR 74). Trondheim stays on PR 75. This source does not re-implement either."
+  ]
+}
