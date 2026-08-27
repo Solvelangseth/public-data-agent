@@ -727,6 +727,24 @@ EL area 2 = 0.46631882, VASS area 3 = 0.82981455.
 The payload is one week across areas, not a time series, so methods
 was not used. Proof is `data/nve_source_proof.json`.
 
+## Brønnøysundregistrene Enhetsregisteret source
+
+`pda ingest --source brreg` is another replaceable adapter. It lists the
+printed HAL `_links` on the official Enhetsregisteret API root
+`https://data.brreg.no/enhetsregisteret/api`, skipping `self`, capped at 10.
+Dataset ids are the printed relation names. `access_path` is the printed href.
+
+```bash
+pda ingest --source brreg --db data/registry.sqlite --limit 10
+pda search organisasjonsformer --db data/registry.sqlite
+pda fetch --dataset brreg:organisasjonsformer --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored href. Observation values are copied from printed
+scalar fields on the first `_embedded` list of dicts (prefer `kode`, then
+`navn`, then `beskrivelse`). License and publisher stay null unless the API
+prints them.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
