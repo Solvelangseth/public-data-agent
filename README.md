@@ -851,6 +851,14 @@ from printed `Navn`. License is copied from the printed OpenAPI
 `info.license.url` when present. Publisher stays null: the spec does not
 print a publisher name.
 
+Live ingest 2026-08-27: 6 printed collection GET paths. Live search
+`skoletyper` returns `udir:skoletyper`. Live fetch GETs
+`https://data-nsr.udir.no/skoletyper` HTTP 200, 16 school-type rows.
+Sample printed names: Grunnskole, Videregående skole, Offentlig skole,
+Privatskole, Kommunal. `pda methods` is not applicable: names, not a
+numeric time series (`no observations matched entity/measure; available=[]`).
+Proof is `data/udir_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists

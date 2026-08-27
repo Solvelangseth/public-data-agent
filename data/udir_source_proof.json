@@ -1,0 +1,157 @@
+{
+  "produced_at": "2026-08-27T11:30:06Z",
+  "bound": {
+    "list_api": "https://data-nsr.udir.no/swagger/v1/swagger.json",
+    "walk": "copy collection GET paths printed in OpenAPI paths; skip templated {id} paths",
+    "cap": 10,
+    "how": "pda ingest --source udir --limit 10. The official Nasjonalt skoleregister OpenAPI lists collection GET paths. The adapter copies those printed paths, joins each path to the OpenAPI document origin because servers is absent, and stops at 10."
+  },
+  "discarded": [
+    {
+      "candidate": "CRISTIN institutions",
+      "url": "https://api.cristin.no/v2/institutions",
+      "why": "Live GET 200 JSON institutions. Root and docs are HTML. No OpenAPI or HAL list of endpoints."
+    },
+    {
+      "candidate": "Entur mobility GBFS",
+      "url": "https://api.entur.io/mobility/v2/gbfs",
+      "why": "Live GET 200 lists 76 system URLs. NSR already printed collection GET paths and an NLOD license URI, so Entur was left as a later source."
+    },
+    {
+      "candidate": "Stortinget eksport",
+      "url": "https://data.stortinget.no/eksport",
+      "why": "Root /eksport HTTP 404. Individual eksport names return XML. The catalog page is HTML, not a list API."
+    },
+    {
+      "candidate": "MET weatherapi available",
+      "url": "https://api.met.no/weatherapi/",
+      "why": "HTML product docs. Frost remains 401 without a client id and was not added."
+    },
+    {
+      "candidate": "Norsk Polarinstitutt dataset",
+      "url": "https://api.npolar.no/dataset",
+      "why": "Live GET 200 count=564. Root has no printed endpoint list (501). Not a list-of-endpoints API."
+    },
+    {
+      "candidate": "HK-dir DBH",
+      "url": "https://dbh.hkdir.no/api",
+      "why": "Welcome JSON only. swagger.json and openapi.json returned 404."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source udir --db /tmp/pda-udir-proof/registry.sqlite --limit 10",
+    "listed": 6,
+    "inserted": 6,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "udir:enheter",
+        "access_path": "https://data-nsr.udir.no/enheter"
+      },
+      {
+        "id": "udir:fylker",
+        "access_path": "https://data-nsr.udir.no/fylker"
+      },
+      {
+        "id": "udir:kommuner",
+        "access_path": "https://data-nsr.udir.no/kommuner"
+      },
+      {
+        "id": "udir:nacekoder",
+        "access_path": "https://data-nsr.udir.no/nacekoder"
+      },
+      {
+        "id": "udir:relasjonstyper",
+        "access_path": "https://data-nsr.udir.no/relasjonstyper"
+      },
+      {
+        "id": "udir:skoletyper",
+        "access_path": "https://data-nsr.udir.no/skoletyper"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search skoletyper --db /tmp/pda-udir-proof/registry.sqlite --limit 5",
+    "query": "skoletyper",
+    "returned": 1,
+    "hit_id": "udir:skoletyper",
+    "title": "Alle skoletyper",
+    "source_id": "udir"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset udir:skoletyper --db /tmp/pda-udir-proof/registry.sqlite",
+    "dataset": "udir:skoletyper",
+    "table_id": "skoletyper",
+    "access_path": "https://data-nsr.udir.no/skoletyper",
+    "request_url": "https://data-nsr.udir.no/skoletyper",
+    "http_status": 200,
+    "listed": 16,
+    "inserted": 16,
+    "license": "https://data.norge.no/nlod/no",
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "Navn",
+        "value": "Grunnskole",
+        "dimensions": {
+          "NavnTekst": "",
+          "Id": "1",
+          "ErSystemType": "True"
+        }
+      },
+      {
+        "measure": "Navn",
+        "value": "Videregående skole",
+        "dimensions": {
+          "NavnTekst": "",
+          "Id": "2",
+          "ErSystemType": "True"
+        }
+      },
+      {
+        "measure": "Navn",
+        "value": "Offentlig skole",
+        "dimensions": {
+          "NavnTekst": "",
+          "Id": "3",
+          "ErSystemType": "True"
+        }
+      },
+      {
+        "measure": "Navn",
+        "value": "Privatskole",
+        "dimensions": {
+          "NavnTekst": "",
+          "Id": "4",
+          "ErSystemType": "True"
+        }
+      },
+      {
+        "measure": "Navn",
+        "value": "Kommunal",
+        "dimensions": {
+          "NavnTekst": "",
+          "Id": "5",
+          "ErSystemType": "True"
+        }
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset udir:skoletyper --table skoletyper --entity \"\" --measure \"\" --db /tmp/pda-udir-proof/registry.sqlite --out /tmp/pda-udir-proof/methods",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "NSR /skoletyper prints school-type names (Navn plus Id). That is not a numeric time series. methods.clean drops the rows because they have no period. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed OpenAPI collection path last segments. access_path joins each printed path to the origin of https://data-nsr.udir.no/swagger/v1/swagger.json because the spec prints no servers array. A swagger-directory join 404s. No Udir id was written onto a datanorge row.",
+    "License is the printed OpenAPI info.license.url https://data.norge.no/nlod/no. The spec name is NLOD without a version path; the printed URL was copied as-is.",
+    "Publisher is null. The OpenAPI info object does not print a publisher name. nxr-teknisk@udir.no is an email, not a publisher field.",
+    "Mattilsynet Plantevernmidler stayed on main (PR 56). This source does not re-implement it."
+  ]
+}
