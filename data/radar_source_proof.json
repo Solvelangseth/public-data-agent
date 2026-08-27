@@ -9,8 +9,8 @@
   "discarded": [
     {
       "candidate": "MET Sunrise",
-      "url": "PR 103 --source sunrise",
-      "why": "Lane B open PR. Do not re-add. Lane A picked a different source."
+      "url": "https://api.met.no/weatherapi/sunrise/3.0/swagger",
+      "why": "Already on main as --source sunrise after PR 103 merge 12e4173. Do not re-add."
     },
     {
       "candidate": "Meteorologisk institutt Oceanforecast",
@@ -197,9 +197,9 @@
     "Ids are copied from printed swagger path last segments. access_path is swagger origin + printed basePath + path. No radar id was written onto a met, nowcast, oceanforecast, airquality, tidalwater, or datanorge row.",
     "License is the printed swagger CC BY 4.0 URL http://creativecommons.org/licenses/by/4.0. Publisher is null: the spec prints contact.name Developer Support, not a publisher.",
     "Original harvested swagger metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
-    "Nowcast stays --source nowcast. Metalerts stays --source met. Airqualityforecast stays --source airquality. Tidalwater stays --source tidalwater. Oceanforecast stays --source oceanforecast. Lane B Sunrise stays PR 103. This source does not re-implement those.",
+    "Nowcast stays --source nowcast. Metalerts stays --source met. Airqualityforecast stays --source airquality. Tidalwater stays --source tidalwater. Oceanforecast stays --source oceanforecast. Sunrise stays --source sunrise after PR 103. This source does not re-implement those.",
     "Image-product paths such as /5level_reflectivity print required area and were not ingested. Fetch in this slice uses /locations so area is not invented.",
-    "python3 -m pytest 501 passed, 1 skipped, 1 deselected.",
+    "python3 -m pytest 511 passed, 1 skipped, 1 deselected after rebase onto sunrise.",
     "Not a numeric time series with two or more periods."
   ]
 }
