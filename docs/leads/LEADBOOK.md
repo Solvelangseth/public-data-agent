@@ -6,7 +6,7 @@ No email, call, or outbound post from this file. Contacts are only what the org 
 Product sold: registry of Norwegian public datasets (Data.norge first ingest, sources replaceable), natural-language search, first fetch of actual rows. Later analysis. LLM for intent and explanation. Deterministic retrieval. Provenance (source, publisher, license, access path) on every hit.
 Repo: https://github.com/Solvelangseth/public-data-agent
 
-Status 27 Aug 2026, 12:01 Europe/Oslo: 78 sourced leads. PR 40 merged (d3206ae). Wave 8 in the living file: Sørlandet, Nordlandssykehuset, Vestall, Elmea, Halden, Lillehammer. Elmea inboxes are page-printed (`kunde@` / `pal.martinussen@`). Arendal held. No outreach.
+Status 27 Aug 2026, 12:19 Europe/Oslo: 82 sourced leads. PR 41 merged (e580b7c). Wave 9: Sygnir, Meløy Energi, Lier, Sandefjord. Health this wave skipped (no named consume). Arendal held. No outreach.
 
 How to read a lead: why they would pay is tied to a named programme, not "they use data." Service shape is always search → fetch → later analysis. If a field says none published, do not invent one.
 
@@ -1809,6 +1809,52 @@ Sources below were opened 2026-08-27 from official pages and the named press/pro
   - https://virksomhet.brreg.no/nb/oppslag/enheter/986347801
   - https://data.brreg.no/enhetsregisteret/api/enheter/986347801
 
+### Sygnir AS
+
+- **Why they would pay.** Tilko for ≥1 MW + early-need bustadfelt/næringsområde, plus a live **NVE-melding/KU Vik regionalnett** (sak 16121, konsesjon 05.06.2026) that NVE prints as «i hovedsak utløst av Statnett sine planer» (ømrådeplan Bergensområdet / 420 kV Vik–Ramnaberg). 132 kV ledning-KU still open; detaljplan must sit with Vik kommune / kulturminner / naturmangfold. Nettutreder under taken Linja NUK. Own Tilko host alone is not the buy reason.
+- **Concrete use case.** Nettplan first-fetches Statnett områdeplan Bergensområdet / 420 kV Vik–Ramnaberg, NVE PlanNett / Atlas / sak 16121, and Vik/Sogndal plan + kulturminner for the open 132 kV ledning-KU or a Tilko ≥1 MW sak.
+- **How the service should look.**
+  - Search: data.norge first, then PlanNett, Statnett, Geonorge / municipal plan, SSB.
+  - Fetch: first official PDF / GeoJSON. Not a replacement for Tilko or the kontaktskjema.
+  - Later analysis: corridor overlay on Linja’s NUK områdestudie and Statnett trinn-2.
+- **Public contact.**
+  - Role / unit: tilknyting / kundesenter. Named prosjektleiarar (Hurthi, Stølen, Carlsen) have no printed mailbox — do not invent one.
+  - Email: `tilknyting@sygnir.no` (nettilknyting); `kunde@sygnir.no` (kontakt-oss). Do not use leftover `post@sognekraft.no`.
+  - Phone: 57 69 86 03
+  - Form/URL: https://www.sygnir.no/kontakt-oss; https://www.sygnir.no/nettilknyting
+- **Key facts.** Org.nr 924 619 260. Røysavegen 1, 6893 Vik i Sogn. Historisk navn SOGNEKRAFT NETT AS (to 02.11.2020).
+- **Sources** (opened 2026-08-27).
+  - https://www.sygnir.no/nettilknyting
+  - https://www.sygnir.no/kontakt-oss
+  - https://www.sygnir.no/akktuellesaker-arkiv/konsesjonssoknad-vik-regionalnettstruktur
+  - https://www.nve.no/konsesjon/konsesjonssaker/konsesjonssak?id=16121&type=A
+  - https://plannett.nve.no/
+  - https://virksomhet.brreg.no/nb/oppslag/enheter/924619260
+  - https://data.brreg.no/enhetsregisteret/api/enheter/924619260
+
+### Meløy Energi AS
+
+- **Why they would pay.** Tilko ≥1 MW + DF on all net levels + handoff to regionalnettseier, plus modenhet criterion 5 that requires municipal arealformål / omregulering (Meløy KPA 2025–2037). Own kraftsystemplan lastøkning feeds PlanNett as nettutreder under taken Arva NUK. Own portal / Wattapp / Tilko host alone is not the buy reason. Not Yara’s Glomfjord park.
+- **Concrete use case.** Nettplan first-fetches Meløy arealdel 2025–2037 / regulering, NVE PlanNett / Atlas, and Arva regionalnett / Statnett Områdeplan Nord for a Tilko ≥1 MW DF sak outside the industripark.
+- **How the service should look.**
+  - Search: data.norge first, then PlanNett, Statnett, Geonorge / Meløy planregister, SSB.
+  - Fetch: first official PDF / GeoJSON. Not a replacement for Tilko, Wattapp or minside.
+  - Later analysis: overlay on the ≥1 MW kø outside Yara’s park.
+- **Public contact.**
+  - Role / unit: kundesenter / nett. Nettsjef Pål Einar Olsen and daglig leder Sigurd Stormo named; no mailbox printed — do not invent one.
+  - Email: `post@meloyenergi.no` (kontakt-oss and ≥1 MW start page). Do not invent firstname.lastname addresses.
+  - Phone: 75 72 01 90
+  - Form/URL: https://meloyenergi.no/ac/kontakt-oss
+- **Key facts.** Org.nr 919 173 122. Kystveien 4, 8150 Ørnes. Historiske navn MELØY ENERGI NETT AS then MELØY NETT AS (to 09.04.2024).
+- **Sources** (opened 2026-08-27).
+  - https://meloyenergi.no/a/stromtilknytning/stoerre-tilknytninger-1mw/slik-kommer-du-i-gang
+  - https://meloyenergi.no/ac/kontakt-oss
+  - https://meloyenergi.no/ac/om-meloey-energi
+  - https://www.meloy.kommune.no/innhold/plan-og-naring/kommuneplanens-arealdel/
+  - https://plannett.nve.no/
+  - https://virksomhet.brreg.no/nb/oppslag/enheter/919173122
+  - https://data.brreg.no/enhetsregisteret/api/enheter/919173122
+
 ---
 
 ## 48. Fredrikstad kommune — Åpne data Hub + kart@
@@ -2423,6 +2469,53 @@ Sources below were opened 2026-08-27 from official pages and the named press/pro
   - https://data.brreg.no/enhetsregisteret/api/enheter/945578564
   - https://www.miljodirektoratet.no/tjenester/klimagassutslipp-kommuner/
 
+### Lier kommune
+
+- **Why they would pay.** Handlingsprogram 2026–2029 Framsikt slug `bm-2026-hp2629ks`: title.json documentTitle2 is **Vedtatt i kommunestyret 16.12.25** (title3 empty; this tenant puts vedtak in title2). Named **Klimabudsjett** chapter cites Miljødirektoratet (2023 = 111 383,8 t) and KOSTRA-modellen on own-org. Forslag slug `bm-2026-hp2629kd` is Kommunedirektørens beslutningsgrunnlag — not this document.
+- **Concrete use case.** Klima owners first-fetch Miljødirektoratet kommune 3312 / areaId 562 sector series and overlay the vedtatt 2022 / 2023 / 2030 rows, then the KOSTRA-structured own-org drift/investering line.
+- **How the service should look.**
+  - Search: data.norge first, then Mdir kommuneregnskap, SSB 07459 / KOSTRA.
+  - Fetch: first official Excel/PxWeb rows. Their Framsikt chapter stays theirs.
+  - Later analysis: refresh 2023→2024/2025 into the summer-2026 klimaplan; keep veitrafikk/gjennomgang and the 2023 vintage hole as residuals.
+- **Public contact.**
+  - Role / unit: postmottak; klima-og-miljø (Paavo Pirttilehto); kommunalsjef økonomi Eivind Lien. Klimarådgiver Sigrid Swensen named, no mailbox printed — do not invent one.
+  - Email: `postmottak@lier.kommune.no`; `paavo.pirttilehto@lier.kommune.no`; `eivind.lien@lier.kommune.no`
+  - Phone: 32 22 01 00; Pirttilehto 48 67 06 40; Lien 98 22 01 10
+  - Form/URL: https://www.lier.kommune.no/politikk-og-samfunnsutvikling/okonomi/
+- **Key facts.** Org.nr 857 566 122. Kommunenr. 3312. Kommunestyret 16.12.2025.
+- **Sources** (opened 2026-08-27).
+  - https://pub.framsikt.net/2026/lier/bm-2026-hp2629ks
+  - https://pub.framsikt.net/2026/lier/bm-2026-hp2629ks/#/generic/summary/climatesummary
+  - https://pub.framsikt.net/2026/lier/bm-2026-hp2629ks/content/data/title.json
+  - https://www.lier.kommune.no/politikk-og-samfunnsutvikling/okonomi/
+  - https://www.lier.kommune.no/organisasjon/kontakt-oss/
+  - https://www.lier.kommune.no/politikk-og-samfunnsutvikling/samfunnsutvikling/klima_miljo/
+  - https://data.brreg.no/enhetsregisteret/api/enheter/857566122
+  - https://www.miljodirektoratet.no/tjenester/klimagassutslipp-kommuner/
+
+### Sandefjord kommune
+
+- **Why they would pay.** Handlings- og økonomiplan 2026–2029 Framsikt slug `bm-2026-sandefjord_kommune_hop_2026-2029`: title.json documentTitle3 is **Vedtatt av kommunestyret 18. des 2025**. Named **Klimabudsjett** chapter: «Det er Miljødirektoratet som publiserer disse dataene.» Earlier slug `bm-2026-klimabudsjett_2026` is høringsforslag — not this document.
+- **Concrete use case.** Klima owners first-fetch Miljødirektoratet kommune 3907 / areaId 617 sector series and overlay the vedtatt 2009 / 2023 / −70 % / 2035 rows, then SSB KOSTRA for own-org energi/bygg.
+- **How the service should look.**
+  - Search: data.norge first, then Mdir kommuneregnskap, SSB.
+  - Fetch: first official Excel/PxWeb rows. Their Framsikt chapter stays theirs.
+  - Later analysis: refresh 2023→2024/2025 into the −70 % / 77 700 t residual; keep veitrafikk and off-ledger materialbruk as separate residuals.
+- **Public contact.**
+  - Role / unit: postmottak / servicetorget.
+  - Email: `post@sandefjord.kommune.no` (kontaktinfo). Do not invent a klima-officer mailbox.
+  - Phone: 33 41 60 00
+  - Form/URL: https://www.sandefjord.kommune.no/kontaktinfo-og-apningstider/
+- **Key facts.** Org.nr 916 882 807. Kommunenr. 3907. Kommunestyret 18.12.2025.
+- **Sources** (opened 2026-08-27).
+  - https://pub.framsikt.net/2026/sandefjord/bm-2026-sandefjord_kommune_hop_2026-2029
+  - https://pub.framsikt.net/2026/sandefjord/bm-2026-sandefjord_kommune_hop_2026-2029/#/generic/summary/climatesummary
+  - https://pub.framsikt.net/2026/sandefjord/bm-2026-sandefjord_kommune_hop_2026-2029/content/data/title.json
+  - https://www.sandefjord.kommune.no/engasjer-deg/planer/overordnede-planer/handlings-og-okonomiplan/gjeldende-handlings-og-okonomiplan/
+  - https://www.sandefjord.kommune.no/kontaktinfo-og-apningstider/
+  - https://data.brreg.no/enhetsregisteret/api/enheter/916882807
+  - https://www.miljodirektoratet.no/tjenester/klimagassutslipp-kommuner/
+
 ---
 
 ## Skipped, with reasons
@@ -2438,8 +2531,14 @@ Keep these notes in the living book. They are not leads.
 - **E24 / Kommunal Rapport** — weaker than Aftenposten's published data desk (Journalisten is the source for desk size «seks»).
 - **DIS (Helse Nord)** — Digitale innbygger- og samhandlingstjenester; clinical patient-journey / documents, not a discovery buyer. Helse Nord programme in this book is Helseatlas / SKDE.
 - **Norgesnett** — folded into Glitre Nett; not a fourth energy seat.
+- **Istad** — is Elinett; not a separate energy seat.
 - **Asker / Bærum / Ålesund / Tromsø / Drammen** — mid-size seats held; not numbered in this book.
 - **Arendal kommune** — held: 2026 klimabudsjett is only in kommunedirektørens forslag; the vedtatt HØP (bystyret 11.12.2025) has no Klimabudsjett chapter. Same skip as an un-vedtatt skisse.
+- **Steinkjer kommune** — held: 2026 klimabudsjett is forslag, not vedtatt.
+- **Elverum kommune** — no 2026 Klimabudsjett.
+- **Ringsaker kommune** — vedtatt, no Klimabudsjett.
+- **Ullensaker kommune** — 2026 title not vedtak.
+- **St. Olavs / Helse Møre og Romsdal / Helse Stavanger / Finnmarkssykehuset / Helgelandssykehuset / Lovisenberg / Helse Fonna** — no named consume.
 
 ---
 
@@ -2462,6 +2561,7 @@ Keep these notes in the living book. They are not leads.
 - 2026-08-27: Added Askøy kommune (vedtatt slug bm-2026-vedtatt_budsjett; earlier skip was the forslag slug).
 - 2026-08-27: Added Horten kommune (vedtatt slug bm-2026-ohp_2026; earlier skip was the innstilling slug).
 - 2026-08-27: Added Sykehuset Sørlandet, Nordlandssykehuset, Vestall, Elmea, Halden and Lillehammer. Elmea inboxes are page-printed (`kunde@` / `pal.martinussen@`). Still no leftover `firmapost@lofotkraft.no`. Lillehammer deepen: `controllere@` + sak 90/2025. Still no outreach.
+- 2026-08-27: Added Sygnir, Meløy Energi, Lier and Sandefjord. Health seats this wave skipped. Still no outreach.
 
 ---
 
