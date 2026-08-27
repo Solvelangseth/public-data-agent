@@ -1,0 +1,205 @@
+{
+  "produced_at": "2026-08-27T21:40:58Z",
+  "bound": {
+    "list_api": "https://api.met.no/weatherapi/radar/2.0/swagger",
+    "walk": "copy printed untemplated GET paths from the official MET Radar swagger that print no required query parameters; native ids are the last printed path segment; access_path is swagger origin + printed basePath + path; skip templated {format} paths and image-product paths that print required area/type; do not invent dataset ids or area filters",
+    "cap": 10,
+    "how": "pda ingest --source radar --limit 10. The official MET Radar swagger prints 71 paths. The adapter copies the 8 untemplated GET paths that have a printed last segment and no required query parameter. GET uses the printed /locations collection with no invented query filters."
+  },
+  "discarded": [
+    {
+      "candidate": "MET Sunrise",
+      "url": "PR 103 --source sunrise",
+      "why": "Lane B open PR. Do not re-add. Lane A picked a different source."
+    },
+    {
+      "candidate": "Meteorologisk institutt Oceanforecast",
+      "url": "https://api.met.no/weatherapi/oceanforecast/2.0/swagger",
+      "why": "Already on main as --source oceanforecast after PR 102. Do not re-add."
+    },
+    {
+      "candidate": "Meteorologisk institutt Tidalwater",
+      "url": "https://api.met.no/weatherapi/tidalwater/1.1/swagger",
+      "why": "Already on main as --source tidalwater after PR 101. Do not re-add."
+    },
+    {
+      "candidate": "Meteorologisk institutt Airqualityforecast",
+      "url": "https://api.met.no/weatherapi/airqualityforecast/0.1/swagger",
+      "why": "Already on main as --source airquality after PR 100. Do not re-add."
+    },
+    {
+      "candidate": "Riksantikvaren MABYGIS",
+      "url": "PR 99 --source riksantikvaren",
+      "why": "Already on main after PR 99. Do not re-add."
+    },
+    {
+      "candidate": "MET weathericon swagger",
+      "url": "https://api.met.no/weatherapi/weathericon/2.0/swagger",
+      "why": "HTTP 500. Do not retry."
+    },
+    {
+      "candidate": "MET aviationforecast swagger",
+      "url": "https://api.met.no/weatherapi/aviationforecast/1.6/swagger",
+      "why": "HTTP 500. Do not retry."
+    },
+    {
+      "candidate": "MET turbulence swagger",
+      "url": "https://api.met.no/weatherapi/turbulence/1.1/swagger",
+      "why": "HTTP 500. Do not retry."
+    },
+    {
+      "candidate": "Geonorge nedlasting swagger",
+      "url": "https://nedlasting.geonorge.no/swagger/v1/swagger.json",
+      "why": "HTTP 404. Do not retry."
+    },
+    {
+      "candidate": "NVE avalanche swagger",
+      "url": "https://api01.nve.no/hydrology/forecast/avalanche/v6.3.1/swagger/v1/swagger.json",
+      "why": "HTTP 404. Do not retry."
+    },
+    {
+      "candidate": "Udir GSI swagger",
+      "url": "https://data-gsi.udir.no/swagger/v1/swagger.json",
+      "why": "DNS failure. Do not retry."
+    },
+    {
+      "candidate": "Udir VGO swagger",
+      "url": "https://data-vgo.udir.no/swagger/v4/swagger.json",
+      "why": "DNS failure. Do not retry."
+    },
+    {
+      "candidate": "HK-dir DBH tabeller",
+      "url": "https://api.nsd.no/dbhapitjener/Tabeller",
+      "why": "HTTP 502. Do not retry."
+    },
+    {
+      "candidate": "MET Locationforecast swagger",
+      "url": "https://api.met.no/weatherapi/locationforecast/2.0/swagger",
+      "why": "Known unused: untemplated /classic and /complete require lat and lon. Not a collection catalog."
+    },
+    {
+      "candidate": "MET geosatellite swagger",
+      "url": "https://api.met.no/weatherapi/geosatellite/1.4/swagger",
+      "why": "HTTP 200 swagger. Leftover unused: image product; /available is XML. Radar already prints a JSON /locations collection."
+    },
+    {
+      "candidate": "NVDB Les V3 OpenAPI",
+      "url": "https://nvdbapiles-v3.atlas.vegvesen.no/dokumentasjon/openapi.json",
+      "why": "Known skip: HTTP 400 User-Agent. Do not retry."
+    },
+    {
+      "candidate": "Vegvesen Trafikkdata swagger / trafikkdata-api",
+      "url": "https://trafikkdata.atlas.vegvesen.no/",
+      "why": "Known skip: swagger HTML-only; trafikkdata-api 410. Do not retry."
+    },
+    {
+      "candidate": "Kartverket Eiendom /geokoding",
+      "url": "https://api.kartverket.no/eiendom/v1/geokoding",
+      "why": "Known skip: HTTP 400 without matrikkel params. Do not retry."
+    },
+    {
+      "candidate": "Udir Statistikkbanken /data",
+      "url": "Udir Statistikkbanken /Eksport/{id}/data",
+      "why": "Known skip: requires invented filters. Do not retry."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source radar --db /tmp/pda-radar-proof/registry.sqlite --limit 10",
+    "listed": 8,
+    "inserted": 8,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "radar:available",
+        "access_path": "https://api.met.no/weatherapi/radar/2.0/available"
+      },
+      {
+        "id": "radar:changelog",
+        "access_path": "https://api.met.no/weatherapi/radar/2.0/changelog"
+      },
+      {
+        "id": "radar:features",
+        "access_path": "https://api.met.no/weatherapi/radar/2.0/features"
+      },
+      {
+        "id": "radar:healthz",
+        "access_path": "https://api.met.no/weatherapi/radar/2.0/healthz"
+      },
+      {
+        "id": "radar:locations",
+        "access_path": "https://api.met.no/weatherapi/radar/2.0/locations"
+      },
+      {
+        "id": "radar:radaroptions",
+        "access_path": "https://api.met.no/weatherapi/radar/2.0/radaroptions"
+      },
+      {
+        "id": "radar:status",
+        "access_path": "https://api.met.no/weatherapi/radar/2.0/status"
+      },
+      {
+        "id": "radar:values",
+        "access_path": "https://api.met.no/weatherapi/radar/2.0/values"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search locations --db /tmp/pda-radar-proof/registry.sqlite --limit 5",
+    "query": "locations",
+    "returned": 1,
+    "hit_id": "radar:locations",
+    "title": "List available locations as GeoJSON FeatureCollection",
+    "source_id": "radar"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset radar:locations --db /tmp/pda-radar-proof/registry.sqlite",
+    "dataset": "radar:locations",
+    "table_id": "locations",
+    "access_path": "https://api.met.no/weatherapi/radar/2.0/locations",
+    "request_url": "https://api.met.no/weatherapi/radar/2.0/locations",
+    "http_status": 200,
+    "listed": 15,
+    "inserted": 15,
+    "license": "http://creativecommons.org/licenses/by/4.0",
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "name",
+        "value": "Central Norway"
+      },
+      {
+        "measure": "name",
+        "value": "Eastern Norway"
+      },
+      {
+        "measure": "name",
+        "value": "Finnmark"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset radar:locations --table locations --entity \"\" --measure \"\" --db /tmp/pda-radar-proof/registry.sqlite --out /tmp/pda-radar-proof/methods",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "Radar /locations prints feature names (Central Norway, Eastern Norway, …). That is not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed swagger path last segments. access_path is swagger origin + printed basePath + path. No radar id was written onto a met, nowcast, oceanforecast, airquality, tidalwater, or datanorge row.",
+    "License is the printed swagger CC BY 4.0 URL http://creativecommons.org/licenses/by/4.0. Publisher is null: the spec prints contact.name Developer Support, not a publisher.",
+    "Original harvested swagger metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "Nowcast stays --source nowcast. Metalerts stays --source met. Airqualityforecast stays --source airquality. Tidalwater stays --source tidalwater. Oceanforecast stays --source oceanforecast. Lane B Sunrise stays PR 103. This source does not re-implement those.",
+    "Image-product paths such as /5level_reflectivity print required area and were not ingested. Fetch in this slice uses /locations so area is not invented.",
+    "python3 -m pytest 501 passed, 1 skipped, 1 deselected.",
+    "Not a numeric time series with two or more periods."
+  ]
+}

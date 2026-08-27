@@ -2085,7 +2085,15 @@ pda fetch --dataset radar:locations --db data/registry.sqlite
 from printed feature `name`. License is the printed swagger CC BY 4.0 URL.
 Publisher stays null: the spec does not print a publisher.
 
-Live ingest and fetch proof will be recorded in `data/radar_source_proof.json`.
+Live ingest 2026-08-27: 8 printed untemplated collection GET paths
+(catalog prints 71 paths; templated `{format}` paths and image-product
+paths with required `area`/`type` skipped, cap 10). Live search
+`locations` returns `radar:locations`. Live fetch GETs
+`https://api.met.no/weatherapi/radar/2.0/locations` HTTP 200, 15
+feature-name rows. Sample printed value: Central Norway.
+`pda methods` is not applicable: feature names, not a numeric time series
+(`no observations matched entity/measure; available=[]`).
+Proof is `data/radar_source_proof.json`.
 
 ## Architecture (long term)
 
