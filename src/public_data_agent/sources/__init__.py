@@ -43,6 +43,7 @@ from public_data_agent.sources.riksantikvaren import RiksantikvarenSource
 from public_data_agent.sources.sikt import SiktSource
 from public_data_agent.sources.sodir import SodirSource
 from public_data_agent.sources.oslo import OsloStatbankSource
+from public_data_agent.sources.spotwind import SpotwindSource
 from public_data_agent.sources.ssb import SsbStatbankSource
 from public_data_agent.sources.statnett import StatnettDriftsdataSource
 from public_data_agent.sources.stedsnavn import StedsnavnSource
@@ -105,6 +106,7 @@ SOURCE_IDS = (
     "oceanforecast",
     "sunrise",
     "radar",
+    "spotwind",
 )
 
 
@@ -211,6 +213,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return SunriseSource()
     if source_id == "radar":
         return RadarSource()
+    if source_id == "spotwind":
+        return SpotwindSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -256,6 +260,7 @@ __all__ = [
     "SiktSource",
     "SodirSource",
     "OsloStatbankSource",
+    "SpotwindSource",
     "SsbStatbankSource",
     "SOURCE_IDS",
     "SourceBase",

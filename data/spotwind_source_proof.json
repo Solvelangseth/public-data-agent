@@ -1,0 +1,209 @@
+{
+  "produced_at": "2026-08-27T21:49:01Z",
+  "bound": {
+    "list_api": "https://api.met.no/weatherapi/spotwind/1.1/swagger",
+    "walk": "copy printed untemplated GET paths from the official MET Spotwind swagger; skip the root path with no last-segment id; native ids are the last printed path segment; access_path is swagger origin + printed basePath + path; do not invent dataset ids or lat/lon filters",
+    "cap": 10,
+    "how": "pda ingest --source spotwind --limit 10. The official MET Spotwind swagger prints 4 untemplated GET paths that have a last-segment id. The adapter copies those paths. GET uses the printed /locations collection with no invented query filters."
+  },
+  "discarded": [
+    {
+      "candidate": "MET Radar",
+      "url": "PR 104 --source radar",
+      "why": "Lane A in-flight PR. Lane B must pick a different source."
+    },
+    {
+      "candidate": "MET Sunrise",
+      "url": "PR 103 --source sunrise, now on main",
+      "why": "Just merged. Do not re-add."
+    },
+    {
+      "candidate": "MET Oceanforecast",
+      "url": "https://api.met.no/weatherapi/oceanforecast/2.0/swagger",
+      "why": "Already on main as --source oceanforecast. Do not re-add."
+    },
+    {
+      "candidate": "MET Tidalwater",
+      "url": "https://api.met.no/weatherapi/tidalwater/1.1/swagger",
+      "why": "Already on main as --source tidalwater. Do not re-add."
+    },
+    {
+      "candidate": "MET Airqualityforecast",
+      "url": "https://api.met.no/weatherapi/airqualityforecast/0.1/swagger",
+      "why": "Already on main as --source airquality. Do not re-add."
+    },
+    {
+      "candidate": "MET Nowcast",
+      "url": "https://api.met.no/weatherapi/nowcast/2.0/swagger",
+      "why": "Already on main as --source nowcast. Do not re-add."
+    },
+    {
+      "candidate": "MET Metalerts",
+      "url": "https://api.met.no/weatherapi/metalerts/2.0/swagger",
+      "why": "Already on main as --source met. Do not re-add."
+    },
+    {
+      "candidate": "MET Geosatellite /features",
+      "url": "https://api.met.no/weatherapi/geosatellite/1.4/swagger",
+      "why": "Printed catalog left unused. Lane B picked Spotwind /locations instead."
+    },
+    {
+      "candidate": "MET Metgm /features",
+      "url": "https://api.met.no/weatherapi/metgm/1.0/swagger",
+      "why": "Printed catalog left unused. Lane B picked Spotwind /locations instead."
+    },
+    {
+      "candidate": "MET Subjectiveforecast /features",
+      "url": "https://api.met.no/weatherapi/subjectiveforecast/1.0/swagger",
+      "why": "Printed catalog left unused. Lane B picked Spotwind /locations instead."
+    },
+    {
+      "candidate": "MET Locationforecast /classic /compact /complete",
+      "url": "https://api.met.no/weatherapi/locationforecast/2.0/swagger",
+      "why": "Printed forecast paths require lat/lon. Unused for fetch."
+    },
+    {
+      "candidate": "MET weathericon swagger",
+      "url": "https://api.met.no/weatherapi/weathericon/2.0/swagger",
+      "why": "HTTP 500 HTML. Do not retry."
+    },
+    {
+      "candidate": "MET textforecast swagger",
+      "url": "https://api.met.no/weatherapi/textforecast/2.0/swagger",
+      "why": "Known skip: HTTP 500 HTML. Do not retry."
+    },
+    {
+      "candidate": "MET forestfireindex swagger",
+      "url": "https://api.met.no/weatherapi/forestfireindex/1.1/swagger",
+      "why": "Known skip: HTTP 500 HTML. Do not retry."
+    },
+    {
+      "candidate": "MET lightning swagger",
+      "url": "https://api.met.no/weatherapi/lightning/2.0/swagger",
+      "why": "Known skip: HTTP 500 HTML. Do not retry."
+    },
+    {
+      "candidate": "Frost MET sources",
+      "url": "https://frost.met.no/sources/v0.jsonld",
+      "why": "HTTP 401. Do not retry."
+    },
+    {
+      "candidate": "Kartverket SeHavniva OpenAPI",
+      "url": "https://api.kartverket.no/sehavniva/v1/openapi.json",
+      "why": "HTTP 404. Unused."
+    },
+    {
+      "candidate": "NVE gis3 REST folders",
+      "url": "https://gis3.nve.no/arcgis/rest/services?f=json",
+      "why": "Prints folders only, no layer catalog. Unused."
+    },
+    {
+      "candidate": "Artsdatabanken /api/Resource",
+      "url": "https://www.artsdatabanken.no/api/Resource",
+      "why": "Taxa content list, not a dataset catalog. Unused."
+    },
+    {
+      "candidate": "NVDB Les V3 OpenAPI",
+      "url": "https://nvdbapiles-v3.atlas.vegvesen.no/dokumentasjon/openapi.json",
+      "why": "Known skip: HTTP 400 User-Agent. Do not retry."
+    },
+    {
+      "candidate": "Vegvesen Trafikkdata swagger / trafikkdata-api",
+      "url": "https://trafikkdata.atlas.vegvesen.no/",
+      "why": "Known skip: swagger HTML-only; trafikkdata-api 410. Do not retry."
+    },
+    {
+      "candidate": "Kartverket Eiendom /geokoding",
+      "url": "https://api.kartverket.no/eiendom/v1/geokoding",
+      "why": "Known skip: HTTP 400 without matrikkel params. Do not retry."
+    },
+    {
+      "candidate": "Udir Statistikkbanken /data",
+      "url": "Udir Statistikkbanken /Eksport/{id}/data",
+      "why": "Known skip: requires invented filters. Do not retry."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source spotwind --db /tmp/pda-spotwind-proof/registry.sqlite --limit 10",
+    "listed": 4,
+    "inserted": 4,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "spotwind:changelog",
+        "access_path": "https://api.met.no/weatherapi/spotwind/1.1/changelog"
+      },
+      {
+        "id": "spotwind:healthz",
+        "access_path": "https://api.met.no/weatherapi/spotwind/1.1/healthz"
+      },
+      {
+        "id": "spotwind:locations",
+        "access_path": "https://api.met.no/weatherapi/spotwind/1.1/locations"
+      },
+      {
+        "id": "spotwind:schema",
+        "access_path": "https://api.met.no/weatherapi/spotwind/1.1/schema"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search locations --db /tmp/pda-spotwind-proof/registry.sqlite --limit 5",
+    "query": "locations",
+    "returned": 1,
+    "hit_id": "spotwind:locations",
+    "title": "List available locations as GeoJSON FeatureCollection",
+    "source_id": "spotwind"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset spotwind:locations --db /tmp/pda-spotwind-proof/registry.sqlite",
+    "dataset": "spotwind:locations",
+    "table_id": "locations",
+    "access_path": "https://api.met.no/weatherapi/spotwind/1.1/locations",
+    "request_url": "https://api.met.no/weatherapi/spotwind/1.1/locations",
+    "http_status": 200,
+    "listed": 15,
+    "inserted": 15,
+    "license": "http://creativecommons.org/licenses/by/4.0",
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "name",
+        "value": "DKE"
+      },
+      {
+        "measure": "name",
+        "value": "DKW"
+      },
+      {
+        "measure": "name",
+        "value": "FE"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset spotwind:locations --table locations --entity \"\" --measure \"\" --db /tmp/pda-spotwind-proof/registry.sqlite --out /tmp/pda-spotwind-proof/methods",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "Spotwind /locations prints GeoJSON feature names (DKE, DKW, FE, …). Those are not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed swagger path last segments. access_path is swagger origin + printed basePath + path. No spotwind id was written onto a met, nowcast, airquality, tidalwater, oceanforecast, sunrise, radar, or datanorge row.",
+    "License is the printed swagger CC BY 4.0 URL http://creativecommons.org/licenses/by/4.0. Publisher is null: the spec does not print a publisher.",
+    "Original harvested swagger metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "Sunrise is now on main as --source sunrise after PR 103. Radar is now on main as --source radar after PR 104. Oceanforecast stays --source oceanforecast. Tidalwater stays --source tidalwater. Airqualityforecast stays --source airquality. Nowcast stays --source nowcast. Metalerts stays --source met.",
+    "Rebased onto origin/main after Radar 104 merge e7120e6. radar adapter files were not edited.",
+    "python3 -m pytest after rebase: 522 passed, 1 skipped.",
+    "Not a numeric time series with two or more periods."
+  ]
+}
