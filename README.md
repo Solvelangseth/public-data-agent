@@ -2095,6 +2095,30 @@ feature-name rows. Sample printed value: Central Norway.
 (`no observations matched entity/measure; available=[]`).
 Proof is `data/radar_source_proof.json`.
 
+## Meteorologisk institutt Spotwind source
+
+`pda ingest --source spotwind` is another replaceable adapter. It lists printed
+collection GET paths on the official MET Spotwind swagger
+`https://api.met.no/weatherapi/spotwind/1.1/swagger`, capped at 10.
+Templated `{format}` paths and the root `/` path are skipped. Dataset ids
+are the last printed path segment. `access_path` is the swagger origin +
+printed `basePath` + path. License is the printed swagger CC BY 4.0 URL.
+Publisher stays null. This is not Metalerts (`--source met`), not Nowcast
+(`--source nowcast`), not MET Airqualityforecast (`--source airquality`),
+not MET Tidalwater (`--source tidalwater`), not MET Oceanforecast
+(`--source oceanforecast`), not MET Sunrise (`--source sunrise`), and not
+MET Radar (`--source radar`, now on main after PR 104).
+
+```bash
+pda ingest --source spotwind --db data/registry.sqlite --limit 10
+pda search locations --db data/registry.sqlite
+pda fetch --dataset spotwind:locations --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored collection URL. Observation values are copied
+from printed GeoJSON feature `name`. License is the printed swagger
+CC BY 4.0 URL. Publisher stays null: the spec does not print a publisher.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
