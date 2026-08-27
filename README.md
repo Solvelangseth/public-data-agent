@@ -1727,6 +1727,15 @@ printed field `name` when it is a non-empty string, otherwise `alias`.
 Publisher is copied from the printed FeatureServer `copyrightText`. License
 stays null: the list document does not print a license URL.
 
+Live ingest 2026-08-27: 10 printed layers (catalog prints 39, cap 10). Live
+search `block` returns `sodir:block`. Live fetch GETs
+`https://factmaps.sodir.no/api/rest/services/DataService/Data/FeatureServer/1001?f=json`
+HTTP 200, 9 field-name rows. Sample printed values: OBJECTID, blcName,
+blcNpdidBlock, blcArea, qadName.
+`pda methods` is not applicable: field names, not a numeric time series
+(`no observations matched entity/measure; available=[]`).
+Proof is `data/sodir_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
