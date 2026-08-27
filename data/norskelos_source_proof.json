@@ -1,0 +1,203 @@
+{
+  "produced_at": "2026-08-27T23:58:54Z",
+  "bound": {
+    "list_api": "https://dnl.kartverket.no/api/ogc/v1/collections",
+    "walk": "copy printed collection ids from the official Kartverket Den norske los OGC API Features catalog; skip collections that print no id or no items GET href; native ids are the last printed collection-id segment; access_path is the printed GeoJSON items href; license is the printed OpenAPI CC BY 4.0 URL; do not invent collection ids or query filters",
+    "cap": 10,
+    "how": "pda ingest --source norskelos --limit 10. The official Kartverket Den norske los collections catalog prints 2 collections with an items GET href. The adapter copies those collections. GET uses the printed /collections/dennorskelos/place/items?f=json href with no invented query filters."
+  },
+  "discarded": [
+    {
+      "candidate": "MET Routeforecast",
+      "url": "PR 126 --source routeforecast, now on main",
+      "why": "Assigned skip for this lane. Already on main after merge d0b7c8f. Do not re-add."
+    },
+    {
+      "candidate": "MET Volcanicashforecast",
+      "url": "PR 125 --source volcanicashforecast, now on main",
+      "why": "Assigned skip for this lane. Already on main after merge 7f6f64d. Do not re-add."
+    },
+    {
+      "candidate": "MET Sigcharts",
+      "url": "PR 124 --source sigcharts, now on main",
+      "why": "Assigned skip for this lane. Already on main. Do not re-add."
+    },
+    {
+      "candidate": "MET NLAroutes",
+      "url": "PR 123 --source nlaroutes, now on main",
+      "why": "Assigned skip for this lane. Already on main. Do not re-add."
+    },
+    {
+      "candidate": "MET Turbulence",
+      "url": "PR 122 --source turbulence, now on main",
+      "why": "Assigned skip for this lane. Already on main. Do not re-add."
+    },
+    {
+      "candidate": "MET Offshoremaps",
+      "url": "PR 121 --source offshoremaps, now on main",
+      "why": "Assigned skip for this lane. Already on main. Do not re-add."
+    },
+    {
+      "candidate": "MET Isobaricgrib",
+      "url": "PR 120 --source isobaricgrib, now on main",
+      "why": "Assigned skip for this lane. Already on main. Do not re-add."
+    },
+    {
+      "candidate": "MET Oslofjord",
+      "url": "PR 119 --source oslofjord, now on main",
+      "why": "Assigned skip for this lane. Already on main. Do not re-add."
+    },
+    {
+      "candidate": "MET Metgc",
+      "url": "PR 118 --source metgc, now on main",
+      "why": "Assigned skip for this lane. Already on main. Do not re-add."
+    },
+    {
+      "candidate": "MET Gribfiles",
+      "url": "PR 117 --source gribfiles, now on main",
+      "why": "Assigned skip for this lane. Already on main. Do not re-add."
+    },
+    {
+      "candidate": "MET Soundprofile",
+      "url": "PR 116 --source soundprofile, now on main",
+      "why": "Assigned skip for this lane. Already on main. Do not re-add."
+    },
+    {
+      "candidate": "Kartverket Transformering",
+      "url": "PR 115 --source transformering, now on main",
+      "why": "Assigned skip for this lane. Already on main. Do not re-add."
+    },
+    {
+      "candidate": "MET Aviationforecast 2.0 swagger",
+      "url": "https://api.met.no/weatherapi/aviationforecast/2.0/swagger",
+      "why": "Assigned skip for this lane. Do not pick aviationforecast."
+    },
+    {
+      "candidate": "MET Sigmets 2.0 swagger",
+      "url": "https://api.met.no/weatherapi/sigmets/2.0/swagger",
+      "why": "Assigned skip for this lane. Do not pick sigmets."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    },
+    {
+      "candidate": "MET Locationforecast /classic /compact /complete",
+      "url": "https://api.met.no/weatherapi/locationforecast/2.0/swagger",
+      "why": "Printed forecast paths require lat/lon. Unused for fetch."
+    },
+    {
+      "candidate": "MET weathericon / aviationforecast 1.0 / verticalprofile / forecastmap / icing / thredds swagger",
+      "url": "https://api.met.no/weatherapi/",
+      "why": "Known skip: swagger HTTP 500 HTML. Do not retry."
+    },
+    {
+      "candidate": "Frost MET sources",
+      "url": "https://frost.met.no/sources/v0.jsonld",
+      "why": "HTTP 401. Do not retry."
+    },
+    {
+      "candidate": "NVDB Les V3 OpenAPI",
+      "url": "https://nvdbapiles-v3.atlas.vegvesen.no/dokumentasjon/openapi.json",
+      "why": "Known skip: HTTP 400 User-Agent. Do not retry."
+    },
+    {
+      "candidate": "Vegvesen Trafikkdata swagger / trafikkdata-api",
+      "url": "https://trafikkdata.atlas.vegvesen.no/",
+      "why": "Known skip: swagger HTML-only; trafikkdata-api 410. Do not retry."
+    },
+    {
+      "candidate": "Kartverket Eiendom /geokoding",
+      "url": "https://api.kartverket.no/eiendom/v1/geokoding",
+      "why": "Known skip: HTTP 400 without matrikkel params. Do not retry."
+    },
+    {
+      "candidate": "Kartverket Adresser /sok",
+      "url": "https://api.kartverket.no/adresser/v1/sok",
+      "why": "OpenAPI prints /sok, but live GET without search params is HTTP 400. Do not invent a query."
+    },
+    {
+      "candidate": "Kartverket skred / kvikkleire OpenAPI",
+      "url": "https://ws.geonorge.no/skred/v1/openapi.json",
+      "why": "Live GET OpenAPI is HTTP 403. Do not invent an auth workaround."
+    },
+    {
+      "candidate": "NVE HydAPI /api/v1/Parameters",
+      "url": "https://hydapi.nve.no/swagger/v1/swagger.json",
+      "why": "HTTP 401. Do not retry."
+    },
+    {
+      "candidate": "Udir Statistikkbanken /data",
+      "url": "Udir Statistikkbanken /Eksport/{id}/data",
+      "why": "Known skip: requires invented filters. Do not retry."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source norskelos --db /tmp/norskelos-proof/registry.sqlite --limit 10",
+    "listed": 2,
+    "inserted": 2,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "norskelos:place",
+        "access_path": "https://dnl.kartverket.no/api/ogc/v1/collections/dennorskelos/place/items?f=json"
+      },
+      {
+        "id": "norskelos:sailingdirections",
+        "access_path": "https://dnl.kartverket.no/api/ogc/v1/collections/dennorskelos/sailingdirections/items?f=json"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search place --db /tmp/norskelos-proof/registry.sqlite --limit 10",
+    "query": "place",
+    "returned": 1,
+    "hit_id": "norskelos:place",
+    "title": "Description of place",
+    "source_id": "norskelos",
+    "publisher": null,
+    "license": "https://creativecommons.org/licenses/by/4.0/",
+    "access_path": "https://dnl.kartverket.no/api/ogc/v1/collections/dennorskelos/place/items?f=json",
+    "original_source": "https://dnl.kartverket.no/api/ogc/v1/collections",
+    "why_picked": "title matched place; description matched place"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset norskelos:place --db /tmp/norskelos-proof/registry.sqlite",
+    "dataset": "norskelos:place",
+    "table_id": "place",
+    "access_path": "https://dnl.kartverket.no/api/ogc/v1/collections/dennorskelos/place/items?f=json",
+    "request_url": "https://dnl.kartverket.no/api/ogc/v1/collections/dennorskelos/place/items?f=json",
+    "http_status": 200,
+    "listed": 50,
+    "inserted": 50,
+    "updated": 0,
+    "license": "https://creativecommons.org/licenses/by/4.0/",
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "title",
+        "value": "Fillan"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset norskelos:place --db /tmp/norskelos-proof/registry.sqlite",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "Den norske los /place/items prints GeoJSON place titles. Those are not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed collection-id last segments. access_path is the printed GeoJSON items href. No norskelos id was written onto a met, volcanicashforecast, nlaroutes, turbulence, offshoremaps, isobaricgrib, oslofjord, metgc, gribfiles, nowcast, airquality, tidalwater, oceanforecast, sunrise, radar, spotwind, textforecast, icemap, ncagalewarnings, tafmetar, subseasonal, geosatellite, metgm, subjectiveforecast, polarsatellite, soundprofile, transformering, sigcharts, ngu, kommuneinfo, hoydedata, stedsnavn, or datanorge row.",
+    "License is the printed OpenAPI CC BY 4.0 URL https://creativecommons.org/licenses/by/4.0/. Publisher is null: the catalog does not print a publisher.",
+    "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "python3 -m pytest after Norskelos adapter: 730 passed, 1 skipped, 1 deselected.",
+    "Not a numeric time series with two or more periods. Fetch listed 50 printed place-title cells (sample Fillan).",
+    "Open PR check at pickup found Lane A PR 126 MET Routeforecast. That source stayed unused. aviationforecast 2.0 and sigmets 2.0 stayed unused."
+  ]
+}

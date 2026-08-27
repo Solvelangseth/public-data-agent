@@ -35,6 +35,7 @@ from public_data_agent.sources.nibio import NibioWeatherSource
 from public_data_agent.sources.nin import NinSource
 from public_data_agent.sources.nlaroutes import NlaroutesSource
 from public_data_agent.sources.nor import NorSource
+from public_data_agent.sources.norskelos import NorskelosSource
 from public_data_agent.sources.npr import NprSource
 from public_data_agent.sources.norgesbank import NorgesBankSource
 from public_data_agent.sources.nowcast import NowcastSource
@@ -149,6 +150,7 @@ SOURCE_IDS = (
     "sigcharts",
     "volcanicashforecast",
     "routeforecast",
+    "norskelos",
 )
 
 
@@ -299,6 +301,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return VolcanicashforecastSource()
     if source_id == "routeforecast":
         return RouteforecastSource()
+    if source_id == "norskelos":
+        return NorskelosSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -336,6 +340,7 @@ __all__ = [
     "NinSource",
     "NlaroutesSource",
     "NorSource",
+    "NorskelosSource",
     "NprSource",
     "NorgesBankSource",
     "NowcastSource",

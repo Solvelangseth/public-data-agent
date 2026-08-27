@@ -3073,6 +3073,45 @@ location-name cells. Sample printed value: `ENBJ-ENHF`.
 time series (`no observations matched entity/measure; available=[]`).
 Proof is `data/routeforecast_source_proof.json`.
 
+## Kartverket Den norske los source
+
+`pda ingest --source norskelos` is another replaceable adapter. It lists
+printed collection ids on the official Kartverket Den norske los OGC API
+Features catalog `https://dnl.kartverket.no/api/ogc/v1/collections`,
+capped at 10. Collections that print no id or no items GET href are
+skipped. Dataset ids are the last printed collection-id segment.
+`access_path` is the printed GeoJSON items href. License is the printed
+OpenAPI CC BY 4.0 URL. Publisher stays null. This is not Metalerts
+(`--source met`), not Nowcast (`--source nowcast`), not MET
+Airqualityforecast (`--source airquality`), not Kartverket Kommuneinfo
+(`--source kommuneinfo`), not Kartverket Hoydedata
+(`--source hoydedata`), not Kartverket Stedsnavn
+(`--source stedsnavn`), not Kartverket Transformering
+(`--source transformering`), not NGU OGC Features (`--source ngu`),
+not MET Volcanicashforecast (`--source volcanicashforecast`, now on
+main after PR 125), and not MET Routeforecast (`--source routeforecast`,
+now on main after PR 126).
+
+```bash
+pda ingest --source norskelos --db data/registry.sqlite --limit 10
+pda search place --db data/registry.sqlite
+pda fetch --dataset norskelos:place --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored collection items URL. Observation values are
+copied from printed GeoJSON feature `title`. License is the printed
+OpenAPI CC BY 4.0 URL. Publisher stays null: the catalog does not print
+a publisher field.
+
+Live ingest 2026-08-27: 2 printed collections (catalog prints 2
+collections with an items GET href, cap 10). Live search `place`
+returns `norskelos:place`. Live fetch GETs
+`https://dnl.kartverket.no/api/ogc/v1/collections/dennorskelos/place/items?f=json`
+HTTP 200, 50 printed place-title rows. Sample printed value: Fillan.
+`pda methods` is not applicable: GeoJSON place titles, not a numeric
+time series (`no observations matched entity/measure; available=[]`).
+Proof is `data/norskelos_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
