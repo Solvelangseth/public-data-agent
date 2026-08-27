@@ -877,7 +877,13 @@ pda fetch --dataset entur:voistavanger --db data/registry.sqlite
 values are copied from printed `name`. License and publisher stay null: the
 list API does not print them.
 
-Proof is `data/entur_source_proof.json` after the live ingest/fetch run.
+Live ingest 2026-08-27: 10 printed systems. Live search `voistavanger`
+returns `entur:voistavanger`. Live fetch GETs
+`https://api.entur.io/mobility/v2/gbfs/v2/voistavanger/vehicle_types`
+HTTP 200, 2 vehicle-type rows. Sample printed names: Voiager_5, Voiager_4.
+`pda methods` is not applicable: vehicle names, not a numeric time series
+(`no observations matched entity/measure; available=[]`).
+Proof is `data/entur_source_proof.json`.
 
 ## Architecture (long term)
 
