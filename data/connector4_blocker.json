@@ -1,0 +1,74 @@
+{
+  "produced_at": "2026-08-27T09:03:20Z",
+  "stopped": true,
+  "why": "No unused datasets.access_path is a live PxWeb or JSON-stat time series. Inventing a table id is forbidden.",
+  "pr_30": {
+    "url": "https://github.com/Solvelangseth/public-data-agent/pull/30",
+    "state": "MERGED",
+    "merge_commit": "4d70a14123ff4125a52092f48512a655cec488e4",
+    "merged_at": "2026-08-27T09:01:26Z"
+  },
+  "registry": {
+    "datasets": 9122,
+    "access_path_like_07459": 0,
+    "stored_jsonstat_or_pxweb_table_urls": [
+      {
+        "id": "datanorge:fc22c19b-5347-3b20-aa1b-ae534f178f57",
+        "title": "Oslo kommunes statistikkbank",
+        "access_path": "https://statistikkbanken.oslo.kommune.no/statbank/pxweb/no/db1/",
+        "probe": "GET 200 text/html",
+        "why_not": "Oslo OK-BEF008 is already Milestone 7. The stored path is the PxWeb root, not another table. A different --table would invent a table."
+      },
+      {
+        "id": "ssb:11763",
+        "title": "11763: Folkemengde 31.12., etter alder, region, statistikkvariabel og år",
+        "access_path": "https://data.ssb.no/api/v0/no/table/11763",
+        "probe": "GET 200 application/json",
+        "why_not": "Already Milestone 9/11. Lane forbids it."
+      }
+    ]
+  },
+  "other_statistikkbank_access_paths": [
+    {
+      "id": "datanorge:34dee2c0-1fd8-3eae-95f5-f8aaa0049b81",
+      "title": "SSBs statistikkbank",
+      "access_path": "https://www.ssb.no/statbank/",
+      "probe": "GET 200 text/html",
+      "why_not": "Portal HTML. pda fetch would need a table id that is not stored."
+    },
+    {
+      "id": "datanorge:124c3cfb-485a-3372-aa5b-4b0e3a18edc5",
+      "title": "Husbankens statistikkbank",
+      "access_path": "https://statistikk.husbanken.no/",
+      "probe": "GET 200 text/html",
+      "why_not": "SPA HTML. Path has no /statbank/pxweb/ or /api/. Guessed /api/v1/ still returns the same HTML."
+    },
+    {
+      "id": "datanorge:a1521807-2795-33b8-b8dd-475b31df0163",
+      "title": "Statistikk fra Statistisk sentralbyrå",
+      "access_path": "http://www.ssb.no/omssb/tjenester-og-verktoy/api",
+      "probe": "GET 200 text/html (redirects to https://www.ssb.no/api)",
+      "why_not": "API docs page, not a table."
+    },
+    {
+      "id": "datanorge:ce9e6271-7f69-3042-b413-3d1cc7a2a01b",
+      "title": "RusStat - rusmiddelstatistikk",
+      "access_path": "http://russtatistikk.fhi.no/russtat/",
+      "probe": "DNS fail Name or service not known",
+      "why_not": "Host does not resolve."
+    },
+    {
+      "id": "datanorge:7e65bd09-0459-3b31-bcd8-cf91e2ac7742",
+      "title": "Statistikk- og tabellbank for Akershus fylkeskommune",
+      "access_path": "http://statistikk.akershus-fk.no/webview/",
+      "probe": "DNS fail No address associated with hostname",
+      "why_not": "Host does not resolve. Stored path is Nesstar webview, not PxWeb."
+    }
+  ],
+  "klass_json_urls_not_used": [
+    "https://data.ssb.no/api/klass/v1/versions/1168.json",
+    "https://data.ssb.no/api/klass/v1/versions/683.json"
+  ],
+  "methods_package_edited": false,
+  "invented_table": false
+}

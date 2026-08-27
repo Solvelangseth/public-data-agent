@@ -112,3 +112,9 @@ ts	phase	decision	why	evidence	result
 2026-08-27T08:57:10Z	methods	pda methods reads 683 from the store, then clean drops names	load_observations found 7127 rows so it did not call pda fetch; names are not a numeric series	exit 1 available=[]; fetch_runs still 1	honest miss
 2026-08-27T08:58:00Z	test	run pytest after the Klass 683 proof	do not leave the count only in the PR body	python3 -m pytest 88 passed 1 deselected	tests green
 2026-08-27T08:58:40Z	pr	open Klass 683 fetch PR, do not merge	third stored-API fetch is a reviewable PR	https://github.com/Solvelangseth/public-data-agent/pull/30	OPEN
+2026-08-27T09:01:26Z	merge	merge PR 30 after CI green	CI test + GitGuardian SUCCESS; Klass 683 is a real fetch	gh pr view 30 MERGED mergeCommit 4d70a14123ff4125a52092f48512a655cec488e4	MERGED
+2026-08-27T09:02:20Z	fetch	07459 still absent from stored access_path	do not invent a table URL	sqlite count id/title/access_path/description like %07459% = 0	absent
+2026-08-27T09:02:40Z	fetch	skip Oslo OK-BEF008 and SSB 11763	lane forbids both; they are the only stored JSON-stat table paths	Oslo pxweb/no/db1/ and data.ssb.no/api/v0/no/table/11763	skipped
+2026-08-27T09:03:00Z	fetch	probe unused statistikkbank access_paths	stored URLs must return numeric PxWeb/json-stat cells, not HTML portals	husbanken and ssb.no/statbank GET 200 text/html; russtat and akershus DNS fail	no table
+2026-08-27T09:03:20Z	fetch	stop, do not invent a PxWeb table	no unused stored access_path is a live PxWeb/json-stat time series	only live table JSON is 11763; Klass is code lists	blocked
+2026-08-27T09:04:00Z	test	run pytest after the blocker trail	no fetch.py change; suite must still pass	python3 -m pytest 88 passed 1 deselected	tests green
