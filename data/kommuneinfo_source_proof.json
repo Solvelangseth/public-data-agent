@@ -1,0 +1,154 @@
+{
+  "produced_at": "2026-08-27T17:53:27Z",
+  "bound": {
+    "list_api": "https://api.kartverket.no/kommuneinfo/v1/openapi.json",
+    "walk": "copy printed untemplated collection GET paths from the official Kartverket Kommuneinfo OpenAPI paths object; native ids are the last printed path segment; access_path is the printed path joined to servers[0].url; do not invent path ids",
+    "cap": 10,
+    "how": "pda ingest --source kommuneinfo --limit 10. The official Kommuneinfo OpenAPI prints 6 untemplated GET paths. The adapter copies those printed paths and joins each to the printed server URL. No path id was invented."
+  },
+  "discarded": [
+    {
+      "candidate": "Stavanger Opencom",
+      "url": "PR 92 --source opencom, now on main",
+      "why": "Already on main as --source opencom. Do not re-add. This branch starts from origin/main only."
+    },
+    {
+      "candidate": "Sokkeldirektoratet FactMaps DataService",
+      "url": "PR 93 --source sodir, factmaps.sodir.no",
+      "why": "In-flight on PR 93. Do not re-add. Not this source."
+    },
+    {
+      "candidate": "Fiskeridirektoratet Autorisasjonsregisteret",
+      "url": "https://api.fiskeridir.no/authreg-api/openapi",
+      "why": "Already discarded on main: OpenAPI prints only a templated lookup. Do not invent radio call signs."
+    },
+    {
+      "candidate": "Fiskeridirektoratet operasjonelle akvakulturrettigheter",
+      "url": "https://api.fiskeridir.no/aqua-operations-public/v3/api-docs",
+      "why": "Already discarded on main: OpenAPI prints only /api/v1/joint-ops/{site-nr}. Templated lookup, not a collection catalog."
+    },
+    {
+      "candidate": "Cristin API v2",
+      "url": "https://api.cristin.no/v2/",
+      "why": "Docs are HTML. /v2/openapi.json and /v2/swagger.json are HTTP 404. /v2/institutions is a live collection but the catalog does not print its own list API document. Left unused."
+    },
+    {
+      "candidate": "Tolletaten CKAN",
+      "url": "https://data.toll.no/api/3/action/package_list",
+      "why": "Read timed out. Do not treat a timeout as a printed catalog."
+    },
+    {
+      "candidate": "NVDB Les V3 OpenAPI",
+      "url": "https://nvdbapiles-v3.atlas.vegvesen.no/dokumentasjon/openapi.json",
+      "why": "Known skip: HTTP 400 User-Agent. Do not retry."
+    },
+    {
+      "candidate": "Vegvesen Trafikkdata swagger / trafikkdata-api",
+      "url": "https://trafikkdata.atlas.vegvesen.no/",
+      "why": "Known skip: swagger HTML-only; trafikkdata-api 410. Do not retry."
+    },
+    {
+      "candidate": "Kartverket Eiendom /geokoding",
+      "url": "https://api.kartverket.no/eiendom/v1/geokoding",
+      "why": "Known skip: HTTP 400 without matrikkel params. Search API, not a collection catalog. Do not retry."
+    },
+    {
+      "candidate": "Udir Statistikkbanken /data",
+      "url": "Udir Statistikkbanken /Eksport/{id}/data",
+      "why": "Known skip: requires invented filters. Do not retry."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source kommuneinfo --db /tmp/pda-kommuneinfo-proof/registry.sqlite --limit 10",
+    "listed": 6,
+    "inserted": 6,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "kommuneinfo:fylker",
+        "access_path": "https://api.kartverket.no/kommuneinfo/v1/fylker"
+      },
+      {
+        "id": "kommuneinfo:fylkerkommuner",
+        "access_path": "https://api.kartverket.no/kommuneinfo/v1/fylkerkommuner"
+      },
+      {
+        "id": "kommuneinfo:kommuner",
+        "access_path": "https://api.kartverket.no/kommuneinfo/v1/kommuner"
+      },
+      {
+        "id": "kommuneinfo:illustrasjonskart",
+        "access_path": "https://api.kartverket.no/kommuneinfo/v1/kommuner/illustrasjonskart"
+      },
+      {
+        "id": "kommuneinfo:punkt",
+        "access_path": "https://api.kartverket.no/kommuneinfo/v1/punkt"
+      },
+      {
+        "id": "kommuneinfo:sok",
+        "access_path": "https://api.kartverket.no/kommuneinfo/v1/sok"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search fylker --db /tmp/pda-kommuneinfo-proof/registry.sqlite --limit 5",
+    "query": "fylker",
+    "returned": 5,
+    "hit_id": "kommuneinfo:fylker",
+    "title": "Fylker i Norge.",
+    "source_id": "kommuneinfo"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset kommuneinfo:fylker --db /tmp/pda-kommuneinfo-proof/registry.sqlite",
+    "dataset": "kommuneinfo:fylker",
+    "table_id": "fylker",
+    "access_path": "https://api.kartverket.no/kommuneinfo/v1/fylker",
+    "request_url": "https://api.kartverket.no/kommuneinfo/v1/fylker",
+    "http_status": 200,
+    "listed": 15,
+    "inserted": 15,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "fylkesnavn",
+        "value": "Troms"
+      },
+      {
+        "measure": "fylkesnavn",
+        "value": "Finnmark"
+      },
+      {
+        "measure": "fylkesnavn",
+        "value": "Buskerud"
+      },
+      {
+        "measure": "fylkesnavn",
+        "value": "Agder"
+      },
+      {
+        "measure": "fylkesnavn",
+        "value": "Rogaland"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset kommuneinfo:fylker --table fylker --entity \"\" --measure \"\" --db /tmp/pda-kommuneinfo-proof/registry.sqlite --out /tmp/pda-kommuneinfo-proof/methods",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "Kommuneinfo /fylker prints county names. That is not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed OpenAPI path segments. access_path is https://api.kartverket.no/kommuneinfo/v1/fylker. No kommuneinfo id was written onto a geonorge, stedsnavn, or datanorge row.",
+    "Publisher is null. License is null. The OpenAPI info object prints neither a license URL nor a publisher. No license URI was invented.",
+    "Original harvested OpenAPI metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "Geonorge Kartkatalog stays --source geonorge. Kartverket Stedsnavn stays --source stedsnavn. Sokkeldirektoratet FactMaps stays on PR 93. This source does not re-implement any of them.",
+    "Fetch dispatch checks is_kommuneinfo_url before is_geonorge_rest_url because both match api.kartverket.no.",
+    "python3 -m pytest 408 passed, 1 skipped, 1 deselected."
+  ]
+}
