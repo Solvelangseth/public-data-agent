@@ -6,7 +6,14 @@ import csv
 import json
 from pathlib import Path
 
-from methods.types import YOY_GROWTH, YOY_GROWTH_FORMULA, SeriesRow
+from methods.types import (
+    INDEX,
+    INDEX_FORMULA,
+    YOY_GROWTH,
+    YOY_GROWTH_FORMULA,
+    DerivedValue,
+    SeriesRow,
+)
 
 
 def emit(rows: tuple[SeriesRow, ...], out_dir: Path) -> dict[str, Path]:
@@ -36,6 +43,7 @@ def _write_csv(rows: tuple[SeriesRow, ...], path: Path) -> None:
                 "measure",
                 "value",
                 "yoy_growth",
+                "index",
                 "observation_id",
                 "source",
             ],
@@ -50,6 +58,7 @@ def _write_csv(rows: tuple[SeriesRow, ...], path: Path) -> None:
                     "measure": obs.measure,
                     "value": _number(obs.value),
                     "yoy_growth": _number(row.yoy_growth.value),
+                    "index": _number(row.index.value),
                     "observation_id": obs.id,
                     "source": obs.source,
                 }
@@ -61,11 +70,13 @@ def _write_markdown(rows: tuple[SeriesRow, ...], path: Path) -> None:
         "# Methods table",
         "",
         f"Derived column `{YOY_GROWTH}` uses `{YOY_GROWTH_FORMULA}`.",
-        "The first period has no rate. Values are stored observations, not guesses.",
-        "Percent in the last column is display-only: `100 × yoy_growth`.",
+        f"Derived column `{INDEX}` uses `{INDEX_FORMULA}`. The base row is exactly 100.",
+        "The first period has no YoY rate. A missing or zero base leaves index undefined.",
+        "Values are stored observations, not guesses.",
+        "Percent next to yoy_growth is display-only: `100 × yoy_growth`.",
         "",
-        "| entity | period | measure | value | yoy_growth (ratio) | yoy_growth × 100 | observation_id | source |",
-        "| --- | --- | --- | ---: | ---: | ---: | --- | --- |",
+        "| entity | period | measure | value | yoy_growth (ratio) | yoy_growth × 100 | index | observation_id | source |",
+        "| --- | --- | --- | ---: | ---: | ---: | ---: | --- | --- |",
     ]
     for row in rows:
         obs = row.observation
@@ -80,6 +91,7 @@ def _write_markdown(rows: tuple[SeriesRow, ...], path: Path) -> None:
                     _number(obs.value),
                     _number(rate),
                     _percent(rate),
+                    _number(row.index.value),
                     _md(obs.id),
                     _md(obs.source),
                 ]
@@ -97,16 +109,23 @@ def _write_lineage(rows: tuple[SeriesRow, ...], path: Path) -> None:
                 "formula": YOY_GROWTH_FORMULA,
                 "input_columns": ["value"],
                 "units": "ratio",
-                "rows": [_lineage_row(row) for row in rows],
-            }
+                "rows": [_lineage_row(row, row.yoy_growth) for row in rows],
+            },
+            {
+                "name": INDEX,
+                "formula": INDEX_FORMULA,
+                "input_columns": ["value"],
+                "units": "index (base = 100)",
+                "rows": [_lineage_row(row, row.index) for row in rows],
+            },
         ]
     }
     path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
 
-def _lineage_row(row: SeriesRow) -> dict[str, object]:
+def _lineage_row(row: SeriesRow, derived: DerivedValue) -> dict[str, object]:
     obs = row.observation
-    item = row.yoy_growth.to_dict()
+    item = derived.to_dict()
     item.update(
         {
             "entity": obs.entity,

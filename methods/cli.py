@@ -10,9 +10,9 @@ from pathlib import Path
 from typing import Any
 
 from methods.clean import clean
-from methods.derive import derive_yoy
+from methods.derive import derive
 from methods.emit import emit
-from methods.types import SeriesRow
+from methods.types import INDEX_FORMULA, YOY_GROWTH_FORMULA, SeriesRow
 
 # Selection only. Transforms never branch on these ids.
 DEFAULT_DATASET = "datanorge:fc22c19b-5347-3b20-aa1b-ae534f178f57"
@@ -26,7 +26,7 @@ DEFAULT_OUT = Path("methods/proof")
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         prog="pda methods",
-        description="Clean stored observations, derive YoY rates, emit table and chart.",
+        description="Clean stored observations, derive YoY rates and an index, emit table and chart.",
     )
     parser.add_argument("--dataset", default=DEFAULT_DATASET)
     parser.add_argument("--table", default=DEFAULT_TABLE, help="Used only if observations are missing")
@@ -44,6 +44,11 @@ def main(argv: list[str] | None = None) -> int:
         default=DEFAULT_MEASURE,
         help="Select which stored measure to load. Empty string keeps every measure.",
     )
+    parser.add_argument(
+        "--base-period",
+        default=None,
+        help="Index base period. Default: first period in each (entity, measure) series.",
+    )
     args = parser.parse_args(argv)
     try:
         rows = run(
@@ -55,6 +60,7 @@ def main(argv: list[str] | None = None) -> int:
             to_year=args.to_year,
             entity=args.entity or None,
             measure=args.measure or None,
+            base_period=args.base_period,
         )
     except (FileNotFoundError, ValueError) as exc:
         print(str(exc), file=sys.stderr)
@@ -73,6 +79,7 @@ def run(
     to_year: int | None,
     entity: str | None,
     measure: str | None,
+    base_period: str | None = None,
 ) -> tuple[SeriesRow, ...]:
     raw = load_observations(dataset_id, db)
     if not raw:
@@ -85,7 +92,7 @@ def run(
     if not selected:
         available = sorted({(row.entity, row.measure) for row in cleaned})
         raise ValueError(f"no observations matched entity/measure; available={available}")
-    derived = derive_yoy(selected)
+    derived = derive(selected, base_period=base_period)
     emit(derived, out)
     return derived
 
@@ -150,7 +157,10 @@ def _summary(rows: tuple[SeriesRow, ...], args: argparse.Namespace) -> dict[str,
         "dataset": args.dataset,
         "out": str(args.out),
         "rows": len(rows),
-        "formula": "(v_t - v_{t-1}) / v_{t-1}",
+        "formula": {
+            "yoy_growth": YOY_GROWTH_FORMULA,
+            "index": INDEX_FORMULA,
+        },
         "series": [
             {
                 "entity": row.observation.entity,
@@ -158,6 +168,7 @@ def _summary(rows: tuple[SeriesRow, ...], args: argparse.Namespace) -> dict[str,
                 "measure": row.observation.measure,
                 "value": row.observation.value,
                 "yoy_growth": row.yoy_growth.value,
+                "index": row.index.value,
                 "observation_id": row.observation.id,
             }
             for row in rows

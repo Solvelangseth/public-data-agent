@@ -10,6 +10,11 @@ YOY_GROWTH_FORMULA = "(v_t - v_{t-1}) / v_{t-1}"
 YOY_GROWTH_UNITS = "ratio"
 YOY_GROWTH_INPUTS = ("value",)
 
+INDEX = "index"
+INDEX_FORMULA = "100 * v_t / v_base"
+INDEX_UNITS = "index (base = 100)"
+INDEX_INPUTS = ("value",)
+
 
 @dataclass(frozen=True)
 class Observation:
@@ -49,6 +54,8 @@ class Lineage:
     source_observation_ids: tuple[str, ...]
     source_periods: tuple[str, ...]
     note: str | None = None
+    base_period: str | None = None
+    base_observation_id: str | None = None
 
     def __post_init__(self) -> None:
         if not self.name:
@@ -63,6 +70,8 @@ class Lineage:
             raise ValueError("lineage.source_observation_ids is required")
         if not self.source_periods:
             raise ValueError("lineage.source_periods is required")
+        if self.name == INDEX and not self.base_period:
+            raise ValueError("index lineage requires base_period")
 
     def to_dict(self) -> dict[str, object]:
         payload: dict[str, object] = {
@@ -75,6 +84,10 @@ class Lineage:
         }
         if self.note is not None:
             payload["note"] = self.note
+        if self.base_period is not None:
+            payload["base_period"] = self.base_period
+        if self.base_observation_id is not None:
+            payload["base_observation_id"] = self.base_observation_id
         return payload
 
 
@@ -101,6 +114,11 @@ class SeriesRow:
 
     observation: Observation
     yoy_growth: DerivedValue
+    index: DerivedValue
 
     def derived_columns(self) -> tuple[DerivedValue, ...]:
-        return (self.yoy_growth,)
+        return (self.yoy_growth, self.index)
+
+    def __post_init__(self) -> None:
+        if not isinstance(self.index, DerivedValue):
+            raise TypeError("SeriesRow.index must be a DerivedValue with lineage")

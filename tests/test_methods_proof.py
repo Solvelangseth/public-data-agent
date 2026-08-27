@@ -9,8 +9,8 @@ from pathlib import Path
 import pytest
 
 from methods.clean import clean
-from methods.derive import derive_yoy
-from methods.types import YOY_GROWTH, YOY_GROWTH_FORMULA
+from methods.derive import derive
+from methods.types import INDEX, INDEX_FORMULA, YOY_GROWTH, YOY_GROWTH_FORMULA
 
 OSLO_DATASET = "datanorge:fc22c19b-5347-3b20-aa1b-ae534f178f57"
 OSLO_ENTITY = "Oslo (Kristiania og Aker) i alt"
@@ -27,7 +27,7 @@ def _oslo_series_from_store(rows: list[dict]) -> tuple:
     selected = tuple(
         row for row in cleaned if row.entity == OSLO_ENTITY and row.measure == OSLO_MEASURE
     )
-    return derive_yoy(selected)
+    return derive(selected)
 
 
 def test_live_oslo_store_matches_formula_and_lineage() -> None:
@@ -70,6 +70,11 @@ def test_live_oslo_store_matches_formula_and_lineage() -> None:
         assert row.yoy_growth.lineage.name == YOY_GROWTH
         assert row.yoy_growth.lineage.formula == YOY_GROWTH_FORMULA
         assert row.yoy_growth.lineage.source_observation_ids
+        assert row.index.lineage.name == INDEX
+        assert row.index.lineage.formula == INDEX_FORMULA
+        assert row.index.lineage.base_period == series_snapshot[0]["period"]
+        assert row.index.lineage.base_observation_id == series_snapshot[0]["id"]
+        assert row.index.lineage.source_observation_ids
 
     by_period = {item["period"]: item["value"] for item in series_snapshot}
     for year, expected in M7_SANITY.items():
@@ -77,10 +82,15 @@ def test_live_oslo_store_matches_formula_and_lineage() -> None:
             assert by_period[year] == expected
 
     assert derived[0].yoy_growth.value is None
+    stored_base = series_snapshot[0]["value"]
+    assert derived[0].index.value == 100.0
+    if derived[0].observation.period == "2020":
+        assert derived[0].index.value == 100.0
     for index in range(1, len(derived)):
         previous = series_snapshot[index - 1]["value"]
         current = series_snapshot[index]["value"]
         assert derived[index].yoy_growth.value == pytest.approx((current - previous) / previous)
+        assert derived[index].index.value == pytest.approx(100.0 * current / stored_base)
 
 
 def test_committed_oslo_proof_artifacts() -> None:
@@ -100,7 +110,9 @@ def test_committed_oslo_proof_artifacts() -> None:
     assert table[0]["period"]
     assert table[-1]["period"]
     assert table[0]["yoy_growth"] == ""
+    assert float(table[0]["index"]) == 100.0
     values = [float(row["value"]) for row in table]
+    stored_base = values[0]
     for year, expected in M7_SANITY.items():
         match = next((row for row in table if row["period"] == year), None)
         if match is not None:
@@ -109,16 +121,31 @@ def test_committed_oslo_proof_artifacts() -> None:
         previous = values[index - 1]
         current = values[index]
         assert float(table[index]["yoy_growth"]) == pytest.approx((current - previous) / previous)
+        assert float(table[index]["index"]) == pytest.approx(100.0 * current / stored_base)
 
     lineage = json.loads(lineage_path.read_text(encoding="utf-8"))
-    column = lineage["derived_columns"][0]
-    assert column["name"] == YOY_GROWTH
-    assert column["formula"] == YOY_GROWTH_FORMULA
-    assert len(column["rows"]) == len(table)
-    for item in column["rows"]:
+    names = [column["name"] for column in lineage["derived_columns"]]
+    assert YOY_GROWTH in names
+    assert INDEX in names
+    yoy = next(column for column in lineage["derived_columns"] if column["name"] == YOY_GROWTH)
+    index = next(column for column in lineage["derived_columns"] if column["name"] == INDEX)
+    assert yoy["formula"] == YOY_GROWTH_FORMULA
+    assert index["formula"] == INDEX_FORMULA
+    assert len(yoy["rows"]) == len(table)
+    assert len(index["rows"]) == len(table)
+    for item in yoy["rows"]:
         assert item["lineage"]["name"] == YOY_GROWTH
         assert item["lineage"]["formula"] == YOY_GROWTH_FORMULA
         assert item["lineage"]["source_observation_ids"]
         assert item["lineage"]["source_periods"]
+    for item in index["rows"]:
+        assert item["lineage"]["name"] == INDEX
+        assert item["lineage"]["formula"] == INDEX_FORMULA
+        assert item["lineage"]["base_period"]
+        assert item["lineage"]["source_observation_ids"]
+        assert item["lineage"]["source_periods"]
+        if item["value"] is not None:
+            assert item["lineage"]["base_observation_id"]
     md = md_path.read_text(encoding="utf-8")
     assert YOY_GROWTH_FORMULA in md
+    assert INDEX_FORMULA in md
