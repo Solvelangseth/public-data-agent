@@ -16,8 +16,18 @@ from methods.types import (
 )
 
 
+def yoy_bar_points(rows: tuple[SeriesRow, ...]) -> tuple[tuple[str, float], ...]:
+    """Periods that have a derived YoY rate. The first period is omitted."""
+
+    return tuple(
+        (row.observation.period, row.yoy_growth.value)
+        for row in rows
+        if row.yoy_growth.value is not None
+    )
+
+
 def emit(rows: tuple[SeriesRow, ...], out_dir: Path) -> dict[str, Path]:
-    """Persist CSV, markdown, lineage JSON, and a PNG chart next to each other."""
+    """Persist CSV, markdown, lineage JSON, and PNG charts next to each other."""
 
     out_dir.mkdir(parents=True, exist_ok=True)
     paths = {
@@ -25,11 +35,13 @@ def emit(rows: tuple[SeriesRow, ...], out_dir: Path) -> dict[str, Path]:
         "markdown": out_dir / "table.md",
         "lineage": out_dir / "lineage.json",
         "chart": out_dir / "chart.png",
+        "yoy_bar": out_dir / "yoy_bar.png",
     }
     _write_csv(rows, paths["csv"])
     _write_markdown(rows, paths["markdown"])
     _write_lineage(rows, paths["lineage"])
     _write_chart(rows, paths["chart"])
+    _write_yoy_bar(rows, paths["yoy_bar"])
     return paths
 
 
@@ -192,6 +204,53 @@ def _write_chart(rows: tuple[SeriesRow, ...], path: Path) -> None:
         0.01,
         f"Growth is {YOY_GROWTH_FORMULA}. First period is undefined. "
         "Numbers come from stored observations or that formula.",
+        ha="center",
+        fontsize=8,
+    )
+    fig.tight_layout(rect=(0, 0.04, 1, 1))
+    fig.savefig(path, dpi=120)
+    plt.close(fig)
+
+
+def _write_yoy_bar(rows: tuple[SeriesRow, ...], path: Path) -> None:
+    """Bar chart of the derived yoy_growth column. Null rates have no bar."""
+
+    import matplotlib
+
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    points = yoy_bar_points(rows)
+    if not points:
+        raise ValueError("no derived yoy_growth values to chart")
+    periods = [period for period, _rate in points]
+    rates = [rate for _period, rate in points]
+    xs = list(range(len(points)))
+    entity = rows[0].observation.entity
+    measure = rows[0].observation.measure
+
+    fig, ax = plt.subplots(figsize=(10, 5.5))
+    ax.bar(xs, [rate * 100 for rate in rates], color="#c45911", width=0.6)
+    ax.set_xticks(xs, periods)
+    ax.set_ylabel("yoy_growth × 100")
+    ax.set_xlabel("period")
+    ax.set_title(f"{entity} — {measure}\n{YOY_GROWTH} = {YOY_GROWTH_FORMULA}")
+    ax.axhline(0, color="#333333", linewidth=0.8)
+    ax.grid(True, axis="y", linestyle=":", alpha=0.6)
+    for x, rate in zip(xs, rates):
+        ax.annotate(
+            f"{rate * 100:+.2f}",
+            (x, rate * 100),
+            textcoords="offset points",
+            xytext=(0, 6),
+            ha="center",
+            fontsize=8,
+        )
+    fig.text(
+        0.5,
+        0.01,
+        f"Bars are the derived `{YOY_GROWTH}` column ({YOY_GROWTH_FORMULA}). "
+        "The first period has no bar. Rates are not invented.",
         ha="center",
         fontsize=8,
     )

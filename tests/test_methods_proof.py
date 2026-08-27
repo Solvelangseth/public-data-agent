@@ -10,6 +10,7 @@ import pytest
 
 from methods.clean import clean
 from methods.derive import derive
+from methods.emit import yoy_bar_points
 from methods.types import INDEX, INDEX_FORMULA, YOY_GROWTH, YOY_GROWTH_FORMULA
 
 OSLO_DATASET = "datanorge:fc22c19b-5347-3b20-aa1b-ae534f178f57"
@@ -91,6 +92,10 @@ def test_live_oslo_store_matches_formula_and_lineage() -> None:
         current = series_snapshot[index]["value"]
         assert derived[index].yoy_growth.value == pytest.approx((current - previous) / previous)
         assert derived[index].index.value == pytest.approx(100.0 * current / stored_base)
+    bars = yoy_bar_points(derived)
+    assert [period for period, _rate in bars] == [item["period"] for item in series_snapshot[1:]]
+    for (_period, rate), item, previous in zip(bars, series_snapshot[1:], series_snapshot):
+        assert rate == pytest.approx((item["value"] - previous["value"]) / previous["value"])
 
 
 def test_committed_oslo_proof_artifacts() -> None:
@@ -98,11 +103,14 @@ def test_committed_oslo_proof_artifacts() -> None:
     md_path = PROOF_DIR / "table.md"
     lineage_path = PROOF_DIR / "lineage.json"
     chart_path = PROOF_DIR / "chart.png"
+    bar_path = PROOF_DIR / "yoy_bar.png"
     assert csv_path.is_file()
     assert md_path.is_file()
     assert lineage_path.is_file()
     assert chart_path.is_file()
+    assert bar_path.is_file()
     assert chart_path.read_bytes().startswith(b"\x89PNG")
+    assert bar_path.read_bytes().startswith(b"\x89PNG")
 
     with csv_path.open(encoding="utf-8", newline="") as handle:
         table = list(csv.DictReader(handle))
@@ -117,11 +125,15 @@ def test_committed_oslo_proof_artifacts() -> None:
         match = next((row for row in table if row["period"] == year), None)
         if match is not None:
             assert float(match["value"]) == expected
+    table_yoy = []
     for index in range(1, len(table)):
         previous = values[index - 1]
         current = values[index]
-        assert float(table[index]["yoy_growth"]) == pytest.approx((current - previous) / previous)
+        rate = float(table[index]["yoy_growth"])
+        assert rate == pytest.approx((current - previous) / previous)
         assert float(table[index]["index"]) == pytest.approx(100.0 * current / stored_base)
+        table_yoy.append((table[index]["period"], rate))
+    assert table[0]["period"] not in {period for period, _rate in table_yoy}
 
     lineage = json.loads(lineage_path.read_text(encoding="utf-8"))
     names = [column["name"] for column in lineage["derived_columns"]]
