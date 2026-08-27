@@ -211,6 +211,8 @@
     "Original harvested swagger metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
     "Open PRs at pickup were empty. Lane B later opened PR 125 MET Volcanicashforecast. This lane stayed on routeforecast.",
     "python3 -m pytest after Routeforecast adapter: 720 passed, 1 skipped, 1 deselected.",
-    "Not a numeric time series with two or more periods. Fetch listed 42 printed location-name cells (sample ENBJ-ENHF)."
+    "python3 -m pytest after rebase onto Volcanicashforecast 125: 730 passed, 1 skipped, 1 deselected.",
+    "Not a numeric time series with two or more periods. Fetch listed 42 printed location-name cells (sample ENBJ-ENHF).",
+    "Rebased onto origin/main after Volcanicashforecast 125 merge 7f6f64d. All existing sources plus routeforecast were kept. volcanicashforecast adapter files were not edited."
   ]
 }
