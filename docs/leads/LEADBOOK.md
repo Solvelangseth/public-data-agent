@@ -6,7 +6,7 @@ No email, call, or outbound post from this file. Contacts are only what the org 
 Product sold: registry of Norwegian public datasets (Data.norge first ingest, sources replaceable), natural-language search, first fetch of actual rows. Later analysis. LLM for intent and explanation. Deterministic retrieval. Provenance (source, publisher, license, access path) on every hit.
 Repo: https://github.com/Solvelangseth/public-data-agent
 
-Status 27 Aug 2026, 13:45 Europe/Oslo: 94 sourced leads. PR 55 merged (e19d881). Wave 11 add: Bømlo Kraftnett, Mellom, Rælingen, Kystnett, Fjellnett, Area Nett, Nesodden, Frogn. Area Nett deepened with own PlanNett 20250220 / KVU 20220170. Nittedal / Ås / TNett / Enebakk skipped. Arendal held. No outreach.
+Status 27 Aug 2026, 13:50 Europe/Oslo: 95 sourced leads. PR 57 merged (00b00e2). Wave 11 add: Nes kommune (Akershus). Printed href area=571 is Gjøvik; official Nes areaId is 547. Aurskog-Høland / Hemsil Nett skipped. Arendal held. No outreach.
 
 How to read a lead: why they would pay is tied to a named programme, not "they use data." Service shape is always search → fetch → later analysis. If a field says none published, do not invent one.
 
@@ -2817,6 +2817,32 @@ Sources below were opened 2026-08-27 from official pages and the named press/pro
   - https://www.miljodirektoratet.no/tjenester/klimagassutslipp-kommuner/
   - https://www.miljodirektoratet.no/greenhousegas/api/summary?areaId=535
 
+### Nes kommune
+
+- **Why they would pay.** Økonomiplan 2026–2029 med budsjett 2026 Framsikt slug `bm-2026-vedtatt_okonomiplan_2026-2029`: title.json documentTitle1 is **Økonomiplan 2026-2029 med budsjett 2026**; documentTitle2 is **Kommunestyrets vedtak** (title3 empty). Named **Klimabudsjett** (`summary/climatesummary`) cites Miljødirektoratet kommunefordelte utslippsregnskap (2023 vintage). Printed href area=571 is Gjøvik; official Nes areaId is 547. Official 2024 vintage 93 364,9 t / −7,0 % is a later refresh the chapter does not yet use. Yearly job is to re-pull kommune 3228 / areaId 547 into those rows, not another Framsikt rebuild.
+- **Concrete use case.** Klima owners first-fetch Miljødirektoratet kommune 3228 / areaId 547 sector series and overlay the vedtatt 2023 Klimabudsjett rows. Official 2024 first-fetch is 93 364,9 t (−7,0 %); chapter is still on 2023.
+- **How the service should look.**
+  - Search: data.norge first, then Mdir kommuneregnskap, SSB.
+  - Fetch: first official Excel rows for areaId 547. Do not fetch 571 as Nes. Their Framsikt chapter stays theirs.
+  - Later analysis: refresh 2023→2024/2025 into the residual; keep veitrafikk and the area=571 Gjøvik href as named holes.
+- **Public contact.**
+  - Role / unit: postmottak; ordfører Tove Nyhus; varaordfører Harald Johansen. No named klimarådgiver mailbox — do not invent one.
+  - Email: `postmottak@nes.kommune.no`; `tove.nyhus@nes.kommune.no` (ordfører page); `harald.johansen@nes.kommune.no` (ordfører page)
+  - Phone: 66 10 40 00
+  - Form/URL: https://www.nes.kommune.no/tjenester/okonomi-skatt-og-avgifter/; https://www.nes.kommune.no/tjenester/politikk-og-administrasjon/ordforer/
+- **Key facts.** Org.nr 938 679 088. Kommunenr. 3228. Rådhusgata 4, 2150 Årnes. Printed href area=571 is Gjøvik; official Nes areaId is 547.
+- **Sources** (opened 2026-08-27).
+  - https://pub.framsikt.net/2026/nes/bm-2026-vedtatt_okonomiplan_2026-2029
+  - https://pub.framsikt.net/2026/nes/bm-2026-vedtatt_okonomiplan_2026-2029/#/generic/summary/climatesummary
+  - https://pub.framsikt.net/2026/nes/bm-2026-vedtatt_okonomiplan_2026-2029/content/data/title.json
+  - https://pub.framsikt.net/2026/nes/bm-2026-vedtatt_okonomiplan_2026-2029/content/data/tree.json
+  - https://pub.framsikt.net/2026/nes/bm-2026-vedtatt_okonomiplan_2026-2029/content/text/summary/ClimateSummary/t-7/description.json
+  - https://www.nes.kommune.no/tjenester/okonomi-skatt-og-avgifter/
+  - https://www.nes.kommune.no/tjenester/politikk-og-administrasjon/ordforer/
+  - https://data.brreg.no/enhetsregisteret/api/enheter/938679088
+  - https://www.miljodirektoratet.no/tjenester/klimagassutslipp-kommuner/?area=547&sector=-2
+  - https://www.miljodirektoratet.no/greenhousegas/api/summary?areaId=547
+
 ---
 
 ## Skipped, with reasons
@@ -2845,6 +2871,8 @@ Keep these notes in the living book. They are not leads.
 - **Ås kommune** — skipped: 2026 klimabudsjett in the PDF HP is virksomhet tiltak, not a vedtatt Framsikt Klimabudsjett chapter citing Miljødirektoratet geographic series.
 - **TNett AS** — skipped (live name TNett AS 925 803 375; ex Telemark Nett / Vest-Telemark Kraftlag Nett; tnett.no prints generic tilknytning / anleggsbidrag only; no opened Tilko ≥1 MW / PlanNett named consume).
 - **Enebakk kommune** — skipped: slug `bm-2026-vedtatt_handlingsprogram_2026-2029_enebakk_kommune`; title1 Kommunestyrets vedtak; title2/3 empty; no named Klimabudsjett. Do not invent a Holen mailbox.
+- **Aurskog-Høland kommune** — skipped this pass. Not a lead.
+- **Hemsil Nett** — skipped: absorbed into Føie AS; not a separate desk.
 - **St. Olavs / Helse Møre og Romsdal / Helse Stavanger / Finnmarkssykehuset / Helgelandssykehuset / Lovisenberg / Helse Fonna** — no named consume.
 
 ---
@@ -2887,6 +2915,7 @@ Keep these notes in the living book. They are not leads.
 - 2026-08-27: Skipped Area Nett AS first pass (Tilko host + Elsmart on area.no; PlanNett actor isManagedBy taken Barents). Arendal held. Still no outreach.
 - 2026-08-27: Area Nett AS skip reversed. Qualifies on NVE 14080 / 202307744 Adamselv–Kjøllefjord–Mehamn and NVE 20436 / 202410617 Skaidi–Smørfjord I–Honningsvåg (UP 25.06.2025). Added after Fjellnett. 94 sourced. Wave 11 add: Bømlo Kraftnett, Mellom, Rælingen, Kystnett, Fjellnett, Area Nett, Nesodden, Frogn. Enebakk kommune skipped (slug bm-2026-vedtatt_handlingsprogram_2026-2029_enebakk_kommune; title1 Kommunestyrets vedtak; title2/3 empty; no named Klimabudsjett; no Holen mailbox). Nittedal / Ås / TNett skipped. Arendal held. Still no outreach.
 - 2026-08-27: Area Nett AS deepened (still 94, not a new lead): own PlanNett områdestudie 20250220 «Vindkraft på Porsangerhalvøya» + KVU 20220170 «132kV linje Skaidi - Smørfjord 2» (names Statnett 420 kV Skaidi–Lebesby 20220748; publicContact `stein.isaksen@area.no`). Do not pad taken Barents. Leftover `post@rksa.no` unused. Arendal held. Still no outreach.
+- 2026-08-27: Added Nes kommune (Akershus, knr 3228) from wave-11 mid-size (vedtatt slug bm-2026-vedtatt_okonomiplan_2026-2029; title2 Kommunestyrets vedtak; Klimabudsjett cites Mdir 2023 vintage). Printed href area=571 is Gjøvik; official Nes areaId is 547. 95 sourced. Aurskog-Høland / Hemsil Nett skipped. Bømlo already on main. Arendal held. Still no outreach.
 
 ---
 
