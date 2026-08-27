@@ -125,3 +125,4 @@ ts	phase	decision	why	evidence	result
 2026-08-27T09:16:10Z	fetch	live pda fetch ssb:06683 years 2023-2024	printed table URL; numeric cells; two periods	POST 200 listed=8 34/24 and 202/236	live works
 2026-08-27T09:16:20Z	methods	pda methods reads 06683 from the store	8 numeric rows; did not call pda fetch	rows=8 yoy Stebarn=0.1683; fetch_runs=1	numeric
 2026-08-27T09:16:30Z	test	run pytest after the SSB source	do not leave the count only in the PR body	python3 -m pytest 97 passed 1 deselected	tests green
+2026-08-27T09:17:10Z	pr	open SSB Statbank source PR, do not merge	bounded ingest plus 06683 fetch and methods	https://github.com/Solvelangseth/public-data-agent/pull/35	OPEN
