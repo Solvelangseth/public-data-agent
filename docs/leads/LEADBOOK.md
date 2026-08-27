@@ -6,7 +6,7 @@ No email, call, or outbound post from this file. Contacts are only what the org 
 Product sold: registry of Norwegian public datasets (Data.norge first ingest, sources replaceable), natural-language search, first fetch of actual rows. Later analysis. LLM for intent and explanation. Deterministic retrieval. Provenance (source, publisher, license, access path) on every hit.
 Repo: https://github.com/Solvelangseth/public-data-agent
 
-Status 27 Aug 2026, 13:25 Europe/Oslo: 92 sourced leads. PR 55 merged (e19d881). Wave 11 cards aligned to living-book facts: Mellom (Statnett 5 MW/20 000 MWh + NVE 132 kV Rensvik–Engviklia), Rælingen (Klimabudsjett cites Kostratall), Kystnett (NVE 202411925 Kaldvåg–Ulvsvåg), Nesodden (Mdir 536 + KOSTRA). Bømlo and Frogn unchanged. No leftover parent inboxes. No outreach.
+Status 27 Aug 2026, 13:35 Europe/Oslo: 93 sourced leads. PR 55 merged (e19d881). Wave 11 add: Bømlo Kraftnett, Mellom, Rælingen, Kystnett, Fjellnett, Nesodden, Frogn. Nittedal / Ås / TNett skipped. Arendal held. No outreach.
 
 How to read a lead: why they would pay is tied to a named programme, not "they use data." Service shape is always search → fetch → later analysis. If a field says none published, do not invent one.
 
@@ -1982,6 +1982,33 @@ Sources below were opened 2026-08-27 from official pages and the named press/pro
   - https://virksomhet.brreg.no/nb/oppslag/enheter/923152601
   - https://data.brreg.no/enhetsregisteret/api/enheter/923152601
 
+### Fjellnett AS
+
+- **Why they would pay.** Own published PlanNett **områdestudie Nord-Gudbrandsdalen (20240282)** (lastUpdated 2025-05-01; nextUpdate 2027-05-01) plus published **KVU 66 kV Nedre–Midtre–Øvre Tessa (20250049)**. The study attaches Statnett «Analyser Vågåmo / Møte Fjellnett og Statnett» 19.06.2023 (public file `ce320876-ae78-4215-91f1-7d3fa3f7626c`; the PDF itself is kraftsensitiv / energiloven § 9-3 — do not copy MW). Public study text: 66 kV has no room for new forbruk except on vilkår; 132 kV has no room for more production. KVU assumptions cite **NVE veileder levetid 40 år** and arealbeslag; related Statnett KVU **20230169** Vågå–Lillehammer. Those are external official layers they do not host. Tilko ≥1 MW is Elbits host (`tk.elbits.no`) and would skip alone. PlanNett actor isManagedBy taken Elvia — do not pad. NVE 8868 Kolbotn is trukket. Not absorbed into Elvia.
+- **Concrete use case.** Nettutvikling first-fetches PlanNett 20240282 / 20250049, Statnett Områdeplan Innlandet / KVU 20230169, and Vågå / Lom / Sel / Lesja / Dovre kommuneplan for the 2027 områdestudie refresh and the Tessa 66 kV reinvestering so the 1954/1956 radial and the 66 kV vilkår note cite the same official list.
+- **How the service should look.**
+  - Search: data.norge first, then PlanNett 20240282 / 20250049, Statnett Innlandet, NVE Atlas, municipal plan, SSB.
+  - Fetch: first official PlanNett JSON / PDF plus Statnett / kommuneplan files. Not a replacement for Tilko or leftover Elwin.
+  - Later analysis: overlay on the Tessa radial and the Lesja vs Vågåmo 132/66 choice. Do not ingest the kraftsensitiv Vågåmo deck.
+- **Public contact.**
+  - Role / unit: post / nett. Named områdestudie desk **Steinar Dahlen** printed on PlanNett 20240282. Seksjonsleder Plan **Even Sandbo** printed on the live planingeniør ad. Daglig leder Vebjørn Haugen named on roller — no mailbox. Do not invent one. Do not use leftover `firmapost@eidefoss.no` or `nett@eidefoss.no`.
+  - Email: `post@fjellnett.no` (footer / om-oss); `nett@fjellnett.no` (kontakt + KVU 20250049); `steinar.dahlen@fjellnett.no` (PlanNett 20240282); `even.sandbo@fjellnett.no` (planingeniør ad)
+  - Phone: 61 23 82 90 (footer); 907 12 505 (Sandbo, planingeniør ad)
+  - Form/URL: https://www.fjellnett.no/; https://www.fjellnett.no/kontakt-oss-skjemaer/; https://plannett.nve.no/
+- **Key facts.** Org.nr 923 354 204. Historisk EIDEFOSS NETT AS (to 06.05.2021). Edvard Storms veg 4 / Postboks 160, 2680–2684 Vågå (knr 3435). 66 ansatte (12.08.2026). ~14 950 nettkunder (nøytralitet 2025). 132+66+22 kV across Lom, Vågå, Sel, Lesja, Dovre. Parent AS Eidefoss 911 305 631.
+- **Sources** (opened 2026-08-27).
+  - https://data.brreg.no/enhetsregisteret/api/enheter/923354204
+  - https://www.fjellnett.no/
+  - https://www.fjellnett.no/om-oss/
+  - https://www.fjellnett.no/kontakt-oss-skjemaer/
+  - https://www.fjellnett.no/ledig-stilling/ledig-stilling-planingenior-i-fjellnett
+  - https://api-plannett.nve.no/api/Omraadestudie/20240282
+  - https://api-plannett.nve.no/api/Omraadestudie/20240282/files
+  - https://api-plannett.nve.no/api/Konseptvalgutredning/20250049
+  - https://api-plannett.nve.no/api/Aktør/aktoerer
+  - https://tk.elbits.no/
+  - https://www.statnett.no/globalassets/for-aktorer-i-kraftsystemet/planer-og-analyser/omradeplaner/innlandet/omradeplan-innlandet-2025.pdf
+
 ---
 
 ## 48. Fredrikstad kommune — Åpne data Hub + kart@
@@ -2828,6 +2855,8 @@ Keep these notes in the living book. They are not leads.
 - 2026-08-27: Added Frogn kommune from wave-11 mid-size (vedtatt slug bm-2026-handlingsprogrammet_2026-2029; title2 Kommunestyrets vedtak; Klimabudsjett node cites Mdir area 535 / 44 043 t / 2023). No klimarådgiver mailbox. Arendal held. Still no outreach.
 - 2026-08-27: Wave 11 closed in the living file (Bømlo Kraftnett, Mellom, Rælingen, Kystnett, Nesodden, Frogn). Nittedal / Ås / TNett skipped. Health seats this wave skipped/exhausted. Still no outreach.
 - 2026-08-27: Wave 11 facts aligned to living book: Mellom (Statnett 5 MW/20 000 MWh + NVE 132 kV Rensvik–Engviklia; leftover `neas@neas.mr.no` not used), Rælingen (Klimabudsjett cites Kostratall; no Langdalen mailbox), Kystnett (NVE 202411925 Kaldvåg–Ulvsvåg; leftover `firmapost@nordsaltenkraft.no` not used), Nesodden (Mdir area 536 + KOSTRA; no klimarådgiver mailbox). Bømlo and Frogn unchanged. Still no outreach.
+- 2026-08-27: Skipped Fjellnett AS first pass (Tilko ≥1 MW is Elbits host `tk.elbits.no`; PlanNett actor isManagedBy taken Elvia; NVE 8868 Kolbotn trukket). Not absorbed into Elvia. Arendal held. Still no outreach.
+- 2026-08-27: Fjellnett AS skip reversed. Qualifies on own PlanNett områdestudie Nord-Gudbrandsdalen 20240282 + KVU 66 kV Nedre–Midtre–Øvre Tessa 20250049. Added after Kystnett. 93 sourced. Wave 11 add: Bømlo Kraftnett, Mellom, Rælingen, Kystnett, Fjellnett, Nesodden, Frogn. Nittedal / Ås / TNett skipped. Arendal held. Still no outreach.
 
 ---
 
