@@ -1,0 +1,175 @@
+{
+  "produced_at": "2026-08-27T21:14:21Z",
+  "bound": {
+    "list_api": "https://kart.ra.no/arcgis/rest/services/MABYGIS/MABYGIS_rest_ro/FeatureServer?f=json",
+    "walk": "copy printed layer names from the official Riksantikvaren MABYGIS FeatureServer layers array; native ids are those printed names; access_path is the printed layer id joined to the FeatureServer origin with the same f=json format; skip blank names and missing ids; do not invent endpoint ids or a FeatureServer where clause",
+    "cap": 10,
+    "how": "pda ingest --source riksantikvaren --limit 10. The official FeatureServer prints 29 layers. The adapter copies the first 10 printed names and joins each printed id to the FeatureServer origin. GET uses the printed layer document with no invented query filters."
+  },
+  "discarded": [
+    {
+      "candidate": "MET Nowcast",
+      "url": "PR 98 --source nowcast, now on main at fceeeb4",
+      "why": "Lane B must not pick Nowcast. Already on main. Do not re-add."
+    },
+    {
+      "candidate": "Kartverket Høydedata",
+      "url": "PR 97 --source hoydedata, now on main",
+      "why": "Lane B must not pick Høydedata. Already on main. Do not re-add."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Forbidden by the standing order. Do not pick."
+    },
+    {
+      "candidate": "MET sunrise swagger /locations",
+      "url": "https://api.met.no/weatherapi/sunrise/3.0/swagger",
+      "why": "HTTP 200 swagger and /locations 200 GeoJSON. Left unused because Nowcast already occupies the MET weatherapi swagger-plus-locations shape and is now on main."
+    },
+    {
+      "candidate": "Artsdatabanken Taxon",
+      "url": "https://artsdatabanken.no/Api/Taxon",
+      "why": "HTTP 200 JSON array of taxa. Not a catalog of collection endpoints. Unused."
+    },
+    {
+      "candidate": "Geonorge register.json",
+      "url": "https://register.geonorge.no/api/register.json",
+      "why": "HTTP 404. Do not retry."
+    },
+    {
+      "candidate": "Brreg regnskap swagger",
+      "url": "https://data.brreg.no/regnskapsregisteret/regnskap/swagger.json",
+      "why": "HTTP 404. Do not retry."
+    },
+    {
+      "candidate": "Entur stop-places",
+      "url": "https://api.entur.io/stop-places/v1/rest/stop-places",
+      "why": "HTTP 403. Do not retry."
+    },
+    {
+      "candidate": "NVE flood swagger v1.0.9",
+      "url": "https://api.nve.no/hydrology/forecast/flood/v1.0.9/swagger/v1/swagger.json",
+      "why": "HTTP 404. Do not retry."
+    },
+    {
+      "candidate": "Nasjonalbiblioteket catalog v1 iiif",
+      "url": "https://api.nb.no/catalog/v1/iiif",
+      "why": "HTTP 404. Do not retry."
+    },
+    {
+      "candidate": "NVDB Les V3 OpenAPI",
+      "url": "https://nvdbapiles-v3.atlas.vegvesen.no/dokumentasjon/openapi.json",
+      "why": "Known skip: HTTP 400 User-Agent. Do not retry."
+    },
+    {
+      "candidate": "Vegvesen Trafikkdata swagger / trafikkdata-api",
+      "url": "https://trafikkdata.atlas.vegvesen.no/",
+      "why": "Known skip: swagger HTML-only; trafikkdata-api 410. Do not retry."
+    },
+    {
+      "candidate": "Kartverket Eiendom /geokoding",
+      "url": "https://api.kartverket.no/eiendom/v1/geokoding",
+      "why": "Known skip: HTTP 400 without matrikkel params. Search API, not a collection catalog. Do not retry."
+    },
+    {
+      "candidate": "Udir Statistikkbanken /data",
+      "url": "Udir Statistikkbanken /Eksport/{id}/data",
+      "why": "Known skip: requires invented filters. Do not retry."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source riksantikvaren --db /tmp/pda-riksantikvaren-proof/registry.sqlite --limit 10",
+    "listed": 10,
+    "inserted": 10,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "riksantikvaren:Borhull",
+        "access_path": "https://kart.ra.no/arcgis/rest/services/MABYGIS/MABYGIS_rest_ro/FeatureServer/0?f=json"
+      },
+      {
+        "id": "riksantikvaren:Dispensasjoner",
+        "access_path": "https://kart.ra.no/arcgis/rest/services/MABYGIS/MABYGIS_rest_ro/FeatureServer/2?f=json"
+      },
+      {
+        "id": "riksantikvaren:Rad_Distr",
+        "access_path": "https://kart.ra.no/arcgis/rest/services/MABYGIS/MABYGIS_rest_ro/FeatureServer/3?f=json"
+      },
+      {
+        "id": "riksantikvaren:MabyGis_byer",
+        "access_path": "https://kart.ra.no/arcgis/rest/services/MABYGIS/MABYGIS_rest_ro/FeatureServer/4?f=json"
+      },
+      {
+        "id": "riksantikvaren:Kulturlag",
+        "access_path": "https://kart.ra.no/arcgis/rest/services/MABYGIS/MABYGIS_rest_ro/FeatureServer/6?f=json"
+      },
+      {
+        "id": "riksantikvaren:KulturlagFjernet",
+        "access_path": "https://kart.ra.no/arcgis/rest/services/MABYGIS/MABYGIS_rest_ro/FeatureServer/7?f=json"
+      },
+      {
+        "id": "riksantikvaren:Tilstand",
+        "access_path": "https://kart.ra.no/arcgis/rest/services/MABYGIS/MABYGIS_rest_ro/FeatureServer/9?f=json"
+      },
+      {
+        "id": "riksantikvaren:DagensOverflate",
+        "access_path": "https://kart.ra.no/arcgis/rest/services/MABYGIS/MABYGIS_rest_ro/FeatureServer/10?f=json"
+      },
+      {
+        "id": "riksantikvaren:NyereTidsKulturlag",
+        "access_path": "https://kart.ra.no/arcgis/rest/services/MABYGIS/MABYGIS_rest_ro/FeatureServer/11?f=json"
+      },
+      {
+        "id": "riksantikvaren:MiddelalderskeKulturlag",
+        "access_path": "https://kart.ra.no/arcgis/rest/services/MABYGIS/MABYGIS_rest_ro/FeatureServer/12?f=json"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search Borhull --db /tmp/pda-riksantikvaren-proof/registry.sqlite --limit 5",
+    "query": "Borhull",
+    "returned": 1,
+    "hit_id": "riksantikvaren:Borhull",
+    "title": "Borhull",
+    "source_id": "riksantikvaren"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset riksantikvaren:Borhull --db /tmp/pda-riksantikvaren-proof/registry.sqlite",
+    "dataset": "riksantikvaren:Borhull",
+    "table_id": "0",
+    "access_path": "https://kart.ra.no/arcgis/rest/services/MABYGIS/MABYGIS_rest_ro/FeatureServer/0?f=json",
+    "request_url": "https://kart.ra.no/arcgis/rest/services/MABYGIS/MABYGIS_rest_ro/FeatureServer/0?f=json",
+    "http_status": 200,
+    "listed": 25,
+    "inserted": 25,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {"measure": "name", "value": "X_UTM33"},
+      {"measure": "name", "value": "Y_UTM33"},
+      {"measure": "name", "value": "Z"},
+      {"measure": "name", "value": "TOP_BOR_MOH"},
+      {"measure": "name", "value": "BORE_DIAM"}
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset riksantikvaren:Borhull --table 0 --entity \"\" --measure \"\" --db /tmp/pda-riksantikvaren-proof/registry.sqlite --out /tmp/pda-riksantikvaren-proof/methods",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "Riksantikvaren Borhull prints field names. That is not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed FeatureServer layer names. access_path is https://kart.ra.no/arcgis/rest/services/MABYGIS/MABYGIS_rest_ro/FeatureServer/0?f=json. No riksantikvaren id was written onto a hoydedata, nowcast, sodir, geonorge, or datanorge row.",
+    "Publisher and license are null. The FeatureServer prints an empty copyrightText and no license URL.",
+    "Original harvested FeatureServer metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "MET Nowcast stays --source nowcast. Kartverket Høydedata stays --source hoydedata.",
+    "Payload is field names, not a numeric time series with two or more periods.",
+    "python3 -m pytest passed with 1 skipped. methods/ and search.py were not edited. hoydedata and nowcast adapters were not edited."
+  ]
+}

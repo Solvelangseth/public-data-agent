@@ -36,6 +36,7 @@ from public_data_agent.sources.nytek import NytekSource
 from public_data_agent.sources.opencom import OpencomSource
 from public_data_agent.sources.portal import PortalSource
 from public_data_agent.sources.research import ResearchSource
+from public_data_agent.sources.riksantikvaren import RiksantikvarenSource
 from public_data_agent.sources.sikt import SiktSource
 from public_data_agent.sources.sodir import SodirSource
 from public_data_agent.sources.oslo import OsloStatbankSource
@@ -93,6 +94,7 @@ SOURCE_IDS = (
     "ngu",
     "hoydedata",
     "nowcast",
+    "riksantikvaren",
 )
 
 
@@ -187,6 +189,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return HoydedataSource()
     if source_id == "nowcast":
         return NowcastSource()
+    if source_id == "riksantikvaren":
+        return RiksantikvarenSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -225,6 +229,7 @@ __all__ = [
     "OpencomSource",
     "PortalSource",
     "ResearchSource",
+    "RiksantikvarenSource",
     "SiktSource",
     "SodirSource",
     "OsloStatbankSource",
