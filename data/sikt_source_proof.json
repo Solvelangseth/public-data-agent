@@ -1,0 +1,203 @@
+{
+  "produced_at": "2026-08-27T15:00:41Z",
+  "bound": {
+    "list_api": "https://dataverse.no/api/dataverses/:root/contents",
+    "walk": "copy printed titled dataverse ids from data[]; keep the catalog /api/dataverses/:root/contents path and substitute the printed id for :root; do not invent collection ids",
+    "cap": 10,
+    "how": "pda ingest --source sikt --limit 10. The official Sikt DataverseNO :root/contents list prints 31 members. 18 titled dataverses are collections. Root datasets print no title and were left unused. The adapter copies the first 10 printed titled ids."
+  },
+  "discarded": [
+    {
+      "candidate": "Kartverket Stedsnavn OpenAPI",
+      "url": "PR 79 cursor/next-norwegian-source-9e53 --source stedsnavn",
+      "why": "Already in flight. Do not touch that branch, PR, or stedsnavn adapter files. This branch starts from origin/main only."
+    },
+    {
+      "candidate": "Geonorge Kartkatalog",
+      "url": "https://kartkatalog.geonorge.no/api/search",
+      "why": "Already ingested on main. Different API. Do not re-add."
+    },
+    {
+      "candidate": "Kartverket høydedata OpenAPI",
+      "url": "https://ws.geonorge.no/hoydedata/v1/openapi.json",
+      "why": "HTTP 200 OpenAPI with untemplated GET /datakilder and /terrengtyper. Already stored as geonorge:71ad2bf9-06e8-469f-9ffa-296182274154 access_path https://ws.geonorge.no/hoydedata/v1/. Same Kartverket/Geonorge family as kommuneinfo."
+    },
+    {
+      "candidate": "Kartverket SeHavniva",
+      "url": "https://api.sehavniva.no/",
+      "why": "TLS handshake timed out. swagger.json and openapi.json also timed out. Known-style skip: timeout."
+    },
+    {
+      "candidate": "NVDB Les V3 OpenAPI",
+      "url": "https://nvdbapiles-v3.atlas.vegvesen.no/dokumentasjon/openapi.json",
+      "why": "HTTP 400 JSON: User-Agent er ingen gyldig nettleser. Already discarded on main as needing X-Client. OGC collections 404."
+    },
+    {
+      "candidate": "Avinor Airports",
+      "url": "https://avinor.no/Api/Airports",
+      "why": "HTTP 200 JSON airport pages. Those printed urls are HTML landing pages, not API endpoints. Already discarded on main."
+    },
+    {
+      "candidate": "Sikt Dataverse OpenAPI",
+      "url": "https://dataverse.no/openapi",
+      "why": "HTTP 200 YAML for generic Dataverse 6.6 software (414 paths, 134 untemplated, mostly /admin). Not used as the walk. The printed catalog is :root/contents."
+    },
+    {
+      "candidate": "DataverseNO root datasets without title",
+      "url": "https://dataverse.no/api/dataverses/:root/contents",
+      "why": "The live list prints 13 dataset members with identifier and publisher but no title. Those are not titled collections. We do not invent titles or a /api/datasets/{id} path for them."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source sikt --db /tmp/pda-sikt-proof/registry.sqlite --limit 10",
+    "listed": 10,
+    "inserted": 10,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "sikt:3",
+        "access_path": "https://dataverse.no/api/dataverses/3/contents"
+      },
+      {
+        "id": "sikt:1526",
+        "access_path": "https://dataverse.no/api/dataverses/1526/contents"
+      },
+      {
+        "id": "sikt:1533",
+        "access_path": "https://dataverse.no/api/dataverses/1533/contents"
+      },
+      {
+        "id": "sikt:4041",
+        "access_path": "https://dataverse.no/api/dataverses/4041/contents"
+      },
+      {
+        "id": "sikt:5622",
+        "access_path": "https://dataverse.no/api/dataverses/5622/contents"
+      },
+      {
+        "id": "sikt:6099",
+        "access_path": "https://dataverse.no/api/dataverses/6099/contents"
+      },
+      {
+        "id": "sikt:6924",
+        "access_path": "https://dataverse.no/api/dataverses/6924/contents"
+      },
+      {
+        "id": "sikt:6925",
+        "access_path": "https://dataverse.no/api/dataverses/6925/contents"
+      },
+      {
+        "id": "sikt:7830",
+        "access_path": "https://dataverse.no/api/dataverses/7830/contents"
+      },
+      {
+        "id": "sikt:14005",
+        "access_path": "https://dataverse.no/api/dataverses/14005/contents"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search TROLLing --db /tmp/pda-sikt-proof/registry.sqlite --limit 5",
+    "query": "TROLLing",
+    "returned": 1,
+    "hit_id": "sikt:3",
+    "title": "TROLLing",
+    "source_id": "sikt"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset sikt:3 --db /tmp/pda-sikt-proof/registry.sqlite",
+    "dataset": "sikt:3",
+    "table_id": "3",
+    "access_path": "https://dataverse.no/api/dataverses/3/contents",
+    "request_url": "https://dataverse.no/api/dataverses/3/contents",
+    "http_status": 200,
+    "listed": 254,
+    "inserted": 254,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "title",
+        "value": "AcqVA Aurora",
+        "dimensions": {
+          "type": "dataverse",
+          "id": "117531"
+        }
+      },
+      {
+        "measure": "title",
+        "value": "ASTRID",
+        "dimensions": {
+          "type": "dataverse",
+          "id": "277505"
+        }
+      },
+      {
+        "measure": "identifier",
+        "value": "S5SXRG",
+        "dimensions": {
+          "id": "4",
+          "persistentUrl": "https://doi.org/10.18710/S5SXRG",
+          "protocol": "doi",
+          "authority": "10.18710",
+          "separator": "/",
+          "publisher": "DataverseNO",
+          "publicationDate": "2014-11-30",
+          "storageIdentifier": "S3://10037.1/10121",
+          "datasetType": "dataset",
+          "type": "dataset"
+        }
+      },
+      {
+        "measure": "identifier",
+        "value": "T6KSX4",
+        "dimensions": {
+          "id": "6",
+          "persistentUrl": "https://doi.org/10.18710/T6KSX4",
+          "protocol": "doi",
+          "authority": "10.18710",
+          "separator": "/",
+          "publisher": "DataverseNO",
+          "publicationDate": "2014-12-06",
+          "storageIdentifier": "S3://10037.1/10142",
+          "datasetType": "dataset",
+          "type": "dataset"
+        }
+      },
+      {
+        "measure": "identifier",
+        "value": "2NKJPG",
+        "dimensions": {
+          "id": "7",
+          "persistentUrl": "https://doi.org/10.18710/2NKJPG",
+          "protocol": "doi",
+          "authority": "10.18710",
+          "separator": "/",
+          "publisher": "DataverseNO",
+          "publicationDate": "2014-06-16",
+          "storageIdentifier": "S3://10037.1/10040",
+          "datasetType": "dataset",
+          "type": "dataset"
+        }
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset sikt:3 --table 3 --entity \"\" --measure \"\" --db /tmp/pda-sikt-proof/registry.sqlite --out /tmp/pda-sikt-proof/methods",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "DataverseNO /dataverses/3/contents prints collection titles and dataset identifiers. That is not a numeric time series. methods.clean drops the rows because they have no period. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed :root/contents data[].id values that also print a title. access_path keeps https://dataverse.no/api/dataverses/:root/contents and substitutes the printed id for :root. No Sikt id was written onto a datanorge row.",
+    "License is null. The collection catalog does not print a license URI.",
+    "Publisher is null. Titled dataverse members do not print a publisher name. Dataset members print publisher DataverseNO but those members have no title and were not ingested.",
+    "Kartverket Stedsnavn stays on PR 79. Geonorge Kartkatalog was not re-added. This source does not re-implement either.",
+    "python3 -m pytest 294 passed, 1 skipped, 1 deselected."
+  ]
+}

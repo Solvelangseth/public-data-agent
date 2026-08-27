@@ -1296,6 +1296,13 @@ pda fetch --dataset sikt:3 --db data/registry.sqlite
 from printed `title` or `identifier`. License and publisher stay null: the
 collection catalog does not print those fields.
 
+Live ingest 2026-08-27: 10 printed titled dataverses. Live search
+`TROLLing` returns `sikt:3`. Live fetch GETs
+`https://dataverse.no/api/dataverses/3/contents` HTTP 200, 254
+collection-member rows. Sample printed values: AcqVA Aurora, ASTRID,
+S5SXRG, T6KSX4, 2NKJPG.
+`pda methods` is not applicable: titles and identifiers, not a numeric
+time series (`no observations matched entity/measure; available=[]`).
 Proof is `data/sikt_source_proof.json`.
 
 ## Architecture (long term)

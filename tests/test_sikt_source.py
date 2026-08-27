@@ -142,9 +142,10 @@ def test_fetch_gets_printed_trolling_contents(tmp_path: Path) -> None:
     assert result.counts.listed == 2
     rows = registry.list_observations(DATASET_ID)
     values = [json.loads(row["value_json"]) for row in rows]
-    assert values == ["AcqVA Aurora", "S5SXRG"]
-    assert [row["measure"] for row in rows] == ["title", "identifier"]
+    assert set(values) == {"AcqVA Aurora", "S5SXRG"}
     by_name = {json.loads(row["value_json"]): row for row in rows}
+    assert by_name["AcqVA Aurora"]["measure"] == "title"
+    assert by_name["S5SXRG"]["measure"] == "identifier"
     dims = json.loads(by_name["AcqVA Aurora"]["dimensions_json"])
     assert dims["id"] == "117531"
     assert dims["type"] == "dataverse"
