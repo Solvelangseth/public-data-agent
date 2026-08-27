@@ -1,0 +1,114 @@
+{
+  "produced_at": "2026-08-27T10:04:00Z",
+  "bound": {
+    "list_api": "https://data.ssb.no/api/v0/no/table",
+    "subject_id": "be",
+    "subject_text": "Befolkning",
+    "walk": "BFS of type=l folders, keep type=t items",
+    "cap": 8,
+    "offset": 8,
+    "how": "pda ingest --source ssb --limit 8 --offset 8. Same printed be folder as PR 35. Skip the first 8 already-ingested BFS tables. Stop after the next 8 listed tables."
+  },
+  "ingest": {
+    "command": "pda ingest --source ssb --db data/registry.sqlite --limit 8 --offset 8 --notes \"next 8 BFS befolkning tables after PR 35\"",
+    "listed": 8,
+    "inserted": 8,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "ssb:08135",
+        "access_path": "https://data.ssb.no/api/v0/no/table/08135",
+        "title": "08135: Kontante overføringer til barnefamilier. Bosatte, etter region, type overføring, statistikkvariabel og år"
+      },
+      {
+        "id": "ssb:08136",
+        "access_path": "https://data.ssb.no/api/v0/no/table/08136",
+        "title": "08136: Kontante overføringer til barnefamilier per barn 0-17 år. 2015-kroner, etter region, statistikkvariabel og år"
+      },
+      {
+        "id": "ssb:08134",
+        "access_path": "https://data.ssb.no/api/v0/no/table/08134",
+        "title": "08134: Kontante overføringer til barnefamilier. Bosatte, etter type overføring, statistikkvariabel og år"
+      },
+      {
+        "id": "ssb:06831",
+        "access_path": "https://data.ssb.no/api/v0/no/table/06831",
+        "title": "06831: Andel personer (prosent), etter samlivsform, kjønn, alder, statistikkvariabel og år"
+      },
+      {
+        "id": "ssb:06854",
+        "access_path": "https://data.ssb.no/api/v0/no/table/06854",
+        "title": "06854: Andel personer (prosent), etter samlivsform, alder, statistikkvariabel og intervall (år)"
+      },
+      {
+        "id": "ssb:14746",
+        "access_path": "https://data.ssb.no/api/v0/no/table/14746",
+        "title": "14746: Framskrevet folkemengde 1. januar, etter region, kjønn, alder, statistikkvariabel og år"
+      },
+      {
+        "id": "ssb:14747",
+        "access_path": "https://data.ssb.no/api/v0/no/table/14747",
+        "title": "14747: Framskrevne befolkningsendringer, etter region, alternativ, statistikkvariabel og år"
+      },
+      {
+        "id": "ssb:14748",
+        "access_path": "https://data.ssb.no/api/v0/no/table/14748",
+        "title": "14748: Framskrevet dødssannsynlighet (per 1000), etter region, kjønn, alder, alternativ, statistikkvariabel og år"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search 06831 --db data/registry.sqlite --limit 5",
+    "query": "06831",
+    "returned": 1,
+    "hit_id": "ssb:06831",
+    "hit_title": "06831: Andel personer (prosent), etter samlivsform, kjønn, alder, statistikkvariabel og år",
+    "hit_access_path": "https://data.ssb.no/api/v0/no/table/06831",
+    "title_query": {
+      "command": "pda search \"samlivsform\" --db data/registry.sqlite --limit 5",
+      "query": "samlivsform",
+      "returned": 2,
+      "first_hit_id": "ssb:06831"
+    }
+  },
+  "fetch": {
+    "command": "pda fetch --dataset ssb:06831 --table 06831 --from-year 2021 --to-year 2022 --db data/registry.sqlite",
+    "dataset": "ssb:06831",
+    "table_id": "06831",
+    "request_url": "https://data.ssb.no/api/v0/no/table/06831",
+    "http_status": 200,
+    "listed": 132,
+    "inserted": 132,
+    "periods": ["2021", "2022"],
+    "license": null,
+    "sample": [
+      {
+        "measure": "06831: Andel personer (prosent), etter samlivsform, kjønn, alder, statistikkvariabel og år",
+        "value": 3,
+        "dimensions": {"Samboere": "Samboere", "Kjonn": "Kvinner", "Alder": "16-19 år", "Tid": "2021"}
+      },
+      {
+        "measure": "06831: Andel personer (prosent), etter samlivsform, kjønn, alder, statistikkvariabel og år",
+        "value": 2,
+        "dimensions": {"Samboere": "Samboere", "Kjonn": "Kvinner", "Alder": "16-19 år", "Tid": "2022"}
+      },
+      {
+        "measure": "06831: Andel personer (prosent), etter samlivsform, kjønn, alder, statistikkvariabel og år",
+        "value": 23,
+        "dimensions": {"Samboere": "Samboere", "Kjonn": "Kvinner", "Alder": "20-24 år", "Tid": "2021"}
+      },
+      {
+        "measure": "06831: Andel personer (prosent), etter samlivsform, kjønn, alder, statistikkvariabel og år",
+        "value": 23,
+        "dimensions": {"Samboere": "Samboere", "Kjonn": "Kvinner", "Alder": "20-24 år", "Tid": "2022"}
+      }
+    ]
+  },
+  "notes": [
+    "07459 was not in this printed batch. It was not written onto a datanorge row.",
+    "11763 was not in this printed batch. It stays the earlier identity-only row.",
+    "License is null. The SSB table metadata JSON does not print a license.",
+    "Sample values are copied from the JSON-stat POST response, not invented."
+  ]
+}
