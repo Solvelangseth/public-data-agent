@@ -1,0 +1,281 @@
+from __future__ import annotations
+
+import hashlib
+import json
+from dataclasses import dataclass, field
+from typing import Any, Protocol
+from urllib.parse import urljoin
+
+from public_data_agent.http_util import HttpClient, JsonResponse
+from public_data_agent.models import HarvestCounts
+from public_data_agent.registry import Registry, utc_now
+
+PXWEB_UI_MARK = "/statbank/pxweb/"
+PXWEB_API_MARK = "/statbank/api/v1/"
+DEFAULT_OSLO_DATASET = "datanorge:fc22c19b-5347-3b20-aa1b-ae534f178f57"
+DEFAULT_OSLO_TABLE = "Befolkning/Folkemengde/OK-BEF008.px"
+
+
+class JsonHttp(Protocol):
+    def get_json_response(self, url: str, *, headers: dict[str, str] | None = None) -> JsonResponse: ...
+
+    def post_json_response(
+        self,
+        url: str,
+        body: Any,
+        *,
+        headers: dict[str, str] | None = None,
+    ) -> JsonResponse: ...
+
+
+@dataclass
+class Observation:
+    dataset_id: str
+    table_id: str
+    measure: str
+    value: Any
+    dimensions: dict[str, str]
+    retrieved_at: str
+    request_url: str
+    http_status: int
+    publisher_name: str | None
+    license: str | None
+    access_path: str | None
+    source_native_uri: str | None
+
+    def identity_key(self) -> str:
+        dims = json.dumps(self.dimensions, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+        raw = "\0".join([self.dataset_id, self.table_id, self.measure, dims])
+        return hashlib.sha256(raw.encode("utf-8")).hexdigest()[:40]
+
+
+@dataclass
+class FetchResult:
+    dataset_id: str
+    table_id: str
+    request_url: str
+    http_status: int
+    counts: HarvestCounts = field(default_factory=HarvestCounts)
+    sample: list[dict[str, Any]] = field(default_factory=list)
+
+
+def pxweb_api_url(access_path: str, table_id: str) -> str:
+    """Derive the PxWeb API URL from a stored access path plus a table path.
+
+    This rewrites the well-known `/statbank/pxweb/` UI prefix to `/statbank/api/v1/`.
+    It does not invent observation values.
+    """
+
+    if not access_path:
+        raise ValueError("dataset has no access_path")
+    root = access_path.rstrip("/") + "/"
+    if PXWEB_UI_MARK in root:
+        root = root.replace(PXWEB_UI_MARK, PXWEB_API_MARK, 1)
+    elif PXWEB_API_MARK not in root and "/api/" not in root:
+        raise ValueError(f"access_path is not a PxWeb or API URL: {access_path}")
+    return urljoin(root, table_id.lstrip("/"))
+
+
+def time_codes(meta: dict[str, Any], *, from_year: int | None, to_year: int | None) -> tuple[str, list[str]]:
+    for variable in meta.get("variables") or []:
+        if not variable.get("time"):
+            continue
+        codes = list(variable.get("values") or [])
+        labels = list(variable.get("valueTexts") or [])
+        if from_year is None and to_year is None:
+            return str(variable["code"]), codes
+        selected: list[str] = []
+        for code, label in zip(codes, labels):
+            year = _year_from_label(label)
+            if year is None:
+                continue
+            if from_year is not None and year < from_year:
+                continue
+            if to_year is not None and year > to_year:
+                continue
+            selected.append(code)
+        if not selected:
+            raise ValueError("no time codes in the requested year range")
+        return str(variable["code"]), selected
+    raise ValueError("table metadata has no time variable")
+
+
+def cells_from_jsonstat(payload: dict[str, Any]) -> list[tuple[str, Any, dict[str, str]]]:
+    ids = list(payload.get("id") or [])
+    sizes = list(payload.get("size") or [])
+    values = list(payload.get("value") or [])
+    dimension = payload.get("dimension") or {}
+    if len(ids) != len(sizes):
+        raise ValueError("json-stat id and size length differ")
+    axes: list[list[tuple[str, str]]] = []
+    for dim_id, size in zip(ids, sizes):
+        category = (dimension.get(dim_id) or {}).get("category") or {}
+        index = category.get("index") or {}
+        labels = category.get("label") or {}
+        by_pos: list[tuple[str, str] | None] = [None] * size
+        for code, pos in index.items():
+            by_pos[int(pos)] = (str(code), str(labels.get(code, code)))
+        if any(item is None for item in by_pos):
+            raise ValueError(f"json-stat dimension {dim_id} is missing an index position")
+        axes.append([(code, label) for code, label in by_pos if code is not None])
+    metric_id = _metric_dimension(payload, ids)
+    cells: list[tuple[str, Any, dict[str, str]]] = []
+    for i, value in enumerate(values):
+        coords = _unravel(i, sizes)
+        measure = ""
+        dims: dict[str, str] = {}
+        for dim_id, pos, axis in zip(ids, coords, axes):
+            _code, label = axis[pos]
+            if dim_id == "ContentsCode":
+                continue
+            if dim_id == metric_id:
+                measure = label
+                continue
+            dims[dim_id] = label
+        if not measure:
+            measure = str(payload.get("label") or "value")
+        cells.append((measure, value, dims))
+    return cells
+
+
+def fetch_observations(
+    registry: Registry,
+    dataset_id: str,
+    *,
+    table_id: str,
+    from_year: int | None = None,
+    to_year: int | None = None,
+    http: JsonHttp | None = None,
+) -> FetchResult:
+    dataset = registry.get_dataset(dataset_id)
+    if dataset is None:
+        raise ValueError(f"unknown dataset {dataset_id}")
+    client = http or HttpClient(timeout=60.0, max_retries=4)
+    request_url = pxweb_api_url(dataset.get("access_path") or "", table_id)
+    started = utc_now()
+    run_id = registry.start_fetch_run(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        request_url=request_url,
+        request_method="POST",
+        started_at=started,
+    )
+    counts = HarvestCounts()
+    status = "failed"
+    http_status = 0
+    sample: list[dict[str, Any]] = []
+    try:
+        meta = client.get_json_response(request_url)
+        time_code, selected = time_codes(meta.body, from_year=from_year, to_year=to_year)
+        query = _pxweb_query(meta.body, time_code, selected)
+        registry.set_fetch_request(run_id, request_url=request_url, request_body=query)
+        posted = client.post_json_response(request_url, query)
+        http_status = posted.status
+        cells = cells_from_jsonstat(posted.body)
+        counts.listed = len(cells)
+        retrieved_at = utc_now()
+        for measure, value, dims in cells:
+            observation = Observation(
+                dataset_id=dataset_id,
+                table_id=table_id,
+                measure=measure,
+                value=value,
+                dimensions=dims,
+                retrieved_at=retrieved_at,
+                request_url=request_url,
+                http_status=http_status,
+                publisher_name=dataset.get("publisher_name"),
+                license=dataset.get("license"),
+                access_path=dataset.get("access_path"),
+                source_native_uri=dataset.get("source_native_uri"),
+            )
+            action = registry.upsert_observation(
+                {
+                    "id": observation.identity_key(),
+                    "dataset_id": observation.dataset_id,
+                    "table_id": observation.table_id,
+                    "measure": observation.measure,
+                    "value": observation.value,
+                    "dimensions": observation.dimensions,
+                    "retrieved_at": observation.retrieved_at,
+                    "request_url": observation.request_url,
+                    "http_status": observation.http_status,
+                    "publisher_name": observation.publisher_name,
+                    "license": observation.license,
+                    "access_path": observation.access_path,
+                    "source_native_uri": observation.source_native_uri,
+                },
+                run_id,
+            )
+            if action == "inserted":
+                counts.inserted += 1
+            elif action == "updated":
+                counts.updated += 1
+            else:
+                counts.unchanged += 1
+            if len(sample) < 5:
+                sample.append(
+                    {
+                        "measure": measure,
+                        "value": value,
+                        "dimensions": dims,
+                    }
+                )
+        status = "completed"
+    except Exception as exc:
+        counts.failed += 1
+        counts.errors.append({"error": str(exc), "url": request_url})
+        raise
+    finally:
+        registry.finish_fetch_run(run_id, counts, status=status, http_status=http_status)
+    return FetchResult(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        request_url=request_url,
+        http_status=http_status,
+        counts=counts,
+        sample=sample,
+    )
+
+
+def _pxweb_query(meta: dict[str, Any], time_code: str, time_values: list[str]) -> dict[str, Any]:
+    query: list[dict[str, Any]] = []
+    for variable in meta.get("variables") or []:
+        code = str(variable["code"])
+        if code == time_code:
+            query.append({"code": code, "selection": {"filter": "item", "values": time_values}})
+        else:
+            query.append({"code": code, "selection": {"filter": "all", "values": ["*"]}})
+    return {"query": query, "response": {"format": "json-stat2"}}
+
+
+def _metric_dimension(payload: dict[str, Any], ids: list[str]) -> str | None:
+    if "Statistikkvariabel" in ids:
+        return "Statistikkvariabel"
+    role = payload.get("role") or {}
+    metric = role.get("metric")
+    if isinstance(metric, list) and metric:
+        name = str(metric[0])
+        if name != "ContentsCode":
+            return name
+    return None
+
+
+def _unravel(index: int, sizes: list[int]) -> list[int]:
+    coords: list[int] = []
+    remaining = index
+    for size in reversed(sizes):
+        coords.append(remaining % size)
+        remaining //= size
+    coords.reverse()
+    return coords
+
+
+def _year_from_label(label: str) -> int | None:
+    digits = "".join(ch for ch in label if ch.isdigit())
+    if len(digits) < 4:
+        return None
+    try:
+        return int(digits[:4])
+    except ValueError:
+        return None
