@@ -17,6 +17,7 @@ from public_data_agent.sources.user import (
 
 FIXTURES = Path(__file__).parent / "fixtures"
 EXAMPLE_CSV = Path(__file__).resolve().parents[1] / "data" / "examples" / "user_bydel.csv"
+EXAMPLE_SQLITE = Path(__file__).resolve().parents[1] / "data" / "examples" / "user_bydel.sqlite"
 
 
 def _registry(tmp_path: Path) -> Registry:
@@ -145,3 +146,38 @@ def test_cli_search_user_file(tmp_path: Path, capsys) -> None:
     public = next(hit for hit in payload["results"] if not hit["user_supplied"])
     assert user["id"] == "user:user-bydel-notes"
     assert public["source"] == "fixture"
+
+
+def test_cli_search_user_file_sqlite(tmp_path: Path, capsys) -> None:
+    registry = _registry(tmp_path)
+    db = tmp_path / "registry.sqlite"
+    before = _harvest_bytes(registry)
+    enrich_before = registry.enrichment_count()
+    registry.close()
+    assert (
+        main(
+            [
+                "search",
+                "Hvilke Oslo-bydeler er størst og hvilke vokser mest?",
+                "--db",
+                str(db),
+                "--user-file",
+                str(EXAMPLE_SQLITE),
+                "--limit",
+                "5",
+            ]
+        )
+        == 0
+    )
+    payload = json.loads(capsys.readouterr().out)
+    user = next(hit for hit in payload["results"] if hit["user_supplied"])
+    public = next(hit for hit in payload["results"] if not hit["user_supplied"])
+    assert user["id"] == "user:user-bydel-notes"
+    assert user["source"] == USER_SOURCE_ID
+    assert user["publisher"]["name"] == "user"
+    assert user["license"] is None
+    assert public["source"] == "fixture"
+    opened = Registry(db)
+    assert _harvest_bytes(opened) == before
+    assert opened.enrichment_count() == enrich_before
+    opened.close()

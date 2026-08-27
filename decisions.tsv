@@ -100,3 +100,7 @@ ts	phase	decision	why	evidence	result
 2026-08-27T08:46:30Z	user	harvest local CSV/SQLite as source_id=user for this search run	do not retune scoring; map columns onto the existing document shape	src/public_data_agent/sources/user.py UserFileSource	adapter only
 2026-08-27T08:49:27Z	user	live pda search returns a user hit and a datanorge hit	follow-up truncation dropped the user row; CLI prepends matching user hits	data/user_source_proof.json user:user-bydel-notes user_supplied=true; public datanorge:265a14e9	live works
 2026-08-27T08:49:27Z	pr	open Milestone 13 first-slice PR, do not merge	user file is a reviewable PR	https://github.com/Solvelangseth/public-data-agent/pull/27	OPEN
+2026-08-27T08:51:38Z	merge	merge PR 27 after CI green	CI test + GitGuardian SUCCESS; mergeable CLEAN	gh pr view 27 MERGED mergeCommit fad2e8d4b8c8810e69e8dac08c8296af1a8eddca	MERGED
+2026-08-27T08:52:20Z	user	--user-file reads .sqlite with the same column map as CSV	from_path already branched on suffix; this slice ships the example file	data/examples/user_bydel.sqlite table notes	adapter reused
+2026-08-27T08:52:49Z	user	live pda search --user-file user_bydel.sqlite	prove SQLite on the live registry, not a temp fixture	data/user_sqlite_proof.json user:user-bydel-notes user_supplied=true; public datanorge:265a14e9	live works
+2026-08-27T08:52:49Z	pr	open Milestone 13 SQLite PR, do not merge	example sqlite is a reviewable PR	https://github.com/Solvelangseth/public-data-agent/pull/29	OPEN
