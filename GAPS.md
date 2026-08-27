@@ -18,6 +18,8 @@ Discovery MVP (milestones 1 through 6) is on `main` at merge `51610b1f04b9a658e4
 
 The harvest file is the 9120-row Data.norge run in `data/harvest_stats.json` (`produced_at` 2026-08-26T21:26:38Z).
 
+- **Harvested payloads print no unused PxWeb table URLs.** `pda scan-table-urls` on 9121 payloads found `new_stored=0`. No `data.ssb.no/api/v0/.../table/<id>` or `statbank/api/v1/.../*.px` string that is not already `access_path`. 07459 is not printed. Source: `data/table_url_scan_proof.json`.
+
 ## Search and coverage
 
 - **Indirect Recall@5 stays 0.33.** After AND-decompose, `indirect.recall_at_5` is still 0.333 (9 questions). Theme-only strings live on gold `theme` fields. Theme is not a retrieval field and is not in `FIELD_WEIGHTS`. Source: `data/benchmark_compare.json` `after.by_kind.indirect`. Also `decisions.tsv` 2026-08-26T22:14:10Z.
