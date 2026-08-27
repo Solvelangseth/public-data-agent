@@ -1,0 +1,202 @@
+{
+  "produced_at": "2026-08-27T21:26:00Z",
+  "bound": {
+    "list_api": "https://api.met.no/weatherapi/tidalwater/1.1/swagger",
+    "walk": "copy printed untemplated GET paths from the official MET Tidalwater swagger; skip the root path with no last-segment id; native ids are the last printed path segment; access_path is swagger origin + printed basePath + path; do not invent dataset ids or station filters",
+    "cap": 10,
+    "how": "pda ingest --source tidalwater --limit 10. The official MET Tidalwater swagger prints 8 paths. The adapter copies the 6 untemplated GET paths that have a last-segment id. GET uses the printed /locations collection with no invented query filters."
+  },
+  "discarded": [
+    {
+      "candidate": "MET Airqualityforecast",
+      "url": "PR 100 --source airquality",
+      "why": "Lane A open PR. Lane B must pick a different source."
+    },
+    {
+      "candidate": "Riksantikvaren MABYGIS",
+      "url": "PR 99 --source riksantikvaren, now on main at 3bab5fa",
+      "why": "Just merged. Do not re-add."
+    },
+    {
+      "candidate": "MET Nowcast",
+      "url": "https://api.met.no/weatherapi/nowcast/2.0/swagger",
+      "why": "Already on main as --source nowcast. Do not re-add."
+    },
+    {
+      "candidate": "MET Metalerts",
+      "url": "https://api.met.no/weatherapi/metalerts/2.0/swagger",
+      "why": "Already on main as --source met. Do not re-add."
+    },
+    {
+      "candidate": "MET textforecast swagger",
+      "url": "https://api.met.no/weatherapi/textforecast/2.0/swagger",
+      "why": "HTTP 500 HTML. Do not retry."
+    },
+    {
+      "candidate": "MET forestfireindex swagger",
+      "url": "https://api.met.no/weatherapi/forestfireindex/1.1/swagger",
+      "why": "HTTP 500 HTML. Do not retry."
+    },
+    {
+      "candidate": "MET lightning swagger",
+      "url": "https://api.met.no/weatherapi/lightning/2.0/swagger",
+      "why": "HTTP 500 HTML. Do not retry."
+    },
+    {
+      "candidate": "MET sunrise swagger",
+      "url": "https://api.met.no/weatherapi/sunrise/3.0/swagger",
+      "why": "HTTP 200 swagger with printed /locations. Left unused after Tidalwater was selected."
+    },
+    {
+      "candidate": "MET oceanforecast swagger",
+      "url": "https://api.met.no/weatherapi/oceanforecast/2.0/swagger",
+      "why": "HTTP 200 swagger. Left unused after Tidalwater was selected."
+    },
+    {
+      "candidate": "Artsdatabanken /api/Resource",
+      "url": "https://www.artsdatabanken.no/api/Resource",
+      "why": "HTTP 200 JSON array of taxa. Not a catalog of collection endpoints. Unused."
+    },
+    {
+      "candidate": "Geonorge register API",
+      "url": "https://register.geonorge.no/api",
+      "why": "HTTP 404. register?format=json 404. /api/register 500. Do not retry."
+    },
+    {
+      "candidate": "Difi data hotel",
+      "url": "https://hotell.difi.no/api/json",
+      "why": "DNS failure. Do not retry."
+    },
+    {
+      "candidate": "NVE gis3 folders",
+      "url": "https://gis3.nve.no/arcgis/rest/services?f=json",
+      "why": "HTTP 200 prints folders only and an empty services array. Unused."
+    },
+    {
+      "candidate": "BRREG Regnskapsregisteret swagger",
+      "url": "https://data.brreg.no/regnskapsregisteret/regnskap/swagger/v1/swagger.json",
+      "why": "HTTP 404. Do not retry."
+    },
+    {
+      "candidate": "Kartverket Transformering OpenAPI",
+      "url": "https://ws.geonorge.no/transformering/v1/openapi.json",
+      "why": "HTTP 200 OpenAPI. Transform API, not a collection catalog. Unused."
+    },
+    {
+      "candidate": "Nasjonalbiblioteket catalog v1",
+      "url": "https://api.nb.no/catalog/v1",
+      "why": "HTTP 404 HTML. Do not retry."
+    },
+    {
+      "candidate": "NVDB Les V3 OpenAPI",
+      "url": "https://nvdbapiles-v3.atlas.vegvesen.no/dokumentasjon/openapi.json",
+      "why": "Known skip: HTTP 400 User-Agent. Do not retry."
+    },
+    {
+      "candidate": "Vegvesen Trafikkdata swagger / trafikkdata-api",
+      "url": "https://trafikkdata.atlas.vegvesen.no/",
+      "why": "Known skip: swagger HTML-only; trafikkdata-api 410. Do not retry."
+    },
+    {
+      "candidate": "Kartverket Eiendom /geokoding",
+      "url": "https://api.kartverket.no/eiendom/v1/geokoding",
+      "why": "Known skip: HTTP 400 without matrikkel params. Search API, not a collection catalog. Do not retry."
+    },
+    {
+      "candidate": "Udir Statistikkbanken /data",
+      "url": "Udir Statistikkbanken /Eksport/{id}/data",
+      "why": "Known skip: requires invented filters. Do not retry."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source tidalwater --db /tmp/pda-tidalwater-proof/registry.sqlite --limit 10",
+    "listed": 6,
+    "inserted": 6,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "tidalwater:available",
+        "access_path": "https://api.met.no/weatherapi/tidalwater/1.1/available"
+      },
+      {
+        "id": "tidalwater:changelog",
+        "access_path": "https://api.met.no/weatherapi/tidalwater/1.1/changelog"
+      },
+      {
+        "id": "tidalwater:features",
+        "access_path": "https://api.met.no/weatherapi/tidalwater/1.1/features"
+      },
+      {
+        "id": "tidalwater:healthz",
+        "access_path": "https://api.met.no/weatherapi/tidalwater/1.1/healthz"
+      },
+      {
+        "id": "tidalwater:locations",
+        "access_path": "https://api.met.no/weatherapi/tidalwater/1.1/locations"
+      },
+      {
+        "id": "tidalwater:values",
+        "access_path": "https://api.met.no/weatherapi/tidalwater/1.1/values"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search locations --db /tmp/pda-tidalwater-proof/registry.sqlite --limit 5",
+    "query": "locations",
+    "returned": 1,
+    "hit_id": "tidalwater:locations",
+    "title": "List available locations as GeoJSON FeatureCollection",
+    "source_id": "tidalwater"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset tidalwater:locations --db /tmp/pda-tidalwater-proof/registry.sqlite",
+    "dataset": "tidalwater:locations",
+    "table_id": "locations",
+    "access_path": "https://api.met.no/weatherapi/tidalwater/1.1/locations",
+    "request_url": "https://api.met.no/weatherapi/tidalwater/1.1/locations",
+    "http_status": 200,
+    "listed": 31,
+    "inserted": 31,
+    "license": "http://creativecommons.org/licenses/by/4.0",
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "name",
+        "value": "Andenes"
+      },
+      {
+        "measure": "name",
+        "value": "Bergen"
+      },
+      {
+        "measure": "name",
+        "value": "Oscarsborg"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset tidalwater:locations --table locations --entity \"\" --measure \"\" --db /tmp/pda-tidalwater-proof/registry.sqlite --out /tmp/pda-tidalwater-proof/methods",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "Tidalwater /locations prints GeoJSON feature names (Andenes, Bergen, Oscarsborg). Those are not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed swagger path last segments. access_path is swagger origin + printed basePath + path. No tidalwater id was written onto a met, nowcast, riksantikvaren, or datanorge row.",
+    "License is the printed swagger CC BY 4.0 URL http://creativecommons.org/licenses/by/4.0. Publisher is null: the spec prints contact.name Developer Support, not a publisher.",
+    "Original harvested swagger metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "Riksantikvaren is now on main as --source riksantikvaren after PR 99. Nowcast stays --source nowcast. Metalerts stays --source met. Lane A Airqualityforecast stays PR 100.",
+    "/available is a printed untemplated GET path and was ingested. Fetch in this slice uses /locations so XML is not parsed and no station filter is invented.",
+    "python3 -m pytest 470 passed, 1 skipped, 1 deselected.",
+    "Not a numeric time series with two or more periods."
+  ]
+}
