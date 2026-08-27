@@ -1498,6 +1498,31 @@ applicable: names, not a numeric time series
 (`no observations matched entity/measure; available=[]`).
 Proof is `data/nfr_source_proof.json`.
 
+## Udir NXR Fellestjeneste source
+
+`pda ingest --source nxr` is another replaceable adapter. It lists printed
+collection GET paths on the official NXR Fellestjeneste OpenAPI
+`https://data-nxr-fellestjeneste.udir.no/swagger/v2/swagger.json`, capped at 10.
+Templated paths such as `/api/v2/enhetinfo/{organisasjonsnummer}` are skipped.
+Dataset ids are the printed last path segments. `access_path` is the printed
+path joined to the OpenAPI document origin.
+
+```bash
+pda ingest --source nxr --db data/registry.sqlite --limit 10
+pda search fylkedata --db data/registry.sqlite
+pda fetch --dataset nxr:fylkedata --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored collection URL. Observation values are copied
+from printed `Fylkesnavn` / `Kommunenavn` / `Bydelnavn` / `Navn` on a printed
+array. License is copied from the printed OpenAPI `info.license.url` when
+present. Publisher stays null: the spec does not print a publisher name.
+
+This source is Udir NXR Fellestjeneste (`data-nxr-fellestjeneste.udir.no`),
+not NSR (`--source udir`), NBR (`--source nbr`), or NOR (`--source nor`).
+Register for lærebedrifter (`data-nlr.udir.no`) requires an authentication
+key and is unused.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
