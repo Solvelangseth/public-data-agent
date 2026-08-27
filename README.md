@@ -1840,8 +1840,9 @@ printed path joined to the spec's own relative `servers[0].url`
 `/hoydedata/v1` on the OpenAPI origin. Templated `{datakilde}` paths
 are skipped. This is not Geonorge Kartkatalog (`--source geonorge`),
 not Kartverket Stedsnavn (`--source stedsnavn`), not Kartverket
-Kommuneinfo (`--source kommuneinfo`), and not Artsdatabanken NiN
-(`--source nin`).
+Kommuneinfo (`--source kommuneinfo`), not Artsdatabanken NiN
+(`--source nin`), and not NGU OGC Features (`--source ngu`, now on
+main).
 
 ```bash
 pda ingest --source hoydedata --db data/registry.sqlite --limit 10
