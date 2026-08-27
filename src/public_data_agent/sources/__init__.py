@@ -4,6 +4,7 @@ from pathlib import Path
 
 from public_data_agent.sources.base import CatalogSource, SourceBase
 from public_data_agent.sources.brreg import BrregEnhetsregisterSource
+from public_data_agent.sources.buyer import BuyerSource
 from public_data_agent.sources.datanorge import DataNorgeSource
 from public_data_agent.sources.entur import EnturGbfsSource
 from public_data_agent.sources.fhi import FhiStatistikkSource
@@ -59,6 +60,7 @@ SOURCE_IDS = (
     "stedsnavn",
     "sikt",
     "vegvesen",
+    "buyer",
 )
 
 
@@ -119,11 +121,14 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return SiktSource()
     if source_id == "vegvesen":
         return VegvesenSource()
+    if source_id == "buyer":
+        return BuyerSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
 __all__ = [
     "BrregEnhetsregisterSource",
+    "BuyerSource",
     "CatalogSource",
     "DataNorgeSource",
     "EnturGbfsSource",
