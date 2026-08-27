@@ -1338,6 +1338,36 @@ applicable: resource names, not a numeric time series
 (`no observations matched entity/measure; available=[]`).
 Proof is `data/vegvesen_source_proof.json`.
 
+## Fiskeridirektoratet Kjøperregisteret source
+
+`pda ingest --source buyer` is another replaceable adapter. It lists printed
+collection GET paths on the official Kjøperregisteret OpenAPI
+`https://api.fiskeridir.no/buyer-api/openapi`, capped at 10. Templated
+paths such as `/buyer-api/v1/locations/{locationId}` are skipped. Dataset
+ids are the printed last path segments. `access_path` is the printed path
+joined to the printed `servers[0].url`. This is a different Fiskeridirektoratet
+register from `--source fiskeridir` (Fartøyregisteret).
+
+```bash
+pda ingest --source buyer --db data/registry.sqlite --limit 10
+pda search kjøpssteder --db data/registry.sqlite
+pda fetch --dataset buyer:locations --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored collection URL. Observation values are copied
+from printed `name` when it is a non-empty string, otherwise `locationId`.
+License is copied from the printed OpenAPI `info.license.url` when present.
+Publisher stays null: the spec does not print a publisher name.
+
+Live ingest 2026-08-27: 1 printed collection GET path. Live search
+`kjøpssteder` returns `buyer:locations`. Live fetch GETs
+`https://api.fiskeridir.no/buyer-api/v1/locations` HTTP 200, 100
+kjøpssted rows. Sample printed values: 200092526, TOR GUNNAR OTTERLEI,
+OCEANBLOCK AS, DAG SELNES JOHANSEN.
+`pda methods` is not applicable: names and location ids, not a numeric
+time series (`no period in dimensions or period field`).
+Proof is `data/buyer_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
