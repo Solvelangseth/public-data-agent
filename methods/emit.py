@@ -26,6 +26,20 @@ def yoy_bar_points(rows: tuple[SeriesRow, ...]) -> tuple[tuple[str, float], ...]
     )
 
 
+def index_line_series(
+    rows: tuple[SeriesRow, ...],
+) -> tuple[tuple[str, str, tuple[tuple[str, float], ...]], ...]:
+    """Derived index points grouped by (entity, measure). Null index is omitted."""
+
+    groups: dict[tuple[str, str], list[tuple[str, float]]] = {}
+    for row in rows:
+        if row.index.value is None:
+            continue
+        key = (row.observation.entity, row.observation.measure)
+        groups.setdefault(key, []).append((row.observation.period, row.index.value))
+    return tuple((entity, measure, tuple(points)) for (entity, measure), points in sorted(groups.items()))
+
+
 def emit(rows: tuple[SeriesRow, ...], out_dir: Path) -> dict[str, Path]:
     """Persist CSV, markdown, lineage JSON, and PNG charts next to each other."""
 
@@ -36,12 +50,14 @@ def emit(rows: tuple[SeriesRow, ...], out_dir: Path) -> dict[str, Path]:
         "lineage": out_dir / "lineage.json",
         "chart": out_dir / "chart.png",
         "yoy_bar": out_dir / "yoy_bar.png",
+        "index_line": out_dir / "index_line.png",
     }
     _write_csv(rows, paths["csv"])
     _write_markdown(rows, paths["markdown"])
     _write_lineage(rows, paths["lineage"])
     _write_chart(rows, paths["chart"])
     _write_yoy_bar(rows, paths["yoy_bar"])
+    _write_index_line(rows, paths["index_line"])
     return paths
 
 
@@ -251,6 +267,50 @@ def _write_yoy_bar(rows: tuple[SeriesRow, ...], path: Path) -> None:
         0.01,
         f"Bars are the derived `{YOY_GROWTH}` column ({YOY_GROWTH_FORMULA}). "
         "The first period has no bar. Rates are not invented.",
+        ha="center",
+        fontsize=8,
+    )
+    fig.tight_layout(rect=(0, 0.04, 1, 1))
+    fig.savefig(path, dpi=120)
+    plt.close(fig)
+
+
+def _write_index_line(rows: tuple[SeriesRow, ...], path: Path) -> None:
+    """Line chart of the derived index column. One line per (entity, measure)."""
+
+    import matplotlib
+
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    series = index_line_series(rows)
+    if not series:
+        raise ValueError("no derived index values to chart")
+    periods = sorted({period for _entity, _measure, points in series for period, _value in points})
+    xs = {period: index for index, period in enumerate(periods)}
+    fig, ax = plt.subplots(figsize=(10, 5.5))
+    for entity, measure, points in series:
+        label = entity if len({item[1] for item in series}) == 1 else f"{entity} — {measure}"
+        ax.plot(
+            [xs[period] for period, _value in points],
+            [value for _period, value in points],
+            marker="o",
+            linewidth=2,
+            label=label,
+        )
+    ax.set_xticks(list(range(len(periods))), periods)
+    ax.set_ylabel(INDEX)
+    ax.set_xlabel("period")
+    ax.axhline(100, color="#666666", linewidth=0.8, linestyle=":")
+    ax.set_title(f"{INDEX} = {INDEX_FORMULA}")
+    ax.grid(True, axis="y", linestyle=":", alpha=0.6)
+    if len(series) > 1:
+        ax.legend()
+    fig.text(
+        0.5,
+        0.01,
+        f"Lines are the derived `{INDEX}` column ({INDEX_FORMULA}). "
+        "Each (entity, measure) series has its own base. Values are not invented.",
         ha="center",
         fontsize=8,
     )
