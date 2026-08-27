@@ -23,6 +23,7 @@ from public_data_agent.sources.kommuneinfo import KommuneinfoSource
 from public_data_agent.sources.kystverket import KystverketSource
 from public_data_agent.sources.mattilsynet import MattilsynetPlantevernSource
 from public_data_agent.sources.met import MetMetalertsSource
+from public_data_agent.sources.metgc import MetgcSource
 from public_data_agent.sources.metgm import MetgmSource
 from public_data_agent.sources.miljodir import MiljodirVannmiljoSource
 from public_data_agent.sources.nbr import NbrSource
@@ -131,6 +132,7 @@ SOURCE_IDS = (
     "transformering",
     "soundprofile",
     "gribfiles",
+    "metgc",
 )
 
 
@@ -263,6 +265,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return SoundprofileSource()
     if source_id == "gribfiles":
         return GribfilesSource()
+    if source_id == "metgc":
+        return MetgcSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -288,6 +292,7 @@ __all__ = [
     "KystverketSource",
     "MattilsynetPlantevernSource",
     "MetMetalertsSource",
+    "MetgcSource",
     "MetgmSource",
     "MiljodirVannmiljoSource",
     "NbrSource",
