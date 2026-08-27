@@ -8,11 +8,12 @@ from typing import Any
 from public_data_agent.mapping import localized_text
 from public_data_agent.registry import Registry
 
-# title > keyword > description. Scores are a sum of these weights, one per
-# matched query token per field. That is the whole ranking method.
+# title > keyword = theme > description. Scores are a sum of these weights,
+# one per matched query token per field. That is the whole ranking method.
 FIELD_WEIGHTS = {
     "title": 10,
     "keyword": 5,
+    "theme": 5,
     "description": 2,
 }
 
@@ -62,7 +63,7 @@ class SearchHit:
     landing_pages: list[str]
     missing_fields: dict[str, str]
     ranking_method: str = (
-        "token overlap; weights title=10, keyword=5, description=2"
+        "token overlap; weights title=10, keyword=5, theme=5, description=2"
     )
     requirements: list[str] | None = None
 
@@ -162,6 +163,29 @@ def decompose(query: str) -> list[Requirement]:
     return requirements
 
 
+def themes_from_payload(payload: dict[str, Any] | None) -> list[str]:
+    """Codes and stored labels from harvest theme / losTheme. Nothing invented."""
+
+    if not payload:
+        return []
+    labels: list[str] = []
+    for key in ("theme", "losTheme"):
+        value = payload.get(key)
+        items = value if isinstance(value, list) else [value] if value else []
+        for item in items:
+            if not isinstance(item, dict):
+                continue
+            title = item.get("title") or item.get("name") or item.get("prefLabel")
+            if isinstance(title, dict):
+                labels.extend(str(part) for part in title.values() if part)
+            elif isinstance(title, str):
+                labels.append(title)
+            code = item.get("code")
+            if isinstance(code, str):
+                labels.append(code)
+    return labels
+
+
 def keywords_from_payload(payload: dict[str, Any] | None) -> list[str]:
     if not payload:
         return []
@@ -209,7 +233,7 @@ def score_document(query_tokens: list[str], fields: dict[str, list[str]]) -> lis
 
 def why_summary(matches: list[FieldMatch]) -> str:
     if not matches:
-        return "no query tokens matched title, keyword, or description"
+        return "no query tokens matched title, keyword, theme, or description"
     by_field: dict[str, list[str]] = {}
     for match in matches:
         by_field.setdefault(match.field, []).append(match.token)
@@ -245,9 +269,9 @@ def search_report(
 ) -> SearchReport:
     """Search, then report which requirements the retrieved rows cover.
 
-    Coverage uses stored title, keyword, description, and publisher_name.
-    Theme is not a retrieval field. If any requirement is missing, one
-    follow-up search runs per missing requirement and new hits are merged.
+    Coverage uses stored title, keyword, theme, description, and publisher_name.
+    If any requirement is missing, one follow-up search runs per missing
+    requirement and new hits are merged.
     """
 
     requirements = _coverage_requirements(query, decompose_query=decompose_query)
@@ -339,11 +363,13 @@ def _hit_covers(registry: Registry, dataset_id: str, req: Requirement) -> bool:
         return False
     payload = registry.get_payload(dataset_id) or {}
     keywords = keywords_from_payload(payload)
+    themes = themes_from_payload(payload)
     title_i18n = _json_obj(row.get("title_i18n_json"))
     description_i18n = _json_obj(row.get("description_i18n_json"))
     fields = {
         "title": tokenize(" ".join([row.get("title") or "", *title_i18n.values()])),
         "keyword": tokenize(" ".join(keywords)),
+        "theme": tokenize(" ".join(themes)),
         "description": tokenize(" ".join([row.get("description") or "", *description_i18n.values()])),
     }
     return _requirement_matches(req.tokens, fields, row.get("publisher_name")) is not None
@@ -379,7 +405,7 @@ def _search_requirements(
                 why=_requirement_why(req_texts, combined),
                 ranking_method=(
                     "decompose AND requirements; each scored with token overlap "
-                    "title=10, keyword=5, description=2"
+                    "title=10, keyword=5, theme=5, description=2"
                 ),
                 requirements=req_texts,
             )
@@ -408,6 +434,7 @@ def _iter_scored_rows(registry: Registry):
     for row in registry.iter_search_rows():
         payload = _json_obj(row.get("payload_json"))
         keywords = keywords_from_payload(payload)
+        themes = themes_from_payload(payload)
         title_i18n = _json_obj(row.get("title_i18n_json"))
         description_i18n = _json_obj(row.get("description_i18n_json"))
         title_text = " ".join([row.get("title") or "", *title_i18n.values()])
@@ -415,6 +442,7 @@ def _iter_scored_rows(registry: Registry):
         fields = {
             "title": tokenize(title_text),
             "keyword": tokenize(" ".join(keywords)),
+            "theme": tokenize(" ".join(themes)),
             "description": tokenize(description_text),
         }
         yield row, fields, keywords, payload
@@ -477,7 +505,7 @@ def _hit_from_row(
         landing_pages=_json_list(row.get("landing_pages_json")),
         missing_fields=_json_obj(row.get("missing_fields_json")),
         ranking_method=ranking_method
-        or "token overlap; weights title=10, keyword=5, description=2",
+        or "token overlap; weights title=10, keyword=5, theme=5, description=2",
         requirements=requirements,
     )
 

@@ -171,6 +171,20 @@ def test_same_query_follow_up_is_skipped(tmp_path: Path) -> None:
     registry.close()
 
 
+def test_theme_code_participates_in_score_and_coverage(tmp_path: Path) -> None:
+    registry = _registry(tmp_path)
+    hits = search(registry, "HEAL")
+    assert {hit.dataset_id for hit in hits} == {STRANDSONE_ID, HELSEDATA_ID}
+    assert all(
+        any(match.field == "theme" and match.token == "heal" for match in hit.matches)
+        for hit in hits
+    )
+    report = search_report(registry, "HEAL")
+    assert report.coverage.confidence == 1.0
+    assert report.coverage.covered == ["heal"]
+    registry.close()
+
+
 def test_cli_search_uses_fixture_registry(tmp_path: Path, capsys) -> None:
     db = tmp_path / "registry.sqlite"
     assert main(["ingest", "--source", "fixture", "--fixtures", str(FIXTURES), "--db", str(db), "--quiet"]) == 0
