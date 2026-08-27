@@ -6,7 +6,7 @@ No email, call, or outbound post from this file. Contacts are only what the org 
 Product sold: registry of Norwegian public datasets (Data.norge first ingest, sources replaceable), natural-language search, first fetch of actual rows. Later analysis. LLM for intent and explanation. Deterministic retrieval. Provenance (source, publisher, license, access path) on every hit.
 Repo: https://github.com/Solvelangseth/public-data-agent
 
-Status 27 Aug 2026, 13:15 Europe/Oslo: 91 sourced leads. PR 49 merged (bf0f87b). Wave 11: Bømlo Kraftnett, Mellom, Rælingen, Kystnett, Nesodden. Nittedal / Ås / TNett skipped. Arendal held. No outreach.
+Status 27 Aug 2026, 13:20 Europe/Oslo: 92 sourced leads. PR 49 merged (bf0f87b). Wave 11: Bømlo Kraftnett, Mellom, Rælingen, Kystnett, Nesodden, Frogn. Nittedal / Ås / TNett skipped. Arendal held. No outreach.
 
 How to read a lead: why they would pay is tied to a named programme, not "they use data." Service shape is always search → fetch → later analysis. If a field says none published, do not invent one.
 
@@ -2734,6 +2734,30 @@ Sources below were opened 2026-08-27 from official pages and the named press/pro
   - https://data.brreg.no/enhetsregisteret/api/enheter/944383565
   - https://www.miljodirektoratet.no/tjenester/klimagassutslipp-kommuner/
 
+### Frogn kommune
+
+- **Why they would pay.** Handlingsprogrammet 2026–2029 Framsikt slug `bm-2026-handlingsprogrammet_2026-2029`: title.json documentTitle2 is **Kommunestyrets vedtak** (title3 empty; this tenant puts vedtak in title2). Named **Klimabudsjett** custom node `a04e0a2a-734e-4af7-8fd9-8a225e828258-cn` cites Miljødirektoratet (2023 = 44 043 t CO2-e; areaId 535). Yearly job is to re-pull kommune 3214 / areaId 535 into those rows, not another Framsikt rebuild.
+- **Concrete use case.** Klima owners first-fetch Miljødirektoratet kommune 3214 / areaId 535 sector series and overlay the vedtatt 2023 / 44 043 t rows, then SSB KOSTRA for own-org energi/bygg.
+- **How the service should look.**
+  - Search: data.norge first, then Mdir kommuneregnskap, SSB.
+  - Fetch: first official Excel rows for areaId 535. Their Framsikt chapter stays theirs.
+  - Later analysis: refresh 2023→2024/2025 into the residual; keep veitrafikk as a named hole.
+- **Public contact.**
+  - Role / unit: postmottak. No named klimarådgiver mailbox — do not invent one.
+  - Email: `postmottak@frogn.kommune.no`
+  - Phone: 64 90 60 00
+  - Form/URL: https://frogn.kommune.no/
+- **Key facts.** Org.nr 963 999 089. Kommunenr. 3214. Rådhusveien 6 / Postboks 10, 1441 Drøbak.
+- **Sources** (opened 2026-08-27).
+  - https://pub.framsikt.net/2026/frogn/bm-2026-handlingsprogrammet_2026-2029
+  - https://pub.framsikt.net/2026/frogn/bm-2026-handlingsprogrammet_2026-2029/#/generic/summary/a04e0a2a-734e-4af7-8fd9-8a225e828258-cn
+  - https://pub.framsikt.net/2026/frogn/bm-2026-handlingsprogrammet_2026-2029/content/data/title.json
+  - https://frogn.kommune.no/
+  - https://frogn.kommune.no/nav/klima_og_energi
+  - https://data.brreg.no/enhetsregisteret/api/enheter/963999089
+  - https://www.miljodirektoratet.no/tjenester/klimagassutslipp-kommuner/
+  - https://www.miljodirektoratet.no/greenhousegas/api/summary?areaId=535
+
 ---
 
 ## Skipped, with reasons
@@ -2795,7 +2819,8 @@ Keep these notes in the living book. They are not leads.
 - 2026-08-27: Added Rælingen kommune from wave-11 mid-size (vedtatt slug bm-2026-hp_2026-2029; title2 Kommunestyrets vedtak). Arendal held. Still no outreach.
 - 2026-08-27: Added Kystnett AS from wave-11 energy (ex Nord-Salten Kraft Nett). Leftover nordsaltenkraft inboxes not used. Arendal held. Still no outreach.
 - 2026-08-27: Added Nesodden kommune from wave-11 mid-size (vedtatt slug bm-2026-kst_vedtak_26_29; title2 Kommunestyrets vedtak 10.12.2025). Nittedal / Ås / TNett skipped. Arendal held. Still no outreach.
-- 2026-08-27: Wave 11 closed in the living file (Bømlo Kraftnett, Mellom, Rælingen, Kystnett, Nesodden). Nittedal / Ås / TNett skipped. Health seats this wave skipped/exhausted. Still no outreach.
+- 2026-08-27: Added Frogn kommune from wave-11 mid-size (vedtatt slug bm-2026-handlingsprogrammet_2026-2029; title2 Kommunestyrets vedtak; Klimabudsjett node cites Mdir area 535 / 44 043 t / 2023). No klimarådgiver mailbox. Arendal held. Still no outreach.
+- 2026-08-27: Wave 11 closed in the living file (Bømlo Kraftnett, Mellom, Rælingen, Kystnett, Nesodden, Frogn). Nittedal / Ås / TNett skipped. Health seats this wave skipped/exhausted. Still no outreach.
 
 ---
 
