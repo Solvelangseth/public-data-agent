@@ -2407,6 +2407,50 @@ dimensions). Sample printed value:
 time series (`no observations matched entity/measure; available=[]`).
 Proof is `data/metgm_source_proof.json`.
 
+## Meteorologisk institutt Subjectiveforecast source
+
+`pda ingest --source subjectiveforecast` is another replaceable adapter. It lists printed
+collection GET paths on the official MET Subjectiveforecast swagger
+`https://api.met.no/weatherapi/subjectiveforecast/1.0/swagger`, capped at 10.
+Templated `{format}` paths and the root `/` image product (no last path
+segment; required `product` query) are skipped. Optional `content_type` /
+`product` / `param` query filters are not invented. Dataset ids are the last
+printed path segment. `access_path` is the swagger origin + printed `basePath`
++ path. License is the printed swagger CC BY 4.0 URL. Publisher stays null.
+This is not Metalerts (`--source met`), not Nowcast (`--source nowcast`), not
+Airqualityforecast (`--source airquality`), not Tidalwater
+(`--source tidalwater`), not Oceanforecast (`--source oceanforecast`),
+not MET Sunrise (`--source sunrise`), not Radar (`--source radar`), not
+MET Spotwind (`--source spotwind`), not Textforecast
+(`--source textforecast`), not Icemap (`--source icemap`), not
+NCAgalewarnings (`--source ncagalewarnings`), not Tafmetar
+(`--source tafmetar`), not Subseasonal (`--source subseasonal`), not
+Geosatellite (`--source geosatellite`, now on main after PR 111), and not
+Metgm (`--source metgm`, now on main after PR 112). `/available` stays unused for fetch
+in this slice: that printed path returns XML.
+
+```bash
+pda ingest --source subjectiveforecast --db data/registry.sqlite --limit 10
+pda search featurecollection --db data/registry.sqlite
+pda fetch --dataset subjectiveforecast:features --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored collection URL. Observation values are copied
+from the printed GeoJSON feature `datetime`; the printed feature `id`
+stays a dimension. License is the printed swagger CC BY 4.0 URL.
+Publisher stays null: the spec does not print a publisher.
+
+Live ingest 2026-08-27: 5 printed untemplated collection GET paths
+(catalog prints 7 paths; templated `{format}` paths and root `/` skipped).
+Live search `featurecollection` returns `subjectiveforecast:features`. Live
+fetch GETs `https://api.met.no/weatherapi/subjectiveforecast/1.0/features`
+HTTP 200, 12 printed feature rows. Sample printed values: datetime
+2026-08-25T18:00:00Z with id analyse_20260825T18,
+2026-08-26T00:00:00Z with id analyse_20260826T00. `pda methods` is
+not applicable: GeoJSON feature timestamps, not a numeric time series
+(`no observations matched entity/measure; available=[]`). Proof is
+`data/subjectiveforecast_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
