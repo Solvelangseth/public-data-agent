@@ -6,7 +6,7 @@ No email, call, or outbound post from this file. Contacts are only what the org 
 Product sold: registry of Norwegian public datasets (Data.norge first ingest, sources replaceable), natural-language search, first fetch of actual rows. Later analysis. LLM for intent and explanation. Deterministic retrieval. Provenance (source, publisher, license, access path) on every hit.
 Repo: https://github.com/Solvelangseth/public-data-agent
 
-Status 27 Aug 2026, 11:10 Europe/Oslo: 37 sourced leads. Mix: 12 municipalities, 8 energy, 6 health, 3 consultancies, 2 media, 2 property/infra, 2 research, 2 NGOs. Wave-2 (13): FHI, Helsedirektoratet, Helse Sør-Øst RHF, Statnett, Eviny, Hafslund, Tensio, Lnett, Fredrikstad, Sandnes, Bodø, Kristiansand, Lillestrøm. Wave-3 (9): Helse Vest RHF, Helse Midt-Norge RHF, Helse Nord RHF, Elvia, Glitre Nett, Linea, Tønsberg, Larvik, Porsgrunn. Contacts only as listed. No invented emails. No outreach.
+Status 27 Aug 2026, 11:20 Europe/Oslo: 39 sourced leads. Mix: 14 municipalities, 8 energy, 6 health, 3 consultancies, 2 media, 2 property/infra, 2 research, 2 NGOs. Wave-2 (13): FHI, Helsedirektoratet, Helse Sør-Øst RHF, Statnett, Eviny, Hafslund, Tensio, Lnett, Fredrikstad, Sandnes, Bodø, Kristiansand, Lillestrøm. Wave-3 (11): Helse Vest RHF, Helse Midt-Norge RHF, Helse Nord RHF, Elvia, Glitre Nett, Linea, Tønsberg, Larvik, Porsgrunn, Sarpsborg, Skien. Contacts only as listed. No invented emails. No outreach.
 
 How to read a lead: why they would pay is tied to a named programme, not "they use data." Service shape is always search → fetch → later analysis. If a field says none published, do not invent one.
 
@@ -1212,9 +1212,9 @@ Sources below were opened 2026-08-27 from official pages and the named press/pro
 
 ## 37. Porsgrunn kommune — HP 2026–2029 Klimabudsjett chapter
 
-**Why they would pay.** Handlingsprogram 2026–2029 (bystyret 11.12.2025) has a named Klimabudsjett chapter. The official HP page and the indexed TOC also print 500 000 kroner to start revisjon of klima- og energiplanen (verbalvedtak 2024; today's KEP lasted to 2025). The full HP PDF body timed out: the chapter fact is from the official HP page plus the indexed TOC, not a page-by-page open of the PDF. They would pay to find and fetch Miljødirektoratet / SSB series with provenance for that klimabudsjett and the KEP revision — not another HP PDF.
+**Why they would pay.** Handlingsprogram 2026–2029 (bystyret 11.12.2025) has a named Klimabudsjett chapter from s. 54 (Kommunens klimamål; Klimastatus from s. 55; Klimatiltak from s. 58). The opened PDF (s. 16–17) prints that Porsgrunn already has «en rekke gode klimatiltak, både for direkte utslipp og klimafotavtrykket fra kommunen som egen virksomhet», but «for å nå klimamålene kreves det flere og mer målrettede tiltak framover». It also prints 500 000 kroner to start revisjon of klima- og energiplanen (verbalvedtak 2024; today's KEP lasted to 2025; table line «Klima- og energiplan 500» in 1 000 kroner). They would pay to find and fetch Miljødirektoratet / SSB series with provenance for that klimabudsjett and the KEP revision — not another HP PDF.
 
-**Concrete use case.** Klima / økonomi needs the latest kommunefordelte klimagassstatistikk and related SSB series for Porsgrunn, fetched as rows with license and access path before later overlay on the HP Klimabudsjett chapter.
+**Concrete use case.** Klima / økonomi needs the latest kommunefordelte klimagassstatistikk and related SSB series for Porsgrunn, fetched as rows with license and access path before later overlay on the HP Klimabudsjett chapter (from s. 54).
 
 **Search → fetch → later analysis.**
 - Search: Porsgrunn + klimagass / energi / «kommunefordelt» with publisher (Miljødirektoratet, SSB).
@@ -1230,14 +1230,78 @@ Sources below were opened 2026-08-27 from official pages and the named press/pro
 
 **Key facts.**
 - Postboks 128, 3901 Porsgrunn; Storgata 153.
-- HP 2026–2029: bystyret 11.12.2025. Klimabudsjett is a named chapter on the official HP page / indexed TOC.
-- 500 000 kroner for KEP revision is from the official HP page + indexed TOC, not a page-by-page open of the PDF (body timed out).
+- HP 2026–2029: bystyret 11.12.2025. Klimabudsjett chapter opened from s. 54 of the vedtatt PDF.
+- 500 000 kroner for KEP revision is printed in the opened HP PDF.
 
 **Sources opened 2026-08-27.**
 - https://www.porsgrunn.kommune.no/organisasjon/oekonomi-og-planer/handlingsprogram-2026-2029-med-budsjett-2026/
 - https://www.porsgrunn.kommune.no/kontakt-oss/
-- https://www.porsgrunn.kommune.no/media/fpqlkox3/hp-2026-2029-bystyrets-vedtak-11122025-v3.pdf (listed; body timed out)
+- https://www.porsgrunn.kommune.no/media/fpqlkox3/hp-2026-2029-bystyrets-vedtak-11122025-v3.pdf
 - https://data.brreg.no/enhetsregisteret/oppslag/enheter/939991034
+
+---
+
+## 38. Sarpsborg kommune — Plattform for digitalisering + KDP klima og energi
+
+**Why they would pay.** *Plattform for digitalisering*, vedtatt bystyret 02.02.2023, is the named digital mandate. Kap. 1.3 («Deling og gjenbruk av data») says the municipality shall legge til rette for deling og gjenbruk, including data it produces or henter from other sources, and follow Digitaliseringsdirektoratet «orden i eget hus». Kap. 3.2 («Samarbeid og verdiskapning») prints that Sarpsborg shall «sørge for løsninger som enkelt gir næringslivsaktører tilgang til kommunens åpne data». Kap. 4.2 («Informasjonssikkerhet») prints «dele data når den kan og skjerme data når den må». Virksomhet Digitalisering (virksomhetsleder Atle Johnsen) owns the platform work. *Kommunedelplan klima og energi 2021–2030* (bystyret 17.06.2021) prints a klimabudsjett as part of the handlingsdel and cites Miljødirektoratet municipal GHG calculations plus SSB. They would pay to find and fetch those national series and other-municipality open datasets with provenance — not another municipal portal.
+
+**Concrete use case.** Virksomhet digitalisering / klima needs the latest Miljødirektoratet kommunefordelte tall and related SSB series for Sarpsborg, plus a neighbour Østfold open dataset that matches a local tjeneste, fetched as rows with license and access path before later gjenbruk.
+
+**Search → fetch → later analysis.**
+- Search: Sarpsborg + klimagass / «åpne data» / KOSTRA with publisher (Miljødirektoratet, SSB, neighbour kommuner).
+- Fetch: first rows from the recorded access path; license and publisher on every hit.
+- Later analysis: feed klimabudsjett / platform gjenbruk; do not invent tonnes or invent a portal.
+
+**Public contact (only published / listed).**
+- atle.johnsen@sarpsborg.com — listed
+- postmottak@sarpsborg.com — printed on the digitalisering page
+- servicetorget@sarpsborg.com — printed on the digitalisering page
+- Telephone: 90 75 40 33 (Johnsen, printed as virksomhetsleder) / 69 10 80 00 (sentralbord / servicetorget, printed on the same page)
+- Org: 938801363
+- Kommunenummer: 3105
+- Do not invent an åpne-data inbox.
+
+**Key facts.**
+- Postboks 237, 1702 Sarpsborg; Glengsgata 38, 1706 Sarpsborg.
+- Plattform PDF title block: Bystyrets vedtak 02.02.2023.
+- KDP klima og energi vedtatt 17.06.2021; klimabudsjett is printed as part of the handlingsdel and cites Miljødirektoratet + SSB.
+
+**Sources opened 2026-08-27.**
+- https://www.sarpsborg.com/globalassets/dokumenter/politikk-og-planer/andre-planer/digitaliseringsstrategi-bystyrets-vedtak-2023.pdf
+- https://www.sarpsborg.com/byen-og-kommunen/om-organisasjonen/digitalisering/
+- https://www.sarpsborg.com/globalassets/dokumenter/byggesak-og-teknisk/forurensning-klima-og-miljo/kommunedelplan-klima-og-energi-2021-2030-sarpsborg-kommune-2.pdf
+- https://virksomhet.brreg.no/nb/oppslag/enheter/938801363
+
+---
+
+## 39. Skien kommune — HP 2025–2028 klimabudsjett
+
+**Why they would pay.** Handlingsprogram og økonomiplan 2025–2028 prints the klimabudsjett as the yearly klima-handlingsdel: it is «en integrert del av kommunens handlings- og økonomiplan» and follows the same årshjul as the budget. The chapter already cites Miljødirektoratet's kommunefordelte geografiske utslipp (two-year lag; HP uses 2022 figures) as the tool for utvikling and måloppnåelse. Organisasjon og utvikling (OU) / Innovasjon og digitalisering is the named stab. A digitaliseringsstrategi is announced for politisk behandling in the økonomiplanperiode — it is not vedtatt; do not claim it. They would pay to find and fetch the latest Miljødirektoratet / SSB series with provenance for the next yearly klimabudsjett — not another HP PDF.
+
+**Concrete use case.** OU / klima needs the latest Miljødirektoratet kommunefordelte tall (veitrafikk, annen mobil forbrenning) and related SSB series for Skien, fetched as rows with license and access path before later overlay on the yearly klima-handlingsdel.
+
+**Search → fetch → later analysis.**
+- Search: Skien + klimagass / veitrafikk / «kommunefordelt» with publisher (Miljødirektoratet, SSB).
+- Fetch: first rows from the recorded access path; license and publisher on every hit.
+- Later analysis: feed the yearly klimabudsjett; do not invent tonnes.
+
+**Public contact (only published / listed).**
+- post@skien.kommune.no — printed on kontakt-oss
+- servicesenteret@skien.kommune.no — printed on the same page for Skien servicesenter
+- Telephone: 35 58 10 00
+- Org: 938759839
+- Kommunenummer: 4003
+- Do not invent a klima or digitalisering inbox. Do not invent a digitaliseringsstrategi contact.
+
+**Key facts.**
+- Postboks 158, 3701 Skien; servicesenter Henrik Ibsensgate 2.
+- Klimabudsjett target printed: 35 percent cut from 2015 by end of 2025 (geografiske utslipp).
+- Digitaliseringsstrategi: «vil kommunens digitaliseringsstrategi bli lagt frem til politisk behandling» — announced, not vedtatt.
+
+**Sources opened 2026-08-27.**
+- https://www.skien.kommune.no/media/vxdlsbdv/handlingsprogram-og-oekonomiplan-2025-2028.pdf
+- https://skien.kommune.no/administrasjon/kontakt-oss/
+- https://data.brreg.no/enhetsregisteret/api/enheter/938759839
 
 ---
 
@@ -1265,6 +1329,7 @@ Keep these notes in the living book. They are not leads.
 - **27 Aug 2026, 10:30 Europe/Oslo.** Wave-2 add: Lillestrøm kommune (digitalisering 2020–2025 + klimabudsjett / Klimasats klimaplanlegger). Contacts only as printed. No outreach.
 - **27 Aug 2026, 10:40 Europe/Oslo.** Kristiansand mandate is Økonomiplan 2026–2029 (bystyret 17.12.2025) kap. 5.4 datadeling + kap. 6 klimabudsjett / Miljødir kommunefordelte tall. Contacts post@ and post.byutvikling@. No competitor section.
 - **27 Aug 2026, 11:10 Europe/Oslo.** Wave-3: 9 sourced entries (Helse Vest RHF, Helse Midt-Norge RHF, Helse Nord RHF / SKDE, Elvia, Glitre Nett, Linea, Tønsberg, Larvik, Porsgrunn). Contacts only as listed. No invented emails. No outreach. No competitor section.
+- **27 Aug 2026, 11:20 Europe/Oslo.** Wave-3 add: Sarpsborg (Plattform for digitalisering 02.02.2023 + KDP klima) and Skien (HP 2025–2028 klimabudsjett; digitaliseringsstrategi announced, not vedtatt). Porsgrunn HP 2026–2029 PDF opened (Klimabudsjett from s. 54); timeout caveat dropped. Contacts only as listed. No competitor section.
 
 ---
 
