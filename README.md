@@ -2319,6 +2319,40 @@ location-name row. Sample printed value: MEPS area.
 time series (`no observations matched entity/measure; available=[]`).
 Proof is `data/subseasonal_source_proof.json`.
 
+## Meteorologisk institutt Geosatellite source
+
+`pda ingest --source geosatellite` is another replaceable adapter. It lists printed
+collection GET paths on the official MET Geosatellite swagger
+`https://api.met.no/weatherapi/geosatellite/1.4/swagger`, capped at 10.
+Templated `{format}` paths and the root `/` image product (no last path
+segment) are skipped. Optional `area` / `size` / `type` / `time` query
+filters are not invented. Dataset ids are the last printed path segment.
+`access_path` is the swagger origin + printed `basePath` + path. License
+is the printed swagger CC BY 4.0 URL. Publisher stays null. This is not
+Metalerts (`--source met`), not Nowcast (`--source nowcast`), not
+Airqualityforecast (`--source airquality`), not Tidalwater
+(`--source tidalwater`), not Oceanforecast (`--source oceanforecast`),
+not MET Sunrise (`--source sunrise`), not Radar (`--source radar`), not
+MET Spotwind (`--source spotwind`), not Textforecast
+(`--source textforecast`), not Icemap (`--source icemap`), not
+NCAgalewarnings (`--source ncagalewarnings`), not Tafmetar
+(`--source tafmetar`, now on main after PR 109), and not Subseasonal
+(`--source subseasonal`, now on main after PR 110). `/available` stays unused for fetch in this slice:
+that printed path returns XML.
+
+```bash
+pda ingest --source geosatellite --db data/registry.sqlite --limit 10
+pda search features --db data/registry.sqlite
+pda fetch --dataset geosatellite:features --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored collection URL. Observation values are copied
+from the printed GeoJSON feature `id`. License is the printed swagger
+CC BY 4.0 URL. Publisher stays null: the spec does not print a publisher.
+
+Live ingest and fetch counts are recorded in `data/geosatellite_source_proof.json`
+after the throwaway-registry proof.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists

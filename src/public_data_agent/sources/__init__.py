@@ -14,6 +14,7 @@ from public_data_agent.sources.fhi import FhiStatistikkSource
 from public_data_agent.sources.fiskeridir import FiskeridirVesselSource
 from public_data_agent.sources.fixture import FixtureSource
 from public_data_agent.sources.geonorge import GeonorgeKartkatalogSource
+from public_data_agent.sources.geosatellite import GeosatelliteSource
 from public_data_agent.sources.hi import HiFeaturesSource
 from public_data_agent.sources.hoydedata import HoydedataSource
 from public_data_agent.sources.icemap import IcemapSource
@@ -117,6 +118,7 @@ SOURCE_IDS = (
     "ncagalewarnings",
     "tafmetar",
     "subseasonal",
+    "geosatellite",
 )
 
 
@@ -235,6 +237,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return TafmetarSource()
     if source_id == "subseasonal":
         return SubseasonalSource()
+    if source_id == "geosatellite":
+        return GeosatelliteSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -251,6 +255,7 @@ __all__ = [
     "FiskeridirVesselSource",
     "FixtureSource",
     "GeonorgeKartkatalogSource",
+    "GeosatelliteSource",
     "HiFeaturesSource",
     "HoydedataSource",
     "IcemapSource",
