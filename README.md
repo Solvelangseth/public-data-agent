@@ -1556,6 +1556,13 @@ This source is Udir Barnehagefakta (`www.barnehagefakta.no`), not NBR
 (`--source nbr`), NSR (`--source udir`), NFR (`--source nfr`), or NXR
 (`--source nxr`).
 
+Live ingest 2026-08-27: 2 printed collection GET paths (catalog prints 2,
+cap 10). Live search `fylker` returns `baf:Fylker`. Live fetch GETs
+`https://www.barnehagefakta.no/api/Fylker` HTTP 200, 16 fylkesnavn
+rows. Sample printed names: Oslo, Rogaland, Møre og Romsdal, Nordland
+- Nordlánnda, Svalbard. `pda methods` is not applicable: names, not a
+numeric time series
+(`no observations matched entity/measure; available=[]`).
 Proof is `data/baf_source_proof.json`.
 
 ## Architecture (long term)
