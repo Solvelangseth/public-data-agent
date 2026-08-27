@@ -6,7 +6,7 @@ No email, call, or outbound post from this file. Contacts are only what the org 
 Product sold: registry of Norwegian public datasets (Data.norge first ingest, sources replaceable), natural-language search, first fetch of actual rows. Later analysis. LLM for intent and explanation. Deterministic retrieval. Provenance (source, publisher, license, access path) on every hit.
 Repo: https://github.com/Solvelangseth/public-data-agent
 
-Status 27 Aug 2026, 11:48 Europe/Oslo: 70 sourced leads. PR 38 merged. Wave 7 in the living file: health (Førde, Sunnaas, Diakonhjemmet), energy (Barents Nett, Noranett, Enida), mid-size (Hamar). Arendal held. Horten/Askøy/Rana were forslag-only this pass. No invented emails. No outreach.
+Status 27 Aug 2026, 11:48 Europe/Oslo: 71 sourced leads. PR 38 merged. Wave 7 in the living file: health (Førde, Sunnaas, Diakonhjemmet), energy (Barents Nett, Noranett, Enida), mid-size (Hamar, Askøy). Arendal held. Horten/Rana were forslag-only this pass. No invented emails. No outreach.
 
 How to read a lead: why they would pay is tied to a named programme, not "they use data." Service shape is always search → fetch → later analysis. If a field says none published, do not invent one.
 
@@ -2239,6 +2239,30 @@ Sources below were opened 2026-08-27 from official pages and the named press/pro
 
 ---
 
+### Askøy kommune
+
+- **Why they would pay.** Handlingsprogram 2026 / økonomiplan 2026–2029 Framsikt title is **Kommunestyrets vedtak 16.12.2025 sak 134/25** (`bm-2026-vedtatt_budsjett`). Named **Klimabudsjett** chapter (tidlig-generasjon; KS method). Miljødirektoratet «publiserer årlig kommunefordelt statistikk over klimagassutslipp med utgangspunkt i kommunen som geografisk enhet» — the source of record. Old KDP target 1 t CO2 per innbygger in 2020 was missed; now ca. 1,65 t (2023). Sjøfart + veitrafikk are the largest lines. The forslag slug `bm-2026-ohp_2026_2029_askoy` is not this document.
+- **Concrete use case.** Klima owners first-fetch Miljødirektoratet kommune 4627 sector series and overlay the chapter’s 2020-mål / 2023 / 1,65 t rows, then SSB KOSTRA 09574 for formålsbygg energy.
+- **How the service should look.**
+  - Search: data.norge first, then Mdir kommuneregnskap, SSB 09574.
+  - Fetch: first official Excel/PxWeb rows. Their Framsikt chapter stays theirs.
+  - Later analysis: 2023→2024/2025 refresh; keep sjøfart as residual.
+- **Public contact.**
+  - Role / unit: postmottak / Kundetorget. Plan, oppmåling, miljø og landbruk phone only (no unit inbox).
+  - Email: `postmottak@askoy.kommune.no`
+  - Phone: 56 15 80 00
+  - Form/URL: https://www.askoy.kommune.no/kontakt-oss
+- **Key facts.** Org.nr 964 338 442. Kommunenr. 4627. Postboks 33, 5321 Kleppestø.
+- **Sources** (opened 2026-08-27).
+  - https://askoy.kommune.no/politikk-og-innsyn/politikk/budsjett-regnskap-og-arsmeldinger/budsjett-og-okonomiplaner/budsjett-2026-og-okonomiplan-2026-2029
+  - https://pub.framsikt.net/2026/askøy/bm-2026-vedtatt_budsjett
+  - https://pub.framsikt.net/2026/askøy/bm-2026-vedtatt_budsjett/#/generic/summary/climatesummary
+  - https://www.askoy.kommune.no/kontakt-oss
+  - https://data.brreg.no/enhetsregisteret/api/enheter/964338442
+  - https://www.miljodirektoratet.no/tjenester/klimagassutslipp-kommuner/
+
+---
+
 ## Skipped, with reasons
 
 Keep these notes in the living book. They are not leads.
@@ -2273,6 +2297,7 @@ Keep these notes in the living book. They are not leads.
 - 2026-08-27: Added Barents Nett, Noranett and Enida.
 - 2026-08-27: Added Helse Førde, Sunnaas and Diakonhjemmet.
 - 2026-08-27: Added Hamar kommune (vedtatt HØP klimabudsjett). Wave 7 mid-size closed. Still no outreach.
+- 2026-08-27: Added Askøy kommune (vedtatt slug bm-2026-vedtatt_budsjett; earlier skip was the forslag slug).
 
 ---
 
