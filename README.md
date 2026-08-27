@@ -1464,6 +1464,40 @@ applicable: names, not a numeric time series
 (`no observations matched entity/measure; available=[]`).
 Proof is `data/npr_source_proof.json`.
 
+## Udir Nasjonalt register for skolefritidsordningen source
+
+`pda ingest --source nfr` is another replaceable adapter. It lists printed
+collection GET paths on the official Nasjonalt register for
+skolefritidsordningen OpenAPI
+`https://data-nfr.udir.no/swagger/v4/swagger.json`, capped at 10. Templated
+paths such as `/v4/enhet/{organisasjonsnummer}` are skipped. Dataset ids
+are the printed last path segments. `access_path` is the printed path
+joined to the OpenAPI document origin.
+
+```bash
+pda ingest --source nfr --db data/registry.sqlite --limit 10
+pda search skolefritidsordningskategorier --db data/registry.sqlite
+pda fetch --dataset nfr:skolefritidsordningskategorier --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored collection URL. Observation values are copied
+from printed `Navn` on a printed `*Liste` array. License is copied from
+the printed OpenAPI `info.license.url` when present. Publisher stays
+null: the spec does not print a publisher name.
+
+This source is Udir NFR (`data-nfr.udir.no`), not NSR (`--source udir`),
+NBR (`--source nbr`), NOR (`--source nor`), or NPR (`--source npr`).
+
+Live ingest 2026-08-27: 8 printed collection GET paths (catalog prints 8,
+cap 10). Live search `skolefritidsordningskategorier` returns
+`nfr:skolefritidsordningskategorier`. Live fetch GETs
+`https://data-nfr.udir.no/v4/skolefritidsordningskategorier` HTTP 200, 3
+kategori-name rows. Sample printed names: Ingen verdi, Offentlig
+skolefritidsordning, Privat skolefritidsordning. `pda methods` is not
+applicable: names, not a numeric time series
+(`no observations matched entity/measure; available=[]`).
+Proof is `data/nfr_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
