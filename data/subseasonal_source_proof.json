@@ -188,7 +188,7 @@
     "fetch_runs_after": 1
   },
   "notes": [
-    "Ids are copied from printed swagger path last segments. access_path is swagger origin + printed basePath + path. No subseasonal id was written onto a met, nowcast, airquality, tidalwater, oceanforecast, sunrise, radar, spotwind, textforecast, icemap, ncagalewarnings, or datanorge row.",
+    "Ids are copied from printed swagger path last segments. access_path is swagger origin + printed basePath + path. No subseasonal id was written onto a met, nowcast, airquality, tidalwater, oceanforecast, sunrise, radar, spotwind, textforecast, icemap, ncagalewarnings, tafmetar, or datanorge row.",
     "License is the printed swagger CC BY 4.0 URL http://creativecommons.org/licenses/by/4.0. Publisher is null: the spec does not print a publisher.",
     "Original harvested swagger metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
     "NCAgalewarnings is now on main as --source ncagalewarnings after PR 107. Icemap is now on main as --source icemap after PR 108. Tafmetar is now on main as --source tafmetar after PR 109. Textforecast stays --source textforecast. Spotwind stays --source spotwind. Radar stays --source radar. Sunrise stays --source sunrise. Oceanforecast stays --source oceanforecast. Tidalwater stays --source tidalwater. Airqualityforecast stays --source airquality. Nowcast stays --source nowcast. Metalerts stays --source met.",
