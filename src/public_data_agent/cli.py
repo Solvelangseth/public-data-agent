@@ -7,6 +7,7 @@ from pathlib import Path
 
 from public_data_agent.benchmark import DEFAULT_QUESTIONS, load_questions, run_benchmark
 from public_data_agent.enrich import enrich
+from public_data_agent.fetch import DEFAULT_OSLO_DATASET, DEFAULT_OSLO_TABLE, fetch_observations
 from public_data_agent.harvest import harvest, stderr_progress
 from public_data_agent.registry import Registry
 from public_data_agent.search import search_report
@@ -73,6 +74,13 @@ def main(argv: list[str] | None = None) -> int:
     )
     bench.add_argument("--quiet", action="store_true", help="Do not print progress on stderr")
 
+    fetch_cmd = sub.add_parser("fetch", help="Retrieve observation rows from a dataset API")
+    fetch_cmd.add_argument("--dataset", default=DEFAULT_OSLO_DATASET)
+    fetch_cmd.add_argument("--table", default=DEFAULT_OSLO_TABLE)
+    fetch_cmd.add_argument("--db", type=Path, default=DEFAULT_DB)
+    fetch_cmd.add_argument("--from-year", type=int, default=None)
+    fetch_cmd.add_argument("--to-year", type=int, default=None)
+
     args = parser.parse_args(argv)
     if args.command == "ingest":
         return _ingest(args)
@@ -86,6 +94,8 @@ def main(argv: list[str] | None = None) -> int:
         return _enrich(args)
     if args.command == "benchmark":
         return _benchmark(args)
+    if args.command == "fetch":
+        return _fetch(args)
     parser.error(f"unknown command {args.command}")
     return 2
 
@@ -223,6 +233,46 @@ def _benchmark(args: argparse.Namespace) -> int:
         args.out.write_text(text + "\n", encoding="utf-8")
     print(text)
     return 0
+
+
+def _fetch(args: argparse.Namespace) -> int:
+    if not Path(args.db).exists() and str(args.db) != ":memory:":
+        print(f"no registry at {args.db}", file=sys.stderr)
+        return 1
+    registry = Registry(args.db)
+    try:
+        result = fetch_observations(
+            registry,
+            args.dataset,
+            table_id=args.table,
+            from_year=args.from_year,
+            to_year=args.to_year,
+        )
+        print(
+            json.dumps(
+                {
+                    "db": str(args.db),
+                    "dataset": result.dataset_id,
+                    "table": result.table_id,
+                    "request_url": result.request_url,
+                    "http_status": result.http_status,
+                    "listed": result.counts.listed,
+                    "inserted": result.counts.inserted,
+                    "updated": result.counts.updated,
+                    "unchanged": result.counts.unchanged,
+                    "failed": result.counts.failed,
+                    "sample": result.sample,
+                },
+                ensure_ascii=False,
+                indent=2,
+            )
+        )
+        return 1 if result.counts.failed else 0
+    except ValueError as exc:
+        print(str(exc), file=sys.stderr)
+        return 1
+    finally:
+        registry.close()
 
 
 def _search(args: argparse.Namespace) -> int:

@@ -12,17 +12,17 @@ system finds the right data for you.
 
 ## Current status
 
-Milestone 1 through 6 are in this repo: a local SQLite dataset registry, ingest from
+Milestone 1 through 7 are in this repo: a local SQLite dataset registry, ingest from
 Data.norge / Felles datakatalog, token-overlap search over that file, deterministic
 enrichment in a separate `enrichments` table, a sourced search benchmark,
-AND-decomposition of multi-token queries, and a coverage report after retrieval.
+AND-decomposition of multi-token queries, a coverage report after retrieval,
+and a first observation-row fetch from a public PxWeb API.
 
-Discovery MVP stops here. Data retrieval, connectors, observation rows, joins,
-and MCP are later. Measured gaps that we are not fixing in that slice live in
-[GAPS.md](GAPS.md).
+Discovery MVP is milestones 1 through 6. Milestone 7 is the first observation-row fetch.
+A second source, joins, UI, and MCP are later. Measured gaps that we are not
+fixing in that slice live in [GAPS.md](GAPS.md).
 
-Data.norge is the first ingest source, not the product. UI, joins, charts,
-observation-row loading, and MCP are later.
+Data.norge is the first ingest source, not the product.
 
 ## Principles
 
@@ -442,6 +442,36 @@ pda ingest --source datanorge --db data/registry.sqlite
 pda enrich --db data/registry.sqlite
 ```
 
+## Milestone 7: first data connector
+
+Retrieve observation rows from a dataset that is already in our registry
+and whose stored `access_path` is a public API. Values come from the HTTP
+response. The command does not guess numbers.
+
+The product brief asked for population in Oslo 2020-2026. SSB table 07459
+is not stored as an `access_path` on a befolkning dataset in the 9120-row
+registry. `datanorge:fc22c19b-5347-3b20-aa1b-ae534f178f57` (Oslo kommunes
+statistikkbank) is. Its access path is a PxWeb UI URL. `pda fetch` rewrites
+`/statbank/pxweb/` to `/statbank/api/v1/` and posts a JSON-stat2 query.
+
+```bash
+pda fetch --dataset datanorge:fc22c19b-5347-3b20-aa1b-ae534f178f57 \
+  --table Befolkning/Folkemengde/OK-BEF008.px \
+  --from-year 2020 --to-year 2026 \
+  --db data/registry.sqlite
+```
+
+Rows land in `observations`, with a `fetch_runs` row for the request.
+Each observation stores dataset id, publisher, license, access path,
+request URL, HTTP status, and `retrieved_at`. The command does not write
+`datasets`, `harvested_payloads`, or `enrichments`.
+
+Live run 2026-08-27: HTTP 200, 28 cells, no auth. Oslo total population
+2020-2026 from the response is 693494, 697010, 699827, 709037, 717710,
+724290, 728714. Proof is `data/connector_proof.json`.
+
+This milestone does not add a second source, a join, a UI, or MCP.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
@@ -464,7 +494,7 @@ the analytical question. It answers: **"which data do I need in order to answer 
 | 4 | Search benchmark vs. Data.norge |
 | 5 | Query decomposition |
 | 6 | Coverage checker — **discovery MVP complete** |
-| 7 | First data connector |
+| 7 | First data connector. Observation rows from one public API |
 | 8 | Two independent data sources |
 | 9 | First cross-source join |
 | 10 | End-to-end natural-language analysis |

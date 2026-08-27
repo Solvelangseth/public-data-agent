@@ -1,0 +1,124 @@
+{
+  "produced_at": "2026-08-27T04:19:19Z",
+  "command": "pda fetch --dataset datanorge:fc22c19b-5347-3b20-aa1b-ae534f178f57 --table Befolkning/Folkemengde/OK-BEF008.px --from-year 2020 --to-year 2026 --db data/registry.sqlite",
+  "dataset": {
+    "id": "datanorge:fc22c19b-5347-3b20-aa1b-ae534f178f57",
+    "title": "Oslo kommunes statistikkbank",
+    "publisher_name": "OSLO KOMMUNE",
+    "license": "http://publications.europa.eu/resource/authority/licence/NLOD_2_0",
+    "access_path": "https://statistikkbanken.oslo.kommune.no/statbank/pxweb/no/db1/",
+    "source_native_uri": "https://data.norge.no/node/1204"
+  },
+  "why_this_dataset": "Product brief asked for population in Oslo 2020-2026. SSB PxWeb table 07459 is not stored as an access_path on a befolkning dataset in our registry. Oslo kommunes statistikkbank is in the registry and its stored access_path is a working public PxWeb API.",
+  "api": {
+    "kind": "PxWeb JSON-stat2",
+    "ui_access_path": "https://statistikkbanken.oslo.kommune.no/statbank/pxweb/no/db1/",
+    "request_url": "https://statistikkbanken.oslo.kommune.no/statbank/api/v1/no/db1/Befolkning/Folkemengde/OK-BEF008.px",
+    "request_method": "POST",
+    "http_status": 200,
+    "auth": "none"
+  },
+  "counts": {
+    "listed": 28,
+    "inserted": 28,
+    "updated": 0,
+    "unchanged": 0,
+    "failed": 0,
+    "datasets_unchanged": 9120,
+    "enrichments_unchanged": 9120
+  },
+  "oslo_total_population": [
+    {
+      "year": "2020",
+      "value": 693494,
+      "measure": "Folkemengden i alt (antall personer)",
+      "geography": "Oslo (Kristiania og Aker) i alt"
+    },
+    {
+      "year": "2021",
+      "value": 697010,
+      "measure": "Folkemengden i alt (antall personer)",
+      "geography": "Oslo (Kristiania og Aker) i alt"
+    },
+    {
+      "year": "2022",
+      "value": 699827,
+      "measure": "Folkemengden i alt (antall personer)",
+      "geography": "Oslo (Kristiania og Aker) i alt"
+    },
+    {
+      "year": "2023",
+      "value": 709037,
+      "measure": "Folkemengden i alt (antall personer)",
+      "geography": "Oslo (Kristiania og Aker) i alt"
+    },
+    {
+      "year": "2024",
+      "value": 717710,
+      "measure": "Folkemengden i alt (antall personer)",
+      "geography": "Oslo (Kristiania og Aker) i alt"
+    },
+    {
+      "year": "2025",
+      "value": 724290,
+      "measure": "Folkemengden i alt (antall personer)",
+      "geography": "Oslo (Kristiania og Aker) i alt"
+    },
+    {
+      "year": "2026",
+      "value": 728714,
+      "measure": "Folkemengden i alt (antall personer)",
+      "geography": "Oslo (Kristiania og Aker) i alt"
+    }
+  ],
+  "sample": [
+    {
+      "measure": "Folkemengden i alt (antall personer)",
+      "value": 693494,
+      "dimensions": {
+        "år": "2020",
+        "geografisk område": "Oslo (Kristiania og Aker) i alt"
+      }
+    },
+    {
+      "measure": "Årlig endring (antall personer)",
+      "value": 12423,
+      "dimensions": {
+        "år": "2020",
+        "geografisk område": "Oslo (Kristiania og Aker) i alt"
+      }
+    },
+    {
+      "measure": "Folkemengden i alt (antall personer)",
+      "value": 227526,
+      "dimensions": {
+        "år": "2020",
+        "geografisk område": "Kristiania/Indre Oslo"
+      }
+    },
+    {
+      "measure": "Årlig endring (antall personer)",
+      "value": 3598,
+      "dimensions": {
+        "år": "2020",
+        "geografisk område": "Kristiania/Indre Oslo"
+      }
+    },
+    {
+      "measure": "Folkemengden i alt (antall personer)",
+      "value": 697010,
+      "dimensions": {
+        "år": "2021",
+        "geografisk område": "Oslo (Kristiania og Aker) i alt"
+      }
+    }
+  ],
+  "notes": [
+    "Values are copied from the HTTP JSON-stat response. None were invented.",
+    "28 cells = 7 years x 2 geographies x 2 measures.",
+    "Observations are stored in the observations table. datasets and enrichments were not written.",
+    "The uncommitted local sqlite file may hold extra rows from an earlier identity-key run. Git does not contain registry.sqlite.",
+    "Cause of those extra rows: the first live run stored measure as the table title, the second used Statistikkvariabel. Identity is sha256(dataset, table, measure, dimensions), so the second run inserted 28 new keys instead of unchanged=28. Fixture tests still prove idempotency when measure is stable.",
+    "SSB table 07459: 0 registry rows match id, title, or access_path containing 07459."
+  ]
+}

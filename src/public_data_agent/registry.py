@@ -213,6 +213,131 @@ class Registry:
         row = self.conn.execute("SELECT COUNT(*) AS n FROM enrichments").fetchone()
         return int(row["n"])
 
+    def start_fetch_run(
+        self,
+        *,
+        dataset_id: str,
+        table_id: str,
+        request_url: str,
+        request_method: str,
+        started_at: str | None = None,
+    ) -> int:
+        cur = self.conn.execute(
+            """
+            INSERT INTO fetch_runs (
+                dataset_id, table_id, request_url, request_method,
+                started_at, status
+            ) VALUES (?, ?, ?, ?, ?, 'running')
+            """,
+            (dataset_id, table_id, request_url, request_method, started_at or utc_now()),
+        )
+        self.conn.commit()
+        return int(cur.lastrowid)
+
+    def set_fetch_request(
+        self,
+        run_id: int,
+        *,
+        request_url: str,
+        request_body: dict[str, Any],
+    ) -> None:
+        self.conn.execute(
+            """
+            UPDATE fetch_runs
+            SET request_url = ?, request_body_json = ?
+            WHERE id = ?
+            """,
+            (request_url, json.dumps(request_body, ensure_ascii=False), run_id),
+        )
+        self.conn.commit()
+
+    def finish_fetch_run(
+        self,
+        run_id: int,
+        counts: HarvestCounts,
+        *,
+        status: str,
+        http_status: int | None,
+        finished_at: str | None = None,
+    ) -> None:
+        self.conn.execute(
+            """
+            UPDATE fetch_runs
+            SET finished_at = ?, status = ?, http_status = ?, listed = ?,
+                inserted = ?, updated = ?, unchanged = ?, failed = ?,
+                errors_json = ?
+            WHERE id = ?
+            """,
+            (
+                finished_at or utc_now(),
+                status,
+                http_status,
+                counts.listed,
+                counts.inserted,
+                counts.updated,
+                counts.unchanged,
+                counts.failed,
+                json.dumps(counts.errors, ensure_ascii=False),
+                run_id,
+            ),
+        )
+        self.conn.commit()
+
+    def observation_count(self) -> int:
+        row = self.conn.execute("SELECT COUNT(*) AS n FROM observations").fetchone()
+        return int(row["n"])
+
+    def list_observations(self, dataset_id: str | None = None) -> list[dict[str, Any]]:
+        if dataset_id:
+            rows = self.conn.execute(
+                "SELECT * FROM observations WHERE dataset_id = ? ORDER BY id",
+                (dataset_id,),
+            ).fetchall()
+        else:
+            rows = self.conn.execute("SELECT * FROM observations ORDER BY id").fetchall()
+        return [dict(row) for row in rows]
+
+    def upsert_observation(self, row: dict[str, Any], run_id: int) -> str:
+        existing = self.conn.execute(
+            "SELECT id, value_json FROM observations WHERE id = ?",
+            (row["id"],),
+        ).fetchone()
+        values = {
+            "id": row["id"],
+            "dataset_id": row["dataset_id"],
+            "table_id": row["table_id"],
+            "measure": row["measure"],
+            "value_json": _dumps(row.get("value")),
+            "dimensions_json": json.dumps(
+                row["dimensions"], ensure_ascii=False, sort_keys=True, separators=(",", ":")
+            ),
+            "retrieved_at": row["retrieved_at"],
+            "request_url": row["request_url"],
+            "http_status": row["http_status"],
+            "publisher_name": row.get("publisher_name"),
+            "license": row.get("license"),
+            "access_path": row.get("access_path"),
+            "source_native_uri": row.get("source_native_uri"),
+            "fetch_run_id": run_id,
+        }
+        if existing is None:
+            self.conn.execute(
+                f"INSERT INTO observations ({', '.join(_OBSERVATION_COLUMNS)}) "
+                f"VALUES ({_placeholders(_OBSERVATION_COLUMNS)})",
+                tuple(values[col] for col in _OBSERVATION_COLUMNS),
+            )
+            self.conn.commit()
+            return "inserted"
+        if existing["value_json"] == values["value_json"]:
+            return "unchanged"
+        assign = ", ".join(f"{col} = ?" for col in _OBSERVATION_UPDATE_COLUMNS)
+        self.conn.execute(
+            f"UPDATE observations SET {assign} WHERE id = ?",
+            (*(values[col] for col in _OBSERVATION_UPDATE_COLUMNS), row["id"]),
+        )
+        self.conn.commit()
+        return "updated"
+
     def upsert_enrichment(self, row: dict[str, Any], *, now: str | None = None) -> str:
         """Insert or update by dataset_id. Matching harvest payload_hash is a no-op."""
 
@@ -371,6 +496,27 @@ _ENRICHMENT_COLUMNS = (
 
 _ENRICHMENT_UPDATE_COLUMNS = tuple(
     col for col in _ENRICHMENT_COLUMNS if col not in {"dataset_id", "created_at"}
+)
+
+_OBSERVATION_COLUMNS = (
+    "id",
+    "dataset_id",
+    "table_id",
+    "measure",
+    "value_json",
+    "dimensions_json",
+    "retrieved_at",
+    "request_url",
+    "http_status",
+    "publisher_name",
+    "license",
+    "access_path",
+    "source_native_uri",
+    "fetch_run_id",
+)
+
+_OBSERVATION_UPDATE_COLUMNS = tuple(
+    col for col in _OBSERVATION_COLUMNS if col not in {"id", "dataset_id", "table_id"}
 )
 
 

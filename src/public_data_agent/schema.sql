@@ -99,6 +99,49 @@ CREATE TABLE IF NOT EXISTS enrichments (
     FOREIGN KEY (dataset_id) REFERENCES datasets(id)
 );
 
+-- observations: cells retrieved from a public API. Never write datasets,
+-- harvested_payloads, or enrichments from this table.
+CREATE TABLE IF NOT EXISTS fetch_runs (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    dataset_id TEXT NOT NULL,
+    table_id TEXT NOT NULL,
+    request_url TEXT NOT NULL,
+    request_method TEXT NOT NULL,
+    request_body_json TEXT,
+    http_status INTEGER,
+    started_at TEXT NOT NULL,
+    finished_at TEXT,
+    status TEXT NOT NULL,
+    listed INTEGER NOT NULL DEFAULT 0,
+    inserted INTEGER NOT NULL DEFAULT 0,
+    updated INTEGER NOT NULL DEFAULT 0,
+    unchanged INTEGER NOT NULL DEFAULT 0,
+    failed INTEGER NOT NULL DEFAULT 0,
+    errors_json TEXT,
+    FOREIGN KEY (dataset_id) REFERENCES datasets(id)
+);
+
+CREATE TABLE IF NOT EXISTS observations (
+    id TEXT PRIMARY KEY,
+    dataset_id TEXT NOT NULL,
+    table_id TEXT NOT NULL,
+    measure TEXT NOT NULL,
+    value_json TEXT,
+    dimensions_json TEXT NOT NULL,
+    retrieved_at TEXT NOT NULL,
+    request_url TEXT NOT NULL,
+    http_status INTEGER NOT NULL,
+    publisher_name TEXT,
+    license TEXT,
+    access_path TEXT,
+    source_native_uri TEXT,
+    fetch_run_id INTEGER NOT NULL,
+    UNIQUE (dataset_id, table_id, measure, dimensions_json),
+    FOREIGN KEY (dataset_id) REFERENCES datasets(id),
+    FOREIGN KEY (fetch_run_id) REFERENCES fetch_runs(id)
+);
+
 CREATE INDEX IF NOT EXISTS idx_datasets_source ON datasets(source_id);
 CREATE INDEX IF NOT EXISTS idx_datasets_publisher ON datasets(publisher_id);
 CREATE INDEX IF NOT EXISTS idx_harvest_runs_source ON harvest_runs(source_id, started_at);
+CREATE INDEX IF NOT EXISTS idx_observations_dataset ON observations(dataset_id, table_id);
