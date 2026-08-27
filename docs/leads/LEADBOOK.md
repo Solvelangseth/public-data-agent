@@ -6,7 +6,7 @@ No email, call, or outbound post from this file. Contacts are only what the org 
 Product sold: registry of Norwegian public datasets (Data.norge first ingest, sources replaceable), natural-language search, first fetch of actual rows. Later analysis. LLM for intent and explanation. Deterministic retrieval. Provenance (source, publisher, license, access path) on every hit.
 Repo: https://github.com/Solvelangseth/public-data-agent
 
-Status 27 Aug 2026, 11:48 Europe/Oslo: 71 sourced leads. PR 38 merged. Wave 7 in the living file: health (Førde, Sunnaas, Diakonhjemmet), energy (Barents Nett, Noranett, Enida), mid-size (Hamar, Askøy). Arendal held. Horten/Rana were forslag-only this pass. No invented emails. No outreach.
+Status 27 Aug 2026, 11:48 Europe/Oslo: 72 sourced leads. PR 38 merged. Wave 7 in the living file: health (Førde, Sunnaas, Diakonhjemmet), energy (Barents Nett, Noranett, Enida), mid-size (Hamar, Askøy, Horten). Arendal held. Rana were forslag-only this pass. No invented emails. No outreach.
 
 How to read a lead: why they would pay is tied to a named programme, not "they use data." Service shape is always search → fetch → later analysis. If a field says none published, do not invent one.
 
@@ -2263,6 +2263,31 @@ Sources below were opened 2026-08-27 from official pages and the named press/pro
 
 ---
 
+### Horten kommune
+
+- **Why they would pay.** Økonomi- og handlingsplan 2026–2029 Framsikt title is **Kommunestyrets vedtak** (sak 25/114, 17.12.2025) on slug `bm-2026-ohp_2026`. Named **Klimabudsjett** chapter: «For kommunen som helhet rapporteres direkte utslipp gjennom Miljødirektoratets kommunefordelte utslipps-statistikk.» Same chapter names Norsk Klimaservicesenter fylkesvise klimaprofiler. The innstilling slug `bm-2026-okonomi_og_handlingsplan_2026_2029` is not this document. Own data.norge dataset (Badevannstemperaturer) is publisher-only and not the buy reason.
+- **Concrete use case.** Klima owners first-fetch Miljødirektoratet kommune 3901 / area 614 sector series and overlay the chapter, then SSB 07459 for per-innbygger, then Klimaservicesenter profiler for the KDP update.
+- **How the service should look.**
+  - Search: data.norge first, then Mdir kommuneregnskap, SSB 07459, Klimaservicesenter.
+  - Fetch: first official Excel/API rows. Their Framsikt chapter stays theirs.
+  - Later analysis: 2023→2024 refresh (67852 → 63909 t, −5.8 %); keep veitrafikk + sjøfart as residuals.
+- **Public contact.**
+  - Role / unit: postmottak / Servicetorget. Klimarådgiver Benjamin Myklebust Rød named (phone only; no personal inbox).
+  - Email: `postmottak@horten.kommune.no`
+  - Phone: 33 08 50 00; Rød 90 88 05 31
+  - Form/URL: https://www.horten.kommune.no/kontaktinformasjon/kontakt-oss/
+- **Key facts.** Org.nr 964 951 284. Kommunenr. 3901. Postboks 10, 3191 Horten.
+- **Sources** (opened 2026-08-27).
+  - https://www.horten.kommune.no/kommuneokonomi/okonomi-og-handlingsplan/gjeldende-okonomi-og-handlingsplan-2026-2029/
+  - https://pub.framsikt.net/2026/horten/bm-2026-ohp_2026/
+  - https://pub.framsikt.net/2026/horten/bm-2026-ohp_2026/#/generic/summary/climatesummary
+  - https://www.horten.kommune.no/natur-klima-og-miljo/klima/horten-kommunes-klimaarbeid/
+  - https://www.horten.kommune.no/kontaktinformasjon/kontakt-oss/
+  - https://data.brreg.no/enhetsregisteret/api/enheter/964951284
+  - https://www.miljodirektoratet.no/tjenester/klimagassutslipp-kommuner/
+
+---
+
 ## Skipped, with reasons
 
 Keep these notes in the living book. They are not leads.
@@ -2298,6 +2323,7 @@ Keep these notes in the living book. They are not leads.
 - 2026-08-27: Added Helse Førde, Sunnaas and Diakonhjemmet.
 - 2026-08-27: Added Hamar kommune (vedtatt HØP klimabudsjett). Wave 7 mid-size closed. Still no outreach.
 - 2026-08-27: Added Askøy kommune (vedtatt slug bm-2026-vedtatt_budsjett; earlier skip was the forslag slug).
+- 2026-08-27: Added Horten kommune (vedtatt slug bm-2026-ohp_2026; earlier skip was the innstilling slug).
 
 ---
 
