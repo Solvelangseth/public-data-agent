@@ -18,8 +18,9 @@ enrichment in a separate `enrichments` table, a sourced search benchmark,
 AND-decomposition of multi-token queries, a coverage report after retrieval,
 and a first observation-row fetch from a public PxWeb API.
 
-Discovery MVP is milestones 1 through 6. This branch adds Milestone 7 only.
-A second source, joins, UI, and MCP are later.
+Discovery MVP is milestones 1 through 6. Milestone 7 is the first observation-row fetch.
+A second source, joins, UI, and MCP are later. Measured gaps that we are not
+fixing in that slice live in [GAPS.md](GAPS.md).
 
 Data.norge is the first ingest source, not the product.
 
