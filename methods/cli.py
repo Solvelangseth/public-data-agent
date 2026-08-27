@@ -21,6 +21,7 @@ DEFAULT_ENTITY = "Oslo (Kristiania og Aker) i alt"
 DEFAULT_MEASURE = "Folkemengden i alt (antall personer)"
 DEFAULT_DB = Path("data/registry.sqlite")
 DEFAULT_OUT = Path("methods/proof")
+SSB_11763 = "ssb:11763"
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -83,6 +84,11 @@ def run(
 ) -> tuple[SeriesRow, ...]:
     raw = load_observations(dataset_id, db)
     if not raw:
+        if dataset_id == SSB_11763:
+            raise ValueError(
+                f"no stored observations for {dataset_id}; "
+                "refusing to call pda fetch (no POST to SSB/PxWeb)"
+            )
         _call_existing_fetch(dataset_id, db, table_id, from_year, to_year)
         raw = load_observations(dataset_id, db)
     if not raw:
@@ -143,11 +149,22 @@ def _call_existing_fetch(
 
 
 def _select(rows, *, entity: str | None, measure: str | None):
+    """Filter to entity/measure. Oslo CLI defaults fall back to every series.
+
+    `pda methods` always forwards the Oslo city-total defaults. Those names
+    are not in ssb:11763, so an unmatched default keeps every stored series
+    instead of calling fetch or emitting an empty table.
+    """
+
     selected = rows
     if entity:
-        selected = tuple(row for row in selected if row.entity == entity)
+        matched = tuple(row for row in selected if row.entity == entity)
+        if matched or entity != DEFAULT_ENTITY:
+            selected = matched
     if measure:
-        selected = tuple(row for row in selected if row.measure == measure)
+        matched = tuple(row for row in selected if row.measure == measure)
+        if matched or measure != DEFAULT_MEASURE:
+            selected = matched
     return selected
 
 

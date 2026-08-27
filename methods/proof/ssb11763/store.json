@@ -1,0 +1,739 @@
+{
+  "dataset_id": "ssb:11763",
+  "table_id": "11763",
+  "posted": false,
+  "seeded_from": {
+    "join_proof": "data/join_proof.json",
+    "ask_export": "data/ask_export.csv",
+    "ask_export_proof": "data/ask_export_proof.json",
+    "main_merge": "b14ae081f5cf42c93b4b197f7e35c3c378efc494",
+    "note": "2025 cells including 3 null bydels come from join_proof.json. 2024 numeric values are the exact integer invert of committed ask_export.csv YoY: v_2024 = v_2025 / (1 + yoy). 2024 nulls are the same three bydels (6 nulls total). No SSB/PxWeb POST."
+  },
+  "counts": {
+    "total": 36,
+    "numeric": 30,
+    "null_values": 6,
+    "entities": 18,
+    "numeric_entities": 15,
+    "periods": [
+      "2024",
+      "2025"
+    ],
+    "years": {
+      "2024": 18,
+      "2025": 18
+    }
+  },
+  "expected_from_m11": {
+    "dataset_id": "ssb:11763",
+    "table_id": "11763",
+    "count": 36,
+    "years": {
+      "2024": 18,
+      "2025": 18
+    },
+    "null_values": 6,
+    "request_url": "https://data.ssb.no/api/v0/no/table/11763",
+    "http_status": 200,
+    "publisher_name": "Statistisk sentralbyrå",
+    "license": null,
+    "harvested_payloads": 0,
+    "enrichments": 0,
+    "sample": {
+      "bydel_code": "030102",
+      "region": "Grünerløkka",
+      "år": "2025",
+      "measure": "Personer (antall)",
+      "value": 67039
+    },
+    "sql": "SELECT count(*) FROM observations WHERE dataset_id = 'ssb:11763'",
+    "methods_command": "pda methods --dataset ssb:11763 --table 11763 --entity \"\" --measure \"\" --db data/registry.sqlite --out /tmp/methods-11763",
+    "methods_rows": 30
+  },
+  "rows": [
+    {
+      "id": "226b2d3e8502fad1517b811207b382220a851038",
+      "dataset_id": "ssb:11763",
+      "table_id": "11763",
+      "measure": "Personer (antall)",
+      "value": 64554,
+      "dimensions": {
+        "bydel_code": "030101",
+        "region": "Gamle Oslo",
+        "år": "2024"
+      },
+      "retrieved_at": "2026-08-27T08:05:46Z",
+      "request_url": "https://data.ssb.no/api/v0/no/table/11763",
+      "http_status": 200,
+      "publisher_name": "Statistisk sentralbyrå",
+      "license": null,
+      "access_path": "https://data.ssb.no/api/v0/no/table/11763",
+      "source_native_uri": null
+    },
+    {
+      "id": "468bd5c39c4855be5a6350dfe67af85bd36a1f1c",
+      "dataset_id": "ssb:11763",
+      "table_id": "11763",
+      "measure": "Personer (antall)",
+      "value": 66404,
+      "dimensions": {
+        "bydel_code": "030102",
+        "region": "Grünerløkka",
+        "år": "2024"
+      },
+      "retrieved_at": "2026-08-27T08:05:46Z",
+      "request_url": "https://data.ssb.no/api/v0/no/table/11763",
+      "http_status": 200,
+      "publisher_name": "Statistisk sentralbyrå",
+      "license": null,
+      "access_path": "https://data.ssb.no/api/v0/no/table/11763",
+      "source_native_uri": null
+    },
+    {
+      "id": "ea05cd9ff8e4f3639d956e44213e163c5f511c98",
+      "dataset_id": "ssb:11763",
+      "table_id": "11763",
+      "measure": "Personer (antall)",
+      "value": 47801,
+      "dimensions": {
+        "bydel_code": "030103",
+        "region": "Sagene",
+        "år": "2024"
+      },
+      "retrieved_at": "2026-08-27T08:05:46Z",
+      "request_url": "https://data.ssb.no/api/v0/no/table/11763",
+      "http_status": 200,
+      "publisher_name": "Statistisk sentralbyrå",
+      "license": null,
+      "access_path": "https://data.ssb.no/api/v0/no/table/11763",
+      "source_native_uri": null
+    },
+    {
+      "id": "5c9cfcab07c85672d2e9b55f180a544eccd51e8e",
+      "dataset_id": "ssb:11763",
+      "table_id": "11763",
+      "measure": "Personer (antall)",
+      "value": 41362,
+      "dimensions": {
+        "bydel_code": "030104",
+        "region": "St. Hanshaugen",
+        "år": "2024"
+      },
+      "retrieved_at": "2026-08-27T08:05:46Z",
+      "request_url": "https://data.ssb.no/api/v0/no/table/11763",
+      "http_status": 200,
+      "publisher_name": "Statistisk sentralbyrå",
+      "license": null,
+      "access_path": "https://data.ssb.no/api/v0/no/table/11763",
+      "source_native_uri": null
+    },
+    {
+      "id": "706e9d6da550a257fa4248209660e9d03f91a25e",
+      "dataset_id": "ssb:11763",
+      "table_id": "11763",
+      "measure": "Personer (antall)",
+      "value": 60533,
+      "dimensions": {
+        "bydel_code": "030105",
+        "region": "Frogner",
+        "år": "2024"
+      },
+      "retrieved_at": "2026-08-27T08:05:46Z",
+      "request_url": "https://data.ssb.no/api/v0/no/table/11763",
+      "http_status": 200,
+      "publisher_name": "Statistisk sentralbyrå",
+      "license": null,
+      "access_path": "https://data.ssb.no/api/v0/no/table/11763",
+      "source_native_uri": null
+    },
+    {
+      "id": "cffb98e2d9ebfdb3e7deae5e5a78ed9611f44158",
+      "dataset_id": "ssb:11763",
+      "table_id": "11763",
+      "measure": "Personer (antall)",
+      "value": 35668,
+      "dimensions": {
+        "bydel_code": "030106",
+        "region": "Ullern",
+        "år": "2024"
+      },
+      "retrieved_at": "2026-08-27T08:05:46Z",
+      "request_url": "https://data.ssb.no/api/v0/no/table/11763",
+      "http_status": 200,
+      "publisher_name": "Statistisk sentralbyrå",
+      "license": null,
+      "access_path": "https://data.ssb.no/api/v0/no/table/11763",
+      "source_native_uri": null
+    },
+    {
+      "id": "18df28559ef0299f19eec37f1881fec809e19aeb",
+      "dataset_id": "ssb:11763",
+      "table_id": "11763",
+      "measure": "Personer (antall)",
+      "value": 52962,
+      "dimensions": {
+        "bydel_code": "030107",
+        "region": "Vestre Aker",
+        "år": "2024"
+      },
+      "retrieved_at": "2026-08-27T08:05:46Z",
+      "request_url": "https://data.ssb.no/api/v0/no/table/11763",
+      "http_status": 200,
+      "publisher_name": "Statistisk sentralbyrå",
+      "license": null,
+      "access_path": "https://data.ssb.no/api/v0/no/table/11763",
+      "source_native_uri": null
+    },
+    {
+      "id": "9f37e3c43818935cfe71bdc0eee620df0657f72d",
+      "dataset_id": "ssb:11763",
+      "table_id": "11763",
+      "measure": "Personer (antall)",
+      "value": 55987,
+      "dimensions": {
+        "bydel_code": "030108",
+        "region": "Nordre Aker",
+        "år": "2024"
+      },
+      "retrieved_at": "2026-08-27T08:05:46Z",
+      "request_url": "https://data.ssb.no/api/v0/no/table/11763",
+      "http_status": 200,
+      "publisher_name": "Statistisk sentralbyrå",
+      "license": null,
+      "access_path": "https://data.ssb.no/api/v0/no/table/11763",
+      "source_native_uri": null
+    },
+    {
+      "id": "a05b28be69a33d028afff87e37b02a0d762e203e",
+      "dataset_id": "ssb:11763",
+      "table_id": "11763",
+      "measure": "Personer (antall)",
+      "value": 37053,
+      "dimensions": {
+        "bydel_code": "030109",
+        "region": "Bjerke",
+        "år": "2024"
+      },
+      "retrieved_at": "2026-08-27T08:05:46Z",
+      "request_url": "https://data.ssb.no/api/v0/no/table/11763",
+      "http_status": 200,
+      "publisher_name": "Statistisk sentralbyrå",
+      "license": null,
+      "access_path": "https://data.ssb.no/api/v0/no/table/11763",
+      "source_native_uri": null
+    },
+    {
+      "id": "d72f761f630a9bed7f33038b5d19d434dc63bb85",
+      "dataset_id": "ssb:11763",
+      "table_id": "11763",
+      "measure": "Personer (antall)",
+      "value": 28234,
+      "dimensions": {
+        "bydel_code": "030110",
+        "region": "Grorud",
+        "år": "2024"
+      },
+      "retrieved_at": "2026-08-27T08:05:46Z",
+      "request_url": "https://data.ssb.no/api/v0/no/table/11763",
+      "http_status": 200,
+      "publisher_name": "Statistisk sentralbyrå",
+      "license": null,
+      "access_path": "https://data.ssb.no/api/v0/no/table/11763",
+      "source_native_uri": null
+    },
+    {
+      "id": "797a32746d5aa915ffb5544921118a1eb102df20",
+      "dataset_id": "ssb:11763",
+      "table_id": "11763",
+      "measure": "Personer (antall)",
+      "value": 34577,
+      "dimensions": {
+        "bydel_code": "030111",
+        "region": "Stovner",
+        "år": "2024"
+      },
+      "retrieved_at": "2026-08-27T08:05:46Z",
+      "request_url": "https://data.ssb.no/api/v0/no/table/11763",
+      "http_status": 200,
+      "publisher_name": "Statistisk sentralbyrå",
+      "license": null,
+      "access_path": "https://data.ssb.no/api/v0/no/table/11763",
+      "source_native_uri": null
+    },
+    {
+      "id": "10f07a4dbc22de2437fd7b0b24b769ec4e9a264c",
+      "dataset_id": "ssb:11763",
+      "table_id": "11763",
+      "measure": "Personer (antall)",
+      "value": 50678,
+      "dimensions": {
+        "bydel_code": "030112",
+        "region": "Alna",
+        "år": "2024"
+      },
+      "retrieved_at": "2026-08-27T08:05:46Z",
+      "request_url": "https://data.ssb.no/api/v0/no/table/11763",
+      "http_status": 200,
+      "publisher_name": "Statistisk sentralbyrå",
+      "license": null,
+      "access_path": "https://data.ssb.no/api/v0/no/table/11763",
+      "source_native_uri": null
+    },
+    {
+      "id": "d7a7c8cdf631d1bb98161e63c2fed0d42990ad48",
+      "dataset_id": "ssb:11763",
+      "table_id": "11763",
+      "measure": "Personer (antall)",
+      "value": 52234,
+      "dimensions": {
+        "bydel_code": "030113",
+        "region": "Østensjø",
+        "år": "2024"
+      },
+      "retrieved_at": "2026-08-27T08:05:46Z",
+      "request_url": "https://data.ssb.no/api/v0/no/table/11763",
+      "http_status": 200,
+      "publisher_name": "Statistisk sentralbyrå",
+      "license": null,
+      "access_path": "https://data.ssb.no/api/v0/no/table/11763",
+      "source_native_uri": null
+    },
+    {
+      "id": "edeea6037c02b9cd1e3e49835f98e0edb622c9cd",
+      "dataset_id": "ssb:11763",
+      "table_id": "11763",
+      "measure": "Personer (antall)",
+      "value": 54883,
+      "dimensions": {
+        "bydel_code": "030114",
+        "region": "Nordstrand",
+        "år": "2024"
+      },
+      "retrieved_at": "2026-08-27T08:05:46Z",
+      "request_url": "https://data.ssb.no/api/v0/no/table/11763",
+      "http_status": 200,
+      "publisher_name": "Statistisk sentralbyrå",
+      "license": null,
+      "access_path": "https://data.ssb.no/api/v0/no/table/11763",
+      "source_native_uri": null
+    },
+    {
+      "id": "e2482823b926e3e3eb92c8fc889ad444cd8eb42f",
+      "dataset_id": "ssb:11763",
+      "table_id": "11763",
+      "measure": "Personer (antall)",
+      "value": 39348,
+      "dimensions": {
+        "bydel_code": "030115",
+        "region": "Søndre Nordstrand",
+        "år": "2024"
+      },
+      "retrieved_at": "2026-08-27T08:05:46Z",
+      "request_url": "https://data.ssb.no/api/v0/no/table/11763",
+      "http_status": 200,
+      "publisher_name": "Statistisk sentralbyrå",
+      "license": null,
+      "access_path": "https://data.ssb.no/api/v0/no/table/11763",
+      "source_native_uri": null
+    },
+    {
+      "id": "ae652acd755c62659a7987f4a7720939c53893fc",
+      "dataset_id": "ssb:11763",
+      "table_id": "11763",
+      "measure": "Personer (antall)",
+      "value": null,
+      "dimensions": {
+        "bydel_code": "030116",
+        "region": "Sentrum",
+        "år": "2024"
+      },
+      "retrieved_at": "2026-08-27T08:05:46Z",
+      "request_url": "https://data.ssb.no/api/v0/no/table/11763",
+      "http_status": 200,
+      "publisher_name": "Statistisk sentralbyrå",
+      "license": null,
+      "access_path": "https://data.ssb.no/api/v0/no/table/11763",
+      "source_native_uri": null
+    },
+    {
+      "id": "ada32cd128d1c9bdc9f4330dcab30eee60438646",
+      "dataset_id": "ssb:11763",
+      "table_id": "11763",
+      "measure": "Personer (antall)",
+      "value": null,
+      "dimensions": {
+        "bydel_code": "030117",
+        "region": "Marka",
+        "år": "2024"
+      },
+      "retrieved_at": "2026-08-27T08:05:46Z",
+      "request_url": "https://data.ssb.no/api/v0/no/table/11763",
+      "http_status": 200,
+      "publisher_name": "Statistisk sentralbyrå",
+      "license": null,
+      "access_path": "https://data.ssb.no/api/v0/no/table/11763",
+      "source_native_uri": null
+    },
+    {
+      "id": "232116cb60ffc15790e9bc84ca4b9c15596cfafd",
+      "dataset_id": "ssb:11763",
+      "table_id": "11763",
+      "measure": "Personer (antall)",
+      "value": null,
+      "dimensions": {
+        "bydel_code": "030199",
+        "region": "Oslo kommune sektor overgripende for Oslo Bydeler",
+        "år": "2024"
+      },
+      "retrieved_at": "2026-08-27T08:05:46Z",
+      "request_url": "https://data.ssb.no/api/v0/no/table/11763",
+      "http_status": 200,
+      "publisher_name": "Statistisk sentralbyrå",
+      "license": null,
+      "access_path": "https://data.ssb.no/api/v0/no/table/11763",
+      "source_native_uri": null
+    },
+    {
+      "id": "78918eef204e97fcce3ba8cba8d526c690acea04",
+      "dataset_id": "ssb:11763",
+      "table_id": "11763",
+      "measure": "Personer (antall)",
+      "value": 64920,
+      "dimensions": {
+        "bydel_code": "030101",
+        "region": "Gamle Oslo",
+        "år": "2025"
+      },
+      "retrieved_at": "2026-08-27T08:05:46Z",
+      "request_url": "https://data.ssb.no/api/v0/no/table/11763",
+      "http_status": 200,
+      "publisher_name": "Statistisk sentralbyrå",
+      "license": null,
+      "access_path": "https://data.ssb.no/api/v0/no/table/11763",
+      "source_native_uri": null
+    },
+    {
+      "id": "248b6b3ff0b8229eb04abcad1053485b433a5982",
+      "dataset_id": "ssb:11763",
+      "table_id": "11763",
+      "measure": "Personer (antall)",
+      "value": 67039,
+      "dimensions": {
+        "bydel_code": "030102",
+        "region": "Grünerløkka",
+        "år": "2025"
+      },
+      "retrieved_at": "2026-08-27T08:05:46Z",
+      "request_url": "https://data.ssb.no/api/v0/no/table/11763",
+      "http_status": 200,
+      "publisher_name": "Statistisk sentralbyrå",
+      "license": null,
+      "access_path": "https://data.ssb.no/api/v0/no/table/11763",
+      "source_native_uri": null
+    },
+    {
+      "id": "50b60d43bb4d7bc8993c37dd7bd57613dd0fa9ef",
+      "dataset_id": "ssb:11763",
+      "table_id": "11763",
+      "measure": "Personer (antall)",
+      "value": 48325,
+      "dimensions": {
+        "bydel_code": "030103",
+        "region": "Sagene",
+        "år": "2025"
+      },
+      "retrieved_at": "2026-08-27T08:05:46Z",
+      "request_url": "https://data.ssb.no/api/v0/no/table/11763",
+      "http_status": 200,
+      "publisher_name": "Statistisk sentralbyrå",
+      "license": null,
+      "access_path": "https://data.ssb.no/api/v0/no/table/11763",
+      "source_native_uri": null
+    },
+    {
+      "id": "fef6d5530e43f532166c351fb6c4bf708c2deb20",
+      "dataset_id": "ssb:11763",
+      "table_id": "11763",
+      "measure": "Personer (antall)",
+      "value": 41379,
+      "dimensions": {
+        "bydel_code": "030104",
+        "region": "St. Hanshaugen",
+        "år": "2025"
+      },
+      "retrieved_at": "2026-08-27T08:05:46Z",
+      "request_url": "https://data.ssb.no/api/v0/no/table/11763",
+      "http_status": 200,
+      "publisher_name": "Statistisk sentralbyrå",
+      "license": null,
+      "access_path": "https://data.ssb.no/api/v0/no/table/11763",
+      "source_native_uri": null
+    },
+    {
+      "id": "31dbcff4fa7e75c15f039dd7336a5cdc99289d84",
+      "dataset_id": "ssb:11763",
+      "table_id": "11763",
+      "measure": "Personer (antall)",
+      "value": 60321,
+      "dimensions": {
+        "bydel_code": "030105",
+        "region": "Frogner",
+        "år": "2025"
+      },
+      "retrieved_at": "2026-08-27T08:05:46Z",
+      "request_url": "https://data.ssb.no/api/v0/no/table/11763",
+      "http_status": 200,
+      "publisher_name": "Statistisk sentralbyrå",
+      "license": null,
+      "access_path": "https://data.ssb.no/api/v0/no/table/11763",
+      "source_native_uri": null
+    },
+    {
+      "id": "9b6579e1a14cbfafb6ddba0b7e2549089c148d00",
+      "dataset_id": "ssb:11763",
+      "table_id": "11763",
+      "measure": "Personer (antall)",
+      "value": 35805,
+      "dimensions": {
+        "bydel_code": "030106",
+        "region": "Ullern",
+        "år": "2025"
+      },
+      "retrieved_at": "2026-08-27T08:05:46Z",
+      "request_url": "https://data.ssb.no/api/v0/no/table/11763",
+      "http_status": 200,
+      "publisher_name": "Statistisk sentralbyrå",
+      "license": null,
+      "access_path": "https://data.ssb.no/api/v0/no/table/11763",
+      "source_native_uri": null
+    },
+    {
+      "id": "4823d879e973688e11539567b47d80352746a843",
+      "dataset_id": "ssb:11763",
+      "table_id": "11763",
+      "measure": "Personer (antall)",
+      "value": 53304,
+      "dimensions": {
+        "bydel_code": "030107",
+        "region": "Vestre Aker",
+        "år": "2025"
+      },
+      "retrieved_at": "2026-08-27T08:05:46Z",
+      "request_url": "https://data.ssb.no/api/v0/no/table/11763",
+      "http_status": 200,
+      "publisher_name": "Statistisk sentralbyrå",
+      "license": null,
+      "access_path": "https://data.ssb.no/api/v0/no/table/11763",
+      "source_native_uri": null
+    },
+    {
+      "id": "5a39e1ce64e560bc4563f589c4d655cedbca20f8",
+      "dataset_id": "ssb:11763",
+      "table_id": "11763",
+      "measure": "Personer (antall)",
+      "value": 57017,
+      "dimensions": {
+        "bydel_code": "030108",
+        "region": "Nordre Aker",
+        "år": "2025"
+      },
+      "retrieved_at": "2026-08-27T08:05:46Z",
+      "request_url": "https://data.ssb.no/api/v0/no/table/11763",
+      "http_status": 200,
+      "publisher_name": "Statistisk sentralbyrå",
+      "license": null,
+      "access_path": "https://data.ssb.no/api/v0/no/table/11763",
+      "source_native_uri": null
+    },
+    {
+      "id": "e0aca7c34b04362416eeb87015b04dc2ea22e3ba",
+      "dataset_id": "ssb:11763",
+      "table_id": "11763",
+      "measure": "Personer (antall)",
+      "value": 37538,
+      "dimensions": {
+        "bydel_code": "030109",
+        "region": "Bjerke",
+        "år": "2025"
+      },
+      "retrieved_at": "2026-08-27T08:05:46Z",
+      "request_url": "https://data.ssb.no/api/v0/no/table/11763",
+      "http_status": 200,
+      "publisher_name": "Statistisk sentralbyrå",
+      "license": null,
+      "access_path": "https://data.ssb.no/api/v0/no/table/11763",
+      "source_native_uri": null
+    },
+    {
+      "id": "df4b6278a13d8a79449323fe7d3547e99dfe0a06",
+      "dataset_id": "ssb:11763",
+      "table_id": "11763",
+      "measure": "Personer (antall)",
+      "value": 28369,
+      "dimensions": {
+        "bydel_code": "030110",
+        "region": "Grorud",
+        "år": "2025"
+      },
+      "retrieved_at": "2026-08-27T08:05:46Z",
+      "request_url": "https://data.ssb.no/api/v0/no/table/11763",
+      "http_status": 200,
+      "publisher_name": "Statistisk sentralbyrå",
+      "license": null,
+      "access_path": "https://data.ssb.no/api/v0/no/table/11763",
+      "source_native_uri": null
+    },
+    {
+      "id": "14b0b07a2550b1f5d96fc424665461dea08caafb",
+      "dataset_id": "ssb:11763",
+      "table_id": "11763",
+      "measure": "Personer (antall)",
+      "value": 34709,
+      "dimensions": {
+        "bydel_code": "030111",
+        "region": "Stovner",
+        "år": "2025"
+      },
+      "retrieved_at": "2026-08-27T08:05:46Z",
+      "request_url": "https://data.ssb.no/api/v0/no/table/11763",
+      "http_status": 200,
+      "publisher_name": "Statistisk sentralbyrå",
+      "license": null,
+      "access_path": "https://data.ssb.no/api/v0/no/table/11763",
+      "source_native_uri": null
+    },
+    {
+      "id": "afec4b40b1c24a5fbede8adad3344298cde9100d",
+      "dataset_id": "ssb:11763",
+      "table_id": "11763",
+      "measure": "Personer (antall)",
+      "value": 50793,
+      "dimensions": {
+        "bydel_code": "030112",
+        "region": "Alna",
+        "år": "2025"
+      },
+      "retrieved_at": "2026-08-27T08:05:46Z",
+      "request_url": "https://data.ssb.no/api/v0/no/table/11763",
+      "http_status": 200,
+      "publisher_name": "Statistisk sentralbyrå",
+      "license": null,
+      "access_path": "https://data.ssb.no/api/v0/no/table/11763",
+      "source_native_uri": null
+    },
+    {
+      "id": "ecdbb0fa3912ec5118901a0508b5192637bae46a",
+      "dataset_id": "ssb:11763",
+      "table_id": "11763",
+      "measure": "Personer (antall)",
+      "value": 52374,
+      "dimensions": {
+        "bydel_code": "030113",
+        "region": "Østensjø",
+        "år": "2025"
+      },
+      "retrieved_at": "2026-08-27T08:05:46Z",
+      "request_url": "https://data.ssb.no/api/v0/no/table/11763",
+      "http_status": 200,
+      "publisher_name": "Statistisk sentralbyrå",
+      "license": null,
+      "access_path": "https://data.ssb.no/api/v0/no/table/11763",
+      "source_native_uri": null
+    },
+    {
+      "id": "10c4d9820c9200967a9e484488a5c72b8bed045c",
+      "dataset_id": "ssb:11763",
+      "table_id": "11763",
+      "measure": "Personer (antall)",
+      "value": 55286,
+      "dimensions": {
+        "bydel_code": "030114",
+        "region": "Nordstrand",
+        "år": "2025"
+      },
+      "retrieved_at": "2026-08-27T08:05:46Z",
+      "request_url": "https://data.ssb.no/api/v0/no/table/11763",
+      "http_status": 200,
+      "publisher_name": "Statistisk sentralbyrå",
+      "license": null,
+      "access_path": "https://data.ssb.no/api/v0/no/table/11763",
+      "source_native_uri": null
+    },
+    {
+      "id": "9ae5d16b20dab9d4a43cb8a7782d867c0498f6b5",
+      "dataset_id": "ssb:11763",
+      "table_id": "11763",
+      "measure": "Personer (antall)",
+      "value": 39365,
+      "dimensions": {
+        "bydel_code": "030115",
+        "region": "Søndre Nordstrand",
+        "år": "2025"
+      },
+      "retrieved_at": "2026-08-27T08:05:46Z",
+      "request_url": "https://data.ssb.no/api/v0/no/table/11763",
+      "http_status": 200,
+      "publisher_name": "Statistisk sentralbyrå",
+      "license": null,
+      "access_path": "https://data.ssb.no/api/v0/no/table/11763",
+      "source_native_uri": null
+    },
+    {
+      "id": "83c33b8aad5e9869e45c983eda2c700341085eab",
+      "dataset_id": "ssb:11763",
+      "table_id": "11763",
+      "measure": "Personer (antall)",
+      "value": null,
+      "dimensions": {
+        "bydel_code": "030116",
+        "region": "Sentrum",
+        "år": "2025"
+      },
+      "retrieved_at": "2026-08-27T08:05:46Z",
+      "request_url": "https://data.ssb.no/api/v0/no/table/11763",
+      "http_status": 200,
+      "publisher_name": "Statistisk sentralbyrå",
+      "license": null,
+      "access_path": "https://data.ssb.no/api/v0/no/table/11763",
+      "source_native_uri": null
+    },
+    {
+      "id": "7d545736e696fe5c231d4015d79e8484ef5a644f",
+      "dataset_id": "ssb:11763",
+      "table_id": "11763",
+      "measure": "Personer (antall)",
+      "value": null,
+      "dimensions": {
+        "bydel_code": "030117",
+        "region": "Marka",
+        "år": "2025"
+      },
+      "retrieved_at": "2026-08-27T08:05:46Z",
+      "request_url": "https://data.ssb.no/api/v0/no/table/11763",
+      "http_status": 200,
+      "publisher_name": "Statistisk sentralbyrå",
+      "license": null,
+      "access_path": "https://data.ssb.no/api/v0/no/table/11763",
+      "source_native_uri": null
+    },
+    {
+      "id": "c6db79f2ceb6ed061a3160e49b21e8b557b07abc",
+      "dataset_id": "ssb:11763",
+      "table_id": "11763",
+      "measure": "Personer (antall)",
+      "value": null,
+      "dimensions": {
+        "bydel_code": "030199",
+        "region": "Oslo kommune sektor overgripende for Oslo Bydeler",
+        "år": "2025"
+      },
+      "retrieved_at": "2026-08-27T08:05:46Z",
+      "request_url": "https://data.ssb.no/api/v0/no/table/11763",
+      "http_status": 200,
+      "publisher_name": "Statistisk sentralbyrå",
+      "license": null,
+      "access_path": "https://data.ssb.no/api/v0/no/table/11763",
+      "source_native_uri": null
+    }
+  ]
+}
