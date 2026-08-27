@@ -885,6 +885,34 @@ HTTP 200, 2 vehicle-type rows. Sample printed names: Voiager_5, Voiager_4.
 (`no observations matched entity/measure; available=[]`).
 Proof is `data/entur_source_proof.json`.
 
+## Fiskeridirektoratet Fartøyregisteret source
+
+`pda ingest --source fiskeridir` is another replaceable adapter. It lists printed
+collection GET paths on the official Fartøyregisteret OpenAPI
+`https://api.fiskeridir.no/vessel-api/api/openapi`, capped at 10. Templated
+paths such as `/vessel-api/api/v1/vessels/{id}` are skipped. Dataset ids are
+the printed last path segments. `access_path` is the printed path joined to
+the OpenAPI document origin.
+
+```bash
+pda ingest --source fiskeridir --db data/registry.sqlite --limit 10
+pda search fartøy --db data/registry.sqlite
+pda fetch --dataset fiskeridir:vessels --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored collection URL. Observation values are copied
+from printed `name`. License is copied from the printed OpenAPI
+`info.license.url` when present. Publisher stays null: the spec does not
+print a publisher name.
+
+Live ingest 2026-08-27: 1 printed collection GET path. Live search
+`fartøy` returns `fiskeridir:vessels`. Live fetch GETs
+`https://api.fiskeridir.no/vessel-api/api/v1/vessels` HTTP 200, 30 vessel
+rows. Sample printed names: KVALVIK, SVANHILD, CHANS. `pda methods` is not
+applicable: names, not a numeric time series
+(`no observations matched entity/measure; available=[]`).
+Proof is `data/fiskeridir_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists

@@ -7,6 +7,7 @@ from public_data_agent.sources.brreg import BrregEnhetsregisterSource
 from public_data_agent.sources.datanorge import DataNorgeSource
 from public_data_agent.sources.entur import EnturGbfsSource
 from public_data_agent.sources.fhi import FhiStatistikkSource
+from public_data_agent.sources.fiskeridir import FiskeridirVesselSource
 from public_data_agent.sources.fixture import FixtureSource
 from public_data_agent.sources.geonorge import GeonorgeKartkatalogSource
 from public_data_agent.sources.mattilsynet import MattilsynetPlantevernSource
@@ -27,6 +28,7 @@ SOURCE_IDS = (
     "mattilsynet",
     "udir",
     "entur",
+    "fiskeridir",
 )
 
 
@@ -55,6 +57,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return UdirNsrSource()
     if source_id == "entur":
         return EnturGbfsSource()
+    if source_id == "fiskeridir":
+        return FiskeridirVesselSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -64,6 +68,7 @@ __all__ = [
     "DataNorgeSource",
     "EnturGbfsSource",
     "FhiStatistikkSource",
+    "FiskeridirVesselSource",
     "FixtureSource",
     "GeonorgeKartkatalogSource",
     "MattilsynetPlantevernSource",
