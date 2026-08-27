@@ -1830,6 +1830,37 @@ Dataavgrensning, GeolAvgrLinje).
 (`no observations matched entity/measure; available=[]`).
 Proof is `data/ngu_source_proof.json`.
 
+## Kartverket Høydedata source
+
+`pda ingest --source hoydedata` is another replaceable adapter. It lists printed
+collection GET paths on the official Kartverket Høydedata OpenAPI
+`https://ws.geonorge.no/hoydedata/v1/openapi.json`, capped at 10.
+Dataset ids are the last printed path segment. `access_path` is the
+printed path joined to the spec's own relative `servers[0].url`
+`/hoydedata/v1` on the OpenAPI origin. Templated `{datakilde}` paths
+are skipped. This is not Geonorge Kartkatalog (`--source geonorge`),
+not Kartverket Stedsnavn (`--source stedsnavn`), not Kartverket
+Kommuneinfo (`--source kommuneinfo`), and not Artsdatabanken NiN
+(`--source nin`).
+
+```bash
+pda ingest --source hoydedata --db data/registry.sqlite --limit 10
+pda search datakilder --db data/registry.sqlite
+pda fetch --dataset hoydedata:datakilder --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored collection URL. Observation values are
+copied from printed `datakilde` when it is a non-empty string.
+License and publisher stay null: the OpenAPI document prints neither
+a license URL nor a publisher. No license URI is invented.
+
+Live ingest 2026-08-27: 3 printed untemplated GET paths (catalog prints
+5 GET paths, 3 untemplated, cap 10). Live search `datakilder` returns
+`hoydedata:datakilder`. Live fetch GETs
+`https://ws.geonorge.no/hoydedata/v1/datakilder` HTTP 200, printed
+source-name rows. `pda methods` is not applicable: source names, not a
+numeric time series. Proof is `data/hoydedata_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
