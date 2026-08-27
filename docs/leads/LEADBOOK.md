@@ -6,7 +6,7 @@ No email, call, or outbound post from this file. Contacts are only what the org 
 Product sold: registry of Norwegian public datasets (Data.norge first ingest, sources replaceable), natural-language search, first fetch of actual rows. Later analysis. LLM for intent and explanation. Deterministic retrieval. Provenance (source, publisher, license, access path) on every hit.
 Repo: https://github.com/Solvelangseth/public-data-agent
 
-Status 27 Aug 2026, 12:01 Europe/Oslo: 78 sourced leads. PR 40 merged (d3206ae). Wave 8 in the living file: Sørlandet, Nordlandssykehuset, Vestall, Elmea, Halden, Lillehammer. Elmea has no invented inbox. Arendal held. No outreach.
+Status 27 Aug 2026, 12:01 Europe/Oslo: 78 sourced leads. PR 40 merged (d3206ae). Wave 8 in the living file: Sørlandet, Nordlandssykehuset, Vestall, Elmea, Halden, Lillehammer. Elmea inboxes are page-printed (`kunde@` / `pal.martinussen@`). Arendal held. No outreach.
 
 How to read a lead: why they would pay is tied to a named programme, not "they use data." Service shape is always search → fetch → later analysis. If a field says none published, do not invent one.
 
@@ -1794,16 +1794,17 @@ Sources below were opened 2026-08-27 from official pages and the named press/pro
   - Fetch: first official PDF / GeoJSON. Not a replacement for Tilko or the kundeportal.
   - Later analysis: overlay on the vestsnittet 1 MW kø.
 - **Public contact.**
-  - Role / unit: kundesenter. Daglig leder Pål Martinussen named with mobile on the joint Vestall article; no mailbox printed.
-  - Email: none printed on the static kontaktinfo page opened 2026-08-27 (do not use leftover `firmapost@lofotkraft.no`)
-  - Phone: 76 06 76 06
-  - Form/URL: https://www.elmea.no/proff/kontaktinfo/
+  - Role / unit: kundesenter. Daglig leder Pål Martinussen (pressekontakter).
+  - Email: `kunde@elmea.no` (proff/kontaktinfo); `pal.martinussen@elmea.no` (kontakt-oss pressekontakter). Do not use leftover `firmapost@lofotkraft.no`.
+  - Phone: 76 06 76 06; Martinussen 918 15 949
+  - Form/URL: https://www.elmea.no/proff/kontaktinfo/; https://www.elmea.no/kontakt-oss/
 - **Key facts.** Org.nr 986 347 801. Vorsetøyveien 31, 8300 Svolvær. Historisk navn LOFOTKRAFT NETT AS (to 15.11.2021).
 - **Sources** (opened 2026-08-27).
   - https://www.elmea.no/storre-nettilknytning-eller-effektokning/
   - https://www.elmea.no/driftsmessig-forsvarlig-vurderinger/
   - https://www.elmea.no/melde-inn-store-framtidige-kapasitetsbehov/
   - https://www.elmea.no/proff/kontaktinfo/
+  - https://www.elmea.no/kontakt-oss/
   - https://plannett.nve.no/
   - https://virksomhet.brreg.no/nb/oppslag/enheter/986347801
   - https://data.brreg.no/enhetsregisteret/api/enheter/986347801
@@ -2410,14 +2411,15 @@ Sources below were opened 2026-08-27 from official pages and the named press/pro
   - Later analysis: refresh the latest Mdir year against the samfunnsdel klimamål.
 - **Public contact.**
   - Role / unit: postmottak. No klima unit inbox opened this pass.
-  - Email: `postmottak@lillehammer.kommune.no`
+  - Email: `postmottak@lillehammer.kommune.no`; `controllere@lillehammer.kommune.no` (printed on https://lillehammer.kommune.no/om-kommunen/organisasjon/kommuneokonomien/)
   - Phone: 61 05 05 00
   - Form/URL: https://lillehammer.kommune.no/nyheter/handlings-og-okonomiplan-2026-2029.19098.aspx
-- **Key facts.** Org.nr 945 578 564. Kommunenr. 3405.
+- **Key facts.** Org.nr 945 578 564. Kommunenr. 3405. Kommunestyret sak 90/2025, 11.12.2025.
 - **Sources** (opened 2026-08-27).
   - https://pub.framsikt.net/2026/lillehammer/bm-2026-hop_26-29_vedtak
   - https://pub.framsikt.net/2026/lillehammer/bm-2026-hop_26-29_vedtak/#/generic/summary/climatesummary
   - https://lillehammer.kommune.no/nyheter/handlings-og-okonomiplan-2026-2029.19098.aspx
+  - https://lillehammer.kommune.no/om-kommunen/organisasjon/kommuneokonomien/
   - https://data.brreg.no/enhetsregisteret/api/enheter/945578564
   - https://www.miljodirektoratet.no/tjenester/klimagassutslipp-kommuner/
 
@@ -2459,7 +2461,7 @@ Keep these notes in the living book. They are not leads.
 - 2026-08-27: Added Hamar kommune (vedtatt HØP klimabudsjett). Wave 7 mid-size closed. Still no outreach.
 - 2026-08-27: Added Askøy kommune (vedtatt slug bm-2026-vedtatt_budsjett; earlier skip was the forslag slug).
 - 2026-08-27: Added Horten kommune (vedtatt slug bm-2026-ohp_2026; earlier skip was the innstilling slug).
-- 2026-08-27: Added Sykehuset Sørlandet, Nordlandssykehuset, Vestall, Elmea, Halden and Lillehammer. Elmea has no invented inbox. Still no outreach.
+- 2026-08-27: Added Sykehuset Sørlandet, Nordlandssykehuset, Vestall, Elmea, Halden and Lillehammer. Elmea inboxes are page-printed (`kunde@` / `pal.martinussen@`). Still no leftover `firmapost@lofotkraft.no`. Lillehammer deepen: `controllere@` + sak 90/2025. Still no outreach.
 
 ---
 
