@@ -1959,6 +1959,39 @@ Backeparken. `pda methods` is not applicable: station names, not a
 numeric time series (`no observations matched entity/measure; available=[]`).
 Proof is `data/airquality_source_proof.json`.
 
+## Meteorologisk institutt Tidalwater source
+
+`pda ingest --source tidalwater` is another replaceable adapter. It lists printed
+collection GET paths on the official MET Tidalwater swagger
+`https://api.met.no/weatherapi/tidalwater/1.1/swagger`, capped at 10.
+Templated `{format}` paths and the root `/` path are skipped. Dataset ids
+are the last printed path segment. `access_path` is the swagger origin +
+printed `basePath` + path. License is the printed swagger CC BY 4.0 URL.
+Publisher stays null. This is not Metalerts (`--source met`), not Nowcast
+(`--source nowcast`), not Riksantikvaren MABYGIS
+(`--source riksantikvaren`), and not MET Airqualityforecast
+(`--source airquality`, now on main). `/available` stays unused for fetch
+in this slice: that printed path returns XML.
+
+```bash
+pda ingest --source tidalwater --db data/registry.sqlite --limit 10
+pda search locations --db data/registry.sqlite
+pda fetch --dataset tidalwater:locations --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored collection URL. Observation values are copied
+from printed GeoJSON feature `name`. License is the printed swagger
+CC BY 4.0 URL. Publisher stays null: the spec does not print a publisher.
+
+Live ingest 2026-08-27: 6 printed untemplated GET paths with a last-segment
+id (catalog prints 8 paths, 1 templated, 1 root). Live search `locations`
+returns `tidalwater:locations`. Live fetch GETs
+`https://api.met.no/weatherapi/tidalwater/1.1/locations` HTTP 200, 31
+location-name rows. Sample printed values: Andenes, Bergen, Oscarsborg.
+`pda methods` is not applicable: location names, not a numeric time series
+(`no observations matched entity/measure; available=[]`).
+Proof is `data/tidalwater_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
