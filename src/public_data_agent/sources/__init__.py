@@ -28,6 +28,7 @@ from public_data_agent.sources.npolar import NpolarSource
 from public_data_agent.sources.nve import NveMagasinSource
 from public_data_agent.sources.nxr import NxrSource
 from public_data_agent.sources.nytek import NytekSource
+from public_data_agent.sources.opencom import OpencomSource
 from public_data_agent.sources.portal import PortalSource
 from public_data_agent.sources.research import ResearchSource
 from public_data_agent.sources.sikt import SiktSource
@@ -79,6 +80,7 @@ SOURCE_IDS = (
     "aqua",
     "research",
     "portal",
+    "opencom",
 )
 
 
@@ -159,6 +161,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return ResearchSource()
     if source_id == "portal":
         return PortalSource()
+    if source_id == "opencom":
+        return OpencomSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -189,6 +193,7 @@ __all__ = [
     "NveMagasinSource",
     "NxrSource",
     "NytekSource",
+    "OpencomSource",
     "PortalSource",
     "ResearchSource",
     "SiktSource",

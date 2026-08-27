@@ -1672,6 +1672,38 @@ Segløygrunna, SØRVÆRET, VARHOLMEN, JAMNUNGEN.
 series (`no observations matched entity/measure; available=[]`).
 Proof is `data/portal_source_proof.json`.
 
+## Stavanger Opencom source
+
+`pda ingest --source opencom` is another replaceable adapter. It lists printed
+package names on the official Stavanger Opencom CKAN
+`https://opencom.no/api/3/action/package_list`, capped at 10. Dataset ids
+are those printed names. `access_path` is the catalog's own
+`/api/3/action/package_show?id=` action joined to the list origin. This is
+a different CKAN portal from `--source vegvesen` (Statens vegvesen
+Dataportalen) and `--source trondheim` (Trondheim Åpne Data).
+
+```bash
+pda ingest --source opencom --db data/registry.sqlite --limit 10
+pda search behovsprofil --db data/registry.sqlite
+pda fetch --dataset opencom:04682-behovsprofil-grunnlagsdata --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored `package_show` URL. Observation values are
+copied from printed resource `name` when present. Publisher is copied from
+printed `organization.title` when present. License is copied from printed
+`license_url` when it is an http(s) URI. The first printed packages store
+`license_id` only, so license stays null. No license URI is invented.
+
+Live ingest 2026-08-27: 10 printed package names (catalog prints 360,
+cap 10). Live search `behovsprofil` returns
+`opencom:04682-behovsprofil-grunnlagsdata`. Live fetch GETs
+`https://opencom.no/api/3/action/package_show?id=04682-behovsprofil-grunnlagsdata`
+HTTP 200, 9 resource-name rows. Sample printed values: 04682_2010.csv,
+04682_2011.csv, 04682_2012.csv, 04682_2013.csv, 04682_2014.csv.
+`pda methods` is not applicable: resource names, not a numeric time
+series (`no observations matched entity/measure; available=[]`).
+Proof is `data/opencom_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
