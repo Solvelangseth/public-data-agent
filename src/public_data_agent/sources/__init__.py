@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from public_data_agent.sources.airquality import AirqualitySource
 from public_data_agent.sources.aqua import AquaSource
 from public_data_agent.sources.baf import BafSource
 from public_data_agent.sources.base import CatalogSource, SourceBase
@@ -95,6 +96,7 @@ SOURCE_IDS = (
     "hoydedata",
     "nowcast",
     "riksantikvaren",
+    "airquality",
 )
 
 
@@ -191,10 +193,13 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return NowcastSource()
     if source_id == "riksantikvaren":
         return RiksantikvarenSource()
+    if source_id == "airquality":
+        return AirqualitySource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
 __all__ = [
+    "AirqualitySource",
     "AquaSource",
     "BafSource",
     "BrregEnhetsregisterSource",
