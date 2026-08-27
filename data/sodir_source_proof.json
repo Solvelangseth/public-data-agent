@@ -1,0 +1,174 @@
+{
+  "produced_at": "2026-08-27T17:32:20Z",
+  "bound": {
+    "list_api": "https://factmaps.sodir.no/api/rest/services/DataService/Data/FeatureServer?f=json",
+    "walk": "copy printed layer names from the official DataService FeatureServer layers array; native ids are those printed names; access_path is the printed layer id joined to the FeatureServer origin with the same f=json format the list API uses; do not invent layer ids",
+    "cap": 10,
+    "how": "pda ingest --source sodir --limit 10. The official Sokkeldirektoratet FactMaps DataService FeatureServer prints 39 layer names. The adapter copies the first 10 printed names and joins each printed id to /{id}?f=json. GET uses the printed path with no invented query filters."
+  },
+  "discarded": [
+    {
+      "candidate": "Stavanger Opencom CKAN",
+      "url": "PR 92 --source opencom",
+      "why": "Already on main as --source opencom after PR 92 merge 3724c98. Do not re-add."
+    },
+    {
+      "candidate": "Fiskeridirektoratet Akvakultursøknader",
+      "url": "https://api.fiskeridir.no/aqua-portal-api-public/v3/api-docs",
+      "why": "Already on main as --source portal. Do not re-add."
+    },
+    {
+      "candidate": "Fiskeridirektoratet aqua-operations-public",
+      "url": "https://api.fiskeridir.no/aqua-operations-public/v3/api-docs",
+      "why": "HTTP 200 OpenAPI but the only printed path is templated GET /api/v1/joint-ops/{site-nr}. Not a collection catalog. Do not invent site numbers."
+    },
+    {
+      "candidate": "Kartverket kommuneinfo",
+      "url": "https://ws.geonorge.no/kommuneinfo/v1/openapi.json",
+      "why": "Already stored on main as geonorge:3fcce35c-759b-4c6e-adb9-f03478c6fb72. Do not re-add."
+    },
+    {
+      "candidate": "Brreg Frivillighetsregisteret root",
+      "url": "https://data.brreg.no/frivillighetsregisteret/api",
+      "why": "HTTP 404. Collection endpoints exist but the register does not print its own catalog root. Do not invent the catalog paths."
+    },
+    {
+      "candidate": "DFØ Kudos Public API",
+      "url": "https://kudos.dfo.no/api",
+      "why": "HTTP 200 welcome JSON only. openapi.json 404. /apne-data TLS handshake timed out."
+    },
+    {
+      "candidate": "Geonorge register API root",
+      "url": "https://register.geonorge.no/api",
+      "why": "HTTP 404. /api/register HTTP 500. Not a printed list API."
+    },
+    {
+      "candidate": "NVDB Les V3 OpenAPI",
+      "url": "https://nvdbapiles-v3.atlas.vegvesen.no/dokumentasjon/openapi.json",
+      "why": "Known skip: HTTP 400 User-Agent. Do not retry."
+    },
+    {
+      "candidate": "Vegvesen Trafikkdata swagger / trafikkdata-api",
+      "url": "https://trafikkdata.atlas.vegvesen.no/",
+      "why": "Known skip: swagger HTML-only; trafikkdata-api 410. Do not retry."
+    },
+    {
+      "candidate": "Kartverket Eiendom /geokoding",
+      "url": "https://api.kartverket.no/eiendom/v1/geokoding",
+      "why": "Known skip: HTTP 400 without matrikkel params. Search API, not a collection catalog. Do not retry."
+    },
+    {
+      "candidate": "Udir Statistikkbanken /data",
+      "url": "Udir Statistikkbanken /Eksport/{id}/data",
+      "why": "Known skip: requires invented filters. Do not retry."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source sodir --db /tmp/pda-sodir-proof/registry.sqlite --limit 10",
+    "listed": 10,
+    "inserted": 10,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "sodir:block",
+        "access_path": "https://factmaps.sodir.no/api/rest/services/DataService/Data/FeatureServer/1001?f=json"
+      },
+      {
+        "id": "sodir:quadrant",
+        "access_path": "https://factmaps.sodir.no/api/rest/services/DataService/Data/FeatureServer/1002?f=json"
+      },
+      {
+        "id": "sodir:sub_area",
+        "access_path": "https://factmaps.sodir.no/api/rest/services/DataService/Data/FeatureServer/1003?f=json"
+      },
+      {
+        "id": "sodir:sbm_block",
+        "access_path": "https://factmaps.sodir.no/api/rest/services/DataService/Data/FeatureServer/1004?f=json"
+      },
+      {
+        "id": "sodir:sbm_quadrant",
+        "access_path": "https://factmaps.sodir.no/api/rest/services/DataService/Data/FeatureServer/1005?f=json"
+      },
+      {
+        "id": "sodir:areastatus",
+        "access_path": "https://factmaps.sodir.no/api/rest/services/DataService/Data/FeatureServer/1100?f=json"
+      },
+      {
+        "id": "sodir:str_structuralelements",
+        "access_path": "https://factmaps.sodir.no/api/rest/services/DataService/Data/FeatureServer/2000?f=json"
+      },
+      {
+        "id": "sodir:str_domes",
+        "access_path": "https://factmaps.sodir.no/api/rest/services/DataService/Data/FeatureServer/2001?f=json"
+      },
+      {
+        "id": "sodir:str_faultsandboundaries",
+        "access_path": "https://factmaps.sodir.no/api/rest/services/DataService/Data/FeatureServer/2002?f=json"
+      },
+      {
+        "id": "sodir:str_sedimentboundaries",
+        "access_path": "https://factmaps.sodir.no/api/rest/services/DataService/Data/FeatureServer/2004?f=json"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search block --db /tmp/pda-sodir-proof/registry.sqlite --limit 5",
+    "query": "block",
+    "returned": 2,
+    "hit_id": "sodir:block",
+    "title": "block",
+    "source_id": "sodir"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset sodir:block --db /tmp/pda-sodir-proof/registry.sqlite",
+    "dataset": "sodir:block",
+    "table_id": "1001",
+    "access_path": "https://factmaps.sodir.no/api/rest/services/DataService/Data/FeatureServer/1001?f=json",
+    "request_url": "https://factmaps.sodir.no/api/rest/services/DataService/Data/FeatureServer/1001?f=json",
+    "http_status": 200,
+    "listed": 9,
+    "inserted": 9,
+    "license": null,
+    "publisher": "Norwegian Offshore Directorate",
+    "sample": [
+      {
+        "measure": "name",
+        "value": "OBJECTID"
+      },
+      {
+        "measure": "name",
+        "value": "blcName"
+      },
+      {
+        "measure": "name",
+        "value": "blcNpdidBlock"
+      },
+      {
+        "measure": "name",
+        "value": "blcArea"
+      },
+      {
+        "measure": "name",
+        "value": "qadName"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset sodir:block --table 1001 --entity \"\" --measure \"\" --db /tmp/pda-sodir-proof/registry.sqlite --out /tmp/pda-sodir-proof/methods",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "FactMaps layer 1001 prints field names. That is not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed FeatureServer layer names. access_path is https://factmaps.sodir.no/api/rest/services/DataService/Data/FeatureServer/1001?f=json, joined from the printed list origin and printed layer id 1001. No sodir id was written onto a geonorge, vegvesen, opencom, or datanorge row.",
+    "Publisher is the printed FeatureServer copyrightText. License is null. The list document does not print a license URL.",
+    "Original harvested FeatureServer metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "Opencom stays on PR 92. Kommuneinfo stays on Geonorge. This source does not re-implement either.",
+    "python3 -m pytest 400 passed, 1 skipped, 1 deselected."
+  ]
+}

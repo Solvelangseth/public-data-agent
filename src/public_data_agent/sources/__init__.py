@@ -32,6 +32,7 @@ from public_data_agent.sources.opencom import OpencomSource
 from public_data_agent.sources.portal import PortalSource
 from public_data_agent.sources.research import ResearchSource
 from public_data_agent.sources.sikt import SiktSource
+from public_data_agent.sources.sodir import SodirSource
 from public_data_agent.sources.oslo import OsloStatbankSource
 from public_data_agent.sources.ssb import SsbStatbankSource
 from public_data_agent.sources.statnett import StatnettDriftsdataSource
@@ -81,6 +82,7 @@ SOURCE_IDS = (
     "research",
     "portal",
     "opencom",
+    "sodir",
 )
 
 
@@ -163,6 +165,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return PortalSource()
     if source_id == "opencom":
         return OpencomSource()
+    if source_id == "sodir":
+        return SodirSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -197,6 +201,7 @@ __all__ = [
     "PortalSource",
     "ResearchSource",
     "SiktSource",
+    "SodirSource",
     "OsloStatbankSource",
     "SsbStatbankSource",
     "SOURCE_IDS",
