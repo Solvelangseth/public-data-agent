@@ -803,6 +803,27 @@ Live ingest 2026-08-27: 10 printed source ids. Live search
 numeric time series (`no period in dimensions or period field`).
 Proof is `data/fhi_source_proof.json`.
 
+## Mattilsynet Plantevernmidler source
+
+`pda ingest --source mattilsynet` is another replaceable adapter. It lists
+printed collection GET paths on the official Mattilsynet Plantevernmidler
+OpenAPI `https://api.plantevernmidler.mattilsynet.io/json`, capped at 10.
+Templated paths such as `/preparat/{id}` are skipped. Dataset ids are the
+printed last path segments. `access_path` is the joined collection URL.
+
+```bash
+pda ingest --source mattilsynet --db data/registry.sqlite --limit 10
+pda search plantevernmidler --db data/registry.sqlite
+pda fetch --dataset mattilsynet:hobby_preparater --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored collection URL. Observation values are copied
+from printed `navn`. License is copied from the printed OpenAPI
+`info.license.url` when present. Publisher is `Mattilsynet` only when that
+token is printed in `info.description`.
+
+Live proof will follow.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
