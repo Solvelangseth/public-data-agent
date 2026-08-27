@@ -5,9 +5,17 @@ import time
 import urllib.error
 import urllib.parse
 import urllib.request
+from dataclasses import dataclass
 from typing import Any
 
 USER_AGENT = "public-data-agent/0.1 (+https://github.com/Solvelangseth/public-data-agent)"
+
+
+@dataclass(frozen=True)
+class JsonResponse:
+    status: int
+    url: str
+    body: Any
 
 
 class RateLimiter:
@@ -49,7 +57,10 @@ class HttpClient:
         self.sleeper = sleeper
 
     def get_json(self, url: str, *, headers: dict[str, str] | None = None) -> Any:
-        return self._json("GET", url, headers=headers)
+        return self.request_json("GET", url, headers=headers).body
+
+    def get_json_response(self, url: str, *, headers: dict[str, str] | None = None) -> JsonResponse:
+        return self.request_json("GET", url, headers=headers)
 
     def post_json(
         self,
@@ -58,11 +69,30 @@ class HttpClient:
         *,
         headers: dict[str, str] | None = None,
     ) -> Any:
+        return self.post_json_response(url, body, headers=headers).body
+
+    def post_json_response(
+        self,
+        url: str,
+        body: Any,
+        *,
+        headers: dict[str, str] | None = None,
+    ) -> JsonResponse:
         data = json.dumps(body).encode("utf-8")
         extra = {"Content-Type": "application/json"}
         if headers:
             extra.update(headers)
-        return self._json("POST", url, data=data, headers=extra)
+        return self.request_json("POST", url, data=data, headers=extra)
+
+    def request_json(
+        self,
+        method: str,
+        url: str,
+        *,
+        data: bytes | None = None,
+        headers: dict[str, str] | None = None,
+    ) -> JsonResponse:
+        return self._json(method, url, data=data, headers=headers)
 
     def post_form(
         self,
@@ -75,7 +105,7 @@ class HttpClient:
         extra = {"Content-Type": "application/x-www-form-urlencoded"}
         if headers:
             extra.update(headers)
-        return self._json("POST", url, data=data, headers=extra)
+        return self._json("POST", url, data=data, headers=extra).body
 
     def _json(
         self,
@@ -95,10 +125,15 @@ class HttpClient:
             request = urllib.request.Request(url, data=data, headers=req_headers, method=method)
             try:
                 with urllib.request.urlopen(request, timeout=self.timeout) as response:
+                    status = int(response.status)
                     raw = response.read()
                 if not raw:
-                    return None
-                return json.loads(raw.decode("utf-8"))
+                    return JsonResponse(status=status, url=url, body=None)
+                return JsonResponse(
+                    status=status,
+                    url=url,
+                    body=json.loads(raw.decode("utf-8")),
+                )
             except urllib.error.HTTPError as exc:
                 last_error = exc
                 if exc.code == 429 or 500 <= exc.code <= 599:
