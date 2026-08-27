@@ -194,7 +194,8 @@
     "Ids are copied from printed swagger path last segments. access_path is swagger origin + printed basePath + path. No tidalwater id was written onto a met, nowcast, riksantikvaren, or datanorge row.",
     "License is the printed swagger CC BY 4.0 URL http://creativecommons.org/licenses/by/4.0. Publisher is null: the spec prints contact.name Developer Support, not a publisher.",
     "Original harvested swagger metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
-    "Riksantikvaren is now on main as --source riksantikvaren after PR 99. Nowcast stays --source nowcast. Metalerts stays --source met. Lane A Airqualityforecast stays PR 100.",
+    "Riksantikvaren is now on main as --source riksantikvaren after PR 99. Airqualityforecast is now on main as --source airquality after PR 100. Nowcast stays --source nowcast. Metalerts stays --source met.",
+    "Rebased onto origin/main after Airquality 100 merge 198f598. airquality adapter files were not edited.",
     "/available is a printed untemplated GET path and was ingested. Fetch in this slice uses /locations so XML is not parsed and no station filter is invented.",
     "python3 -m pytest 470 passed, 1 skipped, 1 deselected.",
     "Not a numeric time series with two or more periods."

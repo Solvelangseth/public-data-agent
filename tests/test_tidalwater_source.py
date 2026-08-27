@@ -164,6 +164,7 @@ def test_printed_license_url_copies_swagger_license() -> None:
 
 def test_tidalwater_is_a_registered_source() -> None:
     assert "tidalwater" in SOURCE_IDS
+    assert "airquality" in SOURCE_IDS
     source = build_source("tidalwater")
     assert isinstance(source, TidalwaterSource)
     assert source.source_id == "tidalwater"
