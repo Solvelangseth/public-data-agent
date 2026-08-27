@@ -1162,6 +1162,26 @@ Badeplasser i Trondheimsregionen, Badeplasser.
 (`no observations matched entity/measure; available=[]`).
 Proof is `data/trondheim_source_proof.json`.
 
+## Utdanningsdirektoratet Nasjonalt barnehageregister source
+
+`pda ingest --source nbr` is another replaceable adapter. It lists printed
+collection GET paths on the official Nasjonalt barnehageregister OpenAPI
+`https://data-nbr.udir.no/swagger/v3/swagger.json`, capped at 10. Templated
+paths such as `/v3/enhet/{orgnr}` are skipped. Dataset ids are the printed
+last path segments. `access_path` is the printed path joined to the OpenAPI
+document origin.
+
+```bash
+pda ingest --source nbr --db data/registry.sqlite --limit 10
+pda search barnehagekategorier --db data/registry.sqlite
+pda fetch --dataset nbr:barnehagekategorier --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored collection URL. Observation values are copied
+from printed `Navn`. License is copied from the printed OpenAPI
+`info.license.url` when present. Publisher stays null: the spec does not
+print a publisher name.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
