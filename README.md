@@ -1108,6 +1108,33 @@ Biota helkropp, Biota lever, Biota muskelvev, Biota mageinnhold.
 (`no observations matched entity/measure; available=[]`).
 Proof is `data/miljodir_source_proof.json`.
 
+## Oslo kommune Statistikkbank source
+
+`pda ingest --source oslo` is another replaceable adapter. It lists printed
+`type=t` tables on the official Oslo kommune PxWeb catalog
+`https://statistikkbanken.oslo.kommune.no/statbank/api/v1/no`, staying
+inside the printed `db1` / `Befolkning` subject and capped at 10.
+Dataset ids are the printed table ids. `access_path` is the printed
+folder URL plus the printed table id.
+
+```bash
+pda ingest --source oslo --db data/registry.sqlite --limit 10
+pda search BEF008 --db data/registry.sqlite
+pda fetch --dataset oslo:OK-BEF008.px --from-year 2024 --to-year 2026 \
+  --db data/registry.sqlite
+```
+
+`pda fetch` POSTs the stored PxWeb table URL. Observation values are
+copied from printed json-stat2 cells. License and publisher stay null:
+the table metadata does not print those fields.
+
+Live ingest 2026-08-27: 10 printed befolkning tables. Live search
+`BEF008` returns `oslo:OK-BEF008.px`. Live fetch POSTs
+`https://statistikkbanken.oslo.kommune.no/statbank/api/v1/no/db1/Befolkning/Folkemengde/OK-BEF008.px`
+HTTP 200, 12 cells for 2024-2026. Sample printed Oslo totals:
+717710, 724290, 728714. `pda methods` reads those stored numeric
+rows and returns YoY. Proof is `data/oslo_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists

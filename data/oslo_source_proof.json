@@ -1,0 +1,178 @@
+{
+  "produced_at": "2026-08-27T13:36:03Z",
+  "bound": {
+    "list_api": "https://statistikkbanken.oslo.kommune.no/statbank/api/v1/no",
+    "walk": "copy printed type=t table ids from the official Oslo PxWeb subject db1/Befolkning; quote printed folder names; do not invent table ids",
+    "cap": 10,
+    "how": "pda ingest --source oslo --limit 10. The official list API prints dbid=db1, then the printed Befolkning folder, then type=t items such as OK-BEF008.px. The adapter copies those printed ids joined to the printed folder URL."
+  },
+  "discarded": [
+    {
+      "candidate": "Miljødirektoratet Vannmiljø swagger",
+      "url": "https://vannmiljoapi.miljodirektoratet.no/swagger/docs/v1",
+      "why": "Already an open slice on PR 73 (cursor/next-norwegian-source-4641, --source miljodir). Do not re-implement Vannmiljø."
+    },
+    {
+      "candidate": "Norsk Polarinstitutt OGC Features collections",
+      "url": "https://geodata.npolar.no/ogc/features/v1/collections",
+      "why": "HTTP 404 HTML. Dataset search was already discarded on main as not a list-of-endpoints API."
+    },
+    {
+      "candidate": "NINA OGC Features collections",
+      "url": "https://geodata.nina.no/ogc/features/v1/collections",
+      "why": "HTTP 403 Cloudflare HTML challenge."
+    },
+    {
+      "candidate": "Landbruksdirektoratet swagger",
+      "url": "https://api.landbruksdirektoratet.no/swagger/v1/swagger.json",
+      "why": "HTTP 404 HTML."
+    },
+    {
+      "candidate": "DSB swagger",
+      "url": "https://api.dsb.no/swagger/v1/swagger.json",
+      "why": "DNS name not known."
+    },
+    {
+      "candidate": "Artsdatabanken swagger",
+      "url": "https://artsdatabanken.no/swagger/v1/swagger.json",
+      "why": "HTTP 404 HTML. /Api was already discarded on main."
+    },
+    {
+      "candidate": "Oslo Bysykkel GBFS",
+      "url": "https://gbfs.urbansharing.com/oslobysykkel.no/gbfs.json",
+      "why": "HTTP 200 printed feed list. Left unused after Oslo kommune Statistikkbank printed a no-auth PxWeb catalog with named befolkning tables."
+    },
+    {
+      "candidate": "NAV stillinger search",
+      "url": "https://arbeidsplassen.nav.no/stillinger/api/search",
+      "why": "HTTP 200 search hits. Not a list API that prints its own endpoints. NAV åpne data was already discarded on main."
+    },
+    {
+      "candidate": "MET locationforecast swagger",
+      "url": "https://api.met.no/weatherapi/locationforecast/2.0/swagger",
+      "why": "HTTP 200 swagger. Publisher is MET; Metalerts is already on main. Templated lat/lon paths need invented coordinates."
+    },
+    {
+      "candidate": "SSB Klass classifications",
+      "url": "https://data.ssb.no/api/klass/v1/classifications.json",
+      "why": "HTTP 200 HAL list. Publisher is SSB; Statbank/Klass is already on main."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source oslo --db /tmp/pda-oslo-proof/registry.sqlite --limit 10",
+    "listed": 10,
+    "inserted": 10,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "oslo:OK-BEF001.px",
+        "access_path": "https://statistikkbanken.oslo.kommune.no/statbank/api/v1/no/db1/Befolkning/Folkemengde/OK-BEF001.px"
+      },
+      {
+        "id": "oslo:OK-BEF002.px",
+        "access_path": "https://statistikkbanken.oslo.kommune.no/statbank/api/v1/no/db1/Befolkning/Folkemengde/OK-BEF002.px"
+      },
+      {
+        "id": "oslo:OK-BEF003.px",
+        "access_path": "https://statistikkbanken.oslo.kommune.no/statbank/api/v1/no/db1/Befolkning/Folkemengde/OK-BEF003.px"
+      },
+      {
+        "id": "oslo:OK-BEF004.px",
+        "access_path": "https://statistikkbanken.oslo.kommune.no/statbank/api/v1/no/db1/Befolkning/Folkemengde/OK-BEF004.px"
+      },
+      {
+        "id": "oslo:OK-BEF005.px",
+        "access_path": "https://statistikkbanken.oslo.kommune.no/statbank/api/v1/no/db1/Befolkning/Folkemengde/OK-BEF005.px"
+      },
+      {
+        "id": "oslo:OK-BEF006.px",
+        "access_path": "https://statistikkbanken.oslo.kommune.no/statbank/api/v1/no/db1/Befolkning/Folkemengde/OK-BEF006.px"
+      },
+      {
+        "id": "oslo:OK-BEF007.px",
+        "access_path": "https://statistikkbanken.oslo.kommune.no/statbank/api/v1/no/db1/Befolkning/Folkemengde/OK-BEF007.px"
+      },
+      {
+        "id": "oslo:OK-BEF008.px",
+        "access_path": "https://statistikkbanken.oslo.kommune.no/statbank/api/v1/no/db1/Befolkning/Folkemengde/OK-BEF008.px"
+      },
+      {
+        "id": "oslo:OK-BEF025.px",
+        "access_path": "https://statistikkbanken.oslo.kommune.no/statbank/api/v1/no/db1/Befolkning/Folkemengde/OK-BEF025.px"
+      },
+      {
+        "id": "oslo:OK-BEF010.px",
+        "access_path": "https://statistikkbanken.oslo.kommune.no/statbank/api/v1/no/db1/Befolkning/F%C3%B8dte%2C%20d%C3%B8de%20og%20forventet%20levealder/OK-BEF010.px"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search BEF008 --db /tmp/pda-oslo-proof/registry.sqlite --limit 5",
+    "query": "BEF008",
+    "returned": 1,
+    "hit_id": "oslo:OK-BEF008.px",
+    "title": "BEF008: Folkemengden i Oslo/Kristiania, antall personer og årlig endring, 1801-2026",
+    "source_id": "oslo"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset oslo:OK-BEF008.px --from-year 2024 --to-year 2026 --db /tmp/pda-oslo-proof/registry.sqlite",
+    "dataset": "oslo:OK-BEF008.px",
+    "table_id": "OK-BEF008.px",
+    "access_path": "https://statistikkbanken.oslo.kommune.no/statbank/api/v1/no/db1/Befolkning/Folkemengde/OK-BEF008.px",
+    "request_url": "https://statistikkbanken.oslo.kommune.no/statbank/api/v1/no/db1/Befolkning/Folkemengde/OK-BEF008.px",
+    "http_status": 200,
+    "listed": 12,
+    "inserted": 12,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "Folkemengden i alt (antall personer)",
+        "value": 717710,
+        "dimensions": {
+          "år": "2024",
+          "geografisk område": "Oslo (Kristiania og Aker) i alt"
+        }
+      },
+      {
+        "measure": "Folkemengden i alt (antall personer)",
+        "value": 724290,
+        "dimensions": {
+          "år": "2025",
+          "geografisk område": "Oslo (Kristiania og Aker) i alt"
+        }
+      },
+      {
+        "measure": "Folkemengden i alt (antall personer)",
+        "value": 728714,
+        "dimensions": {
+          "år": "2026",
+          "geografisk område": "Oslo (Kristiania og Aker) i alt"
+        }
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset oslo:OK-BEF008.px --table OK-BEF008.px --entity \"\" --measure \"\" --db /tmp/pda-oslo-proof/registry.sqlite --out /tmp/pda-oslo-proof/methods",
+    "applicable": true,
+    "exit_code": 0,
+    "rows": 12,
+    "why": "OK-BEF008 prints numeric population and yearly-change cells with a year dimension. methods.derive computed YoY from stored rows. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1,
+    "sample_yoy": {
+      "entity": "Oslo (Kristiania og Aker) i alt",
+      "measure": "Folkemengden i alt (antall personer)",
+      "period": "2025",
+      "value": 724290.0,
+      "yoy_growth": 0.009168048376085048
+    }
+  },
+  "notes": [
+    "Ids are copied from the printed PxWeb list item id. access_path is the printed folder URL plus the printed table id. Folder names with spaces are quoted. No Oslo id was written onto a datanorge row.",
+    "Fetch POSTs the stored table URL. Observation values are printed json-stat2 cells. License and publisher stay null: the PxWeb metadata does not print those fields.",
+    "Miljødirektoratet Vannmiljø stayed on PR 73. This source does not re-implement it. NIBIO stayed on main (PR 72)."
+  ]
+}
