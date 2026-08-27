@@ -40,6 +40,7 @@ from public_data_agent.sources.nxr import NxrSource
 from public_data_agent.sources.nytek import NytekSource
 from public_data_agent.sources.oceanforecast import OceanforecastSource
 from public_data_agent.sources.opencom import OpencomSource
+from public_data_agent.sources.polarsatellite import PolarsatelliteSource
 from public_data_agent.sources.portal import PortalSource
 from public_data_agent.sources.radar import RadarSource
 from public_data_agent.sources.research import ResearchSource
@@ -123,6 +124,7 @@ SOURCE_IDS = (
     "geosatellite",
     "metgm",
     "subjectiveforecast",
+    "polarsatellite",
 )
 
 
@@ -247,6 +249,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return MetgmSource()
     if source_id == "subjectiveforecast":
         return SubjectiveforecastSource()
+    if source_id == "polarsatellite":
+        return PolarsatelliteSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -289,6 +293,7 @@ __all__ = [
     "NytekSource",
     "OceanforecastSource",
     "OpencomSource",
+    "PolarsatelliteSource",
     "PortalSource",
     "RadarSource",
     "ResearchSource",
