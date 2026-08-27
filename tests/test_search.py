@@ -374,6 +374,75 @@ def test_search_pack_emits_tokens_and_search_report_hits(tmp_path: Path, capsys)
     assert json.loads(out.read_text(encoding="utf-8"))["question_count"] == 2
 
 
+def test_follow_up_ranks_uncovered_topic_above_place_title_flood(tmp_path: Path) -> None:
+    payloads = [
+        {
+            "id": "11111111-1111-4111-8111-111111111111",
+            "uri": "https://example.org/ortofoto-fosen-sør",
+            "type": "datasets",
+            "title": {"nb": "Ortofoto Fosen sør 2017"},
+            "description": {"nb": "flyfoto"},
+            "keyword": [{"nb": "fosen"}],
+            "harvest": {
+                "modified": "2026-01-01T00:00:00Z",
+                "firstHarvested": "2026-01-01T00:00:00Z",
+            },
+        },
+        {
+            "id": "22222222-2222-4222-8222-222222222222",
+            "uri": "https://example.org/ortofoto-indre-fosen",
+            "type": "datasets",
+            "title": {"nb": "Ortofoto Indre Fosen 2018"},
+            "description": {"nb": "flyfoto"},
+            "keyword": [{"nb": "fosen"}],
+            "harvest": {
+                "modified": "2026-01-01T00:00:00Z",
+                "firstHarvested": "2026-01-01T00:00:00Z",
+            },
+        },
+        {
+            "id": "33333333-3333-4333-8333-333333333333",
+            "uri": "https://example.org/ortofoto-fosen-2016",
+            "type": "datasets",
+            "title": {"nb": "Ortofoto Fosen 2016"},
+            "description": {"nb": "flyfoto"},
+            "keyword": [{"nb": "fosen"}],
+            "harvest": {
+                "modified": "2026-01-01T00:00:00Z",
+                "firstHarvested": "2026-01-01T00:00:00Z",
+            },
+        },
+        {
+            "id": "44444444-4444-4444-8444-444444444444",
+            "uri": "https://example.org/vindkraftverk",
+            "type": "datasets",
+            "title": {"nb": "Vindkraftverk"},
+            "description": {"nb": "vindkraft"},
+            "keyword": [],
+            "harvest": {
+                "modified": "2026-01-01T00:00:00Z",
+                "firstHarvested": "2026-01-01T00:00:00Z",
+            },
+        },
+    ]
+    registry = Registry(tmp_path / "registry.sqlite")
+    harvest(registry, FixtureSource(payloads))
+    topic_id = "fixture:44444444-4444-4444-8444-444444444444"
+    report = search_report(registry, "vindkraft på fosen")
+    ids = [hit.dataset_id for hit in report.hits]
+    topic = next(hit for hit in report.hits if hit.dataset_id == topic_id)
+    assert topic_id in ids[:2]
+    assert {match.token for match in topic.matches} == {"vindkraft"}
+    assert "description matched vindkraft" in topic.why
+    assert any(
+        (hit.title or "").startswith("Ortofoto")
+        and {match.token for match in hit.matches} == {"fosen"}
+        for hit in report.hits
+    )
+    assert not all((hit.title or "").startswith("Ortofoto") for hit in report.hits)
+    registry.close()
+
+
 def test_live_prompt_pack_queries_are_not_gold_queries() -> None:
     gold = json.loads(Path("data/benchmark_questions.json").read_text(encoding="utf-8"))
     pack = json.loads(Path("data/live_prompt_pack.json").read_text(encoding="utf-8"))
