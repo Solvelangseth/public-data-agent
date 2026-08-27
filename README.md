@@ -12,15 +12,17 @@ system finds the right data for you.
 
 ## Current status
 
-Milestone 1 through 9 are in this repo: a local SQLite dataset registry, ingest from
+Milestone 1 through 10 are in this repo: a local SQLite dataset registry, ingest from
 Data.norge / Felles datakatalog, token-overlap search over that file, deterministic
 enrichment in a separate `enrichments` table, a sourced search benchmark,
 AND-decomposition of multi-token queries, a coverage report after retrieval,
-observation-row fetch from two public APIs, and one cross-source join.
+observation-row fetch from two public APIs, one cross-source join, and one
+natural-language ask path.
 
 Discovery MVP is milestones 1 through 6. Milestone 7 fetches Oslo PxWeb cells.
 Milestone 8 fetches SSB Klass classification rows. Milestone 9 joins those
-Klass codes to a national befolkning table. UI and MCP are later.
+Klass codes to a national befolkning table. Milestone 10 answers one Oslo-bydel
+question from that join. UI and MCP are later.
 Measured gaps that we are not fixing in that slice live in [GAPS.md](GAPS.md).
 
 Data.norge is the first ingest source, not the product.
@@ -527,6 +529,38 @@ Live run 2026-08-27: both HTTP 200, 18 joined rows, no auth. Sample values
 from the responses: `030101` Gamle Oslo 64920, `030102` Grünerløkka 67039.
 `030116` Sentrum, `030117` Marka, and `030199` are null in the 11763 body.
 A second run was unchanged=18. Proof is `data/join_proof.json`.
+
+This milestone does not add a UI or MCP.
+
+## Milestone 10: one natural-language path
+
+Question in. Then search, join, a YoY rate, and an answer with sources.
+The demo question is exact:
+
+`Hvilke Oslo-bydeler er størst og hvilke vokser mest?`
+
+```bash
+pda ask "Hvilke Oslo-bydeler er størst og hvilke vokser mest?" \
+  --db data/registry.sqlite --out data/ask_proof.json
+```
+
+Discovery calls existing `pda search` / `search_report`. Search.py is not
+edited. Fetch/join reuses Milestone 9 `pda join` for Klass 1168 and SSB 11763
+for 2024 and 2025. YoY calls `methods.derive.derive_yoy` from PR 13 on main.
+This slice does not reimplement the rate.
+
+Size is latest-year population from the joined cells. Growth is
+`(v_t - v_{t-1}) / v_{t-1}` for the same bydel code. Null populations stay
+null. No guessed numbers.
+
+Each ranked row cites publisher, license, access path, request URL, join key,
+and why the dataset was picked.
+
+Live run 2026-08-27: both years HTTP 200, 36 joined rows (18+18). Largest
+2025 is Grünerløkka 67039, then Gamle Oslo 64920. Fastest YoY 2024-2025 is
+Nordre Aker 0.0184, then Bjerke 0.0131. Search ran and returned 10 hits.
+Those hits matched `og`. Klass and 11763 were still used because they are
+the M9 pair that shares `bydel_code`. Proof is `data/ask_proof.json`.
 
 This milestone does not add a UI or MCP.
 

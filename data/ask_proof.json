@@ -1,0 +1,1225 @@
+{
+  "produced_at": "2026-08-27T08:11:33Z",
+  "command": "pda ask \"Hvilke Oslo-bydeler er størst og hvilke vokser mest?\" --year 2025 --prior-year 2024 --db data/registry.sqlite --out data/ask_proof.json",
+  "question": "Hvilke Oslo-bydeler er størst og hvilke vokser mest?",
+  "join_key": "bydel_code",
+  "latest_year": "2025",
+  "prior_year": "2024",
+  "discovery": {
+    "method": "pda search / search_report",
+    "returned": 10,
+    "hits": [
+      {
+        "dataset_id": "datanorge:265a14e9-39b4-3324-a043-81a59d05e097",
+        "title": "Aktsomhetskart for jord- og flomskred",
+        "relevance": 22,
+        "why": {
+          "summary": "title matched og; keyword matched og; theme matched og; description matched og",
+          "matches": [
+            {
+              "field": "title",
+              "token": "og",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "og",
+              "weight": 5
+            },
+            {
+              "field": "theme",
+              "token": "og",
+              "weight": 5
+            },
+            {
+              "field": "description",
+              "token": "og",
+              "weight": 2
+            }
+          ],
+          "method": "token overlap; weights title=10, keyword=5, theme=5, description=2",
+          "requirements": null
+        }
+      },
+      {
+        "dataset_id": "datanorge:29b0454e-9d27-3be9-b754-7e493100b6b7",
+        "title": "Forslag budsjett og økonomiplan 2012-2015 for Bergen kommune",
+        "relevance": 22,
+        "why": {
+          "summary": "title matched og; keyword matched og; theme matched og; description matched og",
+          "matches": [
+            {
+              "field": "title",
+              "token": "og",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "og",
+              "weight": 5
+            },
+            {
+              "field": "theme",
+              "token": "og",
+              "weight": 5
+            },
+            {
+              "field": "description",
+              "token": "og",
+              "weight": 2
+            }
+          ],
+          "method": "token overlap; weights title=10, keyword=5, theme=5, description=2",
+          "requirements": null
+        }
+      },
+      {
+        "dataset_id": "datanorge:0fc39f00-97d2-34b4-9a9c-7acc606bb016",
+        "title": "Forsvarets skyte- og øvingsfelt i sjø",
+        "relevance": 22,
+        "why": {
+          "summary": "title matched og; keyword matched og; theme matched og; description matched og",
+          "matches": [
+            {
+              "field": "title",
+              "token": "og",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "og",
+              "weight": 5
+            },
+            {
+              "field": "theme",
+              "token": "og",
+              "weight": 5
+            },
+            {
+              "field": "description",
+              "token": "og",
+              "weight": 2
+            }
+          ],
+          "method": "token overlap; weights title=10, keyword=5, theme=5, description=2",
+          "requirements": null
+        }
+      },
+      {
+        "dataset_id": "datanorge:66bf7840-a46b-32c1-8ff6-6a85abb53295",
+        "title": "Forsvarets skyte- og øvingsfelt land",
+        "relevance": 22,
+        "why": {
+          "summary": "title matched og; keyword matched og; theme matched og; description matched og",
+          "matches": [
+            {
+              "field": "title",
+              "token": "og",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "og",
+              "weight": 5
+            },
+            {
+              "field": "theme",
+              "token": "og",
+              "weight": 5
+            },
+            {
+              "field": "description",
+              "token": "og",
+              "weight": 2
+            }
+          ],
+          "method": "token overlap; weights title=10, keyword=5, theme=5, description=2",
+          "requirements": null
+        }
+      },
+      {
+        "dataset_id": "datanorge:0d3026c4-f8bd-336b-ac63-efa1fb23d5da",
+        "title": "Hav og is - Iskart (shapefil)",
+        "relevance": 22,
+        "why": {
+          "summary": "title matched og; keyword matched og; theme matched og; description matched og",
+          "matches": [
+            {
+              "field": "title",
+              "token": "og",
+              "weight": 10
+            },
+            {
+              "field": "keyword",
+              "token": "og",
+              "weight": 5
+            },
+            {
+              "field": "theme",
+              "token": "og",
+              "weight": 5
+            },
+            {
+              "field": "description",
+              "token": "og",
+              "weight": 2
+            }
+          ],
+          "method": "token overlap; weights title=10, keyword=5, theme=5, description=2",
+          "requirements": null
+        }
+      }
+    ]
+  },
+  "why_datasets": {
+    "klass": "Bydelsinndeling is already in the registry with a working Klass GET. Milestone 9 joined it to SSB 11763 on exact bydel_code.",
+    "ssb_11763": "Table 11763 is a public no-auth SSB PxWeb befolkning/bydel table. Its Region codes 030101-030117 and 030199 are the same strings Klass 1168 stores. 07459 and 11763 are both absent from stored access_path values.",
+    "not_m7_m8": "OK-BEF008 is Oslo city totals with no bydel or kommune code. Klass 1168 is classification names keyed by 0301xx. Those two do not share a key to a metric.",
+    "not_07459": "07459 is live at data.ssb.no/api/v0/no/table/07459 and has kommune 0301, but it is still not an access_path in the registry and it has no bydel codes. Joining one Oslo total onto 42 bydels is the same glue the milestone forbids.",
+    "methods": "PR 13 is on main. YoY is methods.derive.derive_yoy. This slice calls that function and does not reimplement the rate."
+  },
+  "joins": [
+    {
+      "year": "2024",
+      "left_request_url": "https://data.ssb.no/api/klass/v1/versions/1168.json",
+      "right_request_url": "https://data.ssb.no/api/v0/no/table/11763",
+      "left_http_status": 200,
+      "right_http_status": 200,
+      "listed": 18
+    },
+    {
+      "year": "2025",
+      "left_request_url": "https://data.ssb.no/api/klass/v1/versions/1168.json",
+      "right_request_url": "https://data.ssb.no/api/v0/no/table/11763",
+      "left_http_status": 200,
+      "right_http_status": 200,
+      "listed": 18
+    }
+  ],
+  "joined_rows": 36,
+  "largest": [
+    {
+      "rank": 1,
+      "bydel_code": "030102",
+      "name": "Grünerløkka",
+      "year": "2025",
+      "population": 67039,
+      "join_key": "bydel_code",
+      "why_matched": "exact bydel_code in SSB 11763 Region and Klass classificationItems.code",
+      "sources": [
+        {
+          "dataset_id": "datanorge:0c89041e-ae88-32ef-a765-8e1ccbd64fdd",
+          "title": "Bydelsinndeling",
+          "publisher_name": "STATISTISK SENTRALBYRÅ",
+          "license": "http://publications.europa.eu/resource/authority/licence/NLOD_2_0",
+          "access_path": "https://data.ssb.no/api/klass/v1/versions/1168.json",
+          "request_url": "https://data.ssb.no/api/klass/v1/versions/1168.json",
+          "http_status": 200,
+          "why_picked": "Bydelsinndeling is already in the registry with a working Klass GET. Milestone 9 joined it to SSB 11763 on exact bydel_code."
+        },
+        {
+          "dataset_id": "ssb:11763",
+          "title": "11763: Folkemengde 31.12., etter alder, region, statistikkvariabel og år",
+          "publisher_name": "Statistisk sentralbyrå",
+          "license": null,
+          "access_path": "https://data.ssb.no/api/v0/no/table/11763",
+          "request_url": "https://data.ssb.no/api/v0/no/table/11763",
+          "http_status": 200,
+          "why_picked": "Table 11763 is a public no-auth SSB PxWeb befolkning/bydel table. Its Region codes 030101-030117 and 030199 are the same strings Klass 1168 stores. 07459 and 11763 are both absent from stored access_path values."
+        }
+      ]
+    },
+    {
+      "rank": 2,
+      "bydel_code": "030101",
+      "name": "Gamle Oslo",
+      "year": "2025",
+      "population": 64920,
+      "join_key": "bydel_code",
+      "why_matched": "exact bydel_code in SSB 11763 Region and Klass classificationItems.code",
+      "sources": [
+        {
+          "dataset_id": "datanorge:0c89041e-ae88-32ef-a765-8e1ccbd64fdd",
+          "title": "Bydelsinndeling",
+          "publisher_name": "STATISTISK SENTRALBYRÅ",
+          "license": "http://publications.europa.eu/resource/authority/licence/NLOD_2_0",
+          "access_path": "https://data.ssb.no/api/klass/v1/versions/1168.json",
+          "request_url": "https://data.ssb.no/api/klass/v1/versions/1168.json",
+          "http_status": 200,
+          "why_picked": "Bydelsinndeling is already in the registry with a working Klass GET. Milestone 9 joined it to SSB 11763 on exact bydel_code."
+        },
+        {
+          "dataset_id": "ssb:11763",
+          "title": "11763: Folkemengde 31.12., etter alder, region, statistikkvariabel og år",
+          "publisher_name": "Statistisk sentralbyrå",
+          "license": null,
+          "access_path": "https://data.ssb.no/api/v0/no/table/11763",
+          "request_url": "https://data.ssb.no/api/v0/no/table/11763",
+          "http_status": 200,
+          "why_picked": "Table 11763 is a public no-auth SSB PxWeb befolkning/bydel table. Its Region codes 030101-030117 and 030199 are the same strings Klass 1168 stores. 07459 and 11763 are both absent from stored access_path values."
+        }
+      ]
+    },
+    {
+      "rank": 3,
+      "bydel_code": "030105",
+      "name": "Frogner",
+      "year": "2025",
+      "population": 60321,
+      "join_key": "bydel_code",
+      "why_matched": "exact bydel_code in SSB 11763 Region and Klass classificationItems.code",
+      "sources": [
+        {
+          "dataset_id": "datanorge:0c89041e-ae88-32ef-a765-8e1ccbd64fdd",
+          "title": "Bydelsinndeling",
+          "publisher_name": "STATISTISK SENTRALBYRÅ",
+          "license": "http://publications.europa.eu/resource/authority/licence/NLOD_2_0",
+          "access_path": "https://data.ssb.no/api/klass/v1/versions/1168.json",
+          "request_url": "https://data.ssb.no/api/klass/v1/versions/1168.json",
+          "http_status": 200,
+          "why_picked": "Bydelsinndeling is already in the registry with a working Klass GET. Milestone 9 joined it to SSB 11763 on exact bydel_code."
+        },
+        {
+          "dataset_id": "ssb:11763",
+          "title": "11763: Folkemengde 31.12., etter alder, region, statistikkvariabel og år",
+          "publisher_name": "Statistisk sentralbyrå",
+          "license": null,
+          "access_path": "https://data.ssb.no/api/v0/no/table/11763",
+          "request_url": "https://data.ssb.no/api/v0/no/table/11763",
+          "http_status": 200,
+          "why_picked": "Table 11763 is a public no-auth SSB PxWeb befolkning/bydel table. Its Region codes 030101-030117 and 030199 are the same strings Klass 1168 stores. 07459 and 11763 are both absent from stored access_path values."
+        }
+      ]
+    },
+    {
+      "rank": 4,
+      "bydel_code": "030108",
+      "name": "Nordre Aker",
+      "year": "2025",
+      "population": 57017,
+      "join_key": "bydel_code",
+      "why_matched": "exact bydel_code in SSB 11763 Region and Klass classificationItems.code",
+      "sources": [
+        {
+          "dataset_id": "datanorge:0c89041e-ae88-32ef-a765-8e1ccbd64fdd",
+          "title": "Bydelsinndeling",
+          "publisher_name": "STATISTISK SENTRALBYRÅ",
+          "license": "http://publications.europa.eu/resource/authority/licence/NLOD_2_0",
+          "access_path": "https://data.ssb.no/api/klass/v1/versions/1168.json",
+          "request_url": "https://data.ssb.no/api/klass/v1/versions/1168.json",
+          "http_status": 200,
+          "why_picked": "Bydelsinndeling is already in the registry with a working Klass GET. Milestone 9 joined it to SSB 11763 on exact bydel_code."
+        },
+        {
+          "dataset_id": "ssb:11763",
+          "title": "11763: Folkemengde 31.12., etter alder, region, statistikkvariabel og år",
+          "publisher_name": "Statistisk sentralbyrå",
+          "license": null,
+          "access_path": "https://data.ssb.no/api/v0/no/table/11763",
+          "request_url": "https://data.ssb.no/api/v0/no/table/11763",
+          "http_status": 200,
+          "why_picked": "Table 11763 is a public no-auth SSB PxWeb befolkning/bydel table. Its Region codes 030101-030117 and 030199 are the same strings Klass 1168 stores. 07459 and 11763 are both absent from stored access_path values."
+        }
+      ]
+    },
+    {
+      "rank": 5,
+      "bydel_code": "030114",
+      "name": "Nordstrand",
+      "year": "2025",
+      "population": 55286,
+      "join_key": "bydel_code",
+      "why_matched": "exact bydel_code in SSB 11763 Region and Klass classificationItems.code",
+      "sources": [
+        {
+          "dataset_id": "datanorge:0c89041e-ae88-32ef-a765-8e1ccbd64fdd",
+          "title": "Bydelsinndeling",
+          "publisher_name": "STATISTISK SENTRALBYRÅ",
+          "license": "http://publications.europa.eu/resource/authority/licence/NLOD_2_0",
+          "access_path": "https://data.ssb.no/api/klass/v1/versions/1168.json",
+          "request_url": "https://data.ssb.no/api/klass/v1/versions/1168.json",
+          "http_status": 200,
+          "why_picked": "Bydelsinndeling is already in the registry with a working Klass GET. Milestone 9 joined it to SSB 11763 on exact bydel_code."
+        },
+        {
+          "dataset_id": "ssb:11763",
+          "title": "11763: Folkemengde 31.12., etter alder, region, statistikkvariabel og år",
+          "publisher_name": "Statistisk sentralbyrå",
+          "license": null,
+          "access_path": "https://data.ssb.no/api/v0/no/table/11763",
+          "request_url": "https://data.ssb.no/api/v0/no/table/11763",
+          "http_status": 200,
+          "why_picked": "Table 11763 is a public no-auth SSB PxWeb befolkning/bydel table. Its Region codes 030101-030117 and 030199 are the same strings Klass 1168 stores. 07459 and 11763 are both absent from stored access_path values."
+        }
+      ]
+    },
+    {
+      "rank": 6,
+      "bydel_code": "030107",
+      "name": "Vestre Aker",
+      "year": "2025",
+      "population": 53304,
+      "join_key": "bydel_code",
+      "why_matched": "exact bydel_code in SSB 11763 Region and Klass classificationItems.code",
+      "sources": [
+        {
+          "dataset_id": "datanorge:0c89041e-ae88-32ef-a765-8e1ccbd64fdd",
+          "title": "Bydelsinndeling",
+          "publisher_name": "STATISTISK SENTRALBYRÅ",
+          "license": "http://publications.europa.eu/resource/authority/licence/NLOD_2_0",
+          "access_path": "https://data.ssb.no/api/klass/v1/versions/1168.json",
+          "request_url": "https://data.ssb.no/api/klass/v1/versions/1168.json",
+          "http_status": 200,
+          "why_picked": "Bydelsinndeling is already in the registry with a working Klass GET. Milestone 9 joined it to SSB 11763 on exact bydel_code."
+        },
+        {
+          "dataset_id": "ssb:11763",
+          "title": "11763: Folkemengde 31.12., etter alder, region, statistikkvariabel og år",
+          "publisher_name": "Statistisk sentralbyrå",
+          "license": null,
+          "access_path": "https://data.ssb.no/api/v0/no/table/11763",
+          "request_url": "https://data.ssb.no/api/v0/no/table/11763",
+          "http_status": 200,
+          "why_picked": "Table 11763 is a public no-auth SSB PxWeb befolkning/bydel table. Its Region codes 030101-030117 and 030199 are the same strings Klass 1168 stores. 07459 and 11763 are both absent from stored access_path values."
+        }
+      ]
+    },
+    {
+      "rank": 7,
+      "bydel_code": "030113",
+      "name": "Østensjø",
+      "year": "2025",
+      "population": 52374,
+      "join_key": "bydel_code",
+      "why_matched": "exact bydel_code in SSB 11763 Region and Klass classificationItems.code",
+      "sources": [
+        {
+          "dataset_id": "datanorge:0c89041e-ae88-32ef-a765-8e1ccbd64fdd",
+          "title": "Bydelsinndeling",
+          "publisher_name": "STATISTISK SENTRALBYRÅ",
+          "license": "http://publications.europa.eu/resource/authority/licence/NLOD_2_0",
+          "access_path": "https://data.ssb.no/api/klass/v1/versions/1168.json",
+          "request_url": "https://data.ssb.no/api/klass/v1/versions/1168.json",
+          "http_status": 200,
+          "why_picked": "Bydelsinndeling is already in the registry with a working Klass GET. Milestone 9 joined it to SSB 11763 on exact bydel_code."
+        },
+        {
+          "dataset_id": "ssb:11763",
+          "title": "11763: Folkemengde 31.12., etter alder, region, statistikkvariabel og år",
+          "publisher_name": "Statistisk sentralbyrå",
+          "license": null,
+          "access_path": "https://data.ssb.no/api/v0/no/table/11763",
+          "request_url": "https://data.ssb.no/api/v0/no/table/11763",
+          "http_status": 200,
+          "why_picked": "Table 11763 is a public no-auth SSB PxWeb befolkning/bydel table. Its Region codes 030101-030117 and 030199 are the same strings Klass 1168 stores. 07459 and 11763 are both absent from stored access_path values."
+        }
+      ]
+    },
+    {
+      "rank": 8,
+      "bydel_code": "030112",
+      "name": "Alna",
+      "year": "2025",
+      "population": 50793,
+      "join_key": "bydel_code",
+      "why_matched": "exact bydel_code in SSB 11763 Region and Klass classificationItems.code",
+      "sources": [
+        {
+          "dataset_id": "datanorge:0c89041e-ae88-32ef-a765-8e1ccbd64fdd",
+          "title": "Bydelsinndeling",
+          "publisher_name": "STATISTISK SENTRALBYRÅ",
+          "license": "http://publications.europa.eu/resource/authority/licence/NLOD_2_0",
+          "access_path": "https://data.ssb.no/api/klass/v1/versions/1168.json",
+          "request_url": "https://data.ssb.no/api/klass/v1/versions/1168.json",
+          "http_status": 200,
+          "why_picked": "Bydelsinndeling is already in the registry with a working Klass GET. Milestone 9 joined it to SSB 11763 on exact bydel_code."
+        },
+        {
+          "dataset_id": "ssb:11763",
+          "title": "11763: Folkemengde 31.12., etter alder, region, statistikkvariabel og år",
+          "publisher_name": "Statistisk sentralbyrå",
+          "license": null,
+          "access_path": "https://data.ssb.no/api/v0/no/table/11763",
+          "request_url": "https://data.ssb.no/api/v0/no/table/11763",
+          "http_status": 200,
+          "why_picked": "Table 11763 is a public no-auth SSB PxWeb befolkning/bydel table. Its Region codes 030101-030117 and 030199 are the same strings Klass 1168 stores. 07459 and 11763 are both absent from stored access_path values."
+        }
+      ]
+    },
+    {
+      "rank": 9,
+      "bydel_code": "030103",
+      "name": "Sagene",
+      "year": "2025",
+      "population": 48325,
+      "join_key": "bydel_code",
+      "why_matched": "exact bydel_code in SSB 11763 Region and Klass classificationItems.code",
+      "sources": [
+        {
+          "dataset_id": "datanorge:0c89041e-ae88-32ef-a765-8e1ccbd64fdd",
+          "title": "Bydelsinndeling",
+          "publisher_name": "STATISTISK SENTRALBYRÅ",
+          "license": "http://publications.europa.eu/resource/authority/licence/NLOD_2_0",
+          "access_path": "https://data.ssb.no/api/klass/v1/versions/1168.json",
+          "request_url": "https://data.ssb.no/api/klass/v1/versions/1168.json",
+          "http_status": 200,
+          "why_picked": "Bydelsinndeling is already in the registry with a working Klass GET. Milestone 9 joined it to SSB 11763 on exact bydel_code."
+        },
+        {
+          "dataset_id": "ssb:11763",
+          "title": "11763: Folkemengde 31.12., etter alder, region, statistikkvariabel og år",
+          "publisher_name": "Statistisk sentralbyrå",
+          "license": null,
+          "access_path": "https://data.ssb.no/api/v0/no/table/11763",
+          "request_url": "https://data.ssb.no/api/v0/no/table/11763",
+          "http_status": 200,
+          "why_picked": "Table 11763 is a public no-auth SSB PxWeb befolkning/bydel table. Its Region codes 030101-030117 and 030199 are the same strings Klass 1168 stores. 07459 and 11763 are both absent from stored access_path values."
+        }
+      ]
+    },
+    {
+      "rank": 10,
+      "bydel_code": "030104",
+      "name": "St. Hanshaugen",
+      "year": "2025",
+      "population": 41379,
+      "join_key": "bydel_code",
+      "why_matched": "exact bydel_code in SSB 11763 Region and Klass classificationItems.code",
+      "sources": [
+        {
+          "dataset_id": "datanorge:0c89041e-ae88-32ef-a765-8e1ccbd64fdd",
+          "title": "Bydelsinndeling",
+          "publisher_name": "STATISTISK SENTRALBYRÅ",
+          "license": "http://publications.europa.eu/resource/authority/licence/NLOD_2_0",
+          "access_path": "https://data.ssb.no/api/klass/v1/versions/1168.json",
+          "request_url": "https://data.ssb.no/api/klass/v1/versions/1168.json",
+          "http_status": 200,
+          "why_picked": "Bydelsinndeling is already in the registry with a working Klass GET. Milestone 9 joined it to SSB 11763 on exact bydel_code."
+        },
+        {
+          "dataset_id": "ssb:11763",
+          "title": "11763: Folkemengde 31.12., etter alder, region, statistikkvariabel og år",
+          "publisher_name": "Statistisk sentralbyrå",
+          "license": null,
+          "access_path": "https://data.ssb.no/api/v0/no/table/11763",
+          "request_url": "https://data.ssb.no/api/v0/no/table/11763",
+          "http_status": 200,
+          "why_picked": "Table 11763 is a public no-auth SSB PxWeb befolkning/bydel table. Its Region codes 030101-030117 and 030199 are the same strings Klass 1168 stores. 07459 and 11763 are both absent from stored access_path values."
+        }
+      ]
+    },
+    {
+      "rank": 11,
+      "bydel_code": "030115",
+      "name": "Søndre Nordstrand",
+      "year": "2025",
+      "population": 39365,
+      "join_key": "bydel_code",
+      "why_matched": "exact bydel_code in SSB 11763 Region and Klass classificationItems.code",
+      "sources": [
+        {
+          "dataset_id": "datanorge:0c89041e-ae88-32ef-a765-8e1ccbd64fdd",
+          "title": "Bydelsinndeling",
+          "publisher_name": "STATISTISK SENTRALBYRÅ",
+          "license": "http://publications.europa.eu/resource/authority/licence/NLOD_2_0",
+          "access_path": "https://data.ssb.no/api/klass/v1/versions/1168.json",
+          "request_url": "https://data.ssb.no/api/klass/v1/versions/1168.json",
+          "http_status": 200,
+          "why_picked": "Bydelsinndeling is already in the registry with a working Klass GET. Milestone 9 joined it to SSB 11763 on exact bydel_code."
+        },
+        {
+          "dataset_id": "ssb:11763",
+          "title": "11763: Folkemengde 31.12., etter alder, region, statistikkvariabel og år",
+          "publisher_name": "Statistisk sentralbyrå",
+          "license": null,
+          "access_path": "https://data.ssb.no/api/v0/no/table/11763",
+          "request_url": "https://data.ssb.no/api/v0/no/table/11763",
+          "http_status": 200,
+          "why_picked": "Table 11763 is a public no-auth SSB PxWeb befolkning/bydel table. Its Region codes 030101-030117 and 030199 are the same strings Klass 1168 stores. 07459 and 11763 are both absent from stored access_path values."
+        }
+      ]
+    },
+    {
+      "rank": 12,
+      "bydel_code": "030109",
+      "name": "Bjerke",
+      "year": "2025",
+      "population": 37538,
+      "join_key": "bydel_code",
+      "why_matched": "exact bydel_code in SSB 11763 Region and Klass classificationItems.code",
+      "sources": [
+        {
+          "dataset_id": "datanorge:0c89041e-ae88-32ef-a765-8e1ccbd64fdd",
+          "title": "Bydelsinndeling",
+          "publisher_name": "STATISTISK SENTRALBYRÅ",
+          "license": "http://publications.europa.eu/resource/authority/licence/NLOD_2_0",
+          "access_path": "https://data.ssb.no/api/klass/v1/versions/1168.json",
+          "request_url": "https://data.ssb.no/api/klass/v1/versions/1168.json",
+          "http_status": 200,
+          "why_picked": "Bydelsinndeling is already in the registry with a working Klass GET. Milestone 9 joined it to SSB 11763 on exact bydel_code."
+        },
+        {
+          "dataset_id": "ssb:11763",
+          "title": "11763: Folkemengde 31.12., etter alder, region, statistikkvariabel og år",
+          "publisher_name": "Statistisk sentralbyrå",
+          "license": null,
+          "access_path": "https://data.ssb.no/api/v0/no/table/11763",
+          "request_url": "https://data.ssb.no/api/v0/no/table/11763",
+          "http_status": 200,
+          "why_picked": "Table 11763 is a public no-auth SSB PxWeb befolkning/bydel table. Its Region codes 030101-030117 and 030199 are the same strings Klass 1168 stores. 07459 and 11763 are both absent from stored access_path values."
+        }
+      ]
+    },
+    {
+      "rank": 13,
+      "bydel_code": "030106",
+      "name": "Ullern",
+      "year": "2025",
+      "population": 35805,
+      "join_key": "bydel_code",
+      "why_matched": "exact bydel_code in SSB 11763 Region and Klass classificationItems.code",
+      "sources": [
+        {
+          "dataset_id": "datanorge:0c89041e-ae88-32ef-a765-8e1ccbd64fdd",
+          "title": "Bydelsinndeling",
+          "publisher_name": "STATISTISK SENTRALBYRÅ",
+          "license": "http://publications.europa.eu/resource/authority/licence/NLOD_2_0",
+          "access_path": "https://data.ssb.no/api/klass/v1/versions/1168.json",
+          "request_url": "https://data.ssb.no/api/klass/v1/versions/1168.json",
+          "http_status": 200,
+          "why_picked": "Bydelsinndeling is already in the registry with a working Klass GET. Milestone 9 joined it to SSB 11763 on exact bydel_code."
+        },
+        {
+          "dataset_id": "ssb:11763",
+          "title": "11763: Folkemengde 31.12., etter alder, region, statistikkvariabel og år",
+          "publisher_name": "Statistisk sentralbyrå",
+          "license": null,
+          "access_path": "https://data.ssb.no/api/v0/no/table/11763",
+          "request_url": "https://data.ssb.no/api/v0/no/table/11763",
+          "http_status": 200,
+          "why_picked": "Table 11763 is a public no-auth SSB PxWeb befolkning/bydel table. Its Region codes 030101-030117 and 030199 are the same strings Klass 1168 stores. 07459 and 11763 are both absent from stored access_path values."
+        }
+      ]
+    },
+    {
+      "rank": 14,
+      "bydel_code": "030111",
+      "name": "Stovner",
+      "year": "2025",
+      "population": 34709,
+      "join_key": "bydel_code",
+      "why_matched": "exact bydel_code in SSB 11763 Region and Klass classificationItems.code",
+      "sources": [
+        {
+          "dataset_id": "datanorge:0c89041e-ae88-32ef-a765-8e1ccbd64fdd",
+          "title": "Bydelsinndeling",
+          "publisher_name": "STATISTISK SENTRALBYRÅ",
+          "license": "http://publications.europa.eu/resource/authority/licence/NLOD_2_0",
+          "access_path": "https://data.ssb.no/api/klass/v1/versions/1168.json",
+          "request_url": "https://data.ssb.no/api/klass/v1/versions/1168.json",
+          "http_status": 200,
+          "why_picked": "Bydelsinndeling is already in the registry with a working Klass GET. Milestone 9 joined it to SSB 11763 on exact bydel_code."
+        },
+        {
+          "dataset_id": "ssb:11763",
+          "title": "11763: Folkemengde 31.12., etter alder, region, statistikkvariabel og år",
+          "publisher_name": "Statistisk sentralbyrå",
+          "license": null,
+          "access_path": "https://data.ssb.no/api/v0/no/table/11763",
+          "request_url": "https://data.ssb.no/api/v0/no/table/11763",
+          "http_status": 200,
+          "why_picked": "Table 11763 is a public no-auth SSB PxWeb befolkning/bydel table. Its Region codes 030101-030117 and 030199 are the same strings Klass 1168 stores. 07459 and 11763 are both absent from stored access_path values."
+        }
+      ]
+    },
+    {
+      "rank": 15,
+      "bydel_code": "030110",
+      "name": "Grorud",
+      "year": "2025",
+      "population": 28369,
+      "join_key": "bydel_code",
+      "why_matched": "exact bydel_code in SSB 11763 Region and Klass classificationItems.code",
+      "sources": [
+        {
+          "dataset_id": "datanorge:0c89041e-ae88-32ef-a765-8e1ccbd64fdd",
+          "title": "Bydelsinndeling",
+          "publisher_name": "STATISTISK SENTRALBYRÅ",
+          "license": "http://publications.europa.eu/resource/authority/licence/NLOD_2_0",
+          "access_path": "https://data.ssb.no/api/klass/v1/versions/1168.json",
+          "request_url": "https://data.ssb.no/api/klass/v1/versions/1168.json",
+          "http_status": 200,
+          "why_picked": "Bydelsinndeling is already in the registry with a working Klass GET. Milestone 9 joined it to SSB 11763 on exact bydel_code."
+        },
+        {
+          "dataset_id": "ssb:11763",
+          "title": "11763: Folkemengde 31.12., etter alder, region, statistikkvariabel og år",
+          "publisher_name": "Statistisk sentralbyrå",
+          "license": null,
+          "access_path": "https://data.ssb.no/api/v0/no/table/11763",
+          "request_url": "https://data.ssb.no/api/v0/no/table/11763",
+          "http_status": 200,
+          "why_picked": "Table 11763 is a public no-auth SSB PxWeb befolkning/bydel table. Its Region codes 030101-030117 and 030199 are the same strings Klass 1168 stores. 07459 and 11763 are both absent from stored access_path values."
+        }
+      ]
+    }
+  ],
+  "growing": [
+    {
+      "rank": 1,
+      "bydel_code": "030108",
+      "year": "2025",
+      "population": 57017.0,
+      "yoy_growth": 0.01839712790469216,
+      "yoy_formula": "(v_t - v_{t-1}) / v_{t-1}",
+      "yoy_source_periods": [
+        "2024",
+        "2025"
+      ],
+      "join_key": "bydel_code",
+      "why_matched": "exact bydel_code in SSB 11763 Region and Klass classificationItems.code",
+      "sources": [
+        {
+          "dataset_id": "datanorge:0c89041e-ae88-32ef-a765-8e1ccbd64fdd",
+          "title": "Bydelsinndeling",
+          "publisher_name": "STATISTISK SENTRALBYRÅ",
+          "license": "http://publications.europa.eu/resource/authority/licence/NLOD_2_0",
+          "access_path": "https://data.ssb.no/api/klass/v1/versions/1168.json",
+          "request_url": "https://data.ssb.no/api/klass/v1/versions/1168.json",
+          "http_status": 200,
+          "why_picked": "Bydelsinndeling is already in the registry with a working Klass GET. Milestone 9 joined it to SSB 11763 on exact bydel_code."
+        },
+        {
+          "dataset_id": "ssb:11763",
+          "title": "11763: Folkemengde 31.12., etter alder, region, statistikkvariabel og år",
+          "publisher_name": "Statistisk sentralbyrå",
+          "license": null,
+          "access_path": "https://data.ssb.no/api/v0/no/table/11763",
+          "request_url": "https://data.ssb.no/api/v0/no/table/11763",
+          "http_status": 200,
+          "why_picked": "Table 11763 is a public no-auth SSB PxWeb befolkning/bydel table. Its Region codes 030101-030117 and 030199 are the same strings Klass 1168 stores. 07459 and 11763 are both absent from stored access_path values."
+        }
+      ],
+      "name": "Nordre Aker"
+    },
+    {
+      "rank": 2,
+      "bydel_code": "030109",
+      "year": "2025",
+      "population": 37538.0,
+      "yoy_growth": 0.013089358486492321,
+      "yoy_formula": "(v_t - v_{t-1}) / v_{t-1}",
+      "yoy_source_periods": [
+        "2024",
+        "2025"
+      ],
+      "join_key": "bydel_code",
+      "why_matched": "exact bydel_code in SSB 11763 Region and Klass classificationItems.code",
+      "sources": [
+        {
+          "dataset_id": "datanorge:0c89041e-ae88-32ef-a765-8e1ccbd64fdd",
+          "title": "Bydelsinndeling",
+          "publisher_name": "STATISTISK SENTRALBYRÅ",
+          "license": "http://publications.europa.eu/resource/authority/licence/NLOD_2_0",
+          "access_path": "https://data.ssb.no/api/klass/v1/versions/1168.json",
+          "request_url": "https://data.ssb.no/api/klass/v1/versions/1168.json",
+          "http_status": 200,
+          "why_picked": "Bydelsinndeling is already in the registry with a working Klass GET. Milestone 9 joined it to SSB 11763 on exact bydel_code."
+        },
+        {
+          "dataset_id": "ssb:11763",
+          "title": "11763: Folkemengde 31.12., etter alder, region, statistikkvariabel og år",
+          "publisher_name": "Statistisk sentralbyrå",
+          "license": null,
+          "access_path": "https://data.ssb.no/api/v0/no/table/11763",
+          "request_url": "https://data.ssb.no/api/v0/no/table/11763",
+          "http_status": 200,
+          "why_picked": "Table 11763 is a public no-auth SSB PxWeb befolkning/bydel table. Its Region codes 030101-030117 and 030199 are the same strings Klass 1168 stores. 07459 and 11763 are both absent from stored access_path values."
+        }
+      ],
+      "name": "Bjerke"
+    },
+    {
+      "rank": 3,
+      "bydel_code": "030103",
+      "year": "2025",
+      "population": 48325.0,
+      "yoy_growth": 0.010962113763310391,
+      "yoy_formula": "(v_t - v_{t-1}) / v_{t-1}",
+      "yoy_source_periods": [
+        "2024",
+        "2025"
+      ],
+      "join_key": "bydel_code",
+      "why_matched": "exact bydel_code in SSB 11763 Region and Klass classificationItems.code",
+      "sources": [
+        {
+          "dataset_id": "datanorge:0c89041e-ae88-32ef-a765-8e1ccbd64fdd",
+          "title": "Bydelsinndeling",
+          "publisher_name": "STATISTISK SENTRALBYRÅ",
+          "license": "http://publications.europa.eu/resource/authority/licence/NLOD_2_0",
+          "access_path": "https://data.ssb.no/api/klass/v1/versions/1168.json",
+          "request_url": "https://data.ssb.no/api/klass/v1/versions/1168.json",
+          "http_status": 200,
+          "why_picked": "Bydelsinndeling is already in the registry with a working Klass GET. Milestone 9 joined it to SSB 11763 on exact bydel_code."
+        },
+        {
+          "dataset_id": "ssb:11763",
+          "title": "11763: Folkemengde 31.12., etter alder, region, statistikkvariabel og år",
+          "publisher_name": "Statistisk sentralbyrå",
+          "license": null,
+          "access_path": "https://data.ssb.no/api/v0/no/table/11763",
+          "request_url": "https://data.ssb.no/api/v0/no/table/11763",
+          "http_status": 200,
+          "why_picked": "Table 11763 is a public no-auth SSB PxWeb befolkning/bydel table. Its Region codes 030101-030117 and 030199 are the same strings Klass 1168 stores. 07459 and 11763 are both absent from stored access_path values."
+        }
+      ],
+      "name": "Sagene"
+    },
+    {
+      "rank": 4,
+      "bydel_code": "030102",
+      "year": "2025",
+      "population": 67039.0,
+      "yoy_growth": 0.009562676947171857,
+      "yoy_formula": "(v_t - v_{t-1}) / v_{t-1}",
+      "yoy_source_periods": [
+        "2024",
+        "2025"
+      ],
+      "join_key": "bydel_code",
+      "why_matched": "exact bydel_code in SSB 11763 Region and Klass classificationItems.code",
+      "sources": [
+        {
+          "dataset_id": "datanorge:0c89041e-ae88-32ef-a765-8e1ccbd64fdd",
+          "title": "Bydelsinndeling",
+          "publisher_name": "STATISTISK SENTRALBYRÅ",
+          "license": "http://publications.europa.eu/resource/authority/licence/NLOD_2_0",
+          "access_path": "https://data.ssb.no/api/klass/v1/versions/1168.json",
+          "request_url": "https://data.ssb.no/api/klass/v1/versions/1168.json",
+          "http_status": 200,
+          "why_picked": "Bydelsinndeling is already in the registry with a working Klass GET. Milestone 9 joined it to SSB 11763 on exact bydel_code."
+        },
+        {
+          "dataset_id": "ssb:11763",
+          "title": "11763: Folkemengde 31.12., etter alder, region, statistikkvariabel og år",
+          "publisher_name": "Statistisk sentralbyrå",
+          "license": null,
+          "access_path": "https://data.ssb.no/api/v0/no/table/11763",
+          "request_url": "https://data.ssb.no/api/v0/no/table/11763",
+          "http_status": 200,
+          "why_picked": "Table 11763 is a public no-auth SSB PxWeb befolkning/bydel table. Its Region codes 030101-030117 and 030199 are the same strings Klass 1168 stores. 07459 and 11763 are both absent from stored access_path values."
+        }
+      ],
+      "name": "Grünerløkka"
+    },
+    {
+      "rank": 5,
+      "bydel_code": "030114",
+      "year": "2025",
+      "population": 55286.0,
+      "yoy_growth": 0.007342893063425833,
+      "yoy_formula": "(v_t - v_{t-1}) / v_{t-1}",
+      "yoy_source_periods": [
+        "2024",
+        "2025"
+      ],
+      "join_key": "bydel_code",
+      "why_matched": "exact bydel_code in SSB 11763 Region and Klass classificationItems.code",
+      "sources": [
+        {
+          "dataset_id": "datanorge:0c89041e-ae88-32ef-a765-8e1ccbd64fdd",
+          "title": "Bydelsinndeling",
+          "publisher_name": "STATISTISK SENTRALBYRÅ",
+          "license": "http://publications.europa.eu/resource/authority/licence/NLOD_2_0",
+          "access_path": "https://data.ssb.no/api/klass/v1/versions/1168.json",
+          "request_url": "https://data.ssb.no/api/klass/v1/versions/1168.json",
+          "http_status": 200,
+          "why_picked": "Bydelsinndeling is already in the registry with a working Klass GET. Milestone 9 joined it to SSB 11763 on exact bydel_code."
+        },
+        {
+          "dataset_id": "ssb:11763",
+          "title": "11763: Folkemengde 31.12., etter alder, region, statistikkvariabel og år",
+          "publisher_name": "Statistisk sentralbyrå",
+          "license": null,
+          "access_path": "https://data.ssb.no/api/v0/no/table/11763",
+          "request_url": "https://data.ssb.no/api/v0/no/table/11763",
+          "http_status": 200,
+          "why_picked": "Table 11763 is a public no-auth SSB PxWeb befolkning/bydel table. Its Region codes 030101-030117 and 030199 are the same strings Klass 1168 stores. 07459 and 11763 are both absent from stored access_path values."
+        }
+      ],
+      "name": "Nordstrand"
+    },
+    {
+      "rank": 6,
+      "bydel_code": "030107",
+      "year": "2025",
+      "population": 53304.0,
+      "yoy_growth": 0.006457460065707488,
+      "yoy_formula": "(v_t - v_{t-1}) / v_{t-1}",
+      "yoy_source_periods": [
+        "2024",
+        "2025"
+      ],
+      "join_key": "bydel_code",
+      "why_matched": "exact bydel_code in SSB 11763 Region and Klass classificationItems.code",
+      "sources": [
+        {
+          "dataset_id": "datanorge:0c89041e-ae88-32ef-a765-8e1ccbd64fdd",
+          "title": "Bydelsinndeling",
+          "publisher_name": "STATISTISK SENTRALBYRÅ",
+          "license": "http://publications.europa.eu/resource/authority/licence/NLOD_2_0",
+          "access_path": "https://data.ssb.no/api/klass/v1/versions/1168.json",
+          "request_url": "https://data.ssb.no/api/klass/v1/versions/1168.json",
+          "http_status": 200,
+          "why_picked": "Bydelsinndeling is already in the registry with a working Klass GET. Milestone 9 joined it to SSB 11763 on exact bydel_code."
+        },
+        {
+          "dataset_id": "ssb:11763",
+          "title": "11763: Folkemengde 31.12., etter alder, region, statistikkvariabel og år",
+          "publisher_name": "Statistisk sentralbyrå",
+          "license": null,
+          "access_path": "https://data.ssb.no/api/v0/no/table/11763",
+          "request_url": "https://data.ssb.no/api/v0/no/table/11763",
+          "http_status": 200,
+          "why_picked": "Table 11763 is a public no-auth SSB PxWeb befolkning/bydel table. Its Region codes 030101-030117 and 030199 are the same strings Klass 1168 stores. 07459 and 11763 are both absent from stored access_path values."
+        }
+      ],
+      "name": "Vestre Aker"
+    },
+    {
+      "rank": 7,
+      "bydel_code": "030101",
+      "year": "2025",
+      "population": 64920.0,
+      "yoy_growth": 0.0056696719025931775,
+      "yoy_formula": "(v_t - v_{t-1}) / v_{t-1}",
+      "yoy_source_periods": [
+        "2024",
+        "2025"
+      ],
+      "join_key": "bydel_code",
+      "why_matched": "exact bydel_code in SSB 11763 Region and Klass classificationItems.code",
+      "sources": [
+        {
+          "dataset_id": "datanorge:0c89041e-ae88-32ef-a765-8e1ccbd64fdd",
+          "title": "Bydelsinndeling",
+          "publisher_name": "STATISTISK SENTRALBYRÅ",
+          "license": "http://publications.europa.eu/resource/authority/licence/NLOD_2_0",
+          "access_path": "https://data.ssb.no/api/klass/v1/versions/1168.json",
+          "request_url": "https://data.ssb.no/api/klass/v1/versions/1168.json",
+          "http_status": 200,
+          "why_picked": "Bydelsinndeling is already in the registry with a working Klass GET. Milestone 9 joined it to SSB 11763 on exact bydel_code."
+        },
+        {
+          "dataset_id": "ssb:11763",
+          "title": "11763: Folkemengde 31.12., etter alder, region, statistikkvariabel og år",
+          "publisher_name": "Statistisk sentralbyrå",
+          "license": null,
+          "access_path": "https://data.ssb.no/api/v0/no/table/11763",
+          "request_url": "https://data.ssb.no/api/v0/no/table/11763",
+          "http_status": 200,
+          "why_picked": "Table 11763 is a public no-auth SSB PxWeb befolkning/bydel table. Its Region codes 030101-030117 and 030199 are the same strings Klass 1168 stores. 07459 and 11763 are both absent from stored access_path values."
+        }
+      ],
+      "name": "Gamle Oslo"
+    },
+    {
+      "rank": 8,
+      "bydel_code": "030110",
+      "year": "2025",
+      "population": 28369.0,
+      "yoy_growth": 0.004781469150669406,
+      "yoy_formula": "(v_t - v_{t-1}) / v_{t-1}",
+      "yoy_source_periods": [
+        "2024",
+        "2025"
+      ],
+      "join_key": "bydel_code",
+      "why_matched": "exact bydel_code in SSB 11763 Region and Klass classificationItems.code",
+      "sources": [
+        {
+          "dataset_id": "datanorge:0c89041e-ae88-32ef-a765-8e1ccbd64fdd",
+          "title": "Bydelsinndeling",
+          "publisher_name": "STATISTISK SENTRALBYRÅ",
+          "license": "http://publications.europa.eu/resource/authority/licence/NLOD_2_0",
+          "access_path": "https://data.ssb.no/api/klass/v1/versions/1168.json",
+          "request_url": "https://data.ssb.no/api/klass/v1/versions/1168.json",
+          "http_status": 200,
+          "why_picked": "Bydelsinndeling is already in the registry with a working Klass GET. Milestone 9 joined it to SSB 11763 on exact bydel_code."
+        },
+        {
+          "dataset_id": "ssb:11763",
+          "title": "11763: Folkemengde 31.12., etter alder, region, statistikkvariabel og år",
+          "publisher_name": "Statistisk sentralbyrå",
+          "license": null,
+          "access_path": "https://data.ssb.no/api/v0/no/table/11763",
+          "request_url": "https://data.ssb.no/api/v0/no/table/11763",
+          "http_status": 200,
+          "why_picked": "Table 11763 is a public no-auth SSB PxWeb befolkning/bydel table. Its Region codes 030101-030117 and 030199 are the same strings Klass 1168 stores. 07459 and 11763 are both absent from stored access_path values."
+        }
+      ],
+      "name": "Grorud"
+    },
+    {
+      "rank": 9,
+      "bydel_code": "030106",
+      "year": "2025",
+      "population": 35805.0,
+      "yoy_growth": 0.0038409779073679488,
+      "yoy_formula": "(v_t - v_{t-1}) / v_{t-1}",
+      "yoy_source_periods": [
+        "2024",
+        "2025"
+      ],
+      "join_key": "bydel_code",
+      "why_matched": "exact bydel_code in SSB 11763 Region and Klass classificationItems.code",
+      "sources": [
+        {
+          "dataset_id": "datanorge:0c89041e-ae88-32ef-a765-8e1ccbd64fdd",
+          "title": "Bydelsinndeling",
+          "publisher_name": "STATISTISK SENTRALBYRÅ",
+          "license": "http://publications.europa.eu/resource/authority/licence/NLOD_2_0",
+          "access_path": "https://data.ssb.no/api/klass/v1/versions/1168.json",
+          "request_url": "https://data.ssb.no/api/klass/v1/versions/1168.json",
+          "http_status": 200,
+          "why_picked": "Bydelsinndeling is already in the registry with a working Klass GET. Milestone 9 joined it to SSB 11763 on exact bydel_code."
+        },
+        {
+          "dataset_id": "ssb:11763",
+          "title": "11763: Folkemengde 31.12., etter alder, region, statistikkvariabel og år",
+          "publisher_name": "Statistisk sentralbyrå",
+          "license": null,
+          "access_path": "https://data.ssb.no/api/v0/no/table/11763",
+          "request_url": "https://data.ssb.no/api/v0/no/table/11763",
+          "http_status": 200,
+          "why_picked": "Table 11763 is a public no-auth SSB PxWeb befolkning/bydel table. Its Region codes 030101-030117 and 030199 are the same strings Klass 1168 stores. 07459 and 11763 are both absent from stored access_path values."
+        }
+      ],
+      "name": "Ullern"
+    },
+    {
+      "rank": 10,
+      "bydel_code": "030111",
+      "year": "2025",
+      "population": 34709.0,
+      "yoy_growth": 0.003817566590508141,
+      "yoy_formula": "(v_t - v_{t-1}) / v_{t-1}",
+      "yoy_source_periods": [
+        "2024",
+        "2025"
+      ],
+      "join_key": "bydel_code",
+      "why_matched": "exact bydel_code in SSB 11763 Region and Klass classificationItems.code",
+      "sources": [
+        {
+          "dataset_id": "datanorge:0c89041e-ae88-32ef-a765-8e1ccbd64fdd",
+          "title": "Bydelsinndeling",
+          "publisher_name": "STATISTISK SENTRALBYRÅ",
+          "license": "http://publications.europa.eu/resource/authority/licence/NLOD_2_0",
+          "access_path": "https://data.ssb.no/api/klass/v1/versions/1168.json",
+          "request_url": "https://data.ssb.no/api/klass/v1/versions/1168.json",
+          "http_status": 200,
+          "why_picked": "Bydelsinndeling is already in the registry with a working Klass GET. Milestone 9 joined it to SSB 11763 on exact bydel_code."
+        },
+        {
+          "dataset_id": "ssb:11763",
+          "title": "11763: Folkemengde 31.12., etter alder, region, statistikkvariabel og år",
+          "publisher_name": "Statistisk sentralbyrå",
+          "license": null,
+          "access_path": "https://data.ssb.no/api/v0/no/table/11763",
+          "request_url": "https://data.ssb.no/api/v0/no/table/11763",
+          "http_status": 200,
+          "why_picked": "Table 11763 is a public no-auth SSB PxWeb befolkning/bydel table. Its Region codes 030101-030117 and 030199 are the same strings Klass 1168 stores. 07459 and 11763 are both absent from stored access_path values."
+        }
+      ],
+      "name": "Stovner"
+    },
+    {
+      "rank": 11,
+      "bydel_code": "030113",
+      "year": "2025",
+      "population": 52374.0,
+      "yoy_growth": 0.002680246582685607,
+      "yoy_formula": "(v_t - v_{t-1}) / v_{t-1}",
+      "yoy_source_periods": [
+        "2024",
+        "2025"
+      ],
+      "join_key": "bydel_code",
+      "why_matched": "exact bydel_code in SSB 11763 Region and Klass classificationItems.code",
+      "sources": [
+        {
+          "dataset_id": "datanorge:0c89041e-ae88-32ef-a765-8e1ccbd64fdd",
+          "title": "Bydelsinndeling",
+          "publisher_name": "STATISTISK SENTRALBYRÅ",
+          "license": "http://publications.europa.eu/resource/authority/licence/NLOD_2_0",
+          "access_path": "https://data.ssb.no/api/klass/v1/versions/1168.json",
+          "request_url": "https://data.ssb.no/api/klass/v1/versions/1168.json",
+          "http_status": 200,
+          "why_picked": "Bydelsinndeling is already in the registry with a working Klass GET. Milestone 9 joined it to SSB 11763 on exact bydel_code."
+        },
+        {
+          "dataset_id": "ssb:11763",
+          "title": "11763: Folkemengde 31.12., etter alder, region, statistikkvariabel og år",
+          "publisher_name": "Statistisk sentralbyrå",
+          "license": null,
+          "access_path": "https://data.ssb.no/api/v0/no/table/11763",
+          "request_url": "https://data.ssb.no/api/v0/no/table/11763",
+          "http_status": 200,
+          "why_picked": "Table 11763 is a public no-auth SSB PxWeb befolkning/bydel table. Its Region codes 030101-030117 and 030199 are the same strings Klass 1168 stores. 07459 and 11763 are both absent from stored access_path values."
+        }
+      ],
+      "name": "Østensjø"
+    },
+    {
+      "rank": 12,
+      "bydel_code": "030112",
+      "year": "2025",
+      "population": 50793.0,
+      "yoy_growth": 0.0022692292513516715,
+      "yoy_formula": "(v_t - v_{t-1}) / v_{t-1}",
+      "yoy_source_periods": [
+        "2024",
+        "2025"
+      ],
+      "join_key": "bydel_code",
+      "why_matched": "exact bydel_code in SSB 11763 Region and Klass classificationItems.code",
+      "sources": [
+        {
+          "dataset_id": "datanorge:0c89041e-ae88-32ef-a765-8e1ccbd64fdd",
+          "title": "Bydelsinndeling",
+          "publisher_name": "STATISTISK SENTRALBYRÅ",
+          "license": "http://publications.europa.eu/resource/authority/licence/NLOD_2_0",
+          "access_path": "https://data.ssb.no/api/klass/v1/versions/1168.json",
+          "request_url": "https://data.ssb.no/api/klass/v1/versions/1168.json",
+          "http_status": 200,
+          "why_picked": "Bydelsinndeling is already in the registry with a working Klass GET. Milestone 9 joined it to SSB 11763 on exact bydel_code."
+        },
+        {
+          "dataset_id": "ssb:11763",
+          "title": "11763: Folkemengde 31.12., etter alder, region, statistikkvariabel og år",
+          "publisher_name": "Statistisk sentralbyrå",
+          "license": null,
+          "access_path": "https://data.ssb.no/api/v0/no/table/11763",
+          "request_url": "https://data.ssb.no/api/v0/no/table/11763",
+          "http_status": 200,
+          "why_picked": "Table 11763 is a public no-auth SSB PxWeb befolkning/bydel table. Its Region codes 030101-030117 and 030199 are the same strings Klass 1168 stores. 07459 and 11763 are both absent from stored access_path values."
+        }
+      ],
+      "name": "Alna"
+    },
+    {
+      "rank": 13,
+      "bydel_code": "030115",
+      "year": "2025",
+      "population": 39365.0,
+      "yoy_growth": 0.00043204228931584835,
+      "yoy_formula": "(v_t - v_{t-1}) / v_{t-1}",
+      "yoy_source_periods": [
+        "2024",
+        "2025"
+      ],
+      "join_key": "bydel_code",
+      "why_matched": "exact bydel_code in SSB 11763 Region and Klass classificationItems.code",
+      "sources": [
+        {
+          "dataset_id": "datanorge:0c89041e-ae88-32ef-a765-8e1ccbd64fdd",
+          "title": "Bydelsinndeling",
+          "publisher_name": "STATISTISK SENTRALBYRÅ",
+          "license": "http://publications.europa.eu/resource/authority/licence/NLOD_2_0",
+          "access_path": "https://data.ssb.no/api/klass/v1/versions/1168.json",
+          "request_url": "https://data.ssb.no/api/klass/v1/versions/1168.json",
+          "http_status": 200,
+          "why_picked": "Bydelsinndeling is already in the registry with a working Klass GET. Milestone 9 joined it to SSB 11763 on exact bydel_code."
+        },
+        {
+          "dataset_id": "ssb:11763",
+          "title": "11763: Folkemengde 31.12., etter alder, region, statistikkvariabel og år",
+          "publisher_name": "Statistisk sentralbyrå",
+          "license": null,
+          "access_path": "https://data.ssb.no/api/v0/no/table/11763",
+          "request_url": "https://data.ssb.no/api/v0/no/table/11763",
+          "http_status": 200,
+          "why_picked": "Table 11763 is a public no-auth SSB PxWeb befolkning/bydel table. Its Region codes 030101-030117 and 030199 are the same strings Klass 1168 stores. 07459 and 11763 are both absent from stored access_path values."
+        }
+      ],
+      "name": "Søndre Nordstrand"
+    },
+    {
+      "rank": 14,
+      "bydel_code": "030104",
+      "year": "2025",
+      "population": 41379.0,
+      "yoy_growth": 0.0004110052705381751,
+      "yoy_formula": "(v_t - v_{t-1}) / v_{t-1}",
+      "yoy_source_periods": [
+        "2024",
+        "2025"
+      ],
+      "join_key": "bydel_code",
+      "why_matched": "exact bydel_code in SSB 11763 Region and Klass classificationItems.code",
+      "sources": [
+        {
+          "dataset_id": "datanorge:0c89041e-ae88-32ef-a765-8e1ccbd64fdd",
+          "title": "Bydelsinndeling",
+          "publisher_name": "STATISTISK SENTRALBYRÅ",
+          "license": "http://publications.europa.eu/resource/authority/licence/NLOD_2_0",
+          "access_path": "https://data.ssb.no/api/klass/v1/versions/1168.json",
+          "request_url": "https://data.ssb.no/api/klass/v1/versions/1168.json",
+          "http_status": 200,
+          "why_picked": "Bydelsinndeling is already in the registry with a working Klass GET. Milestone 9 joined it to SSB 11763 on exact bydel_code."
+        },
+        {
+          "dataset_id": "ssb:11763",
+          "title": "11763: Folkemengde 31.12., etter alder, region, statistikkvariabel og år",
+          "publisher_name": "Statistisk sentralbyrå",
+          "license": null,
+          "access_path": "https://data.ssb.no/api/v0/no/table/11763",
+          "request_url": "https://data.ssb.no/api/v0/no/table/11763",
+          "http_status": 200,
+          "why_picked": "Table 11763 is a public no-auth SSB PxWeb befolkning/bydel table. Its Region codes 030101-030117 and 030199 are the same strings Klass 1168 stores. 07459 and 11763 are both absent from stored access_path values."
+        }
+      ],
+      "name": "St. Hanshaugen"
+    },
+    {
+      "rank": 15,
+      "bydel_code": "030105",
+      "year": "2025",
+      "population": 60321.0,
+      "yoy_growth": -0.0035022219285348486,
+      "yoy_formula": "(v_t - v_{t-1}) / v_{t-1}",
+      "yoy_source_periods": [
+        "2024",
+        "2025"
+      ],
+      "join_key": "bydel_code",
+      "why_matched": "exact bydel_code in SSB 11763 Region and Klass classificationItems.code",
+      "sources": [
+        {
+          "dataset_id": "datanorge:0c89041e-ae88-32ef-a765-8e1ccbd64fdd",
+          "title": "Bydelsinndeling",
+          "publisher_name": "STATISTISK SENTRALBYRÅ",
+          "license": "http://publications.europa.eu/resource/authority/licence/NLOD_2_0",
+          "access_path": "https://data.ssb.no/api/klass/v1/versions/1168.json",
+          "request_url": "https://data.ssb.no/api/klass/v1/versions/1168.json",
+          "http_status": 200,
+          "why_picked": "Bydelsinndeling is already in the registry with a working Klass GET. Milestone 9 joined it to SSB 11763 on exact bydel_code."
+        },
+        {
+          "dataset_id": "ssb:11763",
+          "title": "11763: Folkemengde 31.12., etter alder, region, statistikkvariabel og år",
+          "publisher_name": "Statistisk sentralbyrå",
+          "license": null,
+          "access_path": "https://data.ssb.no/api/v0/no/table/11763",
+          "request_url": "https://data.ssb.no/api/v0/no/table/11763",
+          "http_status": 200,
+          "why_picked": "Table 11763 is a public no-auth SSB PxWeb befolkning/bydel table. Its Region codes 030101-030117 and 030199 are the same strings Klass 1168 stores. 07459 and 11763 are both absent from stored access_path values."
+        }
+      ],
+      "name": "Frogner"
+    }
+  ],
+  "db": "data/registry.sqlite"
+}

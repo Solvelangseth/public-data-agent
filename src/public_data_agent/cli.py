@@ -8,6 +8,7 @@ from pathlib import Path
 from public_data_agent.benchmark import DEFAULT_QUESTIONS, load_questions, run_benchmark
 from public_data_agent.enrich import enrich
 from public_data_agent.fetch import DEFAULT_OSLO_DATASET, DEFAULT_OSLO_TABLE, fetch_observations
+from public_data_agent.ask import DEMO_QUESTION, ask, ask_proof_payload
 from public_data_agent.join import (
     DEFAULT_KLASS_DATASET,
     join_bydel_population,
@@ -107,6 +108,16 @@ def main(argv: list[str] | None = None) -> int:
     methods_cmd.add_argument("--entity", default="Oslo (Kristiania og Aker) i alt")
     methods_cmd.add_argument("--measure", default="Folkemengden i alt (antall personer)")
 
+    ask_cmd = sub.add_parser("ask", help="Search, join, and answer one natural-language question")
+    ask_cmd.add_argument("question", nargs="?", default=DEMO_QUESTION)
+    ask_cmd.add_argument("--dataset", default=DEFAULT_KLASS_DATASET)
+    ask_cmd.add_argument("--table", default=DEFAULT_SSB_TABLE)
+    ask_cmd.add_argument("--year", type=int, default=2025)
+    ask_cmd.add_argument("--prior-year", type=int, default=2024)
+    ask_cmd.add_argument("--db", type=Path, default=DEFAULT_DB)
+    ask_cmd.add_argument("--out", type=Path, default=None)
+    ask_cmd.add_argument("--limit", type=int, default=10)
+
     args = parser.parse_args(argv)
     if args.command == "ingest":
         return _ingest(args)
@@ -126,6 +137,8 @@ def main(argv: list[str] | None = None) -> int:
         return _join(args)
     if args.command == "methods":
         return _methods(args)
+    if args.command == "ask":
+        return _ask(args)
     parser.error(f"unknown command {args.command}")
     return 2
 
@@ -366,6 +379,39 @@ def _methods(args: argparse.Namespace) -> int:
     if args.to_year is not None:
         argv.extend(["--to-year", str(args.to_year)])
     return methods_main(argv)
+
+
+def _ask(args: argparse.Namespace) -> int:
+    if not Path(args.db).exists() and str(args.db) != ":memory:":
+        print(f"no registry at {args.db}", file=sys.stderr)
+        return 1
+    registry = Registry(args.db)
+    try:
+        result = ask(
+            registry,
+            args.question,
+            klass_dataset_id=args.dataset,
+            ssb_table=args.table,
+            latest_year=args.year,
+            prior_year=args.prior_year,
+            search_limit=args.limit,
+        )
+        command = f'pda ask "{args.question}" --year {args.year} --prior-year {args.prior_year} --db {args.db}'
+        if args.out:
+            command += f" --out {args.out}"
+        payload = ask_proof_payload(result, command=command, db=str(args.db))
+        text = json.dumps(payload, ensure_ascii=False, indent=2)
+        if args.out:
+            args.out.parent.mkdir(parents=True, exist_ok=True)
+            args.out.write_text(text + "\n", encoding="utf-8")
+        print(text)
+        failed = any(item.counts.failed for item in result.joins)
+        return 1 if failed else 0
+    except ValueError as exc:
+        print(str(exc), file=sys.stderr)
+        return 1
+    finally:
+        registry.close()
 
 
 def _search(args: argparse.Namespace) -> int:
