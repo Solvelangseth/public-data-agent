@@ -13,6 +13,7 @@ from public_data_agent.sources.geonorge import GeonorgeKartkatalogSource
 from public_data_agent.sources.mattilsynet import MattilsynetPlantevernSource
 from public_data_agent.sources.nve import NveMagasinSource
 from public_data_agent.sources.ssb import SsbStatbankSource
+from public_data_agent.sources.statnett import StatnettDriftsdataSource
 from public_data_agent.sources.udir import UdirNsrSource
 from public_data_agent.sources.valg import ValgresultatSource
 
@@ -29,6 +30,7 @@ SOURCE_IDS = (
     "udir",
     "entur",
     "fiskeridir",
+    "statnett",
 )
 
 
@@ -59,6 +61,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return EnturGbfsSource()
     if source_id == "fiskeridir":
         return FiskeridirVesselSource()
+    if source_id == "statnett":
+        return StatnettDriftsdataSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -76,6 +80,7 @@ __all__ = [
     "SsbStatbankSource",
     "SOURCE_IDS",
     "SourceBase",
+    "StatnettDriftsdataSource",
     "UdirNsrSource",
     "ValgresultatSource",
     "build_source",
