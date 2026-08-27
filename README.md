@@ -2492,6 +2492,46 @@ location-name cells. Sample printed value: `IS`.
 time series (`no observations matched entity/measure; available=[]`).
 Proof is `data/polarsatellite_source_proof.json`.
 
+## Kartverket Transformering source
+
+`pda ingest --source transformering` is another replaceable adapter. It lists printed
+collection GET paths on the official Kartverket Transformering OpenAPI
+`https://ws.geonorge.no/transformering/v1/openapi.json`, capped at 10.
+Templated paths and GET operations that print required query parameters
+(`/transformer` requires `x`/`y`/`fra`/`til`) are skipped. Optional
+`kategori` / `system` query filters are not invented. Dataset ids are the
+last printed path segment. `access_path` is the printed path joined to the
+spec's own relative `servers[0].url` `/transformering/v1` on the OpenAPI
+origin. License and publisher stay null: the spec does not print a license
+URL or publisher name. This is not Kartverket Høydedata (`--source hoydedata`),
+not Kartverket Kommuneinfo (`--source kommuneinfo`), not Kartverket
+Stedsnavn (`--source stedsnavn`), not Geonorge Kartkatalog
+(`--source geonorge`), and not MET Polarsatellite
+(`--source polarsatellite`, now on main after PR 114).
+
+```bash
+pda ingest --source transformering --db data/registry.sqlite --limit 10
+pda search koordinatsystemer --db data/registry.sqlite
+pda fetch --dataset transformering:projeksjoner --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored collection URL. Observation values are copied
+from printed `name`. License and publisher stay null.
+
+This source is Kartverket Transformering (`ws.geonorge.no/transformering`),
+not Høydedata, Kommuneinfo, Stedsnavn, or Geonorge Kartkatalog.
+
+Live ingest 2026-08-27: 1 printed untemplated collection GET path
+(catalog prints 2 paths; `/transformer` required-parameter GET skipped).
+Live search `koordinatsystemer` returns `transformering:projeksjoner`.
+Live fetch GETs `https://ws.geonorge.no/transformering/v1/projeksjoner`
+HTTP 200, 130 printed projection-name rows. Sample printed values:
+ETRS89 Geografisk 2D (EPSG 4258), ETRS89 Geografisk 3D (EPSG 4937),
+ETRS89 Geografisk NN2000 (EPSG 5942). `pda methods` is not applicable:
+projection names, not a numeric time series
+(`no observations matched entity/measure; available=[]`).
+Proof is `data/transformering_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
