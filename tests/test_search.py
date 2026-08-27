@@ -37,6 +37,20 @@ def test_tokenize_is_casefold_and_keeps_norwegian_letters() -> None:
     assert tokenize("Åpne data") == ["åpne", "data"]
 
 
+def test_tokenize_drops_short_norwegian_function_words() -> None:
+    assert tokenize("Hvilke Oslo-bydeler er størst og hvilke vokser mest?") == [
+        "hvilke",
+        "oslo",
+        "bydeler",
+        "størst",
+        "hvilke",
+        "vokser",
+        "mest",
+    ]
+    assert tokenize("boliger på vei for barn") == ["boliger", "vei", "barn"]
+    assert tokenize("oslo i på for og bydeler") == ["oslo", "bydeler"]
+
+
 def test_title_match_ranks_above_description_match(tmp_path: Path) -> None:
     registry = _registry(tmp_path)
     hits = search(registry, "ssb")

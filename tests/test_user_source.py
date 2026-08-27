@@ -120,7 +120,7 @@ def test_cli_keeps_user_hit_on_the_demo_query(tmp_path: Path, capsys) -> None:
     )
     payload = json.loads(capsys.readouterr().out)
     assert any(hit["user_supplied"] for hit in payload["results"])
-    assert any(not hit["user_supplied"] for hit in payload["results"])
+    assert all(hit["user_supplied"] for hit in payload["results"])
 
 
 def test_cli_search_user_file(tmp_path: Path, capsys) -> None:
@@ -171,12 +171,11 @@ def test_cli_search_user_file_sqlite(tmp_path: Path, capsys) -> None:
     )
     payload = json.loads(capsys.readouterr().out)
     user = next(hit for hit in payload["results"] if hit["user_supplied"])
-    public = next(hit for hit in payload["results"] if not hit["user_supplied"])
     assert user["id"] == "user:user-bydel-notes"
     assert user["source"] == USER_SOURCE_ID
     assert user["publisher"]["name"] == "user"
     assert user["license"] is None
-    assert public["source"] == "fixture"
+    assert all(hit["user_supplied"] for hit in payload["results"])
     opened = Registry(db)
     assert _harvest_bytes(opened) == before
     assert opened.enrichment_count() == enrich_before

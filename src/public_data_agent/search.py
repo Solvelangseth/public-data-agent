@@ -20,6 +20,20 @@ FIELD_WEIGHTS = {
 TOKEN_RE = re.compile(r"[0-9a-zæøåäöéèü]+", re.IGNORECASE)
 QUOTE_RE = re.compile(r'"([^"]+)"')
 MIN_TOKEN_LEN = 2
+STOP_TOKENS = frozenset({
+    "av",
+    "er",
+    "for",
+    "fra",
+    "har",
+    "i",
+    "kan",
+    "med",
+    "og",
+    "om",
+    "på",
+    "til",
+})
 PUBLISHER_WEIGHT = 5
 VARIABLES_UNKNOWN_REASON = (
     "no variable or column list is stored in the registry or harvested payload"
@@ -140,7 +154,11 @@ class SearchReport:
 def tokenize(text: str | None) -> list[str]:
     if not text:
         return []
-    return [tok for tok in TOKEN_RE.findall(text.casefold()) if len(tok) >= MIN_TOKEN_LEN]
+    return [
+        tok
+        for tok in TOKEN_RE.findall(text.casefold())
+        if len(tok) >= MIN_TOKEN_LEN and tok not in STOP_TOKENS
+    ]
 
 
 def decompose(query: str) -> list[Requirement]:
