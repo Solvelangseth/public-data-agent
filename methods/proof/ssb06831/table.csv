@@ -1,0 +1,5 @@
+entity,period,measure,value,yoy_growth,index,rank,rank_change,observation_id,source
+16-19 år / Kvinner / Samboere,2021,"06831: Andel personer (prosent), etter samlivsform, kjønn, alder, statistikkvariabel og år",3,,100,2,,81e014346d5be156e8604196c87611b17cc05229,ssb:06831
+16-19 år / Kvinner / Samboere,2022,"06831: Andel personer (prosent), etter samlivsform, kjønn, alder, statistikkvariabel og år",2,-0.3333333333,66.66666667,2,0,48ddb1a78ce5bd1c41a1321568f95a818b545be9,ssb:06831
+20-24 år / Kvinner / Samboere,2021,"06831: Andel personer (prosent), etter samlivsform, kjønn, alder, statistikkvariabel og år",23,,100,1,,fdf49768b007ae1f825fa117b97616134503ad85,ssb:06831
+20-24 år / Kvinner / Samboere,2022,"06831: Andel personer (prosent), etter samlivsform, kjønn, alder, statistikkvariabel og år",23,0,100,1,0,5aa6ecf9688fb152016f02db8a249993787abbbf,ssb:06831

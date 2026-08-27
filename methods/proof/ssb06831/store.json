@@ -1,0 +1,192 @@
+{
+  "dataset_id": "ssb:06831",
+  "table_id": "06831",
+  "posted": false,
+  "seeded_from": {
+    "ssb_expand_proof": "data/ssb_expand_proof.json",
+    "main_merge": "f400f13a94a8998a10193f98b23425fea793defb",
+    "pr": 42,
+    "note": "Values are the four fetch.sample cells committed on main after PR 42. That live fetch listed 132 cells; the other 128 values were not printed in the committed artifact and are not invented here. No SSB/PxWeb POST."
+  },
+  "counts": {
+    "total": 4,
+    "numeric": 4,
+    "null_values": 0,
+    "entities": 2,
+    "numeric_entities": 2,
+    "periods": [
+      "2021",
+      "2022"
+    ],
+    "years": {
+      "2021": 2,
+      "2022": 2
+    }
+  },
+  "expected_from_pr42": {
+    "dataset_id": "ssb:06831",
+    "table_id": "06831",
+    "printed_sample_count": 4,
+    "live_listed": 132,
+    "request_url": "https://data.ssb.no/api/v0/no/table/06831",
+    "http_status": 200,
+    "publisher_name": "Statistisk sentralbyrå",
+    "license": null,
+    "sample": [
+      {
+        "measure": "06831: Andel personer (prosent), etter samlivsform, kjønn, alder, statistikkvariabel og år",
+        "value": 3,
+        "dimensions": {
+          "Samboere": "Samboere",
+          "Kjonn": "Kvinner",
+          "Alder": "16-19 år",
+          "Tid": "2021"
+        }
+      },
+      {
+        "measure": "06831: Andel personer (prosent), etter samlivsform, kjønn, alder, statistikkvariabel og år",
+        "value": 2,
+        "dimensions": {
+          "Samboere": "Samboere",
+          "Kjonn": "Kvinner",
+          "Alder": "16-19 år",
+          "Tid": "2022"
+        }
+      },
+      {
+        "measure": "06831: Andel personer (prosent), etter samlivsform, kjønn, alder, statistikkvariabel og år",
+        "value": 23,
+        "dimensions": {
+          "Samboere": "Samboere",
+          "Kjonn": "Kvinner",
+          "Alder": "20-24 år",
+          "Tid": "2021"
+        }
+      },
+      {
+        "measure": "06831: Andel personer (prosent), etter samlivsform, kjønn, alder, statistikkvariabel og år",
+        "value": 23,
+        "dimensions": {
+          "Samboere": "Samboere",
+          "Kjonn": "Kvinner",
+          "Alder": "20-24 år",
+          "Tid": "2022"
+        }
+      }
+    ],
+    "sql": "SELECT count(*) FROM observations WHERE dataset_id = 'ssb:06831'",
+    "methods_command": "pda methods --dataset ssb:06831 --out methods/proof/ssb06831/ --db data/registry.sqlite",
+    "methods_yoy_sample": [
+      {
+        "entity": "16-19 år / Kvinner / Samboere",
+        "period": "2021",
+        "value": 3.0,
+        "yoy_growth": null,
+        "index": 100.0
+      },
+      {
+        "entity": "16-19 år / Kvinner / Samboere",
+        "period": "2022",
+        "value": 2.0,
+        "yoy_growth": -0.3333333333333333,
+        "index": 66.66666666666667
+      },
+      {
+        "entity": "20-24 år / Kvinner / Samboere",
+        "period": "2021",
+        "value": 23.0,
+        "yoy_growth": null,
+        "index": 100.0
+      },
+      {
+        "entity": "20-24 år / Kvinner / Samboere",
+        "period": "2022",
+        "value": 23.0,
+        "yoy_growth": 0.0,
+        "index": 100.0
+      }
+    ]
+  },
+  "rows": [
+    {
+      "id": "81e014346d5be156e8604196c87611b17cc05229",
+      "dataset_id": "ssb:06831",
+      "table_id": "06831",
+      "measure": "06831: Andel personer (prosent), etter samlivsform, kjønn, alder, statistikkvariabel og år",
+      "value": 3,
+      "dimensions": {
+        "Samboere": "Samboere",
+        "Kjonn": "Kvinner",
+        "Alder": "16-19 år",
+        "Tid": "2021"
+      },
+      "retrieved_at": "2026-08-27T10:04:00Z",
+      "request_url": "https://data.ssb.no/api/v0/no/table/06831",
+      "http_status": 200,
+      "publisher_name": "Statistisk sentralbyrå",
+      "license": null,
+      "access_path": "https://data.ssb.no/api/v0/no/table/06831",
+      "source_native_uri": null
+    },
+    {
+      "id": "48ddb1a78ce5bd1c41a1321568f95a818b545be9",
+      "dataset_id": "ssb:06831",
+      "table_id": "06831",
+      "measure": "06831: Andel personer (prosent), etter samlivsform, kjønn, alder, statistikkvariabel og år",
+      "value": 2,
+      "dimensions": {
+        "Samboere": "Samboere",
+        "Kjonn": "Kvinner",
+        "Alder": "16-19 år",
+        "Tid": "2022"
+      },
+      "retrieved_at": "2026-08-27T10:04:00Z",
+      "request_url": "https://data.ssb.no/api/v0/no/table/06831",
+      "http_status": 200,
+      "publisher_name": "Statistisk sentralbyrå",
+      "license": null,
+      "access_path": "https://data.ssb.no/api/v0/no/table/06831",
+      "source_native_uri": null
+    },
+    {
+      "id": "fdf49768b007ae1f825fa117b97616134503ad85",
+      "dataset_id": "ssb:06831",
+      "table_id": "06831",
+      "measure": "06831: Andel personer (prosent), etter samlivsform, kjønn, alder, statistikkvariabel og år",
+      "value": 23,
+      "dimensions": {
+        "Samboere": "Samboere",
+        "Kjonn": "Kvinner",
+        "Alder": "20-24 år",
+        "Tid": "2021"
+      },
+      "retrieved_at": "2026-08-27T10:04:00Z",
+      "request_url": "https://data.ssb.no/api/v0/no/table/06831",
+      "http_status": 200,
+      "publisher_name": "Statistisk sentralbyrå",
+      "license": null,
+      "access_path": "https://data.ssb.no/api/v0/no/table/06831",
+      "source_native_uri": null
+    },
+    {
+      "id": "5aa6ecf9688fb152016f02db8a249993787abbbf",
+      "dataset_id": "ssb:06831",
+      "table_id": "06831",
+      "measure": "06831: Andel personer (prosent), etter samlivsform, kjønn, alder, statistikkvariabel og år",
+      "value": 23,
+      "dimensions": {
+        "Samboere": "Samboere",
+        "Kjonn": "Kvinner",
+        "Alder": "20-24 år",
+        "Tid": "2022"
+      },
+      "retrieved_at": "2026-08-27T10:04:00Z",
+      "request_url": "https://data.ssb.no/api/v0/no/table/06831",
+      "http_status": 200,
+      "publisher_name": "Statistisk sentralbyrå",
+      "license": null,
+      "access_path": "https://data.ssb.no/api/v0/no/table/06831",
+      "source_native_uri": null
+    }
+  ]
+}
