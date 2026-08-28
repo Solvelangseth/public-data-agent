@@ -4496,10 +4496,14 @@ values are copied from printed WMS `Layer`/`Name` text or WFS
 `FeatureType`/`Name` text. A printed `Title` sibling stays as a
 dimension. License stays null. Publisher stays null.
 
-Live ingest numbers will be filled after proof.
-
-`pda methods` is not applicable: layer and feature type names, not a
-numeric time series.
+Live ingest 2026-08-28: 10 printed GetCapabilities services (kartlag
+prints 10; all 10 return WMS or WFS Capabilities XML 200). Live search
+`vegvar_1_0_ows` returns `vegogc:vegvar_1_0_ows`. Live fetch GETs
+`https://ogckart-sn1.atlas.vegvesen.no/vegvar_1_0/ows?service=wms&request=GetCapabilities`
+HTTP 200, 2 Layer Name cells. Sample printed value: `tunnel_segments`.
+`pda methods` is not applicable: layer names, not a numeric time series
+(`no observations matched entity/measure; available=[]`).
+Proof is `data/vegogc_source_proof.json`.
 
 ## Architecture (long term)
 
