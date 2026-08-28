@@ -4296,6 +4296,42 @@ HTTP 200, 3 printed feature-id cells. Sample printed value: `airmets`.
 series (`no observations matched entity/measure; available=[]`).
 Proof is `data/sigmets_source_proof.json`.
 
+## Utdanningsdirektoratet Grep source
+
+`pda ingest --source grep` is another replaceable adapter. It lists
+printed collection GET paths on the official Grep swagger
+`https://data.udir.no/swagger/docs/201906`, capped at 10. Templated
+`{kode}` / `{type}` / `{filter}` / `{format}` paths are skipped. The
+swagger path uses `{version}`; that token is replaced with the printed
+last segment of the swagger document URL (`201906`). Dataset ids are the
+printed last path segment so `aarstrinn` stays distinct from
+`dokumenttype`. `access_path` is the swagger origin plus the concrete
+path. License is copied from the printed swagger license URL. Publisher
+stays null. This is not Nasjonalt skoleregister (`--source udir`), not
+Nasjonalt barnehageregister (`--source nbr`), and not SSB PxWebApi 2
+(`--source ssbv2`).
+
+```bash
+pda ingest --source grep --db data/registry.sqlite --limit 10
+pda search aarstrinn --db data/registry.sqlite
+pda fetch --dataset grep:aarstrinn --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored collection URL. Observation values are copied
+from printed `kode` when present, otherwise `id` or `uri`. Nested
+`tittel` arrays are not copied. License is copied from the harvested
+swagger license URL. Publisher stays null.
+
+Live ingest 2026-08-28: 10 printed collection paths (swagger prints 43
+untemplated collection GETs after dropping `{format}`; cap 10 copies the
+first 10 in document order). Live search `aarstrinn` returns
+`grep:aarstrinn`. Live fetch GETs
+`https://data.udir.no/kl06/v201906/aarstrinn` HTTP 200, 18 kode cells.
+Sample printed value: `aarstrinn1`. `pda methods` is not applicable:
+year-grade codes, not a numeric time series
+(`no observations matched entity/measure; available=[]`).
+Proof is `data/grep_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists

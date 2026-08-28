@@ -19,6 +19,7 @@ from public_data_agent.sources.fiskeridir import FiskeridirVesselSource
 from public_data_agent.sources.fiskerigis import FiskerigisSource
 from public_data_agent.sources.fixture import FixtureSource
 from public_data_agent.sources.geonorge import GeonorgeKartkatalogSource
+from public_data_agent.sources.grep import GrepSource
 from public_data_agent.sources.georegister import GeoregisterSource
 from public_data_agent.sources.geosatellite import GeosatelliteSource
 from public_data_agent.sources.gribfiles import GribfilesSource
@@ -217,6 +218,7 @@ SOURCE_IDS = (
     "nibiowms",
     "regobs",
     "sigmets",
+    "grep",
 )
 
 
@@ -435,6 +437,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return RegobsSource()
     if source_id == "sigmets":
         return SigmetsSource()
+    if source_id == "grep":
+        return GrepSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -456,6 +460,7 @@ __all__ = [
     "FiskerigisSource",
     "FixtureSource",
     "GeonorgeKartkatalogSource",
+    "GrepSource",
     "GeoregisterSource",
     "GeosatelliteSource",
     "GribfilesSource",
