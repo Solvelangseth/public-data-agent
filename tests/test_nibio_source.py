@@ -117,6 +117,7 @@ def test_endpoint_url_uses_origin_when_servers_absent() -> None:
 
 def test_nibio_is_a_registered_source() -> None:
     assert "nibio" in SOURCE_IDS
+    assert "nibiowms" in SOURCE_IDS
     source = build_source("nibio")
     assert isinstance(source, NibioWeatherSource)
     assert source.source_id == "nibio"
