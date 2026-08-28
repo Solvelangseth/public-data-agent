@@ -88,6 +88,7 @@ from public_data_agent.sources.regnskap import RegnskapSource
 from public_data_agent.sources.regobs import RegobsSource
 from public_data_agent.sources.research import ResearchSource
 from public_data_agent.sources.riksantikvaren import RiksantikvarenSource
+from public_data_agent.sources.sandnes import SandnesSource
 from public_data_agent.sources.routeforecast import RouteforecastSource
 from public_data_agent.sources.sigcharts import SigchartsSource
 from public_data_agent.sources.sigmets import SigmetsSource
@@ -237,6 +238,7 @@ SOURCE_IDS = (
     "elcert",
     "ldirwms",
     "frivillig",
+    "sandnes",
 )
 
 
@@ -475,6 +477,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return LdirwmsSource()
     if source_id == "frivillig":
         return FrivilligSource()
+    if source_id == "sandnes":
+        return SandnesSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -566,6 +570,7 @@ __all__ = [
     "ResearchSource",
     "RiksantikvarenSource",
     "RouteforecastSource",
+    "SandnesSource",
     "SigchartsSource",
     "SigmetsSource",
     "SiktSource",

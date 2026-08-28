@@ -4642,6 +4642,33 @@ HTTP 200, 46 category-name cells. Sample printed value:
 time series (`no observations matched entity/measure; available=[]`).
 Proof is `data/frivillig_source_proof.json`.
 
+## Sandnes kommune Medvirkning API source
+
+`pda ingest --source sandnes` is another replaceable adapter. It lists the
+one printed GraphQL route on the official Sandnes kommune API docs
+`https://medvirkning.sandnes.kommune.no/api/docs`. That page prints
+`URL/api` as the POST request route. The origin is copied from the docs
+page. Dataset id is `api`. `access_path` is
+`https://medvirkning.sandnes.kommune.no/api`. License stays null.
+Publisher stays null. This is not Oslo Statistikkbank (`--source oslo`),
+not Trondheim Åpne Data (`--source trondheim`), and not Stavanger
+Opencom (`--source opencom`). It does not walk process slugs into extra
+dataset ids.
+
+```bash
+pda ingest --source sandnes --db data/registry.sqlite --limit 1
+pda search Sviland --db data/registry.sqlite
+pda fetch --dataset sandnes:api --db data/registry.sqlite
+```
+
+`pda fetch` POSTs the GraphiQL `default_query` printed on
+`https://medvirkning.sandnes.kommune.no/api/graphiql`. Observation
+values are copied from printed participatory-process title texts. Null
+translation texts are skipped.
+
+Live ingest and fetch numbers are recorded in
+`data/sandnes_source_proof.json` after the live run.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
