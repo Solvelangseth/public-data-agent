@@ -36,7 +36,9 @@ class HavnedataSource(SourceBase):
     Den norske los (`--source norskelos`), Kartverket Register
     (`--source georegister`), Stedsnavn (`--source stedsnavn`),
     Kommuneinfo (`--source kommuneinfo`), Høydedata
-    (`--source hoydedata`), or Transformering (`--source transformering`).
+    (`--source hoydedata`), Transformering (`--source transformering`),
+    NVE GIS (`--source nvegis`), or Kystverket navigasjonsvarsler
+    (`--source navwarnings`).
     """
 
     source_id = SOURCE_ID

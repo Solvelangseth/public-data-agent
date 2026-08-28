@@ -213,6 +213,8 @@ def test_havnedata_is_a_registered_source() -> None:
     assert "norskelos" in SOURCE_IDS
     assert "georegister" in SOURCE_IDS
     assert "miljorapporter" in SOURCE_IDS
+    assert "nvegis" in SOURCE_IDS
+    assert "navwarnings" in SOURCE_IDS
     source = build_source("havnedata")
     assert isinstance(source, HavnedataSource)
     assert source.source_id == "havnedata"
