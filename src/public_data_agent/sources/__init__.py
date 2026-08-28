@@ -47,6 +47,7 @@ from public_data_agent.sources.kystwms import KystwmsSource
 from public_data_agent.sources.ldirwms import LdirwmsSource
 from public_data_agent.sources.lister import ListerSource
 from public_data_agent.sources.locationforecast import LocationforecastSource
+from public_data_agent.sources.mattilsyn import MattilsynSource
 from public_data_agent.sources.mattilsynet import MattilsynetPlantevernSource
 from public_data_agent.sources.mdirwms import MdirwmsSource
 from public_data_agent.sources.met import MetMetalertsSource
@@ -268,6 +269,7 @@ SOURCE_IDS = (
     "ssbsec",
     "ssclass",
     "banegis",
+    "mattilsyn",
     "nibiorest",
 )
 
@@ -537,6 +539,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return SsclassSource()
     if source_id == "banegis":
         return BanegisSource()
+    if source_id == "mattilsyn":
+        return MattilsynSource()
     if source_id == "nibiorest":
         return NibiorestSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
@@ -588,6 +592,7 @@ __all__ = [
     "LdirwmsSource",
     "ListerSource",
     "LocationforecastSource",
+    "MattilsynSource",
     "MattilsynetPlantevernSource",
     "MdirwmsSource",
     "MetMetalertsSource",
