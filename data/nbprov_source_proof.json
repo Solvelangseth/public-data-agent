@@ -208,6 +208,7 @@
     "Rebased onto origin/main after nibiorest #188 merged at 1769c78. Kept nibiorest/ssclass/ssbsec/ssbfam and every other main source plus nbprov. Did not pick a second source. python3 -m pytest after rebase: 1277 passed, 1 skipped, 1 deselected.",
     "Rebased onto origin/main after banegis #190 merged at ba35a17. Kept banegis/nibiorest/ssclass/ssbsec/ssbfam and every other main source plus nbprov. Did not pick a second source. python3 -m pytest after rebase: 1286 passed, 1 skipped, 1 deselected.",
     "Rebased onto origin/main after mattilsyn #192 merged at 50fd297. Kept mattilsyn/banegis/nibiorest/ssclass and every other main source plus nbprov. Did not pick a second source. python3 -m pytest after rebase: 1295 passed, 1 skipped, 1 deselected.",
+    "Rebased onto origin/main after methods stormflo #185 merged at 294e2cd. Kept every main source plus nbprov. methods/ taken from main. Did not pick a second source. python3 -m pytest after rebase: 1300 passed, 1 skipped, 1 deselected.",
     "Not a numeric time series with two or more periods. Fetch listed 1 printed agreement-name cell (sample Norges Bank for Exchange rates)."
   ]
 }
