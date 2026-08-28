@@ -74,6 +74,7 @@ from public_data_agent.sources.spotwind import SpotwindSource
 from public_data_agent.sources.ssb import SsbStatbankSource
 from public_data_agent.sources.statnett import StatnettDriftsdataSource
 from public_data_agent.sources.stedsnavn import StedsnavnSource
+from public_data_agent.sources.stortinget import StortingetSource
 from public_data_agent.sources.subjectiveforecast import SubjectiveforecastSource
 from public_data_agent.sources.subseasonal import SubseasonalSource
 from public_data_agent.sources.sunrise import SunriseSource
@@ -175,6 +176,7 @@ SOURCE_IDS = (
     "hicoverages",
     "envreportreg",
     "himaps",
+    "stortinget",
 )
 
 
@@ -351,6 +353,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return EnvreportregSource()
     if source_id == "himaps":
         return HimapsSource()
+    if source_id == "stortinget":
+        return StortingetSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -429,6 +433,7 @@ __all__ = [
     "SourceBase",
     "StatnettDriftsdataSource",
     "StedsnavnSource",
+    "StortingetSource",
     "SubjectiveforecastSource",
     "SubseasonalSource",
     "SunriseSource",

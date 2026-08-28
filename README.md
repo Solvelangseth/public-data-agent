@@ -3540,6 +3540,42 @@ HTTP 200, 173 collection-title cells. Sample printed value: `reprojected`.
 time series (`no observations matched entity/measure; available=[]`).
 Proof is `data/himaps_source_proof.json`.
 
+## Stortinget åpne data source
+
+`pda ingest --source stortinget` is another replaceable adapter. It lists
+printed untemplated `/eksport/` collection hrefs on the official Stortinget
+technical documentation
+`https://data.stortinget.no/dokumentasjon-og-hjelp/teknisk-dokumentasjon/`,
+capped at 10. Printed example URIs that include a query string (required
+parameters) are skipped. Dataset ids are the printed last path segment.
+`access_path` is the documentation origin plus path plus the documented
+`format=json` parameter. License stays null: the documentation prints no
+license URL. Publisher stays null: the documentation prints no publisher
+field. This is not Cristin (`--source cristin`), not Fiskeridirektoratet
+Miljøundersøkelser (`--source envreportreg`), not Havforskningsinstituttet
+OGC Coverages (`--source hicoverages`), and not Havforskningsinstituttet
+OGC Maps (`--source himaps`, now on main after PR 139).
+
+```bash
+pda ingest --source stortinget --db data/registry.sqlite --limit 10
+pda search stortingsperioder --db data/registry.sqlite
+pda fetch --dataset stortinget:stortingsperioder --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored collection URL. Observation values are copied
+from printed JSON `navn` when present, otherwise `id`, `fornavn`, or
+`etternavn`. License stays null. Publisher stays null.
+
+Live ingest 2026-08-28: 8 printed untemplated `/eksport/` hrefs (catalog
+prints 8 collection paths with a last-segment id and no query string).
+Live search `stortingsperioder` returns `stortinget:stortingsperioder`.
+Live fetch GETs
+`https://data.stortinget.no/eksport/stortingsperioder?format=json`
+HTTP 200, 21 stortingsperiode cells. Sample printed value: `2025-2029`.
+`pda methods` is not applicable: period-id strings, not a numeric
+time series (`no observations matched entity/measure; available=[]`).
+Proof is `data/stortinget_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
