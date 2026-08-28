@@ -279,6 +279,16 @@ def test_printed_refs_skip_covered_hosts_servicelayer_api_html_and_404() -> None
     assert any(url.startswith(f"{SEARCH_URL}?") for url in http.gets)
 
 
+def test_list_stops_after_max_items_live() -> None:
+    http = CatalogHttp()
+    source = HiwmsSource(http=http, max_items=1)
+    refs = source.list_dataset_refs()
+    assert [ref.source_native_id for ref in refs] == ["fraraadning_ows"]
+    assert WFS_URL not in http.gets
+    assert HTML_URL not in http.gets
+    assert MISSING_URL not in http.gets
+
+
 def test_printed_leftover_services_keep_document_order_and_unique_ids() -> None:
     listed = printed_leftover_services(CATALOG["Results"])
     assert [ident for ident, _href, _title in listed] == [

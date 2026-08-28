@@ -98,7 +98,8 @@ class HiwmsSource(SourceBase):
         self.max_items = max_items
         self.http = http or HttpClient(
             limiter=RateLimiter(HIWMS_RPS, HIWMS_BURST),
-            timeout=60.0,
+            timeout=30.0,
+            max_retries=2,
         )
         self._listed: list[tuple[str, str, str]] | None = None
 
@@ -154,6 +155,8 @@ class HiwmsSource(SourceBase):
         collected = printed_leftover_services(results)
         kept: list[tuple[str, str, str]] = []
         for ident, href, title in collected:
+            if len(kept) >= self.max_items:
+                break
             try:
                 body = self.http.get_text(href, headers={"Accept": ACCEPT_XML})
             except Exception:
