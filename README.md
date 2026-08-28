@@ -4909,8 +4909,14 @@ null. `pda methods` is not applicable: layer names, not a numeric
 time series
 (`no observations matched entity/measure; available=[]`).
 
-Live ingest, fetch, and search numbers are recorded in
-`data/kvgrunn_source_proof.json` after the live run.
+Live ingest 2026-08-28: 2 leftover GetCapabilities documents. Live search
+`grunnkart` returns `kvgrunn:wms.norges_grunnkart`. Live fetch GETs
+`https://wms.geonorge.no/skwms1/wms.norges_grunnkart?service=WMS&request=GetCapabilities`
+HTTP 200, 111 printed layer-name cells. Sample printed value:
+`Norges_grunnkart`. `pda methods` is not applicable: layer names, not a
+numeric time series
+(`no observations matched entity/measure; available=[]`).
+Proof is `data/kvgrunn_source_proof.json`.
 
 ## Architecture (long term)
 

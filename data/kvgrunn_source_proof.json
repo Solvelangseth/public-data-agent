@@ -1,0 +1,114 @@
+{
+  "produced_at": "2026-08-28T10:15:37Z",
+  "bound": {
+    "list_api": [
+      "https://wms.geonorge.no/skwms1/wms.topograatone?service=WMS&request=GetCapabilities",
+      "https://wms.geonorge.no/skwms1/wms.norges_grunnkart?service=WMS&request=GetCapabilities"
+    ],
+    "walk": "copy the two official leftover Kartverket WMS GetCapabilities documents that kvwms left unused; each document is one dataset; skip HTML and non-WMS bodies; skip wms.topo and wmts already in kvwms; native ids are the printed last path segment so wms.topograatone stays distinct from wms.norges_grunnkart; access_path is the GetCapabilities URL; license stays null because the documents print copyright text, not a license URL; publisher stays null; live GET of those printed documents is HTTP 200 WMS XML with no token; no token is sent; do not invent extra leftover wms.geonorge.no/skwms1/ service URLs",
+    "cap": 10,
+    "how": "pda ingest --source kvgrunn --limit 10. Both printed leftover GetCapabilities documents return WMS_Capabilities XML 200. Cap 10 copies both. This is not --source kvwms, --source geonorge, --source hoydedata, --source hoydegis, --source ogccoverages, or --source transformering."
+  },
+  "discarded": [
+    {
+      "candidate": "Kartverket leftover WMS/WMTS / kvwms",
+      "url": "https://wms.geonorge.no/skwms1/wms.topo?service=WMS&request=GetCapabilities",
+      "why": "On main as --source kvwms after PR 163. Owns wms.topo and WMTS only. Do not redo kvwms."
+    },
+    {
+      "candidate": "wms.geonorge.no/skwms1/ directory",
+      "url": "https://wms.geonorge.no/skwms1/",
+      "why": "HTTP 404. No parent printed catalog of leftover WMS service names. Do not invent a service list."
+    },
+    {
+      "candidate": "Kystverket leftover WMS / kystwms",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/176",
+      "why": "In-flight sibling PR 176. Different host. Do not pick kystwms."
+    },
+    {
+      "candidate": "Kystverket leftover WFS / kystwfs",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/178",
+      "why": "In-flight sibling PR 178. Different host. Do not pick kystwfs."
+    },
+    {
+      "candidate": "NGU leftover WMS / nguwms",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/174",
+      "why": "On main after PR 174 merge 1b225c8. Do not redo nguwms."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source kvgrunn --db /tmp/pda-kvgrunn-proof/registry.sqlite --limit 10",
+    "listed": 2,
+    "inserted": 2,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "kvgrunn:wms.topograatone",
+        "title": "Topografisk norgeskart gråtone",
+        "access_path": "https://wms.geonorge.no/skwms1/wms.topograatone?service=WMS&request=GetCapabilities"
+      },
+      {
+        "id": "kvgrunn:wms.norges_grunnkart",
+        "title": "Norges grunnkart",
+        "access_path": "https://wms.geonorge.no/skwms1/wms.norges_grunnkart?service=WMS&request=GetCapabilities"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search grunnkart --db /tmp/pda-kvgrunn-proof/registry.sqlite --limit 10",
+    "query": "grunnkart",
+    "returned": 1,
+    "hit_id": "kvgrunn:wms.norges_grunnkart",
+    "title": "Norges grunnkart",
+    "source_id": "kvgrunn",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://wms.geonorge.no/skwms1/wms.norges_grunnkart?service=WMS&request=GetCapabilities",
+    "original_source": "https://wms.geonorge.no/skwms1/wms.norges_grunnkart?service=WMS&request=GetCapabilities",
+    "why_picked": "title matched grunnkart"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset kvgrunn:wms.norges_grunnkart --db /tmp/pda-kvgrunn-proof/registry.sqlite",
+    "dataset": "kvgrunn:wms.norges_grunnkart",
+    "table_id": "wms.norges_grunnkart",
+    "access_path": "https://wms.geonorge.no/skwms1/wms.norges_grunnkart?service=WMS&request=GetCapabilities",
+    "request_url": "https://wms.geonorge.no/skwms1/wms.norges_grunnkart?service=WMS&request=GetCapabilities",
+    "http_status": 200,
+    "listed": 111,
+    "inserted": 109,
+    "updated": 2,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "Name",
+        "value": "Norges_grunnkart"
+      },
+      {
+        "measure": "Name",
+        "value": "hoyde"
+      }
+    ],
+    "note": "The WMS document prints 111 named Layer Name values. Shared observation identity (measure plus dimensions) updated 2 stored rows. methods/ was not edited."
+  },
+  "methods": {
+    "command": "pda methods --dataset kvgrunn:wms.norges_grunnkart --db /tmp/pda-kvgrunn-proof/registry.sqlite",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "Kartverket leftover grunnkart WMS prints layer names. Those are not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed last /skwms1/ path segments. access_path is the official leftover GetCapabilities URL. No kvgrunn id was written onto a kvwms, geonorge, hoydegis, hoydedata, or ogccoverages row.",
+    "License is null: the documents print copyright text and Fees, not a license URL. Publisher is null.",
+    "Live GET of both leftover WMS GetCapabilities URLs is HTTP 200 WMS_Capabilities XML with no Authorization header. No token is sent. Accept is application/xml, text/xml, */* like kvwms.",
+    "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "is_kvwms_url now matches only wms.topo on wms.geonorge.no, so wms.topograatone is not treated as topo.",
+    "python3 -m pytest tests/test_kvgrunn_source.py tests/test_kvwms_source.py: 18 passed.",
+    "Branched from origin/main after nguwms #174 (1b225c8). SOURCE_IDS keeps nguwms, then kvgrunn. Open PRs at pickup: kystwms #176, kystwfs #178, nbcodelist #177, stormflo #175."
+  ]
+}
