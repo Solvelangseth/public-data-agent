@@ -124,6 +124,7 @@ def test_ssclass_is_a_registered_source() -> None:
     assert "ssb" in SOURCE_IDS
     assert "ssbv2" in SOURCE_IDS
     assert "ssbfam" in SOURCE_IDS
+    assert "ssbsec" in SOURCE_IDS
     assert "nbconcept" in SOURCE_IDS
     source = build_source("ssclass")
     assert isinstance(source, SsclassSource)
