@@ -54,21 +54,6 @@ KEPT_IDS = frozenset(
 
 
 class BanegisSource(SourceBase):
-    """Replaceable ingest adapter for leftover Bane NOR WMS/WFS.
-
-    Listing copies the four official leftover GetCapabilities documents
-    printed on Geonorge Kartkatalog search text=Bane NOR as Type=service
-    OGC:WMS or OGC:WFS. Each document is one dataset. It skips a
-    document that is not WMS or WFS XML. Native ids are the printed last
-    path segment so `wms.banenettverk` stays distinct from
-    `wfs.banenettverk`. Access URLs keep the printed GetCapabilities
-    URL. This first slice stays inside those four documents and caps
-    the walk. This is not Kartverket leftover topo WMS/WMTS
-    (`--source kvwms`), not leftover grunnkart WMS (`--source kvgrunn`),
-    not Statens vegvesen leftover OGC (`--source vegogc`), and not
-    Geonorge Kartkatalog (`--source geonorge`).
-    """
-
     source_id = SOURCE_ID
     source_name = SOURCE_NAME
     endpoints = LIST_URLS
@@ -200,14 +185,6 @@ def banegis_table_id(access_path: str) -> str:
 
 
 def cells_from_banegis(payload: Any) -> list[tuple[str, Any, dict[str, str]]]:
-    """Copy printed WMS Layer/Name or WFS FeatureType/Name text into cells.
-
-    WMS_Capabilities and WMT_MS_Capabilities keep printed Layer Name
-    text. WFS_Capabilities keeps printed FeatureType Name text. A Title
-    sibling, when present, stays as a dimension. Nested objects and
-    other XML are not copied. Nothing is invented.
-    """
-
     if not isinstance(payload, str) or not payload.strip():
         raise ValueError("banegis payload is empty or not WMS/WFS XML")
     if _is_html(payload):
