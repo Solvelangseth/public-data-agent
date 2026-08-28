@@ -129,6 +129,7 @@
     "Live GET of the printed WMSServer URL is HTTP 200 WMS_Capabilities XML. Live GET of the printed WFSServer URL is HTTP 200 WFS_Capabilities XML. No token is sent. No extra Accept header is invented.",
     "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
     "python3 -m pytest after adding the source: 1202 passed, 1 skipped, 1 deselected.",
+    "Rebased onto origin/main after kvgrunn #180, nbdsd #179, and nbconcept #182. Local pytest after rebase: 1228 passed, 1 skipped, 1 deselected.",
     "Not a numeric time series with two or more periods. Fetch listed 10 printed Layer Name cells (sample Skilt6756, Overettlinje_merke4406).",
     "Kystdatahuset stays on --source kystverket. Havnedata stays on --source havnedata. Navigasjonsvarsler stay on --source navwarnings. leftover ashx stays on --source kystwms and --source kystwfs. kvgrunn 180 stayed unused."
   ]
