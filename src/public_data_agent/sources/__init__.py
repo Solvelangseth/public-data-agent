@@ -61,6 +61,7 @@ from public_data_agent.sources.npigis import NpigisSource
 from public_data_agent.sources.npitema import NpitemaSource
 from public_data_agent.sources.nve import NveMagasinSource
 from public_data_agent.sources.nve2gis import Nve2gisSource
+from public_data_agent.sources.nvemap import NvemapSource
 from public_data_agent.sources.navwarnings import NavwarningsSource
 from public_data_agent.sources.nvegis import NvegisSource
 from public_data_agent.sources.nxr import NxrSource
@@ -199,6 +200,7 @@ SOURCE_IDS = (
     "npigis",
     "nve2gis",
     "npitema",
+    "nvemap",
 )
 
 
@@ -399,6 +401,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return Nve2gisSource()
     if source_id == "npitema":
         return NpitemaSource()
+    if source_id == "nvemap":
+        return NvemapSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -462,6 +466,7 @@ __all__ = [
     "NpitemaSource",
     "NveMagasinSource",
     "Nve2gisSource",
+    "NvemapSource",
     "NavwarningsSource",
     "NvegisSource",
     "NxrSource",
