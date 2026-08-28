@@ -64,8 +64,8 @@
     },
     {
       "candidate": "leftover GIS/WMS/OGC",
-      "url": "open PRs 165 ldirwms and 168 vegogc",
-      "why": "This lane stays on national JSON. Municipal CKAN/Opencom stayed unused."
+      "url": "vegogc PR 168 now on main bf64c5e; open PRs 165 ldirwms and 171 rawms",
+      "why": "This lane stays on national JSON. vegogc was kept on rebase. Municipal CKAN/Opencom stayed unused."
     }
   ],
   "ingest": {
