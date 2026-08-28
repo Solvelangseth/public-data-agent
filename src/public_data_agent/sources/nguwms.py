@@ -32,18 +32,6 @@ GETCAP_RE = re.compile(
 
 
 class NguwmsSource(SourceBase):
-    """Replaceable ingest adapter for leftover NGU WMS.
-
-    Listing copies printed GetCapabilities URLs the official leftover
-    NGU WMS pages print. It skips URLs without request=GetCapabilities,
-    hosts other than geo.ngu.no, paths outside /mapserver/, /api/features,
-    /kart/ viewers, and GetCapabilities bodies that are HTML or not WMS
-    XML. Native ids are the printed last /mapserver/ path segment so
-    LosmasserWMS3 stays distinct from BerggrunnWMS3. Access URLs keep
-    the printed href. This first slice stays inside those leftover pages
-    and caps the walk. This is not NGU OGC Features (`--source ngu`).
-    """
-
     source_id = SOURCE_ID
     source_name = SOURCE_NAME
     endpoints = (LIST_URL,)
@@ -157,8 +145,6 @@ class NguwmsSource(SourceBase):
 
 
 def printed_pager_urls(page: str, list_url: str) -> list[str]:
-    """Copy printed leftover pager hrefs on taxonomy/term/36."""
-
     parent_path = urlsplit(list_url).path.rstrip("/")
     listed: list[str] = []
     seen: set[str] = set()
@@ -180,8 +166,6 @@ def printed_pager_urls(page: str, list_url: str) -> list[str]:
 
 
 def printed_getcapabilities(page: str) -> list[tuple[str, str, str]]:
-    """Copy printed geo.ngu.no/mapserver GetCapabilities URLs."""
-
     listed: list[tuple[str, str, str]] = []
     seen: set[str] = set()
     for raw in GETCAP_RE.findall(page):
@@ -250,13 +234,6 @@ def nguwms_table_id(access_path: str) -> str:
 
 
 def cells_from_nguwms(payload: Any) -> list[tuple[str, Any, dict[str, str]]]:
-    """Copy printed WMS Layer/Name text into cells.
-
-    Each Layer keeps printed Name text. A Title sibling, when present,
-    stays as a dimension. Nested objects and other XML are not copied.
-    Nothing is invented.
-    """
-
     if not isinstance(payload, str) or not payload.strip():
         raise ValueError("nguwms payload is empty or not WMS XML")
     if _is_html(payload):
