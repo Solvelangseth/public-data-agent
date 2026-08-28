@@ -19,6 +19,7 @@ from public_data_agent.sources.datanorge import DataNorgeSource
 from public_data_agent.sources.elcert import ElcertSource
 from public_data_agent.sources.entur import EnturGbfsSource
 from public_data_agent.sources.envreportreg import EnvreportregSource
+from public_data_agent.sources.fdirwms import FdirwmsSource
 from public_data_agent.sources.fhi import FhiStatistikkSource
 from public_data_agent.sources.fiskeridir import FiskeridirVesselSource
 from public_data_agent.sources.fiskerigis import FiskerigisSource
@@ -275,6 +276,7 @@ SOURCE_IDS = (
     "mattilsyn",
     "nibiorest",
     "nbprov",
+    "fdirwms",
     "avinorgis",
     "brroller",
 )
@@ -551,6 +553,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return NibiorestSource()
     if source_id == "nbprov":
         return NbprovSource()
+    if source_id == "fdirwms":
+        return FdirwmsSource()
     if source_id == "avinorgis":
         return AvinorgisSource()
     if source_id == "brroller":
@@ -576,6 +580,7 @@ __all__ = [
     "ElcertSource",
     "EnturGbfsSource",
     "EnvreportregSource",
+    "FdirwmsSource",
     "FhiStatistikkSource",
     "FiskeridirVesselSource",
     "FiskerigisSource",
