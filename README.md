@@ -5272,7 +5272,17 @@ from printed correspondence-table `name` scalars. Other scalars stay as
 dimensions. Nested `_links` and `published` objects are not copied.
 License stays null. Publisher stays null.
 
-Live ingest, search, and fetch results land in `data/ssbver_source_proof.json`.
+Live ingest 2026-08-28: listed 10, inserted 10. The first printed
+classification prints 39 versions. This walk copies the first ten in
+document order. Live search `grunnkretsinndeling 2016` returns
+`ssbver:1`. Live fetch GETs
+`https://data.ssb.no/api/klass/v1/versions/1` HTTP 200, 5 name cells.
+Sample printed value:
+`Delområde- og grunnkretsinndeling 2016 - Delområde- og grunnkretsinndeling 2014`.
+`pda methods` is not applicable: correspondence-table names, not a
+numeric time series
+(`no observations matched entity/measure; available=[]`).
+Proof is `data/ssbver_source_proof.json`.
 
 ## NIBIO leftover WMS source
 

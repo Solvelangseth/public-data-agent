@@ -11,7 +11,6 @@ SOURCE_ID = "ssbver"
 SOURCE_NAME = "SSB Klass Classification Versions"
 LIST_URL = "https://data.ssb.no/api/klass/v1/classifications"
 OPENAPI_URL = "https://data.ssb.no/api/klass/v3/api-docs"
-CLASS_PATH_PREFIX = "/api/klass/v1/classifications"
 VERSION_PATH_PREFIX = "/api/klass/v1/versions"
 DEFAULT_MAX_ITEMS = 10
 INGEST_REASON = (
@@ -25,18 +24,10 @@ NAME_FIELDS = ("name", "id")
 
 
 class SsbverSource(SourceBase):
-    """Replaceable ingest adapter for leftover SSB Klass versions.
+    """Leftover Klass versions.
 
     The Klass OpenAPI names GET `/api/klass/v1/versions/{id}` and does not
-    print a versions collection. Listing copies printed
-    `_embedded.classifications[].id` and `_links.self.href`, GETs each
-    printed classification href, and copies printed `versions[].id` plus
-    `versions[]._links.self.href`. Native ids are the printed version `id`
-    values so `1` stays distinct from `2`. This first slice stays inside
-    those printed members and caps the walk. This is not the SSB PxWeb v0
-    Statbank (`--source ssb`), not PxWebApi 2 (`--source ssbv2`), not Klass
-    classification families (`--source ssbfam`), not Klass sections
-    (`--source ssbsec`), and not Klass classifications (`--source ssclass`).
+    print a versions collection.
     """
 
     source_id = SOURCE_ID
@@ -210,38 +201,30 @@ def printed_version_id(item: dict[str, Any]) -> str:
 
 
 def printed_classification_url(item: dict[str, Any], list_url: str) -> str:
-    """Copy the printed classification `_links.self.href`, or join the printed id."""
-
-    links = item.get("_links")
-    if isinstance(links, dict):
-        self_link = links.get("self")
-        if isinstance(self_link, dict):
-            href = self_link.get("href")
-            if isinstance(href, str) and href.strip():
-                return href.strip()
-    parts = urlsplit(list_url)
-    if not parts.scheme or not parts.netloc:
-        raise SourceError("Klass classifications catalog URL has no printed origin")
-    ident = printed_classification_id(item)
-    return f"{parts.scheme}://{parts.netloc}{CLASS_PATH_PREFIX}/{ident}"
+    href = _printed_self_href(item)
+    if href is None:
+        raise SourceError("Klass classification has no printed self href")
+    return href
 
 
 def printed_item_url(item: dict[str, Any], list_url: str) -> str:
-    """Copy the printed version `_links.self.href`.
+    href = _printed_self_href(item)
+    if href is None:
+        raise SourceError("Klass version has no printed self href")
+    return href
 
-    The official Klass OpenAPI names GET `/api/klass/v1/versions/{id}` and
-    prints no versions collection. Each printed version member carries
-    `_links.self.href`. That href is copied. No version id is invented.
-    """
 
+def _printed_self_href(item: dict[str, Any]) -> str | None:
     links = item.get("_links")
-    if isinstance(links, dict):
-        self_link = links.get("self")
-        if isinstance(self_link, dict):
-            href = self_link.get("href")
-            if isinstance(href, str) and href.strip():
-                return href.strip()
-    raise SourceError("Klass version has no printed self href")
+    if not isinstance(links, dict):
+        return None
+    self_link = links.get("self")
+    if not isinstance(self_link, dict):
+        return None
+    href = self_link.get("href")
+    if isinstance(href, str) and href.strip():
+        return href.strip()
+    return None
 
 
 def printed_title(item: dict[str, Any], ident: str) -> dict[str, str]:
@@ -252,12 +235,7 @@ def printed_title(item: dict[str, Any], ident: str) -> dict[str, str]:
 
 
 def is_ssbver_url(access_path: str | None) -> bool:
-    """Match the printed `/versions/{id}` integer path.
-
-    The Klass OpenAPI prints `{id}` as an integer. That rejects leftover
-    printed paths under the same host such as `/classifications` and
-    `/correspondencetables/{id}`.
-    """
+    """Match `/versions/{id}` where the Klass OpenAPI prints `{id}` as an integer."""
 
     if not access_path:
         return False
@@ -278,14 +256,6 @@ def ssbver_table_id(access_path: str) -> str:
 
 
 def cells_from_ssbver(payload: Any) -> list[tuple[str, Any, dict[str, str]]]:
-    """Copy printed Klass correspondence tables into observation cells.
-
-    A version object keeps each printed `correspondenceTables[]` member.
-    Each record keeps printed `name` when present, otherwise `id`. Other
-    scalars stay as dimensions. Nested `_links`, `published`, and other
-    objects are not copied. If `correspondenceTables` is absent, the
-    version scalars themselves are copied. Nothing is invented.
-    """
 
     if not isinstance(payload, dict):
         raise ValueError("ssbver payload is not a JSON object")

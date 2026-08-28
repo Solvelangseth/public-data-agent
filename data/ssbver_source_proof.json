@@ -1,5 +1,5 @@
 {
-  "produced_at": "2026-08-28T11:10:00Z",
+  "produced_at": "2026-08-28T11:14:00Z",
   "bound": {
     "list_api": "https://data.ssb.no/api/klass/v1/classifications",
     "openapi": "https://data.ssb.no/api/klass/v3/api-docs",
@@ -86,21 +86,109 @@
   ],
   "ingest": {
     "command": "pda ingest --source ssbver --db /tmp/pda-ssbver-proof/registry.sqlite --limit 10",
-    "listed": null,
-    "inserted": null,
-    "updated": null,
-    "failed": null,
-    "tables": []
+    "listed": 10,
+    "inserted": 10,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "ssbver:1",
+        "title": "Delområde- og grunnkretsinndeling 2016",
+        "access_path": "https://data.ssb.no/api/klass/v1/versions/1"
+      },
+      {
+        "id": "ssbver:2",
+        "title": "Delområde- og grunnkretsinndeling 2014",
+        "access_path": "https://data.ssb.no/api/klass/v1/versions/2"
+      },
+      {
+        "id": "ssbver:3",
+        "title": "Delområde- og grunnkretsinndeling 2013",
+        "access_path": "https://data.ssb.no/api/klass/v1/versions/3"
+      },
+      {
+        "id": "ssbver:4",
+        "title": "Delområde- og grunnkretsinndeling 2012",
+        "access_path": "https://data.ssb.no/api/klass/v1/versions/4"
+      },
+      {
+        "id": "ssbver:5",
+        "title": "Delområde- og grunnkretsinndeling 2011",
+        "access_path": "https://data.ssb.no/api/klass/v1/versions/5"
+      },
+      {
+        "id": "ssbver:6",
+        "title": "Delområde- og grunnkretsinndeling 2010",
+        "access_path": "https://data.ssb.no/api/klass/v1/versions/6"
+      },
+      {
+        "id": "ssbver:7",
+        "title": "Delområde- og grunnkretsinndeling 2009",
+        "access_path": "https://data.ssb.no/api/klass/v1/versions/7"
+      },
+      {
+        "id": "ssbver:8",
+        "title": "Delområde- og grunnkretsinndeling 2008",
+        "access_path": "https://data.ssb.no/api/klass/v1/versions/8"
+      },
+      {
+        "id": "ssbver:9",
+        "title": "Delområde- og grunnkretsinndeling 2007",
+        "access_path": "https://data.ssb.no/api/klass/v1/versions/9"
+      },
+      {
+        "id": "ssbver:10",
+        "title": "Delområde- og grunnkretsinndeling 2006",
+        "access_path": "https://data.ssb.no/api/klass/v1/versions/10"
+      }
+    ]
   },
   "search": {
-    "query": null,
-    "hit_id": null
+    "command": "pda search \"grunnkretsinndeling 2016\" --db /tmp/pda-ssbver-proof/registry.sqlite --limit 10",
+    "query": "grunnkretsinndeling 2016",
+    "returned": 1,
+    "hit_id": "ssbver:1",
+    "title": "Delområde- og grunnkretsinndeling 2016",
+    "source_id": "ssbver",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://data.ssb.no/api/klass/v1/versions/1",
+    "original_source": "https://data.ssb.no/api/klass/v1/classifications",
+    "why_picked": "title matched grunnkretsinndeling, 2016"
   },
   "fetch": {
+    "command": "pda fetch --dataset ssbver:1 --db /tmp/pda-ssbver-proof/registry.sqlite",
     "dataset": "ssbver:1",
-    "url": "https://data.ssb.no/api/klass/v1/versions/1",
-    "http_status": null,
-    "rows": null
+    "table_id": "1",
+    "access_path": "https://data.ssb.no/api/klass/v1/versions/1",
+    "request_url": "https://data.ssb.no/api/klass/v1/versions/1",
+    "http_status": 200,
+    "listed": 5,
+    "inserted": 5,
+    "updated": 0,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "name",
+        "value": "Delområde- og grunnkretsinndeling 2016 - Delområde- og grunnkretsinndeling 2014"
+      }
+    ]
   },
-  "methods": "N/A"
+  "methods": {
+    "command": "pda methods --dataset ssbver:1 --db /tmp/pda-ssbver-proof/registry.sqlite",
+    "applicable": false,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "Klass /api/klass/v1/versions/1 prints correspondence-table names. Those are not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true
+  },
+  "notes": [
+    "Ids are copied from printed version id values. access_path is the printed versions[]._links.self.href. No ssbver id was written onto an ssclass, ssb, or ssbv2 row.",
+    "License is null: the classifications catalog and version payload print no license field. Publisher is null: they print no publisher field.",
+    "OpenAPI prints no security scheme. Live GET of /api/klass/v1/versions/1 is HTTP 200 with no Authorization header. No token is sent.",
+    "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "python3 -m pytest: 1308 passed, 1 skipped, 1 deselected.",
+    "Not a numeric time series with two or more periods. Fetch listed 5 printed correspondence-table name cells.",
+    "is_ssbver_url is checked before is_klass_url so version URLs do not go through the Klass classificationItems parser."
+  ]
 }
