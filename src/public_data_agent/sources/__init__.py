@@ -83,6 +83,7 @@ from public_data_agent.sources.research import ResearchSource
 from public_data_agent.sources.riksantikvaren import RiksantikvarenSource
 from public_data_agent.sources.routeforecast import RouteforecastSource
 from public_data_agent.sources.sigcharts import SigchartsSource
+from public_data_agent.sources.sigmets import SigmetsSource
 from public_data_agent.sources.sikt import SiktSource
 from public_data_agent.sources.sodir import SodirSource
 from public_data_agent.sources.soundprofile import SoundprofileSource
@@ -215,6 +216,7 @@ SOURCE_IDS = (
     "ragis",
     "nibiowms",
     "regobs",
+    "sigmets",
 )
 
 
@@ -431,6 +433,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return NibiowmsSource()
     if source_id == "regobs":
         return RegobsSource()
+    if source_id == "sigmets":
+        return SigmetsSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -516,6 +520,7 @@ __all__ = [
     "RiksantikvarenSource",
     "RouteforecastSource",
     "SigchartsSource",
+    "SigmetsSource",
     "SiktSource",
     "SodirSource",
     "SoundprofileSource",

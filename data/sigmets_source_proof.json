@@ -1,0 +1,178 @@
+{
+  "produced_at": "2026-08-28T09:20:41Z",
+  "bound": {
+    "list_api": "https://api.met.no/weatherapi/sigmets/2.0/swagger",
+    "walk": "copy printed untemplated GET paths from the official MET Sigmets swagger; skip templated {format} paths, the root path with no last-segment id, and GET operations that print required query parameters; native ids are the last printed path segment; access_path is swagger origin + printed basePath + path; do not invent dataset ids or type/icao/format filters",
+    "cap": 10,
+    "how": "pda ingest --source sigmets --limit 10. The official MET Sigmets swagger prints 8 untemplated GET paths that have a last-segment id and no required query parameter. The adapter copies those paths. GET uses the printed /features collection with no invented query filters. /changelog prints RSS and /healthz prints plain text so they stay unused for fetch. /available prints XML. /airmets, /sigmets, and /windshear print text/plain."
+  },
+  "discarded": [
+    {
+      "candidate": "Lane B after ARCTICSDI (bc-4e8e0490)",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/157",
+      "why": "Opened Add SSB PxWebApi 2 as --source ssbv2, later gone from open list. Do not pick ssbv2."
+    },
+    {
+      "candidate": "Lane leftover GIS ragis",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/158",
+      "why": "Open PR 158 leftover Riksantikvaren MABYGIS. Stay off leftover GIS catalogs."
+    },
+    {
+      "candidate": "MET Aviationforecast",
+      "url": "https://api.met.no/weatherapi/aviationforecast/2.0/swagger",
+      "why": "Official swagger HTTP 200 with untemplated /locations and /features. Left unused so this slice stays off the first remaining MET product other national-JSON lanes are likely to open."
+    },
+    {
+      "candidate": "Fiskeridirektoratet Autorisasjonsregisteret",
+      "url": "https://api.fiskeridir.no/authreg-api/openapi",
+      "why": "Official OpenAPI HTTP 200. The only printed path is /authreg-api/api/v1/messages/auth-status/{radio_call_sign}. Templated. Do not invent a radio call sign."
+    },
+    {
+      "candidate": "Fiskeridirektoratet operasjonelle akvakulturrettigheter",
+      "url": "https://api.fiskeridir.no/aqua-operations-public/v3/api-docs",
+      "why": "Official OpenAPI HTTP 200. The only printed path is /api/v1/joint-ops/{site-nr}. Templated. Do not invent a site number."
+    },
+    {
+      "candidate": "Udir Register for lærebedrifter",
+      "url": "https://data-nlr.udir.no/swagger/v4/swagger.json",
+      "why": "Official OpenAPI HTTP 200. Live collection GETs are HTTP 401. Udir page prints that an authentication key is required. Do not invent auth."
+    },
+    {
+      "candidate": "Udir GSI / VGO swagger",
+      "url": "https://data-gsi.udir.no/swagger/v1/swagger.json",
+      "why": "Host did not resolve."
+    },
+    {
+      "candidate": "SSB PxWebApi 2",
+      "url": "https://data.ssb.no/api/pxwebapi/v2/tables",
+      "why": "Official JSON table list HTTP 200. Lane B opened PR 157 --source ssbv2. Do not pick it."
+    },
+    {
+      "candidate": "SSB Klass classifications",
+      "url": "https://data.ssb.no/api/klass/v1/classifications",
+      "why": "Already on main as klass. Assigned skip."
+    },
+    {
+      "candidate": "NPI / NVE leftover GIS",
+      "url": "assigned skip",
+      "why": "Stay off leftover GIS/WMS/OGC/ArcGIS catalogs. Other teammates own those."
+    },
+    {
+      "candidate": "frost / NVDB / HydAPI / Adresser / Eiendom",
+      "url": "assigned skip",
+      "why": "Known skip: 401/400. Do not invent a workaround."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "assigned skip",
+      "why": "Assigned skip. Other teammates own that lane."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source sigmets --db /tmp/pda-sigmets-proof/registry.sqlite --limit 10",
+    "listed": 8,
+    "inserted": 8,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "sigmets:airmets",
+        "title": "Aviation weather SIGMETs and AIRMETs for Norway",
+        "access_path": "https://api.met.no/weatherapi/sigmets/2.0/airmets"
+      },
+      {
+        "id": "sigmets:available",
+        "title": "List available resources as XML",
+        "access_path": "https://api.met.no/weatherapi/sigmets/2.0/available"
+      },
+      {
+        "id": "sigmets:changelog",
+        "title": "RSS feed of changes to this product",
+        "access_path": "https://api.met.no/weatherapi/sigmets/2.0/changelog"
+      },
+      {
+        "id": "sigmets:features",
+        "title": "List available resources as OGC API FeatureCollection",
+        "access_path": "https://api.met.no/weatherapi/sigmets/2.0/features"
+      },
+      {
+        "id": "sigmets:healthz",
+        "title": "Check health status for product",
+        "access_path": "https://api.met.no/weatherapi/sigmets/2.0/healthz"
+      },
+      {
+        "id": "sigmets:sigmets",
+        "title": "Aviation weather SIGMETs and AIRMETs for Norway",
+        "access_path": "https://api.met.no/weatherapi/sigmets/2.0/sigmets"
+      },
+      {
+        "id": "sigmets:values",
+        "title": "List allowed options for parameters",
+        "access_path": "https://api.met.no/weatherapi/sigmets/2.0/values"
+      },
+      {
+        "id": "sigmets:windshear",
+        "title": "Aviation weather SIGMETs and AIRMETs for Norway",
+        "access_path": "https://api.met.no/weatherapi/sigmets/2.0/windshear"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search FeatureCollection --db /tmp/pda-sigmets-proof/registry.sqlite --limit 3",
+    "query": "FeatureCollection",
+    "returned": 1,
+    "hit_id": "sigmets:features",
+    "title": "List available resources as OGC API FeatureCollection",
+    "source_id": "sigmets",
+    "publisher": null,
+    "license": "http://creativecommons.org/licenses/by/4.0",
+    "access_path": "https://api.met.no/weatherapi/sigmets/2.0/features",
+    "original_source": "https://api.met.no/weatherapi/sigmets/2.0/swagger",
+    "why_picked": "title matched featurecollection"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset sigmets:features --db /tmp/pda-sigmets-proof/registry.sqlite",
+    "dataset": "sigmets:features",
+    "table_id": "features",
+    "access_path": "https://api.met.no/weatherapi/sigmets/2.0/features",
+    "request_url": "https://api.met.no/weatherapi/sigmets/2.0/features",
+    "http_status": 200,
+    "listed": 3,
+    "inserted": 3,
+    "license": "http://creativecommons.org/licenses/by/4.0",
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "id",
+        "value": "airmets"
+      },
+      {
+        "measure": "id",
+        "value": "sigmets"
+      },
+      {
+        "measure": "id",
+        "value": "windshear"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset sigmets:features --db /tmp/pda-sigmets-proof/registry.sqlite",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "MET Sigmets /features prints feature ids airmets, sigmets, windshear. Those are not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed swagger path last segments. access_path is swagger origin plus printed basePath plus path. No sigmets id was written onto a sigcharts, volcanicashforecast, met, or datanorge row.",
+    "License is the printed swagger CC BY 4.0 URL. Publisher is null: the spec prints no publisher field.",
+    "Live GET of /weatherapi/sigmets/2.0/features is HTTP 200 with no Authorization header. No token is sent.",
+    "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "python3 -m pytest: 1016 passed, 1 skipped, 1 deselected.",
+    "Not a numeric time series with two or more periods. Fetch listed 3 printed feature-id cells (sample airmets, sigmets, windshear).",
+    "Open PR check found Lane B ssbv2 157 and leftover GIS ragis 158. Lane A bc-9d0d1671 and Lane C bc-64fcdd6b had no PR. aviationforecast leftover unused."
+  ]
+}
