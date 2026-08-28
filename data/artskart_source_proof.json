@@ -1,0 +1,170 @@
+{
+  "produced_at": "2026-08-28T00:24:30Z",
+  "bound": {
+    "list_api": "https://artskart.artsdatabanken.no/publicapi/swagger/docs/v1",
+    "walk": "copy printed untemplated collection GET paths from the official Artskart swagger; skip templated paths and GET operations that print required parameters; native ids are the last printed path segment; access_path is the printed swagger host plus basePath plus path; license stays null because the swagger prints no license URL; do not invent taxon filters or query parameters",
+    "cap": 10,
+    "how": "pda ingest --source artskart --limit 10. The official Artskart swagger prints 5 untemplated GET paths with no required parameters. The adapter copies those paths. GET uses the printed /publicapi/api/observations/list href with no invented query filters."
+  },
+  "discarded": [
+    {
+      "candidate": "Artsdatabanken Nortaxa",
+      "url": "PR 130 --source nortaxa, now on main",
+      "why": "Lane A committed choice. Already on main after merge 7099609. Do not re-add."
+    },
+    {
+      "candidate": "Kartverket Register",
+      "url": "PR 129 --source georegister, now on main",
+      "why": "Assigned skip for this lane. Already on main after merge 89cbe62. Do not re-add."
+    },
+    {
+      "candidate": "MET Locationforecast",
+      "url": "PR 128 --source locationforecast, now on main",
+      "why": "Assigned skip for this lane. Already on main. Do not re-add."
+    },
+    {
+      "candidate": "Kartverket Den norske los",
+      "url": "PR 127 --source norskelos, now on main",
+      "why": "Assigned skip for this lane. Already on main. Do not re-add."
+    },
+    {
+      "candidate": "MET Aviationforecast 2.0 swagger",
+      "url": "https://api.met.no/weatherapi/aviationforecast/2.0/swagger",
+      "why": "Assigned skip for this lane. Do not pick aviationforecast."
+    },
+    {
+      "candidate": "MET Sigmets 2.0 swagger",
+      "url": "https://api.met.no/weatherapi/sigmets/2.0/swagger",
+      "why": "Assigned skip for this lane. Do not pick sigmets."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    },
+    {
+      "candidate": "Stortinget eksport",
+      "url": "https://data.stortinget.no/dokumentasjon-og-hjelp/teknisk-dokumentasjon/",
+      "why": "Official printed GET paths exist and no-param collections return HTTP 200, but the printed default is XML and format=json is not printed. Do not invent a format query. Leftover unused this slice because Artskart swagger already prints JSON collection GET paths."
+    },
+    {
+      "candidate": "Kartverket OGC Coverages azurewebsites collections",
+      "url": "https://kartverket-ogc-api.azurewebsites.net/collections",
+      "why": "Leftover unused this slice. Official Artskart swagger already printed untemplated GET paths with live JSON. Collections print coverage metadata, not a JSON observation list."
+    },
+    {
+      "candidate": "Kartverket Adresser /sok /punktsok",
+      "url": "https://api.kartverket.no/adresser/v1/openapi.json",
+      "why": "OpenAPI prints /sok, but live GET without search params is HTTP 400. Do not invent a query."
+    },
+    {
+      "candidate": "Kartverket Eiendom /geokoding",
+      "url": "https://api.kartverket.no/eiendom/v1/geokoding",
+      "why": "Known skip: HTTP 400 without matrikkel params. Do not retry."
+    },
+    {
+      "candidate": "Frost MET sources",
+      "url": "https://frost.met.no/sources/v0.jsonld",
+      "why": "Known skip: HTTP 401. Do not retry."
+    },
+    {
+      "candidate": "NVDB Les V3 OpenAPI",
+      "url": "https://nvdbapiles-v3.atlas.vegvesen.no/dokumentasjon/openapi.json",
+      "why": "Known skip: HTTP 400 User-Agent. Do not retry."
+    },
+    {
+      "candidate": "Vegvesen Trafikkdata swagger / trafikkdata-api",
+      "url": "https://trafikkdata.atlas.vegvesen.no/",
+      "why": "Known skip: swagger HTML-only; trafikkdata-api 410. Do not retry."
+    },
+    {
+      "candidate": "NVE HydAPI /api/v1/Parameters",
+      "url": "https://hydapi.nve.no/swagger/v1/swagger.json",
+      "why": "HTTP 401. Do not retry."
+    },
+    {
+      "candidate": "Udir Statistikkbanken /data",
+      "url": "Udir Statistikkbanken /Eksport/{id}/data",
+      "why": "Known skip: requires invented filters. Do not retry."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source artskart --db /tmp/artskart-proof/registry.sqlite --limit 10",
+    "listed": 5,
+    "inserted": 5,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "artskart:Lookup",
+        "access_path": "https://artskart.artsdatabanken.no/publicapi/api/Lookup"
+      },
+      {
+        "id": "artskart:list",
+        "access_path": "https://artskart.artsdatabanken.no/publicapi/api/observations/list"
+      },
+      {
+        "id": "artskart:listall",
+        "access_path": "https://artskart.artsdatabanken.no/publicapi/api/observations/listall"
+      },
+      {
+        "id": "artskart:ping",
+        "access_path": "https://artskart.artsdatabanken.no/publicapi/api/ping"
+      },
+      {
+        "id": "artskart:Taxon",
+        "access_path": "https://artskart.artsdatabanken.no/publicapi/api/Taxon"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search observation --db /tmp/artskart-proof/registry.sqlite --limit 10",
+    "query": "observation",
+    "returned": 1,
+    "hit_id": "artskart:list",
+    "title": "Gets a list of observation based on a filter",
+    "source_id": "artskart",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://artskart.artsdatabanken.no/publicapi/api/observations/list",
+    "original_source": "https://artskart.artsdatabanken.no/publicapi/swagger/docs/v1",
+    "why_picked": "title matched observation"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset artskart:list --db /tmp/artskart-proof/registry.sqlite",
+    "dataset": "artskart:list",
+    "table_id": "list",
+    "access_path": "https://artskart.artsdatabanken.no/publicapi/api/observations/list",
+    "request_url": "https://artskart.artsdatabanken.no/publicapi/api/observations/list",
+    "http_status": 200,
+    "listed": 20,
+    "inserted": 20,
+    "updated": 0,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "ScientificName",
+        "value": "Myriospora scabrida"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset artskart:list --db /tmp/artskart-proof/registry.sqlite",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "Artskart /publicapi/api/observations/list prints scientific names. Those are not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed swagger path last segments. access_path is the printed swagger host plus basePath plus path. No artskart id was written onto a nin, nortaxa, georegister, locationforecast, or datanorge row.",
+    "License stays null: the swagger info prints no license URL. Publisher is null: the swagger does not print a publisher.",
+    "Original harvested swagger metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "python3 -m pytest after rebase onto Nortaxa 130: 780 passed, 1 skipped, 1 deselected.",
+    "Not a numeric time series with two or more periods. Fetch listed 20 printed scientific-name cells (sample Myriospora scabrida).",
+    "Open PR check at pickup found no open PRs. Lane A (bc-7a3aa143) had committed nortaxa and later merged PR 130 at 7099609. This branch rebases onto that main and keeps nortaxa plus artskart. aviationforecast 2.0 and sigmets 2.0 stayed unused."
+  ]
+}
