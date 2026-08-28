@@ -118,6 +118,7 @@
     "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
     "Open PRs at pickup after origin/main refresh were 177 nbcodelist, 175 stormflo, 176 kystwms, 174 nguwms, 172 sandnes. After live work 179 nbdsd was open. This lane stayed on leftover conceptscheme.",
     "python3 -m pytest after Norges Bank conceptscheme adapter: 1148 passed, 1 skipped, 1 deselected.",
+    "python3 -m pytest after rebase onto origin/main (nbcodelist 177 at 161a00e): 1192 passed, 1 skipped, 1 deselected.",
     "Not a numeric time series with two or more periods. Fetch listed 76 printed concept-name cells (sample Time Period)."
   ]
 }
