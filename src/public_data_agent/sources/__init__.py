@@ -4,6 +4,7 @@ from pathlib import Path
 
 from public_data_agent.sources.airquality import AirqualitySource
 from public_data_agent.sources.aqua import AquaSource
+from public_data_agent.sources.arcticsdi import ArcticsdiSource
 from public_data_agent.sources.artskart import ArtskartSource
 from public_data_agent.sources.baf import BafSource
 from public_data_agent.sources.base import CatalogSource, SourceBase
@@ -201,6 +202,7 @@ SOURCE_IDS = (
     "nve2gis",
     "npitema",
     "nvemap",
+    "arcticsdi",
 )
 
 
@@ -403,12 +405,15 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return NpitemaSource()
     if source_id == "nvemap":
         return NvemapSource()
+    if source_id == "arcticsdi":
+        return ArcticsdiSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
 __all__ = [
     "AirqualitySource",
     "AquaSource",
+    "ArcticsdiSource",
     "ArtskartSource",
     "BafSource",
     "BrregEnhetsregisterSource",
