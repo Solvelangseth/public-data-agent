@@ -9,6 +9,7 @@ from public_data_agent.sources.baf import BafSource
 from public_data_agent.sources.base import CatalogSource, SourceBase
 from public_data_agent.sources.brreg import BrregEnhetsregisterSource
 from public_data_agent.sources.buyer import BuyerSource
+from public_data_agent.sources.cristin import CristinSource
 from public_data_agent.sources.datanorge import DataNorgeSource
 from public_data_agent.sources.entur import EnturGbfsSource
 from public_data_agent.sources.fhi import FhiStatistikkSource
@@ -165,6 +166,7 @@ SOURCE_IDS = (
     "lister",
     "ogccoverages",
     "regnskap",
+    "cristin",
 )
 
 
@@ -331,6 +333,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return OgccoveragesSource()
     if source_id == "regnskap":
         return RegnskapSource()
+    if source_id == "cristin":
+        return CristinSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -342,6 +346,7 @@ __all__ = [
     "BrregEnhetsregisterSource",
     "BuyerSource",
     "CatalogSource",
+    "CristinSource",
     "DataNorgeSource",
     "EnturGbfsSource",
     "FhiStatistikkSource",

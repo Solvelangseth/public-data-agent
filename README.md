@@ -3370,6 +3370,37 @@ HTTP 200, 2190 filename cells. Sample printed value:
 time series (`no observations matched entity/measure; available=[]`).
 Proof is `data/regnskap_source_proof.json`.
 
+`pda ingest --source cristin` is another replaceable adapter. It lists
+printed collection GET paths on the official Cristin v2 documentation
+`https://api.cristin.no/v2/`, capped at 10. Templated `{id}` / `{pid}`
+paths are skipped. Optional `?{parameters}` on a printed title is not
+treated as a required query. Dataset ids are the printed paths so
+`results/categories` stays distinct from `projects/categories`.
+`access_path` is the documentation origin plus the printed path.
+License stays null: the documentation does not print a license URL.
+Publisher stays null. This is not Sikt DataverseNO (`--source sikt`),
+not Artsdatabanken Assessments (`--source lister`), not Kartverket
+OGC Coverages (`--source ogccoverages`, now on main after PR 132),
+and not Regnskapsregisteret (`--source regnskap`, now on main after
+PR 135).
+
+```bash
+pda ingest --source cristin --db data/registry.sqlite --limit 10
+pda search countries --db data/registry.sqlite
+pda fetch --dataset cristin:countries --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored collection URL. Observation values are
+copied from printed JSON records, keeping printed localized `name`.
+License stays null. Publisher stays null: the documentation does not
+print a publisher field.
+
+Live ingest copies the documentation-printed untemplated GET paths
+(cap 10). Live search `countries` returns `cristin:countries`. Live
+fetch GETs `https://api.cristin.no/v2/countries` HTTP 200 and copies
+printed country names. `pda methods` is not applicable: country names,
+not a numeric time series. Proof is `data/cristin_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists

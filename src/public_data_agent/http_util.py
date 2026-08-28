@@ -62,6 +62,35 @@ class HttpClient:
     def get_json_response(self, url: str, *, headers: dict[str, str] | None = None) -> JsonResponse:
         return self.request_json("GET", url, headers=headers)
 
+    def get_text(self, url: str, *, headers: dict[str, str] | None = None) -> str:
+        """GET a printed document body without requiring JSON."""
+
+        last_error: Exception | None = None
+        for attempt in range(self.max_retries):
+            if self.limiter:
+                self.limiter.acquire()
+            req_headers = {"User-Agent": USER_AGENT, "Accept": "application/json"}
+            if headers:
+                req_headers.update(headers)
+            request = urllib.request.Request(url, headers=req_headers, method="GET")
+            try:
+                with urllib.request.urlopen(request, timeout=self.timeout) as response:
+                    raw = response.read()
+                return raw.decode("utf-8", errors="replace")
+            except urllib.error.HTTPError as exc:
+                last_error = exc
+                if exc.code == 429 or 500 <= exc.code <= 599:
+                    wait = _retry_after(exc) or min(2**attempt, 30)
+                    self.sleeper(wait)
+                    continue
+                body = exc.read().decode("utf-8", errors="replace")
+                raise SourceHttpError(exc.code, url, body) from exc
+            except (urllib.error.URLError, TimeoutError) as exc:
+                last_error = exc
+                self.sleeper(min(2**attempt, 30))
+                continue
+        raise SourceHttpError(0, url, f"exhausted retries: {last_error}") from last_error
+
     def post_json(
         self,
         url: str,

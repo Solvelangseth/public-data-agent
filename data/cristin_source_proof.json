@@ -1,0 +1,225 @@
+{
+  "produced_at": "2026-08-28T00:57:54Z",
+  "bound": {
+    "list_api": "https://api.cristin.no/v2/",
+    "walk": "copy printed untemplated collection GET paths from the official Cristin v2 documentation HTML; skip templated {id}/{pid} paths and the printed GET /projects/participants/roles title (leading slash); optional ?{parameters} on a printed title is not treated as a required query; native ids are the printed paths so results/categories and projects/categories stay distinct; access_path is the documentation origin plus path; title copies the printed GET heading; license stays null because the documentation prints no license URL; do not invent query filters",
+    "cap": 10,
+    "how": "pda ingest --source cristin --limit 10. The official Cristin v2 documentation prints untemplated collection GET paths. The adapter copies the first 10. GET uses the printed /v2/countries href with no invented query filters."
+  },
+  "discarded": [
+    {
+      "candidate": "Kartverket OGC Coverages",
+      "url": "PR 132 --source ogccoverages",
+      "why": "Lane A opened this after pickup. Do not pick the other lane's source."
+    },
+    {
+      "candidate": "Artsdatabanken Assessments",
+      "url": "PR 133 --source lister, now on main",
+      "why": "Assigned skip. Already on main after merge a264de6. Do not re-add."
+    },
+    {
+      "candidate": "Artsdatabanken Artskart",
+      "url": "PR 131 --source artskart, now on main",
+      "why": "Assigned skip. Already on main. Do not re-add."
+    },
+    {
+      "candidate": "Artsdatabanken Nortaxa",
+      "url": "PR 130 --source nortaxa, now on main",
+      "why": "Assigned skip. Already on main. Do not re-add."
+    },
+    {
+      "candidate": "Kartverket Register",
+      "url": "PR 129 --source georegister, now on main",
+      "why": "Assigned skip. Already on main. Do not re-add."
+    },
+    {
+      "candidate": "MET Aviationforecast 2.0 swagger",
+      "url": "https://api.met.no/weatherapi/aviationforecast/2.0/swagger",
+      "why": "Assigned skip for this lane. Do not pick aviationforecast."
+    },
+    {
+      "candidate": "MET Sigmets 2.0 swagger",
+      "url": "https://api.met.no/weatherapi/sigmets/2.0/swagger",
+      "why": "Assigned skip for this lane. Do not pick sigmets."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    },
+    {
+      "candidate": "Udir Register for lærebedrifter",
+      "url": "https://data-nlr.udir.no/swagger/v4/swagger.json",
+      "why": "Official OpenAPI 200 prints /v4/enheter, /v4/organisasjonsformer, /v4/utgaattyper. Live collection GETs are HTTP 401. Do not invent auth."
+    },
+    {
+      "candidate": "NVE Nettleietariffer",
+      "url": "https://biapi.nve.no/nettleietariffer/swagger/v1/swagger.json",
+      "why": "Official OpenAPI 200 prints 3 untemplated GET paths with no required parameters in the spec. Live GETs are HTTP 422 Field required for FraDato/Tariffgruppe/Kundegruppe. Do not invent query filters."
+    },
+    {
+      "candidate": "NVE Inntektsrammer",
+      "url": "https://biapi.nve.no/inntektsrammer/swagger/v1/swagger.json",
+      "why": "OpenAPI prints security ApiKey. Do not invent a key."
+    },
+    {
+      "candidate": "Artsdatabanken Fremmedartsbase API",
+      "url": "https://fab.artsdatabanken.no/swagger/v1/swagger.json",
+      "why": "Official OpenAPI 200. Live collection GETs are HTTP 401. Do not invent auth."
+    },
+    {
+      "candidate": "Artsdatabanken Lookup",
+      "url": "https://lookup.artsdatabanken.no/swagger/swagger-ui-init.js",
+      "why": "Swagger 2.0 is embedded in swagger-ui-init.js; swagger.json URLs return HTML UI. Live GET /v1/query without q is HTTP 200. Left unused because Cristin already prints a collection catalog."
+    },
+    {
+      "candidate": "Stortinget eksport",
+      "url": "https://data.stortinget.no/eksport/emner",
+      "why": "Official printed GET paths exist and no-param collections return HTTP 200, but the printed default is XML and format=json is not printed. Do not invent a format query."
+    },
+    {
+      "candidate": "Kartverket Adresser /sok /punktsok",
+      "url": "https://api.kartverket.no/adresser/v1/openapi.json",
+      "why": "OpenAPI prints /sok, but live GET without search params is HTTP 400. Do not invent a query."
+    },
+    {
+      "candidate": "Kartverket Eiendom /geokoding",
+      "url": "https://api.kartverket.no/eiendom/v1/geokoding",
+      "why": "Known skip: HTTP 400 without matrikkel params. Do not retry."
+    },
+    {
+      "candidate": "Frost MET sources",
+      "url": "https://frost.met.no/sources/v0.jsonld",
+      "why": "Known skip: HTTP 401. Do not retry."
+    },
+    {
+      "candidate": "NVDB Les V3 OpenAPI",
+      "url": "https://nvdbapiles-v3.atlas.vegvesen.no/dokumentasjon/openapi.json",
+      "why": "Known skip: HTTP 400 User-Agent. Do not retry."
+    },
+    {
+      "candidate": "Vegvesen Trafikkdata swagger / trafikkdata-api",
+      "url": "https://trafikkdata.atlas.vegvesen.no/",
+      "why": "Known skip: swagger HTML-only; trafikkdata-api 410. Do not retry."
+    },
+    {
+      "candidate": "NVE HydAPI /api/v1/Parameters",
+      "url": "https://hydapi.nve.no/swagger/v1/swagger.json",
+      "why": "HTTP 401. Do not retry."
+    },
+    {
+      "candidate": "Udir Statistikkbanken /data",
+      "url": "Udir Statistikkbanken /Eksport/{id}/data",
+      "why": "Known skip: requires invented filters. Do not retry."
+    },
+    {
+      "candidate": "cristin /v2/persons/orcid",
+      "url": "https://api.cristin.no/v2/persons/orcid",
+      "why": "Printed in the v2 documentation with no path template so listed. Live GET is HTTP 401 Resource requires authentication. Unused for fetch. Do not invent auth."
+    },
+    {
+      "candidate": "cristin /v2/persons/resolve",
+      "url": "https://api.cristin.no/v2/persons/resolve",
+      "why": "Printed in the v2 documentation with no path template so listed. Live GET is HTTP 401 Resource requires authentication. Unused for fetch. Do not invent auth."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source cristin --db /tmp/cristin-proof/registry.sqlite --limit 10",
+    "listed": 10,
+    "inserted": 10,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "cristin:biobanks",
+        "access_path": "https://api.cristin.no/v2/biobanks"
+      },
+      {
+        "id": "cristin:biobanks/materials",
+        "access_path": "https://api.cristin.no/v2/biobanks/materials"
+      },
+      {
+        "id": "cristin:countries",
+        "access_path": "https://api.cristin.no/v2/countries"
+      },
+      {
+        "id": "cristin:fundings",
+        "access_path": "https://api.cristin.no/v2/fundings"
+      },
+      {
+        "id": "cristin:fundings/sources",
+        "access_path": "https://api.cristin.no/v2/fundings/sources"
+      },
+      {
+        "id": "cristin:institutions",
+        "access_path": "https://api.cristin.no/v2/institutions"
+      },
+      {
+        "id": "cristin:keywords",
+        "access_path": "https://api.cristin.no/v2/keywords"
+      },
+      {
+        "id": "cristin:persons",
+        "access_path": "https://api.cristin.no/v2/persons"
+      },
+      {
+        "id": "cristin:persons/orcid",
+        "access_path": "https://api.cristin.no/v2/persons/orcid"
+      },
+      {
+        "id": "cristin:persons/resolve",
+        "access_path": "https://api.cristin.no/v2/persons/resolve"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search countries --db /tmp/cristin-proof/registry.sqlite --limit 10",
+    "query": "countries",
+    "returned": 1,
+    "hit_id": "cristin:countries",
+    "title": "GET countries",
+    "source_id": "cristin",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://api.cristin.no/v2/countries",
+    "original_source": "https://api.cristin.no/v2/",
+    "why_picked": "title matched countries"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset cristin:countries --db /tmp/cristin-proof/registry.sqlite",
+    "dataset": "cristin:countries",
+    "table_id": "countries",
+    "access_path": "https://api.cristin.no/v2/countries",
+    "request_url": "https://api.cristin.no/v2/countries",
+    "http_status": 200,
+    "listed": 255,
+    "inserted": 255,
+    "updated": 0,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "name",
+        "value": "Andorra"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset cristin:countries --db /tmp/cristin-proof/registry.sqlite",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "Cristin /v2/countries prints country names. Those are not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed documentation paths. access_path is the documentation origin plus path. No cristin id was written onto a sikt, lister, artskart, nortaxa, or datanorge row.",
+    "License stays null: the documentation prints no license URL. Publisher is null: the documentation does not print a publisher.",
+    "Original harvested documentation metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "python3 -m pytest: 800 passed, 1 skipped, 1 deselected.",
+    "Not a numeric time series with two or more periods. Fetch listed 255 printed country-name cells (sample Andorra).",
+    "Open PR check at pickup found Lane A PR 132 ogccoverages, so unused. aviationforecast 2.0 and sigmets 2.0 stayed unused. persons/orcid and persons/resolve listed from the documentation but live GET 401 unused for fetch."
+  ]
+}
