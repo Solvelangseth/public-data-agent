@@ -24,6 +24,7 @@ from public_data_agent.sources.hi import HiFeaturesSource
 from public_data_agent.sources.hicoverages import HicoveragesSource
 from public_data_agent.sources.himaps import HimapsSource
 from public_data_agent.sources.histyles import HistylesSource
+from public_data_agent.sources.hitiles import HitilesSource
 from public_data_agent.sources.hoydedata import HoydedataSource
 from public_data_agent.sources.icemap import IcemapSource
 from public_data_agent.sources.isobaricgrib import IsobaricgribSource
@@ -179,6 +180,7 @@ SOURCE_IDS = (
     "himaps",
     "stortinget",
     "histyles",
+    "hitiles",
 )
 
 
@@ -359,6 +361,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return StortingetSource()
     if source_id == "histyles":
         return HistylesSource()
+    if source_id == "hitiles":
+        return HitilesSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -385,6 +389,7 @@ __all__ = [
     "HicoveragesSource",
     "HimapsSource",
     "HistylesSource",
+    "HitilesSource",
     "HoydedataSource",
     "IcemapSource",
     "IsobaricgribSource",
