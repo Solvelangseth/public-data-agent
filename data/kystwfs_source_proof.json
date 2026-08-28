@@ -99,6 +99,7 @@
     "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
     "Fetch listed 44 printed FeatureType Name cells. Two later FeatureTypes share Title Ladeanlegg ferjer - public, so Observation identity_key updated those two after the first insert. Sample printed value: layer_611.",
     "python3 -m pytest after live proof: 1139 passed, 1 skipped.",
-    "Open PR check at pickup found kystwms #176, nguwms #174, stormflo #175, and later nbcodelist #177. kystwms WMS stayed unused. nguwms stayed unused."
+    "Rebased onto origin/main after nguwms #174 (1b225c8). Keeps frivillig, sandnes, nguwms, and kystwfs. python3 -m pytest after rebase: 1166 passed, 1 skipped.",
+    "Open PR check at pickup found kystwms #176, nguwms #174, stormflo #175, and later nbcodelist #177. kystwms WMS stayed unused. nguwms is now on main."
   ]
 }
