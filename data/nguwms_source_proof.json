@@ -152,6 +152,6 @@
     "python3 -m pytest tests/test_nguwms_source.py tests/test_ngu_source.py tests/test_nibiowms_source.py tests/test_kvwms_source.py: 34 passed.",
     "Not a numeric time series with two or more periods. Fetch listed 170 printed Layer Name cells (sample LosmasserWMS3, Losmasser_temakart_sammenstilt).",
     "GeotreatWMS2 is printed without GetCapabilities and 404s. BerggrunnWMS3 is printed and live XML 200 on page 3. Cap 10 leaves it unused.",
-    "Rebased onto origin/main after ldirwms #165 (aaf24f7), which includes kvwms #163 (2cdbadb). SOURCE_IDS keeps ldirwms, then nguwms."
+    "Rebased onto origin/main after sandnes #172 (ba1a256), which includes frivillig #173 (5ad7788) and ldirwms #165 (aaf24f7). SOURCE_IDS keeps sandnes, then nguwms."
   ]
 }
