@@ -5126,6 +5126,46 @@ applicable: version names, not a numeric time series
 (`no observations matched entity/measure; available=[]`).
 Proof is `data/ssclass_source_proof.json`.
 
+## NIBIO leftover WMS source
+
+`pda ingest --source nibiorest` is another replaceable adapter. It lists
+printed GetCapabilities hrefs on leftover official NIBIO WMS pages
+under `https://nibio.no/tjenester/wms-tjenester` after the nibiowms cap
+of 10, capped at 10. Child pages under `/tjenester/wms-tjenester/` are
+walked. cgi-bin names already ingested by leftover NIBIO WMS
+(`--source nibiowms`) or leftover Landbruksdirektoratet WMS
+(`--source ldirwms`) are skipped. Attachment links and the gårdskart
+page (no cgi-bin GetCapabilities) are skipped. GetCapabilities bodies
+that are HTML MapServer errors are skipped, including
+`riparian_zones_GLE`. Dataset ids are the printed last cgi-bin path
+segment so `hrl` stays distinct from `ok_raster`. `access_path` is the
+GetCapabilities URL as printed. License stays null. Publisher stays
+null. This is not NIBIO IPM weather (`--source nibio`), not leftover
+NIBIO WMS (`--source nibiowms`), and not leftover Landbruksdirektoratet
+WMS (`--source ldirwms`).
+
+```bash
+pda ingest --source nibiorest --db data/registry.sqlite --limit 10
+pda search hrl --db data/registry.sqlite
+pda fetch --dataset nibiorest:hrl --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored GetCapabilities URL as text. Observation
+values are copied from printed WMS `Layer`/`Name` text. A printed
+`Title` sibling stays as a dimension. License stays null. Publisher
+stays null.
+
+Live ingest 2026-08-28: 1 leftover GetCapabilities service (catalog
+prints 12 hrefs; nibiowms already took the first 10 live XML services;
+`riparian_zones_GLE` is HTML; cap 10 copies leftover `hrl`). Live search
+`hrl` returns `nibiorest:hrl`. Live fetch GETs
+`https://wms.nibio.no/cgi-bin/hrl?VERSION=1.3.0&REQUEST=GetCapabilities&service=wms`
+HTTP 200, 7 Layer Name cells. Sample printed value:
+`High_Resolution_Layers`. `pda methods` is not applicable: layer names,
+not a numeric time series
+(`no observations matched entity/measure; available=[]`).
+Proof is `data/nibiorest_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
