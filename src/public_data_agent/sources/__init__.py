@@ -108,6 +108,7 @@ from public_data_agent.sources.oslo import OsloStatbankSource
 from public_data_agent.sources.oslofjord import OslofjordSource
 from public_data_agent.sources.spotwind import SpotwindSource
 from public_data_agent.sources.ssb import SsbStatbankSource
+from public_data_agent.sources.ssbfam import SsbfamSource
 from public_data_agent.sources.ssbv2 import Ssbv2Source
 from public_data_agent.sources.statnett import StatnettDriftsdataSource
 from public_data_agent.sources.stedsnavn import StedsnavnSource
@@ -259,6 +260,7 @@ SOURCE_IDS = (
     "nbconcept",
     "kystnav",
     "mdirwms",
+    "ssbfam",
 )
 
 
@@ -519,6 +521,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return KystnavSource()
     if source_id == "mdirwms":
         return MdirwmsSource()
+    if source_id == "ssbfam":
+        return SsbfamSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -629,6 +633,7 @@ __all__ = [
     "OsloStatbankSource",
     "SpotwindSource",
     "SsbStatbankSource",
+    "SsbfamSource",
     "Ssbv2Source",
     "SOURCE_IDS",
     "SourceBase",
