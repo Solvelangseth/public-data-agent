@@ -1,0 +1,143 @@
+{
+  "produced_at": "2026-08-28T10:26:34Z",
+  "bound": {
+    "list_api": "https://kartkatalog.geonorge.no/api/search?text=Miljødirektoratet",
+    "walk": "copy printed leftover OGC:WMS and OGC:WFS Type=service rows the official Geonorge Kartkatalog search text=Miljødirektoratet prints; skip other organizations, downloads, and servicelayers; skip ArcGIS WMS wrappers already covered by miljogis on kart.miljodirektoratet.no/arcgis/; skip NIBIO leftover WMS hosts, NGU leftover WMS, and NVE GIS hosts; skip GetCapabilities bodies that are not WMS or WFS XML; native ids are the printed service path segment so industri stays distinct from miljoverdi_hav_wms; access_path is the printed DistributionUrl; license stays null because the catalog prints no license URL; publisher stays null; do not invent query filters or layer names",
+    "cap": 10,
+    "how": "pda ingest --source mdirwms --limit 10. The official search prints 176 catalog rows. 59 are OGC:WMS or OGC:WFS Type=service. Leftover live WMS/WFS XML 200 rows remain after skipping miljogis ArcGIS wrappers, other organizations, downloads, servicelayers, HTML, 404, 504, and ServiceException bodies. Cap 10 copies the first ten leftover live documents. This is not Miljødirektoratet ArcGIS REST (--source miljogis) and not Vannmiljø (--source miljodir)."
+  },
+  "discarded": [
+    {
+      "candidate": "Miljødirektoratet ArcGIS REST / miljogis",
+      "url": "https://kart.miljodirektoratet.no/arcgis/rest/services?f=json",
+      "why": "Already --source miljogis. ArcGIS WMS wrappers on kart.miljodirektoratet.no/arcgis/services stay unused."
+    },
+    {
+      "candidate": "Vannmiljø JSON / miljodir",
+      "url": "https://vannmiljoapi.miljodirektoratet.no",
+      "why": "Already --source miljodir. Not leftover WMS/WFS."
+    },
+    {
+      "candidate": "NIBIO leftover WMS / nibiowms",
+      "url": "https://wms.nibio.no/cgi-bin/ok_raster?request=getcapabilities&service=wms",
+      "why": "Already --source nibiowms. Host skipped."
+    },
+    {
+      "candidate": "Landbruksdirektoratet leftover WMS / ldirwms",
+      "url": "https://wms.nibio.no/cgi-bin/vernskog2?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetCapabilities",
+      "why": "Already --source ldirwms. Host skipped."
+    },
+    {
+      "candidate": "NGU leftover WMS / nguwms",
+      "url": "https://geo.ngu.no/mapserver/LandformerWMS?REQUEST=GetCapabilities&SERVICE=WMS&VERSION=1.3.0",
+      "why": "Already --source nguwms. Other organization and host skipped."
+    },
+    {
+      "candidate": "Naturtiltak WMS without GetCapabilities query",
+      "url": "https://kart3.miljodirektoratet.no/arcgis/services/naturtiltak/naturtiltak/MapServer/WMSServer",
+      "why": "Printed leftover URL returns ServiceExceptionReport, not WMS XML."
+    },
+    {
+      "candidate": "INSPIRE Protected Sites WFS",
+      "url": "https://wfs.geonorge.no/skwms1/wfs.protectedsites?service=wfs&request=getcapabilities",
+      "why": "Printed leftover URL returned HTTP 504 HTML, not WFS XML."
+    },
+    {
+      "candidate": "Kystverket leftover WMS / kystwms",
+      "url": "PR 176 --source kystwms, OPEN",
+      "why": "In-flight sibling. Do not pick."
+    },
+    {
+      "candidate": "Kartverket leftover grunnkart WMS / kvgrunn",
+      "url": "PR 180 --source kvgrunn, OPEN",
+      "why": "In-flight sibling. Do not pick."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source mdirwms --db /tmp/pda-mdirwms-proof/registry.sqlite --limit 10",
+    "listed": 10,
+    "inserted": 10,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "mdirwms:industri",
+        "title": "Industri WMS",
+        "access_path": "https://kart3.miljodirektoratet.no/arcgis/services/industri/MapServer/WMSServer?service=WMS&request=GetCapabilities"
+      },
+      {
+        "id": "mdirwms:vannmiljo",
+        "title": "Vannmiljø WMS",
+        "access_path": "https://kart3.miljodirektoratet.no/arcgis/services/vannmiljo/MapServer/WMSServer?service=WMS&request=GetCapabilities"
+      },
+      {
+        "id": "mdirwms:hovedokosystem",
+        "title": "Hovedøkosystemer i Norge - versjon 1 WMS",
+        "access_path": "https://kart2.miljodirektoratet.no/arcgis/services/hovedokosystem/hovedokosystem/MapServer/WMSServer?request=GetCapabilities&service=WMS"
+      },
+      {
+        "id": "mdirwms:miljoverdi_hav_wms",
+        "title": "Miljøverdi, hav WMS",
+        "access_path": "https://kart.miljodirektoratet.no/geoserver/miljoverdi_hav/wms?service=wms&version=1.1.1&request=getcapabilities"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search Industri --db /tmp/pda-mdirwms-proof/registry.sqlite --limit 5",
+    "query": "Industri",
+    "returned": 1,
+    "hit_id": "mdirwms:industri",
+    "title": "Industri WMS",
+    "source_id": "mdirwms",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://kart3.miljodirektoratet.no/arcgis/services/industri/MapServer/WMSServer?service=WMS&request=GetCapabilities",
+    "original_source": "https://kartkatalog.geonorge.no/api/search",
+    "why_picked": "title matched industri"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset mdirwms:industri --db /tmp/pda-mdirwms-proof/registry.sqlite",
+    "dataset": "mdirwms:industri",
+    "table_id": "industri",
+    "access_path": "https://kart3.miljodirektoratet.no/arcgis/services/industri/MapServer/WMSServer?service=WMS&request=GetCapabilities",
+    "request_url": "https://kart3.miljodirektoratet.no/arcgis/services/industri/MapServer/WMSServer?service=WMS&request=GetCapabilities",
+    "http_status": 200,
+    "listed": 2,
+    "inserted": 2,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "Name",
+        "value": "industri_landbasert_overvaaking"
+      },
+      {
+        "measure": "Name",
+        "value": "industri_landbasert"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset mdirwms:industri --db /tmp/pda-mdirwms-proof/registry.sqlite",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "Miljødirektoratet leftover WMS GetCapabilities prints Layer Name strings. That is not a numeric time series with a year-like period field and two or more periods. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed service path segments. access_path is the printed Geonorge DistributionUrl. No mdirwms id was written onto a miljogis, miljodir, nibiowms, ldirwms, or geonorge row.",
+    "License stays null: the catalog prints no license URL. Publisher is null: this adapter does not copy Organization onto publisher.",
+    "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "python3 -m pytest after implement: 1193 passed, 1 skipped, 1 deselected.",
+    "Not a numeric time series with two or more periods. Fetch listed 2 printed Layer Name cells (sample industri_landbasert_overvaaking).",
+    "Open PR check at pickup found kystwms #176 and kvgrunn #180. Those leftover WMS catalogs stayed unused."
+  ]
+}

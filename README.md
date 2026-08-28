@@ -4883,8 +4883,17 @@ copied from printed WMS `Layer`/`Name` text or WFS `FeatureType`/`Name`
 text. A sibling `Title` stays as a dimension. License stays null. Publisher
 stays null.
 
-Live ingest and fetch numbers are recorded in `data/mdirwms_source_proof.json`
-after the live run.
+Live ingest 2026-08-28: 10 leftover WMS services (search prints 176 rows;
+59 are OGC:WMS or OGC:WFS Type=service; cap 10 copies the first ten leftover
+live documents after skipping miljogis ArcGIS wrappers, other organizations,
+downloads, servicelayers, HTML, 404, 504, and ServiceException bodies). Live
+search `Industri` returns `mdirwms:industri`. Live fetch GETs
+`https://kart3.miljodirektoratet.no/arcgis/services/industri/MapServer/WMSServer?service=WMS&request=GetCapabilities`
+HTTP 200, 2 Layer Name cells. Sample printed value:
+`industri_landbasert_overvaaking`. `pda methods` is not applicable: layer
+names, not a numeric time series
+(`no observations matched entity/measure; available=[]`).
+Proof is `data/mdirwms_source_proof.json`.
 
 ## Norges Bank SDMX Codelists source
 
