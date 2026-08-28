@@ -4815,6 +4815,40 @@ HTTP 200, 44 FeatureType Name cells. Sample printed value: `layer_611`.
 series (`no observations matched entity/measure; available=[]`).
 Proof is `data/kystwfs_source_proof.json`.
 
+## Kystverket leftover Navigasjonsinstallasjoner source
+
+`pda ingest --source kystnav` is another replaceable adapter. It lists the
+two printed leftover Kystverket Navigasjonsinstallasjoner GetCapabilities
+documents
+`https://maps.kystverket.cloudgis.no/enterprise/services/PROD/nfs_sistop_ekstern_prod/MapServer/WMSServer?request=GetCapabilities&service=WMS`
+and
+`https://maps.kystverket.cloudgis.no/enterprise/services/PROD/nfs_sistop_ekstern_prod/MapServer/WFSServer?request=GetCapabilities&service=WFS`,
+capped at 10. Those URLs are printed on Geonorge as Navigasjonsinstallasjoner
+WMS (`80b7eab8-d5da-4136-8ec6-2002867a2b2b`) and Navigasjonsinstallasjoner WFS
+(`73e46cf4-d9f5-4d75-b148-bb5edf888c4a`). A document that is not WMS
+or WFS XML is skipped. Dataset ids are the printed last path segment so
+`WMSServer` stays distinct from `WFSServer`. `access_path` is the
+GetCapabilities URL as printed. License stays null. Publisher stays
+null. This is not Kystdatahuset (`--source kystverket`), not Kartverket
+Havnedata (`--source havnedata`), not Kystverket navigasjonsvarsler
+(`--source navwarnings`), not leftover Kystverket WMS
+(`--source kystwms`), and not leftover Kystverket WFS
+(`--source kystwfs`).
+
+```bash
+pda ingest --source kystnav --db data/registry.sqlite --limit 10
+pda search WMSServer --db data/registry.sqlite
+pda fetch --dataset kystnav:WMSServer --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored GetCapabilities URL as text. Observation
+values are copied from printed WMS `Layer`/`Name` text or WFS
+`FeatureType`/`Name` text. A printed `Title` sibling stays as a
+dimension. License stays null. Publisher stays null.
+
+Live proof will be recorded in `data/kystnav_source_proof.json` after
+the live run.
+
 ## Norges Bank SDMX Codelists source
 
 `pda ingest --source nbcodelist` is another replaceable adapter. It lists

@@ -39,6 +39,7 @@ from public_data_agent.sources.isobaricgrib import IsobaricgribSource
 from public_data_agent.sources.kommuneinfo import KommuneinfoSource
 from public_data_agent.sources.kvgrunn import KvgrunnSource
 from public_data_agent.sources.kvwms import KvwmsSource
+from public_data_agent.sources.kystnav import KystnavSource
 from public_data_agent.sources.kystverket import KystverketSource
 from public_data_agent.sources.kystwfs import KystwfsSource
 from public_data_agent.sources.kystwms import KystwmsSource
@@ -255,6 +256,7 @@ SOURCE_IDS = (
     "nbdsd",
     "kvgrunn",
     "nbconcept",
+    "kystnav",
 )
 
 
@@ -511,6 +513,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return KvgrunnSource()
     if source_id == "nbconcept":
         return NbconceptSource()
+    if source_id == "kystnav":
+        return KystnavSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -552,6 +556,7 @@ __all__ = [
     "KommuneinfoSource",
     "KvgrunnSource",
     "KvwmsSource",
+    "KystnavSource",
     "KystverketSource",
     "KystwfsSource",
     "KystwmsSource",
