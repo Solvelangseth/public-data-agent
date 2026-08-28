@@ -3296,6 +3296,46 @@ HTTP 200 and copies printed nature-type names. `pda methods` is not
 applicable: nature-type names, not a numeric time series. Proof is
 `data/lister_source_proof.json`.
 
+## Kartverket OGC Coverages source
+
+`pda ingest --source ogccoverages` is another replaceable adapter. It lists
+printed collection GET paths on the official Kartverket OGC Coverages
+OpenAPI `https://kartverket-ogc-api.azurewebsites.net/openapi?f=json`,
+capped at 10. The root path (no last-segment id), templated paths, POST
+execution, and GET operations that print required parameters are skipped.
+Dataset ids are the printed path without a leading slash so two
+`/coverage` suffixes stay distinct. `access_path` is the printed OpenAPI
+server URL plus path. License is copied from the printed OpenAPI CC BY
+4.0 URL. Publisher stays null: contact name Kartverket stays in harvested
+OpenAPI info and is not copied as a publisher. This is not Kartverket
+Hoydedata (`--source hoydedata`), not Geonorge Kartkatalog
+(`--source geonorge`), not Kartverket Register
+(`--source georegister`), not Kartverket Den norske los
+(`--source norskelos`), not Artsdatabanken Nortaxa
+(`--source nortaxa`), not Artsdatabanken Artskart
+(`--source artskart`, now on main after PR 131), and not Artsdatabanken
+Lister (`--source lister`, now on main after PR 133).
+
+```bash
+pda ingest --source ogccoverages --db data/registry.sqlite --limit 10
+pda search Collections --db data/registry.sqlite
+pda fetch --dataset ogccoverages:collections --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored collection URL. Observation values are copied
+from printed JSON `title` when present, otherwise `name` or `id`. License
+is the printed OpenAPI CC BY 4.0 URL. Publisher stays null.
+
+Live ingest 2026-08-28: 10 printed untemplated GET paths (catalog prints
+13 paths with a last-segment id and no required parameter, cap 10).
+Live search `Collections` returns `ogccoverages:collections`. Live fetch
+GETs `https://kartverket-ogc-api.azurewebsites.net/collections`
+HTTP 200, 2 collection-title cells. Sample printed value:
+`DTM 10 Terrengmodell (UTM32)`.
+`pda methods` is not applicable: collection titles, not a numeric
+time series (`no observations matched entity/measure; available=[]`).
+Proof is `data/ogccoverages_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
