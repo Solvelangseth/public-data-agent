@@ -4876,6 +4876,41 @@ HTTP 200, 10 component-id cells. Sample printed value: `FREQ`.
 (`no observations matched entity/measure; available=[]`).
 Proof is `data/nbdsd_source_proof.json`.
 
+## Kartverket leftover grunnkart WMS source
+
+`pda ingest --source kvgrunn` is another replaceable adapter. It lists
+the two official leftover Kartverket WMS GetCapabilities documents
+`https://wms.geonorge.no/skwms1/wms.topograatone?service=WMS&request=GetCapabilities`
+and
+`https://wms.geonorge.no/skwms1/wms.norges_grunnkart?service=WMS&request=GetCapabilities`,
+capped at 10. Each document is one dataset. GetCapabilities bodies that
+are HTML or not WMS XML are skipped. Native ids are the printed last
+path segment so `wms.topograatone` stays distinct from
+`wms.norges_grunnkart`. `access_path` is that GetCapabilities URL.
+License stays null: the documents print copyright text, not a license
+URL. Publisher stays null. This is not Kartverket leftover WMS/WMTS
+(`--source kvwms`, `wms.topo` and WMTS only), not Geonorge Kartkatalog
+(`--source geonorge`), not Kartverket Høydedata (`--source hoydedata`),
+not Kartverket Høydedata GIS (`--source hoydegis`), not Kartverket OGC
+API Coverages (`--source ogccoverages`), and not Kartverket
+Transformering (`--source transformering`).
+
+```bash
+pda ingest --source kvgrunn --db data/registry.sqlite --limit 10
+pda search grunnkart --db data/registry.sqlite
+pda fetch --dataset kvgrunn:wms.norges_grunnkart --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored GetCapabilities URL as text, with
+`Accept: application/xml, text/xml, */*`. Observation values are
+copied from printed WMS `Layer`/`Name` text. A printed `Title`
+sibling stays as a dimension. License stays null. Publisher stays
+null. `pda methods` is not applicable: layer names, not a numeric
+time series
+(`no observations matched entity/measure; available=[]`).
+
+Live ingest, fetch, and search numbers are recorded in
+`data/kvgrunn_source_proof.json` after the live run.
 
 ## Architecture (long term)
 

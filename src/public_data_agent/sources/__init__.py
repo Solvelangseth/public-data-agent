@@ -37,6 +37,7 @@ from public_data_agent.sources.hoydegis import HoydegisSource
 from public_data_agent.sources.icemap import IcemapSource
 from public_data_agent.sources.isobaricgrib import IsobaricgribSource
 from public_data_agent.sources.kommuneinfo import KommuneinfoSource
+from public_data_agent.sources.kvgrunn import KvgrunnSource
 from public_data_agent.sources.kvwms import KvwmsSource
 from public_data_agent.sources.kystverket import KystverketSource
 from public_data_agent.sources.kystwfs import KystwfsSource
@@ -251,6 +252,7 @@ SOURCE_IDS = (
     "kystwfs",
     "nbcodelist",
     "nbdsd",
+    "kvgrunn",
 )
 
 
@@ -503,6 +505,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return NbcodelistSource()
     if source_id == "nbdsd":
         return NbdsdSource()
+    if source_id == "kvgrunn":
+        return KvgrunnSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -542,6 +546,7 @@ __all__ = [
     "IcemapSource",
     "IsobaricgribSource",
     "KommuneinfoSource",
+    "KvgrunnSource",
     "KvwmsSource",
     "KystverketSource",
     "KystwfsSource",

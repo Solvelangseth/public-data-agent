@@ -220,6 +220,12 @@ def test_cells_copy_printed_name_or_identifier() -> None:
 def test_is_kvwms_url_accepts_only_leftover_paths() -> None:
     assert is_kvwms_url(WMS_URL)
     assert is_kvwms_url(WMTS_URL)
+    assert not is_kvwms_url(
+        "https://wms.geonorge.no/skwms1/wms.topograatone?service=WMS&request=GetCapabilities"
+    )
+    assert not is_kvwms_url(
+        "https://wms.geonorge.no/skwms1/wms.norges_grunnkart?service=WMS&request=GetCapabilities"
+    )
     assert kvwms_table_id(WMS_URL) == "wms.topo"
     assert kvwms_table_id(WMTS_URL) == "wmts"
     assert not is_kvwms_url(HOYDEGIS_URL)
