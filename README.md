@@ -4255,6 +4255,35 @@ HTTP 200, 6 Layer Name cells. Sample printed value: `Kulturminner`.
 `pda methods` is not applicable: layer names, not a numeric time series.
 Proof is `data/rawms_source_proof.json`.
 
+## Kystverket leftover WMS source
+
+`pda ingest --source kystwms` is another replaceable adapter. It lists the
+two printed leftover Kystverket GetCapabilities documents on
+`services.kystverket.no`, capped at 10. Those URLs are printed on
+Geonorge as Kystverkets WMS
+(`768a3ca6-0655-45d5-8cd5-76bd7e0e59d2`) and Kystverkets WFS
+(`de223e4c-e708-4c15-9afb-f8cedd3cd3ba`). A document that is not WMS
+or WFS XML is skipped. Dataset ids are the printed last path segment so
+`wms.ashx` stays distinct from `wfs.ashx`. `access_path` is the
+GetCapabilities URL as printed. License stays null. Publisher stays
+null. This is not Kystdatahuset (`--source kystverket`), not Kartverket
+Havnedata (`--source havnedata`), and not Kystverket navigasjonsvarsler
+(`--source navwarnings`).
+
+```bash
+pda ingest --source kystwms --db data/registry.sqlite --limit 10
+pda search wms.ashx --db data/registry.sqlite
+pda fetch --dataset kystwms:wms.ashx --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored GetCapabilities URL as text. Observation
+values are copied from printed WMS `Layer`/`Name` text or WFS
+`FeatureType`/`Name` text. A printed `Title` sibling stays as a
+dimension. License stays null. Publisher stays null.
+
+Live GetCapabilities of both printed leftover documents is XML 200.
+`pda methods` is not applicable: layer names, not a numeric time series.
+
 ## NVE RegObs KDV source
 
 `pda ingest --source regobs` is another replaceable adapter. It lists
