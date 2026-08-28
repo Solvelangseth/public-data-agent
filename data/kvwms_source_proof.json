@@ -1,0 +1,182 @@
+{
+  "produced_at": "2026-08-28T09:28:00Z",
+  "bound": {
+    "list_api": [
+      "https://wms.geonorge.no/skwms1/wms.topo?service=WMS&request=GetCapabilities",
+      "https://cache.kartverket.no/v1/wmts/1.0.0/WMTSCapabilities.xml"
+    ],
+    "walk": "copy the two official leftover Kartverket GetCapabilities documents; each document is one dataset; native ids are the printed last path segment of the service href so wms.topo stays distinct from wmts; access_path is the GetCapabilities URL; license stays null because the documents print copyright text, not a license URL; publisher stays null; live GET of those printed documents is HTTP 200 XML with no token; no token is sent; do not invent extra leftover wms.geonorge.no/skwms1/ service URLs",
+    "cap": 10,
+    "how": "pda ingest --source kvwms --limit 10. The two assigned leftover GetCapabilities documents print Service/Title Topografisk norgeskart and ows:Title Kartverket WMTS v1. Fetch GETs the stored document and copies printed WMS Layer Name or WMTS Layer Identifier values."
+  },
+  "discarded": [
+    {
+      "candidate": "Riksantikvaren leftover GIS / ragis",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/158",
+      "why": "On main after PR 158. Do not redo ragis."
+    },
+    {
+      "candidate": "NIBIO WMS-tjenester / nibiowms",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/160",
+      "why": "On main after PR 160. Different host (wms.nibio.no). Do not redo nibiowms."
+    },
+    {
+      "candidate": "SSB PxWebApi 2 / ssbv2",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/157",
+      "why": "On main after PR 157. National JSON API, not this GIS lane."
+    },
+    {
+      "candidate": "wms.geonorge.no/skwms1/ directory",
+      "url": "https://wms.geonorge.no/skwms1/",
+      "why": "HTTP 404. No parent printed catalog of leftover WMS service names. Do not invent a service list."
+    },
+    {
+      "candidate": "wms.topograatone GetCapabilities",
+      "url": "https://wms.geonorge.no/skwms1/wms.topograatone?service=WMS&request=GetCapabilities",
+      "why": "HTTP 200 XML. Left unused. The URL is not printed on a parent catalog. WMTS already prints Identifier topograatone inside cache.kartverket.no WMTSCapabilities.xml."
+    },
+    {
+      "candidate": "wms.norges_grunnkart GetCapabilities",
+      "url": "https://wms.geonorge.no/skwms1/wms.norges_grunnkart?service=WMS&request=GetCapabilities",
+      "why": "HTTP 200 XML. Left unused. The URL is not printed on a parent catalog."
+    },
+    {
+      "candidate": "wms.terrengskygging GetCapabilities",
+      "url": "https://wms.geonorge.no/skwms1/wms.terrengskygging?service=WMS&request=GetCapabilities",
+      "why": "HTTP 500. Skip 404/401/HTML and 500. Do not invent a workaround."
+    },
+    {
+      "candidate": "wms.kartdata3 GetCapabilities",
+      "url": "https://wms.geonorge.no/skwms1/wms.kartdata3?service=WMS&request=GetCapabilities",
+      "why": "HTTP 500. Skip."
+    },
+    {
+      "candidate": "wms.europa GetCapabilities",
+      "url": "https://wms.geonorge.no/skwms1/wms.europa?service=WMS&request=GetCapabilities",
+      "why": "HTTP 500. Skip."
+    },
+    {
+      "candidate": "wms.adm_enheter GetCapabilities",
+      "url": "https://wms.geonorge.no/skwms1/wms.adm_enheter?service=WMS&request=GetCapabilities",
+      "why": "HTTP 500. Skip."
+    },
+    {
+      "candidate": "ssbkart",
+      "url": "https://wms.geonorge.no/skwms1/wms.ssbkart?service=WMS&request=GetCapabilities",
+      "why": "Assigned skip if present. Live GET HTTP 500. Do not pick ssbkart."
+    },
+    {
+      "candidate": "wms.ssb GetCapabilities",
+      "url": "https://wms.geonorge.no/skwms1/wms.ssb?service=WMS&request=GetCapabilities",
+      "why": "HTTP 500. Skip."
+    },
+    {
+      "candidate": "wms.toporaster GetCapabilities",
+      "url": "https://wms.geonorge.no/skwms1/wms.toporaster?service=WMS&request=GetCapabilities",
+      "why": "HTTP 500. WMTS already prints Identifier toporaster."
+    },
+    {
+      "candidate": "wms.sjokartraster GetCapabilities",
+      "url": "https://wms.geonorge.no/skwms1/wms.sjokartraster?service=WMS&request=GetCapabilities",
+      "why": "HTTP 500. WMTS already prints Identifier sjokartraster."
+    },
+    {
+      "candidate": "cache.kartverket.no/v1/wmts/1.0.0/ directory",
+      "url": "https://cache.kartverket.no/v1/wmts/1.0.0/",
+      "why": "HTTP 500. The printed catalog is WMTSCapabilities.xml."
+    },
+    {
+      "candidate": "opencache.statkart.no leftover WMTS/WMS",
+      "url": "https://opencache.statkart.no/gatekeeper/gk/gk.open_wmts?request=GetCapabilities&service=WMTS",
+      "why": "TLS handshake timed out / unexpected EOF. Do not invent a workaround."
+    },
+    {
+      "candidate": "Geonorge Kartkatalog / REST / OGC coverages / høydedata",
+      "url": "assigned skip",
+      "why": "Already on main as --source geonorge, stedsnavn, kommuneinfo, hoydedata, transformering, georegister, ogccoverages, hoydegis. Do not redo."
+    },
+    {
+      "candidate": "NGU WFS GetCapabilities",
+      "url": "https://geo.ngu.no/geoserver/ows?service=WFS&request=GetCapabilities",
+      "why": "Official WFS leftover. Left unused. --source ngu already walks NGU OGC API Features."
+    },
+    {
+      "candidate": "aviationforecast / sigmets / offentligdata.no",
+      "url": "assigned skip",
+      "why": "Assigned skip for this lane. Do not pick."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source kvwms --db /tmp/pda-kvwms-proof/registry.sqlite --limit 10",
+    "listed": 2,
+    "inserted": 2,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "kvwms:wms.topo",
+        "title": "Topografisk norgeskart",
+        "access_path": "https://wms.geonorge.no/skwms1/wms.topo?service=WMS&request=GetCapabilities"
+      },
+      {
+        "id": "kvwms:wmts",
+        "title": "Kartverket WMTS v1",
+        "access_path": "https://cache.kartverket.no/v1/wmts/1.0.0/WMTSCapabilities.xml"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search norgeskart --db /tmp/pda-kvwms-proof/registry.sqlite --limit 10",
+    "query": "norgeskart",
+    "returned": 1,
+    "hit_id": "kvwms:wms.topo",
+    "title": "Topografisk norgeskart",
+    "source_id": "kvwms",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://wms.geonorge.no/skwms1/wms.topo?service=WMS&request=GetCapabilities",
+    "original_source": "https://wms.geonorge.no/skwms1/wms.topo?service=WMS&request=GetCapabilities",
+    "why_picked": "title matched norgeskart"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset kvwms:wms.topo --db /tmp/pda-kvwms-proof/registry.sqlite",
+    "dataset": "kvwms:wms.topo",
+    "table_id": "wms.topo",
+    "access_path": "https://wms.geonorge.no/skwms1/wms.topo?service=WMS&request=GetCapabilities",
+    "request_url": "https://wms.geonorge.no/skwms1/wms.topo?service=WMS&request=GetCapabilities",
+    "http_status": 200,
+    "listed": 227,
+    "inserted": 226,
+    "updated": 1,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "Name",
+        "value": "topo"
+      },
+      {
+        "measure": "Name",
+        "value": "kd_hoydelag"
+      }
+    ],
+    "note": "The WMS document prints 227 named Layer Name values. Two layers print Title Veg, so the shared observation identity (measure plus dimensions) updated one stored row. methods/ was not edited."
+  },
+  "methods": {
+    "command": "pda methods --dataset kvwms:wms.topo --db /tmp/pda-kvwms-proof/registry.sqlite",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "Kartverket leftover WMS prints layer names. Those are not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed GetCapabilities service href path segments. access_path is the official leftover GetCapabilities URL. No kvwms id was written onto a geonorge, hoydegis, hoydedata, ogccoverages, or npiintern row.",
+    "License is null: the documents print copyright text and Fees, not a license URL. Publisher is null: ContactOrganization and ProviderName are not a publisher object on the harvest payload.",
+    "Live GET of the WMS and WMTS GetCapabilities URLs is HTTP 200 XML with no Authorization header. No token is sent.",
+    "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "python3 -m pytest after rebase onto sigmets 159: 1058 passed, 2 skipped. tests/test_kvwms_source.py 8 passed."
+  ]
+}

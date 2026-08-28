@@ -4332,6 +4332,42 @@ year-grade codes, not a numeric time series
 (`no observations matched entity/measure; available=[]`).
 Proof is `data/grep_source_proof.json`.
 
+## Kartverket leftover WMS/WMTS source
+
+`pda ingest --source kvwms` is another replaceable adapter. It lists
+the two official leftover Kartverket GetCapabilities documents
+`https://wms.geonorge.no/skwms1/wms.topo?service=WMS&request=GetCapabilities`
+and
+`https://cache.kartverket.no/v1/wmts/1.0.0/WMTSCapabilities.xml`,
+capped at 10. Each document is one dataset. Native ids are the printed
+last path segment of the service href so `wms.topo` stays distinct from
+`wmts`. `access_path` is that GetCapabilities URL. License stays null:
+the documents print copyright text, not a license URL. Publisher stays
+null. This is not Geonorge Kartkatalog (`--source geonorge`), not
+Kartverket Høydedata (`--source hoydedata`), not Kartverket Høydedata
+GIS (`--source hoydegis`), not Kartverket OGC API Coverages
+(`--source ogccoverages`), not Kartverket Transformering
+(`--source transformering`), and not NIBIO WMS-tjenester
+(`--source nibiowms`, now on main after PR 160).
+
+```bash
+pda ingest --source kvwms --db data/registry.sqlite --limit 10
+pda search norgeskart --db data/registry.sqlite
+pda fetch --dataset kvwms:wms.topo --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored GetCapabilities URL. Observation values are
+copied from printed WMS Layer `Name` or WMTS Layer `Identifier`. License
+stays null. Publisher stays null.
+
+Live ingest 2026-08-28: 2 leftover GetCapabilities documents. Live search
+`norgeskart` returns `kvwms:wms.topo`. Live fetch GETs
+`https://wms.geonorge.no/skwms1/wms.topo?service=WMS&request=GetCapabilities`
+HTTP 200, 227 printed layer-name cells. Sample printed value: `topo`.
+`pda methods` is not applicable: layer names, not a numeric time series
+(`no observations matched entity/measure; available=[]`).
+Proof is `data/kvwms_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
