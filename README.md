@@ -4418,7 +4418,7 @@ RegObs.
 
 ```bash
 pda ingest --source vannkraft --db data/registry.sqlite --limit 10
-pda search GetHydroPowerPlantsInOperation --db data/registry.sqlite
+pda search vannkraftverk --db data/registry.sqlite
 pda fetch --dataset vannkraft:GetHydroPowerPlantsInOperation --db data/registry.sqlite
 ```
 
@@ -4427,6 +4427,13 @@ copied from printed `Navn` scalars. Other scalars stay as dimensions.
 Nested owner and concession objects are not copied. License stays null.
 Publisher stays null.
 
+Live ingest 2026-08-28: 2 printed untemplated GET paths (docs print
+only those two). Live search `vannkraftverk` returns
+`vannkraft:GetHydroPowerPlantsInOperation`. Live fetch GETs
+`https://api.nve.no/web/Powerplant/GetHydroPowerPlantsInOperation`
+HTTP 200, 1862 plant-name cells. Sample printed value: `Adamselv`.
+`pda methods` is not applicable: plant names, not a numeric time series
+(`no observations matched entity/measure; available=[]`).
 Proof is `data/vannkraft_source_proof.json`.
 
 ## Architecture (long term)
