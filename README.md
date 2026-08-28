@@ -5092,6 +5092,40 @@ names, not a numeric time series
 (`no observations matched entity/measure; available=[]`).
 Proof is `data/ssbfam_source_proof.json`.
 
+## SSB Klass classifications source
+
+`pda ingest --source ssclass` is another replaceable adapter. It lists
+printed classification ids on the official Klass collection
+`https://data.ssb.no/api/klass/v1/classifications`, capped at 10. The
+official Klass OpenAPI names that collection GET and prints no required
+query. Dataset ids are the printed `id` values. `access_path` is the
+printed `_links.self.href`. License stays null. Publisher stays null.
+This is not the SSB PxWeb v0 Statbank (`--source ssb`), not PxWebApi 2
+(`--source ssbv2`), not Klass families (`--source ssbfam`), not Klass
+sections (`--source ssbsec`), and not Klass version fetch on
+`/api/klass/v1/versions`.
+
+```bash
+pda ingest --source ssclass --db data/registry.sqlite --limit 10
+pda search grunnkretsinndeling --db data/registry.sqlite
+pda fetch --dataset ssclass:1 --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored classification URL. Observation values are
+copied from printed version `name` scalars. Other scalars stay as
+dimensions. Nested `_links` and `published` objects are not copied.
+License stays null. Publisher stays null.
+
+Live ingest 2026-08-28: listed 10, inserted 10. The catalog first page
+prints 20 of 151 classifications. This walk copies the first ten in
+document order. Live search `grunnkretsinndeling` returns `ssclass:1`.
+Live fetch GETs `https://data.ssb.no/api/klass/v1/classifications/1`
+HTTP 200, 39 name cells. Sample printed value:
+`Delområde- og grunnkretsinndeling 2016`. `pda methods` is not
+applicable: version names, not a numeric time series
+(`no observations matched entity/measure; available=[]`).
+Proof is `data/ssclass_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists

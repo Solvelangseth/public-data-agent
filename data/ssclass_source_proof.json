@@ -1,0 +1,187 @@
+{
+  "produced_at": "2026-08-28T10:35:47Z",
+  "bound": {
+    "list_api": "https://data.ssb.no/api/klass/v1/classifications",
+    "openapi": "https://data.ssb.no/api/klass/v3/api-docs",
+    "walk": "copy printed _embedded.classifications[].id and _links.self.href from the official Klass classifications collection; the Klass OpenAPI names that collection GET and prints no required query; do not add size, language, includeCodelists, includeDescription, or changedSince; native ids are the printed id values so 1 stays distinct from 2; access_path is the printed self href; license stays null; publisher stays null; catalog and OpenAPI print no security scheme; live GET of those printed classification paths is HTTP 200 with no token; no token is sent; do not invent query filters",
+    "cap": 10,
+    "how": "pda ingest --source ssclass --limit 10. The official OpenAPI prints collection GET /api/klass/v1/classifications. GET uses that printed path with no invented query. The first printed page has 20 of 151 classifications. Ingest copies the first ten in document order."
+  },
+  "discarded": [
+    {
+      "candidate": "SSB Klass classification families",
+      "url": "PR 181 --source ssbfam",
+      "why": "In flight. Do not pick ssbfam."
+    },
+    {
+      "candidate": "SSB Klass ssbsections",
+      "url": "PR 187 --source ssbsec",
+      "why": "In flight. Do not pick ssbsec. Catalog members print id=null."
+    },
+    {
+      "candidate": "Norges Bank SDMX provision agreements",
+      "url": "PR 186 --source nbprov",
+      "why": "In flight. Do not pick nbprov."
+    },
+    {
+      "candidate": "Norges Bank SDMX concept schemes",
+      "url": "PR 182 --source nbconcept, now on main",
+      "why": "Already on main. Do not re-add."
+    },
+    {
+      "candidate": "Norges Bank SDMX agency scheme",
+      "url": "https://data.norges-bank.no/api/agencyscheme?format=sdmx-json",
+      "why": "Live 200. Catalog prints one AGENCIES scheme. Unused because leftover Klass classifications was the printed OpenAPI collection still free."
+    },
+    {
+      "candidate": "Norges Bank SDMX categoryscheme / hierarchicalcodelist",
+      "url": "https://data.norges-bank.no/api/categoryscheme?format=sdmx-json",
+      "why": "HTTP 404. Do not invent a workaround."
+    },
+    {
+      "candidate": "Fiskeridirektoratet ERS",
+      "url": "https://api.fiskeridir.no/ers-api/openapi",
+      "why": "HTTP 401. Do not invent auth."
+    },
+    {
+      "candidate": "Fiskeridirektoratet aqua-operations-public",
+      "url": "https://api.fiskeridir.no/aqua-operations-public/v3/api-docs",
+      "why": "Assigned skip. Only printed path is templated GET /api/v1/joint-ops/{site-nr}."
+    },
+    {
+      "candidate": "Fiskeridirektoratet Autorisasjonsregisteret",
+      "url": "https://api.fiskeridir.no/authreg-api/openapi",
+      "why": "Assigned skip. Only printed path is templated /auth-status/{radio_call_sign}."
+    },
+    {
+      "candidate": "Udir Register for lærebedrifter",
+      "url": "https://data-nlr.udir.no/swagger/v4/swagger.json",
+      "why": "Known skip: live collection GETs are HTTP 401. Do not invent auth."
+    },
+    {
+      "candidate": "Frost MET sources",
+      "url": "https://frost.met.no/sources/v0.jsonld",
+      "why": "Known skip: HTTP 401. Do not retry."
+    },
+    {
+      "candidate": "NVE HydAPI",
+      "url": "https://hydapi.nve.no/swagger/v1/swagger.json",
+      "why": "Known skip: HTTP 401. Do not retry."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source ssclass --db /tmp/pda-ssclass-proof/registry.sqlite --limit 10",
+    "listed": 10,
+    "inserted": 10,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "ssclass:1",
+        "title": "Standard for delområde- og grunnkretsinndeling",
+        "access_path": "https://data.ssb.no/api/klass/v1/classifications/1"
+      },
+      {
+        "id": "ssclass:2",
+        "title": "Standard for kjønn",
+        "access_path": "https://data.ssb.no/api/klass/v1/classifications/2"
+      },
+      {
+        "id": "ssclass:3",
+        "title": "Standard for gruppering av hjelpe- og omsorgstiltak i barnevernet",
+        "access_path": "https://data.ssb.no/api/klass/v1/classifications/3"
+      },
+      {
+        "id": "ssclass:4",
+        "title": "Standard for regionale spesialkoder",
+        "access_path": "https://data.ssb.no/api/klass/v1/classifications/4"
+      },
+      {
+        "id": "ssclass:5",
+        "title": "Standard for PRODCOM koder",
+        "access_path": "https://data.ssb.no/api/klass/v1/classifications/5"
+      },
+      {
+        "id": "ssclass:6",
+        "title": "Standard for næringsgruppering (SN)",
+        "access_path": "https://data.ssb.no/api/klass/v1/classifications/6"
+      },
+      {
+        "id": "ssclass:7",
+        "title": "Standard for yrkesklassifisering",
+        "access_path": "https://data.ssb.no/api/klass/v1/classifications/7"
+      },
+      {
+        "id": "ssclass:8",
+        "title": "Standard for overføringskapasiteter for internettabonnement",
+        "access_path": "https://data.ssb.no/api/klass/v1/classifications/8"
+      },
+      {
+        "id": "ssclass:9",
+        "title": "Standard for transport av farlig gods på vei",
+        "access_path": "https://data.ssb.no/api/klass/v1/classifications/9"
+      },
+      {
+        "id": "ssclass:10",
+        "title": "Standard for vareslag i transportstatistikken",
+        "access_path": "https://data.ssb.no/api/klass/v1/classifications/10"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search grunnkretsinndeling --db /tmp/pda-ssclass-proof/registry.sqlite --limit 10",
+    "query": "grunnkretsinndeling",
+    "returned": 1,
+    "hit_id": "ssclass:1",
+    "title": "Standard for delområde- og grunnkretsinndeling",
+    "source_id": "ssclass",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://data.ssb.no/api/klass/v1/classifications/1",
+    "original_source": "https://data.ssb.no/api/klass/v1/classifications",
+    "why_picked": "title matched grunnkretsinndeling"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset ssclass:1 --db /tmp/pda-ssclass-proof/registry.sqlite",
+    "dataset": "ssclass:1",
+    "table_id": "1",
+    "access_path": "https://data.ssb.no/api/klass/v1/classifications/1",
+    "request_url": "https://data.ssb.no/api/klass/v1/classifications/1",
+    "http_status": 200,
+    "listed": 39,
+    "inserted": 39,
+    "updated": 0,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "name",
+        "value": "Delområde- og grunnkretsinndeling 2016"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset ssclass:1 --db /tmp/pda-ssclass-proof/registry.sqlite",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "Klass /api/klass/v1/classifications/1 prints version names. Those are not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed catalog id values. access_path is the printed _links.self.href. No ssclass id was written onto an ssb, ssbv2, or klass version row.",
+    "License is null: the classifications catalog prints no license field. Publisher is null: the catalog prints no publisher field.",
+    "OpenAPI prints no security scheme. Live GET of /api/klass/v1/classifications/1 is HTTP 200 with no Authorization header. No token is sent.",
+    "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "python3 -m pytest after rebase onto ssbsec 187: 1260 passed, 1 skipped, 1 deselected.",
+    "Not a numeric time series with two or more periods. Fetch listed 39 printed name cells (sample Delområde- og grunnkretsinndeling 2016).",
+    "Open PR check at pickup found ssbfam 181, ssbsec 187, nbprov 186, and methods stormflo 185. Those stayed unused. is_ssclass_url is checked before is_klass_url so classification URLs do not go through the Klass version parser."
+  ]
+}
