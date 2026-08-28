@@ -19,8 +19,8 @@
     },
     {
       "candidate": "NVE Vindkraftdatabase",
-      "url": "https://github.com/Solvelangseth/public-data-agent/pull/169",
-      "why": "Open PR 169. Do not pick another lane's source."
+      "url": "PR 169 --source vindkraft, now on main 09cb994",
+      "why": "Merged on main. Do not re-add. is_elcert_url rejects /web/WindPowerplant/."
     },
     {
       "candidate": "Udir Grep",
@@ -144,7 +144,8 @@
     "GetSummaryValues is listed because the documentation prints it. Live GET without year/month is HTTP 404. The path is not fetched for proof and no year/month is invented.",
     "Original harvested documentation metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
     "Not a numeric time series with two or more periods. Fetch listed 914 printed KraftverksNavn cells (sample Myrbekk).",
-    "Closed PR 167 (aviationforecast) instead of merging it. Rebased onto origin/main after vannkraft 164 (f309811).",
-    "python3 -m pytest: 1094 passed, 1 skipped, 1 deselected."
+    "Closed PR 167 (aviationforecast) instead of merging it. Rebased onto origin/main after vannkraft 164 (f309811) and vindkraft 169 (09cb994).",
+    "python3 -m pytest after vannkraft rebase: 1094 passed, 1 skipped, 1 deselected.",
+    "python3 -m pytest after vindkraft 169 rebase: 1102 passed, 1 skipped, 1 deselected."
   ]
 }
