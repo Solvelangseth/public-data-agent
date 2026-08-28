@@ -1,0 +1,174 @@
+{
+  "produced_at": "2026-08-28T11:01:18Z",
+  "bound": {
+    "list_api": "https://kartkatalog.geonorge.no/api/search?text=Fiskeridirektoratet",
+    "walk": "copy printed leftover OGC:WMS and OGC:WFS Type=service rows the official Geonorge Kartkatalog search text=Fiskeridirektoratet prints; skip other organizations, downloads, and servicelayers; skip ArcGIS REST already covered by fiskerigis on gis.fiskeridir.no/arcgis/; skip Kystverket leftover WMS/WFS hosts and havnedata; skip GetCapabilities bodies that are not WMS or WFS XML; native ids are the printed service path segment so FiskeridirWFS_fiskeri stays distinct from fiskeridirWMS; access_path is the printed DistributionUrl; license stays null because the catalog prints no license URL; publisher stays null; do not invent query filters or layer names",
+    "cap": 10,
+    "how": "pda ingest --source fdirwms --limit 10. The official search prints 48 catalog rows. 14 are OGC:WMS or OGC:WFS Type=service from Fiskeridirektoratet. Leftover live WMS/WFS XML 200 rows remain after skipping fiskerigis ArcGIS wrappers, other organizations, downloads, servicelayers, HTML, and HTTP 499. Cap 10 copies the first ten leftover live documents. This is not Fiskeridirektoratet ArcGIS REST (--source fiskerigis) and not Fartøyregisteret (--source fiskeridir)."
+  },
+  "discarded": [
+    {
+      "candidate": "Fiskeridirektoratet ArcGIS REST / fiskerigis",
+      "url": "https://gis.fiskeridir.no/arcgis/rest/services?f=json",
+      "why": "Already --source fiskerigis. ArcGIS WMS wrappers on gis.fiskeridir.no/arcgis/ stay unused."
+    },
+    {
+      "candidate": "Fartøyregisteret JSON / fiskeridir",
+      "url": "https://api.fiskeridir.no/vessel/api",
+      "why": "Already --source fiskeridir. Not leftover WMS/WFS."
+    },
+    {
+      "candidate": "Kystverket leftover WMS / kystwms",
+      "url": "https://services.kystverket.no/wms.ashx?service=WMS&request=GetCapabilities",
+      "why": "Already --source kystwms. Host skipped."
+    },
+    {
+      "candidate": "Kystverket leftover WFS / kystwfs",
+      "url": "https://services.kystverket.no/wfs.ashx?service=WFS&request=GetCapabilities",
+      "why": "Already --source kystwfs. Host skipped."
+    },
+    {
+      "candidate": "Kystverket leftover Navigasjonsinstallasjoner / kystnav",
+      "url": "https://maps.kystverket.cloudgis.no/enterprise/services/PROD/nfs_sistop_ekstern_prod/MapServer/WMSServer?request=GetCapabilities&service=WMS",
+      "why": "Already --source kystnav. Host skipped."
+    },
+    {
+      "candidate": "havnedata OGC API Features / havnedata",
+      "url": "https://ogcapitest.kartverket.no/havnedata/v1/collections",
+      "why": "Already --source havnedata. Host skipped."
+    },
+    {
+      "candidate": "Fiskeriaktivitet WMS without GetCapabilities query",
+      "url": "https://gis.fiskeridir.no/server/services/fiskeridirWMS_fiskeriaktivtet/MapServer/WMSServer",
+      "why": "Printed leftover URL returns HTTP 499 HTML, not WMS XML."
+    },
+    {
+      "candidate": "Bane NOR leftover WMS/WFS / banegis",
+      "url": "PR 190 --source banegis, OPEN",
+      "why": "In-flight sibling. Do not pick."
+    },
+    {
+      "candidate": "Mattilsynet leftover WMS / mattilsyn",
+      "url": "PR 192 --source mattilsyn, OPEN",
+      "why": "In-flight sibling. Do not pick."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source fdirwms --db /tmp/pda-fdirwms-proof/registry.sqlite --limit 10",
+    "listed": 10,
+    "inserted": 10,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "fdirwms:FiskeridirWFS",
+        "title": "Fiskeridirektoratets WFS",
+        "access_path": "https://gis.fiskeridir.no/server/services/FiskeridirWFS/MapServer/WFSServer?SERVICE=WFS&REQUEST=GetCapabilities"
+      },
+      {
+        "id": "fdirwms:FiskeridirWFS_akva",
+        "title": "Fiskeridirektoratets WFS- akva",
+        "access_path": "https://gis.fiskeridir.no/server/services/FiskeridirWFS_akva/MapServer/WFSServer?SERVICE=WFS&REQUEST=GetCapabilities"
+      },
+      {
+        "id": "fdirwms:FiskeridirWFS_fiskeri",
+        "title": "Fiskeridirektoratets WFS- fiskeri",
+        "access_path": "https://gis.fiskeridir.no/server/services/FiskeridirWFS_fiskeri/MapServer/WFSServer?SERVICE=WFS&REQUEST=GetCapabilities"
+      },
+      {
+        "id": "fdirwms:fiskeridirWMS",
+        "title": "Fiskeridirektoratets WMS",
+        "access_path": "https://gis.fiskeridir.no/server/services/fiskeridirWMS/MapServer/WMSServer?service=wms&request=getcapabilities"
+      },
+      {
+        "id": "fdirwms:wfs.akvakulturlokaliteter",
+        "title": "Akvakultur - lokaliteter WFS",
+        "access_path": "https://wfs.geonorge.no/skwms1/wfs.akvakulturlokaliteter?service=wfs&request=getcapabilities"
+      },
+      {
+        "id": "fdirwms:wfs.fiskeplasserredskap",
+        "title": "Fiskeplasser - redskap WFS",
+        "access_path": "https://wfs.geonorge.no/skwms1/wfs.fiskeplasserredskap?service=wfs&request=getcapabilities"
+      },
+      {
+        "id": "fdirwms:wfs.fjordlinjer",
+        "title": "Fjordlinjer - Kysttorskregulering WFS",
+        "access_path": "https://wfs.geonorge.no/skwms1/wfs.fjordlinjer?service=wfs&request=getcapabilities"
+      },
+      {
+        "id": "fdirwms:wfs.korallrevforbudsomrader",
+        "title": "Korallrev - forbudsområder WFS",
+        "access_path": "https://wfs.geonorge.no/skwms1/wfs.korallrevforbudsomrader?service=wfs&request=getcapabilities"
+      },
+      {
+        "id": "fdirwms:wfs.laksefjorder",
+        "title": "Nasjonale laksefjorder WFS",
+        "access_path": "https://wfs.geonorge.no/skwms1/wfs.laksefjorder?service=WFS&request=GetCapabilities"
+      },
+      {
+        "id": "fdirwms:wfs.tarehostefelt",
+        "title": "Tare - høstefelt WFS",
+        "access_path": "https://wfs.geonorge.no/skwms1/wfs.tarehostefelt?service=WFS&request=GetCapabilities"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search FiskeridirWFS_fiskeri --db /tmp/pda-fdirwms-proof/registry.sqlite --limit 5",
+    "query": "FiskeridirWFS_fiskeri",
+    "returned": 1,
+    "hit_id": "fdirwms:FiskeridirWFS_fiskeri",
+    "title": "Fiskeridirektoratets WFS- fiskeri",
+    "source_id": "fdirwms",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://gis.fiskeridir.no/server/services/FiskeridirWFS_fiskeri/MapServer/WFSServer?SERVICE=WFS&REQUEST=GetCapabilities",
+    "original_source": "https://kartkatalog.geonorge.no/api/search",
+    "why_picked": "title matched fiskeri"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset fdirwms:FiskeridirWFS_fiskeri --db /tmp/pda-fdirwms-proof/registry.sqlite",
+    "dataset": "fdirwms:FiskeridirWFS_fiskeri",
+    "table_id": "FiskeridirWFS_fiskeri",
+    "access_path": "https://gis.fiskeridir.no/server/services/FiskeridirWFS_fiskeri/MapServer/WFSServer?SERVICE=WFS&REQUEST=GetCapabilities",
+    "request_url": "https://gis.fiskeridir.no/server/services/FiskeridirWFS_fiskeri/MapServer/WFSServer?SERVICE=WFS&REQUEST=GetCapabilities",
+    "http_status": 200,
+    "listed": 57,
+    "inserted": 57,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "Name",
+        "value": "FiskeridirWFS_fiskeri:breivikfjorden_lokalregulering"
+      },
+      {
+        "measure": "Name",
+        "value": "FiskeridirWFS_fiskeri:fiskeforbud_borgundfjorden"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset fdirwms:FiskeridirWFS_fiskeri --db /tmp/pda-fdirwms-proof/registry.sqlite",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "FiskeridirWFS_fiskeri GetCapabilities prints FeatureType names. Those are not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed service path segments. access_path is the DistributionUrl as printed. No fdirwms id was written onto a fiskerigis, fiskeridir, kystwms, kystwfs, kystnav, or havnedata row.",
+    "License is null: the Kartkatalog search prints no license URL. Publisher is null.",
+    "Live GET of FiskeridirWFS_fiskeri GetCapabilities is HTTP 200 WFS_Capabilities XML. No token is sent.",
+    "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "Not a numeric time series with two or more periods. Fetch listed 57 printed FeatureType Name cells (sample FiskeridirWFS_fiskeri:breivikfjorden_lokalregulering).",
+    "python3 -m pytest: 1278 passed, 1 skipped, 1 deselected.",
+    "SOURCE_IDS keeps nibiorest last and places fdirwms after ssclass."
+  ]
+}

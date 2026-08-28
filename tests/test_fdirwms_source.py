@@ -300,8 +300,8 @@ def test_fdirwms_is_a_registered_source() -> None:
     assert "fiskerigis" in SOURCE_IDS
     assert "fiskeridir" in SOURCE_IDS
     assert "nibiorest" in SOURCE_IDS
-    assert SOURCE_IDS[SOURCE_IDS.index("nbprov") + 1] == "fdirwms"
-    assert SOURCE_IDS[-1] == "avinorgis"
+    assert SOURCE_IDS[SOURCE_IDS.index("brroller") + 1] == "fdirwms"
+    assert SOURCE_IDS[-1] == "fdirwms"
     source = build_source("fdirwms")
     assert isinstance(source, FdirwmsSource)
     assert source.source_id == "fdirwms"

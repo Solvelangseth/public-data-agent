@@ -276,9 +276,9 @@ SOURCE_IDS = (
     "mattilsyn",
     "nibiorest",
     "nbprov",
-    "fdirwms",
     "avinorgis",
     "brroller",
+    "fdirwms",
 )
 
 
@@ -553,12 +553,12 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return NibiorestSource()
     if source_id == "nbprov":
         return NbprovSource()
-    if source_id == "fdirwms":
-        return FdirwmsSource()
     if source_id == "avinorgis":
         return AvinorgisSource()
     if source_id == "brroller":
         return BrrollerSource()
+    if source_id == "fdirwms":
+        return FdirwmsSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
