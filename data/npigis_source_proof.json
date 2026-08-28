@@ -219,7 +219,7 @@
     "License is null: the catalog prints no license URL. Publisher is null: the catalog prints no publisher field.",
     "Live GET of /Basisdata/NP_Basiskart_Svalbard_WMS/MapServer?f=json is HTTP 200 with no Authorization header. No token is sent.",
     "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
-    "python3 -m pytest: 934 passed, 1 skipped, 1 deselected.",
+    "python3 -m pytest after rebase onto miljogis #147: 943 passed, 1 skipped, 1 deselected.",
     "Not a numeric time series with two or more periods. Fetch listed 46 printed layer-name cells (sample S0_Svalbard_Stedsnavn).",
     "Open PR check at pickup found none. Lane A (bc-324df92d) is implementing miljogis. aviationforecast 2.0 and sigmets 2.0 stayed unused."
   ]
