@@ -5246,6 +5246,44 @@ applicable: version names, not a numeric time series
 (`no observations matched entity/measure; available=[]`).
 Proof is `data/ssclass_source_proof.json`.
 
+## SSB Klass versions source
+
+`pda ingest --source ssbver` is another replaceable adapter. It lists
+printed version ids on official Klass classifications. The Klass OpenAPI
+names GET `/api/klass/v1/versions/{id}` and prints no versions
+collection. The walk copies printed `_links.self.href` values from the
+classifications catalog, GETs those printed classification paths, and
+copies printed `versions[].id` plus `versions[]._links.self.href`. The
+walk caps at 10. Dataset ids are the printed version `id` values.
+`access_path` is the printed version self href. License stays null.
+Publisher stays null. This is not the SSB PxWeb v0 Statbank
+(`--source ssb`), not PxWebApi 2 (`--source ssbv2`), not Klass families
+(`--source ssbfam`), not Klass sections (`--source ssbsec`), and not
+Klass classifications (`--source ssclass`).
+
+```bash
+pda ingest --source ssbver --db data/registry.sqlite --limit 10
+pda search "grunnkretsinndeling 2016" --db data/registry.sqlite
+pda fetch --dataset ssbver:1 --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored version URL. Observation values are copied
+from printed correspondence-table `name` scalars. Other scalars stay as
+dimensions. Nested `_links` and `published` objects are not copied.
+License stays null. Publisher stays null.
+
+Live ingest 2026-08-28: listed 10, inserted 10. The first printed
+classification prints 39 versions. This walk copies the first ten in
+document order. Live search `grunnkretsinndeling 2016` returns
+`ssbver:1`. Live fetch GETs
+`https://data.ssb.no/api/klass/v1/versions/1` HTTP 200, 5 name cells.
+Sample printed value:
+`Delområde- og grunnkretsinndeling 2016 - Delområde- og grunnkretsinndeling 2014`.
+`pda methods` is not applicable: correspondence-table names, not a
+numeric time series
+(`no observations matched entity/measure; available=[]`).
+Proof is `data/ssbver_source_proof.json`.
+
 ## NIBIO leftover WMS source
 
 `pda ingest --source nibiorest` is another replaceable adapter. It lists

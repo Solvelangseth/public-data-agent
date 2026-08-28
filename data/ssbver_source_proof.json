@@ -1,0 +1,194 @@
+{
+  "produced_at": "2026-08-28T11:14:00Z",
+  "bound": {
+    "list_api": "https://data.ssb.no/api/klass/v1/classifications",
+    "openapi": "https://data.ssb.no/api/klass/v3/api-docs",
+    "walk": "copy printed _embedded.classifications[].id and _links.self.href from the official Klass classifications collection; GET each printed classification href; copy printed versions[].id and versions[]._links.self.href; the Klass OpenAPI names GET /api/klass/v1/versions/{id} and prints no versions collection; do not invent version ids; access_path is the printed version self href; license stays null; publisher stays null; catalog and OpenAPI print no security scheme; live GET of those printed version paths is HTTP 200 with no token; no token is sent",
+    "cap": 10,
+    "how": "pda ingest --source ssbver --limit 10. The official OpenAPI names GET /api/klass/v1/versions/{id}. The first printed classification prints 39 versions. Ingest copies the first ten in document order."
+  },
+  "discarded": [
+    {
+      "candidate": "Norges Bank SDMX categoryscheme",
+      "url": "https://data.norges-bank.no/api/categoryscheme?format=sdmx-json",
+      "why": "HTTP 404. Do not invent a workaround."
+    },
+    {
+      "candidate": "Norges Bank SDMX hierarchicalcodelist",
+      "url": "https://data.norges-bank.no/api/hierarchicalcodelist?format=sdmx-json",
+      "why": "HTTP 404. Do not invent a workaround."
+    },
+    {
+      "candidate": "Norges Bank SDMX dataproviderscheme",
+      "url": "https://data.norges-bank.no/api/dataproviderscheme?format=sdmx-json",
+      "why": "Live 200. Lane S is taking this leftover. Do not pick it."
+    },
+    {
+      "candidate": "Norges Bank SDMX agencyscheme / nbagency",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/193",
+      "why": "In flight. Do not pick nbagency."
+    },
+    {
+      "candidate": "Brreg leftover roller / brroller",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/194",
+      "why": "In flight. Do not pick brroller."
+    },
+    {
+      "candidate": "Norges Bank SDMX provision agreements / nbprov",
+      "url": "already on main via --source nbprov",
+      "why": "Merged as #186. Kept. Do not re-add."
+    },
+    {
+      "candidate": "SSB Klass classifications / ssclass",
+      "url": "already on main via --source ssclass",
+      "why": "Already on main. Do not re-add."
+    },
+    {
+      "candidate": "SSB Klass correspondencetables collection",
+      "url": "https://data.ssb.no/api/klass/v1/correspondencetables",
+      "why": "HTTP 404. The OpenAPI names only /correspondencetables/{id}. Do not invent table ids."
+    },
+    {
+      "candidate": "SSB Klass codes leftover",
+      "url": "https://data.ssb.no/api/klass/v1/classifications/1/codes",
+      "why": "HTTP 400. Required query parameter from. Do not invent a from date."
+    },
+    {
+      "candidate": "Fiskeridirektoratet ERS",
+      "url": "https://api.fiskeridir.no/ers-api/api/openapi",
+      "why": "HTTP 401. Do not invent auth."
+    },
+    {
+      "candidate": "Fiskeridirektoratet aqua-operations-public",
+      "url": "https://api.fiskeridir.no/aqua-operations-public/v3/api-docs",
+      "why": "OpenAPI HTTP 200. Only printed path is templated GET /api/v1/joint-ops/{site-nr}. Do not invent site-nr."
+    },
+    {
+      "candidate": "Udir Register for lærebedrifter",
+      "url": "https://data-nlr.udir.no/swagger/v4/swagger.json",
+      "why": "Known skip: live collection GETs are HTTP 401. Do not invent auth."
+    },
+    {
+      "candidate": "NVE HydAPI",
+      "url": "https://hydapi.nve.no/swagger/v1/swagger.json",
+      "why": "Known skip: HTTP 401. Do not retry."
+    },
+    {
+      "candidate": "Frost MET sources",
+      "url": "https://frost.met.no/sources/v0.jsonld",
+      "why": "Known skip: HTTP 401. Do not retry."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source ssbver --db /tmp/pda-ssbver-proof/registry.sqlite --limit 10",
+    "listed": 10,
+    "inserted": 10,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "ssbver:1",
+        "title": "Delområde- og grunnkretsinndeling 2016",
+        "access_path": "https://data.ssb.no/api/klass/v1/versions/1"
+      },
+      {
+        "id": "ssbver:2",
+        "title": "Delområde- og grunnkretsinndeling 2014",
+        "access_path": "https://data.ssb.no/api/klass/v1/versions/2"
+      },
+      {
+        "id": "ssbver:3",
+        "title": "Delområde- og grunnkretsinndeling 2013",
+        "access_path": "https://data.ssb.no/api/klass/v1/versions/3"
+      },
+      {
+        "id": "ssbver:4",
+        "title": "Delområde- og grunnkretsinndeling 2012",
+        "access_path": "https://data.ssb.no/api/klass/v1/versions/4"
+      },
+      {
+        "id": "ssbver:5",
+        "title": "Delområde- og grunnkretsinndeling 2011",
+        "access_path": "https://data.ssb.no/api/klass/v1/versions/5"
+      },
+      {
+        "id": "ssbver:6",
+        "title": "Delområde- og grunnkretsinndeling 2010",
+        "access_path": "https://data.ssb.no/api/klass/v1/versions/6"
+      },
+      {
+        "id": "ssbver:7",
+        "title": "Delområde- og grunnkretsinndeling 2009",
+        "access_path": "https://data.ssb.no/api/klass/v1/versions/7"
+      },
+      {
+        "id": "ssbver:8",
+        "title": "Delområde- og grunnkretsinndeling 2008",
+        "access_path": "https://data.ssb.no/api/klass/v1/versions/8"
+      },
+      {
+        "id": "ssbver:9",
+        "title": "Delområde- og grunnkretsinndeling 2007",
+        "access_path": "https://data.ssb.no/api/klass/v1/versions/9"
+      },
+      {
+        "id": "ssbver:10",
+        "title": "Delområde- og grunnkretsinndeling 2006",
+        "access_path": "https://data.ssb.no/api/klass/v1/versions/10"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search \"grunnkretsinndeling 2016\" --db /tmp/pda-ssbver-proof/registry.sqlite --limit 10",
+    "query": "grunnkretsinndeling 2016",
+    "returned": 1,
+    "hit_id": "ssbver:1",
+    "title": "Delområde- og grunnkretsinndeling 2016",
+    "source_id": "ssbver",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://data.ssb.no/api/klass/v1/versions/1",
+    "original_source": "https://data.ssb.no/api/klass/v1/classifications",
+    "why_picked": "title matched grunnkretsinndeling, 2016"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset ssbver:1 --db /tmp/pda-ssbver-proof/registry.sqlite",
+    "dataset": "ssbver:1",
+    "table_id": "1",
+    "access_path": "https://data.ssb.no/api/klass/v1/versions/1",
+    "request_url": "https://data.ssb.no/api/klass/v1/versions/1",
+    "http_status": 200,
+    "listed": 5,
+    "inserted": 5,
+    "updated": 0,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "name",
+        "value": "Delområde- og grunnkretsinndeling 2016 - Delområde- og grunnkretsinndeling 2014"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset ssbver:1 --db /tmp/pda-ssbver-proof/registry.sqlite",
+    "applicable": false,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "Klass /api/klass/v1/versions/1 prints correspondence-table names. Those are not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true
+  },
+  "notes": [
+    "Ids are copied from printed version id values. access_path is the printed versions[]._links.self.href. No ssbver id was written onto an ssclass, ssb, or ssbv2 row.",
+    "License is null: the classifications catalog and version payload print no license field. Publisher is null: they print no publisher field.",
+    "OpenAPI prints no security scheme. Live GET of /api/klass/v1/versions/1 is HTTP 200 with no Authorization header. No token is sent.",
+    "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "python3 -m pytest: 1308 passed, 1 skipped, 1 deselected.",
+    "Not a numeric time series with two or more periods. Fetch listed 5 printed correspondence-table name cells.",
+    "is_ssbver_url is checked before is_klass_url so version URLs do not go through the Klass classificationItems parser."
+  ]
+}
