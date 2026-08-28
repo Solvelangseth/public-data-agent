@@ -226,6 +226,7 @@
     "python3 -m pytest after Ogccoverages adapter: 780 passed, 1 skipped, 1 deselected.",
     "Not a numeric time series with two or more periods. Fetch listed 2 printed collection-title cells (sample DTM 10 Terrengmodell (UTM32)).",
     "Rebased onto origin/main after Artskart 131 merge db799fe. All existing sources plus ogccoverages were kept. artskart adapter files were not edited.",
-    "python3 -m pytest after rebase onto Artskart 131: 790 passed, 1 skipped, 1 deselected."
+    "python3 -m pytest after rebase onto Artskart 131: 790 passed, 1 skipped, 1 deselected.",
+    "Rebased onto origin/main after Lister 133 merge a264de6. All existing sources plus ogccoverages were kept. lister adapter files were not edited."
   ]
 }
