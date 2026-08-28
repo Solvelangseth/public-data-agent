@@ -24,6 +24,7 @@ AS_URL = "https://data.brreg.no/enhetsregisteret/api/organisasjonsformer/AS"
 ENHETER_URL = "https://data.brreg.no/enhetsregisteret/api/enheter"
 KOMMUNER_URL = "https://data.brreg.no/enhetsregisteret/api/kommuner"
 UNDERENHETER_URL = "https://data.brreg.no/enhetsregisteret/api/underenheter"
+ROLLER_URL = "https://data.brreg.no/enhetsregisteret/api/roller/representanter"
 ROOT_URL = "https://data.brreg.no/enhetsregisteret/api"
 FRIVILLIG_URL = "https://data.brreg.no/frivillighetsregisteret/enheter"
 NORGES_BANK_URL = "https://data.norges-bank.no/api/agencyscheme?format=sdmx-json"
@@ -84,6 +85,7 @@ def test_printed_refs_copy_form_kodes() -> None:
     assert [ref.source_native_uri for ref in refs] == [AAFY_URL, AS_URL]
     assert all("/enheter" not in (ref.source_native_uri or "") for ref in refs)
     assert all("/kommuner" not in (ref.source_native_uri or "") for ref in refs)
+    assert all("/roller" not in (ref.source_native_uri or "") for ref in refs)
 
 
 def test_item_url_copies_printed_self_href() -> None:
@@ -98,6 +100,10 @@ def test_brorgform_is_a_registered_source() -> None:
     assert "ssbsec" in SOURCE_IDS
     assert "ssbfam" in SOURCE_IDS
     assert "nbconcept" in SOURCE_IDS
+    assert "nibiorest" in SOURCE_IDS
+    assert "mattilsyn" in SOURCE_IDS
+    assert "nbprov" in SOURCE_IDS
+    assert SOURCE_IDS[-1] == "brorgform"
     source = build_source("brorgform")
     assert isinstance(source, BrorgformSource)
     assert source.source_id == "brorgform"
@@ -176,11 +182,12 @@ def test_cells_copy_printed_form() -> None:
 
 def test_is_brorgform_url_accepts_only_organisasjonsformer_paths() -> None:
     assert is_brorgform_url(AS_URL)
-    assert is_brorgform_url(LIST_URL)
+    assert not is_brorgform_url(LIST_URL)
     assert brorgform_table_id(AS_URL) == "AS"
     assert not is_brorgform_url(ENHETER_URL)
     assert not is_brorgform_url(KOMMUNER_URL)
     assert not is_brorgform_url(UNDERENHETER_URL)
+    assert not is_brorgform_url(ROLLER_URL)
     assert not is_brorgform_url(ROOT_URL)
     assert not is_brorgform_url(FRIVILLIG_URL)
     assert not is_brorgform_url(NORGES_BANK_URL)

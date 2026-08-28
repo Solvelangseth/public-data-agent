@@ -196,8 +196,6 @@ def is_brorgform_url(access_path: str | None) -> bool:
     if parsed.netloc.lower() != HOST:
         return False
     path = parsed.path.rstrip("/")
-    if path == PATH_PREFIX:
-        return True
     prefix = PATH_PREFIX + "/"
     if not path.startswith(prefix):
         return False
