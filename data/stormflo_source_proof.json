@@ -164,5 +164,216 @@
     "Open PRs at pickup were 170 elcert, 169 vindkraft, 168 vegogc, 165 ldirwms. This lane stayed on stormflo.",
     "Fetch listed 168 printed numeric cells. Sample offentlige_bygg=1810 for code 200ymax year 2025.",
     "python3 -m pytest after Stormflo adapter: 1096 passed, 1 skipped, 1 deselected."
-  ]
+  ],
+  "printed_samples": {
+    "source_url": "https://stormflo-konsekvens.kartverket.no/public/api/v1/national.json",
+    "http_status": 200,
+    "copied_not_invented": true,
+    "retrieved_at": "2026-08-28T10:42:09Z",
+    "note": "Full printed row objects copied from the live GET 200 payload. Period coverage is as printed: 200ymax, 1000ymax, and 20ymax have 2025 and 2100 only; mhw and highendwl have 2025, 2100, and 2150. No 2150 rows invented.",
+    "cells": {
+      "200ymax": {
+        "2025": {
+          "offentlige_bygg": 1810,
+          "privat_naering": 17802,
+          "private_bygninger": 100022,
+          "bygning_total": 143895,
+          "samfunnskritiske_bygg": 30,
+          "annenbygning": 24231,
+          "veilengde_privat": 366781,
+          "veilengde_offentlig": 479792,
+          "veilengde_total": 846564,
+          "bebyggelse": 8872199,
+          "natur": 615180385,
+          "offentlige_anlegg": 547976,
+          "primarnaering": 58950353,
+          "areal_total": 683550913
+        },
+        "2100": {
+          "offentlige_bygg": 4176,
+          "privat_naering": 30190,
+          "private_bygninger": 138781,
+          "bygning_total": 215202,
+          "samfunnskritiske_bygg": 95,
+          "annenbygning": 41960,
+          "veilengde_privat": 1112713,
+          "veilengde_offentlig": 1298841,
+          "veilengde_total": 2411542,
+          "bebyggelse": 28279393,
+          "natur": 882975848,
+          "offentlige_anlegg": 1453097,
+          "primarnaering": 112459553,
+          "areal_total": 1025167891
+        }
+      },
+      "mhw": {
+        "2025": {
+          "offentlige_bygg": 583,
+          "privat_naering": 7789,
+          "private_bygninger": 34074,
+          "bygning_total": 49293,
+          "samfunnskritiske_bygg": 5,
+          "annenbygning": 6842,
+          "veilengde_privat": 16423,
+          "veilengde_offentlig": 299674,
+          "veilengde_total": 316091,
+          "bebyggelse": 1882913,
+          "natur": 158823394,
+          "offentlige_anlegg": 14392,
+          "primarnaering": 5070270,
+          "areal_total": 165790969
+        },
+        "2150": {
+          "offentlige_bygg": 1844,
+          "privat_naering": 17757,
+          "private_bygninger": 94744,
+          "bygning_total": 136408,
+          "samfunnskritiske_bygg": 30,
+          "annenbygning": 22033,
+          "veilengde_privat": 309807,
+          "veilengde_offentlig": 495773,
+          "veilengde_total": 805577,
+          "bebyggelse": 8763816,
+          "natur": 539275028,
+          "offentlige_anlegg": 358459,
+          "primarnaering": 44243433,
+          "areal_total": 592640736
+        },
+        "2100": {
+          "offentlige_bygg": 956,
+          "privat_naering": 11613,
+          "private_bygninger": 64157,
+          "bygning_total": 89417,
+          "samfunnskritiske_bygg": 11,
+          "annenbygning": 12680,
+          "veilengde_privat": 62592,
+          "veilengde_offentlig": 328053,
+          "veilengde_total": 390648,
+          "bebyggelse": 3713827,
+          "natur": 357212970,
+          "offentlige_anlegg": 81286,
+          "primarnaering": 19149657,
+          "areal_total": 380157740
+        }
+      },
+      "highendwl": {
+        "2100": {
+          "offentlige_bygg": 6312,
+          "privat_naering": 39551,
+          "private_bygninger": 168255,
+          "bygning_total": 272065,
+          "samfunnskritiske_bygg": 194,
+          "annenbygning": 57753,
+          "veilengde_privat": 1918536,
+          "veilengde_offentlig": 2614253,
+          "veilengde_total": 4532790,
+          "bebyggelse": 56891578,
+          "natur": 1160883205,
+          "offentlige_anlegg": 2502009,
+          "primarnaering": 183790519,
+          "areal_total": 1404067311
+        },
+        "2025": {
+          "offentlige_bygg": 4197,
+          "privat_naering": 30379,
+          "private_bygninger": 138984,
+          "bygning_total": 215887,
+          "samfunnskritiske_bygg": 114,
+          "annenbygning": 42213,
+          "veilengde_privat": 1166024,
+          "veilengde_offentlig": 1378016,
+          "veilengde_total": 2544056,
+          "bebyggelse": 29644840,
+          "natur": 898289790,
+          "offentlige_anlegg": 1493639,
+          "primarnaering": 119810965,
+          "areal_total": 1049239234
+        },
+        "2150": {
+          "offentlige_bygg": 7497,
+          "privat_naering": 44346,
+          "private_bygninger": 188694,
+          "bygning_total": 309130,
+          "samfunnskritiske_bygg": 247,
+          "annenbygning": 68346,
+          "veilengde_privat": 2422691,
+          "veilengde_offentlig": 3556514,
+          "veilengde_total": 5979209,
+          "bebyggelse": 73437867,
+          "natur": 1347124963,
+          "offentlige_anlegg": 3257178,
+          "primarnaering": 233522552,
+          "areal_total": 1657342560
+        }
+      },
+      "1000ymax": {
+        "2025": {
+          "offentlige_bygg": 2119,
+          "privat_naering": 19787,
+          "private_bygninger": 107657,
+          "bygning_total": 156907,
+          "samfunnskritiske_bygg": 39,
+          "annenbygning": 27305,
+          "veilengde_privat": 479439,
+          "veilengde_offentlig": 567094,
+          "veilengde_total": 1046532,
+          "bebyggelse": 11061378,
+          "natur": 660932767,
+          "offentlige_anlegg": 699674,
+          "primarnaering": 67994117,
+          "areal_total": 740687936
+        },
+        "2100": {
+          "offentlige_bygg": 4595,
+          "privat_naering": 31918,
+          "private_bygninger": 144191,
+          "bygning_total": 225626,
+          "samfunnskritiske_bygg": 106,
+          "annenbygning": 44816,
+          "veilengde_privat": 1256073,
+          "veilengde_offentlig": 1493430,
+          "veilengde_total": 2749494,
+          "bebyggelse": 32820637,
+          "natur": 929690026,
+          "offentlige_anlegg": 1620984,
+          "primarnaering": 123715369,
+          "areal_total": 1087847016
+        }
+      },
+      "20ymax": {
+        "2100": {
+          "offentlige_bygg": 3503,
+          "privat_naering": 27246,
+          "private_bygninger": 129598,
+          "bygning_total": 197567,
+          "samfunnskritiske_bygg": 80,
+          "annenbygning": 37140,
+          "veilengde_privat": 885928,
+          "veilengde_offentlig": 1007007,
+          "veilengde_total": 1892930,
+          "bebyggelse": 21505798,
+          "natur": 807129749,
+          "offentlige_anlegg": 1188726,
+          "primarnaering": 95066526,
+          "areal_total": 924890799
+        },
+        "2025": {
+          "offentlige_bygg": 1373,
+          "privat_naering": 14949,
+          "private_bygninger": 87213,
+          "bygning_total": 123060,
+          "samfunnskritiske_bygg": 18,
+          "annenbygning": 19507,
+          "veilengde_privat": 216400,
+          "veilengde_offentlig": 388821,
+          "veilengde_total": 605220,
+          "bebyggelse": 6244073,
+          "natur": 541179120,
+          "offentlige_anlegg": 324745,
+          "primarnaering": 45551479,
+          "areal_total": 593299417
+        }
+      }
+    }
+  }
 }
