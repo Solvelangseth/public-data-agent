@@ -3233,6 +3233,39 @@ rank-name cells. Sample printed value: `Kingdom`.
 time series (`no observations matched entity/measure; available=[]`).
 Proof is `data/nortaxa_source_proof.json`.
 
+## Artsdatabanken Artskart source
+
+`pda ingest --source artskart` is another replaceable adapter. It lists
+printed collection GET paths on the official Artskart swagger
+`https://artskart.artsdatabanken.no/publicapi/swagger/docs/v1`, capped at 10.
+Templated paths and GET operations that print required parameters are
+skipped. Dataset ids are the last printed path segment. `access_path` is
+the printed swagger host plus `basePath` plus path. License stays null:
+the swagger does not print a license URL. Publisher stays null. This is
+not Artsdatabanken Natur i Norge (`--source nin`), not Artsdatabanken
+Nortaxa (`--source nortaxa`, now on main after PR 130), not Kartverket
+Register (`--source georegister`), and not MET Locationforecast
+(`--source locationforecast`, now on main after PR 128).
+
+```bash
+pda ingest --source artskart --db data/registry.sqlite --limit 10
+pda search observation --db data/registry.sqlite
+pda fetch --dataset artskart:list --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored collection URL. Observation values are
+copied from printed JSON `ScientificName`. License stays null. Publisher
+stays null: the swagger does not print a publisher field.
+
+Live ingest 2026-08-28: 5 printed collection GET paths (swagger prints
+5 untemplated GET paths with no required parameters, cap 10). Live
+search `observation` returns `artskart:list`. Live fetch GETs
+`https://artskart.artsdatabanken.no/publicapi/api/observations/list`
+HTTP 200, 20 printed scientific-name rows. Sample printed value:
+Myriospora scabrida. `pda methods` is not applicable: scientific names,
+not a numeric time series (`no observations matched entity/measure;
+available=[]`). Proof is `data/artskart_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists

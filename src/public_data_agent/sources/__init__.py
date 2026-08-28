@@ -4,6 +4,7 @@ from pathlib import Path
 
 from public_data_agent.sources.airquality import AirqualitySource
 from public_data_agent.sources.aqua import AquaSource
+from public_data_agent.sources.artskart import ArtskartSource
 from public_data_agent.sources.baf import BafSource
 from public_data_agent.sources.base import CatalogSource, SourceBase
 from public_data_agent.sources.brreg import BrregEnhetsregisterSource
@@ -157,6 +158,7 @@ SOURCE_IDS = (
     "locationforecast",
     "georegister",
     "nortaxa",
+    "artskart",
 )
 
 
@@ -315,12 +317,15 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return GeoregisterSource()
     if source_id == "nortaxa":
         return NortaxaSource()
+    if source_id == "artskart":
+        return ArtskartSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
 __all__ = [
     "AirqualitySource",
     "AquaSource",
+    "ArtskartSource",
     "BafSource",
     "BrregEnhetsregisterSource",
     "BuyerSource",
