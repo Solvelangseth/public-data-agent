@@ -201,7 +201,7 @@
     "python3 -m pytest after adding nbprov on origin/main 531f0a9: 1219 passed, 1 skipped, 1 deselected.",
     "Rebased onto origin/main after nbconcept #182 and kystnav #184. python3 -m pytest after rebase: 1236 passed, 1 skipped, 1 deselected.",
     "Rebased onto origin/main after mdirwms #183. python3 -m pytest after rebase: 1245 passed, 1 skipped, 1 deselected. Did not pick ssbfam #181 or ssbsec #187.",
-    "Rebased onto origin/main after ssbfam #181 merged at b20808d. Kept ssbfam/mdirwms/kystnav/nbconcept/kvgrunn/nbdsd/nbcodelist. Did not pick ssbsec #187 or ssclass #189.",
+    "Rebased onto origin/main after ssbfam #181 merged at b20808d. Kept ssbfam/mdirwms/kystnav/nbconcept/kvgrunn/nbdsd/nbcodelist. Did not pick ssbsec #187 or ssclass #189. python3 -m pytest after rebase: 1253 passed, 1 skipped, 1 deselected.",
     "Not a numeric time series with two or more periods. Fetch listed 1 printed agreement-name cell (sample Norges Bank for Exchange rates)."
   ]
 }
