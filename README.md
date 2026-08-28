@@ -3470,6 +3470,43 @@ HTTP 200, 32 collection-title cells. Sample printed value: `reprojected`.
 time series (`no observations matched entity/measure; available=[]`).
 Proof is `data/hicoverages_source_proof.json`.
 
+## Fiskeridirektoratet Miljøundersøkelser source
+
+`pda ingest --source envreportreg` is another replaceable adapter. It lists
+printed collection GET paths on the official Miljøundersøkelser OpenAPI
+`https://api.fiskeridir.no/envreportreg-public/v3/api-docs`,
+capped at 10. Templated paths and GET operations that print required
+parameters are skipped. Dataset ids are the printed path without a
+leading slash so v1 and v2 search stay distinct. `access_path` is the
+printed OpenAPI server URL plus path. License is copied from the printed
+OpenAPI license URL. Publisher stays null: the OpenAPI prints no
+publisher field. This is not Fartøyregisteret (`--source fiskeridir`),
+Kjøperregisteret (`--source buyer`), NYTEK (`--source nytek`),
+Akvakulturregister (`--source aqua`), Akvakulturforskning
+(`--source research`), Akvakultursøknader (`--source portal`),
+Omregningsfaktorer (`--source omregning`), or Havforskningsinstituttet
+OGC Coverages (`--source hicoverages`, now on main after PR 137).
+
+```bash
+pda ingest --source envreportreg --db data/registry.sqlite --limit 10
+pda search miljørapporter --db data/registry.sqlite
+pda fetch --dataset envreportreg:api/v2/report/search --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored collection URL. Observation values are
+copied from printed JSON `siteName` values or other scalars. License is
+copied from the printed OpenAPI URL. Publisher stays null.
+
+Live ingest 2026-08-28: 2 printed untemplated GET paths (catalog
+prints 2 paths with a last-segment id and no required parameter).
+Live search `miljørapporter` returns `envreportreg:api/v2/report/search`
+(and the v1 twin). Live fetch GETs
+`https://api.fiskeridir.no/envreportreg-public/api/v2/report/search`
+HTTP 200, 100 miljørapport cells. Sample printed value: `TORANGSKJERET`.
+`pda methods` is not applicable: site-name strings, not a numeric
+time series (`no observations matched entity/measure; available=[]`).
+Proof is `data/envreportreg_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
