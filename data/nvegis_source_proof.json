@@ -1,0 +1,175 @@
+{
+  "produced_at": "2026-08-28T02:22:59Z",
+  "bound": {
+    "list_api": "https://gis3.nve.no/map/rest/services?f=json",
+    "walk": "copy printed services array entries from the official NVE ArcGIS REST JSON catalog; skip folders, empty names, and empty types; native ids are the printed last path segment of name so Fjellskred1 stays distinct from Nettanlegg3; access_path is the printed name plus type plus the catalog f=json query; title copies the printed service name; license stays null because the catalog prints no license URL; do not invent folder walks, query filters, or publisher names",
+    "cap": 10,
+    "how": "pda ingest --source nvegis --limit 10. The official JSON catalog prints MapServer services Fjellskred1, Nettanlegg3, Skredfaresoner3, SnoskredAktsomhetLosneOmr, and SnoskredAktsomhet. GET uses the printed Fjellskred1 MapServer path with the catalog f=json query. This is not NVE Magasinstatistikk (--source nve), not Havforskningsinstituttet OGC Tiles (--source hitiles), and not Fiskeridirektoratet Miljørapporter (PR 143, Lane B)."
+  },
+  "discarded": [
+    {
+      "candidate": "Fiskeridirektoratet Miljørapporter / miljorapporter",
+      "url": "PR 143 --source miljorapporter",
+      "why": "Lane B opened PR 143 on branch cursor/miljorapporter-fiskeridir-source-0d4a. Do not pick the other lane's source."
+    },
+    {
+      "candidate": "Havforskningsinstituttet OGC Tiles / hitiles",
+      "url": "PR 142 --source hitiles, now on main",
+      "why": "Already on main after merge bea41f1. Do not re-add."
+    },
+    {
+      "candidate": "Havforskningsinstituttet OGC Styles / histyles",
+      "url": "--source histyles, now on main",
+      "why": "Already on main. Distinct Styles catalog."
+    },
+    {
+      "candidate": "Nasjonalbiblioteket Catalog Search API",
+      "url": "https://api.nb.no/catalog/v1/items/api-docs",
+      "why": "Official OpenAPI HTTP 200. Untemplated GETs print required q. Do not invent a search query."
+    },
+    {
+      "candidate": "Nasjonalbiblioteket Skosmos /vocabularies",
+      "url": "https://api.nb.no/nbvok/rest/v1/swagger.json",
+      "why": "Official swagger HTTP 200. Untemplated /vocabularies GET prints required lang. Do not invent a language parameter."
+    },
+    {
+      "candidate": "Havforskningsinstituttet OGC Processes",
+      "url": "https://kart.hi.no/data/ogc/processes/v1",
+      "why": "HTTP 404. Do not invent endpoints."
+    },
+    {
+      "candidate": "Norsk Polarinstitutt OGC Features",
+      "url": "https://geodata.npolar.no/ogc/features/v1/collections",
+      "why": "HTTP 404. Do not retry the GAPS leftover."
+    },
+    {
+      "candidate": "Udir Register for lærebedrifter / nlr",
+      "url": "https://data-nlr.udir.no/swagger/v4/swagger.json",
+      "why": "Known skip: live collection GETs are HTTP 401. Do not invent an auth workaround."
+    },
+    {
+      "candidate": "Kartverket Eiendom /geokoding",
+      "url": "https://api.kartverket.no/eiendom/v1/geokoding",
+      "why": "Known skip: HTTP 400 without matrikkel params. Do not invent kommunenummer/gardsnummer/bruksnummer."
+    },
+    {
+      "candidate": "Kartverket Adresser /sok /punktsok",
+      "url": "https://api.kartverket.no/adresser/v1/openapi.json",
+      "why": "Known skip: live GET without search params is HTTP 400. Do not invent a query."
+    },
+    {
+      "candidate": "MET lightning / pollenforecast / forestfireindex / weathericon swagger",
+      "url": "https://api.met.no/weatherapi/lightning/1.0/swagger",
+      "why": "Known skip: live swagger HTTP 500. Do not invent endpoints."
+    },
+    {
+      "candidate": "Frost MET sources",
+      "url": "https://frost.met.no/sources/v0.jsonld",
+      "why": "HTTP 401. Do not retry."
+    },
+    {
+      "candidate": "NVDB Les V3 OpenAPI",
+      "url": "https://nvdbapiles-v3.atlas.vegvesen.no/dokumentasjon/openapi.json",
+      "why": "Known skip: HTTP 400 User-Agent. Do not retry."
+    },
+    {
+      "candidate": "NVE HydAPI /api/v1/Parameters",
+      "url": "https://hydapi.nve.no/swagger/v1/swagger.json",
+      "why": "HTTP 401. Do not retry."
+    },
+    {
+      "candidate": "MET Aviationforecast / Sigmets",
+      "url": "https://api.met.no/weatherapi/aviationforecast/2.0/swagger",
+      "why": "Assigned skip for this lane. Not selected."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source nvegis --db /tmp/pda-nvegis-proof/registry.sqlite --limit 10",
+    "listed": 5,
+    "inserted": 5,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "nvegis:Fjellskred1",
+        "title": "Fjellskred1",
+        "access_path": "https://gis3.nve.no/map/rest/services/Fjellskred1/MapServer?f=json"
+      },
+      {
+        "id": "nvegis:Nettanlegg3",
+        "title": "Nettanlegg3",
+        "access_path": "https://gis3.nve.no/map/rest/services/Nettanlegg3/MapServer?f=json"
+      },
+      {
+        "id": "nvegis:Skredfaresoner3",
+        "title": "Skredfaresoner3",
+        "access_path": "https://gis3.nve.no/map/rest/services/Skredfaresoner3/MapServer?f=json"
+      },
+      {
+        "id": "nvegis:SnoskredAktsomhet",
+        "title": "SnoskredAktsomhet",
+        "access_path": "https://gis3.nve.no/map/rest/services/SnoskredAktsomhet/MapServer?f=json"
+      },
+      {
+        "id": "nvegis:SnoskredAktsomhetLosneOmr",
+        "title": "SnoskredAktsomhetLosneOmr",
+        "access_path": "https://gis3.nve.no/map/rest/services/SnoskredAktsomhetLosneOmr/MapServer?f=json"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search Fjellskred1 --db /tmp/pda-nvegis-proof/registry.sqlite --limit 5",
+    "query": "Fjellskred1",
+    "returned": 1,
+    "hit_id": "nvegis:Fjellskred1",
+    "title": "Fjellskred1",
+    "source_id": "nvegis",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://gis3.nve.no/map/rest/services/Fjellskred1/MapServer?f=json",
+    "original_source": "https://gis3.nve.no/map/rest/services?f=json",
+    "why_picked": "title matched fjellskred1"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset nvegis:Fjellskred1 --db /tmp/pda-nvegis-proof/registry.sqlite",
+    "dataset": "nvegis:Fjellskred1",
+    "table_id": "Fjellskred1",
+    "access_path": "https://gis3.nve.no/map/rest/services/Fjellskred1/MapServer?f=json",
+    "request_url": "https://gis3.nve.no/map/rest/services/Fjellskred1/MapServer?f=json",
+    "http_status": 200,
+    "listed": 30,
+    "inserted": 30,
+    "updated": 0,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "name",
+        "value": "Overvaking_fjellskred"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset nvegis:Fjellskred1 --db /tmp/pda-nvegis-proof/registry.sqlite",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "NVE GIS /Fjellskred1/MapServer prints layer names. Those are not a numeric time series with a year-like period field and two or more periods. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed service names. access_path is the printed name plus type plus f=json. No nvegis id was written onto a nve, hitiles, histyles, or datanorge row.",
+    "License stays null: the catalog prints no license URL. Publisher is null: the catalog does not print a publisher.",
+    "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "python3 -m pytest after rebase onto miljorapporter #143: 905 passed, 1 skipped, 1 deselected.",
+    "Not a numeric time series with two or more periods. Fetch listed 30 printed layer-name cells (sample Overvaking_fjellskred).",
+    "Open PR check at pickup found PR 143 miljorapporter (Lane B) so unused. After #143 merged at 197069d, this branch rebased onto origin/main keeping miljorapporter plus nvegis. aviationforecast and sigmets stayed unused. Folders Mapservices and Utilities were printed but not walked."
+  ]
+}
