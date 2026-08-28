@@ -1,0 +1,99 @@
+{
+  "source": "vannkraft",
+  "publisher": "Norges vassdrags- og energidirektorat (NVE)",
+  "docs_url": "https://api.nve.no/doc/vannkraftdatabase/",
+  "printed_base": "https://api.nve.no/web/Powerplant",
+  "bound": {
+    "limit": 10,
+    "listed": 2,
+    "inserted": 2,
+    "reason": "Official HTML prints two untemplated GET paths. Ingest listed=2, inserted=2."
+  },
+  "discarded": [
+    {
+      "source": "sigmets",
+      "reason": "Open PR #159 (lane D / bc-bd750274). Do not pick another lane's source."
+    },
+    {
+      "source": "grep",
+      "reason": "Open PR #161 (lane C / bc-64fcdd6b). Do not pick another lane's source."
+    },
+    {
+      "source": "regobs",
+      "reason": "Open PR #162 (lane A / bc-9d0d1671). Do not pick another lane's source."
+    },
+    {
+      "source": "kvwms",
+      "reason": "Open leftover-GIS PR #163. Lane stays off GIS/WMS/OGC."
+    },
+    {
+      "source": "ssbv2",
+      "reason": "Already merged on main (PR #157). Do not re-add."
+    },
+    {
+      "source": "aviationforecast",
+      "reason": "Last remaining MET product besides sigmets. Assigned skip from prior proof: skip 401/403/404/406/410/timeout/HTML-only."
+    },
+    {
+      "source": "udir-nlr",
+      "reason": "Assigned skip: https://data-nlr.udir.no/swagger/v1/swagger.json HTTP 401."
+    },
+    {
+      "source": "fiskeridir-ers",
+      "reason": "Assigned skip: https://api.fiskeridir.no/catchreporting/swagger/v1/swagger.json HTTP 401."
+    },
+    {
+      "source": "kartverket-adresser",
+      "reason": "Assigned skip: https://ws.geonorge.no/adresser/v1/sok HTTP 400 without query. Templated /sok?sok= is not a printed catalog."
+    },
+    {
+      "source": "nve-hydapi",
+      "reason": "Assigned skip: https://hydapi.nve.no/UserDocumentation/ requires API key."
+    },
+    {
+      "source": "nve-inntektsrammer",
+      "reason": "Live GET https://api.nve.no/web/IR/GetTariffs HTTP 401. Skip auth."
+    },
+    {
+      "source": "udir-grep",
+      "reason": "Printed OpenAPI at https://data-lvk.udir.no/swagger/v1/swagger.json (HTTP 200, 20 GET paths). Already claimed by open PR #161."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source vannkraft --db /tmp/pda-vannkraft-proof/registry.sqlite --limit 10",
+    "listed": 2,
+    "inserted": 2,
+    "ids": [
+      "vannkraft:GetHydroPowerPlantsInOperation",
+      "vannkraft:GetHydroPowerPlants"
+    ]
+  },
+  "search": {
+    "query": "vannkraftverk",
+    "hit_id": "vannkraft:GetHydroPowerPlantsInOperation",
+    "title": "Henter vannkraftverk som er i drift",
+    "note": "Query GetHydroPowerPlantsInOperation returned 0 because Chef FTS ranks title/keyword/description, not the native id. Query vannkraftverk hits both harvested ids. Ranking was not changed."
+  },
+  "fetch": {
+    "id": "vannkraft:GetHydroPowerPlantsInOperation",
+    "url": "https://api.nve.no/web/Powerplant/GetHydroPowerPlantsInOperation",
+    "method": "GET",
+    "status": 200,
+    "content_type": "application/json; charset=utf-8",
+    "listed": 1862,
+    "inserted": 1862,
+    "sample_measure": "Navn",
+    "sample_value": "Adamselv",
+    "new_numeric_time_series_ge_2_periods": false
+  },
+  "methods": {
+    "applicable": false,
+    "reason": "pda methods --dataset vannkraft:GetHydroPowerPlantsInOperation printed no observations matched entity/measure; available=[]. Fetch is a plant-name register (measure Navn), not a numeric time series with two or more periods. methods/ was not edited."
+  },
+  "notes": [
+    "Official NVE Vannkraftdatabase. Printed HTML at https://api.nve.no/doc/vannkraftdatabase/ names GET /GetHydroPowerPlantsInOperation and GET /GetHydroPowerPlants on https://api.nve.no/web/Powerplant. No auth.",
+    "Distinct from --source nve (Magasinstatistikk on biapi.nve.no) and from leftover NVE GIS (nvegis, nvemap, nve2gis).",
+    "Native ids are the last path segment as printed. License and publisher stay null (not printed on the opblock).",
+    "cells_from_vannkraft copies printed plant fields only. Nested Eiere and Konsesjoner arrays are not copied."
+  ]
+}

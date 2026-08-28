@@ -4368,6 +4368,8 @@ HTTP 200, 227 printed layer-name cells. Sample printed value: `topo`.
 (`no observations matched entity/measure; available=[]`).
 Proof is `data/kvwms_source_proof.json`.
 
+## MET Aviationforecast source
+
 `pda ingest --source aviationforecast` is another replaceable adapter. It lists
 printed collection GET paths on the official MET Aviationforecast swagger
 `https://api.met.no/weatherapi/aviationforecast/2.0/swagger`, capped at 10.
@@ -4399,6 +4401,40 @@ location-name cells. Sample printed value: `BERGEN/FLESLAND`.
 `pda methods` is not applicable: GeoJSON ICAO names, not a numeric
 time series (`no observations matched entity/measure; available=[]`).
 Proof is `data/aviationforecast_source_proof.json`.
+
+## NVE Vannkraftdatabase source
+
+`pda ingest --source vannkraft` is another replaceable adapter. It lists
+printed untemplated collection GET paths on the official NVE
+Vannkraftdatabase documentation
+`https://api.nve.no/doc/vannkraftdatabase/`, capped at 10. Templated
+paths are skipped. Dataset ids are the printed last path segment so
+`GetHydroPowerPlantsInOperation` stays distinct from
+`GetHydroPowerPlants`. `access_path` joins each printed path onto the
+printed `https://` base `api.nve.no/web/Powerplant`. License stays null:
+the documentation prints no license URL. Publisher stays null. This is
+not Magasinstatistikk (`--source nve`), not NVE GIS leftovers, and not
+RegObs.
+
+```bash
+pda ingest --source vannkraft --db data/registry.sqlite --limit 10
+pda search vannkraftverk --db data/registry.sqlite
+pda fetch --dataset vannkraft:GetHydroPowerPlantsInOperation --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored Powerplant URL. Observation values are
+copied from printed `Navn` scalars. Other scalars stay as dimensions.
+Nested owner and concession objects are not copied. License stays null.
+Publisher stays null.
+
+Live ingest 2026-08-28: 2 printed untemplated GET paths (docs print
+only those two). Live search `vannkraftverk` returns
+`vannkraft:GetHydroPowerPlantsInOperation`. Live fetch GETs
+`https://api.nve.no/web/Powerplant/GetHydroPowerPlantsInOperation`
+HTTP 200, 1862 plant-name cells. Sample printed value: `Adamselv`.
+`pda methods` is not applicable: plant names, not a numeric time series
+(`no observations matched entity/measure; available=[]`).
+Proof is `data/vannkraft_source_proof.json`.
 
 ## Architecture (long term)
 

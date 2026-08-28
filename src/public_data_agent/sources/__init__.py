@@ -110,6 +110,7 @@ from public_data_agent.sources.turbulence import TurbulenceSource
 from public_data_agent.sources.udir import UdirNsrSource
 from public_data_agent.sources.utdanning import UtdanningSource
 from public_data_agent.sources.valg import ValgresultatSource
+from public_data_agent.sources.vannkraft import VannkraftSource
 from public_data_agent.sources.vegvesen import VegvesenSource
 from public_data_agent.sources.volcanicashforecast import VolcanicashforecastSource
 
@@ -223,6 +224,7 @@ SOURCE_IDS = (
     "grep",
     "kvwms",
     "aviationforecast",
+    "vannkraft",
 )
 
 
@@ -447,6 +449,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return KvwmsSource()
     if source_id == "aviationforecast":
         return AviationforecastSource()
+    if source_id == "vannkraft":
+        return VannkraftSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -561,6 +565,7 @@ __all__ = [
     "UdirNsrSource",
     "UtdanningSource",
     "ValgresultatSource",
+    "VannkraftSource",
     "VegvesenSource",
     "VolcanicashforecastSource",
     "build_source",
