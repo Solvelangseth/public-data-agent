@@ -1,0 +1,163 @@
+{
+  "produced_at": "2026-08-28T09:35:00Z",
+  "bound": {
+    "list_api": "https://api.met.no/weatherapi/aviationforecast/2.0/swagger",
+    "walk": "copy printed untemplated GET paths from the official MET Aviationforecast swagger; skip templated {format} paths and GET operations that print required query parameters; skip /aw and /iga because they print required icao or wmoheader; native ids are the last printed path segment; access_path is swagger origin + printed basePath + path; do not invent dataset ids or icao/wmoheader filters",
+    "cap": 10,
+    "how": "pda ingest --source aviationforecast --limit 10. The official MET Aviationforecast swagger prints 6 untemplated GET paths that have a last-segment id and no required query parameter. The adapter copies those paths. GET uses the printed /locations collection with no invented query filters. Forecast paths print required icao or wmoheader so they stay unused for listing and fetch. This is not Metalerts (--source met), not Locationforecast (--source locationforecast), not Tafmetar (--source tafmetar), not Sigmets (open PR 159), and not Udir Grep (open PR 161)."
+  },
+  "discarded": [
+    {
+      "candidate": "MET Sigmets",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/159",
+      "why": "Open/in-flight PR 159. Do not pick the other lane's source."
+    },
+    {
+      "candidate": "Udir Grep",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/161",
+      "why": "Open/in-flight PR 161. Do not pick the other lane's source."
+    },
+    {
+      "candidate": "NVE RegObs",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/162",
+      "why": "Merged on main after pickup. Do not re-add."
+    },
+    {
+      "candidate": "Kartverket leftover WMS/WMTS / kvwms",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/163",
+      "why": "Open leftover GIS/WMS PR. This lane stays on national JSON."
+    },
+    {
+      "candidate": "Udir Register for lærebedrifter / nlr",
+      "url": "https://data-nlr.udir.no/swagger/v4/swagger.json",
+      "why": "Known skip: live collection GETs are HTTP 401. Do not invent an auth workaround."
+    },
+    {
+      "candidate": "Fiskeridirektoratet aqua-operations-public",
+      "url": "https://api.fiskeridir.no/aqua-operations-public/v3/api-docs",
+      "why": "Official OpenAPI prints only a templated /api/v1/joint-ops/{site-nr}. Do not invent a site number."
+    },
+    {
+      "candidate": "Fiskeridirektoratet ERS",
+      "url": "https://api.fiskeridir.no/ers-api/openapi",
+      "why": "HTTP 401. Do not invent an auth workaround."
+    },
+    {
+      "candidate": "MET weathericon / forestfireindex / lightning / uvforecast / pollenforecast / thunderstorm / subjectivesummary / probabilityforecast / verticalprofile swagger",
+      "url": "https://api.met.no/weatherapi/weathericon/2.0/swagger",
+      "why": "Known skip: live swagger HTTP 500. Do not invent endpoints."
+    },
+    {
+      "candidate": "SSB dataset API",
+      "url": "https://data.ssb.no/api/v0/dataset?lang=no",
+      "why": "HTTP 410. Do not retry."
+    },
+    {
+      "candidate": "Frost MET sources",
+      "url": "https://frost.met.no/sources/v0.jsonld",
+      "why": "HTTP 401. Do not retry."
+    },
+    {
+      "candidate": "NVDB Les V3 OpenAPI",
+      "url": "https://nvdbapiles-v3.atlas.vegvesen.no/dokumentasjon/openapi.json",
+      "why": "Known skip: HTTP 400 User-Agent. Do not retry."
+    },
+    {
+      "candidate": "NVE HydAPI /api/v1/Parameters",
+      "url": "https://hydapi.nve.no/swagger/v1/swagger.json",
+      "why": "HTTP 401. Do not retry."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source aviationforecast --db /tmp/pda-aviationforecast-proof/registry.sqlite --limit 10",
+    "listed": 6,
+    "inserted": 6,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "aviationforecast:available",
+        "access_path": "https://api.met.no/weatherapi/aviationforecast/2.0/available"
+      },
+      {
+        "id": "aviationforecast:changelog",
+        "access_path": "https://api.met.no/weatherapi/aviationforecast/2.0/changelog"
+      },
+      {
+        "id": "aviationforecast:features",
+        "access_path": "https://api.met.no/weatherapi/aviationforecast/2.0/features"
+      },
+      {
+        "id": "aviationforecast:healthz",
+        "access_path": "https://api.met.no/weatherapi/aviationforecast/2.0/healthz"
+      },
+      {
+        "id": "aviationforecast:locations",
+        "access_path": "https://api.met.no/weatherapi/aviationforecast/2.0/locations"
+      },
+      {
+        "id": "aviationforecast:values",
+        "access_path": "https://api.met.no/weatherapi/aviationforecast/2.0/values"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search locations --db /tmp/pda-aviationforecast-proof/registry.sqlite --limit 5",
+    "query": "locations",
+    "returned": 1,
+    "hit_id": "aviationforecast:locations",
+    "title": "List available locations as GeoJSON FeatureCollection",
+    "source_id": "aviationforecast",
+    "publisher": null,
+    "license": "http://creativecommons.org/licenses/by/4.0",
+    "access_path": "https://api.met.no/weatherapi/aviationforecast/2.0/locations",
+    "original_source": "https://api.met.no/weatherapi/aviationforecast/2.0/swagger",
+    "why_picked": "title matched locations"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset aviationforecast:locations --db /tmp/pda-aviationforecast-proof/registry.sqlite",
+    "dataset": "aviationforecast:locations",
+    "table_id": "locations",
+    "access_path": "https://api.met.no/weatherapi/aviationforecast/2.0/locations",
+    "request_url": "https://api.met.no/weatherapi/aviationforecast/2.0/locations",
+    "http_status": 200,
+    "listed": 8,
+    "inserted": 8,
+    "updated": 0,
+    "license": "http://creativecommons.org/licenses/by/4.0",
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "name",
+        "value": "STAVANGER/SOLA"
+      },
+      {
+        "measure": "name",
+        "value": "BERGEN/FLESLAND"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset aviationforecast:locations --table locations --entity ENBR --measure name --db /tmp/pda-aviationforecast-proof/registry.sqlite --out /tmp/pda-aviationforecast-proof/methods2",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "Aviationforecast /locations prints GeoJSON ICAO names. Those are not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed swagger path last segments. access_path is swagger origin + printed basePath + path. No aviationforecast id was written onto a met, locationforecast, tafmetar, sigmets, grep, or regobs row.",
+    "License is the printed swagger CC BY 4.0 URL http://creativecommons.org/licenses/by/4.0. Publisher is null: the spec does not print a publisher.",
+    "Original harvested swagger metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "Open PRs at pickup were 159 sigmets, 161 grep, 163 kvwms. This lane stayed on aviationforecast.",
+    "python3 -m pytest after Aviationforecast adapter: 1050 passed, 1 skipped, 1 deselected.",
+    "Not a numeric time series with two or more periods. Fetch listed 8 printed location-name cells (sample BERGEN/FLESLAND)."
+  ]
+}
