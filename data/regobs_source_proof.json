@@ -1,0 +1,180 @@
+{
+  "produced_at": "2026-08-28T09:23:12Z",
+  "bound": {
+    "list_api": "https://api.regobs.no/v5/KdvElements",
+    "swagger": "https://api.regobs.no/v5/swagger/docs/V5",
+    "walk": "copy printed KdvRepositories keys from the official NVE RegObs KdvElements GET; that path is an untemplated collection GET in the official swagger; skip empty keys, empty lists, and non-list repositories; native ids are those printed keys so Dirt_DangerSignKDV stays distinct from Dirt_ActivityInfluencedKDV; native uri appends the printed key as a fragment so the registry UNIQUE (source_id, source_native_uri) can store each repository; access_path is the printed KdvElements URL; license stays null because the catalog prints no license URL; publisher stays null; live GET of that printed path is HTTP 200 with no token; no token is sent; do not invent query filters or Account/Search bodies",
+    "cap": 10,
+    "how": "pda ingest --source regobs --limit 10. The official KdvElements GET prints 73 KdvRepositories keys. Cap 10 copies the first 10 in document order."
+  },
+  "discarded": [
+    {
+      "candidate": "ssbv2 / PR 157",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/157",
+      "why": "Already on main after merge 7671b3a. Do not pick ssbv2."
+    },
+    {
+      "candidate": "ragis / PR 158",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/158",
+      "why": "Now on main after merge 5fa96c9. Leftover GIS. Do not pick ragis."
+    },
+    {
+      "candidate": "ssbkart / PR 156",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/156",
+      "why": "Stopped. Leftover GIS/OGC. PR 156 closed without merge."
+    },
+    {
+      "candidate": "fiskerigis / npiintern / arcticsdi / nvemap",
+      "url": "assigned skip / already on main",
+      "why": "Assigned skip. Already on main after PRs 152-155. Do not pick."
+    },
+    {
+      "candidate": "Udir NLR",
+      "url": "https://data-nlr.udir.no/swagger/v4/swagger.json",
+      "why": "Official OpenAPI HTTP 200 prints untemplated GETs. Live GET /v4/organisasjonsformer, /v4/utgaattyper, and /v4/enheter are HTTP 401. Do not invent auth."
+    },
+    {
+      "candidate": "Fiskeridirektoratet ERS",
+      "url": "https://api.fiskeridir.no/ers-api/swagger",
+      "why": "Official OpenAPI HTTP 200. Live GET /api/v1/ers/reports is HTTP 401. Do not invent auth."
+    },
+    {
+      "candidate": "Fiskeridirektoratet aqua-operations-public",
+      "url": "https://api.fiskeridir.no/aqua-operations-public/v3/api-docs",
+      "why": "Official OpenAPI HTTP 200. The only printed path is templated. Do not invent a site number."
+    },
+    {
+      "candidate": "NVE Flomvarsel / Jordskredvarsel",
+      "url": "https://api01.nve.no/hydrology/forecast/flood/v1.0.8/swagger/docs/v1.0.8",
+      "why": "Official swagger HTTP 200. Every printed GET path is templated. Do not invent dates."
+    },
+    {
+      "candidate": "RegObs Account and Trip observer GETs",
+      "url": "https://api.regobs.no/v5/Account/GetObserver",
+      "why": "Printed untemplated GETs. Live GET /v5/Account/GetObserver, /v5/Account/Groups, and /v5/Trip/ObserverTrips are HTTP 401. Do not invent auth."
+    },
+    {
+      "candidate": "RegObs Search POST",
+      "url": "https://api.regobs.no/v5/swagger/docs/V5",
+      "why": "Printed POST /Search requires criteria. Do not invent a search body."
+    },
+    {
+      "candidate": "aviationforecast / sigmets / offentligdata.no",
+      "url": "assigned skip",
+      "why": "Assigned skip. Do not pick."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source regobs --db /tmp/pda-regobs-proof/registry.sqlite --limit 10",
+    "listed": 10,
+    "inserted": 10,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "regobs:Dirt_DangerSignKDV",
+        "title": "Dirt_DangerSignKDV",
+        "access_path": "https://api.regobs.no/v5/KdvElements"
+      },
+      {
+        "id": "regobs:Dirt_ActivityInfluencedKDV",
+        "title": "Dirt_ActivityInfluencedKDV",
+        "access_path": "https://api.regobs.no/v5/KdvElements"
+      },
+      {
+        "id": "regobs:Dirt_SafetyGearKDV",
+        "title": "Dirt_SafetyGearKDV",
+        "access_path": "https://api.regobs.no/v5/KdvElements"
+      },
+      {
+        "id": "regobs:Dirt_LandSlideKDV",
+        "title": "Dirt_LandSlideKDV",
+        "access_path": "https://api.regobs.no/v5/KdvElements"
+      },
+      {
+        "id": "regobs:Dirt_LandSlideTriggerKDV",
+        "title": "Dirt_LandSlideTriggerKDV",
+        "access_path": "https://api.regobs.no/v5/KdvElements"
+      },
+      {
+        "id": "regobs:Dirt_LandSlideSizeKDV",
+        "title": "Dirt_LandSlideSizeKDV",
+        "access_path": "https://api.regobs.no/v5/KdvElements"
+      },
+      {
+        "id": "regobs:Ice_DangerSignKDV",
+        "title": "Ice_DangerSignKDV",
+        "access_path": "https://api.regobs.no/v5/KdvElements"
+      },
+      {
+        "id": "regobs:Ice_ActivityInfluencedKDV",
+        "title": "Ice_ActivityInfluencedKDV",
+        "access_path": "https://api.regobs.no/v5/KdvElements"
+      },
+      {
+        "id": "regobs:Ice_SafetyGearKDV",
+        "title": "Ice_SafetyGearKDV",
+        "access_path": "https://api.regobs.no/v5/KdvElements"
+      },
+      {
+        "id": "regobs:Ice_IceCoverKDV",
+        "title": "Ice_IceCoverKDV",
+        "access_path": "https://api.regobs.no/v5/KdvElements"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search Dirt_DangerSignKDV --db /tmp/pda-regobs-proof/registry.sqlite --limit 10",
+    "query": "Dirt_DangerSignKDV",
+    "returned": 1,
+    "hit_id": "regobs:Dirt_DangerSignKDV",
+    "title": "Dirt_DangerSignKDV",
+    "source_id": "regobs",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://api.regobs.no/v5/KdvElements",
+    "original_source": "https://api.regobs.no/v5/KdvElements#Dirt_DangerSignKDV",
+    "why_picked": "title matched dirt, dangersignkdv"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset regobs:Dirt_DangerSignKDV --db /tmp/pda-regobs-proof/registry.sqlite",
+    "dataset": "regobs:Dirt_DangerSignKDV",
+    "table_id": "Dirt_DangerSignKDV",
+    "access_path": "https://api.regobs.no/v5/KdvElements",
+    "request_url": "https://api.regobs.no/v5/KdvElements",
+    "http_status": 200,
+    "listed": 16,
+    "inserted": 16,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "Name",
+        "value": "Ikke gitt"
+      },
+      {
+        "measure": "Name",
+        "value": "Ingen faretegn observert"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset regobs:Dirt_DangerSignKDV --db /tmp/pda-regobs-proof/registry.sqlite --out /tmp/pda-regobs-proof/methods",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "Copied Name cells are code-list labels, not a numeric time series with two or more periods. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed KdvRepositories keys. access_path is the printed KdvElements GET. No regobs id was written onto an nve, ssb, or ssbv2 row.",
+    "License is null: the catalog prints no license URL. Publisher stays null.",
+    "Live GET of the printed KdvElements path is HTTP 200 with no Authorization header. No token is sent.",
+    "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "python3 -m pytest after rebase onto nibiowms 160: 1040 passed, 1 skipped, 1 deselected.",
+    "Not a numeric time series with two or more periods. Fetch listed 16 printed Name cells (sample Ikke gitt, Ingen faretegn observert).",
+    "ssbv2 PR 157 is on main. ragis PR 158 is on main after 5fa96c9. nibiowms PR 160 is on main after 872a367. ssbkart PR 156 closed. NLR 401 unused. ERS 401 unused. Account 401 unused. aviationforecast/sigmets stayed unused."
+  ]
+}

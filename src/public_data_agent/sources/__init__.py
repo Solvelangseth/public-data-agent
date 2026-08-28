@@ -78,6 +78,7 @@ from public_data_agent.sources.portal import PortalSource
 from public_data_agent.sources.radar import RadarSource
 from public_data_agent.sources.ragis import RagisSource
 from public_data_agent.sources.regnskap import RegnskapSource
+from public_data_agent.sources.regobs import RegobsSource
 from public_data_agent.sources.research import ResearchSource
 from public_data_agent.sources.riksantikvaren import RiksantikvarenSource
 from public_data_agent.sources.routeforecast import RouteforecastSource
@@ -213,6 +214,7 @@ SOURCE_IDS = (
     "ssbv2",
     "ragis",
     "nibiowms",
+    "regobs",
 )
 
 
@@ -427,6 +429,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return RagisSource()
     if source_id == "nibiowms":
         return NibiowmsSource()
+    if source_id == "regobs":
+        return RegobsSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -507,6 +511,7 @@ __all__ = [
     "RadarSource",
     "RagisSource",
     "RegnskapSource",
+    "RegobsSource",
     "ResearchSource",
     "RiksantikvarenSource",
     "RouteforecastSource",
