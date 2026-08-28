@@ -3755,6 +3755,49 @@ HTTP 200, 7 location-name cells. Sample printed value: `Rekefjordboen`.
 time series (`no observations matched entity/measure; available=[]`).
 Proof is `data/navwarnings_source_proof.json`.
 
+## Kartverket Havnedata source
+
+`pda ingest --source havnedata` is another replaceable adapter. It lists
+printed collection GET paths on the official Kartverket Havnedata OpenAPI
+`https://ogcapitest.kartverket.no/rest/services/havnedata3_0/api?f=json`,
+capped at 10. The root path, templated paths, and GET operations that
+print required parameters are skipped. Dataset ids are the printed path
+without a leading slash so `collections` stays distinct from
+`collections/avfallspunkt`. `access_path` is the printed OpenAPI server
+URL plus path. License stays null: the OpenAPI prints no license URL.
+Publisher stays null: the OpenAPI prints no publisher field. The
+document prints no security scheme. Live GET of those printed paths is
+HTTP 200 with no token. No token is sent. This is not Kartverket OGC
+Coverages (`--source ogccoverages`), Den norske los
+(`--source norskelos`), Kartverket Register (`--source georegister`),
+Stedsnavn (`--source stedsnavn`), Kommuneinfo (`--source kommuneinfo`),
+Høydedata (`--source hoydedata`), Transformering
+(`--source transformering`), Fiskeridirektoratet Miljørapporter
+(`--source miljorapporter`, now on main after PR 143), NVE GIS
+(`--source nvegis`, now on main after PR 144), or Kystverket
+navigasjonsvarsler (`--source navwarnings`, now on main after PR 146).
+
+```bash
+pda ingest --source havnedata --db data/registry.sqlite --limit 10
+pda search avfallspunkt --db data/registry.sqlite
+pda fetch --dataset havnedata:collections --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored collection URL. Observation values are
+copied from printed JSON `title` values or other scalars. License stays
+null. Publisher stays null.
+
+Live ingest 2026-08-28: 10 printed untemplated GET paths (catalog
+prints conformance, collections, and collection metadata; cap 10). Live
+search `avfallspunkt` returns `havnedata:collections/avfallspunkt`.
+Live fetch GETs
+`https://ogcapitest.kartverket.no/rest/services/havnedata3_0/collections`
+HTTP 200, 22 collection title cells. Sample printed value:
+`administrativthavneområde`. `pda methods` is not applicable: collection
+titles, not a numeric time series
+(`no observations matched entity/measure; available=[]`).
+Proof is `data/havnedata_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
