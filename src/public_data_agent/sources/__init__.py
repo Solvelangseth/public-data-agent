@@ -60,6 +60,7 @@ from public_data_agent.sources.ogccoverages import OgccoveragesSource
 from public_data_agent.sources.omregning import OmregningSource
 from public_data_agent.sources.npolar import NpolarSource
 from public_data_agent.sources.npigis import NpigisSource
+from public_data_agent.sources.npiintern import NpiinternSource
 from public_data_agent.sources.npitema import NpitemaSource
 from public_data_agent.sources.nve import NveMagasinSource
 from public_data_agent.sources.nve2gis import Nve2gisSource
@@ -205,6 +206,7 @@ SOURCE_IDS = (
     "nvemap",
     "arcticsdi",
     "fiskerigis",
+    "npiintern",
 )
 
 
@@ -411,6 +413,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return ArcticsdiSource()
     if source_id == "fiskerigis":
         return FiskerigisSource()
+    if source_id == "npiintern":
+        return NpiinternSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -473,6 +477,7 @@ __all__ = [
     "OmregningSource",
     "NpolarSource",
     "NpigisSource",
+    "NpiinternSource",
     "NpitemaSource",
     "NveMagasinSource",
     "Nve2gisSource",
