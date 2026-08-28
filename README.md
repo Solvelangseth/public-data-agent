@@ -4702,10 +4702,15 @@ pda fetch --dataset nguwms:LosmasserWMS3 --db data/registry.sqlite
 copied from printed WMS `Layer`/`Name` text. A printed `Title`
 sibling stays as a dimension. License stays null. Publisher stays
 null. `pda methods` is not applicable: layer names, not a numeric
-time series.
+time series
+(`no observations matched entity/measure; available=[]`).
 
-Live ingest, fetch, and search proof will be recorded in
-`data/nguwms_source_proof.json` after a live run.
+Live ingest 2026-08-28: 10 leftover GetCapabilities documents
+(page 0 prints 10, all XML 200, cap 10). Live search
+`LosmasserWMS3` returns `nguwms:LosmasserWMS3`. Live fetch GETs
+`https://geo.ngu.no/mapserver/LosmasserWMS3?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetCapabilities`
+HTTP 200, 170 printed layer-name cells. Sample printed value:
+`LosmasserWMS3`. Proof is `data/nguwms_source_proof.json`.
 
 ## Architecture (long term)
 
