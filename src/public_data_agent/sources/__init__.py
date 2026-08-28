@@ -111,6 +111,7 @@ from public_data_agent.sources.ssb import SsbStatbankSource
 from public_data_agent.sources.ssbfam import SsbfamSource
 from public_data_agent.sources.ssbv2 import Ssbv2Source
 from public_data_agent.sources.ssbsec import SsbsecSource
+from public_data_agent.sources.ssclass import SsclassSource
 from public_data_agent.sources.statnett import StatnettDriftsdataSource
 from public_data_agent.sources.stedsnavn import StedsnavnSource
 from public_data_agent.sources.stormflo import StormfloSource
@@ -263,6 +264,7 @@ SOURCE_IDS = (
     "mdirwms",
     "ssbfam",
     "ssbsec",
+    "ssclass",
 )
 
 
@@ -527,6 +529,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return SsbfamSource()
     if source_id == "ssbsec":
         return SsbsecSource()
+    if source_id == "ssclass":
+        return SsclassSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -640,6 +644,7 @@ __all__ = [
     "SsbfamSource",
     "Ssbv2Source",
     "SsbsecSource",
+    "SsclassSource",
     "SOURCE_IDS",
     "SourceBase",
     "StatnettDriftsdataSource",
