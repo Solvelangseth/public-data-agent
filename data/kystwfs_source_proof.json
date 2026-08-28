@@ -1,0 +1,106 @@
+{
+  "produced_at": "2026-08-28T10:08:12Z",
+  "bound": {
+    "list_api": "https://services.kystverket.no/wfs.ashx?service=WFS&request=GetCapabilities",
+    "walk": "copy the printed leftover Kystverket WFS GetCapabilities document printed on Geonorge as Kystverkets WFS uuid de223e4c-e708-4c15-9afb-f8cedd3cd3ba; skip a document that is not WFS XML; skip havnedata collections, Kystdatahuset, and leftover Kystverket WMS wms.ashx; native id is the printed last path segment wfs.ashx; access_path is the printed GetCapabilities URL; license stays null because the capabilities document prints no license URL; publisher stays null; do not invent query filters or feature type ids",
+    "cap": 10,
+    "how": "pda ingest --source kystwfs --limit 10. Geonorge prints one OGC:WFS DistributionUrl. Live GetCapabilities is WFS_Capabilities XML 200. Cap 10 copies that one document. This is not Kystdatahuset OpenAPI (--source kystverket) and not Kartverket Havnedata (--source havnedata)."
+  },
+  "discarded": [
+    {
+      "candidate": "Kystverket leftover WMS / kystwms",
+      "url": "https://services.kystverket.no/wms.ashx?service=WMS&request=GetCapabilities",
+      "why": "In-flight sibling PR 176 --source kystwms. WMS GetCapabilities is XML 200. This lane keeps leftover WFS only."
+    },
+    {
+      "candidate": "Kystdatahuset OpenAPI / kystverket",
+      "url": "https://kystdatahuset.no/ws/swagger/v1/swagger.json",
+      "why": "Already --source kystverket. Not leftover WFS."
+    },
+    {
+      "candidate": "Kartverket Havnedata / havnedata",
+      "url": "https://ogcapitest.kartverket.no/rest/services/havnedata3_0/collections",
+      "why": "Already --source havnedata. Different host and path. Do not pick."
+    },
+    {
+      "candidate": "NGU leftover WMS / nguwms",
+      "url": "PR 174 --source nguwms, OPEN",
+      "why": "In-flight sibling. Do not pick."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source kystwfs --db /tmp/pda-kystwfs-proof/registry.sqlite --limit 10",
+    "listed": 1,
+    "inserted": 1,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "kystwfs:wfs.ashx",
+        "title": "Kystverket WFS - kart",
+        "access_path": "https://services.kystverket.no/wfs.ashx?service=WFS&request=GetCapabilities"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search Kystverket --db /tmp/pda-kystwfs-proof/registry.sqlite --limit 10",
+    "query": "Kystverket",
+    "returned": 1,
+    "hit_id": "kystwfs:wfs.ashx",
+    "title": "Kystverket WFS - kart",
+    "source_id": "kystwfs",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://services.kystverket.no/wfs.ashx?service=WFS&request=GetCapabilities",
+    "original_source": "https://services.kystverket.no/wfs.ashx?service=WFS&request=GetCapabilities",
+    "why_picked": "title matched kystverket"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset kystwfs:wfs.ashx --db /tmp/pda-kystwfs-proof/registry.sqlite",
+    "dataset": "kystwfs:wfs.ashx",
+    "table_id": "wfs.ashx",
+    "access_path": "https://services.kystverket.no/wfs.ashx?service=WFS&request=GetCapabilities",
+    "request_url": "https://services.kystverket.no/wfs.ashx?service=WFS&request=GetCapabilities",
+    "http_status": 200,
+    "listed": 44,
+    "inserted": 42,
+    "updated": 2,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "Name",
+        "value": "layer_611"
+      },
+      {
+        "measure": "Name",
+        "value": "layer_426"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset kystwfs:wfs.ashx --db /tmp/pda-kystwfs-proof/registry.sqlite",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "Kystverket leftover WFS GetCapabilities prints FeatureType Name strings. That is not a numeric time series with a year-like period field and two or more periods. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from the printed last path segment wfs.ashx. access_path is the printed Geonorge DistributionUrl. No kystwfs id was written onto a kystverket, havnedata, kystwms, or datanorge row.",
+    "License stays null: the capabilities document prints no license URL. Publisher is null: this adapter does not copy Geonorge Organization onto publisher.",
+    "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "Fetch listed 44 printed FeatureType Name cells. Two later FeatureTypes share Title Ladeanlegg ferjer - public, so Observation identity_key updated those two after the first insert. Sample printed value: layer_611.",
+    "python3 -m pytest after live proof: 1139 passed, 1 skipped.",
+    "Rebased onto origin/main after nguwms #174 (1b225c8). Keeps frivillig, sandnes, nguwms, and kystwfs. python3 -m pytest after rebase: 1166 passed, 1 skipped.",
+    "Rebased onto origin/main after stormflo #175 (5ac86d2). Keeps stormflo, nguwms, frivillig, sandnes, and kystwfs. python3 -m pytest after rebase: 1176 passed, 1 skipped.",
+    "Open PR check at pickup found kystwms #176, nguwms #174, stormflo #175, and later nbcodelist #177. kystwms WMS stayed unused. nguwms and stormflo are now on main."
+  ]
+}
