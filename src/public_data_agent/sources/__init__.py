@@ -24,6 +24,7 @@ from public_data_agent.sources.icemap import IcemapSource
 from public_data_agent.sources.isobaricgrib import IsobaricgribSource
 from public_data_agent.sources.kommuneinfo import KommuneinfoSource
 from public_data_agent.sources.kystverket import KystverketSource
+from public_data_agent.sources.lister import ListerSource
 from public_data_agent.sources.locationforecast import LocationforecastSource
 from public_data_agent.sources.mattilsynet import MattilsynetPlantevernSource
 from public_data_agent.sources.met import MetMetalertsSource
@@ -159,6 +160,7 @@ SOURCE_IDS = (
     "georegister",
     "nortaxa",
     "artskart",
+    "lister",
 )
 
 
@@ -319,6 +321,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return NortaxaSource()
     if source_id == "artskart":
         return ArtskartSource()
+    if source_id == "lister":
+        return ListerSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -345,6 +349,7 @@ __all__ = [
     "IsobaricgribSource",
     "KommuneinfoSource",
     "KystverketSource",
+    "ListerSource",
     "LocationforecastSource",
     "MattilsynetPlantevernSource",
     "MetMetalertsSource",

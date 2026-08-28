@@ -1,0 +1,193 @@
+{
+  "produced_at": "2026-08-28T00:39:40Z",
+  "bound": {
+    "list_api": "https://lister.artsdatabanken.no/swagger/v1/swagger.json",
+    "walk": "copy printed untemplated collection GET paths from the official Artsdatabanken Assessments swagger; skip templated paths and GET operations that print required parameters; native ids are the last printed path segment; access_path is the swagger document origin plus path because the spec prints no host, basePath, or servers; title copies printed summary, else description, else operationId; license stays null because the swagger prints no license URL; do not invent OData $filter/$top or follow @odata.nextLink",
+    "cap": 10,
+    "how": "pda ingest --source lister --limit 10. The official Assessments swagger prints 7 untemplated GET paths with no required parameters. The adapter copies those paths. GET uses the printed /odata/v1/naturetypesassessment2025 href with no invented query filters."
+  },
+  "discarded": [
+    {
+      "candidate": "Kartverket OGC Coverages",
+      "url": "PR 132 --source ogccoverages",
+      "why": "Lane A opened this after pickup. Do not pick the other lane's source."
+    },
+    {
+      "candidate": "Artsdatabanken Artskart",
+      "url": "PR 131 --source artskart, now on main",
+      "why": "Assigned skip. Already on main after merge db799fe. Do not re-add."
+    },
+    {
+      "candidate": "Artsdatabanken Nortaxa",
+      "url": "PR 130 --source nortaxa, now on main",
+      "why": "Assigned skip. Already on main. Do not re-add."
+    },
+    {
+      "candidate": "Kartverket Register",
+      "url": "PR 129 --source georegister, now on main",
+      "why": "Assigned skip. Already on main. Do not re-add."
+    },
+    {
+      "candidate": "MET Aviationforecast 2.0 swagger",
+      "url": "https://api.met.no/weatherapi/aviationforecast/2.0/swagger",
+      "why": "Assigned skip for this lane. Do not pick aviationforecast."
+    },
+    {
+      "candidate": "MET Sigmets 2.0 swagger",
+      "url": "https://api.met.no/weatherapi/sigmets/2.0/swagger",
+      "why": "Assigned skip for this lane. Do not pick sigmets."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    },
+    {
+      "candidate": "Artsdatabanken Fremmedartsbase API",
+      "url": "https://fab.artsdatabanken.no/swagger/v1/swagger.json",
+      "why": "Official OpenAPI 200. Live GET /api/expertgroups, /api/nin/codes, /api/access, /api/user, /api/publish/insightperiod are HTTP 401. /api/buildtime is HTTP 200 text/plain, not a collection. Do not invent auth."
+    },
+    {
+      "candidate": "Stortinget eksport",
+      "url": "https://data.stortinget.no/eksport/emner",
+      "why": "Official printed GET paths exist and no-param collections return HTTP 200, but the printed default is XML and format=json is not printed. Do not invent a format query."
+    },
+    {
+      "candidate": "Kartverket Adresser /sok /punktsok",
+      "url": "https://api.kartverket.no/adresser/v1/openapi.json",
+      "why": "OpenAPI prints /sok, but live GET without search params is HTTP 400. Do not invent a query."
+    },
+    {
+      "candidate": "Kartverket Eiendom /geokoding",
+      "url": "https://api.kartverket.no/eiendom/v1/geokoding",
+      "why": "Known skip: HTTP 400 without matrikkel params. Do not retry."
+    },
+    {
+      "candidate": "Frost MET sources",
+      "url": "https://frost.met.no/sources/v0.jsonld",
+      "why": "Known skip: HTTP 401. Do not retry."
+    },
+    {
+      "candidate": "NVDB Les V3 OpenAPI",
+      "url": "https://nvdbapiles-v3.atlas.vegvesen.no/dokumentasjon/openapi.json",
+      "why": "Known skip: HTTP 400 User-Agent. Do not retry."
+    },
+    {
+      "candidate": "Vegvesen Trafikkdata swagger / trafikkdata-api",
+      "url": "https://trafikkdata.atlas.vegvesen.no/",
+      "why": "Known skip: swagger HTML-only; trafikkdata-api 410. Do not retry."
+    },
+    {
+      "candidate": "NVE HydAPI /api/v1/Parameters",
+      "url": "https://hydapi.nve.no/swagger/v1/swagger.json",
+      "why": "HTTP 401. Do not retry."
+    },
+    {
+      "candidate": "Udir Statistikkbanken /data",
+      "url": "Udir Statistikkbanken /Eksport/{id}/data",
+      "why": "Known skip: requires invented filters. Do not retry."
+    },
+    {
+      "candidate": "MET weathericon/verticalprofile/forecastmap/icing/thredds/lightning/pollenforecast/forestfireindex/uvforecast/probabilityforecast/thunderstorm swagger",
+      "url": "https://api.met.no/weatherapi/",
+      "why": "Known skip: swagger HTTP 500. Do not retry."
+    },
+    {
+      "candidate": "lister /odata/v1/alienspeciesassessment",
+      "url": "https://lister.artsdatabanken.no/odata/v1/alienspeciesassessment",
+      "why": "Printed in swagger with no required parameters so listed. Live GET is HTTP 401 X-API-KEY is required. Unused for fetch. Do not invent a key."
+    },
+    {
+      "candidate": "lister /odata/v1/$metadata",
+      "url": "https://lister.artsdatabanken.no/odata/v1/$metadata",
+      "why": "Printed in swagger so listed. Live GET is HTTP 200 application/xml, not JSON observations. Unused for fetch."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source lister --db /tmp/lister-proof/registry.sqlite --limit 10",
+    "listed": 7,
+    "inserted": 7,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "lister:alienspeciesassessment",
+        "access_path": "https://lister.artsdatabanken.no/odata/v1/alienspeciesassessment"
+      },
+      {
+        "id": "lister:alienspeciesassessment2023",
+        "access_path": "https://lister.artsdatabanken.no/odata/v1/alienspeciesassessment2023"
+      },
+      {
+        "id": "lister:$metadata",
+        "access_path": "https://lister.artsdatabanken.no/odata/v1/$metadata"
+      },
+      {
+        "id": "lister:v1",
+        "access_path": "https://lister.artsdatabanken.no/odata/v1"
+      },
+      {
+        "id": "lister:naturetypesassessment2025",
+        "access_path": "https://lister.artsdatabanken.no/odata/v1/naturetypesassessment2025"
+      },
+      {
+        "id": "lister:speciesassessment2021",
+        "access_path": "https://lister.artsdatabanken.no/odata/v1/speciesassessment2021"
+      },
+      {
+        "id": "lister:test",
+        "access_path": "https://lister.artsdatabanken.no/api/test"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search naturetypesassessment2025 --db /tmp/lister-proof/registry.sqlite --limit 10",
+    "query": "naturetypesassessment2025",
+    "returned": 1,
+    "hit_id": "lister:naturetypesassessment2025",
+    "title": "odata/v1/NatureTypesAssessment2025",
+    "source_id": "lister",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://lister.artsdatabanken.no/odata/v1/naturetypesassessment2025",
+    "original_source": "https://lister.artsdatabanken.no/swagger/v1/swagger.json",
+    "why_picked": "title matched naturetypesassessment2025"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset lister:naturetypesassessment2025 --db /tmp/lister-proof/registry.sqlite",
+    "dataset": "lister:naturetypesassessment2025",
+    "table_id": "naturetypesassessment2025",
+    "access_path": "https://lister.artsdatabanken.no/odata/v1/naturetypesassessment2025",
+    "request_url": "https://lister.artsdatabanken.no/odata/v1/naturetypesassessment2025",
+    "http_status": 200,
+    "listed": 100,
+    "inserted": 100,
+    "updated": 0,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "name",
+        "value": "Lite uttørkingseksponert svært til noe kalkfattig nakent berg"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset lister:naturetypesassessment2025 --db /tmp/lister-proof/registry.sqlite",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "Assessments /odata/v1/naturetypesassessment2025 prints nature-type names. Those are not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed swagger path last segments. access_path is the swagger document origin plus path. No lister id was written onto an artskart, nortaxa, nin, georegister, or datanorge row.",
+    "License stays null: the swagger info prints no license URL. Publisher is null: the swagger does not print a publisher.",
+    "Original harvested swagger metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "python3 -m pytest: 790 passed, 1 skipped, 1 deselected.",
+    "Not a numeric time series with two or more periods. Fetch listed 100 printed name cells from the first OData page (sample Lite uttørkingseksponert svært til noe kalkfattig nakent berg). @odata.nextLink was not followed.",
+    "Open PR check at pickup found no open PRs. Lane A later opened PR 132 ogccoverages, so unused. aviationforecast 2.0 and sigmets 2.0 stayed unused."
+  ]
+}
