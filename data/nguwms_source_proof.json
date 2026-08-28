@@ -20,17 +20,17 @@
     {
       "candidate": "Landbruksdirektoratet leftover WMS / ldirwms",
       "url": "https://github.com/Solvelangseth/public-data-agent/pull/165",
-      "why": "In-flight sibling GIS PR. Do not pick ldirwms."
+      "why": "On main after PR 165. Leftover LDIR WMS. Do not redo ldirwms."
     },
     {
       "candidate": "Statens vegvesen leftover OGC / vegogc",
       "url": "https://github.com/Solvelangseth/public-data-agent/pull/168",
-      "why": "In-flight sibling GIS PR. Do not pick vegogc."
+      "why": "On main after PR 168. Leftover vegvesen OGC. Do not redo vegogc."
     },
     {
       "candidate": "Riksantikvaren leftover WMS / rawms",
       "url": "https://github.com/Solvelangseth/public-data-agent/pull/171",
-      "why": "In-flight sibling GIS PR. Do not pick rawms."
+      "why": "On main after PR 171. Leftover Riksantikvaren WMS. Do not redo rawms."
     },
     {
       "candidate": "BerggrunnWMS3",
@@ -152,6 +152,6 @@
     "python3 -m pytest tests/test_nguwms_source.py tests/test_ngu_source.py tests/test_nibiowms_source.py tests/test_kvwms_source.py: 34 passed.",
     "Not a numeric time series with two or more periods. Fetch listed 170 printed Layer Name cells (sample LosmasserWMS3, Losmasser_temakart_sammenstilt).",
     "GeotreatWMS2 is printed without GetCapabilities and 404s. BerggrunnWMS3 is printed and live XML 200 on page 3. Cap 10 leaves it unused.",
-    "Branched from origin/main after vannkraft #164 (f309811), which includes kvwms #163 (2cdbadb). SOURCE_IDS keeps vannkraft, then nguwms."
+    "Rebased onto origin/main after ldirwms #165 (aaf24f7), which includes kvwms #163 (2cdbadb). SOURCE_IDS keeps ldirwms, then nguwms."
   ]
 }
