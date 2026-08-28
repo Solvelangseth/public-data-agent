@@ -440,3 +440,4 @@ ts	phase	decision	why	evidence	result
 2026-08-28T09:47:00Z	rebase	rebase vannkraft branch onto origin/main after Aviationforecast 166	PR 164 was CONFLICTING/DIRTY after #166 merged at 4321ff4; keep vannkraft plus aviationforecast/kvwms/grep/sigmets/regobs; do not drop main sources; those adapter files untouched	git rebase origin/main resolved __init__.py fetch.py README.md decisions.tsv	resolved
 
 2026-08-28T09:45:30Z	test	run pytest after rebase onto Kvwms 163	do not leave the count only in the PR body	python3 -m pytest 1076 passed 1 skipped 1 deselected	tests green
+2026-08-28T09:48:00Z	test	run pytest after rebase onto Aviationforecast 166	do not leave the count only in the PR body	python3 -m pytest 1086 passed 1 skipped 1 deselected	tests green
