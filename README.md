@@ -4676,6 +4676,37 @@ Et nytt hus - for alle i Sandnes.
 (`no observations matched entity/measure; available=[]`).
 Proof is `data/sandnes_source_proof.json`.
 
+## NGU leftover WMS source
+
+`pda ingest --source nguwms` is another replaceable adapter. It lists
+printed GetCapabilities URLs on leftover official NGU WMS pages
+under `https://www.ngu.no/taxonomy/term/36`, capped at 10.
+Printed pager hrefs on that same `taxonomy/term/36` path are followed.
+URLs without `request=GetCapabilities`, hosts other than `geo.ngu.no`,
+paths outside `/mapserver/`, `/api/features`, `/kart/` viewers, and
+GetCapabilities bodies that are HTML or not WMS XML are skipped.
+Dataset ids are the printed last `/mapserver/` path segment so
+`LosmasserWMS3` stays distinct from `BerggrunnWMS3`. `access_path`
+is the GetCapabilities URL as printed. License stays null: the
+catalog prints no license URL. Publisher stays null. This is not
+NGU OGC Features (`--source ngu`).
+
+```bash
+pda ingest --source nguwms --db data/registry.sqlite --limit 10
+pda search LosmasserWMS3 --db data/registry.sqlite
+pda fetch --dataset nguwms:LosmasserWMS3 --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored GetCapabilities URL as text, with
+`Accept: application/xml, text/xml, */*`. Observation values are
+copied from printed WMS `Layer`/`Name` text. A printed `Title`
+sibling stays as a dimension. License stays null. Publisher stays
+null. `pda methods` is not applicable: layer names, not a numeric
+time series.
+
+Live ingest, fetch, and search proof will be recorded in
+`data/nguwms_source_proof.json` after a live run.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
