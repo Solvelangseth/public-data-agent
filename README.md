@@ -4224,6 +4224,37 @@ HTTP 200, 4 Layer Name cells. Sample printed value: `ok_raster`.
 (`no observations matched entity/measure; available=[]`).
 Proof is `data/nibiowms_source_proof.json`.
 
+## Riksantikvaren leftover WMS source
+
+`pda ingest --source rawms` is another replaceable adapter. It lists the
+two printed leftover Riksantikvaren WMS GetCapabilities documents on
+`kart.ra.no/wms`, capped at 10. A document that is not WMS XML is
+skipped. Dataset ids are the printed last path segment so
+`kulturminner2` stays distinct from `kulturmiljoer`. `access_path` is
+the GetCapabilities URL as printed. License stays null. Publisher stays
+null. This is not Riksantikvaren MABYGIS FeatureServer layers
+(`--source riksantikvaren`) and not leftover MABYGIS REST
+(`--source ragis`).
+
+```bash
+pda ingest --source rawms --db data/registry.sqlite --limit 10
+pda search kulturminner2 --db data/registry.sqlite
+pda fetch --dataset rawms:kulturminner2 --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored GetCapabilities URL as text. Observation
+values are copied from printed WMS `Layer`/`Name` text. A printed
+`Title` sibling stays as a dimension. License stays null. Publisher
+stays null.
+
+Live ingest 2026-08-28: 2 printed GetCapabilities documents, both XML
+200. Live search `kulturminner2` returns `rawms:kulturminner2`. Live
+fetch GETs
+`https://kart.ra.no/wms/kulturminner2?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetCapabilities`
+HTTP 200, 6 Layer Name cells. Sample printed value: `Kulturminner`.
+`pda methods` is not applicable: layer names, not a numeric time series.
+Proof is `data/rawms_source_proof.json`.
+
 ## NVE RegObs KDV source
 
 `pda ingest --source regobs` is another replaceable adapter. It lists

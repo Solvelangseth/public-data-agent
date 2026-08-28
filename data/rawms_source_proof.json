@@ -1,0 +1,104 @@
+{
+  "produced_at": "2026-08-28T09:42:50Z",
+  "bound": {
+    "list_api": [
+      "https://kart.ra.no/wms/kulturminner2?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetCapabilities",
+      "https://kart.ra.no/wms/kulturmiljoer?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetCapabilities"
+    ],
+    "walk": "copy the two printed leftover Riksantikvaren WMS GetCapabilities documents on kart.ra.no/wms; skip a document that is not WMS XML; skip MABYGIS REST already in --source ragis and FeatureServer layers already in --source riksantikvaren; native ids are the printed last path segment so kulturminner2 stays distinct from kulturmiljoer; access_path is the GetCapabilities URL as printed; license stays null; publisher stays null; do not invent query filters or extra WMS paths",
+    "cap": 10,
+    "how": "pda ingest --source rawms --limit 10. Both printed leftover WMS documents return WMS_Capabilities XML 200. Cap 10 copies both. This is not --source riksantikvaren and not --source ragis."
+  },
+  "discarded": [
+    {
+      "candidate": "Riksantikvaren MABYGIS FeatureServer layers / riksantikvaren",
+      "url": "https://kart.ra.no/arcgis/rest/services/MABYGIS/MABYGIS_rest_ro/FeatureServer?f=json",
+      "why": "Already on main as --source riksantikvaren. This slice is leftover WMS only."
+    },
+    {
+      "candidate": "Riksantikvaren leftover MABYGIS REST / ragis",
+      "url": "https://kart.ra.no/arcgis/rest/services/MABYGIS/MABYGIS_Askeladden/FeatureServer?f=json",
+      "why": "Already on main as --source ragis. Live GET is HTTP 200 JSON. Skip. Do not ingest MABYGIS REST as WMS."
+    },
+    {
+      "candidate": "Kartverket leftover WMS/WMTS / kvwms",
+      "url": "assigned skip",
+      "why": "In-flight sibling PR 163. Do not pick."
+    },
+    {
+      "candidate": "Landbruksdirektoratet leftover WMS / ldirwms",
+      "url": "assigned skip",
+      "why": "In-flight sibling PR 165. Do not pick."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source rawms --db /tmp/pda-rawms-proof/registry.sqlite --limit 10",
+    "listed": 2,
+    "inserted": 2,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "rawms:kulturminner2",
+        "title": "kulturminner2",
+        "access_path": "https://kart.ra.no/wms/kulturminner2?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetCapabilities"
+      },
+      {
+        "id": "rawms:kulturmiljoer",
+        "title": "kulturmiljoer",
+        "access_path": "https://kart.ra.no/wms/kulturmiljoer?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetCapabilities"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search kulturminner2 --db /tmp/pda-rawms-proof/registry.sqlite --limit 10",
+    "query": "kulturminner2",
+    "returned": 1,
+    "hit_id": "rawms:kulturminner2",
+    "title": "kulturminner2",
+    "source_id": "rawms",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://kart.ra.no/wms/kulturminner2?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetCapabilities",
+    "original_source": "https://kart.ra.no/wms/kulturminner2?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetCapabilities",
+    "why_picked": "title matched kulturminner2"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset rawms:kulturminner2 --db /tmp/pda-rawms-proof/registry.sqlite",
+    "dataset": "rawms:kulturminner2",
+    "table_id": "kulturminner2",
+    "access_path": "https://kart.ra.no/wms/kulturminner2?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetCapabilities",
+    "request_url": "https://kart.ra.no/wms/kulturminner2?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetCapabilities",
+    "http_status": 200,
+    "listed": 6,
+    "inserted": 6,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "Name",
+        "value": "Kulturminner"
+      },
+      {
+        "measure": "Name",
+        "value": "Enkeltminner"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset rawms:kulturminner2 --db /tmp/pda-rawms-proof/registry.sqlite",
+    "applicable": false,
+    "why": "kulturminner2 GetCapabilities prints Layer names. Those are not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": false,
+    "called_fetch": false
+  },
+  "notes": [
+    "Ids are copied from printed last path segments. access_path is the GetCapabilities URL as printed. No rawms id was written onto a ragis or riksantikvaren row.",
+    "License is null: the leftover WMS documents print no license URL. Publisher is null.",
+    "Live GET of /wms/kulturminner2?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetCapabilities is HTTP 200 WMS_Capabilities XML. No token is sent. No extra Accept header is invented.",
+    "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "python3 -m pytest: 1069 passed, 1 skipped, 1 deselected.",
+    "Not a numeric time series with two or more periods. Fetch listed 6 printed Layer Name cells (sample Kulturminner, Enkeltminner).",
+    "MABYGIS REST stays on --source ragis. FeatureServer layers stay on --source riksantikvaren. kvwms 163 and ldirwms 165 were open sibling PRs and were not picked."
+  ]
+}
