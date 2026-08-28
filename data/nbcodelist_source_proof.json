@@ -163,7 +163,7 @@
     "License is null. Publisher is null. The catalog prints neither.",
     "Original harvested catalog metadata stays in harvested_payloads without the codes array. Fetch writes observations only. enrichments count stayed 0.",
     "Open PRs at pickup were 170 elcert, 171 rawms, 165 ldirwms. This lane stayed on nbcodelist.",
-    "python3 -m pytest after rebase onto stormflo 175: 1175 passed, 1 skipped, 1 deselected.",
+    "python3 -m pytest after rebase onto kystwfs 178: 1184 passed, 1 skipped, 1 deselected.",
     "Not a numeric time series with two or more periods. Fetch listed 5 printed frequency-name cells (sample Annual, Quarterly)."
   ]
 }
