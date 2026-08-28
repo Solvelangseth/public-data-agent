@@ -1,0 +1,91 @@
+{
+  "dataset_id": "stormflo:national.json",
+  "table_id": "national.json",
+  "posted": false,
+  "seeded_from": {
+    "stormflo_source_proof": "data/stormflo_source_proof.json",
+    "main_merge": "72ec991",
+    "pr": 175,
+    "note": "Values are the two fetch.sample cells committed on main at 72ec991 after PR 175. That live fetch listed 168 cells. Other cells were not printed and are not invented here. This methods proof made no GET or POST."
+  },
+  "counts": {
+    "total": 2,
+    "numeric": 2,
+    "null_values": 0,
+    "entities": 1,
+    "numeric_entities": 1,
+    "periods": [
+      "2025"
+    ],
+    "years": {
+      "2025": 2
+    }
+  },
+  "expected_from_pr175": {
+    "dataset_id": "stormflo:national.json",
+    "table_id": "national.json",
+    "printed_sample_count": 2,
+    "live_listed": 168,
+    "request_url": "https://stormflo-konsekvens.kartverket.no/public/api/v1/national.json",
+    "http_status": 200,
+    "publisher_name": null,
+    "license": "https://www.apache.org/licenses/LICENSE-2.0.html",
+    "sample": [
+      {
+        "measure": "offentlige_bygg",
+        "value": 1810,
+        "dimensions": {
+          "code": "200ymax",
+          "year": "2025"
+        }
+      },
+      {
+        "measure": "privat_naering",
+        "value": 17802,
+        "dimensions": {
+          "code": "200ymax",
+          "year": "2025"
+        }
+      }
+    ],
+    "methods_command": "pda methods --dataset stormflo:national.json --out methods/proof/stormflo_national/ --db data/registry.sqlite"
+  },
+  "rows": [
+    {
+      "id": "0c5488dd0676fa3d79726a47f90ecc51922a3bf4",
+      "dataset_id": "stormflo:national.json",
+      "table_id": "national.json",
+      "measure": "offentlige_bygg",
+      "value": 1810,
+      "dimensions": {
+        "code": "200ymax",
+        "year": "2025"
+      },
+      "retrieved_at": "2026-08-28T09:57:00Z",
+      "request_url": "https://stormflo-konsekvens.kartverket.no/public/api/v1/national.json",
+      "http_status": 200,
+      "publisher_name": null,
+      "license": "https://www.apache.org/licenses/LICENSE-2.0.html",
+      "access_path": "https://stormflo-konsekvens.kartverket.no/public/api/v1/national.json",
+      "source_native_uri": null
+    },
+    {
+      "id": "db98f974eefd1560416389435f9c347c859a284f",
+      "dataset_id": "stormflo:national.json",
+      "table_id": "national.json",
+      "measure": "privat_naering",
+      "value": 17802,
+      "dimensions": {
+        "code": "200ymax",
+        "year": "2025"
+      },
+      "retrieved_at": "2026-08-28T09:57:00Z",
+      "request_url": "https://stormflo-konsekvens.kartverket.no/public/api/v1/national.json",
+      "http_status": 200,
+      "publisher_name": null,
+      "license": "https://www.apache.org/licenses/LICENSE-2.0.html",
+      "access_path": "https://stormflo-konsekvens.kartverket.no/public/api/v1/national.json",
+      "source_native_uri": null
+    }
+  ]
+}

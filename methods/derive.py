@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from collections import defaultdict
 from collections.abc import Sequence
 
@@ -10,6 +11,10 @@ from methods.types import (
     INDEX_FORMULA,
     INDEX_INPUTS,
     INDEX_UNITS,
+    PERIOD_CHANGE,
+    PERIOD_CHANGE_FORMULA,
+    PERIOD_CHANGE_INPUTS,
+    PERIOD_CHANGE_UNITS,
     RANK,
     RANK_CHANGE,
     RANK_CHANGE_FORMULA,
@@ -35,7 +40,7 @@ def derive(
     *,
     base_period: str | None = None,
 ) -> tuple[SeriesRow, ...]:
-    """YoY, index (base = 100), rank, and rank_change over cleaned rows.
+    """YoY, period change, index, rank, and rank_change over cleaned rows.
 
     Rank is competition/min within (period, measure): 1 = highest value.
     Rank change is rank_{t-1} - rank_t (positive = moved up). The first
@@ -58,10 +63,12 @@ def derive(
         previous_rank: tuple[int, tuple[str, ...]] | None = None
         for current in series:
             current_rank = ranks[current.id]
+            yoy_growth, period_change = _period_step(current, previous)
             out.append(
                 SeriesRow(
                     observation=current,
-                    yoy_growth=_yoy(current, previous),
+                    yoy_growth=yoy_growth,
+                    period_change=period_change,
                     index=_index(current, base, requested_base_period=base_period),
                     rank=_rank(current, current_rank),
                     rank_change=_rank_change(current, current_rank, previous, previous_rank),
@@ -86,6 +93,22 @@ def derive_yoy(rows: Sequence[Observation], *, base_period: str | None = None) -
     return derive(rows, base_period=base_period)
 
 
+def _calendar_year(period: str) -> int | None:
+    if re.fullmatch(r"\d{4}", period) is None:
+        return None
+    return int(period)
+
+
+def _is_adjacent_calendar_year(prev: str, curr: str) -> bool:
+    previous_year = _calendar_year(prev)
+    current_year = _calendar_year(curr)
+    return (
+        previous_year is not None
+        and current_year is not None
+        and current_year - previous_year == 1
+    )
+
+
 def _base_row(series: list[Observation], base_period: str | None) -> Observation | None:
     if not series:
         return None
@@ -97,36 +120,106 @@ def _base_row(series: list[Observation], base_period: str | None) -> Observation
     return None
 
 
-def _yoy(current: Observation, previous: Observation | None) -> DerivedValue:
+def _period_step(
+    current: Observation,
+    previous: Observation | None,
+) -> tuple[DerivedValue, DerivedValue]:
     if previous is None:
-        return DerivedValue(
+        source_ids = (current.id,)
+        source_periods = (current.period,)
+        return (
+            DerivedValue(
+                value=None,
+                lineage=Lineage(
+                    name=YOY_GROWTH,
+                    formula=YOY_GROWTH_FORMULA,
+                    input_columns=YOY_GROWTH_INPUTS,
+                    units=YOY_GROWTH_UNITS,
+                    source_observation_ids=source_ids,
+                    source_periods=source_periods,
+                    note="undefined: no prior period",
+                ),
+            ),
+            DerivedValue(
+                value=None,
+                lineage=Lineage(
+                    name=PERIOD_CHANGE,
+                    formula=PERIOD_CHANGE_FORMULA,
+                    input_columns=PERIOD_CHANGE_INPUTS,
+                    units=PERIOD_CHANGE_UNITS,
+                    source_observation_ids=source_ids,
+                    source_periods=source_periods,
+                    note="undefined: no prior period",
+                ),
+            ),
+        )
+
+    source_ids = (previous.id, current.id)
+    source_periods = (previous.period, current.period)
+    if _is_adjacent_calendar_year(previous.period, current.period):
+        if previous.value == 0:
+            rate: float | None = None
+            note: str | None = "undefined: v_{t-1} is 0"
+        else:
+            rate = (current.value - previous.value) / previous.value
+            note = None
+        return (
+            DerivedValue(
+                value=rate,
+                lineage=Lineage(
+                    name=YOY_GROWTH,
+                    formula=YOY_GROWTH_FORMULA,
+                    input_columns=YOY_GROWTH_INPUTS,
+                    units=YOY_GROWTH_UNITS,
+                    source_observation_ids=source_ids,
+                    source_periods=source_periods,
+                    note=note,
+                ),
+            ),
+            DerivedValue(
+                value=None,
+                lineage=Lineage(
+                    name=PERIOD_CHANGE,
+                    formula=PERIOD_CHANGE_FORMULA,
+                    input_columns=PERIOD_CHANGE_INPUTS,
+                    units=PERIOD_CHANGE_UNITS,
+                    source_observation_ids=source_ids,
+                    source_periods=source_periods,
+                    note="undefined: step is one calendar year; rate is in yoy_growth",
+                ),
+            ),
+        )
+
+    if previous.value == 0:
+        rate = None
+        note = "undefined: v_prev is 0; stored step is not a one-year rate"
+    else:
+        rate = (current.value - previous.value) / previous.value
+        note = "change across stored step; not a one-year rate"
+    return (
+        DerivedValue(
             value=None,
             lineage=Lineage(
                 name=YOY_GROWTH,
                 formula=YOY_GROWTH_FORMULA,
                 input_columns=YOY_GROWTH_INPUTS,
                 units=YOY_GROWTH_UNITS,
-                source_observation_ids=(current.id,),
-                source_periods=(current.period,),
-                note="undefined: no prior period",
+                source_observation_ids=source_ids,
+                source_periods=source_periods,
+                note="undefined: periods are not adjacent calendar years",
             ),
-        )
-    if previous.value == 0:
-        rate: float | None = None
-        note: str | None = "undefined: v_{t-1} is 0"
-    else:
-        rate = (current.value - previous.value) / previous.value
-        note = None
-    return DerivedValue(
-        value=rate,
-        lineage=Lineage(
-            name=YOY_GROWTH,
-            formula=YOY_GROWTH_FORMULA,
-            input_columns=YOY_GROWTH_INPUTS,
-            units=YOY_GROWTH_UNITS,
-            source_observation_ids=(previous.id, current.id),
-            source_periods=(previous.period, current.period),
-            note=note,
+        ),
+        DerivedValue(
+            value=rate,
+            lineage=Lineage(
+                name=PERIOD_CHANGE,
+                formula=PERIOD_CHANGE_FORMULA,
+                input_columns=PERIOD_CHANGE_INPUTS,
+                units=PERIOD_CHANGE_UNITS,
+                source_observation_ids=source_ids,
+                source_periods=source_periods,
+                note=note,
+            ),
         ),
     )
 

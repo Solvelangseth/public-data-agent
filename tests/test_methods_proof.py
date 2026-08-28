@@ -14,6 +14,9 @@ from methods.emit import index_line_series, yoy_bar_points
 from methods.types import (
     INDEX,
     INDEX_FORMULA,
+    PERIOD_CHANGE,
+    PERIOD_CHANGE_FORMULA,
+    PERIOD_CHANGE_UNITS,
     RANK,
     RANK_CHANGE,
     RANK_CHANGE_FORMULA,
@@ -1189,3 +1192,228 @@ def test_committed_ssb06831_proof_artifacts() -> None:
         ("20-24 år", "Kvinner", "Samboere", "2022"): 23,
     }
     assert committed["fetch"]["listed"] == 132
+
+
+STORMFLO_NATIONAL = "stormflo:national.json"
+STORMFLO_PROOF_DIR = Path(__file__).resolve().parents[1] / "methods" / "proof" / "stormflo_national"
+STORMFLO_STORE = STORMFLO_PROOF_DIR / "store.json"
+STORMFLO_URL = "https://stormflo-konsekvens.kartverket.no/public/api/v1/national.json"
+STORMFLO_VALUES = {
+    "offentlige_bygg": 1810.0,
+    "privat_naering": 17802.0,
+}
+
+
+def _stormflo_stored_rows() -> list[dict]:
+    if REGISTRY.exists():
+        from public_data_agent.registry import Registry
+
+        registry = Registry(REGISTRY)
+        try:
+            stored = registry.list_observations(STORMFLO_NATIONAL)
+        finally:
+            registry.close()
+        if stored:
+            return stored
+    if not STORMFLO_STORE.is_file():
+        pytest.skip("no stored stormflo:national.json rows")
+    dump = json.loads(STORMFLO_STORE.read_text(encoding="utf-8"))
+    assert dump["posted"] is False
+    return dump["rows"]
+
+
+def test_live_stormflo_store_matches_formula_and_lineage() -> None:
+    stored = _stormflo_stored_rows()
+    assert len(stored) == 2
+    assert len([row for row in stored if _numeric_value(row) is not None]) == 2
+
+    cleaned = clean(stored)
+    assert len(cleaned) == 2
+    assert {row.entity for row in cleaned} == {"200ymax"}
+    assert {row.period for row in cleaned} == {"2025"}
+    assert {row.measure: row.value for row in cleaned} == STORMFLO_VALUES
+    assert all(row.source == STORMFLO_NATIONAL for row in cleaned)
+
+    derived = derive(cleaned)
+    assert len(derived) == 2
+    for row in derived:
+        assert row.observation.value == STORMFLO_VALUES[row.observation.measure]
+        assert row.yoy_growth.value is None
+        assert row.yoy_growth.lineage.name == YOY_GROWTH
+        assert row.yoy_growth.lineage.formula == YOY_GROWTH_FORMULA
+        assert row.yoy_growth.lineage.note == "undefined: no prior period"
+        assert row.period_change.value is None
+        assert row.period_change.lineage.name == PERIOD_CHANGE
+        assert row.period_change.lineage.formula == PERIOD_CHANGE_FORMULA
+        assert row.period_change.lineage.units == PERIOD_CHANGE_UNITS
+        assert row.period_change.lineage.source_periods == ("2025",)
+        assert row.period_change.lineage.note == "undefined: no prior period"
+        assert row.index.value == 100.0
+        assert row.index.lineage.formula == INDEX_FORMULA
+        assert row.rank.lineage.formula == RANK_FORMULA
+        assert row.rank_change.lineage.formula == RANK_CHANGE_FORMULA
+        for derived_col in row.derived_columns():
+            assert derived_col.lineage.source_observation_ids
+            assert derived_col.lineage.source_periods
+
+    committed = json.loads(
+        (Path(__file__).resolve().parents[1] / "data" / "stormflo_source_proof.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    assert committed["fetch"]["listed"] == 168
+    printed = {
+        (item["measure"], item["dimensions"]["code"], item["dimensions"]["year"]): item["value"]
+        for item in committed["fetch"]["sample"]
+    }
+    assert printed == {
+        ("offentlige_bygg", "200ymax", "2025"): 1810,
+        ("privat_naering", "200ymax", "2025"): 17802,
+    }
+
+
+def test_stormflo_cli_reads_store_and_does_not_fetch(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from public_data_agent.models import HarvestCounts
+    from public_data_agent.registry import Registry
+
+    from methods.cli import run as run_methods
+    import methods.cli as methods_cli
+
+    dump = json.loads(STORMFLO_STORE.read_text(encoding="utf-8"))
+    assert dump["posted"] is False
+    db = tmp_path / "registry.sqlite"
+    registry = Registry(db)
+    registry.ensure_observation_dataset(
+        dataset_id=STORMFLO_NATIONAL,
+        title="Stormflo national",
+        publisher_name=None,
+        access_path=STORMFLO_URL,
+        license="https://www.apache.org/licenses/LICENSE-2.0.html",
+    )
+    run_id = registry.start_fetch_run(
+        dataset_id=STORMFLO_NATIONAL,
+        table_id="national.json",
+        request_url=STORMFLO_URL,
+        request_method="SEED",
+    )
+    for stored_row in dump["rows"]:
+        registry.upsert_observation(stored_row, run_id)
+    registry.finish_fetch_run(
+        run_id,
+        HarvestCounts(listed=2, inserted=2),
+        status="completed",
+        http_status=200,
+    )
+    stored = registry.list_observations(STORMFLO_NATIONAL)
+    registry.close()
+    assert len(stored) == 2
+
+    fetch_calls: list[object] = []
+
+    def _forbid_fetch(*args, **kwargs):
+        fetch_calls.append((args, kwargs))
+        raise AssertionError("pda fetch must not run for stormflo:national.json")
+
+    monkeypatch.setattr(methods_cli, "_call_existing_fetch", _forbid_fetch)
+    out = tmp_path / "out"
+    derived = run_methods(
+        dataset_id=STORMFLO_NATIONAL,
+        db=db,
+        out=out,
+        table_id="national.json",
+        from_year=None,
+        to_year=None,
+        entity=None,
+        measure=None,
+    )
+
+    assert fetch_calls == []
+    assert len(derived) == 2
+    assert {row.observation.measure: row.observation.value for row in derived} == STORMFLO_VALUES
+    assert all(row.index.value == 100.0 for row in derived)
+    assert all(row.period_change.value is None for row in derived)
+    assert (out / "chart.png").is_file()
+    assert (out / "index_line.png").is_file()
+    assert not (out / "yoy_bar.png").exists()
+
+
+def test_stormflo_empty_store_does_not_fetch(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from methods.cli import run as run_methods
+    import methods.cli as methods_cli
+
+    fetch_calls: list[object] = []
+
+    def _forbid_fetch(*args, **kwargs):
+        fetch_calls.append((args, kwargs))
+        raise AssertionError("pda fetch must not run for stormflo:national.json")
+
+    monkeypatch.setattr(methods_cli, "_call_existing_fetch", _forbid_fetch)
+    with pytest.raises(ValueError, match="refusing to call pda fetch"):
+        run_methods(
+            dataset_id=STORMFLO_NATIONAL,
+            db=tmp_path / "missing-registry.sqlite",
+            out=tmp_path / "empty",
+            table_id="national.json",
+            from_year=None,
+            to_year=None,
+            entity=None,
+            measure=None,
+        )
+    assert fetch_calls == []
+
+
+def test_committed_stormflo_proof_artifacts() -> None:
+    csv_path = STORMFLO_PROOF_DIR / "table.csv"
+    md_path = STORMFLO_PROOF_DIR / "table.md"
+    lineage_path = STORMFLO_PROOF_DIR / "lineage.json"
+    chart_path = STORMFLO_PROOF_DIR / "chart.png"
+    index_path = STORMFLO_PROOF_DIR / "index_line.png"
+    assert csv_path.is_file()
+    assert md_path.is_file()
+    assert lineage_path.is_file()
+    assert chart_path.read_bytes().startswith(b"\x89PNG")
+    assert index_path.read_bytes().startswith(b"\x89PNG")
+    assert not (STORMFLO_PROOF_DIR / "yoy_bar.png").exists()
+
+    with csv_path.open(encoding="utf-8", newline="") as handle:
+        table = list(csv.DictReader(handle))
+    assert len(table) == 2
+    assert {row["entity"] for row in table} == {"200ymax"}
+    assert {row["period"] for row in table} == {"2025"}
+    assert {row["measure"]: float(row["value"]) for row in table} == STORMFLO_VALUES
+    assert all(row["yoy_growth"] == "" for row in table)
+    assert all(row["period_change"] == "" for row in table)
+    assert all(float(row["index"]) == 100.0 for row in table)
+
+    lineage = json.loads(lineage_path.read_text(encoding="utf-8"))
+    names = [column["name"] for column in lineage["derived_columns"]]
+    assert names == [YOY_GROWTH, PERIOD_CHANGE, INDEX, RANK, RANK_CHANGE]
+    by_name = {column["name"]: column for column in lineage["derived_columns"]}
+    assert by_name[YOY_GROWTH]["formula"] == YOY_GROWTH_FORMULA
+    assert by_name[PERIOD_CHANGE]["formula"] == PERIOD_CHANGE_FORMULA
+    assert by_name[INDEX]["formula"] == INDEX_FORMULA
+    for item in by_name[PERIOD_CHANGE]["rows"]:
+        assert item["value"] is None
+        assert item["lineage"]["name"] == PERIOD_CHANGE
+        assert item["lineage"]["source_periods"] == ["2025"]
+        assert item["lineage"]["note"] == "undefined: no prior period"
+
+    markdown = md_path.read_text(encoding="utf-8")
+    assert PERIOD_CHANGE_FORMULA in markdown
+    assert "`period_change` describes the stored step. It is not a one-year rate." in markdown
+    store_text = STORMFLO_STORE.read_text(encoding="utf-8")
+    dump = json.loads(store_text)
+    assert dump["posted"] is False
+    assert dump["counts"]["total"] == 2
+    assert dump["counts"]["numeric"] == 2
+    assert dump["counts"]["entities"] == 1
+    assert dump["counts"]["periods"] == ["2025"]
+    assert dump["seeded_from"]["main_merge"] == "72ec991"
+    assert dump["seeded_from"]["pr"] == 175
+    assert "no GET or POST" in dump["seeded_from"]["note"]
+    assert "2100" not in store_text
+    assert "2150" not in store_text

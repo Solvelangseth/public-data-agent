@@ -10,6 +10,11 @@ YOY_GROWTH_FORMULA = "(v_t - v_{t-1}) / v_{t-1}"
 YOY_GROWTH_UNITS = "ratio"
 YOY_GROWTH_INPUTS = ("value",)
 
+PERIOD_CHANGE = "period_change"
+PERIOD_CHANGE_FORMULA = "(v_t - v_prev) / v_prev"
+PERIOD_CHANGE_UNITS = "ratio"
+PERIOD_CHANGE_INPUTS = ("value",)
+
 INDEX = "index"
 INDEX_FORMULA = "100 * v_t / v_base"
 INDEX_UNITS = "index (base = 100)"
@@ -130,14 +135,17 @@ class SeriesRow:
 
     observation: Observation
     yoy_growth: DerivedValue
+    period_change: DerivedValue
     index: DerivedValue
     rank: DerivedValue
     rank_change: DerivedValue
 
     def derived_columns(self) -> tuple[DerivedValue, ...]:
-        return (self.yoy_growth, self.index, self.rank, self.rank_change)
+        return (self.yoy_growth, self.period_change, self.index, self.rank, self.rank_change)
 
     def __post_init__(self) -> None:
+        if not isinstance(self.period_change, DerivedValue):
+            raise TypeError("SeriesRow.period_change must be a DerivedValue with lineage")
         if not isinstance(self.index, DerivedValue):
             raise TypeError("SeriesRow.index must be a DerivedValue with lineage")
         if not isinstance(self.rank, DerivedValue):

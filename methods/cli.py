@@ -14,6 +14,7 @@ from methods.derive import derive
 from methods.emit import emit
 from methods.types import (
     INDEX_FORMULA,
+    PERIOD_CHANGE_FORMULA,
     RANK_CHANGE_FORMULA,
     RANK_FORMULA,
     YOY_GROWTH_FORMULA,
@@ -30,13 +31,14 @@ DEFAULT_OUT = Path("methods/proof")
 SSB_11763 = "ssb:11763"
 SSB_06683 = "ssb:06683"
 SSB_06831 = "ssb:06831"
-STORE_ONLY_DATASETS = frozenset({SSB_11763, SSB_06683, SSB_06831})
+STORMFLO_NATIONAL = "stormflo:national.json"
+STORE_ONLY_DATASETS = frozenset({SSB_11763, SSB_06683, SSB_06831, STORMFLO_NATIONAL})
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         prog="pda methods",
-        description="Clean stored observations, derive YoY rates and an index, emit table and chart.",
+        description="Clean stored observations, derive period rates and an index, emit table and chart.",
     )
     parser.add_argument("--dataset", default=DEFAULT_DATASET)
     parser.add_argument("--table", default=DEFAULT_TABLE, help="Used only if observations are missing")
@@ -96,7 +98,7 @@ def run(
         if dataset_id in STORE_ONLY_DATASETS:
             raise ValueError(
                 f"no stored observations for {dataset_id}; "
-                "refusing to call pda fetch (no POST to SSB/PxWeb)"
+                "refusing to call pda fetch"
             )
         _call_existing_fetch(dataset_id, db, table_id, from_year, to_year)
         raw = load_observations(dataset_id, db)
@@ -160,9 +162,8 @@ def _call_existing_fetch(
 def _select(rows, *, entity: str | None, measure: str | None):
     """Filter to entity/measure. Oslo CLI defaults fall back to every series.
 
-    `pda methods` always forwards the Oslo city-total defaults. Those names
-    are not in ssb:11763, ssb:06683, or ssb:06831, so an unmatched default
-    keeps every stored series instead of calling fetch or emitting an empty table.
+    Store-only datasets need not contain the Oslo city-total defaults. An
+    unmatched default keeps every stored series instead of emitting an empty table.
     """
 
     selected = rows
@@ -185,6 +186,7 @@ def _summary(rows: tuple[SeriesRow, ...], args: argparse.Namespace) -> dict[str,
         "rows": len(rows),
         "formula": {
             "yoy_growth": YOY_GROWTH_FORMULA,
+            "period_change": PERIOD_CHANGE_FORMULA,
             "index": INDEX_FORMULA,
             "rank": RANK_FORMULA,
             "rank_change": RANK_CHANGE_FORMULA,
@@ -196,6 +198,7 @@ def _summary(rows: tuple[SeriesRow, ...], args: argparse.Namespace) -> dict[str,
                 "measure": row.observation.measure,
                 "value": row.observation.value,
                 "yoy_growth": row.yoy_growth.value,
+                "period_change": row.period_change.value,
                 "index": row.index.value,
                 "rank": row.rank.value,
                 "rank_change": row.rank_change.value,

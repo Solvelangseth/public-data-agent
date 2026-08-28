@@ -1,0 +1,3 @@
+entity,period,measure,value,yoy_growth,period_change,index,rank,rank_change,observation_id,source
+200ymax,2025,offentlige_bygg,1810,,,100,1,,0c5488dd0676fa3d79726a47f90ecc51922a3bf4,stormflo:national.json
+200ymax,2025,privat_naering,17802,,,100,1,,db98f974eefd1560416389435f9c347c859a284f,stormflo:national.json

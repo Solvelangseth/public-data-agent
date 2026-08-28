@@ -9,6 +9,10 @@ from pathlib import Path
 from methods.types import (
     INDEX,
     INDEX_FORMULA,
+    PERIOD_CHANGE,
+    PERIOD_CHANGE_FORMULA,
+    PERIOD_CHANGE_INPUTS,
+    PERIOD_CHANGE_UNITS,
     RANK,
     RANK_CHANGE,
     RANK_CHANGE_FORMULA,
@@ -53,14 +57,16 @@ def emit(rows: tuple[SeriesRow, ...], out_dir: Path) -> dict[str, Path]:
         "markdown": out_dir / "table.md",
         "lineage": out_dir / "lineage.json",
         "chart": out_dir / "chart.png",
-        "yoy_bar": out_dir / "yoy_bar.png",
         "index_line": out_dir / "index_line.png",
     }
+    if yoy_bar_points(rows):
+        paths["yoy_bar"] = out_dir / "yoy_bar.png"
     _write_csv(rows, paths["csv"])
     _write_markdown(rows, paths["markdown"])
     _write_lineage(rows, paths["lineage"])
     _write_chart(rows, paths["chart"])
-    _write_yoy_bar(rows, paths["yoy_bar"])
+    if "yoy_bar" in paths:
+        _write_yoy_bar(rows, paths["yoy_bar"])
     _write_index_line(rows, paths["index_line"])
     return paths
 
@@ -75,6 +81,7 @@ def _write_csv(rows: tuple[SeriesRow, ...], path: Path) -> None:
                 "measure",
                 "value",
                 "yoy_growth",
+                "period_change",
                 "index",
                 "rank",
                 "rank_change",
@@ -92,6 +99,7 @@ def _write_csv(rows: tuple[SeriesRow, ...], path: Path) -> None:
                     "measure": obs.measure,
                     "value": _number(obs.value),
                     "yoy_growth": _number(row.yoy_growth.value),
+                    "period_change": _number(row.period_change.value),
                     "index": _number(row.index.value),
                     "rank": _number(row.rank.value),
                     "rank_change": _number(row.rank_change.value),
@@ -105,17 +113,19 @@ def _write_markdown(rows: tuple[SeriesRow, ...], path: Path) -> None:
     lines = [
         "# Methods table",
         "",
-        f"Derived column `{YOY_GROWTH}` uses `{YOY_GROWTH_FORMULA}`.",
+        f"Derived column `{YOY_GROWTH}` uses `{YOY_GROWTH_FORMULA}` for adjacent calendar years.",
+        f"Derived column `{PERIOD_CHANGE}` uses `{PERIOD_CHANGE_FORMULA}` for other stored steps.",
+        "`period_change` describes the stored step. It is not a one-year rate.",
         f"Derived column `{INDEX}` uses `{INDEX_FORMULA}`. The base row is exactly 100.",
         f"Derived column `{RANK}` uses `{RANK_FORMULA}`. 1 is the highest value in `(period, measure)`.",
         "Ties share the minimum (competition) rank; the next rank skips.",
         f"Derived column `{RANK_CHANGE}` uses `{RANK_CHANGE_FORMULA}`. Positive means moved up.",
-        "The first period has no YoY rate and no rank_change. A missing or zero base leaves index undefined.",
+        "The first period has no prior-period rate and no rank_change. A missing or zero base leaves index undefined.",
         "Values are stored observations, not guesses.",
         "Percent next to yoy_growth is display-only: `100 × yoy_growth`.",
         "",
-        "| entity | period | measure | value | yoy_growth (ratio) | yoy_growth × 100 | index | rank | rank_change | observation_id | source |",
-        "| --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- | --- |",
+        "| entity | period | measure | value | yoy_growth (ratio) | yoy_growth × 100 | period_change (ratio) | index | rank | rank_change | observation_id | source |",
+        "| --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- | --- |",
     ]
     for row in rows:
         obs = row.observation
@@ -130,6 +140,7 @@ def _write_markdown(rows: tuple[SeriesRow, ...], path: Path) -> None:
                     _number(obs.value),
                     _number(rate),
                     _percent(rate),
+                    _number(row.period_change.value),
                     _number(row.index.value),
                     _number(row.rank.value),
                     _number(row.rank_change.value),
@@ -151,6 +162,13 @@ def _write_lineage(rows: tuple[SeriesRow, ...], path: Path) -> None:
                 "input_columns": ["value"],
                 "units": "ratio",
                 "rows": [_lineage_row(row, row.yoy_growth) for row in rows],
+            },
+            {
+                "name": PERIOD_CHANGE,
+                "formula": PERIOD_CHANGE_FORMULA,
+                "input_columns": list(PERIOD_CHANGE_INPUTS),
+                "units": PERIOD_CHANGE_UNITS,
+                "rows": [_lineage_row(row, row.period_change) for row in rows],
             },
             {
                 "name": INDEX,
@@ -200,12 +218,17 @@ def _write_chart(rows: tuple[SeriesRow, ...], path: Path) -> None:
 
     if not rows:
         raise ValueError("no rows to chart")
-    periods = [row.observation.period for row in rows]
-    values = [row.observation.value for row in rows]
-    rates = [row.yoy_growth.value for row in rows]
-    xs = list(range(len(rows)))
     entity = rows[0].observation.entity
     measure = rows[0].observation.measure
+    series = tuple(
+        row
+        for row in rows
+        if row.observation.entity == entity and row.observation.measure == measure
+    )
+    periods = [row.observation.period for row in series]
+    values = [row.observation.value for row in series]
+    rates = [row.yoy_growth.value for row in series]
+    xs = list(range(len(series)))
 
     fig, ax = plt.subplots(figsize=(10, 5.5))
     ax.plot(xs, values, color="#1f4e79", marker="o", linewidth=2, label="value")

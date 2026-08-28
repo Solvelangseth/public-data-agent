@@ -1,0 +1,288 @@
+{
+  "derived_columns": [
+    {
+      "name": "yoy_growth",
+      "formula": "(v_t - v_{t-1}) / v_{t-1}",
+      "input_columns": [
+        "value"
+      ],
+      "units": "ratio",
+      "rows": [
+        {
+          "value": null,
+          "lineage": {
+            "name": "yoy_growth",
+            "formula": "(v_t - v_{t-1}) / v_{t-1}",
+            "input_columns": [
+              "value"
+            ],
+            "units": "ratio",
+            "source_observation_ids": [
+              "0c5488dd0676fa3d79726a47f90ecc51922a3bf4"
+            ],
+            "source_periods": [
+              "2025"
+            ],
+            "note": "undefined: no prior period"
+          },
+          "entity": "200ymax",
+          "period": "2025",
+          "measure": "offentlige_bygg",
+          "observation_id": "0c5488dd0676fa3d79726a47f90ecc51922a3bf4"
+        },
+        {
+          "value": null,
+          "lineage": {
+            "name": "yoy_growth",
+            "formula": "(v_t - v_{t-1}) / v_{t-1}",
+            "input_columns": [
+              "value"
+            ],
+            "units": "ratio",
+            "source_observation_ids": [
+              "db98f974eefd1560416389435f9c347c859a284f"
+            ],
+            "source_periods": [
+              "2025"
+            ],
+            "note": "undefined: no prior period"
+          },
+          "entity": "200ymax",
+          "period": "2025",
+          "measure": "privat_naering",
+          "observation_id": "db98f974eefd1560416389435f9c347c859a284f"
+        }
+      ]
+    },
+    {
+      "name": "period_change",
+      "formula": "(v_t - v_prev) / v_prev",
+      "input_columns": [
+        "value"
+      ],
+      "units": "ratio",
+      "rows": [
+        {
+          "value": null,
+          "lineage": {
+            "name": "period_change",
+            "formula": "(v_t - v_prev) / v_prev",
+            "input_columns": [
+              "value"
+            ],
+            "units": "ratio",
+            "source_observation_ids": [
+              "0c5488dd0676fa3d79726a47f90ecc51922a3bf4"
+            ],
+            "source_periods": [
+              "2025"
+            ],
+            "note": "undefined: no prior period"
+          },
+          "entity": "200ymax",
+          "period": "2025",
+          "measure": "offentlige_bygg",
+          "observation_id": "0c5488dd0676fa3d79726a47f90ecc51922a3bf4"
+        },
+        {
+          "value": null,
+          "lineage": {
+            "name": "period_change",
+            "formula": "(v_t - v_prev) / v_prev",
+            "input_columns": [
+              "value"
+            ],
+            "units": "ratio",
+            "source_observation_ids": [
+              "db98f974eefd1560416389435f9c347c859a284f"
+            ],
+            "source_periods": [
+              "2025"
+            ],
+            "note": "undefined: no prior period"
+          },
+          "entity": "200ymax",
+          "period": "2025",
+          "measure": "privat_naering",
+          "observation_id": "db98f974eefd1560416389435f9c347c859a284f"
+        }
+      ]
+    },
+    {
+      "name": "index",
+      "formula": "100 * v_t / v_base",
+      "input_columns": [
+        "value"
+      ],
+      "units": "index (base = 100)",
+      "rows": [
+        {
+          "value": 100.0,
+          "lineage": {
+            "name": "index",
+            "formula": "100 * v_t / v_base",
+            "input_columns": [
+              "value"
+            ],
+            "units": "index (base = 100)",
+            "source_observation_ids": [
+              "0c5488dd0676fa3d79726a47f90ecc51922a3bf4"
+            ],
+            "source_periods": [
+              "2025"
+            ],
+            "base_period": "2025",
+            "base_observation_id": "0c5488dd0676fa3d79726a47f90ecc51922a3bf4"
+          },
+          "entity": "200ymax",
+          "period": "2025",
+          "measure": "offentlige_bygg",
+          "observation_id": "0c5488dd0676fa3d79726a47f90ecc51922a3bf4"
+        },
+        {
+          "value": 100.0,
+          "lineage": {
+            "name": "index",
+            "formula": "100 * v_t / v_base",
+            "input_columns": [
+              "value"
+            ],
+            "units": "index (base = 100)",
+            "source_observation_ids": [
+              "db98f974eefd1560416389435f9c347c859a284f"
+            ],
+            "source_periods": [
+              "2025"
+            ],
+            "base_period": "2025",
+            "base_observation_id": "db98f974eefd1560416389435f9c347c859a284f"
+          },
+          "entity": "200ymax",
+          "period": "2025",
+          "measure": "privat_naering",
+          "observation_id": "db98f974eefd1560416389435f9c347c859a284f"
+        }
+      ]
+    },
+    {
+      "name": "rank",
+      "formula": "1 + count(peers in (period, measure) with value > v_t)",
+      "input_columns": [
+        "value"
+      ],
+      "units": "rank (1 = highest)",
+      "rows": [
+        {
+          "value": 1.0,
+          "lineage": {
+            "name": "rank",
+            "formula": "1 + count(peers in (period, measure) with value > v_t)",
+            "input_columns": [
+              "value"
+            ],
+            "units": "rank (1 = highest)",
+            "source_observation_ids": [
+              "0c5488dd0676fa3d79726a47f90ecc51922a3bf4"
+            ],
+            "source_periods": [
+              "2025"
+            ],
+            "note": "competition/min: equal values share this rank; the next rank skips",
+            "peer_observation_ids": [
+              "0c5488dd0676fa3d79726a47f90ecc51922a3bf4"
+            ]
+          },
+          "entity": "200ymax",
+          "period": "2025",
+          "measure": "offentlige_bygg",
+          "observation_id": "0c5488dd0676fa3d79726a47f90ecc51922a3bf4"
+        },
+        {
+          "value": 1.0,
+          "lineage": {
+            "name": "rank",
+            "formula": "1 + count(peers in (period, measure) with value > v_t)",
+            "input_columns": [
+              "value"
+            ],
+            "units": "rank (1 = highest)",
+            "source_observation_ids": [
+              "db98f974eefd1560416389435f9c347c859a284f"
+            ],
+            "source_periods": [
+              "2025"
+            ],
+            "note": "competition/min: equal values share this rank; the next rank skips",
+            "peer_observation_ids": [
+              "db98f974eefd1560416389435f9c347c859a284f"
+            ]
+          },
+          "entity": "200ymax",
+          "period": "2025",
+          "measure": "privat_naering",
+          "observation_id": "db98f974eefd1560416389435f9c347c859a284f"
+        }
+      ]
+    },
+    {
+      "name": "rank_change",
+      "formula": "rank_{t-1} - rank_t",
+      "input_columns": [
+        "rank"
+      ],
+      "units": "rank positions (positive = moved up)",
+      "rows": [
+        {
+          "value": null,
+          "lineage": {
+            "name": "rank_change",
+            "formula": "rank_{t-1} - rank_t",
+            "input_columns": [
+              "rank"
+            ],
+            "units": "rank positions (positive = moved up)",
+            "source_observation_ids": [
+              "0c5488dd0676fa3d79726a47f90ecc51922a3bf4"
+            ],
+            "source_periods": [
+              "2025"
+            ],
+            "note": "undefined: no prior period; positive would mean moved up",
+            "peer_observation_ids": [
+              "0c5488dd0676fa3d79726a47f90ecc51922a3bf4"
+            ]
+          },
+          "entity": "200ymax",
+          "period": "2025",
+          "measure": "offentlige_bygg",
+          "observation_id": "0c5488dd0676fa3d79726a47f90ecc51922a3bf4"
+        },
+        {
+          "value": null,
+          "lineage": {
+            "name": "rank_change",
+            "formula": "rank_{t-1} - rank_t",
+            "input_columns": [
+              "rank"
+            ],
+            "units": "rank positions (positive = moved up)",
+            "source_observation_ids": [
+              "db98f974eefd1560416389435f9c347c859a284f"
+            ],
+            "source_periods": [
+              "2025"
+            ],
+            "note": "undefined: no prior period; positive would mean moved up",
+            "peer_observation_ids": [
+              "db98f974eefd1560416389435f9c347c859a284f"
+            ]
+          },
+          "entity": "200ymax",
+          "period": "2025",
+          "measure": "privat_naering",
+          "observation_id": "db98f974eefd1560416389435f9c347c859a284f"
+        }
+      ]
+    }
+  ]
+}
