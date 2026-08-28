@@ -38,6 +38,7 @@ from public_data_agent.sources.met import MetMetalertsSource
 from public_data_agent.sources.metgc import MetgcSource
 from public_data_agent.sources.metgm import MetgmSource
 from public_data_agent.sources.miljodir import MiljodirVannmiljoSource
+from public_data_agent.sources.miljogis import MiljogisSource
 from public_data_agent.sources.miljorapporter import MiljorapporterSource
 from public_data_agent.sources.nbr import NbrSource
 from public_data_agent.sources.nfr import NfrSource
@@ -189,6 +190,7 @@ SOURCE_IDS = (
     "nvegis",
     "navwarnings",
     "havnedata",
+    "miljogis",
 )
 
 
@@ -379,6 +381,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return NavwarningsSource()
     if source_id == "havnedata":
         return HavnedataSource()
+    if source_id == "miljogis":
+        return MiljogisSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -419,6 +423,7 @@ __all__ = [
     "MetgcSource",
     "MetgmSource",
     "MiljodirVannmiljoSource",
+    "MiljogisSource",
     "MiljorapporterSource",
     "NbrSource",
     "NcagalewarningsSource",

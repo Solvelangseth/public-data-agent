@@ -1,0 +1,200 @@
+{
+  "produced_at": "2026-08-28T02:49:23Z",
+  "bound": {
+    "list_api": "https://kart.miljodirektoratet.no/arcgis/rest/services?f=json",
+    "walk": "copy printed MapServer name+type entries from the official Miljødirektoratet ArcGIS REST services catalog; skip FeatureServer rows with the same printed name, folders, and entries with no name or type; native ids are the printed last path segment of name so anadrome_laksefisk stays distinct from artfunksjon; access_path is the catalog origin plus /arcgis/rest/services/{name}/MapServer?f=json; license stays null because the catalog prints no license URL; publisher stays null; do not invent query filters",
+    "cap": 10,
+    "how": "pda ingest --source miljogis --limit 10. The official JSON catalog prints 21 MapServer services. This first slice copies the first 10 printed MapServer names. GET uses the printed anadrome_laksefisk MapServer path with the catalog f=json query. This is not Vannmiljø (--source miljodir), not NVE GIS (--source nvegis), not Kystverket navigasjonsvarsler (--source navwarnings), and not Kartverket Havnedata (PR 145)."
+  },
+  "discarded": [
+    {
+      "candidate": "Kartverket Havnedata / havnedata",
+      "url": "PR 145 --source havnedata",
+      "why": "Lane B has an OPEN PR 145 on branch cursor/havnedata-kartverket-source-e50f. Do not pick the other lane's source."
+    },
+    {
+      "candidate": "Kystverket navigasjonsvarsler / navwarnings",
+      "url": "PR 146 --source navwarnings, now on main",
+      "why": "Already on main after merge ec42e6c. Do not re-add."
+    },
+    {
+      "candidate": "Kartverket SeHavniva",
+      "url": "https://api.sehavniva.no/tideapi.php?tide_request=stationlist&type=json",
+      "why": "Live GET timed out. Skip timeout. Do not invent a workaround."
+    },
+    {
+      "candidate": "Bergen CKAN package_list",
+      "url": "https://opendata.bergen.kommune.no/api/3/action/package_list",
+      "why": "Host did not resolve. Do not invent a catalog URL."
+    },
+    {
+      "candidate": "Kartverket postnummer OpenAPI",
+      "url": "https://ws.geonorge.no/postnummer/v1/openapi.json",
+      "why": "HTTP 403. Do not invent an auth workaround."
+    },
+    {
+      "candidate": "Brønnøysundregistrene Frivillighetsregisteret",
+      "url": "https://data.brreg.no/frivillighetsregisteret/api",
+      "why": "HTTP 404. Do not invent endpoints."
+    },
+    {
+      "candidate": "Udir Register for lærebedrifter / nlr",
+      "url": "https://data-nlr.udir.no/swagger/v4/swagger.json",
+      "why": "Known skip: live collection GETs are HTTP 401. Do not invent an auth workaround."
+    },
+    {
+      "candidate": "MET leftover products (lightning, pollenforecast, forestfireindex, weathericon)",
+      "url": "https://api.met.no/weatherapi/available.json",
+      "why": "Every remaining weatherapi product is already a source, or is aviationforecast/sigmets (assigned skip). leftover swagger paths stay unused."
+    },
+    {
+      "candidate": "Entur stop-places REST",
+      "url": "https://api.entur.io/stop-places/v1/rest/stop-places",
+      "why": "HTTP 403. Do not invent an auth workaround."
+    },
+    {
+      "candidate": "Kartverket Eiendom /geokoding",
+      "url": "https://api.kartverket.no/eiendom/v1/geokoding",
+      "why": "Known skip: HTTP 400 without matrikkel params. Do not invent kommunenummer/gardsnummer/bruksnummer."
+    },
+    {
+      "candidate": "Kartverket Adresser /sok /punktsok",
+      "url": "https://api.kartverket.no/adresser/v1/openapi.json",
+      "why": "Known skip: live GET without search params is HTTP 400. Do not invent a query."
+    },
+    {
+      "candidate": "Frost MET sources",
+      "url": "https://frost.met.no/sources/v0.jsonld",
+      "why": "HTTP 401. Do not retry."
+    },
+    {
+      "candidate": "NVDB Les V3 OpenAPI",
+      "url": "https://nvdbapiles-v3.atlas.vegvesen.no/dokumentasjon/openapi.json",
+      "why": "Known skip: HTTP 400 User-Agent. Do not retry."
+    },
+    {
+      "candidate": "NVE HydAPI /api/v1/Parameters",
+      "url": "https://hydapi.nve.no/swagger/v1/swagger.json",
+      "why": "HTTP 401. Do not retry."
+    },
+    {
+      "candidate": "MET Aviationforecast / Sigmets",
+      "url": "https://api.met.no/weatherapi/aviationforecast/2.0/swagger",
+      "why": "Assigned skip for this lane. Not selected."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source miljogis --db /tmp/pda-miljogis-proof/registry.sqlite --limit 10",
+    "listed": 10,
+    "inserted": 10,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "miljogis:anadrome_laksefisk",
+        "title": "anadrome_laksefisk",
+        "access_path": "https://kart.miljodirektoratet.no/arcgis/rest/services/anadrome_laksefisk/MapServer?f=json"
+      },
+      {
+        "id": "miljogis:artfunksjon",
+        "title": "artfunksjon",
+        "access_path": "https://kart.miljodirektoratet.no/arcgis/rest/services/artfunksjon/MapServer?f=json"
+      },
+      {
+        "id": "miljogis:friluftsliv_kartlagt",
+        "title": "friluftsliv_kartlagt",
+        "access_path": "https://kart.miljodirektoratet.no/arcgis/rest/services/friluftsliv_kartlagt/MapServer?f=json"
+      },
+      {
+        "id": "miljogis:friluftsliv_statlig_sikra",
+        "title": "friluftsliv_statlig_sikra",
+        "access_path": "https://kart.miljodirektoratet.no/arcgis/rest/services/friluftsliv_statlig_sikra/MapServer?f=json"
+      },
+      {
+        "id": "miljogis:friluftsliv_vern",
+        "title": "friluftsliv_vern",
+        "access_path": "https://kart.miljodirektoratet.no/arcgis/rest/services/friluftsliv_vern/MapServer?f=json"
+      },
+      {
+        "id": "miljogis:grunnforurensning2",
+        "title": "grunnforurensning2",
+        "access_path": "https://kart.miljodirektoratet.no/arcgis/rest/services/grunnforurensning2/MapServer?f=json"
+      },
+      {
+        "id": "miljogis:kartleggingsenheter_nin",
+        "title": "kartleggingsenheter_nin",
+        "access_path": "https://kart.miljodirektoratet.no/arcgis/rest/services/kartleggingsenheter_nin/MapServer?f=json"
+      },
+      {
+        "id": "miljogis:kulturlandskap_utvalgte",
+        "title": "kulturlandskap_utvalgte",
+        "access_path": "https://kart.miljodirektoratet.no/arcgis/rest/services/kulturlandskap_utvalgte/MapServer?f=json"
+      },
+      {
+        "id": "miljogis:kulturlandskap_verdifulle",
+        "title": "kulturlandskap_verdifulle",
+        "access_path": "https://kart.miljodirektoratet.no/arcgis/rest/services/kulturlandskap_verdifulle/MapServer?f=json"
+      },
+      {
+        "id": "miljogis:naturtyper_hb13",
+        "title": "naturtyper_hb13",
+        "access_path": "https://kart.miljodirektoratet.no/arcgis/rest/services/naturtyper_hb13/MapServer?f=json"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search anadrome_laksefisk --db /tmp/pda-miljogis-proof/registry.sqlite --limit 5",
+    "query": "anadrome_laksefisk",
+    "returned": 1,
+    "hit_id": "miljogis:anadrome_laksefisk",
+    "title": "anadrome_laksefisk",
+    "source_id": "miljogis",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://kart.miljodirektoratet.no/arcgis/rest/services/anadrome_laksefisk/MapServer?f=json",
+    "original_source": "https://kart.miljodirektoratet.no/arcgis/rest/services?f=json",
+    "why_picked": "requirements anadrome AND laksefisk; title matched anadrome, laksefisk"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset miljogis:anadrome_laksefisk --db /tmp/pda-miljogis-proof/registry.sqlite",
+    "dataset": "miljogis:anadrome_laksefisk",
+    "table_id": "anadrome_laksefisk",
+    "access_path": "https://kart.miljodirektoratet.no/arcgis/rest/services/anadrome_laksefisk/MapServer?f=json",
+    "request_url": "https://kart.miljodirektoratet.no/arcgis/rest/services/anadrome_laksefisk/MapServer?f=json",
+    "http_status": 200,
+    "listed": 10,
+    "inserted": 10,
+    "updated": 0,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "name",
+        "value": "anadrome_vandringshinder_laks"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset miljogis:anadrome_laksefisk --db /tmp/pda-miljogis-proof/registry.sqlite",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "Miljødirektoratet /arcgis/rest/services/anadrome_laksefisk/MapServer prints layer-name strings. Those are not a numeric time series with a year-like period field and two or more periods. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed last path segments of MapServer names. access_path is the catalog origin plus /arcgis/rest/services/{name}/MapServer?f=json. No miljogis id was written onto a miljodir, nvegis, navwarnings, or datanorge row.",
+    "License stays null: the catalog prints no license URL. Publisher is null: the catalog does not print a publisher.",
+    "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "python3 -m pytest after implement: 924 passed, 1 skipped, 1 deselected.",
+    "Not a numeric time series with two or more periods. Fetch listed 10 printed layer-name cells (sample anadrome_vandringshinder_laks).",
+    "Open PR check at pickup found PR 145 havnedata (Lane B). aviationforecast and sigmets stayed unused."
+  ]
+}

@@ -3798,6 +3798,43 @@ titles, not a numeric time series
 (`no observations matched entity/measure; available=[]`).
 Proof is `data/havnedata_source_proof.json`.
 
+## Miljødirektoratet GIS source
+
+`pda ingest --source miljogis` is another replaceable adapter. It lists
+printed MapServer services on the official Miljødirektoratet ArcGIS REST
+catalog `https://kart.miljodirektoratet.no/arcgis/rest/services?f=json`,
+capped at 10. FeatureServer rows with the same printed name, folders,
+and entries with no name or type are skipped. Dataset ids are the
+printed last path segment of `name` so `anadrome_laksefisk` stays
+distinct from `artfunksjon`. `access_path` keeps the printed name,
+MapServer type, and the catalog `f=json` query. License stays null:
+the catalog prints no license URL. Publisher stays null. This is not
+Vannmiljø (`--source miljodir`), not NVE GIS (`--source nvegis`), not
+Kystverket navigasjonsvarsler (`--source navwarnings`, now on main
+after PR 146), and not Kartverket Havnedata (`--source havnedata`, now
+on main after PR 145).
+
+```bash
+pda ingest --source miljogis --db data/registry.sqlite --limit 10
+pda search anadrome_laksefisk --db data/registry.sqlite
+pda fetch --dataset miljogis:anadrome_laksefisk --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored MapServer URL. Observation values are copied
+from printed JSON `name` when present, otherwise `mapName`, `title`, or
+`id`. License stays null. Publisher stays null.
+
+Live ingest 2026-08-28: 10 printed MapServer services (catalog prints
+21 MapServer names; cap 10 starts at anadrome_laksefisk through
+naturtyper_hb13). Live search `anadrome_laksefisk` returns
+`miljogis:anadrome_laksefisk`. Live fetch GETs
+`https://kart.miljodirektoratet.no/arcgis/rest/services/anadrome_laksefisk/MapServer?f=json`
+HTTP 200, 10 layer-name cells. Sample printed value:
+`anadrome_vandringshinder_laks`.
+`pda methods` is not applicable: layer names, not a numeric
+time series (`no observations matched entity/measure; available=[]`).
+Proof is `data/miljogis_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
