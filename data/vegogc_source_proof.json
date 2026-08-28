@@ -140,6 +140,6 @@
     "python3 -m pytest tests/test_vegogc_source.py tests/test_vegvesen_source.py: 18 passed.",
     "Not a numeric time series with two or more periods. Fetch listed 2 printed Layer Name cells (sample tunnel_segments, vv_road_prognosis_V2).",
     "The dataut combined /wfs href is not printed on kartlag and was not ingested. All 10 printed kartlag hrefs were live XML 200.",
-    "Branched from origin/main after nibiowms #160 (872a367). SOURCE_IDS keeps nibiowms, then vegogc."
+    "Rebased onto origin/main after kvwms #163 (2cdbadb). SOURCE_IDS keeps kvwms, grep, sigmets, regobs, nibiowms, ragis, then vegogc."
   ]
 }

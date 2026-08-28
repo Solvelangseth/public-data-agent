@@ -4482,7 +4482,8 @@ XML are skipped. Dataset ids are the printed path segments after the
 host joined with `_` so `vegvar_1_0_ows` stays distinct from
 `vegvar_1_0_wfs`. `access_path` is the GetCapabilities URL as printed.
 License stays null. Publisher stays null. This is not the Vegvesen CKAN
-catalog (`--source vegvesen`). It does not scrape
+catalog (`--source vegvesen`) and not Kartverket leftover WMS/WMTS
+(`--source kvwms`, now on main after PR 163). It does not scrape
 `https://dataut.vegvesen.no/dataset/ogc-karttjenester`.
 
 ```bash
