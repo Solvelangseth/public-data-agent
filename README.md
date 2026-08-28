@@ -5326,6 +5326,40 @@ not a numeric time series
 (`no observations matched entity/measure; available=[]`).
 Proof is `data/avinorgis_source_proof.json`.
 
+## Enhetsregisteret leftover roller lists
+
+`pda ingest --source brroller` is another replaceable adapter. It lists
+leftover collection GET paths under `/enhetsregisteret/api/roller/`
+named in the official Brønnøysundregistrene OpenAPI
+`https://data.brreg.no/enhetsregisteret/api/dokumentasjon/no/openapi.json`.
+Templated paths, required parameters, and the printed gzip
+`totalbestand` dump are skipped. Dataset ids are the printed last path
+segment so `representanter` stays distinct from `rolletyper`.
+`access_path` is printed `servers[0].url` plus path. License is the
+printed OpenAPI NLOD URL. Publisher stays null. This is not
+Enhetsregisteret (`--source brreg`) and not Frivillighetsregisteret
+(`--source frivillig`).
+
+```bash
+pda ingest --source brroller --db data/registry.sqlite --limit 10
+pda search rollerepresentanter --db data/registry.sqlite
+pda fetch --dataset brroller:representanter --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored representanter URL. Observation values are
+copied from printed `beskrivelse` scalars. Printed `kode` stays as a
+dimension. License is the printed NLOD URL. Publisher stays null.
+
+Live ingest 2026-08-28: listed 3, inserted 3 (catalog prints three
+leftover JSON collection paths; cap 10 copies all three). Live search
+`rollerepresentanter` returns `brroller:representanter`. Live fetch GETs
+`https://data.brreg.no/enhetsregisteret/api/roller/representanter`
+HTTP 200, 4 beskrivelse cells. Sample printed value:
+`Representant for A-aksjonærene`.
+`pda methods` is not applicable: role descriptions, not a numeric time
+series (`no observations matched entity/measure; available=[]`).
+Proof is `data/brroller_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
