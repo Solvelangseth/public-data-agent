@@ -58,6 +58,7 @@ from public_data_agent.sources.ogccoverages import OgccoveragesSource
 from public_data_agent.sources.omregning import OmregningSource
 from public_data_agent.sources.npolar import NpolarSource
 from public_data_agent.sources.npigis import NpigisSource
+from public_data_agent.sources.npitema import NpitemaSource
 from public_data_agent.sources.nve import NveMagasinSource
 from public_data_agent.sources.nve2gis import Nve2gisSource
 from public_data_agent.sources.navwarnings import NavwarningsSource
@@ -197,6 +198,7 @@ SOURCE_IDS = (
     "hoydegis",
     "npigis",
     "nve2gis",
+    "npitema",
 )
 
 
@@ -395,6 +397,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return NpigisSource()
     if source_id == "nve2gis":
         return Nve2gisSource()
+    if source_id == "npitema":
+        return NpitemaSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -455,6 +459,7 @@ __all__ = [
     "OmregningSource",
     "NpolarSource",
     "NpigisSource",
+    "NpitemaSource",
     "NveMagasinSource",
     "Nve2gisSource",
     "NavwarningsSource",

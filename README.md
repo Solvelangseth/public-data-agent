@@ -3941,6 +3941,36 @@ HTTP 200, 4 layer-name cells. Sample printed value: `Utlopspunkt`.
 (`no observations matched entity/measure; available=[]`).
 Proof is `data/nve2gis_source_proof.json`.
 
+## Norsk Polarinstitutt Temadata GIS source
+
+`pda ingest --source npitema` is another replaceable adapter. It lists
+printed MapServer services on the official Norsk Polarinstitutt ArcGIS
+REST Temadata catalog
+`https://geodata.npolar.no/arcgis/rest/services/Temadata?f=json`,
+capped at 10. The folder name `Temadata` is printed on the root
+services catalog. Empty names and empty types are skipped. Dataset ids
+are the printed last path segment of `name` so
+`/F_Biogeographic_Zones_Svalbard/MapServer` stays distinct from
+`/F_Reinsdyrhabitat/MapServer`. `access_path` is the printed name plus
+type plus the catalog's `f=json` query. License stays null: the catalog
+prints no license URL. Publisher stays null. This is not the NPI Open
+Data API (`--source npolar`), not NPI Basisdata GIS (`--source npigis`,
+now on main after PR 148), not NVE GIS (`--source nvegis`), not NVE GIS 2
+(`--source nve2gis`, now on main after PR 150), and not Kartverket
+Høydedata GIS (`--source hoydegis`).
+
+```bash
+pda ingest --source npitema --db data/registry.sqlite --limit 10
+pda search Reinsdyrhabitat --db data/registry.sqlite
+pda fetch --dataset npitema:F_Biogeographic_Zones_Svalbard --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored MapServer URL. Observation values are copied
+from printed JSON `name` when present, otherwise `mapName`, `title`, or
+`id`. License stays null. Publisher stays null.
+
+Live ingest and fetch numbers are in `data/npitema_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
