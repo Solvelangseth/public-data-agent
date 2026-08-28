@@ -4214,6 +4214,16 @@ values are copied from printed WMS `Layer`/`Name` text. A printed
 `Title` sibling stays as a dimension. License stays null. Publisher
 stays null.
 
+Live ingest 2026-08-28: 10 printed GetCapabilities services (11 live
+XML services after skipping HTML; cap 10 copies the first 10 in
+document order). Live search `ok_raster` returns `nibiowms:ok_raster`.
+Live fetch GETs
+`https://wms.nibio.no/cgi-bin/ok_raster?request=getcapabilities&service=wms`
+HTTP 200, 4 Layer Name cells. Sample printed value: `ok_raster`.
+`pda methods` is not applicable: layer names, not a numeric time series
+(`no observations matched entity/measure; available=[]`).
+Proof is `data/nibiowms_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
