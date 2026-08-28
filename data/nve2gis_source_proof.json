@@ -1,0 +1,235 @@
+{
+  "produced_at": "2026-08-28T03:12:57Z",
+  "bound": {
+    "list_api": "https://gis2.nve.no/arcgis/rest/services/mapservice?f=json",
+    "walk": "copy printed name+type entries from the official NVE gis2 ArcGIS REST mapservice catalog; the folder name mapservice is printed on the root services catalog; skip folders and entries with no name or type; native ids are the printed last path segment of name so AlphaBeta stays distinct from NGUFjellskred; access_path is the catalog origin plus /arcgis/rest/services/{name}/{type}?f=json; license stays null because the catalog prints no license URL; publisher stays null; do not invent query filters",
+    "cap": 10,
+    "how": "pda ingest --source nve2gis --limit 10. The official JSON catalog prints 8 name+type services. This first slice copies all 8 printed names. GET uses the printed AlphaBeta MapServer path with the catalog f=json query. This is not NVE Magasinstatistikk (--source nve) and not NVE GIS (--source nvegis)."
+  },
+  "discarded": [
+    {
+      "candidate": "Norsk Polarinstitutt ArcGIS REST / npigis",
+      "url": "https://geodata.npolar.no/arcgis/rest/services/Basisdata?f=json",
+      "why": "Lane B PR 148 (bc-61d16822) chose npigis. Do not pick the other lane's source."
+    },
+    {
+      "candidate": "Norsk Polarinstitutt ArcticSDI / Temadata",
+      "url": "https://geodata.npolar.no/arcgis/rest/services?f=json",
+      "why": "Same NPI ArcGIS host Lane B already opened as npigis. Do not pick a sibling folder."
+    },
+    {
+      "candidate": "Kartverket Høydedata GIS / hoydegis",
+      "url": "PR 149 --source hoydegis, now on main",
+      "why": "Already on main after merge 645b7d7. Do not re-add."
+    },
+    {
+      "candidate": "Miljødirektoratet GIS / miljogis",
+      "url": "already on main",
+      "why": "Already on main. Do not re-add."
+    },
+    {
+      "candidate": "NVE GIS / nvegis",
+      "url": "https://gis3.nve.no/map/rest/services?f=json",
+      "why": "Already on main. Do not re-add."
+    },
+    {
+      "candidate": "NIBIO GIS",
+      "url": "https://gis.nibio.no/arcgis/rest/services?f=json",
+      "why": "Host did not resolve. Do not invent a catalog URL."
+    },
+    {
+      "candidate": "NVE geodataonline",
+      "url": "https://nve.geodataonline.no/arcgis/rest/services?f=json",
+      "why": "Host did not resolve. Do not invent a catalog URL."
+    },
+    {
+      "candidate": "NGU ArcGIS REST",
+      "url": "https://geo.ngu.no/arcgis/rest/services?f=json",
+      "why": "HTTP 503. Do not invent a workaround."
+    },
+    {
+      "candidate": "SSB kart ArcGIS",
+      "url": "https://kart.ssb.no/arcgis/rest/services?f=json",
+      "why": "HTTP 404. Do not invent a catalog URL."
+    },
+    {
+      "candidate": "Kystverket Kystinfo ArcGIS",
+      "url": "https://kystinfo.no/arcgis/rest/services?f=json",
+      "why": "HTML only. Skip HTML-only."
+    },
+    {
+      "candidate": "Avinor Airports",
+      "url": "https://avinor.no/Api/Airports",
+      "why": "JSON airport list with no printed swagger/OpenAPI path catalog. Do not invent endpoint ids."
+    },
+    {
+      "candidate": "Digdir datahotel",
+      "url": "https://hotell.difi.no/api/json",
+      "why": "Host did not resolve. Do not invent a catalog URL."
+    },
+    {
+      "candidate": "Kartverket SeHavniva",
+      "url": "https://api.sehavniva.no/tideapi.php?tide_request=stationlist&type=json",
+      "why": "Known skip: live GET timed out. Do not invent a workaround."
+    },
+    {
+      "candidate": "Kartverket postnummer OpenAPI",
+      "url": "https://ws.geonorge.no/postnummer/v1/openapi.json",
+      "why": "Known skip: HTTP 403. Do not invent an auth workaround."
+    },
+    {
+      "candidate": "Kartverket Geolett OpenAPI",
+      "url": "https://ws.geonorge.no/geolett/v1/openapi.json",
+      "why": "HTTP 403. Do not invent an auth workaround."
+    },
+    {
+      "candidate": "Kartverket Adresser /sok",
+      "url": "https://api.kartverket.no/adresser/v1/openapi.json",
+      "why": "Known skip: live GET without search params is HTTP 400. Do not invent a query."
+    },
+    {
+      "candidate": "Kartverket Eiendom /geokoding",
+      "url": "https://api.kartverket.no/eiendom/v1/geokoding",
+      "why": "Known skip: HTTP 400 without matrikkel params. Do not invent kommunenummer/gardsnummer/bruksnummer."
+    },
+    {
+      "candidate": "Frost MET sources",
+      "url": "https://frost.met.no/sources/v0.jsonld",
+      "why": "HTTP 401. Do not retry."
+    },
+    {
+      "candidate": "NVDB Les V3 OpenAPI",
+      "url": "https://nvdbapiles-v3.atlas.vegvesen.no/dokumentasjon/openapi.json",
+      "why": "Known skip: HTTP 400 User-Agent. Do not retry."
+    },
+    {
+      "candidate": "NVE HydAPI /api/v1/Parameters",
+      "url": "https://hydapi.nve.no/swagger/v1/swagger.json",
+      "why": "HTTP 401. Do not retry."
+    },
+    {
+      "candidate": "Udir Register for lærebedrifter / nlr",
+      "url": "https://data-nlr.udir.no/swagger/v4/swagger.json",
+      "why": "Known skip: live collection GETs are HTTP 401. Do not invent an auth workaround."
+    },
+    {
+      "candidate": "Fiskeridirektoratet aqua-operations-public",
+      "url": "https://api.fiskeridir.no/aqua-operations-public/v3/api-docs",
+      "why": "OpenAPI prints only /api/v1/joint-ops/{site-nr}. Templated path. Do not invent site-nr."
+    },
+    {
+      "candidate": "Legemiddelverket FHIR",
+      "url": "https://api.legemiddelverket.no/fhir-r4/metadata",
+      "why": "HTTP 401. Do not invent an auth workaround."
+    },
+    {
+      "candidate": "MET Aviationforecast / Sigmets",
+      "url": "https://api.met.no/weatherapi/aviationforecast/2.0/swagger",
+      "why": "Assigned skip for this lane. Not selected."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source nve2gis --db /tmp/pda-nve2gis-proof/registry.sqlite --limit 10",
+    "listed": 8,
+    "inserted": 8,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "nve2gis:AlphaBeta",
+        "title": "AlphaBeta",
+        "access_path": "https://gis2.nve.no/arcgis/rest/services/mapservice/AlphaBeta/MapServer?f=json"
+      },
+      {
+        "id": "nve2gis:datamottak",
+        "title": "datamottak",
+        "access_path": "https://gis2.nve.no/arcgis/rest/services/mapservice/datamottak/MapServer?f=json"
+      },
+      {
+        "id": "nve2gis:Kommune_Historisk",
+        "title": "Kommune_Historisk",
+        "access_path": "https://gis2.nve.no/arcgis/rest/services/mapservice/Kommune_Historisk/MapServer?f=json"
+      },
+      {
+        "id": "nve2gis:NGUFjellskred",
+        "title": "NGUFjellskred",
+        "access_path": "https://gis2.nve.no/arcgis/rest/services/mapservice/NGUFjellskred/MapServer?f=json"
+      },
+      {
+        "id": "nve2gis:SkredKvikkleireApp_Faktaark",
+        "title": "SkredKvikkleireApp_Faktaark",
+        "access_path": "https://gis2.nve.no/arcgis/rest/services/mapservice/SkredKvikkleireApp_Faktaark/MapServer?f=json"
+      },
+      {
+        "id": "nve2gis:Solkraft",
+        "title": "Solkraft",
+        "access_path": "https://gis2.nve.no/arcgis/rest/services/mapservice/Solkraft/MapServer?f=json"
+      },
+      {
+        "id": "nve2gis:SolkraftView",
+        "title": "SolkraftView",
+        "access_path": "https://gis2.nve.no/arcgis/rest/services/mapservice/SolkraftView/MapServer?f=json"
+      },
+      {
+        "id": "nve2gis:VindkraftView1",
+        "title": "VindkraftView1",
+        "access_path": "https://gis2.nve.no/arcgis/rest/services/mapservice/VindkraftView1/MapServer?f=json"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search NGUFjellskred --db /tmp/pda-nve2gis-proof/registry.sqlite --limit 5",
+    "query": "NGUFjellskred",
+    "returned": 1,
+    "hit_id": "nve2gis:NGUFjellskred",
+    "title": "NGUFjellskred",
+    "source_id": "nve2gis",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://gis2.nve.no/arcgis/rest/services/mapservice/NGUFjellskred/MapServer?f=json",
+    "original_source": "https://gis2.nve.no/arcgis/rest/services/mapservice?f=json",
+    "why_picked": "title matched ngufjellskred"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset nve2gis:AlphaBeta --db /tmp/pda-nve2gis-proof/registry.sqlite",
+    "dataset": "nve2gis:AlphaBeta",
+    "table_id": "AlphaBeta",
+    "access_path": "https://gis2.nve.no/arcgis/rest/services/mapservice/AlphaBeta/MapServer?f=json",
+    "request_url": "https://gis2.nve.no/arcgis/rest/services/mapservice/AlphaBeta/MapServer?f=json",
+    "http_status": 200,
+    "listed": 4,
+    "inserted": 4,
+    "updated": 0,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "name",
+        "value": "Utlopspunkt"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset nve2gis:AlphaBeta --db /tmp/pda-nve2gis-proof/registry.sqlite --out /tmp/pda-nve2gis-proof/methods",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "NVE /arcgis/rest/services/mapservice/AlphaBeta/MapServer prints layer-name strings. That is not a numeric time series with a year-like period field and two or more periods. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed last path segments of service names. access_path is the catalog origin plus /arcgis/rest/services/{name}/{type}?f=json. No nve2gis id was written onto a nve, nvegis, hoydegis, or datanorge row.",
+    "License stays null: the catalog prints no license URL. Publisher is null: the catalog does not print a publisher.",
+    "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "python3 -m pytest after implement: 952 passed, 1 skipped, 1 deselected.",
+    "Not a numeric time series with two or more periods. Fetch listed 4 printed layer-name cells (sample Utlopspunkt).",
+    "Open PR check at pickup found PR 148 npigis (Lane B bc-61d16822). Unused."
+  ]
+}
