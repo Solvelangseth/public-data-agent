@@ -11,6 +11,7 @@ from public_data_agent.sources.avinorgis import AvinorgisSource
 from public_data_agent.sources.baf import BafSource
 from public_data_agent.sources.banegis import BanegisSource
 from public_data_agent.sources.base import CatalogSource, SourceBase
+from public_data_agent.sources.brorgform import BrorgformSource
 from public_data_agent.sources.brreg import BrregEnhetsregisterSource
 from public_data_agent.sources.brroller import BrrollerSource
 from public_data_agent.sources.buyer import BuyerSource
@@ -279,6 +280,7 @@ SOURCE_IDS = (
     "avinorgis",
     "brroller",
     "fdirwms",
+    "brorgform",
 )
 
 
@@ -559,6 +561,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return BrrollerSource()
     if source_id == "fdirwms":
         return FdirwmsSource()
+    if source_id == "brorgform":
+        return BrorgformSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -571,6 +575,7 @@ __all__ = [
     "AvinorgisSource",
     "BafSource",
     "BanegisSource",
+    "BrorgformSource",
     "BrregEnhetsregisterSource",
     "BrrollerSource",
     "BuyerSource",

@@ -5403,6 +5403,38 @@ applicable: feature type names, not a numeric time series
 (`no observations matched entity/measure; available=[]`).
 Proof is `data/fdirwms_source_proof.json`.
 
+## Enhetsregisteret organisasjonsformer source
+
+`pda ingest --source brorgform` is another replaceable adapter. It lists
+printed organisasjonsform codes on the official Enhetsregisteret
+collection
+`https://data.brreg.no/enhetsregisteret/api/organisasjonsformer`,
+capped at 10. Dataset ids are the printed `kode` values. `access_path`
+is the printed `_links.self.href`. License stays null. Publisher stays
+null. This is not the Enhetsregisteret HAL root (`--source brreg`), not
+Frivillighetsregisteret (`--source frivillig`), not
+Regnskapsregisteret (`--source regnskap`), and not leftover roller
+lists (`--source brroller`).
+
+```bash
+pda ingest --source brorgform --db data/registry.sqlite --limit 10
+pda search Aksjeselskap --db data/registry.sqlite
+pda fetch --dataset brorgform:AS --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored organisasjonsform URL. Observation values
+are copied from the printed `beskrivelse` scalar. Other scalars stay as
+dimensions. Nested `_links` objects are not copied. License stays null.
+Publisher stays null.
+
+The catalog prints 44 organisasjonsformer. This walk copies the first
+ten in document order. Live ingest listed 10 and inserted 10. Live
+search `Aksjeselskap` returns `brorgform:AS`. Live fetch GETs
+`https://data.brreg.no/enhetsregisteret/api/organisasjonsformer/AS`
+HTTP 200, 1 row, `beskrivelse` = `Aksjeselskap`. `pda methods` is not
+applicable. Organisasjonsform names are not a numeric time series.
+Proof is `data/brorgform_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
