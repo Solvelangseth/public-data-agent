@@ -4346,8 +4346,9 @@ the documents print copyright text, not a license URL. Publisher stays
 null. This is not Geonorge Kartkatalog (`--source geonorge`), not
 Kartverket Høydedata (`--source hoydedata`), not Kartverket Høydedata
 GIS (`--source hoydegis`), not Kartverket OGC API Coverages
-(`--source ogccoverages`), and not Kartverket Transformering
-(`--source transformering`).
+(`--source ogccoverages`), not Kartverket Transformering
+(`--source transformering`), and not NIBIO WMS-tjenester
+(`--source nibiowms`, now on main after PR 160).
 
 ```bash
 pda ingest --source kvwms --db data/registry.sqlite --limit 10

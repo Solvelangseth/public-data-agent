@@ -13,7 +13,17 @@
     {
       "candidate": "Riksantikvaren leftover GIS / ragis",
       "url": "https://github.com/Solvelangseth/public-data-agent/pull/158",
-      "why": "Open PR 158 on another leftover GIS lane. Do not pick ragis."
+      "why": "On main after PR 158. Do not redo ragis."
+    },
+    {
+      "candidate": "NIBIO WMS-tjenester / nibiowms",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/160",
+      "why": "On main after PR 160. Different host (wms.nibio.no). Do not redo nibiowms."
+    },
+    {
+      "candidate": "SSB PxWebApi 2 / ssbv2",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/157",
+      "why": "On main after PR 157. National JSON API, not this GIS lane."
     },
     {
       "candidate": "wms.geonorge.no/skwms1/ directory",
