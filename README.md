@@ -3969,7 +3969,16 @@ pda fetch --dataset npitema:F_Biogeographic_Zones_Svalbard --db data/registry.sq
 from printed JSON `name` when present, otherwise `mapName`, `title`, or
 `id`. License stays null. Publisher stays null.
 
-Live ingest and fetch numbers are in `data/npitema_source_proof.json`.
+Live ingest 2026-08-28: 10 printed MapServer services (catalog prints
+fauna, geology, and habitat services for Svalbard; cap 10). Live
+search `Reinsdyrhabitat` returns `npitema:F_Reinsdyrhabitat`. Live
+fetch GETs
+`https://geodata.npolar.no/arcgis/rest/services/Temadata/F_Biogeographic_Zones_Svalbard/MapServer?f=json`
+HTTP 200, 1 layer-name cell. Sample printed value:
+`Biogeografiske soner`. `pda methods` is not applicable: layer names,
+not a numeric time series
+(`no observations matched entity/measure; available=[]`).
+Proof is `data/npitema_source_proof.json`.
 
 ## Architecture (long term)
 

@@ -1,0 +1,236 @@
+{
+  "produced_at": "2026-08-28T03:18:00Z",
+  "bound": {
+    "list_api": "https://geodata.npolar.no/arcgis/rest/services/Temadata?f=json",
+    "walk": "copy printed name+type services from the official Norsk Polarinstitutt ArcGIS REST Temadata catalog; the folder name Temadata is printed on the root services catalog; skip empty names and empty types; native ids are the printed last path segment of name so F_Biogeographic_Zones_Svalbard stays distinct from F_Reinsdyrhabitat; access_path is the printed name plus type plus the catalog f=json query; license stays null because the catalog prints no license URL; publisher stays null; live GET of those printed MapServer paths is HTTP 200 with no token; no token is sent; do not invent query filters",
+    "cap": 10,
+    "how": "pda ingest --source npitema --limit 10. The official Temadata catalog prints MapServer services. GET uses the printed name/type path with the catalog f=json query."
+  },
+  "discarded": [
+    {
+      "candidate": "Lane A nve2gis",
+      "url": "https://gis2.nve.no/arcgis/rest/services/mapservice?f=json",
+      "why": "Lane A (bc-d5a24768) opened PR 150 --source nve2gis. Do not pick nve2gis."
+    },
+    {
+      "candidate": "NPI Basisdata GIS / npigis",
+      "url": "https://geodata.npolar.no/arcgis/rest/services/Basisdata?f=json",
+      "why": "Assigned skip / already on main after PR 148. Do not pick npigis."
+    },
+    {
+      "candidate": "NVE gis3 /arcgis/rest/services/mapservice",
+      "url": "https://gis3.nve.no/arcgis/rest/services/mapservice?f=json",
+      "why": "Official JSON catalog HTTP 200 with printed MapServer services. Left unused so this slice stays off NVE GIS siblings already on main as --source nvegis and in Lane A as --source nve2gis."
+    },
+    {
+      "candidate": "NGU WFS GetCapabilities",
+      "url": "https://geo.ngu.no/geoserver/ows?service=WFS&request=GetCapabilities",
+      "why": "Official WFS capabilities HTTP 200 with printed FeatureTypes. Left unused. --source ngu already walks NGU OGC API Features. Fetch would be XML, not the JSON path fetch.py uses."
+    },
+    {
+      "candidate": "NGU ArcGIS REST",
+      "url": "https://geo.ngu.no/arcgis/rest/services?f=json",
+      "why": "Live GET HTTP 503. Do not invent a workaround."
+    },
+    {
+      "candidate": "Politiet politidistrikt swagger",
+      "url": "https://api.politiet.no/politidistrikt/v1/swagger/v1/swagger.json",
+      "why": "TLS handshake failed. Do not invent a workaround."
+    },
+    {
+      "candidate": "Brreg kunngjoring",
+      "url": "https://data.brreg.no/kunngjoring/swagger.json",
+      "why": "Empty reply from server. Do not invent a workaround."
+    },
+    {
+      "candidate": "Udir Grep /kl06/v201906",
+      "url": "https://data.udir.no/kl06/v201906",
+      "why": "HTTP 404. Root /kl06/ is HTML-only. Do not invent a path."
+    },
+    {
+      "candidate": "NIBIO GIS",
+      "url": "https://kart.nibio.no/arcgis/rest/services?f=json",
+      "why": "Host did not resolve. Lane A also saw gis.nibio.no DNS fail."
+    },
+    {
+      "candidate": "Varsom avalanche swagger v6.3.0",
+      "url": "https://api01.nve.no/hydrology/forecast/avalanche/v6.3.0/swagger/docs/v1",
+      "why": "HTTP 404. Lane A dropped varsom as templated/404."
+    },
+    {
+      "candidate": "Kartverket ogcapitest leftover",
+      "url": "https://ogcapitest.kartverket.no/rest/services?f=json",
+      "why": "Catalog HTTP 200. The only printed API is Havnedata 3.0, already on main as --source havnedata."
+    },
+    {
+      "candidate": "MET leftover products",
+      "url": "https://api.met.no/weatherapi/available.json",
+      "why": "Every printed product is already a source or an assigned skip (aviationforecast, sigmets)."
+    },
+    {
+      "candidate": "Oslo Bysykkel GBFS",
+      "url": "https://gbfs.urbansharing.com/oslobysykkel.no/gbfs.json",
+      "why": "HTTP 200 printed feed list. Left unused. Entur already wraps GBFS (--source entur)."
+    },
+    {
+      "candidate": "Digdir organization catalogue",
+      "url": "https://organization-catalogue.fellesdatakatalog.digdir.no/organizations",
+      "why": "HTTP 200 JSON organization content list, not a printed endpoint/path catalog. No swagger/OpenAPI on that host."
+    },
+    {
+      "candidate": "Nasjonalbiblioteket catalog",
+      "url": "https://api.nb.no/catalog/v1",
+      "why": "HTTP 404. Known leftover required q unused."
+    },
+    {
+      "candidate": "Kartverket Adresser /sok",
+      "url": "https://api.kartverket.no/adresser/v1/openapi.json",
+      "why": "Known skip: live GET without search params is HTTP 400. Do not invent a query."
+    },
+    {
+      "candidate": "Kartverket Eiendom /geokoding",
+      "url": "https://api.kartverket.no/eiendom/v1/geokoding",
+      "why": "Known skip: HTTP 400 without matrikkel params. Do not retry."
+    },
+    {
+      "candidate": "Frost MET sources",
+      "url": "https://frost.met.no/sources/v0.jsonld",
+      "why": "Known skip: HTTP 401. Do not retry."
+    },
+    {
+      "candidate": "NVDB Les V3 OpenAPI",
+      "url": "https://nvdbapiles-v3.atlas.vegvesen.no/dokumentasjon/openapi.json",
+      "why": "Known skip: HTTP 400 User-Agent. Do not retry."
+    },
+    {
+      "candidate": "NVE HydAPI",
+      "url": "https://hydapi.nve.no/swagger/v1/swagger.json",
+      "why": "Known skip: HTTP 401. Do not retry."
+    },
+    {
+      "candidate": "Udir Register for lærebedrifter",
+      "url": "https://data-nlr.udir.no/swagger/v4/swagger.json",
+      "why": "Known skip: live collection GETs are HTTP 401. Do not invent auth."
+    },
+    {
+      "candidate": "HI OGC Processes / EDR",
+      "url": "https://kart.hi.no/data/ogc/processes/v1",
+      "why": "Live GET HTTP 404. Do not invent endpoints."
+    },
+    {
+      "candidate": "aviationforecast / sigmets / offentligdata.no",
+      "url": "assigned skip",
+      "why": "Assigned skip for this lane. Do not pick."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source npitema --db /tmp/pda-npitema-proof/registry.sqlite --limit 10",
+    "listed": 10,
+    "inserted": 10,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "npitema:F_Biogeographic_Zones_Svalbard",
+        "title": "F_Biogeographic_Zones_Svalbard",
+        "access_path": "https://geodata.npolar.no/arcgis/rest/services/Temadata/F_Biogeographic_Zones_Svalbard/MapServer?f=json"
+      },
+      {
+        "id": "npitema:F_Land_Surface_Phenology_Svalbard",
+        "title": "F_Land_Surface_Phenology_Svalbard",
+        "access_path": "https://geodata.npolar.no/arcgis/rest/services/Temadata/F_Land_Surface_Phenology_Svalbard/MapServer?f=json"
+      },
+      {
+        "id": "npitema:F_Marine_Mammals_Svalbard",
+        "title": "F_Marine_Mammals_Svalbard",
+        "access_path": "https://geodata.npolar.no/arcgis/rest/services/Temadata/F_Marine_Mammals_Svalbard/MapServer?f=json"
+      },
+      {
+        "id": "npitema:F_Reindeer_Population_Areas_Svalbard",
+        "title": "F_Reindeer_Population_Areas_Svalbard",
+        "access_path": "https://geodata.npolar.no/arcgis/rest/services/Temadata/F_Reindeer_Population_Areas_Svalbard/MapServer?f=json"
+      },
+      {
+        "id": "npitema:F_Reinsdyrhabitat",
+        "title": "F_Reinsdyrhabitat",
+        "access_path": "https://geodata.npolar.no/arcgis/rest/services/Temadata/F_Reinsdyrhabitat/MapServer?f=json"
+      },
+      {
+        "id": "npitema:F_Rypehabitat",
+        "title": "F_Rypehabitat",
+        "access_path": "https://geodata.npolar.no/arcgis/rest/services/Temadata/F_Rypehabitat/MapServer?f=json"
+      },
+      {
+        "id": "npitema:F_Seabirds_Svalbard",
+        "title": "F_Seabirds_Svalbard",
+        "access_path": "https://geodata.npolar.no/arcgis/rest/services/Temadata/F_Seabirds_Svalbard/MapServer?f=json"
+      },
+      {
+        "id": "npitema:F_Vegetation_Map_22cl_Svalbard",
+        "title": "F_Vegetation_Map_22cl_Svalbard",
+        "access_path": "https://geodata.npolar.no/arcgis/rest/services/Temadata/F_Vegetation_Map_22cl_Svalbard/MapServer?f=json"
+      },
+      {
+        "id": "npitema:G_Geologi_DML",
+        "title": "G_Geologi_DML",
+        "access_path": "https://geodata.npolar.no/arcgis/rest/services/Temadata/G_Geologi_DML/MapServer?f=json"
+      },
+      {
+        "id": "npitema:G_Geologi_Kartblad",
+        "title": "G_Geologi_Kartblad",
+        "access_path": "https://geodata.npolar.no/arcgis/rest/services/Temadata/G_Geologi_Kartblad/MapServer?f=json"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search Reinsdyrhabitat --db /tmp/pda-npitema-proof/registry.sqlite --limit 10",
+    "query": "Reinsdyrhabitat",
+    "returned": 1,
+    "hit_id": "npitema:F_Reinsdyrhabitat",
+    "title": "F_Reinsdyrhabitat",
+    "source_id": "npitema",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://geodata.npolar.no/arcgis/rest/services/Temadata/F_Reinsdyrhabitat/MapServer?f=json",
+    "original_source": "https://geodata.npolar.no/arcgis/rest/services/Temadata?f=json",
+    "why_picked": "title matched reinsdyrhabitat"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset npitema:F_Biogeographic_Zones_Svalbard --db /tmp/pda-npitema-proof/registry.sqlite",
+    "dataset": "npitema:F_Biogeographic_Zones_Svalbard",
+    "table_id": "F_Biogeographic_Zones_Svalbard",
+    "access_path": "https://geodata.npolar.no/arcgis/rest/services/Temadata/F_Biogeographic_Zones_Svalbard/MapServer?f=json",
+    "request_url": "https://geodata.npolar.no/arcgis/rest/services/Temadata/F_Biogeographic_Zones_Svalbard/MapServer?f=json",
+    "http_status": 200,
+    "listed": 1,
+    "inserted": 1,
+    "updated": 0,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "name",
+        "value": "Biogeografiske soner"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset npitema:F_Biogeographic_Zones_Svalbard --db /tmp/pda-npitema-proof/registry.sqlite",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "NPI Temadata /F_Biogeographic_Zones_Svalbard/MapServer prints layer names. Those are not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed ArcGIS service names. access_path is the printed name plus type plus f=json. No npitema id was written onto an npigis, npolar, nvegis, or datanorge row.",
+    "License is null: the catalog prints no license URL. Publisher is null: the catalog prints no publisher field.",
+    "Live GET of /Temadata/F_Biogeographic_Zones_Svalbard/MapServer?f=json is HTTP 200 with no Authorization header. No token is sent.",
+    "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "python3 -m pytest: 961 passed, 1 skipped, 1 deselected.",
+    "Not a numeric time series with two or more periods. Fetch listed 1 printed layer-name cell (sample Biogeografiske soner).",
+    "Open PR check at pickup found none. Lane A (bc-d5a24768) opened PR 150 nve2gis so unused. aviationforecast 2.0 and sigmets 2.0 stayed unused."
+  ]
+}
