@@ -15,11 +15,21 @@
     {
       "candidate": "Norges Bank SDMX concept schemes / nbconcept",
       "url": "https://github.com/Solvelangseth/public-data-agent/pull/182",
-      "why": "Open sibling national JSON PR. Do not pick another lane's source."
+      "why": "Merged on main. Kept during rebase. Do not re-add."
     },
     {
       "candidate": "SSB Klass classification families / ssbfam",
       "url": "https://github.com/Solvelangseth/public-data-agent/pull/181",
+      "why": "Merged on main at b20808d. Kept during rebase. Do not re-add."
+    },
+    {
+      "candidate": "SSB Klass sections / ssbsec",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/187",
+      "why": "Open sibling national JSON PR. Do not pick another lane's source."
+    },
+    {
+      "candidate": "SSB Klass classifications / ssclass",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/189",
       "why": "Open sibling national JSON PR. Do not pick another lane's source."
     },
     {
@@ -191,6 +201,7 @@
     "python3 -m pytest after adding nbprov on origin/main 531f0a9: 1219 passed, 1 skipped, 1 deselected.",
     "Rebased onto origin/main after nbconcept #182 and kystnav #184. python3 -m pytest after rebase: 1236 passed, 1 skipped, 1 deselected.",
     "Rebased onto origin/main after mdirwms #183. python3 -m pytest after rebase: 1245 passed, 1 skipped, 1 deselected. Did not pick ssbfam #181 or ssbsec #187.",
+    "Rebased onto origin/main after ssbfam #181 merged at b20808d. Kept ssbfam/mdirwms/kystnav/nbconcept/kvgrunn/nbdsd/nbcodelist. Did not pick ssbsec #187 or ssclass #189.",
     "Not a numeric time series with two or more periods. Fetch listed 1 printed agreement-name cell (sample Norges Bank for Exchange rates)."
   ]
 }
