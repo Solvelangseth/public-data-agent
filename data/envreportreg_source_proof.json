@@ -1,0 +1,147 @@
+{
+  "produced_at": "2026-08-28T01:29:09Z",
+  "bound": {
+    "list_api": "https://api.fiskeridir.no/envreportreg-public/v3/api-docs",
+    "walk": "copy printed untemplated GET paths from the official Fiskeridirektoratet Miljøundersøkelser OpenAPI; skip templated paths and GET operations that print required parameters; native ids are the printed path without a leading slash so /api/v2/report/search and /api/v1/report/search stay distinct; access_path is printed servers[0].url plus path; license is copied from the printed OpenAPI license URL; publisher stays null because the OpenAPI prints no publisher field; do not invent organisationNumber, siteNumber, envExaminationType, or date query filters",
+    "cap": 10,
+    "how": "pda ingest --source envreportreg --limit 10. The official Miljøundersøkelser OpenAPI prints 2 untemplated GET paths with no required parameter. The adapter copies those paths. GET uses the printed /api/v2/report/search href with no invented query filters. This is not Fartøyregisteret (--source fiskeridir), Kjøperregisteret (--source buyer), NYTEK (--source nytek), Akvakulturregister (--source aqua), Akvakulturforskning (--source research), Akvakultursøknader (--source portal), Omregningsfaktorer (--source omregning), or Havforskningsinstituttet OGC Coverages (--source hicoverages, open PR 137)."
+  },
+  "discarded": [
+    {
+      "candidate": "Havforskningsinstituttet OGC Coverages / hicoverages",
+      "url": "PR 137 --source hicoverages",
+      "why": "Lane B has OPEN PR 137. Do not pick the other lane's source."
+    },
+    {
+      "candidate": "Fiskeridirektoratet ERS",
+      "url": "https://api.fiskeridir.no/ers-api/swagger/api",
+      "why": "Official OpenAPI HTTP 200. Spec prints security Manual JWT / Bearer. Do not invent an auth workaround."
+    },
+    {
+      "candidate": "Fiskeridirektoratet miljorapporter-api",
+      "url": "https://api.fiskeridir.no/miljorapporter-api/v3/api-docs",
+      "why": "Official OpenAPI HTTP 200 lists untemplated GET paths, but the spec prints a global Keycloak scheme. Not listed as the public miljøundersøkelser API in the Fiskeridir catalog. Left unused because envreportreg-public already prints a collection catalog with no security scheme."
+    },
+    {
+      "candidate": "Fiskeridirektoratet aqua-operations-public",
+      "url": "https://api.fiskeridir.no/aqua-operations-public/v3/api-docs",
+      "why": "Official OpenAPI HTTP 200. The only printed GET path is templated /api/v1/joint-ops/{site-nr}. Do not invent a site number."
+    },
+    {
+      "candidate": "Udir Register for lærebedrifter / nlr",
+      "url": "https://data-nlr.udir.no/swagger/v4/swagger.json",
+      "why": "Official OpenAPI HTTP 200 lists untemplated GET paths, but live collection GETs are HTTP 401 and the spec prints basic security. Do not invent an auth workaround."
+    },
+    {
+      "candidate": "MET lightning / pollenforecast / forestfireindex / uvforecast / weathericon / thunderstorm / probabilityforecast swagger",
+      "url": "https://api.met.no/weatherapi/lightning/1.0/swagger",
+      "why": "Known skip: live swagger HTTP 500. Do not invent endpoints."
+    },
+    {
+      "candidate": "Kartverket Adresser /sok /punktsok",
+      "url": "https://api.kartverket.no/adresser/v1/openapi.json",
+      "why": "Known skip: live GET without search params is HTTP 400. Do not invent a query."
+    },
+    {
+      "candidate": "Frost MET sources",
+      "url": "https://frost.met.no/sources/v0.jsonld",
+      "why": "HTTP 401. Do not retry."
+    },
+    {
+      "candidate": "NVDB Les V3 OpenAPI",
+      "url": "https://nvdbapiles-v3.atlas.vegvesen.no/dokumentasjon/openapi.json",
+      "why": "Known skip: HTTP 400 User-Agent. Do not retry."
+    },
+    {
+      "candidate": "NVE HydAPI /api/v1/Parameters",
+      "url": "https://hydapi.nve.no/swagger/v1/swagger.json",
+      "why": "HTTP 401. Do not retry."
+    },
+    {
+      "candidate": "MET Aviationforecast / Sigmets",
+      "url": "https://api.met.no/weatherapi/aviationforecast/2.0/swagger",
+      "why": "Assigned skip for this lane. Not selected."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    },
+    {
+      "candidate": "Fiskeridirektoratet Omregningsfaktorer / Enhetsregisteret / Regnskapsregisteret / Cristin",
+      "url": "--source omregning / brreg / regnskap / cristin, now on main",
+      "why": "Already on main. Do not re-add."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source envreportreg --db /tmp/pda-envreportreg-proof/registry.sqlite --limit 10",
+    "listed": 2,
+    "inserted": 2,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "envreportreg:api/v2/report/search",
+        "access_path": "https://api.fiskeridir.no/envreportreg-public/api/v2/report/search"
+      },
+      {
+        "id": "envreportreg:api/v1/report/search",
+        "access_path": "https://api.fiskeridir.no/envreportreg-public/api/v1/report/search"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search miljørapporter --db /tmp/pda-envreportreg-proof/registry.sqlite --limit 5",
+    "query": "miljørapporter",
+    "returned": 2,
+    "hit_id": "envreportreg:api/v2/report/search",
+    "title": "Søk etter miljørapporter",
+    "source_id": "envreportreg",
+    "publisher": null,
+    "license": "https://www.fiskeridir.no/Tall-og-analyse/Lisens-for-bruk-av-Fiskeridirektoratets-data",
+    "access_path": "https://api.fiskeridir.no/envreportreg-public/api/v2/report/search",
+    "original_source": "https://api.fiskeridir.no/envreportreg-public/v3/api-docs",
+    "why_picked": "title matched miljørapporter"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset envreportreg:api/v2/report/search --db /tmp/pda-envreportreg-proof/registry.sqlite",
+    "dataset": "envreportreg:api/v2/report/search",
+    "table_id": "api/v2/report/search",
+    "access_path": "https://api.fiskeridir.no/envreportreg-public/api/v2/report/search",
+    "request_url": "https://api.fiskeridir.no/envreportreg-public/api/v2/report/search",
+    "http_status": 200,
+    "listed": 100,
+    "inserted": 100,
+    "updated": 0,
+    "license": "https://www.fiskeridir.no/Tall-og-analyse/Lisens-for-bruk-av-Fiskeridirektoratets-data",
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "siteName",
+        "value": "TORANGSKJERET"
+      },
+      {
+        "measure": "siteName",
+        "value": "BERGADALEN"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset envreportreg:api/v2/report/search --table api/v2/report/search --entity TORANGSKJERET --measure siteName --db /tmp/pda-envreportreg-proof/registry.sqlite --out /tmp/pda-envreportreg-proof/methods2",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "Miljøundersøkelser /api/v2/report/search prints site-name strings plus reportId/organisationNumber scalars. Those are not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from the printed OpenAPI path without a leading slash. access_path is printed servers[0].url plus path. No envreportreg id was written onto a fiskeridir, buyer, aqua, nytek, research, portal, or omregning row.",
+    "License is copied from the printed OpenAPI license URL. Publisher is null: the OpenAPI prints no publisher field.",
+    "Original harvested OpenAPI metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "Open PR at pickup after Lane B opened was PR 137 hicoverages. This lane stayed on envreportreg.",
+    "python3 -m pytest after Envreportreg adapter: 840 passed, 1 skipped, 1 deselected.",
+    "Not a numeric time series with two or more periods. Fetch listed 100 printed miljørapport cells (sample siteName TORANGSKJERET)."
+  ]
+}

@@ -12,6 +12,7 @@ from public_data_agent.sources.buyer import BuyerSource
 from public_data_agent.sources.cristin import CristinSource
 from public_data_agent.sources.datanorge import DataNorgeSource
 from public_data_agent.sources.entur import EnturGbfsSource
+from public_data_agent.sources.envreportreg import EnvreportregSource
 from public_data_agent.sources.fhi import FhiStatistikkSource
 from public_data_agent.sources.fiskeridir import FiskeridirVesselSource
 from public_data_agent.sources.fixture import FixtureSource
@@ -171,6 +172,7 @@ SOURCE_IDS = (
     "cristin",
     "omregning",
     "hicoverages",
+    "envreportreg",
 )
 
 
@@ -343,6 +345,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return OmregningSource()
     if source_id == "hicoverages":
         return HicoveragesSource()
+    if source_id == "envreportreg":
+        return EnvreportregSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -357,6 +361,7 @@ __all__ = [
     "CristinSource",
     "DataNorgeSource",
     "EnturGbfsSource",
+    "EnvreportregSource",
     "FhiStatistikkSource",
     "FiskeridirVesselSource",
     "FixtureSource",
