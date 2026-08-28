@@ -4436,6 +4436,39 @@ HTTP 200, 1862 plant-name cells. Sample printed value: `Adamselv`.
 (`no observations matched entity/measure; available=[]`).
 Proof is `data/vannkraft_source_proof.json`.
 
+## NVE Vindkraftdatabase source
+
+`pda ingest --source vindkraft` is another replaceable adapter. It lists
+printed untemplated collection GET paths on the official NVE
+Vindkraftdatabase documentation
+`https://api.nve.no/doc/vindkraftdatabase/`, capped at 10. Templated
+paths are skipped. Dataset ids are the printed last path segment so
+`GetWindPowerPlantsInOperation` stays distinct from
+`GetWindPowerPlants`. `access_path` joins each printed path onto the
+printed `https://` base `api.nve.no/web/WindPowerplant`. License stays
+null: the documentation prints no license URL. Publisher stays null.
+This is not Magasinstatistikk (`--source nve`), not Vannkraftdatabase
+(`--source vannkraft`), and not RegObs (`--source regobs`).
+
+```bash
+pda ingest --source vindkraft --db data/registry.sqlite --limit 10
+pda search "Henter alle" --db data/registry.sqlite
+pda fetch --dataset vindkraft:GetWindPowerPlants --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored WindPowerplant URL. Observation values are
+copied from printed `Navn` scalars. Other scalars stay as dimensions.
+Nested objects are not copied. License stays null. Publisher stays null.
+
+Live ingest 2026-08-28: 2 printed untemplated GET paths (catalog prints
+2; cap 10). Live search `Henter alle` returns
+`vindkraft:GetWindPowerPlants`. Live fetch GETs
+`https://api.nve.no/web/WindPowerplant/GetWindPowerPlants` HTTP 200, 72
+Navn cells. Sample printed value: `Bessakerfjellet`. `pda methods` is
+not applicable: plant names, not a numeric time series
+(`no observations matched entity/measure; available=[]`).
+Proof is `data/vindkraft_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists

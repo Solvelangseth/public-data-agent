@@ -1,0 +1,146 @@
+{
+  "produced_at": "2026-08-28T09:41:09Z",
+  "bound": {
+    "list_api": "https://api.nve.no/doc/vindkraftdatabase/",
+    "walk": "copy printed untemplated collection GET paths from the official NVE Vindkraftdatabase documentation; skip templated paths; native ids are the printed last path segment so GetWindPowerPlantsInOperation stays distinct from GetWindPowerPlants; access_path joins each printed path onto the printed https base api.nve.no/web/WindPowerplant; license stays null because the documentation prints no license URL; publisher stays null; live GET of those printed paths is HTTP 200 with no token; no token is sent; do not invent query filters",
+    "cap": 10,
+    "how": "pda ingest --source vindkraft --limit 10. The official documentation prints two untemplated collection GET paths. Cap 10 copies both in document order."
+  },
+  "discarded": [
+    {
+      "candidate": "SSB Klass / --source klass",
+      "url": "https://data.ssb.no/api/klass/v1/classifications",
+      "why": "Already on main as klass fetch via ssb_klass. Do not re-add. Do not open a klass PR."
+    },
+    {
+      "candidate": "Udir Grep / PR 161",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/161",
+      "why": "Already on main after merge 5dc1261. Do not pick grep."
+    },
+    {
+      "candidate": "MET Sigmets / PR 159",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/159",
+      "why": "Already on main after merge db02b12. Do not pick sigmets."
+    },
+    {
+      "candidate": "NVE RegObs / PR 162",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/162",
+      "why": "Already on main after merge 5924d06. Do not pick regobs."
+    },
+    {
+      "candidate": "NVE Vannkraftdatabase / PR 164",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/164",
+      "why": "Open sibling NVE JSON source on /web/Powerplant. Unused. Do not pick vannkraft."
+    },
+    {
+      "candidate": "Kartverket kvwms / PR 163",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/163",
+      "why": "Leftover GIS/WMS. Other teammates own GIS. Do not pick kvwms."
+    },
+    {
+      "candidate": "Landbruksdirektoratet ldirwms / PR 165",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/165",
+      "why": "Leftover WMS. Other teammates own GIS. Do not pick ldirwms."
+    },
+    {
+      "candidate": "Statens vegvesen vegogc / PR 168",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/168",
+      "why": "Leftover OGC GetCapabilities. Other teammates own GIS. Do not pick vegogc."
+    },
+    {
+      "candidate": "MET Aviationforecast / PR 166",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/166",
+      "why": "Assigned skip for this lane. Do not pick aviationforecast."
+    },
+    {
+      "candidate": "municipal CKAN / Opencom leftovers",
+      "url": "assigned skip",
+      "why": "Stay off municipal CKAN and Opencom. Other teammates own that lane."
+    },
+    {
+      "candidate": "Udir NLR",
+      "url": "https://data-nlr.udir.no/swagger/v4/swagger.json",
+      "why": "Known skip: live collection GETs are HTTP 401. Do not invent auth."
+    },
+    {
+      "candidate": "Frost MET sources",
+      "url": "https://frost.met.no/sources/v0.jsonld",
+      "why": "Known skip: HTTP 401. Do not retry."
+    },
+    {
+      "candidate": "NVE HydAPI",
+      "url": "https://hydapi.nve.no/swagger/v1/swagger.json",
+      "why": "Known skip: HTTP 401. Do not retry."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source vindkraft --db /tmp/pda-vindkraft-proof/registry.sqlite --limit 10",
+    "listed": 2,
+    "inserted": 2,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "vindkraft:GetWindPowerPlants",
+        "title": "Henter alle vindkraftverk, også kraftverk som ikke lenger er i drift",
+        "access_path": "https://api.nve.no/web/WindPowerplant/GetWindPowerPlants"
+      },
+      {
+        "id": "vindkraft:GetWindPowerPlantsInOperation",
+        "title": "Henter vindkraftverk som er i drift",
+        "access_path": "https://api.nve.no/web/WindPowerplant/GetWindPowerPlantsInOperation"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search \"Henter alle\" --db /tmp/pda-vindkraft-proof/registry.sqlite --limit 10",
+    "query": "Henter alle",
+    "returned": 1,
+    "hit_id": "vindkraft:GetWindPowerPlants",
+    "title": "Henter alle vindkraftverk, også kraftverk som ikke lenger er i drift",
+    "source_id": "vindkraft",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://api.nve.no/web/WindPowerplant/GetWindPowerPlants",
+    "original_source": "https://api.nve.no/doc/vindkraftdatabase/",
+    "why_picked": "title matched henter, alle. Query GetWindPowerPlants returned 0 because the id is not indexed."
+  },
+  "fetch": {
+    "command": "pda fetch --dataset vindkraft:GetWindPowerPlants --db /tmp/pda-vindkraft-proof/registry.sqlite",
+    "dataset": "vindkraft:GetWindPowerPlants",
+    "table_id": "GetWindPowerPlants",
+    "access_path": "https://api.nve.no/web/WindPowerplant/GetWindPowerPlants",
+    "request_url": "https://api.nve.no/web/WindPowerplant/GetWindPowerPlants",
+    "http_status": 200,
+    "listed": 72,
+    "inserted": 72,
+    "updated": 0,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "Navn",
+        "value": "Bessakerfjellet"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset vindkraft:GetWindPowerPlants --db /tmp/pda-vindkraft-proof/registry.sqlite",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "Copied Navn cells are plant names, not a numeric time series with two or more periods. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed last path segments. access_path joins each printed path onto the printed WindPowerplant base. No vindkraft id was written onto an nve, regobs, or vannkraft row.",
+    "License is null: the documentation prints no license URL. Publisher stays null.",
+    "Live GET of the printed GetWindPowerPlants path is HTTP 200 with no Authorization header. No token is sent.",
+    "Original harvested documentation metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "python3 -m pytest after rebase onto vannkraft 164: 1094 passed, 1 skipped, 1 deselected.",
+    "is_vindkraft_url matches only /web/WindPowerplant/. It does not match Magasinstatistikk or /web/Powerplant/.",
+    "klass was not re-added. grep PR 161, sigmets PR 159, regobs PR 162, kvwms PR 163, aviationforecast PR 166, and vannkraft PR 164 are on main. ldirwms/vegogc leftover GIS stayed unused."
+  ]
+}
