@@ -525,5 +525,6 @@ ts	phase	decision	why	evidence	result
 2026-08-28T10:32:00Z	rebase	rebase nbdsd branch onto origin/main after Nbcodelist 177	PR 179 was behind after #177 merged at 161a00e; keep nbdsd plus nbcodelist/kystwfs/stormflo/nguwms/sandnes/frivillig/ldirwms/elcert and every other main source; do not drop main sources; those adapter files untouched; is_nbdsd_url stays on /api/datastructure and does not match /api/codelist	git rebase origin/main resolved __init__.py README.md decisions.tsv; fetch.py auto-merged	resolved
 2026-08-28T10:33:00Z	test	run pytest after rebase onto Nbcodelist 177	do not leave the count only in the PR body	python3 -m pytest 1192 passed 1 skipped 1 deselected	tests green
 2026-08-28T10:35:00Z	rebase	rebase nbdsd branch onto origin/main after Kystwms 176	PR 179 was behind after leftover WMS #176 merged at 72ec991; keep nbdsd plus kystwms/nbcodelist/kystwfs/stormflo/nguwms/sandnes/frivillig/ldirwms/elcert and every other main source; do not drop main sources; those adapter files untouched	git rebase origin/main resolved decisions.tsv; __init__.py fetch.py README.md auto-merged	resolved
+2026-08-28T10:36:00Z	test	run pytest after rebase onto Kystwms 176	do not leave the count only in the PR body	python3 -m pytest 1201 passed 1 skipped 1 deselected	tests green
 
 
