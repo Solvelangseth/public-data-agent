@@ -4846,8 +4846,14 @@ values are copied from printed WMS `Layer`/`Name` text or WFS
 `FeatureType`/`Name` text. A printed `Title` sibling stays as a
 dimension. License stays null. Publisher stays null.
 
-Live proof will be recorded in `data/kystnav_source_proof.json` after
-the live run.
+Live ingest 2026-08-28: 2 printed GetCapabilities documents, both XML
+200. Live search `WMSServer` returns `kystnav:WMSServer`. Live fetch
+GETs
+`https://maps.kystverket.cloudgis.no/enterprise/services/PROD/nfs_sistop_ekstern_prod/MapServer/WMSServer?request=GetCapabilities&service=WMS`
+HTTP 200, 10 Layer Name cells. Sample printed value: `Skilt6756`.
+`pda methods` is not applicable: layer names, not a numeric time series
+(`no observations matched entity/measure; available=[]`).
+Proof is `data/kystnav_source_proof.json`.
 
 ## Norges Bank SDMX Codelists source
 
