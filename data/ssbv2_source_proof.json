@@ -1,0 +1,164 @@
+{
+  "produced_at": "2026-08-28T09:14:38Z",
+  "bound": {
+    "list_api": "https://data.ssb.no/api/pxwebapi/v2/tables",
+    "walk": "copy printed table id plus the printed data href from the official SSB PxWebApi 2 tables catalog; skip empty ids and tables with no data rel; native ids are the printed table id so 13760 stays distinct from 14483; access_path is the printed data href including lang=no and outputFormat=json-stat2; license stays null because the catalog prints no license URL; publisher is the printed source field; live GET of that printed data href is HTTP 200 JSON-stat2 with no token; no token is sent; do not invent query filters",
+    "cap": 10,
+    "how": "pda ingest --source ssbv2 --limit 10. The official tables catalog page prints 20 tables. GET uses the printed data href."
+  },
+  "discarded": [
+    {
+      "candidate": "ssbkart / PR 156",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/156",
+      "why": "Stopped. Leftover GIS/OGC. Another teammate owns leftover GIS/WMS catalogs. PR 156 closed without merge."
+    },
+    {
+      "candidate": "Lane A after ARCTICSDI (bc-9d0d1671)",
+      "url": "https://cursor.com/agents/bc-9d0d1671-adc7-467e-b188-96467b6e86d5",
+      "why": "Lane A is in flight with no open PR at pickup. Do not pick whatever source that lane opens."
+    },
+    {
+      "candidate": "Lane C national JSON (bc-64fcdd6b)",
+      "url": "https://cursor.com/agents/bc-64fcdd6b-9fc7-4a9a-acd8-33fe065f37ad",
+      "why": "Lane C is in flight with no open PR at pickup. Do not pick whatever source that lane opens."
+    },
+    {
+      "candidate": "Udir NLR",
+      "url": "https://data-nlr.udir.no/swagger/v4/swagger.json",
+      "why": "Official OpenAPI HTTP 200 prints untemplated GETs. Live GET /v4/organisasjonsformer, /v4/utgaattyper, and /v4/enheter are HTTP 401. Do not invent auth."
+    },
+    {
+      "candidate": "Fiskeridirektoratet ERS",
+      "url": "https://api.fiskeridir.no/ers-api/swagger",
+      "why": "Official OpenAPI HTTP 200. Live GET /api/v1/ers/reports is HTTP 401. Do not invent auth."
+    },
+    {
+      "candidate": "Fiskeridirektoratet aqua-operations-public",
+      "url": "https://api.fiskeridir.no/aqua-operations-public/v3/api-docs",
+      "why": "Official OpenAPI HTTP 200. The only printed path is templated. Do not invent a site number."
+    },
+    {
+      "candidate": "NVE Flomvarsel / Jordskredvarsel",
+      "url": "https://api01.nve.no/hydrology/forecast/flood/v1.0.8/swagger/docs/v1.0.8",
+      "why": "Official swagger HTTP 200. Every printed GET path is templated. Do not invent dates."
+    },
+    {
+      "candidate": "aviationforecast / sigmets / offentligdata.no",
+      "url": "assigned skip",
+      "why": "Assigned skip. Do not pick."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source ssbv2 --db /tmp/pda-ssbv2-proof/registry.sqlite --limit 10",
+    "listed": 10,
+    "inserted": 10,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "ssbv2:13760",
+        "title": "13760: Arbeidsstyrken, sysselsatte, arbeidsledige og utførte ukeverk, etter kjønn og alder. Brudd- og sesongjusterte tall 2006M01-2026M07",
+        "access_path": "https://data.ssb.no/api/pxwebapi/v2/tables/13760/data?lang=no&outputFormat=json-stat2"
+      },
+      {
+        "id": "ssbv2:14483",
+        "title": "14483: Personer, etter arbeidsstyrkestatus, kjønn og alder. Brudd- og sesongjusterte tall 2009K1-2026K2",
+        "access_path": "https://data.ssb.no/api/pxwebapi/v2/tables/14483/data?lang=no&outputFormat=json-stat2"
+      },
+      {
+        "id": "ssbv2:13618",
+        "title": "13618: Personer, etter arbeidsstyrkestatus, kjønn og alder. Bruddjusterte tall 2009-2025",
+        "access_path": "https://data.ssb.no/api/pxwebapi/v2/tables/13618/data?lang=no&outputFormat=json-stat2"
+      },
+      {
+        "id": "ssbv2:13619",
+        "title": "13619: Personer, etter arbeidsstyrkestatus, kjønn og alder. Bruddjusterte tall 2009K1-2026K2",
+        "access_path": "https://data.ssb.no/api/pxwebapi/v2/tables/13619/data?lang=no&outputFormat=json-stat2"
+      },
+      {
+        "id": "ssbv2:05110",
+        "title": "05110: Personer, etter arbeidsstyrkestatus, kjønn og alder 1988K2-2026K2",
+        "access_path": "https://data.ssb.no/api/pxwebapi/v2/tables/05110/data?lang=no&outputFormat=json-stat2"
+      },
+      {
+        "id": "ssbv2:14714",
+        "title": "14714: Innvandrere, etter arbeidsstyrkestatus, landbakgrunn, kjønn og alder 2021K1-2026K2",
+        "access_path": "https://data.ssb.no/api/pxwebapi/v2/tables/14714/data?lang=no&outputFormat=json-stat2"
+      },
+      {
+        "id": "ssbv2:14715",
+        "title": "14715: Innvandrere, etter arbeidsstyrkestatus, landbakgrunn, kjønn og alder 2021-2025",
+        "access_path": "https://data.ssb.no/api/pxwebapi/v2/tables/14715/data?lang=no&outputFormat=json-stat2"
+      },
+      {
+        "id": "ssbv2:05111",
+        "title": "05111: Personer, etter arbeidsstyrkestatus, kjønn og alder 1972-2025",
+        "access_path": "https://data.ssb.no/api/pxwebapi/v2/tables/05111/data?lang=no&outputFormat=json-stat2"
+      },
+      {
+        "id": "ssbv2:14077",
+        "title": "14077: Personer, etter arbeidsstyrkestatus, kjønn, alder og utdanningsstatus 2021K1-2026K2",
+        "access_path": "https://data.ssb.no/api/pxwebapi/v2/tables/14077/data?lang=no&outputFormat=json-stat2"
+      },
+      {
+        "id": "ssbv2:14090",
+        "title": "14090: Personer, etter arbeidsstyrkestatus, kjønn, alder og utdanningsstatus 2021-2025",
+        "access_path": "https://data.ssb.no/api/pxwebapi/v2/tables/14090/data?lang=no&outputFormat=json-stat2"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search 13760 --db /tmp/pda-ssbv2-proof/registry.sqlite --limit 10",
+    "query": "13760",
+    "returned": 1,
+    "hit_id": "ssbv2:13760",
+    "title": "13760: Arbeidsstyrken, sysselsatte, arbeidsledige og utførte ukeverk, etter kjønn og alder. Brudd- og sesongjusterte tall 2006M01-2026M07",
+    "source_id": "ssbv2",
+    "publisher": "Statistisk sentralbyrå",
+    "license": null,
+    "access_path": "https://data.ssb.no/api/pxwebapi/v2/tables/13760/data?lang=no&outputFormat=json-stat2",
+    "original_source": "https://data.ssb.no/api/pxwebapi/v2/tables",
+    "why_picked": "title matched 13760"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset ssbv2:13760 --db /tmp/pda-ssbv2-proof/registry.sqlite",
+    "dataset": "ssbv2:13760",
+    "table_id": "13760",
+    "access_path": "https://data.ssb.no/api/pxwebapi/v2/tables/13760/data?lang=no&outputFormat=json-stat2",
+    "request_url": "https://data.ssb.no/api/pxwebapi/v2/tables/13760/data?lang=no&outputFormat=json-stat2",
+    "http_status": 200,
+    "listed": 12,
+    "inserted": 12,
+    "license": null,
+    "publisher": "Statistisk sentralbyrå",
+    "sample": [
+      {
+        "measure": "Arbeidsstyrken (1000 personer)",
+        "value": 3067
+      },
+      {
+        "measure": "Arbeidsstyrken (1000 personer)",
+        "value": 459
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset ssbv2:13760 --db /tmp/pda-ssbv2-proof/registry.sqlite",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no derived yoy_growth values to chart",
+    "why": "The printed default data GET for 13760 has one time code (2026M07). That is not a numeric time series with two or more periods. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed table ids. access_path is the printed data href. No ssbv2 id was written onto an ssb or datanorge row.",
+    "License is null: the catalog prints no license URL. Publisher is the printed source field Statistisk sentralbyrå.",
+    "Live GET of the printed data href is HTTP 200 with no Authorization header. No token is sent.",
+    "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "python3 -m pytest: 1014 passed, 1 skipped, 1 deselected.",
+    "Not a numeric time series with two or more periods. Fetch listed 12 printed json-stat cells for one month (sample 3067, 459).",
+    "ssbkart PR 156 was closed without merge. Open PR check at pickup and before this proof found none. Lane A (bc-9d0d1671) and Lane C (bc-64fcdd6b) still in flight. NLR 401 unused. ERS 401 unused. aviationforecast/sigmets stayed unused."
+  ]
+}

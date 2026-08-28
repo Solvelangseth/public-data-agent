@@ -4125,6 +4125,36 @@ HTTP 200, 20 layer-name cells. Sample printed value: `Stedsnavn_DML`.
 (`no observations matched entity/measure; available=[]`).
 Proof is `data/npiintern_source_proof.json`.
 
+## SSB PxWebApi 2 source
+
+`pda ingest --source ssbv2` is another replaceable adapter. It lists
+printed tables on the official Statistisk sentralbyrå PxWebApi 2 catalog
+`https://data.ssb.no/api/pxwebapi/v2/tables`, capped at 10. Dataset ids
+are the printed table `id`. `access_path` is the printed `data` href
+(`outputFormat=json-stat2`). License stays null: the catalog prints no
+license URL. Publisher is the printed `source` field. This is not the
+SSB PxWeb v0 Statbank (`--source ssb`).
+
+```bash
+pda ingest --source ssbv2 --db data/registry.sqlite --limit 10
+pda search 13760 --db data/registry.sqlite
+pda fetch --dataset ssbv2:13760 --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored JSON-stat2 data URL. Observation values are
+copied from the printed json-stat `value` array with dimension labels.
+License stays null.
+
+Live ingest 2026-08-28: 10 printed tables (catalog page prints 20; cap 10
+copies the first 10 in document order). Live search `13760` returns
+`ssbv2:13760`. Live fetch GETs
+`https://data.ssb.no/api/pxwebapi/v2/tables/13760/data?lang=no&outputFormat=json-stat2`
+HTTP 200, 12 json-stat cells. Sample printed value: `3067`.
+`pda methods` is not a two-period series: the printed default data GET
+has one time code (`2026M07`). It printed
+`no derived yoy_growth values to chart`. methods/ was not edited.
+Proof is `data/ssbv2_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
