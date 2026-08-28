@@ -3722,6 +3722,39 @@ HTTP 200, 30 layer-name cells. Sample printed value: `Overvaking_fjellskred`.
 time series (`no observations matched entity/measure; available=[]`).
 Proof is `data/nvegis_source_proof.json`.
 
+## Kystverket navigasjonsvarsler source
+
+`pda ingest --source navwarnings` is another replaceable adapter. It lists
+printed collection GET paths on the official Kystverket Data API OpenAPI
+`https://api.kystverket.no/openapi.json`, capped at 10. Templated paths
+and GET operations with required parameters are skipped. Dataset ids are
+the printed last path segment so `/data/navigationwarnings/coastal/`
+stays distinct from `/data/navigationwarnings/navareaxix/`.
+`access_path` is the OpenAPI document origin plus the printed path.
+License stays null: the OpenAPI prints no license URL. Publisher stays
+null. This is not Kystdatahuset (`--source kystverket`) and not NVE GIS
+(`--source nvegis`, now on main after PR 144).
+
+```bash
+pda ingest --source navwarnings --db data/registry.sqlite --limit 10
+pda search coastal --db data/registry.sqlite
+pda fetch --dataset navwarnings:coastal --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored Data API URL. Observation values are copied
+from printed JSON `location` when present, otherwise `warningnumber`,
+`message_no`, `message_en`, or `eventid`. License stays null. Publisher
+stays null.
+
+Live ingest 2026-08-28: 3 printed untemplated GET paths (catalog
+prints coastal, navareaxix, and dadjokes; cap 10). Live search `coastal`
+returns `navwarnings:coastal`. Live fetch GETs
+`https://api.kystverket.no/data/navigationwarnings/coastal/`
+HTTP 200, 7 location-name cells. Sample printed value: `Rekefjordboen`.
+`pda methods` is not applicable: location names, not a numeric
+time series (`no observations matched entity/measure; available=[]`).
+Proof is `data/navwarnings_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
