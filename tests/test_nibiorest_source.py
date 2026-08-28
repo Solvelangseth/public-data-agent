@@ -202,6 +202,7 @@ def test_nibiorest_is_a_registered_source() -> None:
     assert "fdirwms" in SOURCE_IDS
     assert "avinorgis" in SOURCE_IDS
     assert "brorgform" in SOURCE_IDS
+    assert "ssbver" in SOURCE_IDS
     source = build_source("nibiorest")
     assert isinstance(source, NibiorestSource)
     assert source.source_id == "nibiorest"
