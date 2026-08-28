@@ -7,6 +7,7 @@ from public_data_agent.sources.aviationforecast import AviationforecastSource
 from public_data_agent.sources.aqua import AquaSource
 from public_data_agent.sources.arcticsdi import ArcticsdiSource
 from public_data_agent.sources.artskart import ArtskartSource
+from public_data_agent.sources.avinorgis import AvinorgisSource
 from public_data_agent.sources.baf import BafSource
 from public_data_agent.sources.banegis import BanegisSource
 from public_data_agent.sources.base import CatalogSource, SourceBase
@@ -273,6 +274,7 @@ SOURCE_IDS = (
     "mattilsyn",
     "nibiorest",
     "nbprov",
+    "avinorgis",
 )
 
 
@@ -547,6 +549,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return NibiorestSource()
     if source_id == "nbprov":
         return NbprovSource()
+    if source_id == "avinorgis":
+        return AvinorgisSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -556,6 +560,7 @@ __all__ = [
     "AquaSource",
     "ArcticsdiSource",
     "ArtskartSource",
+    "AvinorgisSource",
     "BafSource",
     "BanegisSource",
     "BrregEnhetsregisterSource",

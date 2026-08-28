@@ -5286,6 +5286,38 @@ not a numeric time series
 (`no observations matched entity/measure; available=[]`).
 Proof is `data/nibiorest_source_proof.json`.
 
+## Avinor leftover WMS/WFS source
+
+`pda ingest --source avinorgis` is another replaceable adapter. It lists the
+three printed leftover Avinor GetCapabilities documents
+`https://wfs.geonorge.no/skwms1/wfs.lufthavnpunkt_avinor?Service=WFS&Request=GetCapabilities`,
+`https://wfs.geonorge.no/skwms1/wfs.stoylufthavn?service=WFS&request=GetCapabilities`,
+and
+`https://wms.geonorge.no/skwms1/wms.stoylufthavn?service=wms&request=getcapabilities`,
+capped at 10. Those URLs are printed on Geonorge Kartkatalog search
+`https://kartkatalog.geonorge.no/api/search?text=Avinor` as Type=service
+OGC:WFS or OGC:WMS. A document that is not WMS or WFS XML is skipped.
+Dataset ids are the printed last path segment so `wms.stoylufthavn` stays
+distinct from `wfs.stoylufthavn`. `access_path` is the GetCapabilities URL
+as printed. License stays null. Publisher stays null. This is not
+Kartverket leftover topo WMS/WMTS (`--source kvwms`), not leftover
+grunnkart WMS (`--source kvgrunn`), not Statens vegvesen leftover OGC
+(`--source vegogc`), not Geonorge Kartkatalog (`--source geonorge`), and
+not leftover Bane NOR WMS/WFS (`--source banegis`).
+
+```bash
+pda ingest --source avinorgis --db data/registry.sqlite --limit 10
+pda search stoylufthavn --db data/registry.sqlite
+pda fetch --dataset avinorgis:wms.stoylufthavn --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored GetCapabilities URL as text. Observation
+values are copied from printed WMS `Layer`/`Name` text or WFS
+`FeatureType`/`Name` text. A printed `Title` sibling stays as a
+dimension. License stays null. Publisher stays null.
+
+Proof is `data/avinorgis_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
