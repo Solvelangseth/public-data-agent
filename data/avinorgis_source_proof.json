@@ -123,7 +123,7 @@
     "License is null: the leftover GetCapabilities documents print no license URL. Publisher is null.",
     "Live GET of each of the three printed leftover URLs is HTTP 200 WMS_Capabilities or WFS_Capabilities XML. No token is sent. No extra Accept header is invented.",
     "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
-    "python3 -m pytest after adding the source onto origin/main after banegis #190: 1287 passed, 1 skipped.",
+    "python3 -m pytest after adding the source onto origin/main after banegis #190: 1287 passed, 1 skipped, 1 deselected.",
     "Not a numeric time series with two or more periods. Fetch listed 2 printed Layer Name cells (sample stoylufthavn_wms, stoylufthavn).",
     "kvwms stays on wms.topo. kvgrunn stays on leftover grunnkart. vegogc stays on Statens vegvesen leftover OGC. geonorge stays on Kartkatalog metadata. banegis stays on Bane NOR leftover WMS/WFS. mattilsyn 192 and fdirwms stayed unused."
   ]
