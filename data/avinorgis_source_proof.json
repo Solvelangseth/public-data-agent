@@ -1,0 +1,130 @@
+{
+  "produced_at": "2026-08-28T10:56:43Z",
+  "bound": {
+    "list_api": [
+      "https://wfs.geonorge.no/skwms1/wfs.lufthavnpunkt_avinor?Service=WFS&Request=GetCapabilities",
+      "https://wfs.geonorge.no/skwms1/wfs.stoylufthavn?service=WFS&request=GetCapabilities",
+      "https://wms.geonorge.no/skwms1/wms.stoylufthavn?service=wms&request=getcapabilities"
+    ],
+    "walk": "copy the three printed leftover Avinor Type=service OGC:WMS/OGC:WFS GetCapabilities documents printed on Geonorge Kartkatalog search text=Avinor (uuids 113f3651-cfbd-4a9e-b9fe-54d49021c87f, 4540f3cd-115d-4a35-951e-5da4a4dc8944, 7dc3bb2a-8929-49d5-a465-9af965fb556a); skip a document that is not WMS or WFS XML; skip wms.topo already in --source kvwms, wms.topograatone and wms.norges_grunnkart already in --source kvgrunn, Statens vegvesen leftover OGC already in --source vegogc, Kartkatalog metadata already in --source geonorge, and Bane NOR leftover stoysonerjernbanenett/banenettverk already in --source banegis; native ids are the printed last path segment so wms.stoylufthavn stays distinct from wfs.stoylufthavn; access_path is the GetCapabilities URL as printed; license stays null; publisher stays null; do not invent query filters or extra WMS paths",
+    "cap": 10,
+    "how": "pda ingest --source avinorgis --limit 10. All three printed leftover GetCapabilities documents return XML 200. Cap 10 copies all three. This is not --source kvwms, not --source kvgrunn, not --source vegogc, not --source geonorge, and not --source banegis."
+  },
+  "discarded": [
+    {
+      "candidate": "Kartverket leftover topo WMS/WMTS / kvwms",
+      "url": "https://wms.geonorge.no/skwms1/wms.topo?service=WMS&request=GetCapabilities",
+      "why": "Already on main as --source kvwms. Id is wms.topo. This slice is leftover Avinor lufthavnpunkt_avinor and stoylufthavn only."
+    },
+    {
+      "candidate": "Kartverket leftover grunnkart WMS / kvgrunn",
+      "url": "https://wms.geonorge.no/skwms1/wms.norges_grunnkart?service=WMS&request=GetCapabilities",
+      "why": "Already on main as --source kvgrunn. Ids are wms.topograatone and wms.norges_grunnkart. Skip."
+    },
+    {
+      "candidate": "Statens vegvesen leftover OGC / vegogc",
+      "url": "https://www.vegvesen.no/fag/teknologi/apne-data/et-utvalg-apne-data/ogc-karttjenester/kartlag/",
+      "why": "Already on main as --source vegogc. Host is ogckart-sn1.atlas.vegvesen.no. Skip."
+    },
+    {
+      "candidate": "Geonorge Kartkatalog / geonorge",
+      "url": "https://kartkatalog.geonorge.no/api/search?text=Avinor&limit=50",
+      "why": "Already on main as --source geonorge. Catalog metadata, not leftover WMS/WFS GetCapabilities ingest."
+    },
+    {
+      "candidate": "Bane NOR leftover WMS/WFS / banegis",
+      "url": "https://wms.geonorge.no/skwms1/wms.stoysonerjernbanenett?service=WMS&request=GetCapabilities",
+      "why": "Already on main as --source banegis. Ids are stoysonerjernbanenett and banenettverk. Skip."
+    },
+    {
+      "candidate": "Mattilsynet leftover WMS/WFS / mattilsyn",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/192",
+      "why": "In-flight sibling PR 192 --source mattilsyn. Do not pick."
+    },
+    {
+      "candidate": "Fiskeridirektoratet leftover WMS / fdirwms",
+      "url": "in-flight sibling, no open PR at probe time",
+      "why": "Assigned skip for this run. Do not pick."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source avinorgis --db /tmp/pda-avinorgis-proof/registry.sqlite --limit 10",
+    "listed": 3,
+    "inserted": 3,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "avinorgis:wfs.lufthavnpunkt_avinor",
+        "title": "wfs.lufthavnpunkt_avinor",
+        "access_path": "https://wfs.geonorge.no/skwms1/wfs.lufthavnpunkt_avinor?Service=WFS&Request=GetCapabilities"
+      },
+      {
+        "id": "avinorgis:wfs.stoylufthavn",
+        "title": "wfs.stoylufthavn",
+        "access_path": "https://wfs.geonorge.no/skwms1/wfs.stoylufthavn?service=WFS&request=GetCapabilities"
+      },
+      {
+        "id": "avinorgis:wms.stoylufthavn",
+        "title": "wms.stoylufthavn",
+        "access_path": "https://wms.geonorge.no/skwms1/wms.stoylufthavn?service=wms&request=getcapabilities"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search stoylufthavn --db /tmp/pda-avinorgis-proof/registry.sqlite --limit 10",
+    "query": "stoylufthavn",
+    "returned": 2,
+    "hit_id": "avinorgis:wfs.stoylufthavn",
+    "title": "wfs.stoylufthavn",
+    "source_id": "avinorgis",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://wfs.geonorge.no/skwms1/wfs.stoylufthavn?service=WFS&request=GetCapabilities",
+    "original_source": "https://wfs.geonorge.no/skwms1/wfs.stoylufthavn?service=WFS&request=GetCapabilities",
+    "why_picked": "title matched stoylufthavn"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset avinorgis:wms.stoylufthavn --db /tmp/pda-avinorgis-proof/registry.sqlite",
+    "dataset": "avinorgis:wms.stoylufthavn",
+    "table_id": "wms.stoylufthavn",
+    "access_path": "https://wms.geonorge.no/skwms1/wms.stoylufthavn?service=wms&request=getcapabilities",
+    "request_url": "https://wms.geonorge.no/skwms1/wms.stoylufthavn?service=wms&request=getcapabilities",
+    "http_status": 200,
+    "listed": 2,
+    "inserted": 2,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "Name",
+        "value": "stoylufthavn_wms"
+      },
+      {
+        "measure": "Name",
+        "value": "stoylufthavn"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset avinorgis:wms.stoylufthavn --db /tmp/pda-avinorgis-proof/registry.sqlite",
+    "applicable": false,
+    "why": "wms.stoylufthavn GetCapabilities prints Layer names. Those are not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": false,
+    "called_fetch": false
+  },
+  "notes": [
+    "Ids are copied from printed last path segments. access_path is the GetCapabilities URL as printed. No avinorgis id was written onto a kvwms, kvgrunn, vegogc, geonorge, or banegis row.",
+    "License is null: the leftover GetCapabilities documents print no license URL. Publisher is null.",
+    "Live GET of each of the three printed leftover URLs is HTTP 200 WMS_Capabilities or WFS_Capabilities XML. No token is sent. No extra Accept header is invented.",
+    "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "python3 -m pytest after adding the source onto origin/main after banegis #190: 1287 passed, 1 skipped.",
+    "Not a numeric time series with two or more periods. Fetch listed 2 printed Layer Name cells (sample stoylufthavn_wms, stoylufthavn).",
+    "kvwms stays on wms.topo. kvgrunn stays on leftover grunnkart. vegogc stays on Statens vegvesen leftover OGC. geonorge stays on Kartkatalog metadata. banegis stays on Bane NOR leftover WMS/WFS. mattilsyn 192 and fdirwms stayed unused."
+  ]
+}

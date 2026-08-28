@@ -5316,6 +5316,14 @@ values are copied from printed WMS `Layer`/`Name` text or WFS
 `FeatureType`/`Name` text. A printed `Title` sibling stays as a
 dimension. License stays null. Publisher stays null.
 
+Live ingest 2026-08-28: 3 printed GetCapabilities documents, all XML
+200. Live search `stoylufthavn` returns
+`avinorgis:wfs.stoylufthavn`. Live fetch GETs
+`https://wms.geonorge.no/skwms1/wms.stoylufthavn?service=wms&request=getcapabilities`
+HTTP 200, 2 Layer Name cells. Sample printed value:
+`stoylufthavn_wms`. `pda methods` is not applicable: layer names,
+not a numeric time series
+(`no observations matched entity/measure; available=[]`).
 Proof is `data/avinorgis_source_proof.json`.
 
 ## Architecture (long term)
