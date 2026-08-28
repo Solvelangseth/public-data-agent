@@ -1,0 +1,200 @@
+{
+  "produced_at": "2026-08-28T01:41:03Z",
+  "bound": {
+    "list_api": "https://kart.hi.no/data/ogc/maps/v1",
+    "walk": "copy printed application/json GET hrefs from the official Havforskningsinstituttet OGC Maps landing-page links array; skip self and alternate links, non-JSON types, and hrefs with no last path segment; native ids are the printed last path segment so collections and conformance stay distinct; access_path is the printed href including the printed f=application/json query; title copies the printed link title when present; license stays null because the landing page prints no license URL; do not invent query filters or Accept workarounds for OpenAPI",
+    "cap": 10,
+    "how": "pda ingest --source himaps --limit 10. The official landing page prints application/json GET hrefs for /conformance and /collections. GET uses the printed collections href with the printed f=application/json query."
+  },
+  "discarded": [
+    {
+      "candidate": "Lane A envreportreg",
+      "url": "PR 138 --source envreportreg, branch cursor/envreportreg-fiskeridir-source-6012",
+      "why": "Assigned skip. Open Lane A PR. Do not pick envreportreg."
+    },
+    {
+      "candidate": "Havforskningsinstituttet OGC Coverages",
+      "url": "PR 137 --source hicoverages, now on main",
+      "why": "Assigned skip. Already on main after merge ce273d2. This slice is OGC Maps on the same host, not Coverages."
+    },
+    {
+      "candidate": "Havforskningsinstituttet OGC Features",
+      "url": "--source hi",
+      "why": "Already on main. Distinct Features catalog on the same host."
+    },
+    {
+      "candidate": "Havforskningsinstituttet OGC Tiles",
+      "url": "https://kart.hi.no/data/ogc/tiles/v1",
+      "why": "Official landing page HTTP 200 JSON with printed application/json GET hrefs. Left unused because Maps collections already prints a JSON collections array that live-GETs HTTP 200. Tiles /collections response is a large concatenated body. Do not invent a parser workaround."
+    },
+    {
+      "candidate": "Fiskeridirektoratet Autorisasjonsregisteret",
+      "url": "https://api.fiskeridir.no/authreg-api/openapi",
+      "why": "Official catalog lists it. OpenAPI prints only a templated /auth-status/{radio_call_sign} path. Not a collection catalog. Do not invent radio call signs."
+    },
+    {
+      "candidate": "Fiskeridirektoratet aqua-operations-public",
+      "url": "https://api.fiskeridir.no/aqua-operations-public/v3/api-docs",
+      "why": "OpenAPI HTTP 200 but the only printed path is templated GET /api/v1/joint-ops/{site-nr}. Not a collection catalog. Do not invent site numbers."
+    },
+    {
+      "candidate": "MET Aviationforecast 2.0 swagger",
+      "url": "https://api.met.no/weatherapi/aviationforecast/2.0/swagger",
+      "why": "Assigned skip for this lane. Do not pick aviationforecast."
+    },
+    {
+      "candidate": "MET Sigmets 2.0 swagger",
+      "url": "https://api.met.no/weatherapi/sigmets/2.0/swagger",
+      "why": "Assigned skip for this lane. Do not pick sigmets."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    },
+    {
+      "candidate": "Udir Register for lærebedrifter",
+      "url": "https://data-nlr.udir.no/swagger/v4/swagger.json",
+      "why": "Known skip: live collection GETs are HTTP 401. Do not invent auth."
+    },
+    {
+      "candidate": "NVE Nettleietariffer",
+      "url": "https://biapi.nve.no/nettleietariffer/swagger/v1/swagger.json",
+      "why": "Known skip: live GETs are HTTP 422 required filters. Do not invent query filters."
+    },
+    {
+      "candidate": "NVE Inntektsrammer",
+      "url": "https://biapi.nve.no/inntektsrammer/swagger/v1/swagger.json",
+      "why": "Known skip: OpenAPI prints security ApiKey. Do not invent a key."
+    },
+    {
+      "candidate": "Artsdatabanken Fremmedartsbase API",
+      "url": "https://fab.artsdatabanken.no/swagger/v1/swagger.json",
+      "why": "Known skip: live collection GETs are HTTP 401. Do not invent auth."
+    },
+    {
+      "candidate": "Stortinget eksport",
+      "url": "https://data.stortinget.no/eksport/emner",
+      "why": "Known skip: printed default is XML and format=json is not printed. Do not invent a format query."
+    },
+    {
+      "candidate": "Kartverket Adresser /sok /punktsok",
+      "url": "https://api.kartverket.no/adresser/v1/openapi.json",
+      "why": "OpenAPI prints /sok with no required parameters, but live GET without search params is HTTP 400. Do not invent a query."
+    },
+    {
+      "candidate": "Kartverket Eiendom /geokoding",
+      "url": "https://api.kartverket.no/eiendom/v1/geokoding",
+      "why": "Known skip: HTTP 400 without matrikkel params. Do not retry."
+    },
+    {
+      "candidate": "Frost MET sources",
+      "url": "https://frost.met.no/sources/v0.jsonld",
+      "why": "Known skip: HTTP 401. Do not retry."
+    },
+    {
+      "candidate": "NVDB Les V3 OpenAPI",
+      "url": "https://nvdbapiles-v3.atlas.vegvesen.no/dokumentasjon/openapi.json",
+      "why": "Known skip: HTTP 400 User-Agent. Do not retry."
+    },
+    {
+      "candidate": "Vegvesen Trafikkdata swagger / trafikkdata-api",
+      "url": "https://trafikkdata.atlas.vegvesen.no/",
+      "why": "Known skip: swagger HTML-only; trafikkdata-api 410. Do not retry."
+    },
+    {
+      "candidate": "NVE HydAPI /api/v1/Parameters",
+      "url": "https://hydapi.nve.no/swagger/v1/swagger.json",
+      "why": "Known skip: HTTP 401. Do not retry."
+    },
+    {
+      "candidate": "Udir Statistikkbanken /data",
+      "url": "Udir Statistikkbanken /Eksport/{id}/data",
+      "why": "Known skip: requires invented filters. Do not retry."
+    },
+    {
+      "candidate": "HK-dir DBH",
+      "url": "https://dbh.hkdir.no/api",
+      "why": "Welcome JSON only; swagger URL is HTML SPA. Left unused."
+    },
+    {
+      "candidate": "Digdir organization catalogue",
+      "url": "https://organization-catalogue.fellesdatakatalog.digdir.no/organizations",
+      "why": "Live JSON array 200, but no printed OpenAPI/path catalog. Do not invent endpoints."
+    },
+    {
+      "candidate": "Norsk Polarinstitutt OGC Features",
+      "url": "https://geodata.npolar.no/ogc/features/v1",
+      "why": "Known leftover. Live GET is HTTP 404 HTML. Do not invent a collections path."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source himaps --db /tmp/pda-himaps-proof/registry.sqlite --limit 10",
+    "listed": 2,
+    "inserted": 2,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "himaps:conformance",
+        "title": "Conformance declaration as application/json",
+        "access_path": "https://kart.hi.no/data/ogc/maps/v1/conformance?f=application%2Fjson"
+      },
+      {
+        "id": "himaps:collections",
+        "title": "Collections Metadata as application/json",
+        "access_path": "https://kart.hi.no/data/ogc/maps/v1/collections?f=application%2Fjson"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search collections --db /tmp/pda-himaps-proof/registry.sqlite --limit 10",
+    "query": "collections",
+    "returned": 1,
+    "hit_id": "himaps:collections",
+    "title": "Collections Metadata as application/json",
+    "source_id": "himaps",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://kart.hi.no/data/ogc/maps/v1/collections?f=application%2Fjson",
+    "original_source": "https://kart.hi.no/data/ogc/maps/v1",
+    "why_picked": "title matched collections"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset himaps:collections --db /tmp/pda-himaps-proof/registry.sqlite",
+    "dataset": "himaps:collections",
+    "table_id": "collections",
+    "access_path": "https://kart.hi.no/data/ogc/maps/v1/collections?f=application%2Fjson",
+    "request_url": "https://kart.hi.no/data/ogc/maps/v1/collections?f=application%2Fjson",
+    "http_status": 200,
+    "listed": 173,
+    "inserted": 173,
+    "updated": 0,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "title",
+        "value": "reprojected"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset himaps:collections --db /tmp/pda-himaps-proof/registry.sqlite",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "HI OGC Maps /collections prints collection titles. Those are not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed landing-page last path segments. access_path is the printed href. No himaps id was written onto a hi, hicoverages, ogccoverages, or datanorge row.",
+    "License stays null: the landing page prints no license URL. Publisher is null: the landing page does not print a publisher.",
+    "Original harvested landing-page metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "python3 -m pytest: 848 passed, 1 skipped, 1 deselected.",
+    "Not a numeric time series with two or more periods. Fetch listed 173 printed collection-title cells (sample reprojected).",
+    "Open PR check at pickup found Lane A PR 138 envreportreg so unused. aviationforecast 2.0 and sigmets 2.0 stayed unused. HI Tiles landing page left unused because Maps already prints a working collections catalog."
+  ]
+}
