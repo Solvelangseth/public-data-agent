@@ -196,7 +196,7 @@ def test_nibiorest_is_a_registered_source() -> None:
     assert "nibio" in SOURCE_IDS
     assert "kystnav" in SOURCE_IDS
     assert "mdirwms" in SOURCE_IDS
-    assert SOURCE_IDS[SOURCE_IDS.index("ssclass") + 1] == "nibiorest"
+    assert SOURCE_IDS[SOURCE_IDS.index("banegis") + 1] == "nibiorest"
     source = build_source("nibiorest")
     assert isinstance(source, NibiorestSource)
     assert source.source_id == "nibiorest"
