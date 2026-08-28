@@ -12,6 +12,7 @@ from public_data_agent.sources.baf import BafSource
 from public_data_agent.sources.banegis import BanegisSource
 from public_data_agent.sources.base import CatalogSource, SourceBase
 from public_data_agent.sources.brreg import BrregEnhetsregisterSource
+from public_data_agent.sources.brroller import BrrollerSource
 from public_data_agent.sources.buyer import BuyerSource
 from public_data_agent.sources.cristin import CristinSource
 from public_data_agent.sources.datanorge import DataNorgeSource
@@ -275,6 +276,7 @@ SOURCE_IDS = (
     "nibiorest",
     "nbprov",
     "avinorgis",
+    "brroller",
 )
 
 
@@ -551,6 +553,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return NbprovSource()
     if source_id == "avinorgis":
         return AvinorgisSource()
+    if source_id == "brroller":
+        return BrrollerSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -564,6 +568,7 @@ __all__ = [
     "BafSource",
     "BanegisSource",
     "BrregEnhetsregisterSource",
+    "BrrollerSource",
     "BuyerSource",
     "CatalogSource",
     "CristinSource",
