@@ -4855,6 +4855,37 @@ HTTP 200, 10 Layer Name cells. Sample printed value: `Skilt6756`.
 (`no observations matched entity/measure; available=[]`).
 Proof is `data/kystnav_source_proof.json`.
 
+## Miljødirektoratet leftover WMS/WFS source
+
+`pda ingest --source mdirwms` is another replaceable adapter. It lists printed
+leftover OGC:WMS and OGC:WFS Type=service rows on the official Geonorge
+Kartkatalog search
+`https://kartkatalog.geonorge.no/api/search?text=Milj%C3%B8direktoratet`,
+capped at 10. Other organizations, downloads, and servicelayers are skipped.
+ArcGIS WMS wrappers already covered by Miljødirektoratet GIS are skipped.
+NIBIO leftover WMS hosts, NGU leftover WMS, and NVE GIS hosts are skipped.
+GetCapabilities bodies that are not WMS or WFS XML are skipped. Dataset ids
+are the printed service path segment so `industri` stays distinct from
+`miljoverdi_hav_wms`. `access_path` is the printed `DistributionUrl`. License
+stays null: the catalog prints no license URL. Publisher stays null. This is
+not Miljødirektoratet ArcGIS REST (`--source miljogis`), not Vannmiljø
+(`--source miljodir`), not leftover NIBIO WMS (`--source nibiowms`), and not
+leftover Landbruksdirektoratet WMS (`--source ldirwms`).
+
+```bash
+pda ingest --source mdirwms --db data/registry.sqlite --limit 10
+pda search Industri --db data/registry.sqlite
+pda fetch --dataset mdirwms:industri --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored GetCapabilities URL. Observation values are
+copied from printed WMS `Layer`/`Name` text or WFS `FeatureType`/`Name`
+text. A sibling `Title` stays as a dimension. License stays null. Publisher
+stays null.
+
+Live ingest and fetch numbers are recorded in `data/mdirwms_source_proof.json`
+after the live run.
+
 ## Norges Bank SDMX Codelists source
 
 `pda ingest --source nbcodelist` is another replaceable adapter. It lists
