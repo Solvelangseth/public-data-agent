@@ -28,20 +28,6 @@ HREF_RE = re.compile(r'href="([^"]+)"', re.IGNORECASE)
 
 
 class VegogcSource(SourceBase):
-    """Replaceable ingest adapter for leftover Statens vegvesen OGC kartlag.
-
-    Listing copies printed GetCapabilities hrefs the official leftover
-    Statens vegvesen OGC kartlag page prints. It keeps host
-    ogckart-sn1.atlas.vegvesen.no with request=GetCapabilities and skips
-    vegvar.atlas.vegvesen.no web-map links. GetCapabilities bodies that
-    are HTML or not WMS/WFS Capabilities XML are skipped. Native ids are
-    the printed path segments after the host joined with `_` so
-    `vegvar_1_0_ows` stays distinct from `vegvar_1_0_wfs`. Access URLs
-    keep the printed href. This first slice stays inside that leftover
-    page and caps the walk. This is not Statens vegvesen Dataportalen
-    (`--source vegvesen`).
-    """
-
     source_id = SOURCE_ID
     source_name = SOURCE_NAME
     endpoints = (LIST_URL,)
@@ -140,8 +126,6 @@ class VegogcSource(SourceBase):
 
 
 def printed_getcapabilities(page: str, page_url: str) -> list[tuple[str, str, str]]:
-    """Copy printed ogckart-sn1 GetCapabilities hrefs."""
-
     listed: list[tuple[str, str, str]] = []
     seen: set[str] = set()
     for raw in HREF_RE.findall(page):
@@ -197,14 +181,6 @@ def vegogc_table_id(access_path: str) -> str:
 
 
 def cells_from_vegogc(payload: Any) -> list[tuple[str, Any, dict[str, str]]]:
-    """Copy printed WMS Layer/Name or WFS FeatureType/Name text into cells.
-
-    WMS_Capabilities and WMT_MS_Capabilities keep printed Layer Name
-    text. WFS_Capabilities keeps printed FeatureType Name text. A Title
-    sibling, when present, stays as a dimension. Nested objects and
-    other XML are not copied. Nothing is invented.
-    """
-
     if not isinstance(payload, str) or not payload.strip():
         raise ValueError("vegogc payload is empty or not WMS/WFS XML")
     if _is_html(payload):
