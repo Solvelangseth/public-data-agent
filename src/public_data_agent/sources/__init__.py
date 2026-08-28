@@ -14,6 +14,7 @@ from public_data_agent.sources.fhi import FhiStatistikkSource
 from public_data_agent.sources.fiskeridir import FiskeridirVesselSource
 from public_data_agent.sources.fixture import FixtureSource
 from public_data_agent.sources.geonorge import GeonorgeKartkatalogSource
+from public_data_agent.sources.georegister import GeoregisterSource
 from public_data_agent.sources.geosatellite import GeosatelliteSource
 from public_data_agent.sources.gribfiles import GribfilesSource
 from public_data_agent.sources.hi import HiFeaturesSource
@@ -153,6 +154,7 @@ SOURCE_IDS = (
     "routeforecast",
     "norskelos",
     "locationforecast",
+    "georegister",
 )
 
 
@@ -307,6 +309,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return NorskelosSource()
     if source_id == "locationforecast":
         return LocationforecastSource()
+    if source_id == "georegister":
+        return GeoregisterSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -323,6 +327,7 @@ __all__ = [
     "FiskeridirVesselSource",
     "FixtureSource",
     "GeonorgeKartkatalogSource",
+    "GeoregisterSource",
     "GeosatelliteSource",
     "GribfilesSource",
     "HiFeaturesSource",
