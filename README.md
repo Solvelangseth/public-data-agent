@@ -5412,8 +5412,9 @@ collection
 capped at 10. Dataset ids are the printed `kode` values. `access_path`
 is the printed `_links.self.href`. License stays null. Publisher stays
 null. This is not the Enhetsregisteret HAL root (`--source brreg`), not
-Frivillighetsregisteret (`--source frivillig`), and not
-Regnskapsregisteret (`--source regnskap`).
+Frivillighetsregisteret (`--source frivillig`), not
+Regnskapsregisteret (`--source regnskap`), and not leftover roller
+lists (`--source brroller`).
 
 ```bash
 pda ingest --source brorgform --db data/registry.sqlite --limit 10

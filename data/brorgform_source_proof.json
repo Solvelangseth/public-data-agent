@@ -20,7 +20,7 @@
     {
       "candidate": "Enhetsregisteret leftover roller lists",
       "url": "PR 194 --source brroller",
-      "why": "In flight Lane R. Paths under /enhetsregisteret/api/roller/. Do not pick brroller."
+      "why": "Now on main as --source brroller. Paths under /enhetsregisteret/api/roller/. Do not redo."
     },
     {
       "candidate": "Norges Bank SDMX dataproviderscheme",
@@ -170,7 +170,7 @@
     "Live GET of /enhetsregisteret/api/organisasjonsformer/AS is HTTP 200 with no Authorization header. No token is sent.",
     "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
     "is_brorgform_url matches only /organisasjonsformer/{kode} item paths. The bare collection URL stays on brreg:organisasjonsformer.",
-    "python3 -m pytest after rebase onto avinorgis 195: 1317 passed, 1 skipped.",
+    "python3 -m pytest after rebase onto brroller 194: 1327 passed, 1 skipped.",
     "Not a numeric time series with two or more periods. Fetch listed 1 printed beskrivelse cell (Aksjeselskap).",
     "Open PR check at pickup found nbagency 193 and brroller 194. Those stayed unused. nbprov 186 is on main."
   ]
