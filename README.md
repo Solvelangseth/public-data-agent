@@ -4871,8 +4871,9 @@ Live ingest 2026-08-28: 10 printed data structures (catalog prints 24,
 cap 10). Live search `Valutakurser` returns `nbdsd:DSD_EXR`. Live fetch
 GETs
 `https://data.norges-bank.no/api/datastructure/NB/DSD_EXR?format=sdmx-json`
-HTTP 200, printed component-id cells. `pda methods` is not applicable:
-component ids, not a numeric time series.
+HTTP 200, 10 component-id cells. Sample printed value: `FREQ`.
+`pda methods` is not applicable: component ids, not a numeric time series
+(`no observations matched entity/measure; available=[]`).
 Proof is `data/nbdsd_source_proof.json`.
 
 
