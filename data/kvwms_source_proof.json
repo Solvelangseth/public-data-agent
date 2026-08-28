@@ -177,6 +177,6 @@
     "License is null: the documents print copyright text and Fees, not a license URL. Publisher is null: ContactOrganization and ProviderName are not a publisher object on the harvest payload.",
     "Live GET of the WMS and WMTS GetCapabilities URLs is HTTP 200 XML with no Authorization header. No token is sent.",
     "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
-    "python3 -m pytest 1014 passed 1 skipped 1 deselected. tests/test_kvwms_source.py 8 passed."
+    "python3 -m pytest after rebase onto sigmets 159: 1058 passed, 2 skipped. tests/test_kvwms_source.py 8 passed."
   ]
 }
