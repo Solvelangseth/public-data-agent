@@ -4190,6 +4190,30 @@ HTTP 200, 1 layer-name cell. Sample printed value: `Dispensasjoner`.
 `pda methods` is not applicable: a layer name, not a numeric time series.
 Proof is `data/ragis_source_proof.json`.
 
+## NIBIO WMS-tjenester source
+
+`pda ingest --source nibiowms` is another replaceable adapter. It lists
+printed GetCapabilities hrefs on leftover official NIBIO WMS pages
+under `https://nibio.no/tjenester/wms-tjenester`, capped at 10.
+Child pages under `/tjenester/wms-tjenester/` are walked. Attachment
+links and the gårdskart page (no cgi-bin GetCapabilities) are skipped.
+GetCapabilities bodies that are HTML MapServer errors are skipped.
+Dataset ids are the printed last cgi-bin path segment so `ok_raster`
+stays distinct from `artsdata`. `access_path` is the GetCapabilities
+URL as printed. License stays null. Publisher stays null. This is not
+NIBIO IPM weather (`--source nibio`).
+
+```bash
+pda ingest --source nibiowms --db data/registry.sqlite --limit 10
+pda search ok_raster --db data/registry.sqlite
+pda fetch --dataset nibiowms:ok_raster --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored GetCapabilities URL as text. Observation
+values are copied from printed WMS `Layer`/`Name` text. A printed
+`Title` sibling stays as a dimension. License stays null. Publisher
+stays null.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists

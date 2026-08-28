@@ -48,6 +48,7 @@ from public_data_agent.sources.nfr import NfrSource
 from public_data_agent.sources.ngu import NguSource
 from public_data_agent.sources.ncagalewarnings import NcagalewarningsSource
 from public_data_agent.sources.nibio import NibioWeatherSource
+from public_data_agent.sources.nibiowms import NibiowmsSource
 from public_data_agent.sources.nin import NinSource
 from public_data_agent.sources.nlaroutes import NlaroutesSource
 from public_data_agent.sources.nor import NorSource
@@ -211,6 +212,7 @@ SOURCE_IDS = (
     "npiintern",
     "ssbv2",
     "ragis",
+    "nibiowms",
 )
 
 
@@ -423,6 +425,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return Ssbv2Source()
     if source_id == "ragis":
         return RagisSource()
+    if source_id == "nibiowms":
+        return NibiowmsSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -473,6 +477,7 @@ __all__ = [
     "NfrSource",
     "NguSource",
     "NibioWeatherSource",
+    "NibiowmsSource",
     "NinSource",
     "NlaroutesSource",
     "NorSource",
