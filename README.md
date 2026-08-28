@@ -4780,6 +4780,35 @@ HTTP 200, 44 FeatureType Name cells. Sample printed value: `layer_611`.
 series (`no observations matched entity/measure; available=[]`).
 Proof is `data/kystwfs_source_proof.json`.
 
+## Norges Bank SDMX Codelists source
+
+`pda ingest --source nbcodelist` is another replaceable adapter. It lists
+printed codelist ids on the official Norges Bank SDMX catalog
+`https://data.norges-bank.no/api/codelist?format=sdmx-json`, capped at 10.
+Dataset ids are the printed `id` values. `access_path` joins each printed
+`agencyID` and `id` onto the printed `/api/codelist` path and keeps the
+catalog `format=sdmx-json` query. License stays null. Publisher stays
+null. This is not the Norges Bank dataflow list (`--source norgesbank`).
+
+```bash
+pda ingest --source nbcodelist --db data/registry.sqlite --limit 10
+pda search Frekvens --db data/registry.sqlite
+pda fetch --dataset nbcodelist:CL_FREQ --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored codelist URL. Observation values are copied
+from printed code `name` scalars. Other scalars stay as dimensions.
+Nested `names` objects are not copied. License stays null. Publisher
+stays null.
+
+Live ingest 2026-08-28: 10 printed codelists (catalog prints 37; cap 10).
+Live search `Frekvens` returns `nbcodelist:CL_FREQ`. Live fetch GETs
+`https://data.norges-bank.no/api/codelist/NB/CL_FREQ?format=sdmx-json`
+HTTP 200, 5 name cells. Sample printed value: `Annual`. `pda methods` is
+not applicable: code names, not a numeric time series
+(`no observations matched entity/measure; available=[]`).
+Proof is `data/nbcodelist_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists

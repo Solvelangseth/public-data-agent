@@ -1,0 +1,169 @@
+{
+  "produced_at": "2026-08-28T10:02:00Z",
+  "bound": {
+    "list_api": "https://data.norges-bank.no/api/codelist?format=sdmx-json",
+    "walk": "copy printed data.codelists[].id and agencyID from the official Norges Bank SDMX codelist catalog; access_path joins those printed fields onto the printed /api/codelist path and keeps format=sdmx-json from the catalog; do not invent agency or codelist ids; license stays null; publisher stays null",
+    "cap": 10,
+    "how": "pda ingest --source nbcodelist --limit 10. The official catalog prints 37 codelist ids. Cap 10 copies the first ten in document order."
+  },
+  "discarded": [
+    {
+      "candidate": "NVE Elsertifikater / elcert",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/170",
+      "why": "Open sibling NVE JSON PR. Do not pick another lane's source."
+    },
+    {
+      "candidate": "Leftover Riksantikvaren WMS / rawms",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/171",
+      "why": "Leftover GIS/WMS. This lane stays on national JSON."
+    },
+    {
+      "candidate": "Leftover Landbruksdirektoratet WMS / ldirwms",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/165",
+      "why": "Leftover WMS. This lane stays on national JSON."
+    },
+    {
+      "candidate": "NVE Flomvarsling swagger",
+      "url": "https://api01.nve.no/hydrology/forecast/flood/v1.0.10/swagger/docs/v1.0.10",
+      "why": "Official swagger HTTP 200. Every printed GET path is templated. Do not invent langkey or dates. Live untemplated /api/Warning/All is not printed."
+    },
+    {
+      "candidate": "NVE Nettleietariffer OpenAPI",
+      "url": "https://nettleietariffer.dataplattform.nve.no/v1/openapi.json",
+      "why": "Official OpenAPI HTTP 200. Collection GETs print required query parameters. Live GET without those queries is HTTP 422. Do not invent dates or fylke numbers."
+    },
+    {
+      "candidate": "NVE Inntektsrammer swagger",
+      "url": "https://biapi.nve.no/inntektsrammer/swagger/v1/swagger.json",
+      "why": "Official OpenAPI HTTP 200. Live collection GETs are HTTP 401. Spec prints X-API-KEY. Do not invent auth."
+    },
+    {
+      "candidate": "Kartverket Adresser /sok",
+      "url": "https://api.kartverket.no/adresser/v1/openapi.json",
+      "why": "Official OpenAPI HTTP 200. Live GET /sok without query is HTTP 400. Search API, not a collection catalog."
+    },
+    {
+      "candidate": "Udir NLR",
+      "url": "https://data-nlr.udir.no/swagger/v4/swagger.json",
+      "why": "Known skip: live collection GETs are HTTP 401. Do not invent auth."
+    },
+    {
+      "candidate": "Frost MET sources",
+      "url": "https://frost.met.no/sources/v0.jsonld",
+      "why": "Known skip: HTTP 401. Do not retry."
+    },
+    {
+      "candidate": "NVE HydAPI",
+      "url": "https://hydapi.nve.no/swagger/v1/swagger.json",
+      "why": "Known skip: HTTP 401. Do not retry."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source nbcodelist --db /tmp/pda-nbcodelist-proof/registry.sqlite --limit 10",
+    "listed": 10,
+    "inserted": 10,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "nbcodelist:CALC_METHOD",
+        "access_path": "https://data.norges-bank.no/api/codelist/NB/CALC_METHOD?format=sdmx-json"
+      },
+      {
+        "id": "nbcodelist:CL_AREA",
+        "access_path": "https://data.norges-bank.no/api/codelist/NB/CL_AREA?format=sdmx-json"
+      },
+      {
+        "id": "nbcodelist:CL_AUCTION_TYPE",
+        "access_path": "https://data.norges-bank.no/api/codelist/NB/CL_AUCTION_TYPE?format=sdmx-json"
+      },
+      {
+        "id": "nbcodelist:CL_COLLECTION",
+        "access_path": "https://data.norges-bank.no/api/codelist/NB/CL_COLLECTION?format=sdmx-json"
+      },
+      {
+        "id": "nbcodelist:CL_COLL_ISSUER_AREA",
+        "access_path": "https://data.norges-bank.no/api/codelist/NB/CL_COLL_ISSUER_AREA?format=sdmx-json"
+      },
+      {
+        "id": "nbcodelist:CL_COLL_SEC_TYPE",
+        "access_path": "https://data.norges-bank.no/api/codelist/NB/CL_COLL_SEC_TYPE?format=sdmx-json"
+      },
+      {
+        "id": "nbcodelist:CL_CURRENCY",
+        "access_path": "https://data.norges-bank.no/api/codelist/NB/CL_CURRENCY?format=sdmx-json"
+      },
+      {
+        "id": "nbcodelist:CL_DECIMALS",
+        "access_path": "https://data.norges-bank.no/api/codelist/NB/CL_DECIMALS?format=sdmx-json"
+      },
+      {
+        "id": "nbcodelist:CL_FORECAST_TYPE",
+        "access_path": "https://data.norges-bank.no/api/codelist/NB/CL_FORECAST_TYPE?format=sdmx-json"
+      },
+      {
+        "id": "nbcodelist:CL_FREQ",
+        "access_path": "https://data.norges-bank.no/api/codelist/NB/CL_FREQ?format=sdmx-json"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search Frekvens --db /tmp/pda-nbcodelist-proof/registry.sqlite --limit 5",
+    "query": "Frekvens",
+    "returned": 1,
+    "hit_id": "nbcodelist:CL_FREQ",
+    "title": "Frekvens",
+    "source_id": "nbcodelist",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://data.norges-bank.no/api/codelist/NB/CL_FREQ?format=sdmx-json",
+    "original_source": "https://data.norges-bank.no/api/codelist?format=sdmx-json",
+    "why_picked": "title matched frekvens; description matched frekvens"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset nbcodelist:CL_FREQ --db /tmp/pda-nbcodelist-proof/registry.sqlite",
+    "dataset": "nbcodelist:CL_FREQ",
+    "table_id": "CL_FREQ",
+    "access_path": "https://data.norges-bank.no/api/codelist/NB/CL_FREQ?format=sdmx-json",
+    "request_url": "https://data.norges-bank.no/api/codelist/NB/CL_FREQ?format=sdmx-json",
+    "http_status": 200,
+    "listed": 5,
+    "inserted": 5,
+    "updated": 0,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "name",
+        "value": "Annual"
+      },
+      {
+        "measure": "name",
+        "value": "Quarterly"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset nbcodelist:CL_FREQ --table CL_FREQ --entity A --measure name --db /tmp/pda-nbcodelist-proof/registry.sqlite --out /tmp/pda-nbcodelist-proof/methods",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "CL_FREQ prints frequency code names. Those are not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed catalog data.codelists[].id. access_path joins printed agencyID and id onto https://data.norges-bank.no/api/codelist/{agencyID}/{id}?format=sdmx-json. No nbcodelist id was written onto a norgesbank row.",
+    "License is null. Publisher is null. The catalog prints neither.",
+    "Original harvested catalog metadata stays in harvested_payloads without the codes array. Fetch writes observations only. enrichments count stayed 0.",
+    "Open PRs at pickup were 170 elcert, 171 rawms, 165 ldirwms. This lane stayed on nbcodelist.",
+    "python3 -m pytest after the Nbcodelist adapter: 1102 passed, 1 skipped, 1 deselected.",
+    "Not a numeric time series with two or more periods. Fetch listed 5 printed frequency-name cells (sample Annual, Quarterly)."
+  ]
+}
