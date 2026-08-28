@@ -1,0 +1,256 @@
+{
+  "produced_at": "2026-08-28T00:17:29Z",
+  "bound": {
+    "list_api": "https://nortaxa.artsdatabanken.no/swagger/v1/swagger.json",
+    "walk": "copy printed untemplated GET paths from the official Artsdatabanken Nortaxa swagger; skip templated {id} paths and GET operations that print required query parameters; skip /TaxonName/Search and /TaxonName/ChangeLog because they print required query parameters; native ids are the last printed path segment; access_path is swagger origin + path; do not invent dataset ids or search filters",
+    "cap": 10,
+    "how": "pda ingest --source nortaxa --limit 10. The official Artsdatabanken Nortaxa swagger prints 9 untemplated GET paths that have a last-segment id and no required query parameter. The adapter copies those paths. GET uses the printed /api/v1/Lists/RankList collection with no invented query filters. Search and ChangeLog print required query parameters so they stay unused for listing and fetch."
+  },
+  "discarded": [
+    {
+      "candidate": "Kartverket Register / georegister",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/129",
+      "why": "Lane B opened PR 129 georegister (branch cursor/georegister-kartverket-source-f841) and it merged while this lane was proving nortaxa. Do not pick georegister."
+    },
+    {
+      "candidate": "MET Locationforecast",
+      "url": "PR 128 --source locationforecast, now on main",
+      "why": "Assigned skip for this lane. Already on main after merge fbfb1e2. Do not re-add."
+    },
+    {
+      "candidate": "Kartverket Den norske los",
+      "url": "PR 127 --source norskelos, now on main",
+      "why": "Assigned skip for this lane. Already on main. Do not re-add."
+    },
+    {
+      "candidate": "MET Routeforecast",
+      "url": "PR 126 --source routeforecast, now on main",
+      "why": "Assigned skip for this lane. Already on main. Do not re-add."
+    },
+    {
+      "candidate": "MET Volcanicashforecast",
+      "url": "PR 125 --source volcanicashforecast, now on main",
+      "why": "Assigned skip for this lane. Already on main. Do not re-add."
+    },
+    {
+      "candidate": "MET Sigcharts",
+      "url": "PR 124 --source sigcharts, now on main",
+      "why": "Assigned skip for this lane. Already on main. Do not re-add."
+    },
+    {
+      "candidate": "MET NLAroutes",
+      "url": "PR 123 --source nlaroutes, now on main",
+      "why": "Assigned skip for this lane. Already on main. Do not re-add."
+    },
+    {
+      "candidate": "MET Turbulence",
+      "url": "PR 122 --source turbulence, now on main",
+      "why": "Assigned skip for this lane. Already on main. Do not re-add."
+    },
+    {
+      "candidate": "MET Offshoremaps",
+      "url": "PR 121 --source offshoremaps, now on main",
+      "why": "Assigned skip for this lane. Already on main. Do not re-add."
+    },
+    {
+      "candidate": "MET Isobaricgrib",
+      "url": "PR 120 --source isobaricgrib, now on main",
+      "why": "Assigned skip for this lane. Already on main. Do not re-add."
+    },
+    {
+      "candidate": "MET Oslofjord",
+      "url": "PR 119 --source oslofjord, now on main",
+      "why": "Assigned skip for this lane. Already on main. Do not re-add."
+    },
+    {
+      "candidate": "MET Metgc",
+      "url": "PR 118 --source metgc, now on main",
+      "why": "Assigned skip for this lane. Already on main. Do not re-add."
+    },
+    {
+      "candidate": "MET Gribfiles",
+      "url": "PR 117 --source gribfiles, now on main",
+      "why": "Assigned skip for this lane. Already on main. Do not re-add."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    },
+    {
+      "candidate": "MET Aviationforecast /locations",
+      "url": "https://api.met.no/weatherapi/aviationforecast/2.0/swagger",
+      "why": "Assigned skip for this lane. Not selected."
+    },
+    {
+      "candidate": "MET Sigmets /features",
+      "url": "https://api.met.no/weatherapi/sigmets/2.0/swagger",
+      "why": "Assigned skip for this lane. Not selected."
+    },
+    {
+      "candidate": "MET weathericon / verticalprofile / forecastmap / icing / thredds / lightning / pollenforecast / forestfireindex / uvforecast / probabilityforecast / thunderstorm swagger",
+      "url": "https://api.met.no/weatherapi/",
+      "why": "Known skip: swagger HTTP 500 HTML. Do not retry."
+    },
+    {
+      "candidate": "Frost MET sources",
+      "url": "https://frost.met.no/sources/v0.jsonld",
+      "why": "HTTP 401. Do not retry."
+    },
+    {
+      "candidate": "BarentsWatch bwapi",
+      "url": "https://www.barentswatch.no/bwapi/openapi/",
+      "why": "Auth required (401 without token). Do not invent a workaround."
+    },
+    {
+      "candidate": "NVDB Les V3 OpenAPI",
+      "url": "https://nvdbapiles-v3.atlas.vegvesen.no/dokumentasjon/openapi.json",
+      "why": "Known skip: HTTP 400 User-Agent. Do not retry."
+    },
+    {
+      "candidate": "Vegvesen Trafikkdata swagger / trafikkdata-api",
+      "url": "https://trafikkdata.atlas.vegvesen.no/",
+      "why": "Known skip: swagger HTML-only; trafikkdata-api 410. Do not retry."
+    },
+    {
+      "candidate": "Kartverket Eiendom /geokoding",
+      "url": "https://api.kartverket.no/eiendom/v1/geokoding",
+      "why": "Known skip: HTTP 400 without matrikkel params. Do not retry."
+    },
+    {
+      "candidate": "Kartverket Adresser /sok",
+      "url": "https://ws.geonorge.no/adresser/v1/sok",
+      "why": "OpenAPI prints /sok, but live GET without search params is HTTP 400. Do not invent a query."
+    },
+    {
+      "candidate": "Kartverket skred / kvikkleire / hoydekurver / seeiendom / nabovarsel / friluftsliv / tilgjengelighet OpenAPI",
+      "url": "https://ws.geonorge.no/skred/v1/openapi.json",
+      "why": "Live GET OpenAPI is HTTP 403. Do not invent an auth workaround."
+    },
+    {
+      "candidate": "NVE HydAPI /api/v1/Parameters",
+      "url": "https://hydapi.nve.no/swagger/v1/swagger.json",
+      "why": "HTTP 401. Do not retry."
+    },
+    {
+      "candidate": "Udir Statistikkbanken /data",
+      "url": "Udir Statistikkbanken /Eksport/{id}/data",
+      "why": "Known skip: requires invented filters. Do not retry."
+    },
+    {
+      "candidate": "Stortinget data.stortinget.no eksport",
+      "url": "https://data.stortinget.no/eksport/stortingsperioder",
+      "why": "Live JSON HTTP 200. Left unused because Nortaxa swagger already prints a collection catalog of endpoints, matching the existing OpenAPI adapter shape."
+    },
+    {
+      "candidate": "Artskart 2 Public Api",
+      "url": "https://artskart.artsdatabanken.no/publicapi/swagger/docs/v1",
+      "why": "Live swagger HTTP 200. Left unused because Nortaxa swagger already prints untemplated collection GET paths without required query parameters."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source nortaxa --db /tmp/pda-nortaxa-proof/registry.sqlite --limit 10",
+    "listed": 9,
+    "inserted": 9,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "nortaxa:ChangeLog2",
+        "access_path": "https://nortaxa.artsdatabanken.no/api/v1/TaxonName/ChangeLog2"
+      },
+      {
+        "id": "nortaxa:NameAttributtesList",
+        "access_path": "https://nortaxa.artsdatabanken.no/api/v1/Lists/NameAttributtesList"
+      },
+      {
+        "id": "nortaxa:NamesCount",
+        "access_path": "https://nortaxa.artsdatabanken.no/api/v1/Statistics/NamesCount"
+      },
+      {
+        "id": "nortaxa:NamesCountByLanguage",
+        "access_path": "https://nortaxa.artsdatabanken.no/api/v1/Statistics/NamesCountByLanguage"
+      },
+      {
+        "id": "nortaxa:NomenclaturalStatusList",
+        "access_path": "https://nortaxa.artsdatabanken.no/api/v1/Lists/NomenclaturalStatusList"
+      },
+      {
+        "id": "nortaxa:RankList",
+        "access_path": "https://nortaxa.artsdatabanken.no/api/v1/Lists/RankList"
+      },
+      {
+        "id": "nortaxa:TaxonCount",
+        "access_path": "https://nortaxa.artsdatabanken.no/api/v1/Statistics/TaxonCount"
+      },
+      {
+        "id": "nortaxa:TaxonomicStatusList",
+        "access_path": "https://nortaxa.artsdatabanken.no/api/v1/Lists/TaxonomicStatusList"
+      },
+      {
+        "id": "nortaxa:VernacularNameStatusList",
+        "access_path": "https://nortaxa.artsdatabanken.no/api/v1/Lists/VernacularNameStatusList"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search Ranks --db /tmp/pda-nortaxa-proof/registry.sqlite --limit 5",
+    "query": "Ranks",
+    "returned": 1,
+    "hit_id": "nortaxa:RankList",
+    "title": "Returns list of Ranks",
+    "source_id": "nortaxa",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://nortaxa.artsdatabanken.no/api/v1/Lists/RankList",
+    "original_source": "https://nortaxa.artsdatabanken.no/swagger/v1/swagger.json",
+    "why_picked": "title matched ranks"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset nortaxa:RankList --db /tmp/pda-nortaxa-proof/registry.sqlite",
+    "dataset": "nortaxa:RankList",
+    "table_id": "RankList",
+    "access_path": "https://nortaxa.artsdatabanken.no/api/v1/Lists/RankList",
+    "request_url": "https://nortaxa.artsdatabanken.no/api/v1/Lists/RankList",
+    "http_status": 200,
+    "listed": 25,
+    "inserted": 25,
+    "updated": 0,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "name",
+        "value": "Kingdom"
+      },
+      {
+        "measure": "name",
+        "value": "Subkingdom"
+      },
+      {
+        "measure": "name",
+        "value": "Phylum"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset nortaxa:RankList --table RankList --entity \"\" --measure \"\" --db /tmp/pda-nortaxa-proof/registry.sqlite --out /tmp/pda-nortaxa-proof/methods",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "Nortaxa /api/v1/Lists/RankList prints taxonomic rank names. Those are not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed swagger path last segments. access_path is swagger origin + path. No nortaxa id was written onto a nin, locationforecast, georegister, norskelos, routeforecast, or datanorge row.",
+    "Publisher and license are null: the swagger document does not print those fields. Contact name Artsdatabanken stays in harvested swagger info and is not copied as a publisher.",
+    "Original harvested swagger metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "Open PRs at pickup were empty. Lane B later opened and merged PR 129 Kartverket Register (georegister). This lane stayed on nortaxa.",
+    "python3 -m pytest after Nortaxa adapter: 760 passed, 1 skipped, 1 deselected.",
+    "Not a numeric time series with two or more periods. Fetch listed 25 printed rank-name cells (sample Kingdom).",
+    "Rebased onto origin/main after Georegister 129 merge 89cbe62. All existing sources plus nortaxa were kept. georegister adapter files were not edited.",
+    "python3 -m pytest after rebase onto Georegister 129: 770 passed, 1 skipped, 1 deselected."
+  ]
+}
