@@ -1,5 +1,5 @@
 {
-  "produced_at": "2026-08-28T10:56:00Z",
+  "produced_at": "2026-08-28T11:05:00Z",
   "bound": {
     "list_api": "https://data.brreg.no/enhetsregisteret/api/organisasjonsformer",
     "walk": "copy printed _embedded.organisasjonsformer[].kode and _links.self.href from the official Enhetsregisteret organisasjonsformer collection; native ids are the printed kode values so AAFY stays distinct from AS; access_path is the printed self href; license stays null; publisher stays null; the catalog prints neither; live GET of those printed form paths is HTTP 200 with no token; no token is sent; do not invent query filters",
@@ -63,7 +63,115 @@
       "why": "Assigned skip for this lane. Do not use."
     }
   ],
-  "ingest": null,
-  "fetch": null,
-  "search": null
+  "ingest": {
+    "command": "pda ingest --source brorgform --db /tmp/pda-brorgform-proof/registry.sqlite --limit 10",
+    "listed": 10,
+    "inserted": 10,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "brorgform:AAFY",
+        "title": "Underenhet til ikke-næringsdrivende",
+        "access_path": "https://data.brreg.no/enhetsregisteret/api/organisasjonsformer/AAFY"
+      },
+      {
+        "id": "brorgform:ADOS",
+        "title": "Administrativ enhet - offentlig sektor",
+        "access_path": "https://data.brreg.no/enhetsregisteret/api/organisasjonsformer/ADOS"
+      },
+      {
+        "id": "brorgform:ANNA",
+        "title": "Annen juridisk person",
+        "access_path": "https://data.brreg.no/enhetsregisteret/api/organisasjonsformer/ANNA"
+      },
+      {
+        "id": "brorgform:ANS",
+        "title": "Ansvarlig selskap med solidarisk ansvar",
+        "access_path": "https://data.brreg.no/enhetsregisteret/api/organisasjonsformer/ANS"
+      },
+      {
+        "id": "brorgform:AS",
+        "title": "Aksjeselskap",
+        "access_path": "https://data.brreg.no/enhetsregisteret/api/organisasjonsformer/AS"
+      },
+      {
+        "id": "brorgform:ASA",
+        "title": "Allmennaksjeselskap",
+        "access_path": "https://data.brreg.no/enhetsregisteret/api/organisasjonsformer/ASA"
+      },
+      {
+        "id": "brorgform:BA",
+        "title": "Selskap med begrenset ansvar",
+        "access_path": "https://data.brreg.no/enhetsregisteret/api/organisasjonsformer/BA"
+      },
+      {
+        "id": "brorgform:BBL",
+        "title": "Boligbyggelag",
+        "access_path": "https://data.brreg.no/enhetsregisteret/api/organisasjonsformer/BBL"
+      },
+      {
+        "id": "brorgform:BEDR",
+        "title": "Underenhet til næringsdrivende og offentlig forvaltning",
+        "access_path": "https://data.brreg.no/enhetsregisteret/api/organisasjonsformer/BEDR"
+      },
+      {
+        "id": "brorgform:BO",
+        "title": "Andre bo",
+        "access_path": "https://data.brreg.no/enhetsregisteret/api/organisasjonsformer/BO"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search Aksjeselskap --db /tmp/pda-brorgform-proof/registry.sqlite --limit 10",
+    "query": "Aksjeselskap",
+    "returned": 1,
+    "hit_id": "brorgform:AS",
+    "title": "Aksjeselskap",
+    "source_id": "brorgform",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://data.brreg.no/enhetsregisteret/api/organisasjonsformer/AS",
+    "original_source": "https://data.brreg.no/enhetsregisteret/api/organisasjonsformer",
+    "why_picked": "title matched aksjeselskap"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset brorgform:AS --db /tmp/pda-brorgform-proof/registry.sqlite",
+    "dataset": "brorgform:AS",
+    "table_id": "AS",
+    "access_path": "https://data.brreg.no/enhetsregisteret/api/organisasjonsformer/AS",
+    "request_url": "https://data.brreg.no/enhetsregisteret/api/organisasjonsformer/AS",
+    "http_status": 200,
+    "listed": 1,
+    "inserted": 1,
+    "updated": 0,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "beskrivelse",
+        "value": "Aksjeselskap"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset brorgform:AS --db /tmp/pda-brorgform-proof/registry.sqlite --out /tmp/pda-brorgform-proof/methods",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "Enhetsregisteret /organisasjonsformer/AS prints kode and beskrivelse strings, not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed catalog kode values. access_path is the printed _links.self.href. No brorgform id was written onto a brreg, frivillig, or regnskap row.",
+    "License is null: the organisasjonsformer catalog prints no license field. Publisher is null: the catalog prints no publisher field.",
+    "Live GET of /enhetsregisteret/api/organisasjonsformer/AS is HTTP 200 with no Authorization header. No token is sent.",
+    "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "is_brorgform_url matches only /organisasjonsformer/{kode} item paths. The bare collection URL stays on brreg:organisasjonsformer.",
+    "python3 -m pytest after rebase onto nbprov 186: 1308 passed, 1 skipped.",
+    "Not a numeric time series with two or more periods. Fetch listed 1 printed beskrivelse cell (Aksjeselskap).",
+    "Open PR check at pickup found nbagency 193 and brroller 194. Those stayed unused. nbprov 186 is on main."
+  ]
 }

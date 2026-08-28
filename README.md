@@ -5427,10 +5427,12 @@ dimensions. Nested `_links` objects are not copied. License stays null.
 Publisher stays null.
 
 The catalog prints 44 organisasjonsformer. This walk copies the first
-ten in document order. Live ingest, fetch, and search were not run in
-this change. `pda methods` is not applicable. Organisasjonsform names
-are not a numeric time series. Proof is
-`data/brorgform_source_proof.json`.
+ten in document order. Live ingest listed 10 and inserted 10. Live
+search `Aksjeselskap` returns `brorgform:AS`. Live fetch GETs
+`https://data.brreg.no/enhetsregisteret/api/organisasjonsformer/AS`
+HTTP 200, 1 row, `beskrivelse` = `Aksjeselskap`. `pda methods` is not
+applicable. Organisasjonsform names are not a numeric time series.
+Proof is `data/brorgform_source_proof.json`.
 
 ## Architecture (long term)
 
