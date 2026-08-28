@@ -1,0 +1,179 @@
+{
+  "produced_at": "2026-08-28T00:12:18Z",
+  "bound": {
+    "list_api": "https://register.geonorge.no/swagger/docs/v1",
+    "walk": "copy printed untemplated collection GET paths from the official Kartverket Register swagger; skip templated paths and GET operations that print required parameters; native ids are the last printed path segment; access_path is the printed swagger host plus path; license stays null because the swagger prints no license URL; do not invent register names or query filters",
+    "cap": 10,
+    "how": "pda ingest --source georegister --limit 10. The official Kartverket Register swagger prints 6 untemplated GET paths with no required parameters. The adapter copies those paths. GET uses the printed /api/v2/organisasjoner/kommuner href with no invented query filters."
+  },
+  "discarded": [
+    {
+      "candidate": "MET Locationforecast",
+      "url": "PR 128 --source locationforecast, now on main",
+      "why": "Assigned skip for this lane. Already on main after merge fbfb1e2. Do not re-add."
+    },
+    {
+      "candidate": "Kartverket Den norske los",
+      "url": "PR 127 --source norskelos, now on main",
+      "why": "Assigned skip for this lane. Already on main after merge 811aade. Do not re-add."
+    },
+    {
+      "candidate": "MET Routeforecast",
+      "url": "PR 126 --source routeforecast, now on main",
+      "why": "Assigned skip for this lane. Already on main. Do not re-add."
+    },
+    {
+      "candidate": "MET Volcanicashforecast",
+      "url": "PR 125 --source volcanicashforecast, now on main",
+      "why": "Assigned skip for this lane. Already on main. Do not re-add."
+    },
+    {
+      "candidate": "MET Aviationforecast 2.0 swagger",
+      "url": "https://api.met.no/weatherapi/aviationforecast/2.0/swagger",
+      "why": "Assigned skip for this lane. Do not pick aviationforecast."
+    },
+    {
+      "candidate": "MET Sigmets 2.0 swagger",
+      "url": "https://api.met.no/weatherapi/sigmets/2.0/swagger",
+      "why": "Assigned skip for this lane. Do not pick sigmets."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    },
+    {
+      "candidate": "MET leftover weatherapi products on available.json",
+      "url": "https://api.met.no/weatherapi/available.json",
+      "why": "All 31 printed products are already on main, assigned skip, or Lane A locationforecast. Do not re-add."
+    },
+    {
+      "candidate": "Kartverket OGC Coverages azurewebsites collections",
+      "url": "https://kartverket-ogc-api.azurewebsites.net/collections?f=json",
+      "why": "Leftover unused this slice. Official Kartverket Register swagger already printed untemplated GET paths with live JSON."
+    },
+    {
+      "candidate": "Kartverket Adresser /sok /punktsok",
+      "url": "https://api.kartverket.no/adresser/v1/openapi.json",
+      "why": "OpenAPI prints /sok and /punktsok, but live GET without search params is HTTP 400. Do not invent a query."
+    },
+    {
+      "candidate": "Frost MET sources",
+      "url": "https://frost.met.no/sources/v0.jsonld",
+      "why": "Known skip: HTTP 401. Do not retry."
+    },
+    {
+      "candidate": "NVDB Les V3 OpenAPI",
+      "url": "https://nvdbapiles-v3.atlas.vegvesen.no/dokumentasjon/openapi.json",
+      "why": "Known skip: HTTP 400 User-Agent. Do not retry."
+    },
+    {
+      "candidate": "Vegvesen Trafikkdata swagger / trafikkdata-api",
+      "url": "https://trafikkdata.atlas.vegvesen.no/",
+      "why": "Known skip: swagger HTML-only; trafikkdata-api 410. Do not retry."
+    },
+    {
+      "candidate": "Kartverket Eiendom /geokoding",
+      "url": "https://api.kartverket.no/eiendom/v1/geokoding",
+      "why": "Known skip: HTTP 400 without matrikkel params. Do not retry."
+    },
+    {
+      "candidate": "Kartverket skred / kvikkleire OpenAPI",
+      "url": "https://ws.geonorge.no/skred/v1/openapi.json",
+      "why": "Known skip: live GET OpenAPI is HTTP 403. Do not invent an auth workaround."
+    },
+    {
+      "candidate": "NVE HydAPI /api/v1/Parameters",
+      "url": "https://hydapi.nve.no/swagger/v1/swagger.json",
+      "why": "HTTP 401. Do not retry."
+    },
+    {
+      "candidate": "Udir Statistikkbanken /data",
+      "url": "Udir Statistikkbanken /Eksport/{id}/data",
+      "why": "Known skip: requires invented filters. Do not retry."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source georegister --db /tmp/georegister-proof/registry.sqlite --limit 10",
+    "listed": 6,
+    "inserted": 6,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "georegister:alerts",
+        "access_path": "https://register.geonorge.no/api/alerts"
+      },
+      {
+        "id": "georegister:DokCoverageMapping",
+        "access_path": "https://register.geonorge.no/api/metadata/DokCoverageMapping"
+      },
+      {
+        "id": "georegister:register",
+        "access_path": "https://register.geonorge.no/api/register"
+      },
+      {
+        "id": "georegister:Search",
+        "access_path": "https://register.geonorge.no/api/Search"
+      },
+      {
+        "id": "georegister:sitemap",
+        "access_path": "https://register.geonorge.no/api/sitemap"
+      },
+      {
+        "id": "georegister:kommuner",
+        "access_path": "https://register.geonorge.no/api/v2/organisasjoner/kommuner"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search municipalities --db /tmp/georegister-proof/registry.sqlite --limit 10",
+    "query": "municipalities",
+    "returned": 1,
+    "hit_id": "georegister:kommuner",
+    "title": "Get list of municipalities",
+    "source_id": "georegister",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://register.geonorge.no/api/v2/organisasjoner/kommuner",
+    "original_source": "https://register.geonorge.no/swagger/docs/v1",
+    "why_picked": "title matched municipalities"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset georegister:kommuner --db /tmp/georegister-proof/registry.sqlite",
+    "dataset": "georegister:kommuner",
+    "table_id": "kommuner",
+    "access_path": "https://register.geonorge.no/api/v2/organisasjoner/kommuner",
+    "request_url": "https://register.geonorge.no/api/v2/organisasjoner/kommuner",
+    "http_status": 200,
+    "listed": 357,
+    "inserted": 357,
+    "updated": 0,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "Name",
+        "value": "Utsira kommune"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset georegister:kommuner --db /tmp/georegister-proof/registry.sqlite",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "Kartverket Register /api/v2/organisasjoner/kommuner prints municipality names. Those are not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed swagger path last segments. access_path is the printed swagger host plus path. No georegister id was written onto a geonorge, kommuneinfo, stedsnavn, hoydedata, transformering, norskelos, met, locationforecast, or datanorge row.",
+    "License stays null: the swagger info prints no license URL. Publisher is null: the swagger does not print a publisher.",
+    "Original harvested swagger metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "python3 -m pytest after rebase onto Locationforecast 128: 760 passed, 1 skipped, 1 deselected.",
+    "Not a numeric time series with two or more periods. Fetch listed 357 printed municipality-name cells (sample Utsira kommune).",
+    "Open PR check at pickup found Lane A PR 128 MET Locationforecast. After that PR merged at fbfb1e2, this branch rebased onto origin/main and kept locationforecast plus georegister. aviationforecast 2.0 and sigmets 2.0 stayed unused."
+  ]
+}

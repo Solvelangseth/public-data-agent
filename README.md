@@ -3167,6 +3167,42 @@ location-name cells. Sample printed value: `ECMWF area`.
 time series (`no observations matched entity/measure; available=[]`).
 Proof is `data/locationforecast_source_proof.json`.
 
+## Kartverket Register source
+
+`pda ingest --source georegister` is another replaceable adapter. It lists
+printed collection GET paths on the official Kartverket Register swagger
+`https://register.geonorge.no/swagger/docs/v1`, capped at 10. Templated
+paths and GET operations that print required parameters are skipped.
+Dataset ids are the last printed path segment. `access_path` is the
+printed swagger host plus path. License stays null: the swagger does not
+print a license URL. Publisher stays null. This is not Geonorge
+Kartkatalog (`--source geonorge`), not Kartverket Kommuneinfo
+(`--source kommuneinfo`), not Kartverket Stedsnavn
+(`--source stedsnavn`), not Kartverket Hoydedata
+(`--source hoydedata`), not Kartverket Transformering
+(`--source transformering`), not Kartverket Den norske los
+(`--source norskelos`), and not MET Locationforecast
+(`--source locationforecast`, now on main after PR 128).
+
+```bash
+pda ingest --source georegister --db data/registry.sqlite --limit 10
+pda search municipalities --db data/registry.sqlite
+pda fetch --dataset georegister:kommuner --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored collection URL. Observation values are
+copied from printed JSON `Name`. License stays null. Publisher stays
+null: the swagger does not print a publisher field.
+
+Live ingest 2026-08-28: 6 printed collection GET paths (swagger prints
+6 untemplated GET paths with no required parameters, cap 10). Live
+search `municipalities` returns `georegister:kommuner`. Live fetch GETs
+`https://register.geonorge.no/api/v2/organisasjoner/kommuner`
+HTTP 200, 357 printed municipality-name rows. Sample printed value:
+Utsira kommune. `pda methods` is not applicable: municipality names,
+not a numeric time series (`no observations matched entity/measure;
+available=[]`). Proof is `data/georegister_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
