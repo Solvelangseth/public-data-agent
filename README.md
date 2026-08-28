@@ -4485,8 +4485,10 @@ License stays null. Publisher stays null. This is not the Vegvesen CKAN
 catalog (`--source vegvesen`) and not Kartverket leftover WMS/WMTS
 (`--source kvwms`, now on main after PR 163). It does not scrape
 `https://dataut.vegvesen.no/dataset/ogc-karttjenester`. MET Aviationforecast
-(`--source aviationforecast`, now on main after PR 166) and NVE
-Vannkraftdatabase (`--source vannkraft`, now on main after PR 164) stay unused.
+(`--source aviationforecast`, now on main after PR 166), NVE
+Vannkraftdatabase (`--source vannkraft`, now on main after PR 164), and
+NVE Vindkraftdatabase (`--source vindkraft`, now on main after PR 169)
+stay unused.
 
 ```bash
 pda ingest --source vegogc --db data/registry.sqlite --limit 10
