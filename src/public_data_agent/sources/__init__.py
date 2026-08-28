@@ -37,6 +37,7 @@ from public_data_agent.sources.met import MetMetalertsSource
 from public_data_agent.sources.metgc import MetgcSource
 from public_data_agent.sources.metgm import MetgmSource
 from public_data_agent.sources.miljodir import MiljodirVannmiljoSource
+from public_data_agent.sources.miljorapporter import MiljorapporterSource
 from public_data_agent.sources.nbr import NbrSource
 from public_data_agent.sources.nfr import NfrSource
 from public_data_agent.sources.ngu import NguSource
@@ -181,6 +182,7 @@ SOURCE_IDS = (
     "stortinget",
     "histyles",
     "hitiles",
+    "miljorapporter",
 )
 
 
@@ -363,6 +365,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return HistylesSource()
     if source_id == "hitiles":
         return HitilesSource()
+    if source_id == "miljorapporter":
+        return MiljorapporterSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -402,6 +406,7 @@ __all__ = [
     "MetgcSource",
     "MetgmSource",
     "MiljodirVannmiljoSource",
+    "MiljorapporterSource",
     "NbrSource",
     "NcagalewarningsSource",
     "NfrSource",
