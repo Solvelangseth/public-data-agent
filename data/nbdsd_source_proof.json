@@ -1,0 +1,162 @@
+{
+  "produced_at": "2026-08-28T10:10:00Z",
+  "bound": {
+    "list_api": "https://data.norges-bank.no/api/datastructure?format=sdmx-json",
+    "walk": "copy printed dataStructures id plus agencyID from the official Norges Bank SDMX datastructure catalog; skip empty ids and missing agencyID; native ids are the printed structure id so DSD_EXR stays distinct from DSD_ANN_KPRA; access_path joins those printed fields onto /api/datastructure/{agencyID}/{id} and keeps format=sdmx-json from the list URL; license stays null; publisher stays null; the catalog prints neither; live GET of DSD_EXR is HTTP 200 with no token; no token is sent; do not invent agency or structure ids",
+    "cap": 10,
+    "how": "pda ingest --source nbdsd --limit 10. The official catalog prints 24 data structures. The adapter copies the first ten in document order. GET uses the printed /api/datastructure/NB/DSD_EXR path with the list format query."
+  },
+  "discarded": [
+    {
+      "candidate": "Brønnøysund Frivillighetsregisteret",
+      "url": "PR 173 --source frivillig, now on main ba1a256",
+      "why": "Merged on main. Do not re-add."
+    },
+    {
+      "candidate": "Kartverket Stormflo",
+      "url": "PR 175 --source stormflo",
+      "why": "Open sibling JSON lane. Unused."
+    },
+    {
+      "candidate": "Norges Bank SDMX codelists",
+      "url": "PR 177 --source nbcodelist",
+      "why": "Open sibling JSON lane. Unused. is_nbdsd_url rejects /api/codelist."
+    },
+    {
+      "candidate": "NVE Elsertifikater / Vannkraft / Vindkraft / Aviationforecast / Grep / Regobs / Sigmets / Klass",
+      "url": "already on main or assigned skip",
+      "why": "Do not re-add. Do not pick."
+    },
+    {
+      "candidate": "Nasjonalbiblioteket catalog / nbvok",
+      "url": "https://api.nb.no/catalog/v1/items/api-docs and https://api.nb.no/nbvok/rest/v1/swagger.json",
+      "why": "Printed collection GETs require query q or lang. Live GET /nbvok/rest/v1/vocabularies without lang is HTTP 400. DPS submissions are HTTP 401. Do not invent query values or auth."
+    },
+    {
+      "candidate": "Kartverket Adresser",
+      "url": "https://ws.geonorge.no/adresser/v1/sok",
+      "why": "Live GET without search query is HTTP 400. Do not invent a sok string."
+    },
+    {
+      "candidate": "NVE Flomvarsel / Jordskred / Snøskred / Nettleiestatistikk / Nettleietariffer / Kulturminner / EnergyMarket",
+      "url": "https://api.nve.no/doc/",
+      "why": "Forecast swagger paths are templated. Nettleiestatistikk swagger.json is HTTP 410. Nettleietariffer GETs print required dates. Kulturminner geoJsonAPI is HTTP 404. EnergyMarket Currentweek is HTTP 404. Do not invent dates or auth."
+    },
+    {
+      "candidate": "leftover GIS/WMS/OGC and municipal CKAN",
+      "url": "open PRs 176 kystwms and 174 nguwms; sandnes #172 now on main",
+      "why": "This lane stays on national JSON. Those adapters were kept on rebase. Sandnes Medvirkning is municipal and was not this lane's pick."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source nbdsd --db /tmp/pda-nbdsd-proof/registry.sqlite --limit 10",
+    "listed": 10,
+    "inserted": 10,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "nbdsd:DSD_ANN_FX_SPU",
+        "title": "Annonsering av valutatransaksjoner for SPU",
+        "access_path": "https://data.norges-bank.no/api/datastructure/NB/DSD_ANN_FX_SPU?format=sdmx-json"
+      },
+      {
+        "id": "nbdsd:DSD_ANN_KPRA",
+        "title": "Publisering av styringsrenten",
+        "access_path": "https://data.norges-bank.no/api/datastructure/NB/DSD_ANN_KPRA?format=sdmx-json"
+      },
+      {
+        "id": "nbdsd:DSD_ANN_TEST",
+        "title": "Annonsering av testmelding",
+        "access_path": "https://data.norges-bank.no/api/datastructure/NB/DSD_ANN_TEST?format=sdmx-json"
+      },
+      {
+        "id": "nbdsd:DSD_CBC_CALENDAR",
+        "title": "Auksjonskalender for sentralbanksertifikater",
+        "access_path": "https://data.norges-bank.no/api/datastructure/NB/DSD_CBC_CALENDAR?format=sdmx-json"
+      },
+      {
+        "id": "nbdsd:DSD_CBC_INSTRUMENTS",
+        "title": "Sentralbanksertifikat instrumenter",
+        "access_path": "https://data.norges-bank.no/api/datastructure/NB/DSD_CBC_INSTRUMENTS?format=sdmx-json"
+      },
+      {
+        "id": "nbdsd:DSD_CBC_TRANSACTIONS",
+        "title": "Sentralbanksertifikat transaksjoner",
+        "access_path": "https://data.norges-bank.no/api/datastructure/NB/DSD_CBC_TRANSACTIONS?format=sdmx-json"
+      },
+      {
+        "id": "nbdsd:DSD_EXR",
+        "title": "Valutakurser",
+        "access_path": "https://data.norges-bank.no/api/datastructure/NB/DSD_EXR?format=sdmx-json"
+      },
+      {
+        "id": "nbdsd:DSD_FAUCTION",
+        "title": "Auksjonsinnbydelser og resultater av F-auksjoner",
+        "access_path": "https://data.norges-bank.no/api/datastructure/NB/DSD_FAUCTION?format=sdmx-json"
+      },
+      {
+        "id": "nbdsd:DSD_FINANCIAL_INDICATORS",
+        "title": "Finansielle indikatorer",
+        "access_path": "https://data.norges-bank.no/api/datastructure/NB/DSD_FINANCIAL_INDICATORS?format=sdmx-json"
+      },
+      {
+        "id": "nbdsd:DSD_GOVT_GENERIC_RATES",
+        "title": "Generiske renter",
+        "access_path": "https://data.norges-bank.no/api/datastructure/NB/DSD_GOVT_GENERIC_RATES?format=sdmx-json"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search Valutakurser --db /tmp/pda-nbdsd-proof/registry.sqlite --limit 10",
+    "query": "Valutakurser",
+    "returned": 1,
+    "hit_id": "nbdsd:DSD_EXR",
+    "title": "Valutakurser",
+    "source_id": "nbdsd",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://data.norges-bank.no/api/datastructure/NB/DSD_EXR?format=sdmx-json",
+    "original_source": "https://data.norges-bank.no/api/datastructure?format=sdmx-json",
+    "why_picked": "title matched valutakurser"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset nbdsd:DSD_EXR --db /tmp/pda-nbdsd-proof/registry.sqlite",
+    "dataset": "nbdsd:DSD_EXR",
+    "table_id": "DSD_EXR",
+    "access_path": "https://data.norges-bank.no/api/datastructure/NB/DSD_EXR?format=sdmx-json",
+    "request_url": "https://data.norges-bank.no/api/datastructure/NB/DSD_EXR?format=sdmx-json",
+    "method": "GET",
+    "http_status": 200,
+    "listed": 10,
+    "inserted": 10,
+    "updated": 0,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "id",
+        "value": "FREQ"
+      }
+    ],
+    "new_numeric_time_series_ge_2_periods": false
+  },
+  "methods": {
+    "command": "pda methods --dataset nbdsd:DSD_EXR --db /tmp/pda-nbdsd-proof/registry.sqlite",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "DSD_EXR prints component ids. Those are not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed dataStructures. access_path joins printed agencyID and id onto https://data.norges-bank.no/api/datastructure. No nbdsd id was written onto a norgesbank row.",
+    "License is null. Publisher is null. The catalog prints no license URL and no publisher field.",
+    "Live GET of /api/datastructure/NB/DSD_EXR?format=sdmx-json is HTTP 200 with no Authorization header. No token is sent.",
+    "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "Not a numeric time series with two or more periods. Fetch listed 10 printed component ids (sample FREQ).",
+    "python3 -m pytest after adding nbdsd: 1156 passed, 1 skipped, 1 deselected."
+  ]
+}

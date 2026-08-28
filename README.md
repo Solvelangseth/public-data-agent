@@ -4844,6 +4844,39 @@ not applicable: code names, not a numeric time series
 (`no observations matched entity/measure; available=[]`).
 Proof is `data/nbcodelist_source_proof.json`.
 
+## Norges Bank leftover SDMX data structures
+
+`pda ingest --source nbdsd` is another replaceable adapter. It lists
+printed data-structure ids on the official Norges Bank SDMX catalog
+`https://data.norges-bank.no/api/datastructure?format=sdmx-json`,
+capped at 10. Dataset ids are the printed `id` so `DSD_EXR` stays
+distinct from `DSD_ANN_KPRA`. `access_path` joins printed `agencyID`
+and `id` onto `/api/datastructure/{agencyID}/{id}` and keeps the same
+`format=sdmx-json` query the list uses. License stays null. Publisher
+stays null. This is not the dataflow list (`--source norgesbank`) and
+not the SDMX codelist list (`--source nbcodelist`).
+
+```bash
+pda ingest --source nbdsd --db data/registry.sqlite --limit 10
+pda search Valutakurser --db data/registry.sqlite
+pda fetch --dataset nbdsd:DSD_EXR --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored structure URL. Observation values are
+copied from printed component `id` values on dimensions, time
+dimensions, attributes, and the primary measure. Nested objects are
+not copied. License stays null. Publisher stays null.
+
+Live ingest 2026-08-28: 10 printed data structures (catalog prints 24,
+cap 10). Live search `Valutakurser` returns `nbdsd:DSD_EXR`. Live fetch
+GETs
+`https://data.norges-bank.no/api/datastructure/NB/DSD_EXR?format=sdmx-json`
+HTTP 200, 10 component-id cells. Sample printed value: `FREQ`.
+`pda methods` is not applicable: component ids, not a numeric time series
+(`no observations matched entity/measure; available=[]`).
+Proof is `data/nbdsd_source_proof.json`.
+
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
