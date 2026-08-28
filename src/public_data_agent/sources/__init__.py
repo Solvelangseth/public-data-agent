@@ -52,6 +52,7 @@ from public_data_agent.sources.miljorapporter import MiljorapporterSource
 from public_data_agent.sources.nbr import NbrSource
 from public_data_agent.sources.nfr import NfrSource
 from public_data_agent.sources.ngu import NguSource
+from public_data_agent.sources.nguwms import NguwmsSource
 from public_data_agent.sources.ncagalewarnings import NcagalewarningsSource
 from public_data_agent.sources.nibio import NibioWeatherSource
 from public_data_agent.sources.nibiowms import NibiowmsSource
@@ -239,6 +240,7 @@ SOURCE_IDS = (
     "ldirwms",
     "frivillig",
     "sandnes",
+    "nguwms",
 )
 
 
@@ -479,6 +481,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return FrivilligSource()
     if source_id == "sandnes":
         return SandnesSource()
+    if source_id == "nguwms":
+        return NguwmsSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -534,6 +538,7 @@ __all__ = [
     "NcagalewarningsSource",
     "NfrSource",
     "NguSource",
+    "NguwmsSource",
     "NibioWeatherSource",
     "NibiowmsSource",
     "NinSource",

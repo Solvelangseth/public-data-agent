@@ -1,0 +1,157 @@
+{
+  "produced_at": "2026-08-28T10:00:16Z",
+  "bound": {
+    "list_api": "https://www.ngu.no/taxonomy/term/36",
+    "walk": "copy printed geo.ngu.no/mapserver GetCapabilities URLs from leftover official NGU WMS pages; follow printed same-path page= hrefs; skip URLs without request=GetCapabilities, /api/features, /kart/ viewers, HTML bodies, and 404/401; native ids are the printed last /mapserver/ path segment so LosmasserWMS3 stays distinct from BerggrunnWMS3; access_path is the GetCapabilities URL as printed; license stays null; publisher stays null; do not invent mapserver names or query strings",
+    "cap": 10,
+    "how": "pda ingest --source nguwms --limit 10. Page 0 prints 10 GetCapabilities URLs. All 10 return WMS_Capabilities XML 200. Cap 10 copies those first 10 live services in document order."
+  },
+  "discarded": [
+    {
+      "candidate": "NGU OGC API Features / ngu",
+      "url": "https://geo.ngu.no/api/features",
+      "why": "Already on main as --source ngu. This slice is leftover WMS only."
+    },
+    {
+      "candidate": "GeotreatWMS2",
+      "url": "https://geo.ngu.no/mapserver/GeotreatWMS2",
+      "why": "Printed on leftover page 1 without request=GetCapabilities. Live GET is HTTP 404. Do not invent a query string."
+    },
+    {
+      "candidate": "Landbruksdirektoratet leftover WMS / ldirwms",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/165",
+      "why": "On main after PR 165. Leftover LDIR WMS. Do not redo ldirwms."
+    },
+    {
+      "candidate": "Statens vegvesen leftover OGC / vegogc",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/168",
+      "why": "On main after PR 168. Leftover vegvesen OGC. Do not redo vegogc."
+    },
+    {
+      "candidate": "Riksantikvaren leftover WMS / rawms",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/171",
+      "why": "On main after PR 171. Leftover Riksantikvaren WMS. Do not redo rawms."
+    },
+    {
+      "candidate": "BerggrunnWMS3",
+      "url": "https://geo.ngu.no/mapserver/BerggrunnWMS3?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetCapabilities",
+      "why": "Printed on leftover page 3. Live GET is HTTP 200 WMS XML. Page 0 already filled the cap of 10 live services."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source nguwms --db /tmp/pda-nguwms-proof/registry.sqlite --limit 10",
+    "listed": 10,
+    "inserted": 10,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "nguwms:LosmasserWMS3",
+        "title": "LosmasserWMS3",
+        "access_path": "https://geo.ngu.no/mapserver/LosmasserWMS3?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetCapabilities"
+      },
+      {
+        "id": "nguwms:GnistWMS",
+        "title": "GnistWMS",
+        "access_path": "https://geo.ngu.no/mapserver/GnistWMS?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetCapabilities"
+      },
+      {
+        "id": "nguwms:KritiskeMineralerWMS",
+        "title": "KritiskeMineralerWMS",
+        "access_path": "https://geo.ngu.no/mapserver/KritiskeMineralerWMS?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetCapabilities"
+      },
+      {
+        "id": "nguwms:LandformerWMS",
+        "title": "LandformerWMS",
+        "access_path": "https://geo.ngu.no/mapserver/LandformerWMS?REQUEST=GetCapabilities&SERVICE=WMS&VERSION=1.3.0"
+      },
+      {
+        "id": "nguwms:MarinGassoppkommerWMS",
+        "title": "MarinGassoppkommerWMS",
+        "access_path": "https://geo.ngu.no/mapserver/MarinGassoppkommerWMS?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetCapabilities"
+      },
+      {
+        "id": "nguwms:GeologiskarvWMS2",
+        "title": "GeologiskarvWMS2",
+        "access_path": "https://geo.ngu.no/mapserver/GeologiskarvWMS2?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetCapabilities"
+      },
+      {
+        "id": "nguwms:BerggrunnOkologiWMS",
+        "title": "BerggrunnOkologiWMS",
+        "access_path": "https://geo.ngu.no/mapserver/BerggrunnOkologiWMS?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetCapabilities"
+      },
+      {
+        "id": "nguwms:BWFiskInfoWMS",
+        "title": "BWFiskInfoWMS",
+        "access_path": "https://geo.ngu.no/mapserver/BWFiskInfoWMS?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetCapabilities"
+      },
+      {
+        "id": "nguwms:GeofysikkWMS4",
+        "title": "GeofysikkWMS4",
+        "access_path": "https://geo.ngu.no/mapserver/GeofysikkWMS4?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetCapabilities"
+      },
+      {
+        "id": "nguwms:GeokjemiWMS",
+        "title": "GeokjemiWMS",
+        "access_path": "https://geo.ngu.no/mapserver/GeokjemiWMS?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetCapabilities"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search LosmasserWMS3 --db /tmp/pda-nguwms-proof/registry.sqlite --limit 10",
+    "query": "LosmasserWMS3",
+    "returned": 1,
+    "hit_id": "nguwms:LosmasserWMS3",
+    "title": "LosmasserWMS3",
+    "source_id": "nguwms",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://geo.ngu.no/mapserver/LosmasserWMS3?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetCapabilities",
+    "original_source": "https://www.ngu.no/taxonomy/term/36",
+    "why_picked": "title matched losmasserwms3"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset nguwms:LosmasserWMS3 --db /tmp/pda-nguwms-proof/registry.sqlite",
+    "dataset": "nguwms:LosmasserWMS3",
+    "table_id": "LosmasserWMS3",
+    "access_path": "https://geo.ngu.no/mapserver/LosmasserWMS3?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetCapabilities",
+    "request_url": "https://geo.ngu.no/mapserver/LosmasserWMS3?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetCapabilities",
+    "http_status": 200,
+    "listed": 170,
+    "inserted": 128,
+    "updated": 42,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "Name",
+        "value": "LosmasserWMS3"
+      },
+      {
+        "measure": "Name",
+        "value": "Losmasser_temakart_sammenstilt"
+      }
+    ],
+    "note": "The WMS document prints 170 named Layer Name values. Shared observation identity (measure plus dimensions) updated 42 stored rows. methods/ was not edited."
+  },
+  "methods": {
+    "command": "pda methods --dataset nguwms:LosmasserWMS3 --db /tmp/pda-nguwms-proof/registry.sqlite",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "NGU leftover WMS prints Layer names. Those are not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed last /mapserver/ path segments. access_path is the GetCapabilities URL as printed. No nguwms id was written onto an ngu /api/features row.",
+    "License is null: the leftover pages print no license URL. Publisher is null.",
+    "Live GET of LosmasserWMS3 GetCapabilities is HTTP 200 WMS_Capabilities XML. No token is sent. Accept is application/xml, text/xml, */* like kvwms.",
+    "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "python3 -m pytest tests/test_nguwms_source.py tests/test_ngu_source.py tests/test_nibiowms_source.py tests/test_kvwms_source.py: 34 passed.",
+    "Not a numeric time series with two or more periods. Fetch listed 170 printed Layer Name cells (sample LosmasserWMS3, Losmasser_temakart_sammenstilt).",
+    "GeotreatWMS2 is printed without GetCapabilities and 404s. BerggrunnWMS3 is printed and live XML 200 on page 3. Cap 10 leaves it unused.",
+    "Rebased onto origin/main after sandnes #172 (ba1a256), which includes frivillig #173 (5ad7788) and ldirwms #165 (aaf24f7). SOURCE_IDS keeps sandnes, then nguwms."
+  ]
+}

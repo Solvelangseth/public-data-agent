@@ -4676,6 +4676,42 @@ Et nytt hus - for alle i Sandnes.
 (`no observations matched entity/measure; available=[]`).
 Proof is `data/sandnes_source_proof.json`.
 
+## NGU leftover WMS source
+
+`pda ingest --source nguwms` is another replaceable adapter. It lists
+printed GetCapabilities URLs on leftover official NGU WMS pages
+under `https://www.ngu.no/taxonomy/term/36`, capped at 10.
+Printed pager hrefs on that same `taxonomy/term/36` path are followed.
+URLs without `request=GetCapabilities`, hosts other than `geo.ngu.no`,
+paths outside `/mapserver/`, `/api/features`, `/kart/` viewers, and
+GetCapabilities bodies that are HTML or not WMS XML are skipped.
+Dataset ids are the printed last `/mapserver/` path segment so
+`LosmasserWMS3` stays distinct from `BerggrunnWMS3`. `access_path`
+is the GetCapabilities URL as printed. License stays null: the
+catalog prints no license URL. Publisher stays null. This is not
+NGU OGC Features (`--source ngu`).
+
+```bash
+pda ingest --source nguwms --db data/registry.sqlite --limit 10
+pda search LosmasserWMS3 --db data/registry.sqlite
+pda fetch --dataset nguwms:LosmasserWMS3 --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored GetCapabilities URL as text, with
+`Accept: application/xml, text/xml, */*`. Observation values are
+copied from printed WMS `Layer`/`Name` text. A printed `Title`
+sibling stays as a dimension. License stays null. Publisher stays
+null. `pda methods` is not applicable: layer names, not a numeric
+time series
+(`no observations matched entity/measure; available=[]`).
+
+Live ingest 2026-08-28: 10 leftover GetCapabilities documents
+(page 0 prints 10, all XML 200, cap 10). Live search
+`LosmasserWMS3` returns `nguwms:LosmasserWMS3`. Live fetch GETs
+`https://geo.ngu.no/mapserver/LosmasserWMS3?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetCapabilities`
+HTTP 200, 170 printed layer-name cells. Sample printed value:
+`LosmasserWMS3`. Proof is `data/nguwms_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
