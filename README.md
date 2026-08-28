@@ -3336,6 +3336,40 @@ HTTP 200, 2 collection-title cells. Sample printed value:
 time series (`no observations matched entity/measure; available=[]`).
 Proof is `data/ogccoverages_source_proof.json`.
 
+## Brønnøysundregistrene Regnskapsregisteret source
+
+`pda ingest --source regnskap` is another replaceable adapter. It lists
+printed collection GET paths on the official Regnskapsregisteret OpenAPI
+`https://data.brreg.no/regnskapsregisteret/regnskap/v3/api-docs`,
+capped at 10. Templated paths and GET operations that print required
+parameters are skipped. Dataset ids are the printed path without a
+leading slash. `access_path` is the printed OpenAPI server URL plus
+path. License stays null: the OpenAPI prints no license URL. Publisher
+stays null: the OpenAPI prints no publisher field. This is not
+Enhetsregisteret (`--source brreg`). Open PRs at pickup were empty.
+Lane B (`bc-876ee4c8`) was probing Udir NLR (`data-nlr.udir.no`) and
+was not selected.
+
+```bash
+pda ingest --source regnskap --db data/registry.sqlite --limit 10
+pda search log --db data/registry.sqlite
+pda fetch --dataset regnskap:regnskapsregisteret/regnskap/log --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored collection URL. Observation values are
+copied from printed JSON filenames or other scalars. License stays
+null. Publisher stays null.
+
+Live ingest 2026-08-28: 4 printed untemplated GET paths (catalog
+prints 4 paths with a last-segment id and no required parameter).
+Live search `log` returns `regnskap:regnskapsregisteret/regnskap/log`.
+Live fetch GETs `https://data.brreg.no/regnskapsregisteret/regnskap/log`
+HTTP 200, 2190 filename cells. Sample printed value:
+`20180102202758-masse.xml`.
+`pda methods` is not applicable: filename strings, not a numeric
+time series (`no observations matched entity/measure; available=[]`).
+Proof is `data/regnskap_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
