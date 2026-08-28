@@ -1,0 +1,210 @@
+{
+  "produced_at": "2026-08-28T03:28:18Z",
+  "bound": {
+    "list_api": "https://geodata.npolar.no/arcgis/rest/services/ArcticSDI?f=json",
+    "walk": "copy printed name+type services from the official Norsk Polarinstitutt ArcGIS REST ArcticSDI catalog; the folder name ArcticSDI is printed on the root services catalog; skip empty names and empty types; native ids are the printed last path segment of name so ArcticSDI_NO_JAN stays distinct from ArcticSDI_NO_SVA; access_path is the printed name plus type plus the catalog f=json query; license stays null because the catalog prints no license URL; publisher stays null; live GET of those printed MapServer paths is HTTP 200 with no token; no token is sent; do not invent query filters",
+    "cap": 10,
+    "how": "pda ingest --source arcticsdi --limit 10. The official ArcticSDI catalog prints 2 MapServer services. GET uses the printed name/type path with the catalog f=json query."
+  },
+  "discarded": [
+    {
+      "candidate": "Lane A nvemap / NVE Mapservices",
+      "url": "https://gis3.nve.no/map/rest/services/Mapservices?f=json",
+      "why": "Lane A (bc-91510bbe) opened PR 152 --source nvemap. Do not pick nvemap."
+    },
+    {
+      "candidate": "NPI Temadata GIS / npitema",
+      "url": "https://geodata.npolar.no/arcgis/rest/services/Temadata?f=json",
+      "why": "Assigned skip / already on main after PR 151. Do not pick npitema."
+    },
+    {
+      "candidate": "NPI Basisdata GIS / npigis",
+      "url": "https://geodata.npolar.no/arcgis/rest/services/Basisdata?f=json",
+      "why": "Assigned skip / already on main after PR 148. Do not pick npigis."
+    },
+    {
+      "candidate": "NVE gis3 /arcgis/rest/services/mapservice",
+      "url": "https://gis3.nve.no/arcgis/rest/services/mapservice?f=json",
+      "why": "Official JSON catalog HTTP 200 with printed MapServer services. Left unused so this slice stays off NVE GIS siblings already on main as --source nvegis / nve2gis and in Lane A as --source nvemap."
+    },
+    {
+      "candidate": "NVE gis3 featureservice",
+      "url": "https://gis3.nve.no/arcgis/rest/services/featureservice?f=json",
+      "why": "Official JSON catalog HTTP 200 with printed FeatureServer/MapServer services. Left unused so this slice stays off NVE GIS siblings."
+    },
+    {
+      "candidate": "NGU WFS GetCapabilities",
+      "url": "https://geo.ngu.no/geoserver/ows?service=WFS&request=GetCapabilities",
+      "why": "Official WFS capabilities HTTP 200 with printed FeatureTypes. Left unused. --source ngu already walks NGU OGC API Features. Fetch would be XML, not the JSON path fetch.py uses."
+    },
+    {
+      "candidate": "NGU ArcGIS REST",
+      "url": "https://geo.ngu.no/arcgis/rest/services?f=json",
+      "why": "Live GET HTTP 503. Do not invent a workaround."
+    },
+    {
+      "candidate": "Politiet politidistrikt swagger",
+      "url": "https://api.politiet.no/politidistrikt/v1/swagger/v1/swagger.json",
+      "why": "TLS handshake failed. Do not invent a workaround."
+    },
+    {
+      "candidate": "Brreg kunngjoring",
+      "url": "https://data.brreg.no/kunngjoring/swagger.json",
+      "why": "Empty reply from server. Do not invent a workaround."
+    },
+    {
+      "candidate": "Udir Grep /kl06/v201906",
+      "url": "https://data.udir.no/kl06/v201906",
+      "why": "HTTP 404. Root /kl06/ is HTML-only. Do not invent a path."
+    },
+    {
+      "candidate": "NIBIO GIS",
+      "url": "https://kart.nibio.no/arcgis/rest/services?f=json",
+      "why": "Host did not resolve."
+    },
+    {
+      "candidate": "Varsom avalanche swagger v6.3.0",
+      "url": "https://api01.nve.no/hydrology/forecast/avalanche/v6.3.0/swagger/docs/v1",
+      "why": "HTTP 404."
+    },
+    {
+      "candidate": "Kartverket ogcapitest leftover",
+      "url": "https://ogcapitest.kartverket.no/rest/services?f=json",
+      "why": "Catalog HTTP 200. The only printed API is Havnedata 3.0, already on main as --source havnedata."
+    },
+    {
+      "candidate": "MET leftover products",
+      "url": "https://api.met.no/weatherapi/available.json",
+      "why": "Every printed product is already a source or an assigned skip (aviationforecast, sigmets)."
+    },
+    {
+      "candidate": "Oslo Bysykkel GBFS",
+      "url": "https://gbfs.urbansharing.com/oslobysykkel.no/gbfs.json",
+      "why": "HTTP 200 printed feed list. Left unused. Entur already wraps GBFS (--source entur)."
+    },
+    {
+      "candidate": "Digdir organization catalogue",
+      "url": "https://organization-catalogue.fellesdatakatalog.digdir.no/organizations",
+      "why": "HTTP 200 JSON organization content list, not a printed endpoint/path catalog. No swagger/OpenAPI on that host."
+    },
+    {
+      "candidate": "Nasjonalbiblioteket catalog",
+      "url": "https://api.nb.no/catalog/v1",
+      "why": "HTTP 404. Known leftover required q unused."
+    },
+    {
+      "candidate": "Kartverket Adresser /sok",
+      "url": "https://api.kartverket.no/adresser/v1/openapi.json",
+      "why": "Known skip: live GET without search params is HTTP 400. Do not invent a query."
+    },
+    {
+      "candidate": "Kartverket Eiendom /geokoding",
+      "url": "https://api.kartverket.no/eiendom/v1/geokoding",
+      "why": "Known skip: HTTP 400 without matrikkel params. Do not retry."
+    },
+    {
+      "candidate": "Frost MET sources",
+      "url": "https://frost.met.no/sources/v0.jsonld",
+      "why": "Known skip: HTTP 401. Do not retry."
+    },
+    {
+      "candidate": "NVDB Les V3 OpenAPI",
+      "url": "https://nvdbapiles-v3.atlas.vegvesen.no/dokumentasjon/openapi.json",
+      "why": "Known skip: HTTP 400 User-Agent. Do not retry."
+    },
+    {
+      "candidate": "NVE HydAPI",
+      "url": "https://hydapi.nve.no/swagger/v1/swagger.json",
+      "why": "Known skip: HTTP 401. Do not retry."
+    },
+    {
+      "candidate": "Udir Register for lærebedrifter",
+      "url": "https://data-nlr.udir.no/swagger/v4/swagger.json",
+      "why": "Known skip: live collection GETs are HTTP 401. Do not invent auth."
+    },
+    {
+      "candidate": "HI OGC Processes / EDR",
+      "url": "https://kart.hi.no/data/ogc/processes/v1",
+      "why": "Live GET HTTP 404. Do not invent endpoints."
+    },
+    {
+      "candidate": "aviationforecast / sigmets / offentligdata.no",
+      "url": "assigned skip",
+      "why": "Assigned skip for this lane. Do not pick."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source arcticsdi --db /tmp/pda-arcticsdi-proof/registry.sqlite --limit 10",
+    "listed": 2,
+    "inserted": 2,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "arcticsdi:ArcticSDI_NO_JAN",
+        "title": "ArcticSDI_NO_JAN",
+        "access_path": "https://geodata.npolar.no/arcgis/rest/services/ArcticSDI/ArcticSDI_NO_JAN/MapServer?f=json"
+      },
+      {
+        "id": "arcticsdi:ArcticSDI_NO_SVA",
+        "title": "ArcticSDI_NO_SVA",
+        "access_path": "https://geodata.npolar.no/arcgis/rest/services/ArcticSDI/ArcticSDI_NO_SVA/MapServer?f=json"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search ArcticSDI_NO_SVA --db /tmp/pda-arcticsdi-proof/registry.sqlite --limit 10",
+    "query": "ArcticSDI_NO_SVA",
+    "returned": 1,
+    "hit_id": "arcticsdi:ArcticSDI_NO_SVA",
+    "title": "ArcticSDI_NO_SVA",
+    "source_id": "arcticsdi",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://geodata.npolar.no/arcgis/rest/services/ArcticSDI/ArcticSDI_NO_SVA/MapServer?f=json",
+    "original_source": "https://geodata.npolar.no/arcgis/rest/services/ArcticSDI?f=json",
+    "why_picked": "title matched arcticsdi, no, sva"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset arcticsdi:ArcticSDI_NO_JAN --db /tmp/pda-arcticsdi-proof/registry.sqlite",
+    "dataset": "arcticsdi:ArcticSDI_NO_JAN",
+    "table_id": "ArcticSDI_NO_JAN",
+    "access_path": "https://geodata.npolar.no/arcgis/rest/services/ArcticSDI/ArcticSDI_NO_JAN/MapServer?f=json",
+    "request_url": "https://geodata.npolar.no/arcgis/rest/services/ArcticSDI/ArcticSDI_NO_JAN/MapServer?f=json",
+    "http_status": 200,
+    "listed": 13,
+    "inserted": 13,
+    "updated": 0,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "name",
+        "value": "ArcticSDI_NO_JAN"
+      },
+      {
+        "measure": "name",
+        "value": "GeographicalNames"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset arcticsdi:ArcticSDI_NO_JAN --db /tmp/pda-arcticsdi-proof/registry.sqlite",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "NPI ArcticSDI /ArcticSDI_NO_JAN/MapServer prints layer names. Those are not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed ArcGIS service names. access_path is the printed name plus type plus f=json. No arcticsdi id was written onto an npitema, npigis, npolar, nvegis, or datanorge row.",
+    "License is null: the catalog prints no license URL. Publisher is null: the catalog prints no publisher field.",
+    "Live GET of /ArcticSDI/ArcticSDI_NO_JAN/MapServer?f=json is HTTP 200 with no Authorization header. No token is sent.",
+    "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "python3 -m pytest: 979 passed, 1 skipped, 1 deselected.",
+    "Not a numeric time series with two or more periods. Fetch listed 13 printed layer-name cells (sample ArcticSDI_NO_JAN, GeographicalNames).",
+    "Open PR check at pickup found none. Lane A (bc-91510bbe) later opened PR 152 nvemap so unused. aviationforecast 2.0 and sigmets 2.0 stayed unused."
+  ]
+}

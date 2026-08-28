@@ -4013,6 +4013,44 @@ HTTP 200, 13 layer-name cells. Sample printed value: `NVE Region`.
 (`no observations matched entity/measure; available=[]`).
 Proof is `data/nvemap_source_proof.json`.
 
+## Norsk Polarinstitutt ArcticSDI GIS source
+
+`pda ingest --source arcticsdi` is another replaceable adapter. It lists
+printed MapServer services on the official Norsk Polarinstitutt ArcGIS
+REST ArcticSDI catalog
+`https://geodata.npolar.no/arcgis/rest/services/ArcticSDI?f=json`,
+capped at 10. The folder name `ArcticSDI` is printed on the root
+services catalog. Empty names and empty types are skipped. Dataset ids
+are the printed last path segment of `name` so
+`/ArcticSDI_NO_JAN/MapServer` stays distinct from
+`/ArcticSDI_NO_SVA/MapServer`. `access_path` is the printed name plus
+type plus the catalog's `f=json` query. License stays null: the catalog
+prints no license URL. Publisher stays null. This is not the NPI Open
+Data API (`--source npolar`), not NPI Basisdata GIS (`--source npigis`),
+not NPI Temadata GIS (`--source npitema`, now on main after PR 151),
+and not NVE Mapservices (`--source nvemap`, now on main after PR 152).
+
+```bash
+pda ingest --source arcticsdi --db data/registry.sqlite --limit 10
+pda search ArcticSDI_NO_SVA --db data/registry.sqlite
+pda fetch --dataset arcticsdi:ArcticSDI_NO_JAN --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored MapServer URL. Observation values are copied
+from printed JSON `name` when present, otherwise `mapName`, `title`, or
+`id`. License stays null. Publisher stays null.
+
+Live ingest 2026-08-28: 2 printed MapServer services (catalog prints
+Jan Mayen and Svalbard ArcticSDI services; cap 10 copies both). Live
+search `ArcticSDI_NO_SVA` returns `arcticsdi:ArcticSDI_NO_SVA`. Live
+fetch GETs
+`https://geodata.npolar.no/arcgis/rest/services/ArcticSDI/ArcticSDI_NO_JAN/MapServer?f=json`
+HTTP 200, 13 layer-name cells. Sample printed value:
+`GeographicalNames`. `pda methods` is not applicable: layer names,
+not a numeric time series
+(`no observations matched entity/measure; available=[]`).
+Proof is `data/arcticsdi_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
