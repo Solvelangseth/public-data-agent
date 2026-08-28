@@ -4351,7 +4351,7 @@ GIS (`--source hoydegis`), not Kartverket OGC API Coverages
 
 ```bash
 pda ingest --source kvwms --db data/registry.sqlite --limit 10
-pda search wms.topo --db data/registry.sqlite
+pda search norgeskart --db data/registry.sqlite
 pda fetch --dataset kvwms:wms.topo --db data/registry.sqlite
 ```
 
@@ -4359,7 +4359,13 @@ pda fetch --dataset kvwms:wms.topo --db data/registry.sqlite
 copied from printed WMS Layer `Name` or WMTS Layer `Identifier`. License
 stays null. Publisher stays null.
 
-Live proof is recorded in `data/kvwms_source_proof.json`.
+Live ingest 2026-08-28: 2 leftover GetCapabilities documents. Live search
+`norgeskart` returns `kvwms:wms.topo`. Live fetch GETs
+`https://wms.geonorge.no/skwms1/wms.topo?service=WMS&request=GetCapabilities`
+HTTP 200, 227 printed layer-name cells. Sample printed value: `topo`.
+`pda methods` is not applicable: layer names, not a numeric time series
+(`no observations matched entity/measure; available=[]`).
+Proof is `data/kvwms_source_proof.json`.
 
 ## Architecture (long term)
 
