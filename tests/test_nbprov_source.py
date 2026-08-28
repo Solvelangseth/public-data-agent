@@ -136,6 +136,7 @@ def test_nbprov_is_a_registered_source() -> None:
     assert "ssbsec" in SOURCE_IDS
     assert "ssclass" in SOURCE_IDS
     assert "banegis" in SOURCE_IDS
+    assert "mattilsyn" in SOURCE_IDS
     assert "nibiorest" in SOURCE_IDS
     assert SOURCE_IDS[SOURCE_IDS.index("nibiorest") + 1] == "nbprov"
     source = build_source("nbprov")
