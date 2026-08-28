@@ -1186,10 +1186,20 @@ STORMFLO_NATIONAL = "stormflo:national.json"
 STORMFLO_PROOF_DIR = Path(__file__).resolve().parents[1] / "methods" / "proof" / "stormflo_national"
 STORMFLO_STORE = STORMFLO_PROOF_DIR / "store.json"
 STORMFLO_URL = "https://stormflo-konsekvens.kartverket.no/public/api/v1/national.json"
-STORMFLO_VALUES = {
-    "offentlige_bygg": 1810.0,
-    "privat_naering": 17802.0,
-}
+STORMFLO_PROOF_JSON = Path(__file__).resolve().parents[1] / "data" / "stormflo_source_proof.json"
+TWO_PERIOD_CODES = frozenset({"200ymax", "1000ymax", "20ymax"})
+THREE_PERIOD_CODES = frozenset({"mhw", "highendwl"})
+
+
+def _printed_stormflo_cells() -> dict[tuple[str, str, str], float]:
+    payload = json.loads(STORMFLO_PROOF_JSON.read_text(encoding="utf-8"))
+    cells = payload["printed_samples"]["cells"]
+    out: dict[tuple[str, str, str], float] = {}
+    for code, years in cells.items():
+        for year, record in years.items():
+            for measure, value in record.items():
+                out[(str(code), str(year), str(measure))] = float(value)
+    return out
 
 
 def _stormflo_stored_rows() -> list[dict]:
@@ -1211,53 +1221,75 @@ def _stormflo_stored_rows() -> list[dict]:
 
 
 def test_live_stormflo_store_matches_formula_and_lineage() -> None:
+    printed = _printed_stormflo_cells()
+    assert len(printed) == 168
     stored = _stormflo_stored_rows()
-    assert len(stored) == 2
-    assert len([row for row in stored if _numeric_value(row) is not None]) == 2
+    assert len(stored) == 168
+    assert len([row for row in stored if _numeric_value(row) is not None]) == 168
 
     cleaned = clean(stored)
-    assert len(cleaned) == 2
-    assert {row.entity for row in cleaned} == {"200ymax"}
-    assert {row.period for row in cleaned} == {"2025"}
-    assert {row.measure: row.value for row in cleaned} == STORMFLO_VALUES
+    assert len(cleaned) == 168
+    assert {row.entity for row in cleaned} == TWO_PERIOD_CODES | THREE_PERIOD_CODES
+    assert {row.period for row in cleaned} == {"2025", "2100", "2150"}
+    cleaned_keys = {
+        (row.entity, row.period, row.measure): row.value for row in cleaned
+    }
+    assert cleaned_keys == printed
     assert all(row.source == STORMFLO_NATIONAL for row in cleaned)
 
+    by_code = {code: {row.period for row in cleaned if row.entity == code} for code in TWO_PERIOD_CODES | THREE_PERIOD_CODES}
+    for code in TWO_PERIOD_CODES:
+        assert by_code[code] == {"2025", "2100"}
+    for code in THREE_PERIOD_CODES:
+        assert by_code[code] == {"2025", "2100", "2150"}
+
     derived = derive(cleaned)
-    assert len(derived) == 2
-    for row in derived:
-        assert row.observation.value == STORMFLO_VALUES[row.observation.measure]
+    assert len(derived) == 168
+    by_key = {
+        (row.observation.entity, row.observation.measure, row.observation.period): row
+        for row in derived
+    }
+    for (code, year, measure), value in printed.items():
+        row = by_key[(code, measure, year)]
+        assert row.observation.value == value
         assert row.yoy_growth.value is None
         assert row.yoy_growth.lineage.name == YOY_GROWTH
-        assert row.yoy_growth.lineage.formula == YOY_GROWTH_FORMULA
-        assert row.yoy_growth.lineage.note == "undefined: no prior period"
-        assert row.period_change.value is None
         assert row.period_change.lineage.name == PERIOD_CHANGE
         assert row.period_change.lineage.formula == PERIOD_CHANGE_FORMULA
-        assert row.period_change.lineage.units == PERIOD_CHANGE_UNITS
-        assert row.period_change.lineage.source_periods == ("2025",)
-        assert row.period_change.lineage.note == "undefined: no prior period"
-        assert row.index.value == 100.0
         assert row.index.lineage.formula == INDEX_FORMULA
-        assert row.rank.lineage.formula == RANK_FORMULA
-        assert row.rank_change.lineage.formula == RANK_CHANGE_FORMULA
         for derived_col in row.derived_columns():
             assert derived_col.lineage.source_observation_ids
             assert derived_col.lineage.source_periods
 
-    committed = json.loads(
-        (Path(__file__).resolve().parents[1] / "data" / "stormflo_source_proof.json").read_text(
-            encoding="utf-8"
-        )
-    )
+    two = by_key[("200ymax", "offentlige_bygg", "2025")]
+    two_next = by_key[("200ymax", "offentlige_bygg", "2100")]
+    assert two.observation.value == 1810
+    assert two_next.observation.value == 4176
+    assert two.index.value == 100.0
+    assert two.period_change.value is None
+    assert two_next.index.value == pytest.approx(100.0 * 4176 / 1810)
+    assert two_next.period_change.value == pytest.approx((4176 - 1810) / 1810)
+    assert two_next.period_change.lineage.source_periods == ("2025", "2100")
+    assert two_next.yoy_growth.lineage.note == "undefined: periods are not adjacent calendar years"
+    assert ("200ymax", "offentlige_bygg", "2150") not in by_key
+
+    mhw_2025 = by_key[("mhw", "offentlige_bygg", "2025")]
+    mhw_2100 = by_key[("mhw", "offentlige_bygg", "2100")]
+    mhw_2150 = by_key[("mhw", "offentlige_bygg", "2150")]
+    assert mhw_2025.observation.value == 583
+    assert mhw_2100.observation.value == 956
+    assert mhw_2150.observation.value == 1844
+    assert mhw_2025.index.value == 100.0
+    assert mhw_2100.index.value == pytest.approx(100.0 * 956 / 583)
+    assert mhw_2150.index.value == pytest.approx(100.0 * 1844 / 583)
+    assert mhw_2100.period_change.value == pytest.approx((956 - 583) / 583)
+    assert mhw_2150.period_change.value == pytest.approx((1844 - 956) / 956)
+    assert mhw_2100.period_change.lineage.source_periods == ("2025", "2100")
+    assert mhw_2150.period_change.lineage.source_periods == ("2100", "2150")
+
+    committed = json.loads(STORMFLO_PROOF_JSON.read_text(encoding="utf-8"))
     assert committed["fetch"]["listed"] == 168
-    printed = {
-        (item["measure"], item["dimensions"]["code"], item["dimensions"]["year"]): item["value"]
-        for item in committed["fetch"]["sample"]
-    }
-    assert printed == {
-        ("offentlige_bygg", "200ymax", "2025"): 1810,
-        ("privat_naering", "200ymax", "2025"): 17802,
-    }
+    assert committed["printed_samples"]["copied_not_invented"] is True
 
 
 def test_stormflo_cli_reads_store_and_does_not_fetch(
@@ -1271,6 +1303,7 @@ def test_stormflo_cli_reads_store_and_does_not_fetch(
 
     dump = json.loads(STORMFLO_STORE.read_text(encoding="utf-8"))
     assert dump["posted"] is False
+    printed = _printed_stormflo_cells()
     db = tmp_path / "registry.sqlite"
     registry = Registry(db)
     registry.ensure_observation_dataset(
@@ -1290,13 +1323,13 @@ def test_stormflo_cli_reads_store_and_does_not_fetch(
         registry.upsert_observation(stored_row, run_id)
     registry.finish_fetch_run(
         run_id,
-        HarvestCounts(listed=2, inserted=2),
+        HarvestCounts(listed=len(dump["rows"]), inserted=len(dump["rows"])),
         status="completed",
         http_status=200,
     )
     stored = registry.list_observations(STORMFLO_NATIONAL)
     registry.close()
-    assert len(stored) == 2
+    assert len(stored) == 168
 
     fetch_calls: list[object] = []
 
@@ -1318,10 +1351,13 @@ def test_stormflo_cli_reads_store_and_does_not_fetch(
     )
 
     assert fetch_calls == []
-    assert len(derived) == 2
-    assert {row.observation.measure: row.observation.value for row in derived} == STORMFLO_VALUES
-    assert all(row.index.value == 100.0 for row in derived)
-    assert all(row.period_change.value is None for row in derived)
+    assert len(derived) == 168
+    got = {
+        (row.observation.entity, row.observation.period, row.observation.measure): row.observation.value
+        for row in derived
+    }
+    assert got == printed
+    assert all(row.yoy_growth.value is None for row in derived)
     assert (out / "chart.png").is_file()
     assert (out / "index_line.png").is_file()
     assert not (out / "yoy_bar.png").exists()
@@ -1367,15 +1403,34 @@ def test_committed_stormflo_proof_artifacts() -> None:
     assert index_path.read_bytes().startswith(b"\x89PNG")
     assert not (STORMFLO_PROOF_DIR / "yoy_bar.png").exists()
 
+    printed = _printed_stormflo_cells()
     with csv_path.open(encoding="utf-8", newline="") as handle:
         table = list(csv.DictReader(handle))
-    assert len(table) == 2
-    assert {row["entity"] for row in table} == {"200ymax"}
-    assert {row["period"] for row in table} == {"2025"}
-    assert {row["measure"]: float(row["value"]) for row in table} == STORMFLO_VALUES
+    assert len(table) == 168
+    table_keys = {
+        (row["entity"], row["period"], row["measure"]): float(row["value"]) for row in table
+    }
+    assert table_keys == printed
     assert all(row["yoy_growth"] == "" for row in table)
-    assert all(row["period_change"] == "" for row in table)
-    assert all(float(row["index"]) == 100.0 for row in table)
+    two_period_2150 = [
+        row for row in table if row["entity"] in TWO_PERIOD_CODES and row["period"] == "2150"
+    ]
+    assert two_period_2150 == []
+
+    bygg_2025 = next(
+        row
+        for row in table
+        if row["entity"] == "200ymax" and row["measure"] == "offentlige_bygg" and row["period"] == "2025"
+    )
+    bygg_2100 = next(
+        row
+        for row in table
+        if row["entity"] == "200ymax" and row["measure"] == "offentlige_bygg" and row["period"] == "2100"
+    )
+    assert float(bygg_2025["index"]) == 100.0
+    assert bygg_2025["period_change"] == ""
+    assert float(bygg_2100["period_change"]) == pytest.approx((4176 - 1810) / 1810)
+    assert float(bygg_2100["index"]) == pytest.approx(100.0 * 4176 / 1810)
 
     lineage = json.loads(lineage_path.read_text(encoding="utf-8"))
     names = [column["name"] for column in lineage["derived_columns"]]
@@ -1384,24 +1439,22 @@ def test_committed_stormflo_proof_artifacts() -> None:
     assert by_name[YOY_GROWTH]["formula"] == YOY_GROWTH_FORMULA
     assert by_name[PERIOD_CHANGE]["formula"] == PERIOD_CHANGE_FORMULA
     assert by_name[INDEX]["formula"] == INDEX_FORMULA
-    for item in by_name[PERIOD_CHANGE]["rows"]:
-        assert item["value"] is None
-        assert item["lineage"]["name"] == PERIOD_CHANGE
-        assert item["lineage"]["source_periods"] == ["2025"]
-        assert item["lineage"]["note"] == "undefined: no prior period"
 
     markdown = md_path.read_text(encoding="utf-8")
     assert PERIOD_CHANGE_FORMULA in markdown
     assert "`period_change` describes the stored step. It is not a one-year rate." in markdown
-    store_text = STORMFLO_STORE.read_text(encoding="utf-8")
-    dump = json.loads(store_text)
+    dump = json.loads(STORMFLO_STORE.read_text(encoding="utf-8"))
     assert dump["posted"] is False
-    assert dump["counts"]["total"] == 2
-    assert dump["counts"]["numeric"] == 2
-    assert dump["counts"]["entities"] == 1
-    assert dump["counts"]["periods"] == ["2025"]
-    assert dump["seeded_from"]["main_merge"] == "72ec991"
-    assert dump["seeded_from"]["pr"] == 175
+    assert dump["counts"]["total"] == 168
+    assert dump["counts"]["numeric"] == 168
+    assert dump["counts"]["entities"] == 5
+    assert dump["counts"]["periods"] == ["2025", "2100", "2150"]
+    assert dump["seeded_from"]["main_merge"] == "ca8f749"
+    assert dump["seeded_from"]["pr"] == 191
     assert "no GET or POST" in dump["seeded_from"]["note"]
-    assert "2100" not in store_text
-    assert "2150" not in store_text
+    assert "NATIONAL_BODY" in dump["seeded_from"]["note"]
+    store_keys = {
+        (row["dimensions"]["code"], row["dimensions"]["year"], row["measure"]): float(row["value"])
+        for row in dump["rows"]
+    }
+    assert store_keys == printed
