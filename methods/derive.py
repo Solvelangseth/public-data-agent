@@ -286,8 +286,6 @@ def _index(
 def _ranks_by_id(
     groups: dict[tuple[str, str], list[Observation]],
 ) -> dict[str, tuple[int, tuple[str, ...]]]:
-    """Map observation id -> (competition rank, peer ids) per (period, measure)."""
-
     out: dict[str, tuple[int, tuple[str, ...]]] = {}
     for group in groups.values():
         peers = tuple(sorted(row.id for row in group))

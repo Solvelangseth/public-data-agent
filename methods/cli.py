@@ -1,5 +1,3 @@
-"""Thin proof/demo entrypoint: select stored observations, then transform."""
-
 from __future__ import annotations
 
 import argparse
@@ -21,7 +19,6 @@ from methods.types import (
     SeriesRow,
 )
 
-# Selection only. Transforms never branch on these ids.
 DEFAULT_DATASET = "datanorge:fc22c19b-5347-3b20-aa1b-ae534f178f57"
 DEFAULT_TABLE = "Befolkning/Folkemengde/OK-BEF008.px"
 DEFAULT_ENTITY = "Oslo (Kristiania og Aker) i alt"
@@ -160,12 +157,6 @@ def _call_existing_fetch(
 
 
 def _select(rows, *, entity: str | None, measure: str | None):
-    """Filter to entity/measure. Oslo CLI defaults fall back to every series.
-
-    Store-only datasets need not contain the Oslo city-total defaults. An
-    unmatched default keeps every stored series instead of emitting an empty table.
-    """
-
     selected = rows
     if entity:
         matched = tuple(row for row in selected if row.entity == entity)

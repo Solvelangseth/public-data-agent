@@ -34,12 +34,7 @@ RANK_CHANGE_INPUTS = ("rank",)
 
 @dataclass(frozen=True)
 class Observation:
-    """Canonical methods input. Matches stored fetch rows plus entity/period/source.
-
-    entity, period, and source are extracted at the clean boundary from the stored
-    Observation fields (dimensions + dataset_id). After clean, transforms trust
-    this type and do not re-parse JSON or guess missing numbers.
-    """
+    """Canonical methods input. Matches stored fetch rows plus entity/period/source."""
 
     id: str
     entity: str
@@ -122,7 +117,7 @@ class DerivedValue:
     def __post_init__(self) -> None:
         if not isinstance(self.lineage, Lineage):
             raise TypeError("DerivedValue.lineage must be a Lineage instance")
-        if self.lineage is None:  # pragma: no cover - type guard
+        if self.lineage is None:
             raise TypeError("derived value without lineage is unrepresentable")
 
     def to_dict(self) -> dict[str, object]:

@@ -1,5 +1,3 @@
-"""Live proof: load stored Oslo observations. Artifact checks read the committed run."""
-
 from __future__ import annotations
 
 import csv
@@ -31,7 +29,6 @@ OSLO_MEASURE = "Folkemengden i alt (antall personer)"
 PROOF_DIR = Path(__file__).resolve().parents[1] / "methods" / "proof"
 REGISTRY = Path("data/registry.sqlite")
 
-# Sanity-check totals from the M7 live fetch. Applied only after a store/artifact read.
 M7_SANITY = {"2020": 693494, "2026": 728714}
 
 
@@ -193,8 +190,6 @@ SSB_STORE = SSB_PROOF_DIR / "store.json"
 
 
 def _ssb11763_stored_rows() -> list[dict]:
-    """Read stored ssb:11763 rows. Prefer the live sqlite; else the committed dump."""
-
     if REGISTRY.exists():
         from public_data_agent.registry import Registry
 
@@ -340,7 +335,7 @@ def test_ssb11763_cli_reads_store_and_does_not_fetch(tmp_path: Path) -> None:
         raise AssertionError("pda fetch must not run for ssb:11763")
 
     original = methods_cli._call_existing_fetch
-    methods_cli._call_existing_fetch = _forbid_fetch  # type: ignore[method-assign]
+    methods_cli._call_existing_fetch = _forbid_fetch
     try:
         derived = run_methods(
             dataset_id=SSB_11763,
@@ -353,8 +348,7 @@ def test_ssb11763_cli_reads_store_and_does_not_fetch(tmp_path: Path) -> None:
             measure="Folkemengden i alt (antall personer)",
         )
     finally:
-        methods_cli._call_existing_fetch = original  # type: ignore[method-assign]
-
+        methods_cli._call_existing_fetch = original
     assert fetch_calls == []
     assert len(derived) == 30
     assert {row.observation.period for row in derived} == {"2024", "2025"}
@@ -379,7 +373,7 @@ def test_ssb11763_empty_store_does_not_post() -> None:
         raise AssertionError("pda fetch must not run for ssb:11763")
 
     original = methods_cli._call_existing_fetch
-    methods_cli._call_existing_fetch = _forbid_fetch  # type: ignore[method-assign]
+    methods_cli._call_existing_fetch = _forbid_fetch
     try:
         with pytest.raises(ValueError, match="refusing to call pda fetch"):
             run_methods(
@@ -393,7 +387,7 @@ def test_ssb11763_empty_store_does_not_post() -> None:
                 measure=None,
             )
     finally:
-        methods_cli._call_existing_fetch = original  # type: ignore[method-assign]
+        methods_cli._call_existing_fetch = original
     assert fetch_calls == []
 
 
@@ -514,8 +508,6 @@ SSB_06683_VALUES = {
 
 
 def _ssb06683_stored_rows() -> list[dict]:
-    """Read stored ssb:06683 rows. Prefer the live sqlite; else the committed dump."""
-
     if REGISTRY.exists():
         from public_data_agent.registry import Registry
 
@@ -655,7 +647,7 @@ def test_ssb06683_cli_reads_store_and_does_not_fetch(tmp_path: Path) -> None:
         raise AssertionError("pda fetch must not run for ssb:06683")
 
     original = methods_cli._call_existing_fetch
-    methods_cli._call_existing_fetch = _forbid_fetch  # type: ignore[method-assign]
+    methods_cli._call_existing_fetch = _forbid_fetch
     try:
         derived = run_methods(
             dataset_id=SSB_06683,
@@ -668,8 +660,7 @@ def test_ssb06683_cli_reads_store_and_does_not_fetch(tmp_path: Path) -> None:
             measure="Folkemengden i alt (antall personer)",
         )
     finally:
-        methods_cli._call_existing_fetch = original  # type: ignore[method-assign]
-
+        methods_cli._call_existing_fetch = original
     assert fetch_calls == []
     assert len(derived) == 4
     assert {row.observation.period for row in derived} == {"2023", "2024"}
@@ -695,7 +686,7 @@ def test_ssb06683_empty_store_does_not_post() -> None:
         raise AssertionError("pda fetch must not run for ssb:06683")
 
     original = methods_cli._call_existing_fetch
-    methods_cli._call_existing_fetch = _forbid_fetch  # type: ignore[method-assign]
+    methods_cli._call_existing_fetch = _forbid_fetch
     try:
         with pytest.raises(ValueError, match="refusing to call pda fetch"):
             run_methods(
@@ -709,7 +700,7 @@ def test_ssb06683_empty_store_does_not_post() -> None:
                 measure=None,
             )
     finally:
-        methods_cli._call_existing_fetch = original  # type: ignore[method-assign]
+        methods_cli._call_existing_fetch = original
     assert fetch_calls == []
 
 
@@ -855,8 +846,6 @@ SSB_06831_VALUES = {
 
 
 def _ssb06831_stored_rows() -> list[dict]:
-    """Read stored ssb:06831 rows. Prefer the live sqlite; else the committed dump."""
-
     if REGISTRY.exists():
         from public_data_agent.registry import Registry
 
@@ -996,7 +985,7 @@ def test_ssb06831_cli_reads_store_and_does_not_fetch(tmp_path: Path) -> None:
         raise AssertionError("pda fetch must not run for ssb:06831")
 
     original = methods_cli._call_existing_fetch
-    methods_cli._call_existing_fetch = _forbid_fetch  # type: ignore[method-assign]
+    methods_cli._call_existing_fetch = _forbid_fetch
     try:
         derived = run_methods(
             dataset_id=SSB_06831,
@@ -1009,8 +998,7 @@ def test_ssb06831_cli_reads_store_and_does_not_fetch(tmp_path: Path) -> None:
             measure="Folkemengden i alt (antall personer)",
         )
     finally:
-        methods_cli._call_existing_fetch = original  # type: ignore[method-assign]
-
+        methods_cli._call_existing_fetch = original
     assert fetch_calls == []
     assert len(derived) == 4
     assert {row.observation.period for row in derived} == {"2021", "2022"}
@@ -1039,7 +1027,7 @@ def test_ssb06831_empty_store_does_not_post() -> None:
         raise AssertionError("pda fetch must not run for ssb:06831")
 
     original = methods_cli._call_existing_fetch
-    methods_cli._call_existing_fetch = _forbid_fetch  # type: ignore[method-assign]
+    methods_cli._call_existing_fetch = _forbid_fetch
     try:
         with pytest.raises(ValueError, match="refusing to call pda fetch"):
             run_methods(
@@ -1053,7 +1041,7 @@ def test_ssb06831_empty_store_does_not_post() -> None:
                 measure=None,
             )
     finally:
-        methods_cli._call_existing_fetch = original  # type: ignore[method-assign]
+        methods_cli._call_existing_fetch = original
     assert fetch_calls == []
 
 

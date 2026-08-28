@@ -1,5 +1,3 @@
-"""Unit tests over a tiny in-memory fixture. These numbers are not Oslo facts."""
-
 from __future__ import annotations
 
 import json
@@ -31,7 +29,6 @@ from public_data_agent.harvest import harvest
 from public_data_agent.registry import Registry
 from public_data_agent.sources.fixture import FixtureSource
 
-# In-memory fixture series. Deliberately not Norwegian population counts.
 FIXTURE_TOWN = "Fixture Town"
 FIXTURE_MEASURE = "fixture_count"
 FIXTURE_ROWS = [
@@ -266,8 +263,8 @@ def test_rank_and_rank_change_two_entities_two_periods() -> None:
     assert by_key[("Fixture B", "2001")].rank.value == 2
     assert by_key[("Fixture A", "2000")].rank_change.value is None
     assert by_key[("Fixture B", "2000")].rank_change.value is None
-    assert by_key[("Fixture A", "2001")].rank_change.value == 1  # 2 -> 1, moved up
-    assert by_key[("Fixture B", "2001")].rank_change.value == -1  # 1 -> 2, moved down
+    assert by_key[("Fixture A", "2001")].rank_change.value == 1
+    assert by_key[("Fixture B", "2001")].rank_change.value == -1
     for row in derived:
         assert row.rank.lineage.name == RANK
         assert row.rank.lineage.formula == RANK_FORMULA
@@ -298,7 +295,6 @@ def test_rank_ties_share_min_and_skip() -> None:
 
 
 def test_index_two_entities_each_have_own_base(tmp_path: Path) -> None:
-    # Fixture Town A/B — not Oslo. Each (entity, measure) series has its own 100.
     rows = clean(
         [
             {**FIXTURE_ROWS[0], "id": "a-1", "value": 50, "dimensions": {"year": "2000", "entity": "Fixture A"}},
@@ -351,9 +347,9 @@ def test_index_missing_or_zero_base_is_undefined() -> None:
 
 def test_derived_without_lineage_is_unrepresentable() -> None:
     with pytest.raises(TypeError):
-        DerivedValue(value=0.1)  # type: ignore[call-arg]
+        DerivedValue(value=0.1)
     with pytest.raises(TypeError):
-        DerivedValue(value=0.1, lineage=None)  # type: ignore[arg-type]
+        DerivedValue(value=0.1, lineage=None)
     with pytest.raises(ValueError, match="formula"):
         Lineage(
             name="yoy_growth",

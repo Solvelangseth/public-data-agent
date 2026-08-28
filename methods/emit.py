@@ -25,7 +25,7 @@ from methods.types import (
 
 
 def yoy_bar_points(rows: tuple[SeriesRow, ...]) -> tuple[tuple[str, float], ...]:
-    """Periods that have a derived YoY rate. The first period is omitted."""
+    """Periods that have a derived YoY rate."""
 
     return tuple(
         (row.observation.period, row.yoy_growth.value)
@@ -279,8 +279,6 @@ def _write_chart(rows: tuple[SeriesRow, ...], path: Path) -> None:
 
 
 def _write_yoy_bar(rows: tuple[SeriesRow, ...], path: Path) -> None:
-    """Bar chart of the derived yoy_growth column. Null rates have no bar."""
-
     import matplotlib
 
     matplotlib.use("Agg")
@@ -326,8 +324,6 @@ def _write_yoy_bar(rows: tuple[SeriesRow, ...], path: Path) -> None:
 
 
 def _write_index_line(rows: tuple[SeriesRow, ...], path: Path) -> None:
-    """Line chart of the derived index column. One line per (entity, measure)."""
-
     import matplotlib
 
     matplotlib.use("Agg")
