@@ -118,6 +118,7 @@
     "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
     "python3 -m pytest after live proof: 1246 passed, 1 skipped, 1 deselected.",
     "Not a numeric time series with two or more periods. Fetch listed 10 printed Layer Name cells (sample Mattilsynet_Vannverk_Inntakspunkter).",
-    "Open PR check at pickup found nibiorest #188. That leftover WMS catalog stayed unused. banegis was not an open PR."
+    "Open PR check at pickup found nibiorest #188. That leftover WMS catalog stayed unused. banegis was not an open PR.",
+    "Rebased onto origin/main after stormflo #191 (ca8f749). Kept ssbfam, ssbsec, ssclass, mdirwms, and every other main source plus mattilsyn."
   ]
 }
