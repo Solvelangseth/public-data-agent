@@ -172,7 +172,7 @@
     "Ids are copied from printed swagger path last segments. access_path is the printed swagger host plus path. No georegister id was written onto a geonorge, kommuneinfo, stedsnavn, hoydedata, transformering, norskelos, met, locationforecast, or datanorge row.",
     "License stays null: the swagger info prints no license URL. Publisher is null: the swagger does not print a publisher.",
     "Original harvested swagger metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
-    "python3 -m pytest after Georegister adapter: 750 passed, 1 skipped, 1 deselected.",
+    "python3 -m pytest after rebase onto Locationforecast 128: 760 passed, 1 skipped, 1 deselected.",
     "Not a numeric time series with two or more periods. Fetch listed 357 printed municipality-name cells (sample Utsira kommune).",
     "Open PR check at pickup found Lane A PR 128 MET Locationforecast. After that PR merged at fbfb1e2, this branch rebased onto origin/main and kept locationforecast plus georegister. aviationforecast 2.0 and sigmets 2.0 stayed unused."
   ]
