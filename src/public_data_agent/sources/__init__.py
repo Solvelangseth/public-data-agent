@@ -80,6 +80,7 @@ from public_data_agent.sources.polarsatellite import PolarsatelliteSource
 from public_data_agent.sources.portal import PortalSource
 from public_data_agent.sources.radar import RadarSource
 from public_data_agent.sources.ragis import RagisSource
+from public_data_agent.sources.rawms import RawmsSource
 from public_data_agent.sources.regnskap import RegnskapSource
 from public_data_agent.sources.regobs import RegobsSource
 from public_data_agent.sources.research import ResearchSource
@@ -229,6 +230,7 @@ SOURCE_IDS = (
     "vannkraft",
     "vindkraft",
     "vegogc",
+    "rawms",
 )
 
 
@@ -459,6 +461,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return VindkraftSource()
     if source_id == "vegogc":
         return VegogcSource()
+    if source_id == "rawms":
+        return RawmsSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -541,6 +545,7 @@ __all__ = [
     "PortalSource",
     "RadarSource",
     "RagisSource",
+    "RawmsSource",
     "RegnskapSource",
     "RegobsSource",
     "ResearchSource",
