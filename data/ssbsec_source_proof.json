@@ -1,0 +1,128 @@
+{
+  "produced_at": "2026-08-28T10:31:46Z",
+  "bound": {
+    "list_api": "https://data.ssb.no/api/klass/v1/ssbsections",
+    "openapi": "https://data.ssb.no/api/klass/v3/api-docs",
+    "walk": "copy the leftover collection GET /api/klass/v1/ssbsections named in the official Klass OpenAPI; native id is the printed last path segment ssbsections; access_path is the printed _links.self.href; printed member id fields are null and are not copied; license stays null; publisher stays null; the catalog prints neither; live GET of the collection is HTTP 200 with no token; no token is sent; do not invent section ids or query parameters",
+    "cap": 10,
+    "how": "pda ingest --source ssbsec --limit 10. The official OpenAPI names one leftover untemplated collection GET besides classifications and classificationfamilies. The catalog prints that path. Ingest copies that printed collection id."
+  },
+  "discarded": [
+    {
+      "candidate": "SSB Klass classification families / ssbfam",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/181",
+      "why": "Open sibling JSON PR. Do not pick another lane's source. is_ssbsec_url rejects /api/klass/v1/classificationfamilies."
+    },
+    {
+      "candidate": "Norges Bank SDMX concept schemes / nbconcept",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/182",
+      "why": "Sibling JSON PR, later merged as #182. Do not re-add. This lane stayed on leftover Klass ssbsections."
+    },
+    {
+      "candidate": "Leftover Kartverket grunnkart WMS / kvgrunn",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/180",
+      "why": "Leftover GIS/WMS. This lane stays on national JSON."
+    },
+    {
+      "candidate": "Leftover Navigasjonsinstallasjoner WMS / kystnav",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/184",
+      "why": "Leftover GIS/WMS. This lane stays on national JSON."
+    },
+    {
+      "candidate": "Leftover Miljødirektoratet WMS / mdirwms",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/183",
+      "why": "Leftover GIS/WMS. This lane stays on national JSON."
+    },
+    {
+      "candidate": "Norges Bank SDMX agency schemes",
+      "url": "https://data.norges-bank.no/api/agencyscheme?format=sdmx-json",
+      "why": "Official leftover SDMX catalog HTTP 200. Unused because this lane took leftover Klass ssbsections after nbconcept took conceptscheme."
+    },
+    {
+      "candidate": "NVE Inntektsrammer swagger",
+      "url": "https://biapi.nve.no/inntektsrammer/swagger/v1/swagger.json",
+      "why": "Known skip: live collection GETs are HTTP 401. Do not invent auth."
+    },
+    {
+      "candidate": "Udir NLR",
+      "url": "https://data-nlr.udir.no/swagger/v4/swagger.json",
+      "why": "Known skip: live collection GETs are HTTP 401. Do not invent auth."
+    },
+    {
+      "candidate": "Frost MET sources",
+      "url": "https://frost.met.no/sources/v0.jsonld",
+      "why": "Known skip: HTTP 401. Do not retry."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source ssbsec --db /tmp/pda-ssbsec-proof/registry.sqlite --limit 10",
+    "listed": 1,
+    "inserted": 1,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "ssbsec:ssbsections",
+        "title": "ssbsections",
+        "access_path": "https://data.ssb.no/api/klass/v1/ssbsections"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search ssbsections --db /tmp/pda-ssbsec-proof/registry.sqlite --limit 10",
+    "query": "ssbsections",
+    "returned": 1,
+    "hit_id": "ssbsec:ssbsections",
+    "title": "ssbsections",
+    "source_id": "ssbsec",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://data.ssb.no/api/klass/v1/ssbsections",
+    "original_source": "https://data.ssb.no/api/klass/v1/ssbsections",
+    "why_picked": "title matched ssbsections"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset ssbsec:ssbsections --db /tmp/pda-ssbsec-proof/registry.sqlite",
+    "dataset": "ssbsec:ssbsections",
+    "table_id": "ssbsections",
+    "access_path": "https://data.ssb.no/api/klass/v1/ssbsections",
+    "request_url": "https://data.ssb.no/api/klass/v1/ssbsections",
+    "method": "GET",
+    "http_status": 200,
+    "listed": 24,
+    "inserted": 24,
+    "updated": 0,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "name",
+        "value": "210 - Seksjon for nasjonalregnskap"
+      }
+    ],
+    "new_numeric_time_series_ge_2_periods": false
+  },
+  "methods": {
+    "command": "pda methods --dataset ssbsec:ssbsections --db /tmp/pda-ssbsec-proof/registry.sqlite",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "ssbsections prints section names. Those are not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Native id is the printed last path segment ssbsections. access_path is the printed _links.self.href. No ssbsec id was written onto a klass or ssbv2 row.",
+    "License is null. Publisher is null. The catalog prints no license URL and no publisher field.",
+    "Live GET of /api/klass/v1/ssbsections is HTTP 200 with no Authorization header. No token is sent.",
+    "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "Not a numeric time series with two or more periods. Fetch listed 24 printed section names (sample 210 - Seksjon for nasjonalregnskap).",
+    "python3 -m pytest after adding ssbsec: 1208 passed, 1 skipped, 1 deselected."
+  ]
+}
