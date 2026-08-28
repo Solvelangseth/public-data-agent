@@ -3835,6 +3835,39 @@ HTTP 200, 10 layer-name cells. Sample printed value:
 time series (`no observations matched entity/measure; available=[]`).
 Proof is `data/miljogis_source_proof.json`.
 
+## Kartverket Høydedata GIS source
+
+`pda ingest --source hoydegis` is another replaceable adapter. It lists
+printed name+type services on the official Kartverket Høydedata ArcGIS
+REST catalog `https://hoydedata.no/arcgis/rest/services?f=json`, capped
+at 10. Folders and entries with no name or type are skipped. Dataset
+ids are the printed last path segment of `name` so `Arealstatistikk`
+stays distinct from `DTM`. `access_path` keeps the printed name, printed
+type, and the catalog `f=json` query. License stays null: the catalog
+prints no license URL. Publisher stays null. This is not Kartverket
+Høydedata OpenAPI (`--source hoydedata`), not Miljødirektoratet GIS
+(`--source miljogis`, now on main after PR 147), and not NVE GIS
+(`--source nvegis`).
+
+```bash
+pda ingest --source hoydegis --db data/registry.sqlite --limit 10
+pda search DTM --db data/registry.sqlite
+pda fetch --dataset hoydegis:DTM --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored service URL. Observation values are copied
+from printed JSON `name` when present, otherwise `mapName`, `title`, or
+`id`. License stays null. Publisher stays null.
+
+Live ingest 2026-08-28: 10 printed services (catalog prints 35
+name+type rows; cap 10 starts at Arealstatistikk through dummy32).
+Live search `DTM` returns `hoydegis:DTM`. Live fetch GETs
+`https://hoydedata.no/arcgis/rest/services/DTM/ImageServer?f=json`
+HTTP 200, 1 service-name cell. Sample printed value: `DTM`.
+`pda methods` is not applicable: a service name, not a numeric
+time series (`no observations matched entity/measure; available=[]`).
+Proof is `data/hoydegis_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists

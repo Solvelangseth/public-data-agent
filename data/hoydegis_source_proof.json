@@ -1,0 +1,200 @@
+{
+  "produced_at": "2026-08-28T03:02:11Z",
+  "bound": {
+    "list_api": "https://hoydedata.no/arcgis/rest/services?f=json",
+    "walk": "copy printed name+type entries from the official Kartverket Høydedata ArcGIS REST services catalog; skip folders and entries with no name or type; native ids are the printed last path segment of name so Arealstatistikk stays distinct from DTM; access_path is the catalog origin plus /arcgis/rest/services/{name}/{type}?f=json; license stays null because the catalog prints no license URL; publisher stays null; do not invent query filters",
+    "cap": 10,
+    "how": "pda ingest --source hoydegis --limit 10. The official JSON catalog prints 35 name+type services. This first slice copies the first 10 printed names. GET uses the printed DTM ImageServer path with the catalog f=json query. This is not Kartverket Høydedata OpenAPI (--source hoydedata), not Miljødirektoratet GIS (--source miljogis), and not NVE GIS (--source nvegis)."
+  },
+  "discarded": [
+    {
+      "candidate": "Norsk Polarinstitutt ArcGIS REST / npigis",
+      "url": "https://geodata.npolar.no/arcgis/rest/services?f=json",
+      "why": "Lane B (bc-61d16822) chose npigis. Do not pick the other lane's source."
+    },
+    {
+      "candidate": "Miljødirektoratet GIS / miljogis",
+      "url": "PR 147 --source miljogis, now on main",
+      "why": "Already on main after merge eb85278. Do not re-add."
+    },
+    {
+      "candidate": "Kartverket Havnedata / havnedata",
+      "url": "PR 145 --source havnedata, now on main",
+      "why": "Already on main. Do not re-add."
+    },
+    {
+      "candidate": "Fiskeridirektoratet aqua-operations-public",
+      "url": "https://api.fiskeridir.no/aqua-operations-public/v3/api-docs",
+      "why": "OpenAPI prints only /api/v1/joint-ops/{site-nr}. Templated path. Do not invent site-nr."
+    },
+    {
+      "candidate": "Kartverket SeHavniva",
+      "url": "https://api.sehavniva.no/tideapi.php?tide_request=stationlist&type=json",
+      "why": "Known skip: live GET timed out. Do not invent a workaround."
+    },
+    {
+      "candidate": "Bergen CKAN package_list",
+      "url": "https://opendata.bergen.kommune.no/api/3/action/package_list",
+      "why": "Known skip: host did not resolve. Do not invent a catalog URL."
+    },
+    {
+      "candidate": "Kartverket postnummer OpenAPI",
+      "url": "https://ws.geonorge.no/postnummer/v1/openapi.json",
+      "why": "Known skip: HTTP 403. Do not invent an auth workaround."
+    },
+    {
+      "candidate": "Kartverket Geolett OpenAPI",
+      "url": "https://ws.geonorge.no/geolett/v1/openapi.json",
+      "why": "HTTP 403. Do not invent an auth workaround."
+    },
+    {
+      "candidate": "Kartverket Adresser /sok /punktsok",
+      "url": "https://api.kartverket.no/adresser/v1/openapi.json",
+      "why": "Known skip: live GET without search params is HTTP 400. Do not invent a query."
+    },
+    {
+      "candidate": "Kartverket Eiendom /geokoding",
+      "url": "https://api.kartverket.no/eiendom/v1/geokoding",
+      "why": "Known skip: HTTP 400 without matrikkel params. Do not invent kommunenummer/gardsnummer/bruksnummer."
+    },
+    {
+      "candidate": "Frost MET sources",
+      "url": "https://frost.met.no/sources/v0.jsonld",
+      "why": "HTTP 401. Do not retry."
+    },
+    {
+      "candidate": "NVDB Les V3 OpenAPI",
+      "url": "https://nvdbapiles-v3.atlas.vegvesen.no/dokumentasjon/openapi.json",
+      "why": "Known skip: HTTP 400 User-Agent. Do not retry."
+    },
+    {
+      "candidate": "NVE HydAPI /api/v1/Parameters",
+      "url": "https://hydapi.nve.no/swagger/v1/swagger.json",
+      "why": "HTTP 401. Do not retry."
+    },
+    {
+      "candidate": "Udir Register for lærebedrifter / nlr",
+      "url": "https://data-nlr.udir.no/swagger/v4/swagger.json",
+      "why": "Known skip: live collection GETs are HTTP 401. Do not invent an auth workaround."
+    },
+    {
+      "candidate": "MET Aviationforecast / Sigmets",
+      "url": "https://api.met.no/weatherapi/aviationforecast/2.0/swagger",
+      "why": "Assigned skip for this lane. Not selected."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source hoydegis --db /tmp/pda-hoydegis-proof/registry.sqlite --limit 10",
+    "listed": 10,
+    "inserted": 10,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "hoydegis:Arealstatistikk",
+        "title": "Arealstatistikk",
+        "access_path": "https://hoydedata.no/arcgis/rest/services/Arealstatistikk/MapServer?f=json"
+      },
+      {
+        "id": "hoydegis:ConvertSosi",
+        "title": "ConvertSosi",
+        "access_path": "https://hoydedata.no/arcgis/rest/services/ConvertSosi/MapServer?f=json"
+      },
+      {
+        "id": "hoydegis:ConvertZippedShape",
+        "title": "ConvertZippedShape",
+        "access_path": "https://hoydedata.no/arcgis/rest/services/ConvertZippedShape/MapServer?f=json"
+      },
+      {
+        "id": "hoydegis:DOM_punkttetthet",
+        "title": "DOM_punkttetthet",
+        "access_path": "https://hoydedata.no/arcgis/rest/services/DOM_punkttetthet/ImageServer?f=json"
+      },
+      {
+        "id": "hoydegis:DOM",
+        "title": "DOM",
+        "access_path": "https://hoydedata.no/arcgis/rest/services/DOM/ImageServer?f=json"
+      },
+      {
+        "id": "hoydegis:DTM_lokalhoyde_farge",
+        "title": "DTM_lokalhoyde_farge",
+        "access_path": "https://hoydedata.no/arcgis/rest/services/DTM_lokalhoyde_farge/ImageServer?f=json"
+      },
+      {
+        "id": "hoydegis:DTM_lokalhoyde_graatone",
+        "title": "DTM_lokalhoyde_graatone",
+        "access_path": "https://hoydedata.no/arcgis/rest/services/DTM_lokalhoyde_graatone/ImageServer?f=json"
+      },
+      {
+        "id": "hoydegis:DTM_punkttetthet",
+        "title": "DTM_punkttetthet",
+        "access_path": "https://hoydedata.no/arcgis/rest/services/DTM_punkttetthet/ImageServer?f=json"
+      },
+      {
+        "id": "hoydegis:DTM",
+        "title": "DTM",
+        "access_path": "https://hoydedata.no/arcgis/rest/services/DTM/ImageServer?f=json"
+      },
+      {
+        "id": "hoydegis:dummy32",
+        "title": "dummy32",
+        "access_path": "https://hoydedata.no/arcgis/rest/services/dummy32/MapServer?f=json"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search DTM --db /tmp/pda-hoydegis-proof/registry.sqlite --limit 5",
+    "query": "DTM",
+    "returned": 4,
+    "hit_id": "hoydegis:DTM",
+    "title": "DTM",
+    "source_id": "hoydegis",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://hoydedata.no/arcgis/rest/services/DTM/ImageServer?f=json",
+    "original_source": "https://hoydedata.no/arcgis/rest/services?f=json",
+    "why_picked": "title matched dtm"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset hoydegis:DTM --db /tmp/pda-hoydegis-proof/registry.sqlite",
+    "dataset": "hoydegis:DTM",
+    "table_id": "DTM",
+    "access_path": "https://hoydedata.no/arcgis/rest/services/DTM/ImageServer?f=json",
+    "request_url": "https://hoydedata.no/arcgis/rest/services/DTM/ImageServer?f=json",
+    "http_status": 200,
+    "listed": 1,
+    "inserted": 1,
+    "updated": 0,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "name",
+        "value": "DTM"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset hoydegis:DTM --db /tmp/pda-hoydegis-proof/registry.sqlite",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "Kartverket /arcgis/rest/services/DTM/ImageServer prints a service-name string. That is not a numeric time series with a year-like period field and two or more periods. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed last path segments of service names. access_path is the catalog origin plus /arcgis/rest/services/{name}/{type}?f=json. No hoydegis id was written onto a hoydedata, miljogis, nvegis, or datanorge row.",
+    "License stays null: the catalog prints no license URL. Publisher is null: the catalog does not print a publisher.",
+    "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "python3 -m pytest after implement: 943 passed, 1 skipped, 1 deselected.",
+    "Not a numeric time series with two or more periods. Fetch listed 1 printed service-name cell (sample DTM).",
+    "Open PR check at pickup found no open PRs. Lane B (bc-61d16822) is implementing npigis so unused."
+  ]
+}

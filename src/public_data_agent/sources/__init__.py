@@ -27,6 +27,7 @@ from public_data_agent.sources.himaps import HimapsSource
 from public_data_agent.sources.histyles import HistylesSource
 from public_data_agent.sources.hitiles import HitilesSource
 from public_data_agent.sources.hoydedata import HoydedataSource
+from public_data_agent.sources.hoydegis import HoydegisSource
 from public_data_agent.sources.icemap import IcemapSource
 from public_data_agent.sources.isobaricgrib import IsobaricgribSource
 from public_data_agent.sources.kommuneinfo import KommuneinfoSource
@@ -191,6 +192,7 @@ SOURCE_IDS = (
     "navwarnings",
     "havnedata",
     "miljogis",
+    "hoydegis",
 )
 
 
@@ -383,6 +385,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return HavnedataSource()
     if source_id == "miljogis":
         return MiljogisSource()
+    if source_id == "hoydegis":
+        return HoydegisSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -412,6 +416,7 @@ __all__ = [
     "HistylesSource",
     "HitilesSource",
     "HoydedataSource",
+    "HoydegisSource",
     "IcemapSource",
     "IsobaricgribSource",
     "KommuneinfoSource",
