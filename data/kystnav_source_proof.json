@@ -1,0 +1,136 @@
+{
+  "produced_at": "2026-08-28T10:27:00Z",
+  "bound": {
+    "list_api": [
+      "https://maps.kystverket.cloudgis.no/enterprise/services/PROD/nfs_sistop_ekstern_prod/MapServer/WMSServer?request=GetCapabilities&service=WMS",
+      "https://maps.kystverket.cloudgis.no/enterprise/services/PROD/nfs_sistop_ekstern_prod/MapServer/WFSServer?request=GetCapabilities&service=WFS"
+    ],
+    "walk": "copy the two printed leftover Kystverket Navigasjonsinstallasjoner GetCapabilities documents printed on Geonorge as Navigasjonsinstallasjoner WMS (uuid 80b7eab8-d5da-4136-8ec6-2002867a2b2b) and Navigasjonsinstallasjoner WFS (uuid 73e46cf4-d9f5-4d75-b148-bb5edf888c4a); skip a document that is not WMS or WFS XML; skip services.kystverket.no ashx already in --source kystwms and --source kystwfs; skip havnedata collections already in --source havnedata, Kystdatahuset already in --source kystverket, and navigasjonsvarsler already in --source navwarnings; skip leftover wfs.geonorge.no WFS rows (different host); native ids are the printed last path segment so WMSServer stays distinct from WFSServer; access_path is the GetCapabilities URL as printed; license stays null; publisher stays null; do not invent query filters or extra WMS paths",
+    "cap": 10,
+    "how": "pda ingest --source kystnav --limit 10. Both printed leftover GetCapabilities documents return XML 200. Cap 10 copies both. This is not --source kystverket, not --source havnedata, not --source navwarnings, not --source kystwms, and not --source kystwfs."
+  },
+  "discarded": [
+    {
+      "candidate": "Kystverket leftover WMS / kystwms",
+      "url": "https://services.kystverket.no/wms.ashx?service=WMS&request=GetCapabilities",
+      "why": "Already on main after PR 176 merge 72ec991. Host is services.kystverket.no. This slice is leftover cloudgis Navigasjonsinstallasjoner only."
+    },
+    {
+      "candidate": "Kystverket leftover WFS / kystwfs",
+      "url": "https://services.kystverket.no/wfs.ashx?service=WFS&request=GetCapabilities",
+      "why": "Already on main after PR 178. Host is services.kystverket.no. Skip."
+    },
+    {
+      "candidate": "Kystverket Kystdatahuset / kystverket",
+      "url": "https://kystdatahuset.no/ws/swagger/v1/swagger.json",
+      "why": "Already on main as --source kystverket. Not leftover Navigasjonsinstallasjoner WMS/WFS."
+    },
+    {
+      "candidate": "Kartverket Havnedata collections / havnedata",
+      "url": "https://ogcapitest.kartverket.no/rest/services/havnedata3_0/collections",
+      "why": "Already on main as --source havnedata. Skip. Do not ingest havnedata collections as WMS."
+    },
+    {
+      "candidate": "Kystverket navigasjonsvarsler / navwarnings",
+      "url": "https://api.kystverket.no/data/navigationwarnings/coastal/",
+      "why": "Already on main as --source navwarnings. Host is api.kystverket.no, not maps.kystverket.cloudgis.no."
+    },
+    {
+      "candidate": "Nødhavner WFS",
+      "url": "https://wfs.geonorge.no/skwms1/wfs.nodhavner?request=GetCapabilities&service=WFS",
+      "why": "Printed leftover Kystverket OGC:WFS on a different host. This slice stays on maps.kystverket.cloudgis.no."
+    },
+    {
+      "candidate": "Hovedled og biled WFS",
+      "url": "https://wfs.geonorge.no/skwms1/wfs.farled?service=WFS&Version=2.0.0&request=GetCapabilities",
+      "why": "Printed leftover Kystverket OGC:WFS on wfs.geonorge.no. Different host. Skip."
+    },
+    {
+      "candidate": "INSPIRE Transport Network Water WFS",
+      "url": "http://wfs.geonorge.no/skwms1/wfs.inspire-tn-w?service=WFS&Version=2.0.0&request=GetCapabilities",
+      "why": "Printed leftover Kystverket OGC:WFS on wfs.geonorge.no. Different host. Skip."
+    },
+    {
+      "candidate": "Kartverket leftover grunnkart WMS / kvgrunn",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/180",
+      "why": "In-flight sibling PR 180 --source kvgrunn. Do not pick."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source kystnav --db /tmp/pda-kystnav-proof/registry.sqlite --limit 10",
+    "listed": 2,
+    "inserted": 2,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "kystnav:WMSServer",
+        "title": "WMSServer",
+        "access_path": "https://maps.kystverket.cloudgis.no/enterprise/services/PROD/nfs_sistop_ekstern_prod/MapServer/WMSServer?request=GetCapabilities&service=WMS"
+      },
+      {
+        "id": "kystnav:WFSServer",
+        "title": "WFSServer",
+        "access_path": "https://maps.kystverket.cloudgis.no/enterprise/services/PROD/nfs_sistop_ekstern_prod/MapServer/WFSServer?request=GetCapabilities&service=WFS"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search WMSServer --db /tmp/pda-kystnav-proof/registry.sqlite --limit 10",
+    "query": "WMSServer",
+    "returned": 1,
+    "hit_id": "kystnav:WMSServer",
+    "title": "WMSServer",
+    "source_id": "kystnav",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://maps.kystverket.cloudgis.no/enterprise/services/PROD/nfs_sistop_ekstern_prod/MapServer/WMSServer?request=GetCapabilities&service=WMS",
+    "original_source": "https://maps.kystverket.cloudgis.no/enterprise/services/PROD/nfs_sistop_ekstern_prod/MapServer/WMSServer?request=GetCapabilities&service=WMS",
+    "why_picked": "title matched wmsserver"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset kystnav:WMSServer --db /tmp/pda-kystnav-proof/registry.sqlite",
+    "dataset": "kystnav:WMSServer",
+    "table_id": "WMSServer",
+    "access_path": "https://maps.kystverket.cloudgis.no/enterprise/services/PROD/nfs_sistop_ekstern_prod/MapServer/WMSServer?request=GetCapabilities&service=WMS",
+    "request_url": "https://maps.kystverket.cloudgis.no/enterprise/services/PROD/nfs_sistop_ekstern_prod/MapServer/WMSServer?request=GetCapabilities&service=WMS",
+    "http_status": 200,
+    "listed": 10,
+    "inserted": 10,
+    "updated": 0,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "Name",
+        "value": "Skilt6756"
+      },
+      {
+        "measure": "Name",
+        "value": "Overettlinje_merke4406"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset kystnav:WMSServer --db /tmp/pda-kystnav-proof/registry.sqlite",
+    "applicable": false,
+    "why": "WMSServer GetCapabilities prints Layer names. Those are not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": false,
+    "called_fetch": false
+  },
+  "notes": [
+    "Ids are copied from printed last path segments. access_path is the GetCapabilities URL as printed. No kystnav id was written onto a kystverket, havnedata, navwarnings, kystwms, or kystwfs row.",
+    "License is null: the leftover GetCapabilities documents print no license URL. Publisher is null.",
+    "Live GET of the printed WMSServer URL is HTTP 200 WMS_Capabilities XML. Live GET of the printed WFSServer URL is HTTP 200 WFS_Capabilities XML. No token is sent. No extra Accept header is invented.",
+    "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "python3 -m pytest after adding the source: 1202 passed, 1 skipped, 1 deselected.",
+    "Rebased onto origin/main after kvgrunn #180, nbdsd #179, and nbconcept #182. Local pytest after rebase: 1228 passed, 1 skipped, 1 deselected.",
+    "Not a numeric time series with two or more periods. Fetch listed 10 printed Layer Name cells (sample Skilt6756, Overettlinje_merke4406).",
+    "Kystdatahuset stays on --source kystverket. Havnedata stays on --source havnedata. Navigasjonsvarsler stay on --source navwarnings. leftover ashx stays on --source kystwms and --source kystwfs. kvgrunn 180 stayed unused."
+  ]
+}
