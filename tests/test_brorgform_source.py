@@ -103,6 +103,8 @@ def test_brorgform_is_a_registered_source() -> None:
     assert "nibiorest" in SOURCE_IDS
     assert "mattilsyn" in SOURCE_IDS
     assert "nbprov" in SOURCE_IDS
+    assert "avinorgis" in SOURCE_IDS
+    assert SOURCE_IDS[SOURCE_IDS.index("avinorgis") + 1] == "brorgform"
     assert SOURCE_IDS[-1] == "brorgform"
     source = build_source("brorgform")
     assert isinstance(source, BrorgformSource)
