@@ -4610,6 +4610,38 @@ HTTP 200, 9 Layer Name cells. Sample printed value: `VERNSKOG2`.
 (`no observations matched entity/measure; available=[]`).
 Proof is `data/ldirwms_source_proof.json`.
 
+`pda ingest --source frivillig` is another replaceable adapter. It lists
+printed collection GET paths on the official Frivillighetsregisteret
+OpenAPI
+`https://data.brreg.no/enhetsregisteret/api/dokumentasjon/no/openapi.json`,
+capped at 10. Only `/frivillighetsregisteret/` paths are copied.
+Templated `{organisasjonsnummer}` paths, GET operations that print
+required parameters, and the printed CSV totalbestand path are skipped.
+Dataset ids are the last printed path segment. `access_path` is the
+printed `servers[0].url` plus the path. License is the printed NLOD URL.
+Publisher stays null. This is not Enhetsregisteret (`--source brreg`)
+and not Regnskapsregisteret (`--source regnskap`).
+
+```bash
+pda ingest --source frivillig --db data/registry.sqlite --limit 10
+pda search ICNPO --db data/registry.sqlite
+pda fetch --dataset frivillig:icnpo-kategorier --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored collection URL. Observation values are
+copied from printed `navn` when present. Other scalars stay as
+dimensions. Nested objects and `_links` are not copied.
+
+Live ingest 2026-08-28: 3 printed untemplated JSON collection GET paths
+(catalog prints those three under `/frivillighetsregisteret/`, cap 10).
+Live search `ICNPO` returns `frivillig:icnpo-kategorier`. Live fetch GETs
+`https://data.brreg.no/frivillighetsregisteret/api/icnpo-kategorier`
+HTTP 200, 46 category-name cells. Sample printed value:
+`Kultur- og rekreasjon`.
+`pda methods` is not applicable: category names, not a numeric
+time series (`no observations matched entity/measure; available=[]`).
+Proof is `data/frivillig_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists

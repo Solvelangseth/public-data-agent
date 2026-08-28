@@ -20,6 +20,7 @@ from public_data_agent.sources.fhi import FhiStatistikkSource
 from public_data_agent.sources.fiskeridir import FiskeridirVesselSource
 from public_data_agent.sources.fiskerigis import FiskerigisSource
 from public_data_agent.sources.fixture import FixtureSource
+from public_data_agent.sources.frivillig import FrivilligSource
 from public_data_agent.sources.geonorge import GeonorgeKartkatalogSource
 from public_data_agent.sources.grep import GrepSource
 from public_data_agent.sources.georegister import GeoregisterSource
@@ -235,6 +236,7 @@ SOURCE_IDS = (
     "rawms",
     "elcert",
     "ldirwms",
+    "frivillig",
 )
 
 
@@ -471,6 +473,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return ElcertSource()
     if source_id == "ldirwms":
         return LdirwmsSource()
+    if source_id == "frivillig":
+        return FrivilligSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -493,6 +497,7 @@ __all__ = [
     "FiskeridirVesselSource",
     "FiskerigisSource",
     "FixtureSource",
+    "FrivilligSource",
     "GeonorgeKartkatalogSource",
     "GrepSource",
     "GeoregisterSource",

@@ -1,0 +1,141 @@
+{
+  "produced_at": "2026-08-28T09:54:49Z",
+  "bound": {
+    "list_api": "https://data.brreg.no/enhetsregisteret/api/dokumentasjon/no/openapi.json",
+    "walk": "copy printed untemplated GET paths under /frivillighetsregisteret/ from the official OpenAPI; skip templated {organisasjonsnummer} paths, GET operations that print required parameters, and the printed CSV totalbestand path; native ids are the last printed path segment; access_path is printed servers[0].url plus path; do not invent organisasjonsnummer or search filters",
+    "cap": 10,
+    "how": "pda ingest --source frivillig --limit 10. The official OpenAPI prints 3 untemplated JSON collection GET paths under /frivillighetsregisteret/. The adapter copies those paths. GET uses the printed /icnpo-kategorier collection with no invented query filters. The templated org-number path and the CSV dump stay unused. This is not Enhetsregisteret (--source brreg) and not Regnskapsregisteret (--source regnskap)."
+  },
+  "discarded": [
+    {
+      "candidate": "NVE Vannkraftdatabase / vannkraft",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/164",
+      "why": "Assigned skip then merged on main. Do not re-add."
+    },
+    {
+      "candidate": "NVE Vindkraftdatabase / vindkraft",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/169",
+      "why": "Assigned skip then merged on main. Do not re-add."
+    },
+    {
+      "candidate": "NVE Elsertifikater / elcert",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/170",
+      "why": "Open/in-flight PR 170. Do not pick the other lane's source."
+    },
+    {
+      "candidate": "MET Aviationforecast",
+      "url": "https://api.met.no/weatherapi/aviationforecast/2.0/swagger",
+      "why": "On main after PR 166. Assigned skip. Do not re-add."
+    },
+    {
+      "candidate": "NVE Inntektsrammer",
+      "url": "https://biapi.nve.no/inntektsrammer/swagger/v1/swagger.json",
+      "why": "Official OpenAPI HTTP 200. Live collection GETs are HTTP 401. Do not invent auth."
+    },
+    {
+      "candidate": "NVE Nettleiestatistikk",
+      "url": "https://biapi.nve.no/nettleiestatistikk/swagger/v1/swagger.json",
+      "why": "HTTP 410. Do not retry."
+    },
+    {
+      "candidate": "NVE Nettleietariffer",
+      "url": "https://nettleietariffer.dataplattform.nve.no/openapi.json",
+      "why": "Official OpenAPI HTTP 200 prints only /healthcheck. No collection GET."
+    },
+    {
+      "candidate": "MET THREDDS swagger",
+      "url": "https://api.met.no/weatherapi/thredds/1.0/swagger",
+      "why": "HTTP 500. Do not invent endpoints."
+    },
+    {
+      "candidate": "Udir NLR",
+      "url": "https://data-nlr.udir.no/swagger/v4/swagger.json",
+      "why": "Known skip: live collection GETs are HTTP 401. Do not invent auth."
+    },
+    {
+      "candidate": "Fiskeridirektoratet ERS / aqua-operations / Autorisasjonsregisteret",
+      "url": "https://api.fiskeridir.no/catalog/",
+      "why": "Known skip: 401 or only templated paths. Do not invent auth or a site number."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source frivillig --db /tmp/pda-frivillig-proof/registry.sqlite --limit 10",
+    "listed": 3,
+    "inserted": 3,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "frivillig:frivillige-organisasjoner",
+        "access_path": "https://data.brreg.no/frivillighetsregisteret/api/frivillige-organisasjoner"
+      },
+      {
+        "id": "frivillig:icnpo-kategorier",
+        "access_path": "https://data.brreg.no/frivillighetsregisteret/api/icnpo-kategorier"
+      },
+      {
+        "id": "frivillig:informasjonstyper",
+        "access_path": "https://data.brreg.no/frivillighetsregisteret/api/informasjonstyper"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search ICNPO --db /tmp/pda-frivillig-proof/registry.sqlite --limit 5",
+    "query": "ICNPO",
+    "returned": 3,
+    "hit_id": "frivillig:icnpo-kategorier",
+    "title": "Hent ICNPO kategorier",
+    "source_id": "frivillig",
+    "publisher": null,
+    "license": "https://data.norge.no/nlod/no/2.0",
+    "access_path": "https://data.brreg.no/frivillighetsregisteret/api/icnpo-kategorier",
+    "original_source": "https://data.brreg.no/enhetsregisteret/api/dokumentasjon/no/openapi.json",
+    "why_picked": "title matched icnpo"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset frivillig:icnpo-kategorier --db /tmp/pda-frivillig-proof/registry.sqlite",
+    "dataset": "frivillig:icnpo-kategorier",
+    "table_id": "icnpo-kategorier",
+    "access_path": "https://data.brreg.no/frivillighetsregisteret/api/icnpo-kategorier",
+    "request_url": "https://data.brreg.no/frivillighetsregisteret/api/icnpo-kategorier",
+    "http_status": 200,
+    "listed": 46,
+    "inserted": 46,
+    "updated": 0,
+    "license": "https://data.norge.no/nlod/no/2.0",
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "navn",
+        "value": "Kultur- og rekreasjon"
+      },
+      {
+        "measure": "navn",
+        "value": "Kunst og kultur"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset frivillig:icnpo-kategorier --table icnpo-kategorier --entity 1 --measure navn --db /tmp/pda-frivillig-proof/registry.sqlite --out /tmp/pda-frivillig-proof/methods2",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "Frivillighetsregisteret /icnpo-kategorier prints category names. Those are not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed OpenAPI path last segments. access_path is printed servers[0].url plus path. No frivillig id was written onto a brreg or regnskap row.",
+    "License is the printed OpenAPI NLOD URL https://data.norge.no/nlod/no/2.0. Publisher is null: the spec does not print a publisher.",
+    "Original harvested OpenAPI metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "Open PRs at pickup after origin/main refresh were 170 elcert, 171 rawms leftover WMS, 165 ldirwms leftover WMS. This lane stayed on frivillig.",
+    "python3 -m pytest after Frivillighetsregisteret adapter: 1114 passed, 1 skipped, 1 deselected.",
+    "Not a numeric time series with two or more periods. Fetch listed 46 printed category-name cells (sample Kultur- og rekreasjon)."
+  ]
+}

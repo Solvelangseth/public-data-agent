@@ -385,6 +385,11 @@ from public_data_agent.sources.elcert import (
     elcert_table_id,
     is_elcert_url,
 )
+from public_data_agent.sources.frivillig import (
+    cells_from_frivillig,
+    frivillig_table_id,
+    is_frivillig_url,
+)
 from public_data_agent.sources.spotwind import (
     cells_from_spotwind,
     is_spotwind_url,
@@ -905,6 +910,8 @@ def fetch_observations(
         return _fetch_vegogc(registry, dataset, http=http)
     if is_elcert_url(access_path):
         return _fetch_elcert(registry, dataset, http=http)
+    if is_frivillig_url(access_path):
+        return _fetch_frivillig(registry, dataset, http=http)
     if is_npigis_url(access_path):
         return _fetch_npigis(registry, dataset, http=http)
     if is_nve2gis_url(access_path):
@@ -6323,6 +6330,61 @@ def _fetch_vegogc(
         http_status = 200
         registry.set_fetch_request(run_id, request_url=access_path, request_body={"method": "GET"})
         cells = cells_from_vegogc(body)
+        counts.listed = len(cells)
+        sample = _store_cells(
+            registry,
+            dataset,
+            run_id,
+            table_id=table_id,
+            cells=cells,
+            retrieved_at=utc_now(),
+            request_url=access_path,
+            http_status=http_status,
+            counts=counts,
+        )
+        status = "completed"
+    except Exception as exc:
+        counts.failed += 1
+        counts.errors.append({"error": str(exc), "url": access_path})
+        raise
+    finally:
+        registry.finish_fetch_run(run_id, counts, status=status, http_status=http_status)
+    return FetchResult(
+        dataset_id=dataset["id"],
+        table_id=table_id,
+        request_url=access_path,
+        http_status=http_status,
+        counts=counts,
+        sample=sample,
+    )
+
+
+def _fetch_frivillig(
+    registry: Registry,
+    dataset: dict[str, Any],
+    *,
+    http: JsonHttp | None = None,
+) -> FetchResult:
+    access_path = dataset.get("access_path") or ""
+    client = http or HttpClient(timeout=60.0, max_retries=4)
+    table_id = frivillig_table_id(access_path)
+    started = utc_now()
+    run_id = registry.start_fetch_run(
+        dataset_id=dataset["id"],
+        table_id=table_id,
+        request_url=access_path,
+        request_method="GET",
+        started_at=started,
+    )
+    counts = HarvestCounts()
+    status = "failed"
+    http_status = 0
+    sample: list[dict[str, Any]] = []
+    try:
+        got = client.get_json_response(access_path)
+        http_status = got.status
+        registry.set_fetch_request(run_id, request_url=access_path, request_body={"method": "GET"})
+        cells = cells_from_frivillig(got.body)
         counts.listed = len(cells)
         sample = _store_cells(
             registry,
