@@ -1,0 +1,181 @@
+{
+  "produced_at": "2026-08-28T01:45:30Z",
+  "bound": {
+    "list_api": "https://data.stortinget.no/dokumentasjon-og-hjelp/teknisk-dokumentasjon/",
+    "walk": "copy printed untemplated /eksport/ hrefs from the official Stortinget technical documentation; skip printed example URIs that include a query string (those examples name required parameters) and templated paths; native ids are the printed last path segment so /eksport/stortingsperioder and /eksport/sesjoner stay distinct; access_path is the documentation origin plus path plus the documented format=json parameter; license stays null because the documentation prints no license URL; publisher stays null because the documentation prints no publisher field; do not invent sesjonid, stortingsperiodeid, sakid, moteid, or personid query filters",
+    "cap": 10,
+    "how": "pda ingest --source stortinget --limit 10. The official technical documentation prints 8 untemplated /eksport/ collection hrefs with no query string. The adapter copies those paths. GET uses the printed /eksport/stortingsperioder path with the documented format=json parameter. This is not Cristin (--source cristin), Fiskeridirektoratet Miljøundersøkelser (--source envreportreg), Havforskningsinstituttet OGC Coverages (--source hicoverages), or Havforskningsinstituttet OGC Maps (--source himaps, PR 139 now on main)."
+  },
+  "discarded": [
+    {
+      "candidate": "Havforskningsinstituttet OGC Maps / himaps",
+      "url": "PR 139 --source himaps",
+      "why": "Lane B opened PR 139 and it is now merged on main. Do not pick the other lane's source."
+    },
+    {
+      "candidate": "NAV pam-stilling-feed",
+      "url": "https://navikt.github.io/pam-stilling-feed/",
+      "why": "Official docs print Bearer authentication. Do not invent an auth workaround."
+    },
+    {
+      "candidate": "Udir Register for lærebedrifter / nlr",
+      "url": "https://data-nlr.udir.no/swagger/v4/swagger.json",
+      "why": "Known skip: live collection GETs are HTTP 401. Do not invent an auth workaround."
+    },
+    {
+      "candidate": "Fiskeridirektoratet aqua-operations-public",
+      "url": "https://api.fiskeridir.no/aqua-operations-public/v3/api-docs",
+      "why": "Lane B hunted this leftover. Official OpenAPI prints only a templated /api/v1/joint-ops/{site-nr}. Do not invent a site number."
+    },
+    {
+      "candidate": "Fiskeridirektoratet Autorisasjonsregisteret / authreg",
+      "url": "https://api.fiskeridir.no/auth-reg/openapi",
+      "why": "Lane B hunted this leftover. Probe paths returned 404. Do not invent endpoints."
+    },
+    {
+      "candidate": "NILU lookup/areas",
+      "url": "https://api.nilu.no/lookup/areas",
+      "why": "HTTP 410 Gone. Do not retry."
+    },
+    {
+      "candidate": "MET lightning / pollenforecast / forestfireindex / uvforecast / weathericon / thunderstorm / probabilityforecast swagger",
+      "url": "https://api.met.no/weatherapi/lightning/1.0/swagger",
+      "why": "Known skip: live swagger HTTP 500. Do not invent endpoints."
+    },
+    {
+      "candidate": "Kartverket Adresser /sok /punktsok",
+      "url": "https://api.kartverket.no/adresser/v1/openapi.json",
+      "why": "Known skip: live GET without search params is HTTP 400. Do not invent a query."
+    },
+    {
+      "candidate": "Frost MET sources",
+      "url": "https://frost.met.no/sources/v0.jsonld",
+      "why": "HTTP 401. Do not retry."
+    },
+    {
+      "candidate": "NVDB Les V3 OpenAPI",
+      "url": "https://nvdbapiles-v3.atlas.vegvesen.no/dokumentasjon/openapi.json",
+      "why": "Known skip: HTTP 400 User-Agent. Do not retry."
+    },
+    {
+      "candidate": "NVE HydAPI /api/v1/Parameters",
+      "url": "https://hydapi.nve.no/swagger/v1/swagger.json",
+      "why": "HTTP 401. Do not retry."
+    },
+    {
+      "candidate": "NVE Avalanche",
+      "url": "https://api01.nve.no/hydrology/forecast/avalanche/v6.2.1/api",
+      "why": "Known skip: printed paths are templated with region and date. Do not invent a region id."
+    },
+    {
+      "candidate": "MET Aviationforecast / Sigmets",
+      "url": "https://api.met.no/weatherapi/aviationforecast/2.0/swagger",
+      "why": "Assigned skip for this lane. Not selected."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    },
+    {
+      "candidate": "envreportreg / hicoverages / omregning / cristin / regnskap",
+      "url": "--source envreportreg / hicoverages / omregning / cristin / regnskap, now on main",
+      "why": "Already on main. Do not re-add."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source stortinget --db /tmp/pda-stortinget-proof/registry.sqlite --limit 10",
+    "listed": 8,
+    "inserted": 8,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "stortinget:allekomiteer",
+        "access_path": "https://data.stortinget.no/eksport/allekomiteer?format=json"
+      },
+      {
+        "id": "stortinget:allepartier",
+        "access_path": "https://data.stortinget.no/eksport/allepartier?format=json"
+      },
+      {
+        "id": "stortinget:dagensrepresentanter",
+        "access_path": "https://data.stortinget.no/eksport/dagensrepresentanter?format=json"
+      },
+      {
+        "id": "stortinget:emner",
+        "access_path": "https://data.stortinget.no/eksport/emner?format=json"
+      },
+      {
+        "id": "stortinget:fylker",
+        "access_path": "https://data.stortinget.no/eksport/fylker?format=json"
+      },
+      {
+        "id": "stortinget:saksganger",
+        "access_path": "https://data.stortinget.no/eksport/saksganger?format=json"
+      },
+      {
+        "id": "stortinget:sesjoner",
+        "access_path": "https://data.stortinget.no/eksport/sesjoner?format=json"
+      },
+      {
+        "id": "stortinget:stortingsperioder",
+        "access_path": "https://data.stortinget.no/eksport/stortingsperioder?format=json"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search stortingsperioder --db /tmp/pda-stortinget-proof/registry.sqlite --limit 5",
+    "query": "stortingsperioder",
+    "returned": 1,
+    "hit_id": "stortinget:stortingsperioder",
+    "title": "stortingsperioder",
+    "source_id": "stortinget",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://data.stortinget.no/eksport/stortingsperioder?format=json",
+    "original_source": "https://data.stortinget.no/dokumentasjon-og-hjelp/teknisk-dokumentasjon/",
+    "why_picked": "title matched stortingsperioder"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset stortinget:stortingsperioder --db /tmp/pda-stortinget-proof/registry.sqlite",
+    "dataset": "stortinget:stortingsperioder",
+    "table_id": "stortingsperioder",
+    "access_path": "https://data.stortinget.no/eksport/stortingsperioder?format=json",
+    "request_url": "https://data.stortinget.no/eksport/stortingsperioder?format=json",
+    "http_status": 200,
+    "listed": 21,
+    "inserted": 21,
+    "updated": 0,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "id",
+        "value": "2025-2029"
+      },
+      {
+        "measure": "id",
+        "value": "2021-2025"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset stortinget:stortingsperioder --table stortingsperioder --entity 2021-2025 --measure id --db /tmp/pda-stortinget-proof/registry.sqlite --out /tmp/pda-stortinget-proof/methods2",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "Stortinget /eksport/stortingsperioder prints period-id strings plus fra/til scalars. Those are not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from the printed documentation last path segment. access_path is the documentation origin plus path plus documented format=json. No stortinget id was written onto an envreportreg, hicoverages, cristin, or himaps row.",
+    "License is null: the documentation prints no license URL. Publisher is null: the documentation prints no publisher field.",
+    "Original harvested documentation metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "Open PR at pickup after Lane B opened was PR 139 himaps. This lane stayed on stortinget. PR 139 later merged at b3a5279.",
+    "python3 -m pytest after Stortinget adapter: 859 passed, 1 skipped, 1 deselected.",
+    "Not a numeric time series with two or more periods. Fetch listed 21 printed stortingsperiode cells (sample id 2025-2029)."
+  ]
+}
