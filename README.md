@@ -4086,6 +4086,45 @@ HTTP 200, 1 layer-name cell. Sample printed value: `AIS density Norge 2016`.
 (`no observations matched entity/measure; available=[]`).
 Proof is `data/fiskerigis_source_proof.json`.
 
+## Norsk Polarinstitutt Basisdata Intern GIS source
+
+`pda ingest --source npiintern` is another replaceable adapter. It lists
+printed MapServer services on the official Norsk Polarinstitutt ArcGIS
+REST Basisdata_Intern catalog
+`https://geodata.npolar.no/arcgis/rest/services/Basisdata_Intern?f=json`,
+capped at 10. The folder name `Basisdata_Intern` is printed on the root
+services catalog. Empty names and empty types are skipped. Dataset ids
+are the printed last path segment of `name` so
+`/NP_Antarktis_WMTS_3031/MapServer` stays distinct from
+`/NP_Lokalstyret_WMS_25833/MapServer`. `access_path` is the printed name
+plus type plus the catalog's `f=json` query. License stays null: the
+catalog prints no license URL. Publisher stays null. This is not the
+NPI Open Data API (`--source npolar`), not NPI Basisdata GIS
+(`--source npigis`), not NPI Temadata GIS (`--source npitema`), not NPI
+ArcticSDI GIS (`--source arcticsdi`, now on main after PR 153), not NVE
+Mapservices (`--source nvemap`), and not Fiskeridirektoratet GIS
+(`--source fiskerigis`, now on main after PR 154).
+
+```bash
+pda ingest --source npiintern --db data/registry.sqlite --limit 10
+pda search NP_Lokalstyret_WMS_25833 --db data/registry.sqlite
+pda fetch --dataset npiintern:NP_Antarktis_WMTS_3031 --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored MapServer URL. Observation values are copied
+from printed JSON `name` when present, otherwise `mapName`, `title`, or
+`id`. License stays null. Publisher stays null.
+
+Live ingest 2026-08-28: 10 printed MapServer services (catalog prints
+24; cap 10 copies the first 10 in document order). Live search
+`NP_Lokalstyret_WMS_25833` returns `npiintern:NP_Lokalstyret_WMS_25833`.
+Live fetch GETs
+`https://geodata.npolar.no/arcgis/rest/services/Basisdata_Intern/NP_Antarktis_WMTS_3031/MapServer?f=json`
+HTTP 200, 20 layer-name cells. Sample printed value: `Stedsnavn_DML`.
+`pda methods` is not applicable: layer names, not a numeric time series
+(`no observations matched entity/measure; available=[]`).
+Proof is `data/npiintern_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
