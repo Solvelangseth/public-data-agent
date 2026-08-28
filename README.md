@@ -3266,6 +3266,36 @@ Myriospora scabrida. `pda methods` is not applicable: scientific names,
 not a numeric time series (`no observations matched entity/measure;
 available=[]`). Proof is `data/artskart_source_proof.json`.
 
+`pda ingest --source lister` is another replaceable adapter. It lists
+printed collection GET paths on the official Artsdatabanken Assessments
+swagger `https://lister.artsdatabanken.no/swagger/v1/swagger.json`,
+capped at 10. Templated paths and GET operations that print required
+parameters are skipped. Dataset ids are the last printed path segment.
+`access_path` is the swagger document origin plus the printed path.
+License stays null: the swagger does not print a license URL. Publisher
+stays null. This is not Artskart (`--source artskart`, now on main after
+PR 131), not Nortaxa (`--source nortaxa`), not Natur i Norge
+(`--source nin`), and not Kartverket Register (`--source georegister`).
+
+```bash
+pda ingest --source lister --db data/registry.sqlite --limit 10
+pda search naturetypesassessment2025 --db data/registry.sqlite
+pda fetch --dataset lister:naturetypesassessment2025 --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored collection URL. Observation values are
+copied from printed OData `value` records, keeping printed `name`.
+License stays null. Publisher stays null: the swagger does not print a
+publisher field.
+
+Live ingest copies the swagger-printed untemplated GET paths with no
+required parameters (cap 10). Live search `naturetypesassessment2025`
+returns `lister:naturetypesassessment2025`. Live fetch GETs
+`https://lister.artsdatabanken.no/odata/v1/naturetypesassessment2025`
+HTTP 200 and copies printed nature-type names. `pda methods` is not
+applicable: nature-type names, not a numeric time series. Proof is
+`data/lister_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
