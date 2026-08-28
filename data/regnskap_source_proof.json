@@ -1,0 +1,195 @@
+{
+  "produced_at": "2026-08-28T00:59:31Z",
+  "bound": {
+    "list_api": "https://data.brreg.no/regnskapsregisteret/regnskap/v3/api-docs",
+    "walk": "copy printed untemplated GET paths from the official Brønnøysundregistrene Regnskapsregisteret OpenAPI; skip templated paths and GET operations that print required parameters; native ids are the printed path without a leading slash so /statistikk/by-* and /regnskapsregisteret/regnskap/log stay distinct; access_path is printed servers[0].url plus path; license stays null because the OpenAPI prints no license URL; publisher stays null because the OpenAPI prints no publisher field; do not invent orgNummer, year, or date query filters",
+    "cap": 10,
+    "how": "pda ingest --source regnskap --limit 10. The official Regnskapsregisteret OpenAPI prints 4 untemplated GET paths with no required parameter. The adapter copies those paths. GET uses the printed /regnskapsregisteret/regnskap/log href with no invented query filters. This is not Enhetsregisteret (--source brreg)."
+  },
+  "discarded": [
+    {
+      "candidate": "Udir Register for lærebedrifter / nlr",
+      "url": "https://data-nlr.udir.no/swagger/v4/swagger.json",
+      "why": "Lane B (bc-876ee4c8) was probing this host at pickup and later opened PR 134 cristin. Do not pick the other lane's source."
+    },
+    {
+      "candidate": "Cristin",
+      "url": "PR 134 --source cristin",
+      "why": "Lane B opened this after pickup. Do not pick the other lane's source."
+    },
+    {
+      "candidate": "Kartverket OGC Coverages / ogccoverages",
+      "url": "PR 132 --source ogccoverages, now on main",
+      "why": "Assigned skip. Already on main after merge 3e267d7. Do not re-add."
+    },
+    {
+      "candidate": "Artsdatabanken Assessments / lister",
+      "url": "PR 133 --source lister, now on main",
+      "why": "Assigned skip. Already on main after merge a264de6. Do not re-add."
+    },
+    {
+      "candidate": "MET Aviationforecast / Sigmets",
+      "url": "https://api.met.no/weatherapi/aviationforecast/2.0/swagger",
+      "why": "Assigned skip for this lane. Not selected."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    },
+    {
+      "candidate": "Brønnøysundregistrene Enhetsregisteret",
+      "url": "https://data.brreg.no/enhetsregisteret/api",
+      "why": "Already on main as --source brreg. is_brreg_url matches only /enhetsregisteret/api. Do not re-add."
+    },
+    {
+      "candidate": "Stortinget data.stortinget.no eksport",
+      "url": "https://data.stortinget.no/eksport/stortingsperioder",
+      "why": "Live GET HTTP 200 but default Content-Type is text/xml. A JSON format query is not printed. Do not invent ?format=json."
+    },
+    {
+      "candidate": "NVE Flomvarsel / Jordskredvarsel / Avalanche Warning swagger",
+      "url": "https://api01.nve.no/hydrology/forecast/flood/v1.0.6/swagger/docs/v1.0.6",
+      "why": "Official swagger HTTP 200. Every printed GET path is templated or prints a required parameter. Do not invent langkey/region/date values."
+    },
+    {
+      "candidate": "NVE Inntektsrammer OpenAPI",
+      "url": "https://biapi.nve.no/inntektsrammer/swagger/v1/swagger.json",
+      "why": "Official OpenAPI HTTP 200 lists untemplated GET paths, but prior live GET /api/InntektsrammerType is HTTP 401. Do not invent an auth workaround."
+    },
+    {
+      "candidate": "NVE Nettleietariffer OpenAPI",
+      "url": "https://nettleietariffer.dataplattform.nve.no/v1/openapi.json",
+      "why": "Official OpenAPI HTTP 200. The only untemplated GET without required query parameters is /healthcheck. Data paths print required date/fylke filters. Do not invent those filters."
+    },
+    {
+      "candidate": "NVE Elsertifikater / Vindkraftdatabase",
+      "url": "https://api.nve.no/doc/elsertifikater/",
+      "why": "Live GET /web/ElCert/GetApplications is HTTP 200 JSON. The printed catalog is HTML documentation only. HTML-only catalogs stay unused."
+    },
+    {
+      "candidate": "Artsdatabanken Fremmedartsbase API",
+      "url": "https://fab.artsdatabanken.no/swagger/v1/swagger.json",
+      "why": "Official OpenAPI 200. Live collection GETs are HTTP 401. Do not invent auth."
+    },
+    {
+      "candidate": "Kartverket Adresser /sok /punktsok",
+      "url": "https://api.kartverket.no/adresser/v1/openapi.json",
+      "why": "OpenAPI prints /sok, but live GET without search params is HTTP 400. Do not invent a query."
+    },
+    {
+      "candidate": "Kartverket Eiendom /geokoding",
+      "url": "https://api.kartverket.no/eiendom/v1/geokoding",
+      "why": "Known skip: HTTP 400 without matrikkel params. Do not retry."
+    },
+    {
+      "candidate": "Frost MET sources",
+      "url": "https://frost.met.no/sources/v0.jsonld",
+      "why": "HTTP 401. Do not retry."
+    },
+    {
+      "candidate": "NVDB Les V3 OpenAPI",
+      "url": "https://nvdbapiles-v3.atlas.vegvesen.no/dokumentasjon/openapi.json",
+      "why": "Known skip: HTTP 400 User-Agent. Do not retry."
+    },
+    {
+      "candidate": "Vegvesen Trafikkdata swagger / trafikkdata-api",
+      "url": "https://trafikkdata.atlas.vegvesen.no/",
+      "why": "Known skip: swagger HTML-only; trafikkdata-api 410. Do not retry."
+    },
+    {
+      "candidate": "Kartverket skred / kvikkleire / hoydekurver / rutenett / dekning OpenAPI",
+      "url": "https://ws.geonorge.no/skred/v1/openapi.json",
+      "why": "Live GET OpenAPI is HTTP 403. Do not invent an auth workaround."
+    },
+    {
+      "candidate": "NVE HydAPI /api/v1/Parameters",
+      "url": "https://hydapi.nve.no/swagger/v1/swagger.json",
+      "why": "HTTP 401. Do not retry."
+    },
+    {
+      "candidate": "Udir GREP / KL06",
+      "url": "https://data.udir.no/kl06/",
+      "why": "HTML-only catalog. Do not invent API keys."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source regnskap --db /tmp/pda-regnskap-proof/registry.sqlite --limit 10",
+    "listed": 4,
+    "inserted": 4,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "regnskap:statistikk/by-orgnr",
+        "access_path": "https://data.brreg.no/statistikk/by-orgnr"
+      },
+      {
+        "id": "regnskap:statistikk/by-method",
+        "access_path": "https://data.brreg.no/statistikk/by-method"
+      },
+      {
+        "id": "regnskap:statistikk/by-ip",
+        "access_path": "https://data.brreg.no/statistikk/by-ip"
+      },
+      {
+        "id": "regnskap:regnskapsregisteret/regnskap/log",
+        "access_path": "https://data.brreg.no/regnskapsregisteret/regnskap/log"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search log --db /tmp/pda-regnskap-proof/registry.sqlite --limit 5",
+    "query": "log",
+    "returned": 1,
+    "hit_id": "regnskap:regnskapsregisteret/regnskap/log",
+    "title": "Query for log.",
+    "source_id": "regnskap",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://data.brreg.no/regnskapsregisteret/regnskap/log",
+    "original_source": "https://data.brreg.no/regnskapsregisteret/regnskap/v3/api-docs",
+    "why_picked": "title matched log"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset regnskap:regnskapsregisteret/regnskap/log --db /tmp/pda-regnskap-proof/registry.sqlite",
+    "dataset": "regnskap:regnskapsregisteret/regnskap/log",
+    "table_id": "log",
+    "access_path": "https://data.brreg.no/regnskapsregisteret/regnskap/log",
+    "request_url": "https://data.brreg.no/regnskapsregisteret/regnskap/log",
+    "http_status": 200,
+    "listed": 2190,
+    "inserted": 2190,
+    "updated": 0,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "value",
+        "value": "20180102202758-masse.xml"
+      },
+      {
+        "measure": "value",
+        "value": "20180103202854-masse.xml"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset regnskap:regnskapsregisteret/regnskap/log --table log --entity \"\" --measure \"\" --db /tmp/pda-regnskap-proof/registry.sqlite --out /tmp/pda-regnskap-proof/methods",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "Regnskapsregisteret /log prints filename strings. Those are not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed OpenAPI paths without a leading slash. access_path is printed servers[0].url plus path. No regnskap id was written onto a brreg, ogccoverages, lister, or datanorge row.",
+    "License is null: the OpenAPI prints no license URL. Publisher is null: the OpenAPI prints no publisher field.",
+    "Original harvested OpenAPI metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "Open PRs at pickup were empty. Lane B (bc-876ee4c8) later opened PR 134 Cristin. This lane stayed on regnskap.",
+    "python3 -m pytest after Regnskap adapter: 810 passed, 1 skipped, 1 deselected.",
+    "Not a numeric time series with two or more periods. Fetch listed 2190 printed filename cells (sample 20180102202758-masse.xml)."
+  ]
+}
