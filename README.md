@@ -3461,11 +3461,14 @@ pda fetch --dataset hicoverages:collections --db data/registry.sqlite
 from printed JSON `title` when present, otherwise `name` or `id`. License
 stays null. Publisher stays null.
 
-Live ingest copies the landing-page-printed JSON GET hrefs (cap 10).
-Live search `collections` returns `hicoverages:collections`. Live fetch
-GETs the printed collections href HTTP 200 and copies printed collection
-titles. `pda methods` is not applicable: collection titles, not a numeric
-time series. Proof is `data/hicoverages_source_proof.json`.
+Live ingest 2026-08-28: 2 printed application/json GET hrefs (catalog
+prints conformance and collections; cap 10). Live search `collections`
+returns `hicoverages:collections`. Live fetch GETs
+`https://kart.hi.no/data/ogc/coverages/v1/collections?f=application%2Fjson`
+HTTP 200, 32 collection-title cells. Sample printed value: `reprojected`.
+`pda methods` is not applicable: collection titles, not a numeric
+time series (`no observations matched entity/measure; available=[]`).
+Proof is `data/hicoverages_source_proof.json`.
 
 ## Architecture (long term)
 
