@@ -8,6 +8,7 @@ from public_data_agent.sources.aqua import AquaSource
 from public_data_agent.sources.arcticsdi import ArcticsdiSource
 from public_data_agent.sources.artskart import ArtskartSource
 from public_data_agent.sources.baf import BafSource
+from public_data_agent.sources.banegis import BanegisSource
 from public_data_agent.sources.base import CatalogSource, SourceBase
 from public_data_agent.sources.brreg import BrregEnhetsregisterSource
 from public_data_agent.sources.buyer import BuyerSource
@@ -266,6 +267,7 @@ SOURCE_IDS = (
     "ssbfam",
     "ssbsec",
     "ssclass",
+    "banegis",
     "nibiorest",
 )
 
@@ -533,6 +535,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return SsbsecSource()
     if source_id == "ssclass":
         return SsclassSource()
+    if source_id == "banegis":
+        return BanegisSource()
     if source_id == "nibiorest":
         return NibiorestSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
@@ -545,6 +549,7 @@ __all__ = [
     "ArcticsdiSource",
     "ArtskartSource",
     "BafSource",
+    "BanegisSource",
     "BrregEnhetsregisterSource",
     "BuyerSource",
     "CatalogSource",

@@ -4926,6 +4926,40 @@ names, not a numeric time series
 (`no observations matched entity/measure; available=[]`).
 Proof is `data/mdirwms_source_proof.json`.
 
+## Bane NOR leftover WMS/WFS source
+
+`pda ingest --source banegis` is another replaceable adapter. It lists the
+four printed leftover Bane NOR GetCapabilities documents
+`https://wfs.geonorge.no/skwms1/wfs.stoysonerjernbanenett?service=WFS&request=GetCapabilities`,
+`https://wms.geonorge.no/skwms1/wms.stoysonerjernbanenett?service=WMS&request=GetCapabilities`,
+`https://wfs.geonorge.no/skwms1/wfs.banenettverk?request=GetCapabilities&service=WFS`,
+and
+`https://wms.geonorge.no/skwms1/wms.banenettverk?request=GetCapabilities&service=WMS`,
+capped at 10. Those URLs are printed on Geonorge Kartkatalog search
+`https://kartkatalog.geonorge.no/api/search?text=Bane%20NOR` as Type=service
+OGC:WFS or OGC:WMS. A document that is not WMS or WFS XML is skipped.
+Dataset ids are the printed last path segment so `wms.banenettverk` stays
+distinct from `wfs.banenettverk`. `access_path` is the GetCapabilities URL
+as printed. License stays null. Publisher stays null. This is not
+Kartverket leftover topo WMS/WMTS (`--source kvwms`), not leftover
+grunnkart WMS (`--source kvgrunn`), not Statens vegvesen leftover OGC
+(`--source vegogc`), and not Geonorge Kartkatalog (`--source geonorge`).
+Jernbanedirektoratet search printed no Type=service OGC rows.
+
+```bash
+pda ingest --source banegis --db data/registry.sqlite --limit 10
+pda search stoysonerjernbanenett --db data/registry.sqlite
+pda fetch --dataset banegis:wms.stoysonerjernbanenett --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored GetCapabilities URL as text. Observation
+values are copied from printed WMS `Layer`/`Name` text or WFS
+`FeatureType`/`Name` text. A printed `Title` sibling stays as a
+dimension. License stays null. Publisher stays null.
+
+`pda methods` is not applicable: layer names, not a numeric time series.
+`methods/` was not edited.
+
 ## Norges Bank SDMX Codelists source
 
 `pda ingest --source nbcodelist` is another replaceable adapter. It lists
