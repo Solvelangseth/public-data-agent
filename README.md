@@ -4957,8 +4957,15 @@ values are copied from printed WMS `Layer`/`Name` text or WFS
 `FeatureType`/`Name` text. A printed `Title` sibling stays as a
 dimension. License stays null. Publisher stays null.
 
-`pda methods` is not applicable: layer names, not a numeric time series.
-`methods/` was not edited.
+Live ingest 2026-08-28: 4 printed GetCapabilities documents, all XML
+200. Live search `stoysonerjernbanenett` returns
+`banegis:wfs.stoysonerjernbanenett`. Live fetch GETs
+`https://wms.geonorge.no/skwms1/wms.stoysonerjernbanenett?service=WMS&request=GetCapabilities`
+HTTP 200, 3 Layer Name cells. Sample printed value:
+`stoysonerjernbanenett`. `pda methods` is not applicable: layer names,
+not a numeric time series
+(`no observations matched entity/measure; available=[]`).
+Proof is `data/banegis_source_proof.json`.
 
 ## Norges Bank SDMX Codelists source
 

@@ -1,0 +1,132 @@
+{
+  "produced_at": "2026-08-28T10:42:20Z",
+  "bound": {
+    "list_api": [
+      "https://wfs.geonorge.no/skwms1/wfs.stoysonerjernbanenett?service=WFS&request=GetCapabilities",
+      "https://wms.geonorge.no/skwms1/wms.stoysonerjernbanenett?service=WMS&request=GetCapabilities",
+      "https://wfs.geonorge.no/skwms1/wfs.banenettverk?request=GetCapabilities&service=WFS",
+      "https://wms.geonorge.no/skwms1/wms.banenettverk?request=GetCapabilities&service=WMS"
+    ],
+    "walk": "copy the four printed leftover Bane NOR Type=service OGC:WMS/OGC:WFS GetCapabilities documents printed on Geonorge Kartkatalog search text=Bane NOR (uuids 66a366e5-59c0-45fe-8750-dbf8a92594de, ba518936-f9b3-4363-b5c6-9118acb1d88c, 05cb3f1b-51e7-455f-9c4c-b21f5d99cce2, 726b28c4-d601-4909-892f-f54b3a00a6ad); skip a document that is not WMS or WFS XML; skip wms.topo already in --source kvwms, wms.topograatone and wms.norges_grunnkart already in --source kvgrunn, Statens vegvesen leftover OGC already in --source vegogc, and Kartkatalog metadata already in --source geonorge; native ids are the printed last path segment so wms.banenettverk stays distinct from wfs.banenettverk; access_path is the GetCapabilities URL as printed; license stays null; publisher stays null; do not invent query filters or extra WMS paths",
+    "cap": 10,
+    "how": "pda ingest --source banegis --limit 10. All four printed leftover GetCapabilities documents return XML 200. Cap 10 copies all four. This is not --source kvwms, not --source kvgrunn, not --source vegogc, and not --source geonorge."
+  },
+  "discarded": [
+    {
+      "candidate": "Kartverket leftover topo WMS/WMTS / kvwms",
+      "url": "https://wms.geonorge.no/skwms1/wms.topo?service=WMS&request=GetCapabilities",
+      "why": "Already on main as --source kvwms. Id is wms.topo. This slice is leftover Bane NOR stoysonerjernbanenett and banenettverk only."
+    },
+    {
+      "candidate": "Kartverket leftover grunnkart WMS / kvgrunn",
+      "url": "https://wms.geonorge.no/skwms1/wms.norges_grunnkart?service=WMS&request=GetCapabilities",
+      "why": "Already on main as --source kvgrunn. Ids are wms.topograatone and wms.norges_grunnkart. Skip."
+    },
+    {
+      "candidate": "Statens vegvesen leftover OGC / vegogc",
+      "url": "https://www.vegvesen.no/fag/teknologi/apne-data/et-utvalg-apne-data/ogc-karttjenester/kartlag/",
+      "why": "Already on main as --source vegogc. Host is ogckart-sn1.atlas.vegvesen.no. Skip."
+    },
+    {
+      "candidate": "Geonorge Kartkatalog / geonorge",
+      "url": "https://kartkatalog.geonorge.no/api/search?text=Bane%20NOR&limit=50",
+      "why": "Already on main as --source geonorge. Catalog metadata, not leftover WMS/WFS GetCapabilities ingest."
+    },
+    {
+      "candidate": "Jernbanedirektoratet Geonorge search",
+      "url": "https://kartkatalog.geonorge.no/api/search?text=Jernbanedirektoratet&limit=50",
+      "why": "NumFound 0. Printed no Type=service OGC:WMS/WFS rows."
+    },
+    {
+      "candidate": "NIBIO leftover WMS past nibiowms / nibiorest",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/188",
+      "why": "In-flight sibling PR 188 --source nibiorest. Do not pick."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source banegis --db /tmp/pda-banegis-proof/registry.sqlite --limit 10",
+    "listed": 4,
+    "inserted": 4,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "banegis:wfs.stoysonerjernbanenett",
+        "title": "wfs.stoysonerjernbanenett",
+        "access_path": "https://wfs.geonorge.no/skwms1/wfs.stoysonerjernbanenett?service=WFS&request=GetCapabilities"
+      },
+      {
+        "id": "banegis:wms.stoysonerjernbanenett",
+        "title": "wms.stoysonerjernbanenett",
+        "access_path": "https://wms.geonorge.no/skwms1/wms.stoysonerjernbanenett?service=WMS&request=GetCapabilities"
+      },
+      {
+        "id": "banegis:wfs.banenettverk",
+        "title": "wfs.banenettverk",
+        "access_path": "https://wfs.geonorge.no/skwms1/wfs.banenettverk?request=GetCapabilities&service=WFS"
+      },
+      {
+        "id": "banegis:wms.banenettverk",
+        "title": "wms.banenettverk",
+        "access_path": "https://wms.geonorge.no/skwms1/wms.banenettverk?request=GetCapabilities&service=WMS"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search stoysonerjernbanenett --db /tmp/pda-banegis-proof/registry.sqlite --limit 10",
+    "query": "stoysonerjernbanenett",
+    "returned": 2,
+    "hit_id": "banegis:wfs.stoysonerjernbanenett",
+    "title": "wfs.stoysonerjernbanenett",
+    "source_id": "banegis",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://wfs.geonorge.no/skwms1/wfs.stoysonerjernbanenett?service=WFS&request=GetCapabilities",
+    "original_source": "https://wfs.geonorge.no/skwms1/wfs.stoysonerjernbanenett?service=WFS&request=GetCapabilities",
+    "why_picked": "title matched stoysonerjernbanenett"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset banegis:wms.stoysonerjernbanenett --db /tmp/pda-banegis-proof/registry.sqlite",
+    "dataset": "banegis:wms.stoysonerjernbanenett",
+    "table_id": "wms.stoysonerjernbanenett",
+    "access_path": "https://wms.geonorge.no/skwms1/wms.stoysonerjernbanenett?service=WMS&request=GetCapabilities",
+    "request_url": "https://wms.geonorge.no/skwms1/wms.stoysonerjernbanenett?service=WMS&request=GetCapabilities",
+    "http_status": 200,
+    "listed": 3,
+    "inserted": 3,
+    "updated": 0,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "Name",
+        "value": "stoysonerjernbanenett"
+      },
+      {
+        "measure": "Name",
+        "value": "stoy"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset banegis:wms.stoysonerjernbanenett --db /tmp/pda-banegis-proof/registry.sqlite",
+    "applicable": false,
+    "why": "wms.stoysonerjernbanenett GetCapabilities prints Layer names. Those are not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": false,
+    "called_fetch": false
+  },
+  "notes": [
+    "Ids are copied from printed last path segments. access_path is the GetCapabilities URL as printed. No banegis id was written onto a kvwms, kvgrunn, vegogc, or geonorge row.",
+    "License is null: the leftover GetCapabilities documents print no license URL. Publisher is null.",
+    "Live GET of each of the four printed leftover URLs is HTTP 200 WMS_Capabilities or WFS_Capabilities XML. No token is sent. No extra Accept header is invented.",
+    "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "python3 -m pytest after adding the source onto origin/main after ssbfam #181: 1254 passed, 1 skipped, 1 deselected.",
+    "Not a numeric time series with two or more periods. Fetch listed 3 printed Layer Name cells (sample stoysonerjernbanenett, stoy, stoygrense).",
+    "kvwms stays on wms.topo. kvgrunn stays on leftover grunnkart. vegogc stays on Statens vegvesen leftover OGC. geonorge stays on Kartkatalog metadata. nibiorest 188 stayed unused."
+  ]
+}
