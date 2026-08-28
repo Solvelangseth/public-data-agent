@@ -204,6 +204,8 @@
     "Original harvested swagger metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
     "Open PRs at pickup were empty. Lane B later opened PR 127 Kartverket Den norske los. This lane stayed on locationforecast.",
     "python3 -m pytest after Locationforecast adapter: 740 passed, 1 skipped, 1 deselected.",
-    "Not a numeric time series with two or more periods. Fetch listed 2 printed location-name cells (sample ECMWF area)."
+    "Not a numeric time series with two or more periods. Fetch listed 2 printed location-name cells (sample ECMWF area).",
+    "Rebased onto origin/main after Norskelos 127 merge 811aade. All existing sources plus locationforecast were kept. norskelos adapter files were not edited.",
+    "python3 -m pytest after rebase onto Norskelos 127: 750 passed, 1 skipped, 1 deselected."
   ]
 }
