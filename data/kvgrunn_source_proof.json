@@ -109,6 +109,6 @@
     "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
     "is_kvwms_url now matches only wms.topo on wms.geonorge.no, so wms.topograatone is not treated as topo.",
     "python3 -m pytest tests/test_kvgrunn_source.py tests/test_kvwms_source.py: 18 passed.",
-    "Branched from origin/main after nguwms #174 (1b225c8). Rebased onto origin/main after kystwfs #178 (5bb1be3) and stormflo #175 (5ac86d2). SOURCE_IDS keeps nguwms, stormflo, kystwfs, then kvgrunn. Open PR at rebase: kystwms #176."
+    "Branched from origin/main after nguwms #174 (1b225c8). Rebased onto origin/main after kystwms #176 (72ec991), nbcodelist #177 (161a00e), kystwfs #178 (5bb1be3), and stormflo #175 (5ac86d2). SOURCE_IDS keeps kystwms, stormflo, kystwfs, nbcodelist, then kvgrunn."
   ]
 }
