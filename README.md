@@ -4746,6 +4746,31 @@ This fetch is a numeric time series with three periods. `methods/` was
 not edited.
 Proof is `data/stormflo_source_proof.json`.
 
+## Kystverket leftover WFS source
+
+`pda ingest --source kystwfs` is another replaceable adapter. It lists the
+printed leftover Kystverket WFS GetCapabilities document on
+`https://services.kystverket.no/wfs.ashx?service=WFS&request=GetCapabilities`,
+capped at 10. Geonorge prints that URL on Kystverkets WFS
+(`de223e4c-e708-4c15-9afb-f8cedd3cd3ba`). GetCapabilities bodies that
+are not WFS XML are skipped. The dataset id is the printed last path
+segment `wfs.ashx`. `access_path` is the printed GetCapabilities URL.
+License stays null: the capabilities document prints no license URL.
+Publisher stays null. This is not Kystdatahuset OpenAPI
+(`--source kystverket`), not Kartverket Havnedata
+(`--source havnedata`), and not leftover Kystverket WMS
+(`--source kystwms`).
+
+```bash
+pda ingest --source kystwfs --db data/registry.sqlite --limit 10
+pda search Kystverket --db data/registry.sqlite
+pda fetch --dataset kystwfs:wfs.ashx --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored GetCapabilities URL. Observation values are
+copied from printed WFS `FeatureType`/`Name` text. A sibling `Title`
+stays as a dimension. License stays null. Publisher stays null.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
