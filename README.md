@@ -5011,6 +5011,52 @@ names, not a numeric time series
 (`no observations matched entity/measure; available=[]`).
 Proof is `data/mattilsyn_source_proof.json`.
 
+## Havforskningsinstituttet leftover WMS/WFS source
+
+`pda ingest --source hiwms` is another replaceable adapter. It lists printed
+leftover OGC:WMS and OGC:WFS Type=service rows on the official Geonorge
+Kartkatalog search
+`https://kartkatalog.geonorge.no/api/search?text=Havforskningsinstituttet&limit=50`,
+capped at 10. Other organizations, downloads, servicelayers, and
+OGC:API-Features rows are skipped. Havforskningsinstituttet OGC API
+Coverages, Maps, Styles, Tiles, and Features paths are skipped.
+Fiskeridirektoratet GIS, Kartverket Havnedata, leftover NGU WMS, leftover
+Bane NOR skwms1 ids, leftover Avinor skwms1 ids, leftover Kartverket WMS
+ids, leftover Miljødirektoratet WFS ids, and the HTML portal
+`https://kart.hi.no/data/` are skipped. GetCapabilities bodies that are
+not WMS or WFS XML are skipped. Dataset ids are the printed service path
+segment so the leftover
+`https://kart.hi.no/data/fraraadning/ows?service=WMS&version=1.3.0&request=GetCapabilities`
+keeps native id `fraraadning_ows`. `access_path` is the printed
+`DistributionUrl`. License stays null: the catalog prints no license URL.
+Publisher stays null. This is not Havforskningsinstituttet OGC API Features
+(`--source hi`), not OGC Coverages (`--source hicoverages`), not OGC Maps
+(`--source himaps`), not OGC Styles (`--source histyles`), not OGC Tiles
+(`--source hitiles`), not Fiskeridirektoratet GIS (`--source fiskerigis`),
+and not Kartverket Havnedata (`--source havnedata`).
+
+```bash
+pda ingest --source hiwms --db data/registry.sqlite --limit 10
+pda search Rådgivningskart --db data/registry.sqlite
+pda fetch --dataset hiwms:fraraadning_ows --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored GetCapabilities URL. Observation values are
+copied from printed WMS `Layer`/`Name` text or WFS `FeatureType`/`Name`
+text. A sibling `Title` stays as a dimension. License stays null. Publisher
+stays null.
+
+Live ingest 2026-08-28: 10 leftover WMS/WFS services (search prints 325
+rows; cap 10 copies leftover live OGC:WMS and OGC:WFS Type=service
+documents after skipping covered HI OGC API paths, sibling GIS hosts,
+and bodies that are not WMS or WFS XML). Live search `Rådgivningskart`
+returns `hiwms:fraraadning_ows`. Live fetch GETs
+`https://kart.hi.no/data/fraraadning/ows?service=WMS&version=1.3.0&request=GetCapabilities`
+HTTP 200, 4 Layer Name cells. Sample printed value: `Raadgivning_2024`.
+`pda methods` is not applicable: layer names, not a numeric time series
+(`no observations matched entity/measure; available=[]`).
+Proof is `data/hiwms_source_proof.json`.
+
 ## Norges Bank SDMX Codelists source
 
 `pda ingest --source nbcodelist` is another replaceable adapter. It lists

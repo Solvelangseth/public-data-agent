@@ -37,6 +37,7 @@ from public_data_agent.sources.hicoverages import HicoveragesSource
 from public_data_agent.sources.himaps import HimapsSource
 from public_data_agent.sources.histyles import HistylesSource
 from public_data_agent.sources.hitiles import HitilesSource
+from public_data_agent.sources.hiwms import HiwmsSource
 from public_data_agent.sources.hoydedata import HoydedataSource
 from public_data_agent.sources.hoydegis import HoydegisSource
 from public_data_agent.sources.icemap import IcemapSource
@@ -283,6 +284,7 @@ SOURCE_IDS = (
     "fdirwms",
     "brorgform",
     "ssbver",
+    "hiwms",
 )
 
 
@@ -567,6 +569,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return BrorgformSource()
     if source_id == "ssbver":
         return SsbverSource()
+    if source_id == "hiwms":
+        return HiwmsSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -606,6 +610,7 @@ __all__ = [
     "HimapsSource",
     "HistylesSource",
     "HitilesSource",
+    "HiwmsSource",
     "HoydedataSource",
     "HoydegisSource",
     "IcemapSource",
