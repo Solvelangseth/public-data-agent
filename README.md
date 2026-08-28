@@ -4541,6 +4541,32 @@ HTTP 200, 2 Layer Name cells. Sample printed value: `tunnel_segments`.
 (`no observations matched entity/measure; available=[]`).
 Proof is `data/vegogc_source_proof.json`.
 
+`pda ingest --source elcert` is another replaceable adapter. It lists
+printed untemplated collection GET paths on the official NVE
+Elsertifikater documentation `https://api.nve.no/doc/elsertifikater/`,
+capped at 10. Templated paths are skipped. Dataset ids are the printed
+last path segment so `GetApplications` stays distinct from
+`GetSummaryValuesPerQuarter`. `access_path` joins each printed path onto
+the printed `https://` base `api.nve.no/web/ElCert`. License stays null.
+Publisher stays null. This is not Magasinstatistikk (`--source nve`),
+not RegObs (`--source regobs`), not Udir Grep (`--source grep`), not
+MET Aviationforecast (`--source aviationforecast`), and not NVE
+Vannkraftdatabase (`--source vannkraft`) or Vindkraftdatabase
+(`--source vindkraft`).
+
+```bash
+pda ingest --source elcert --db data/registry.sqlite --limit 10
+pda search elsertifikat --db data/registry.sqlite
+pda fetch --dataset elcert:GetApplications --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored collection URL. Observation values are copied
+from printed JSON `KraftverksNavn` when present, otherwise `Status` or
+`TypeAnlegg`. Nested objects are not copied. License stays null.
+Publisher stays null.
+
+Live ingest, fetch, and search proof will follow on this PR.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
