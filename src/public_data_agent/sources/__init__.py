@@ -40,6 +40,7 @@ from public_data_agent.sources.kommuneinfo import KommuneinfoSource
 from public_data_agent.sources.kvwms import KvwmsSource
 from public_data_agent.sources.kystverket import KystverketSource
 from public_data_agent.sources.kystwfs import KystwfsSource
+from public_data_agent.sources.kystwms import KystwmsSource
 from public_data_agent.sources.ldirwms import LdirwmsSource
 from public_data_agent.sources.lister import ListerSource
 from public_data_agent.sources.locationforecast import LocationforecastSource
@@ -240,6 +241,7 @@ SOURCE_IDS = (
     "vegogc",
     "rawms",
     "elcert",
+    "kystwms",
     "ldirwms",
     "frivillig",
     "sandnes",
@@ -481,6 +483,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return RawmsSource()
     if source_id == "elcert":
         return ElcertSource()
+    if source_id == "kystwms":
+        return KystwmsSource()
     if source_id == "ldirwms":
         return LdirwmsSource()
     if source_id == "frivillig":
@@ -537,6 +541,7 @@ __all__ = [
     "KvwmsSource",
     "KystverketSource",
     "KystwfsSource",
+    "KystwmsSource",
     "LdirwmsSource",
     "ListerSource",
     "LocationforecastSource",

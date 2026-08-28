@@ -4255,6 +4255,41 @@ HTTP 200, 6 Layer Name cells. Sample printed value: `Kulturminner`.
 `pda methods` is not applicable: layer names, not a numeric time series.
 Proof is `data/rawms_source_proof.json`.
 
+## Kystverket leftover WMS source
+
+`pda ingest --source kystwms` is another replaceable adapter. It lists the
+two printed leftover Kystverket GetCapabilities documents
+`https://services.kystverket.no/wms.ashx?service=WMS&request=GetCapabilities`
+and
+`https://services.kystverket.no/wfs.ashx?service=WFS&request=GetCapabilities`,
+capped at 10. Those URLs are printed on Geonorge as Kystverkets WMS
+(`768a3ca6-0655-45d5-8cd5-76bd7e0e59d2`) and Kystverkets WFS
+(`de223e4c-e708-4c15-9afb-f8cedd3cd3ba`). A document that is not WMS
+or WFS XML is skipped. Dataset ids are the printed last path segment so
+`wms.ashx` stays distinct from `wfs.ashx`. `access_path` is the
+GetCapabilities URL as printed. License stays null. Publisher stays
+null. This is not Kystdatahuset (`--source kystverket`), not Kartverket
+Havnedata (`--source havnedata`), and not Kystverket navigasjonsvarsler
+(`--source navwarnings`).
+
+```bash
+pda ingest --source kystwms --db data/registry.sqlite --limit 10
+pda search wms.ashx --db data/registry.sqlite
+pda fetch --dataset kystwms:wms.ashx --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored GetCapabilities URL as text. Observation
+values are copied from printed WMS `Layer`/`Name` text or WFS
+`FeatureType`/`Name` text. A printed `Title` sibling stays as a
+dimension. License stays null. Publisher stays null.
+
+Live ingest 2026-08-28: 2 printed GetCapabilities documents, both XML
+200. Live search `wms.ashx` returns `kystwms:wms.ashx`. Live fetch GETs
+`https://services.kystverket.no/wms.ashx?service=WMS&request=GetCapabilities`
+HTTP 200, 57 Layer Name cells. Sample printed value: `MS`.
+`pda methods` is not applicable: layer names, not a numeric time series.
+Proof is `data/kystwms_source_proof.json`.
+
 ## NVE RegObs KDV source
 
 `pda ingest --source regobs` is another replaceable adapter. It lists
