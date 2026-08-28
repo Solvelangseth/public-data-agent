@@ -1,0 +1,226 @@
+{
+  "produced_at": "2026-08-28T03:00:00Z",
+  "bound": {
+    "list_api": "https://geodata.npolar.no/arcgis/rest/services/Basisdata?f=json",
+    "walk": "copy printed name+type services from the official Norsk Polarinstitutt ArcGIS REST Basisdata catalog; the folder name Basisdata is printed on the root services catalog; skip empty names and empty types; native ids are the printed last path segment of name so NP_Basiskart_Svalbard_WMS stays distinct from NP_Basiskart_JanMayen_WMS; access_path is the printed name plus type plus the catalog f=json query; license stays null because the catalog prints no license URL; publisher stays null; live GET of those printed MapServer paths is HTTP 200 with no token; no token is sent; do not invent query filters",
+    "cap": 10,
+    "how": "pda ingest --source npigis --limit 10. The official Basisdata catalog prints MapServer services. GET uses the printed name/type path with the catalog f=json query."
+  },
+  "discarded": [
+    {
+      "candidate": "Lane A miljogis",
+      "url": "https://kart.miljodirektoratet.no/arcgis/rest/services?f=json",
+      "why": "Lane A (bc-324df92d) is implementing Miljødirektoratet ArcGIS as --source miljogis. Do not pick miljogis."
+    },
+    {
+      "candidate": "Kartverket Havnedata",
+      "url": "PR 145 --source havnedata, now on main",
+      "why": "Assigned skip / already on main after merge fd7c062. Do not pick havnedata."
+    },
+    {
+      "candidate": "Kystverket navigasjonsvarsler",
+      "url": "PR 146 --source navwarnings, now on main",
+      "why": "Assigned skip / already on main. Do not pick navwarnings."
+    },
+    {
+      "candidate": "NVE GIS",
+      "url": "PR 144 --source nvegis, now on main",
+      "why": "Assigned skip / already on main. Do not pick nvegis."
+    },
+    {
+      "candidate": "NVE /arcgis/rest/services/mapservice",
+      "url": "https://gis3.nve.no/arcgis/rest/services/mapservice?f=json",
+      "why": "Official JSON catalog HTTP 200 with printed MapServer services. Left unused so this slice stays off the NVE GIS sibling already on main as --source nvegis."
+    },
+    {
+      "candidate": "NGU WFS GetCapabilities",
+      "url": "https://geo.ngu.no/geoserver/ows?service=WFS&request=GetCapabilities",
+      "why": "Official WFS capabilities HTTP 200 with printed FeatureTypes. Left unused. --source ngu already walks NGU OGC API Features."
+    },
+    {
+      "candidate": "Artsdatabanken /api/Resource",
+      "url": "https://artsdatabanken.no/api/Resource",
+      "why": "HTTP 200 JSON taxa content list, not a printed endpoint/path catalog. Left unused."
+    },
+    {
+      "candidate": "Oslo Bysykkel GBFS",
+      "url": "https://gbfs.urbansharing.com/oslobysykkel.no/gbfs.json",
+      "why": "HTTP 200 printed feed list. Left unused. Entur already wraps GBFS (--source entur)."
+    },
+    {
+      "candidate": "MET Aviationforecast 2.0 swagger",
+      "url": "https://api.met.no/weatherapi/aviationforecast/2.0/swagger",
+      "why": "Assigned skip for this lane. Do not pick aviationforecast."
+    },
+    {
+      "candidate": "MET Sigmets 2.0 swagger",
+      "url": "https://api.met.no/weatherapi/sigmets/2.0/swagger",
+      "why": "Assigned skip for this lane. Do not pick sigmets."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    },
+    {
+      "candidate": "Havforskningsinstituttet OGC Processes / EDR / Routes",
+      "url": "https://kart.hi.no/data/ogc/processes/v1",
+      "why": "Live GET HTTP 404 ResourceNotFound. Do not invent endpoints."
+    },
+    {
+      "candidate": "Norsk Polarinstitutt OGC Features",
+      "url": "https://geodata.npolar.no/ogc/features/v1/collections",
+      "why": "Known leftover still HTTP 404. This slice uses the printed ArcGIS REST Basisdata catalog on the same host instead."
+    },
+    {
+      "candidate": "Norsk Polarinstitutt Open Data API",
+      "url": "--source npolar, now on main",
+      "why": "Already on main. Distinct catalog on api.npolar.no."
+    },
+    {
+      "candidate": "Kartverket Adresser /sok /punktsok",
+      "url": "https://api.kartverket.no/adresser/v1/openapi.json",
+      "why": "Known skip: live GET without search params is HTTP 400. Do not invent a query."
+    },
+    {
+      "candidate": "Kartverket Eiendom /geokoding",
+      "url": "https://api.kartverket.no/eiendom/v1/geokoding",
+      "why": "Known skip: HTTP 400 without matrikkel params. Do not retry."
+    },
+    {
+      "candidate": "Udir Register for lærebedrifter",
+      "url": "https://data-nlr.udir.no/swagger/v4/swagger.json",
+      "why": "Known skip: live collection GETs are HTTP 401. Do not invent auth."
+    },
+    {
+      "candidate": "Frost MET sources",
+      "url": "https://frost.met.no/sources/v0.jsonld",
+      "why": "Known skip: HTTP 401. Do not retry."
+    },
+    {
+      "candidate": "NVDB Les V3 OpenAPI",
+      "url": "https://nvdbapiles-v3.atlas.vegvesen.no/dokumentasjon/openapi.json",
+      "why": "Known skip: HTTP 400 User-Agent. Do not retry."
+    },
+    {
+      "candidate": "NVE HydAPI",
+      "url": "https://hydapi.nve.no/swagger/v1/swagger.json",
+      "why": "Known skip: HTTP 401. Do not retry."
+    },
+    {
+      "candidate": "MET leftover swaggers",
+      "url": "https://api.met.no/weatherapi/lightning/1.0/swagger",
+      "why": "Live GET HTTP 500 on lightning, pollenforecast, forestfireindex, uvforecast, weathericon, thunderstorm, probabilityforecast, mapcharts, verticalprofile. Do not invent a workaround."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source npigis --db /tmp/pda-npigis-proof/registry.sqlite --limit 10",
+    "listed": 10,
+    "inserted": 10,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "npigis:FKB_Svalbard_WMTS_25833",
+        "title": "FKB_Svalbard_WMTS_25833",
+        "access_path": "https://geodata.npolar.no/arcgis/rest/services/Basisdata/FKB_Svalbard_WMTS_25833/MapServer?f=json"
+      },
+      {
+        "id": "npigis:FKB_Svalbard_WMTS_3857",
+        "title": "FKB_Svalbard_WMTS_3857",
+        "access_path": "https://geodata.npolar.no/arcgis/rest/services/Basisdata/FKB_Svalbard_WMTS_3857/MapServer?f=json"
+      },
+      {
+        "id": "npigis:NP_Basiskart_JanMayen_WMS",
+        "title": "NP_Basiskart_JanMayen_WMS",
+        "access_path": "https://geodata.npolar.no/arcgis/rest/services/Basisdata/NP_Basiskart_JanMayen_WMS/MapServer?f=json"
+      },
+      {
+        "id": "npigis:NP_Basiskart_JanMayen_WMTS_25829",
+        "title": "NP_Basiskart_JanMayen_WMTS_25829",
+        "access_path": "https://geodata.npolar.no/arcgis/rest/services/Basisdata/NP_Basiskart_JanMayen_WMTS_25829/MapServer?f=json"
+      },
+      {
+        "id": "npigis:NP_Basiskart_JanMayen_WMTS_25833",
+        "title": "NP_Basiskart_JanMayen_WMTS_25833",
+        "access_path": "https://geodata.npolar.no/arcgis/rest/services/Basisdata/NP_Basiskart_JanMayen_WMTS_25833/MapServer?f=json"
+      },
+      {
+        "id": "npigis:NP_Basiskart_JanMayen_WMTS_3857",
+        "title": "NP_Basiskart_JanMayen_WMTS_3857",
+        "access_path": "https://geodata.npolar.no/arcgis/rest/services/Basisdata/NP_Basiskart_JanMayen_WMTS_3857/MapServer?f=json"
+      },
+      {
+        "id": "npigis:NP_Basiskart_Svalbard_WMS",
+        "title": "NP_Basiskart_Svalbard_WMS",
+        "access_path": "https://geodata.npolar.no/arcgis/rest/services/Basisdata/NP_Basiskart_Svalbard_WMS/MapServer?f=json"
+      },
+      {
+        "id": "npigis:NP_Basiskart_Svalbard_WMTS_25833",
+        "title": "NP_Basiskart_Svalbard_WMTS_25833",
+        "access_path": "https://geodata.npolar.no/arcgis/rest/services/Basisdata/NP_Basiskart_Svalbard_WMTS_25833/MapServer?f=json"
+      },
+      {
+        "id": "npigis:NP_Basiskart_Svalbard_WMTS_32633",
+        "title": "NP_Basiskart_Svalbard_WMTS_32633",
+        "access_path": "https://geodata.npolar.no/arcgis/rest/services/Basisdata/NP_Basiskart_Svalbard_WMTS_32633/MapServer?f=json"
+      },
+      {
+        "id": "npigis:NP_Basiskart_Svalbard_WMTS_3857",
+        "title": "NP_Basiskart_Svalbard_WMTS_3857",
+        "access_path": "https://geodata.npolar.no/arcgis/rest/services/Basisdata/NP_Basiskart_Svalbard_WMTS_3857/MapServer?f=json"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search JanMayen_WMS --db /tmp/pda-npigis-proof/registry.sqlite --limit 10",
+    "query": "JanMayen_WMS",
+    "returned": 1,
+    "hit_id": "npigis:NP_Basiskart_JanMayen_WMS",
+    "title": "NP_Basiskart_JanMayen_WMS",
+    "source_id": "npigis",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://geodata.npolar.no/arcgis/rest/services/Basisdata/NP_Basiskart_JanMayen_WMS/MapServer?f=json",
+    "original_source": "https://geodata.npolar.no/arcgis/rest/services/Basisdata?f=json",
+    "why_picked": "title matched janmayen, wms"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset npigis:NP_Basiskart_Svalbard_WMS --db /tmp/pda-npigis-proof/registry.sqlite",
+    "dataset": "npigis:NP_Basiskart_Svalbard_WMS",
+    "table_id": "NP_Basiskart_Svalbard_WMS",
+    "access_path": "https://geodata.npolar.no/arcgis/rest/services/Basisdata/NP_Basiskart_Svalbard_WMS/MapServer?f=json",
+    "request_url": "https://geodata.npolar.no/arcgis/rest/services/Basisdata/NP_Basiskart_Svalbard_WMS/MapServer?f=json",
+    "http_status": 200,
+    "listed": 46,
+    "inserted": 46,
+    "updated": 0,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "name",
+        "value": "S0_Svalbard_Stedsnavn"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset npigis:NP_Basiskart_Svalbard_WMS --db /tmp/pda-npigis-proof/registry.sqlite",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "NPI GIS /NP_Basiskart_Svalbard_WMS/MapServer prints layer names. Those are not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed ArcGIS service names. access_path is the printed name plus type plus f=json. No npigis id was written onto an npolar, nvegis, havnedata, or datanorge row.",
+    "License is null: the catalog prints no license URL. Publisher is null: the catalog prints no publisher field.",
+    "Live GET of /Basisdata/NP_Basiskart_Svalbard_WMS/MapServer?f=json is HTTP 200 with no Authorization header. No token is sent.",
+    "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "python3 -m pytest: 934 passed, 1 skipped, 1 deselected.",
+    "Not a numeric time series with two or more periods. Fetch listed 46 printed layer-name cells (sample S0_Svalbard_Stedsnavn).",
+    "Open PR check at pickup found none. Lane A (bc-324df92d) is implementing miljogis. aviationforecast 2.0 and sigmets 2.0 stayed unused."
+  ]
+}
