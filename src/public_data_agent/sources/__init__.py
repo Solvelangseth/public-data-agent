@@ -20,6 +20,7 @@ from public_data_agent.sources.geonorge import GeonorgeKartkatalogSource
 from public_data_agent.sources.georegister import GeoregisterSource
 from public_data_agent.sources.geosatellite import GeosatelliteSource
 from public_data_agent.sources.gribfiles import GribfilesSource
+from public_data_agent.sources.havnedata import HavnedataSource
 from public_data_agent.sources.hi import HiFeaturesSource
 from public_data_agent.sources.hicoverages import HicoveragesSource
 from public_data_agent.sources.himaps import HimapsSource
@@ -187,6 +188,7 @@ SOURCE_IDS = (
     "miljorapporter",
     "nvegis",
     "navwarnings",
+    "havnedata",
 )
 
 
@@ -375,6 +377,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return NvegisSource()
     if source_id == "navwarnings":
         return NavwarningsSource()
+    if source_id == "havnedata":
+        return HavnedataSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -397,6 +401,7 @@ __all__ = [
     "GeoregisterSource",
     "GeosatelliteSource",
     "GribfilesSource",
+    "HavnedataSource",
     "HiFeaturesSource",
     "HicoveragesSource",
     "HimapsSource",
