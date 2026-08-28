@@ -4125,6 +4125,39 @@ HTTP 200, 20 layer-name cells. Sample printed value: `Stedsnavn_DML`.
 (`no observations matched entity/measure; available=[]`).
 Proof is `data/npiintern_source_proof.json`.
 
+## SSB kart OGC API Features source
+
+`pda ingest --source ssbkart` is another replaceable adapter. It lists
+printed collections on the official Statistisk sentralbyrå kart OGC API
+Features catalog
+`https://kart.ssb.no/api/core/v1/ogc/features/collections`, capped at 10.
+That collections GET is an untemplated path the official CoreApi OpenAPI
+prints. Dataset ids are the printed last path segment of the
+`application/json` items href so `/fylker_2024/items.json` stays distinct
+from `/kommuner_2024/items.json`. `access_path` is that printed items
+href. License stays null: the catalog prints no license URL. Publisher
+stays null. This is not the SSB PxWeb Statbank (`--source ssb`).
+
+```bash
+pda ingest --source ssbkart --db data/registry.sqlite --limit 10
+pda search Municipalities --db data/registry.sqlite
+pda fetch --dataset ssbkart:fylker_2024 --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored items.json URL. Observation values are copied
+from printed JSON `navn` when present, otherwise `title`, `name`, `id`,
+or `nr`. Geometry/`geom` is not copied. License stays null. Publisher
+stays null.
+
+Live ingest 2026-08-28: 10 printed collections (catalog prints 406; cap 10
+copies the first 10 in document order). Live search `Municipalities`
+returns `ssbkart:kommuner_2024`. Live fetch GETs
+`https://kart.ssb.no/api/core/v1/ogc/features/collections/fylker_2024/items.json`
+HTTP 200, 15 county-name cells. Sample printed value: `Oslo`.
+`pda methods` is not applicable: county names, not a numeric time series
+(`no observations matched entity/measure; available=[]`).
+Proof is `data/ssbkart_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists

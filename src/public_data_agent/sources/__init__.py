@@ -83,6 +83,7 @@ from public_data_agent.sources.sigcharts import SigchartsSource
 from public_data_agent.sources.sikt import SiktSource
 from public_data_agent.sources.sodir import SodirSource
 from public_data_agent.sources.soundprofile import SoundprofileSource
+from public_data_agent.sources.ssbkart import SsbkartSource
 from public_data_agent.sources.oslo import OsloStatbankSource
 from public_data_agent.sources.oslofjord import OslofjordSource
 from public_data_agent.sources.spotwind import SpotwindSource
@@ -207,6 +208,7 @@ SOURCE_IDS = (
     "arcticsdi",
     "fiskerigis",
     "npiintern",
+    "ssbkart",
 )
 
 
@@ -415,6 +417,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return FiskerigisSource()
     if source_id == "npiintern":
         return NpiinternSource()
+    if source_id == "ssbkart":
+        return SsbkartSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -500,6 +504,7 @@ __all__ = [
     "SiktSource",
     "SodirSource",
     "SoundprofileSource",
+    "SsbkartSource",
     "OslofjordSource",
     "OsloStatbankSource",
     "SpotwindSource",

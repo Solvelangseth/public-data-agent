@@ -1,0 +1,234 @@
+{
+  "produced_at": "2026-08-28T09:08:51Z",
+  "bound": {
+    "list_api": "https://kart.ssb.no/api/core/v1/ogc/features/collections",
+    "walk": "copy printed collections from the official Statistisk sentralbyrå kart OGC API Features catalog; that collections GET is an untemplated path the official CoreApi OpenAPI at https://kart.ssb.no/api/core/swagger/v1/swagger.json prints as GET /v1/ogc/features/collections; skip collections with no application/json items href; native ids are the printed last path segment of that items href so fylker_2024 stays distinct from kommuner_2024; access_path is the printed items.json href; license stays null because the catalog prints no license URL; publisher stays null; live GET of those printed items.json paths is HTTP 200 with no token; no token is sent; do not invent query filters",
+    "cap": 10,
+    "how": "pda ingest --source ssbkart --limit 10. The official collections catalog prints 406 collections. GET uses the printed application/json items href with no added query."
+  },
+  "discarded": [
+    {
+      "candidate": "Lane A after ARCTICSDI (bc-9d0d1671)",
+      "url": "https://cursor.com/agents/bc-9d0d1671-adc7-467e-b188-96467b6e86d5",
+      "why": "Lane A is in flight with no open PR at pickup. Do not pick whatever source that lane opens."
+    },
+    {
+      "candidate": "NVE gis3 mapservice / featureservice / wmts",
+      "url": "https://gis3.nve.no/arcgis/rest/services/mapservice?f=json",
+      "why": "Official JSON catalog HTTP 200 with printed MapServer services. Left unused so this slice stays off NVE GIS siblings already on main and off Lane A's NVE/Fiskeri GIS track."
+    },
+    {
+      "candidate": "NVE gis2 featureservice",
+      "url": "https://gis2.nve.no/arcgis/rest/services/featureservice?f=json",
+      "why": "Official JSON catalog HTTP 200. Left unused as a sibling of --source nve2gis."
+    },
+    {
+      "candidate": "Fiskeridirektoratet ERS",
+      "url": "https://api.fiskeridir.no/ers-api/swagger",
+      "why": "Official OpenAPI HTTP 200 prints paths. Live GET /api/v1/ers/reports is HTTP 401. Do not invent auth."
+    },
+    {
+      "candidate": "Fiskeridirektoratet aqua-operations-public",
+      "url": "https://api.fiskeridir.no/aqua-operations-public/v3/api-docs",
+      "why": "Official OpenAPI HTTP 200. The only printed path is templated /api/v1/joint-ops/{site-nr}. Do not invent a site number."
+    },
+    {
+      "candidate": "NVE Flomvarsel API",
+      "url": "https://api01.nve.no/hydrology/forecast/flood/v1.0.8/swagger/docs/v1.0.8",
+      "why": "Official swagger 2.0 HTTP 200. Every printed GET path is templated. Do not invent dates or county ids."
+    },
+    {
+      "candidate": "NVE Jordskredvarsel API",
+      "url": "https://api01.nve.no/hydrology/forecast/landslide/v1.0.9/swagger/docs/v1.0.9",
+      "why": "Official swagger 2.0 HTTP 200. Every printed GET path is templated. Do not invent dates or county ids."
+    },
+    {
+      "candidate": "Bufdir Kommunemonitor API",
+      "url": "https://api.bufdir.no/swagger/v1/swagger.json",
+      "why": "Known skip: host timed out or did not resolve. Do not invent a workaround."
+    },
+    {
+      "candidate": "kart.ssb.no leftover OGC path used on earlier lanes",
+      "url": "https://kart.ssb.no/ogc/features/v1/collections",
+      "why": "HTTP 404. The working printed catalog is /api/core/v1/ogc/features/collections."
+    },
+    {
+      "candidate": "NPI leftover folders",
+      "url": "https://geodata.npolar.no/arcgis/rest/services?f=json",
+      "why": "ArcticSDI, Basisdata, Basisdata_Intern, and Temadata are already sources. Utilities prints an empty services array. Do not invent services."
+    },
+    {
+      "candidate": "Politiet politidistrikt swagger",
+      "url": "https://api.politiet.no/politidistrikt/v1/swagger/v1/swagger.json",
+      "why": "Known skip: TLS handshake failed. Do not invent a workaround."
+    },
+    {
+      "candidate": "Brreg kunngjoring",
+      "url": "https://data.brreg.no/kunngjoring/swagger.json",
+      "why": "Known skip: empty reply from server. Do not invent a workaround."
+    },
+    {
+      "candidate": "Udir Grep /kl06/v201906",
+      "url": "https://data.udir.no/kl06/v201906",
+      "why": "Known skip: HTTP 404. Root /kl06/ is HTML-only. Do not invent a path."
+    },
+    {
+      "candidate": "NIBIO GIS",
+      "url": "https://kart.nibio.no/arcgis/rest/services?f=json",
+      "why": "Known skip: host did not resolve."
+    },
+    {
+      "candidate": "NGU ArcGIS REST",
+      "url": "https://geo.ngu.no/arcgis/rest/services?f=json",
+      "why": "Known skip: live GET HTTP 503. Do not invent a workaround."
+    },
+    {
+      "candidate": "Kartverket Adresser /sok",
+      "url": "https://ws.geonorge.no/adresser/v1/openapi.json",
+      "why": "Known skip: live GET without search params is HTTP 400. Do not invent a query."
+    },
+    {
+      "candidate": "Frost MET sources",
+      "url": "https://frost.met.no/sources/v0.jsonld",
+      "why": "Known skip: HTTP 401. Do not retry."
+    },
+    {
+      "candidate": "NVDB Les V3 OpenAPI",
+      "url": "https://nvdbapiles-v3.atlas.vegvesen.no/dokumentasjon/openapi.json",
+      "why": "Known skip: HTTP 400 User-Agent. Do not retry."
+    },
+    {
+      "candidate": "NVE HydAPI",
+      "url": "https://hydapi.nve.no/swagger/v1/swagger.json",
+      "why": "Known skip: HTTP 401. Do not retry."
+    },
+    {
+      "candidate": "Udir Register for lærebedrifter",
+      "url": "https://data-nlr.udir.no/swagger/v4/swagger.json",
+      "why": "Known skip: live collection GETs are HTTP 401. Do not invent auth."
+    },
+    {
+      "candidate": "SeHavniva",
+      "url": "https://api.sehavniva.no/tideapi.php",
+      "why": "Known skip: timeout. Do not invent a workaround."
+    },
+    {
+      "candidate": "aviationforecast / sigmets / offentligdata.no",
+      "url": "assigned skip",
+      "why": "Assigned skip for this lane. Do not pick."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source ssbkart --db /tmp/pda-ssbkart-proof/registry.sqlite --limit 10",
+    "listed": 10,
+    "inserted": 10,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "ssbkart:fylker_2024",
+        "title": "Counties",
+        "access_path": "https://kart.ssb.no/api/core/v1/ogc/features/collections/fylker_2024/items.json"
+      },
+      {
+        "id": "ssbkart:kommuner_2024",
+        "title": "Municipalities",
+        "access_path": "https://kart.ssb.no/api/core/v1/ogc/features/collections/kommuner_2024/items.json"
+      },
+      {
+        "id": "ssbkart:tettsted_2023",
+        "title": "Tettsted 2023",
+        "access_path": "https://kart.ssb.no/api/core/v1/ogc/features/collections/tettsted_2023/items.json"
+      },
+      {
+        "id": "ssbkart:tettsted_2024",
+        "title": "Tettsted 2024",
+        "access_path": "https://kart.ssb.no/api/core/v1/ogc/features/collections/tettsted_2024/items.json"
+      },
+      {
+        "id": "ssbkart:tettsted_2022",
+        "title": "Tettsted 2022",
+        "access_path": "https://kart.ssb.no/api/core/v1/ogc/features/collections/tettsted_2022/items.json"
+      },
+      {
+        "id": "ssbkart:tettsted_2021",
+        "title": "Tettsted 2021",
+        "access_path": "https://kart.ssb.no/api/core/v1/ogc/features/collections/tettsted_2021/items.json"
+      },
+      {
+        "id": "ssbkart:sentrumssoner_2024",
+        "title": "Sentrumssoner 2024",
+        "access_path": "https://kart.ssb.no/api/core/v1/ogc/features/collections/sentrumssoner_2024/items.json"
+      },
+      {
+        "id": "ssbkart:handels_servicesoner_2024",
+        "title": "Handels- og servicesoner 2024",
+        "access_path": "https://kart.ssb.no/api/core/v1/ogc/features/collections/handels_servicesoner_2024/items.json"
+      },
+      {
+        "id": "ssbkart:sentrumsanalyseruter_2024",
+        "title": "Sentrumsanalyseruter 2024",
+        "access_path": "https://kart.ssb.no/api/core/v1/ogc/features/collections/sentrumsanalyseruter_2024/items.json"
+      },
+      {
+        "id": "ssbkart:arealreserver_fritidsbebyggelse_2024",
+        "title": "Arealreserver til fritidsbebyggelse 2024",
+        "access_path": "https://kart.ssb.no/api/core/v1/ogc/features/collections/arealreserver_fritidsbebyggelse_2024/items.json"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search Municipalities --db /tmp/pda-ssbkart-proof/registry.sqlite --limit 10",
+    "query": "Municipalities",
+    "returned": 1,
+    "hit_id": "ssbkart:kommuner_2024",
+    "title": "Municipalities",
+    "source_id": "ssbkart",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://kart.ssb.no/api/core/v1/ogc/features/collections/kommuner_2024/items.json",
+    "original_source": "https://kart.ssb.no/api/core/v1/ogc/features/collections",
+    "why_picked": "title matched municipalities; description matched municipalities"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset ssbkart:fylker_2024 --db /tmp/pda-ssbkart-proof/registry.sqlite",
+    "dataset": "ssbkart:fylker_2024",
+    "table_id": "fylker_2024",
+    "access_path": "https://kart.ssb.no/api/core/v1/ogc/features/collections/fylker_2024/items.json",
+    "request_url": "https://kart.ssb.no/api/core/v1/ogc/features/collections/fylker_2024/items.json",
+    "http_status": 200,
+    "listed": 15,
+    "inserted": 15,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "navn",
+        "value": "Oslo"
+      },
+      {
+        "measure": "navn",
+        "value": "Rogaland"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset ssbkart:fylker_2024 --db /tmp/pda-ssbkart-proof/registry.sqlite",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "SSB kart /fylker_2024/items.json prints county names. Those are not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed items href last path segments. access_path is the printed application/json items href. No ssbkart id was written onto an ssb, hi, ngu, or datanorge row.",
+    "License is null: the catalog prints no license URL. Publisher is null: the catalog prints no publisher field.",
+    "Live GET of /collections/fylker_2024/items.json is HTTP 200 with no Authorization header. No token is sent.",
+    "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "python3 -m pytest: 1015 passed, 1 skipped, 1 deselected.",
+    "Not a numeric time series with two or more periods. Fetch listed 15 printed county-name cells (sample Oslo, Rogaland).",
+    "Open PR check at pickup and before this proof found none. Lane A (bc-9d0d1671) is still in flight with no branch or PR. NVE gis3 leftover unused. aviationforecast and sigmets stayed unused."
+  ]
+}
