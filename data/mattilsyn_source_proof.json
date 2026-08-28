@@ -120,6 +120,7 @@
     "Not a numeric time series with two or more periods. Fetch listed 10 printed Layer Name cells (sample Mattilsynet_Vannverk_Inntakspunkter).",
     "Open PR check at pickup found nibiorest #188. That leftover WMS catalog stayed unused. banegis was not an open PR.",
     "Rebased onto origin/main after stormflo #191 (ca8f749). Kept ssbfam, ssbsec, ssclass, mdirwms, and every other main source plus mattilsyn.",
-    "Rebased onto origin/main after nibiorest #188 (1769c78). Kept nibiorest last, plus mdirwms, kystnav, kvgrunn, nibiowms, ldirwms, and mattilsyn."
+    "Rebased onto origin/main after nibiorest #188 (1769c78). Kept nibiorest last, plus mdirwms, kystnav, kvgrunn, nibiowms, ldirwms, and mattilsyn.",
+    "Rebased onto origin/main after banegis #190 (ba35a17). Kept banegis, nibiorest last, plus mdirwms, kystnav, kvgrunn, nibiowms, ldirwms, and mattilsyn."
   ]
 }
