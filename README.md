@@ -4989,7 +4989,7 @@ WMS/WFS (`--source mdirwms`).
 
 ```bash
 pda ingest --source mattilsyn --db data/registry.sqlite --limit 10
-pda search Mattilsynet --db data/registry.sqlite
+pda search Mattilsynets --db data/registry.sqlite
 pda fetch --dataset mattilsyn:service --db data/registry.sqlite
 ```
 
@@ -4998,7 +4998,18 @@ copied from printed WMS `Layer`/`Name` text or WFS `FeatureType`/`Name`
 text. A sibling `Title` stays as a dimension. License stays null. Publisher
 stays null.
 
-Live proof follows.
+Live ingest 2026-08-28: 1 leftover WMS service (search prints 23 rows;
+1 is OGC:WMS Type=service from Mattilsynet; cap 10 copies that leftover
+live document after skipping W3C:REST, other organizations, downloads,
+servicelayers, and hosts already covered by nibiowms, ldirwms, miljogis,
+and mdirwms). Live search `Mattilsynets` returns `mattilsyn:service`.
+Live fetch GETs
+`https://kart.mattilsynet.no/wmscache/service?service=WMS&request=GetCapabilities`
+HTTP 200, 10 Layer Name cells. Sample printed value:
+`Mattilsynet_Vannverk_Inntakspunkter`. `pda methods` is not applicable: layer
+names, not a numeric time series
+(`no observations matched entity/measure; available=[]`).
+Proof is `data/mattilsyn_source_proof.json`.
 
 ## Norges Bank SDMX Codelists source
 
