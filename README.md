@@ -5101,7 +5101,8 @@ official Klass OpenAPI names that collection GET and prints no required
 query. Dataset ids are the printed `id` values. `access_path` is the
 printed `_links.self.href`. License stays null. Publisher stays null.
 This is not the SSB PxWeb v0 Statbank (`--source ssb`), not PxWebApi 2
-(`--source ssbv2`), and not Klass version fetch on `/api/klass/v1/versions`.
+(`--source ssbv2`), not Klass families (`--source ssbfam`), and not
+Klass version fetch on `/api/klass/v1/versions`.
 
 ```bash
 pda ingest --source ssclass --db data/registry.sqlite --limit 10

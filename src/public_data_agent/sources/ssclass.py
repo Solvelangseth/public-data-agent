@@ -33,8 +33,9 @@ class SsclassSource(SourceBase):
     other optional filter is added. Native ids are the printed `id` values
     so `1` stays distinct from `2`. This first slice stays inside that
     catalog and caps the walk. This is not the SSB PxWeb v0 Statbank
-    (`--source ssb`), not PxWebApi 2 (`--source ssbv2`), and not Klass
-    version fetch on `/api/klass/v1/versions`.
+    (`--source ssb`), not PxWebApi 2 (`--source ssbv2`), not Klass
+    classification families (`--source ssbfam`), and not Klass version
+    fetch on `/api/klass/v1/versions`.
     """
 
     source_id = SOURCE_ID
