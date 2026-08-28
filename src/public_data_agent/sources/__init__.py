@@ -103,6 +103,7 @@ from public_data_agent.sources.ssb import SsbStatbankSource
 from public_data_agent.sources.ssbv2 import Ssbv2Source
 from public_data_agent.sources.statnett import StatnettDriftsdataSource
 from public_data_agent.sources.stedsnavn import StedsnavnSource
+from public_data_agent.sources.stormflo import StormfloSource
 from public_data_agent.sources.stortinget import StortingetSource
 from public_data_agent.sources.subjectiveforecast import SubjectiveforecastSource
 from public_data_agent.sources.subseasonal import SubseasonalSource
@@ -241,6 +242,7 @@ SOURCE_IDS = (
     "frivillig",
     "sandnes",
     "nguwms",
+    "stormflo",
 )
 
 
@@ -483,6 +485,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return SandnesSource()
     if source_id == "nguwms":
         return NguwmsSource()
+    if source_id == "stormflo":
+        return StormfloSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -590,6 +594,7 @@ __all__ = [
     "SourceBase",
     "StatnettDriftsdataSource",
     "StedsnavnSource",
+    "StormfloSource",
     "StortingetSource",
     "SubjectiveforecastSource",
     "SubseasonalSource",

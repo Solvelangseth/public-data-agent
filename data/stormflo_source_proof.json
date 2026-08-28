@@ -1,0 +1,168 @@
+{
+  "produced_at": "2026-08-28T09:57:00Z",
+  "bound": {
+    "list_api": "https://stormflo-konsekvens.kartverket.no/openapi.yaml",
+    "walk": "copy printed untemplated GET paths from the official Kartverket Stormflo OpenAPI YAML; skip templated {kommune} path; native ids are the last printed path segment; access_path is printed servers[0].url + path; do not invent kommunenummer values",
+    "cap": 10,
+    "how": "pda ingest --source stormflo --limit 10. The official OpenAPI prints 3 GET paths. The adapter copies the 2 untemplated paths /public/api/v1/national.json and /public/api/v1/alle_kommuner.json. GET uses the printed national.json collection with no invented query filters. This is not Kommuneinfo (--source kommuneinfo), not leftover Kartverket WMS (--source kvwms), not Geonorge Kartkatalog (--source geonorge), and not NVE Vannkraft."
+  },
+  "discarded": [
+    {
+      "candidate": "NVE Elsertifikater / elcert",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/170",
+      "why": "Open/in-flight PR 170. Do not pick the other lane's source."
+    },
+    {
+      "candidate": "NVE Vindkraftdatabase / vindkraft",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/169",
+      "why": "Open/in-flight PR 169. Do not pick the other lane's source."
+    },
+    {
+      "candidate": "Statens vegvesen leftover OGC / vegogc",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/168",
+      "why": "Open leftover GIS/OGC PR. This lane stays on national JSON."
+    },
+    {
+      "candidate": "Landbruksdirektoratet leftover WMS / ldirwms",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/165",
+      "why": "Open leftover GIS/WMS PR. This lane stays on national JSON."
+    },
+    {
+      "candidate": "NVE Inntektsrammer",
+      "url": "https://biapi.nve.no/inntektsrammer/swagger/v1/swagger.json",
+      "why": "Official OpenAPI HTTP 200 prints untemplated GETs. Live GET /api/InntektsrammerType is HTTP 401. Do not invent auth."
+    },
+    {
+      "candidate": "NVE Nettleietariffer",
+      "url": "https://nettleietariffer.dataplattform.nve.no/v1/openapi.json",
+      "why": "Official OpenAPI HTTP 200. Data GETs print required ValgtDato/FraDato/FylkeNr. Only healthcheck has no required parameter. Do not invent dates."
+    },
+    {
+      "candidate": "NVE Nettleiestatistikk",
+      "url": "https://biapi.nve.no/nettleiestatistikk/swagger/v1/swagger.json",
+      "why": "HTTP 410. Do not retry."
+    },
+    {
+      "candidate": "NVE Snøskredvarsel",
+      "url": "https://api01.nve.no/hydrology/forecast/avalanche/v6.3.2/swagger/docs/v6.3.2",
+      "why": "Official swagger HTTP 200. Every useful GET path is templated or prints required langkey. Do not invent dates or language keys."
+    },
+    {
+      "candidate": "NVE Flomvarsel / Jordskredvarsel",
+      "url": "https://api01.nve.no/hydrology/forecast/flood/v1.0.8/swagger/docs/v1.0.8",
+      "why": "Known skip: every printed GET path is templated. Do not invent dates."
+    },
+    {
+      "candidate": "Udir Register for lærebedrifter / nlr",
+      "url": "https://data-nlr.udir.no/swagger/v4/swagger.json",
+      "why": "Known skip: live collection GETs are HTTP 401. Do not invent an auth workaround."
+    },
+    {
+      "candidate": "Udir Statistikkbanken /Eksport/{id}/data",
+      "url": "https://api.statistikkbanken.udir.no/api/rest/v2/Eksport",
+      "why": "Known skip: /data is HTTP 400 Filter må oppgis. Do not invent filters."
+    },
+    {
+      "candidate": "Fiskeridirektoratet ERS",
+      "url": "https://api.fiskeridir.no/ers-api/openapi",
+      "why": "Known skip: HTTP 401. Do not invent an auth workaround."
+    },
+    {
+      "candidate": "Helsedirektoratet HAPI /innhold",
+      "url": "https://api.helsedirektoratet.no/innhold/innhold?infoTyper=rundskriv",
+      "why": "HTTP 401. Do not invent a portal key."
+    },
+    {
+      "candidate": "Frost MET sources",
+      "url": "https://frost.met.no/sources/v0.jsonld",
+      "why": "Known skip: HTTP 401. Do not retry."
+    },
+    {
+      "candidate": "NVE HydAPI /api/v1/Parameters",
+      "url": "https://hydapi.nve.no/swagger/v1/swagger.json",
+      "why": "Known skip: HTTP 401. Do not retry."
+    },
+    {
+      "candidate": "Kartverket Adresser /sok",
+      "url": "https://api.kartverket.no/adresser/v1/openapi.json",
+      "why": "Known skip: live GET without search params is HTTP 400. Do not invent a query."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source stormflo --db /tmp/pda-stormflo-proof/registry.sqlite --limit 10",
+    "listed": 2,
+    "inserted": 2,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "stormflo:national.json",
+        "title": "statisitikk over potensielle konsekvenser ved stormflo og havnivåstigning for hele landet.",
+        "access_path": "https://stormflo-konsekvens.kartverket.no/public/api/v1/national.json"
+      },
+      {
+        "id": "stormflo:alle_kommuner.json",
+        "title": "henter statisitikk over potensielle konsekvenser ved stormflo og havnivåstigning for alle kommuner.",
+        "access_path": "https://stormflo-konsekvens.kartverket.no/public/api/v1/alle_kommuner.json"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search landet --db /tmp/pda-stormflo-proof/registry.sqlite --limit 5",
+    "query": "landet",
+    "returned": 1,
+    "hit_id": "stormflo:national.json",
+    "title": "statisitikk over potensielle konsekvenser ved stormflo og havnivåstigning for hele landet.",
+    "source_id": "stormflo",
+    "publisher": null,
+    "license": "https://www.apache.org/licenses/LICENSE-2.0.html",
+    "access_path": "https://stormflo-konsekvens.kartverket.no/public/api/v1/national.json",
+    "original_source": "https://stormflo-konsekvens.kartverket.no/openapi.yaml",
+    "why_picked": "title matched landet"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset stormflo:national.json --db /tmp/pda-stormflo-proof/registry.sqlite",
+    "dataset": "stormflo:national.json",
+    "table_id": "national.json",
+    "access_path": "https://stormflo-konsekvens.kartverket.no/public/api/v1/national.json",
+    "request_url": "https://stormflo-konsekvens.kartverket.no/public/api/v1/national.json",
+    "http_status": 200,
+    "listed": 168,
+    "inserted": 168,
+    "updated": 0,
+    "license": "https://www.apache.org/licenses/LICENSE-2.0.html",
+    "publisher": null,
+    "years": ["2025", "2100", "2150"],
+    "new_numeric_time_series_ge_2_periods": true,
+    "sample": [
+      {
+        "measure": "offentlige_bygg",
+        "value": 1810,
+        "dimensions": {"code": "200ymax", "year": "2025"}
+      },
+      {
+        "measure": "privat_naering",
+        "value": 17802,
+        "dimensions": {"code": "200ymax", "year": "2025"}
+      }
+    ]
+  },
+  "methods": {
+    "applicable": true,
+    "why": "Fetch of national.json copies printed integer measures with year dimensions 2025, 2100, and 2150. That is a numeric time series with three periods. methods/ was not edited.",
+    "read_from_store": true
+  },
+  "notes": [
+    "Ids are copied from printed OpenAPI path last segments. access_path is printed servers[0].url + path. No stormflo id was written onto a kommuneinfo, kvwms, geonorge, or vannkraft row.",
+    "License is the printed OpenAPI Apache 2.0 URL. Publisher is null: the spec does not print a publisher.",
+    "Original harvested OpenAPI metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "Open PRs at pickup were 170 elcert, 169 vindkraft, 168 vegogc, 165 ldirwms. This lane stayed on stormflo.",
+    "Fetch listed 168 printed numeric cells. Sample offentlige_bygg=1810 for code 200ymax year 2025.",
+    "python3 -m pytest after Stormflo adapter: 1096 passed, 1 skipped, 1 deselected."
+  ]
+}

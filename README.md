@@ -4712,6 +4712,40 @@ Live ingest 2026-08-28: 10 leftover GetCapabilities documents
 HTTP 200, 170 printed layer-name cells. Sample printed value:
 `LosmasserWMS3`. Proof is `data/nguwms_source_proof.json`.
 
+## Kartverket Stormflo source
+
+`pda ingest --source stormflo` is another replaceable adapter. It lists
+printed collection GET paths on the official Kartverket Stormflo OpenAPI
+`https://stormflo-konsekvens.kartverket.no/openapi.yaml`, capped at 10.
+The templated `{kommune}` path is skipped. Dataset ids are the last
+printed path segment so `national.json` stays distinct from
+`alle_kommuner.json`. `access_path` joins each printed path onto the
+printed server `https://stormflo-konsekvens.kartverket.no`. License is
+the printed OpenAPI Apache 2.0 URL. Publisher stays null. This is not
+Kommuneinfo (`--source kommuneinfo`), not leftover Kartverket WMS
+(`--source kvwms`), and not Geonorge Kartkatalog (`--source geonorge`).
+
+```bash
+pda ingest --source stormflo --db data/registry.sqlite --limit 10
+pda search landet --db data/registry.sqlite
+pda fetch --dataset stormflo:national.json --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored JSON URL. Observation values are copied
+from printed integer and float fields. Printed scenario keys and year
+keys stay as dimensions. License is the printed OpenAPI Apache 2.0 URL.
+Publisher stays null: the spec does not print a publisher.
+
+Live ingest 2026-08-28: 2 printed untemplated GET paths (catalog prints
+3 paths; `{kommune}` is skipped; cap 10). Live search `landet` returns
+`stormflo:national.json`. Live fetch GETs
+`https://stormflo-konsekvens.kartverket.no/public/api/v1/national.json`
+HTTP 200, 168 numeric cells with years 2025, 2100, and 2150. Sample
+printed value: `offentlige_bygg` 1810 for `200ymax` / `2025`.
+This fetch is a numeric time series with three periods. `methods/` was
+not edited.
+Proof is `data/stormflo_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
