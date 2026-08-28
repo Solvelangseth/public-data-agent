@@ -148,6 +148,7 @@
     "python3 -m pytest after rebase onto origin/main after mattilsyn 192: 1295 passed, 1 skipped, 1 deselected.",
     "python3 -m pytest after rebase onto origin/main after methods 185: 1300 passed, 1 skipped, 1 deselected.",
     "python3 -m pytest after rebase onto origin/main after nbprov 186: 1308 passed, 1 skipped, 1 deselected.",
+    "python3 -m pytest after rebase onto origin/main after avinorgis 195: 1317 passed, 1 skipped, 1 deselected.",
     "Not a numeric time series with two or more periods. Fetch listed 2 printed agency-name cells (sample Norges Bank)."
   ]
 }
