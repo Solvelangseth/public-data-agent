@@ -153,6 +153,7 @@ def test_npitema_is_a_registered_source() -> None:
     assert "npigis" in SOURCE_IDS
     assert "npolar" in SOURCE_IDS
     assert "nvegis" in SOURCE_IDS
+    assert "nve2gis" in SOURCE_IDS
     assert "hoydegis" in SOURCE_IDS
     source = build_source("npitema")
     assert isinstance(source, NpitemaSource)

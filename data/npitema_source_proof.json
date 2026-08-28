@@ -229,7 +229,7 @@
     "License is null: the catalog prints no license URL. Publisher is null: the catalog prints no publisher field.",
     "Live GET of /Temadata/F_Biogeographic_Zones_Svalbard/MapServer?f=json is HTTP 200 with no Authorization header. No token is sent.",
     "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
-    "python3 -m pytest: 961 passed, 1 skipped, 1 deselected.",
+    "python3 -m pytest after rebase onto nve2gis #150: 970 passed, 1 skipped, 1 deselected.",
     "Not a numeric time series with two or more periods. Fetch listed 1 printed layer-name cell (sample Biogeografiske soner).",
     "Open PR check at pickup found none. Lane A (bc-d5a24768) opened PR 150 nve2gis so unused. aviationforecast 2.0 and sigmets 2.0 stayed unused."
   ]
