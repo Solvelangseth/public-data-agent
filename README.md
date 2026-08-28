@@ -3646,6 +3646,48 @@ HTTP 200, 143 tile-matrix-set title cells. Sample printed value: `3575`.
 time series (`no derived yoy_growth values to chart`).
 Proof is `data/hitiles_source_proof.json`.
 
+## Fiskeridirektoratet Miljørapporter source
+
+`pda ingest --source miljorapporter` is another replaceable adapter. It lists
+printed collection GET paths on the official Miljørapporter OpenAPI
+`https://api.fiskeridir.no/miljorapporter-api/v3/api-docs`,
+capped at 10. Templated paths and GET operations that print required
+parameters are skipped. Dataset ids are the printed path without a
+leading slash so `env-reports` stays distinct from `env-report-overviews`.
+`access_path` is the printed OpenAPI server URL plus path. License is
+copied from the printed OpenAPI license URL. Publisher stays null: the
+OpenAPI prints no publisher field. The document prints a global Keycloak
+scheme; collection GET operations print no operation security. Live GET
+of those printed paths is HTTP 200 with no token. No token is sent. This
+is not Fartøyregisteret (`--source fiskeridir`), Kjøperregisteret
+(`--source buyer`), NYTEK (`--source nytek`), Akvakulturregister
+(`--source aqua`), Akvakulturforskning (`--source research`),
+Akvakultursøknader (`--source portal`), Omregningsfaktorer
+(`--source omregning`), Miljøundersøkelser (`--source envreportreg`),
+or Havforskningsinstituttet OGC Styles (`--source histyles`), or
+Havforskningsinstituttet OGC Tiles (`--source hitiles`, now on main
+after PR 142).
+
+```bash
+pda ingest --source miljorapporter --db data/registry.sqlite --limit 10
+pda search env-reports --db data/registry.sqlite
+pda fetch --dataset miljorapporter:api/v1/env-reports --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored collection URL. Observation values are
+copied from printed JSON `siteName` values or other scalars. License is
+copied from the printed OpenAPI URL. Publisher stays null.
+
+Live ingest 2026-08-28: 3 printed untemplated GET paths (catalog
+prints env-reports, env-report-overviews, and ping; cap 10). Live
+search `getEnvReports` returns `miljorapporter:api/v1/env-reports`.
+Live fetch GETs
+`https://api.fiskeridir.no/miljorapporter-api/api/v1/env-reports`
+HTTP 200, 100 miljørapport cells. Sample printed value: `Leivsethammran`.
+`pda methods` is not applicable: site-name strings, not a numeric
+time series (`no observations matched entity/measure; available=[]`).
+Proof is `data/miljorapporter_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists

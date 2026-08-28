@@ -1,0 +1,191 @@
+{
+  "produced_at": "2026-08-28T02:18:01Z",
+  "bound": {
+    "list_api": "https://api.fiskeridir.no/miljorapporter-api/v3/api-docs",
+    "walk": "copy printed untemplated collection GET paths from the official Fiskeridirektoratet Miljørapporter OpenAPI; skip templated paths and GET operations that print required parameters; native ids are the printed path without a leading slash so env-reports and env-report-overviews stay distinct; access_path is the printed servers[0].url plus path; license is copied from the printed OpenAPI license URL; publisher stays null; OpenAPI prints a document-level Keycloak scheme; collection GET operations print no operation security; live GET of those printed paths is HTTP 200 with no token; no token is sent; do not invent query filters",
+    "cap": 10,
+    "how": "pda ingest --source miljorapporter --limit 10. The official OpenAPI prints untemplated collection GET paths for /api/v1/env-reports, /api/v1/env-report-overviews, and /api/ping. GET uses the printed env-reports path with no invented query."
+  },
+  "discarded": [
+    {
+      "candidate": "Lane A hitiles",
+      "url": "https://kart.hi.no/data/ogc/tiles/v1",
+      "why": "Lane A (bc-85ccdb99) is implementing HI OGC Tiles. Open PRs were empty at pickup. Do not pick hitiles."
+    },
+    {
+      "candidate": "Havforskningsinstituttet OGC Styles",
+      "url": "PR 141 --source histyles, now on main",
+      "why": "Assigned skip / already on main after merge d3d9926. Do not pick histyles."
+    },
+    {
+      "candidate": "Stortinget åpne data",
+      "url": "PR 140 --source stortinget, now on main",
+      "why": "Assigned skip / already on main."
+    },
+    {
+      "candidate": "Fiskeridirektoratet Miljøundersøkelser",
+      "url": "PR 138 --source envreportreg, now on main",
+      "why": "Assigned skip. Distinct envreportreg-public catalog. This slice is miljorapporter-api."
+    },
+    {
+      "candidate": "MET Aviationforecast 2.0 swagger",
+      "url": "https://api.met.no/weatherapi/aviationforecast/2.0/swagger",
+      "why": "Assigned skip for this lane. Do not pick aviationforecast."
+    },
+    {
+      "candidate": "MET Sigmets 2.0 swagger",
+      "url": "https://api.met.no/weatherapi/sigmets/2.0/swagger",
+      "why": "Assigned skip for this lane. Do not pick sigmets."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    },
+    {
+      "candidate": "Nasjonalbiblioteket Catalog Search OpenAPI",
+      "url": "https://api.nb.no/catalog/v1/items/api-docs",
+      "why": "Official OpenAPI HTTP 200. Every untemplated GET prints required query q. Do not invent a search query."
+    },
+    {
+      "candidate": "Kartverket Adresser /sok /punktsok",
+      "url": "https://api.kartverket.no/adresser/v1/openapi.json",
+      "why": "Known skip: live GET without search params is HTTP 400. Do not invent a query."
+    },
+    {
+      "candidate": "Kartverket Eiendom /geokoding",
+      "url": "https://api.kartverket.no/eiendom/v1/geokoding",
+      "why": "Known skip: HTTP 400 without matrikkel params. Do not retry."
+    },
+    {
+      "candidate": "Udir Register for lærebedrifter",
+      "url": "https://data-nlr.udir.no/swagger/v4/swagger.json",
+      "why": "Known skip: live collection GETs are HTTP 401. Do not invent auth."
+    },
+    {
+      "candidate": "NVE Nettleietariffer",
+      "url": "https://biapi.nve.no/nettleietariffer/swagger/v1/swagger.json",
+      "why": "Known skip: live GETs are HTTP 422 required filters. Do not invent query filters."
+    },
+    {
+      "candidate": "NVE Inntektsrammer",
+      "url": "https://biapi.nve.no/inntektsrammer/swagger/v1/swagger.json",
+      "why": "Known skip: OpenAPI prints security ApiKey. Do not invent a key."
+    },
+    {
+      "candidate": "Fiskeridirektoratet aqua-operations-public",
+      "url": "https://api.fiskeridir.no/aqua-operations-public/v3/api-docs",
+      "why": "OpenAPI HTTP 200 but the only printed path is templated GET /api/v1/joint-ops/{site-nr}. Not a collection catalog. Do not invent site numbers."
+    },
+    {
+      "candidate": "Fiskeridirektoratet Autorisasjonsregisteret",
+      "url": "https://api.fiskeridir.no/authreg-api/openapi",
+      "why": "OpenAPI prints only a templated /auth-status/{radio_call_sign} path. Not a collection catalog. Do not invent radio call signs."
+    },
+    {
+      "candidate": "Frost MET sources",
+      "url": "https://frost.met.no/sources/v0.jsonld",
+      "why": "Known skip: HTTP 401. Do not retry."
+    },
+    {
+      "candidate": "NVDB Les V3 OpenAPI",
+      "url": "https://nvdbapiles-v3.atlas.vegvesen.no/dokumentasjon/openapi.json",
+      "why": "Known skip: HTTP 400 User-Agent. Do not retry."
+    },
+    {
+      "candidate": "NVE HydAPI",
+      "url": "https://hydapi.nve.no/swagger/v1/swagger.json",
+      "why": "Known skip: HTTP 401. Do not retry."
+    },
+    {
+      "candidate": "BarentsWatch bwapi",
+      "url": "https://www.barentswatch.no/bwapi/v1/geodata/fishhealth/localities",
+      "why": "Live GET HTTP 401. Do not invent auth."
+    },
+    {
+      "candidate": "Norsk Polarinstitutt OGC Features",
+      "url": "https://geodata.npolar.no/ogc/features/v1/collections",
+      "why": "Known leftover still HTTP 404."
+    },
+    {
+      "candidate": "DBH HK-dir",
+      "url": "https://dbh.hkdir.no/api",
+      "why": "Welcome JSON HTTP 200. No printed swagger/OpenAPI path list. api.nsd.no/dbhapitjener swagger HTTP 502. Do not invent table ids."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source miljorapporter --db /tmp/pda-miljorapporter-proof/registry.sqlite --limit 10",
+    "listed": 3,
+    "inserted": 3,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "miljorapporter:api/v1/env-reports",
+        "title": "getEnvReports",
+        "access_path": "https://api.fiskeridir.no/miljorapporter-api/api/v1/env-reports"
+      },
+      {
+        "id": "miljorapporter:api/v1/env-report-overviews",
+        "title": "getEnvReportOverviews",
+        "access_path": "https://api.fiskeridir.no/miljorapporter-api/api/v1/env-report-overviews"
+      },
+      {
+        "id": "miljorapporter:api/ping",
+        "title": "ping",
+        "access_path": "https://api.fiskeridir.no/miljorapporter-api/api/ping"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search getEnvReports --db /tmp/pda-miljorapporter-proof/registry.sqlite --limit 10",
+    "query": "getEnvReports",
+    "returned": 1,
+    "hit_id": "miljorapporter:api/v1/env-reports",
+    "title": "getEnvReports",
+    "source_id": "miljorapporter",
+    "publisher": null,
+    "license": "https://www.fiskeridir.no/Tall-og-analyse/Lisens-for-bruk-av-Fiskeridirektoratets-data",
+    "access_path": "https://api.fiskeridir.no/miljorapporter-api/api/v1/env-reports",
+    "original_source": "https://api.fiskeridir.no/miljorapporter-api/v3/api-docs",
+    "why_picked": "title matched getenvreports"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset miljorapporter:api/v1/env-reports --db /tmp/pda-miljorapporter-proof/registry.sqlite",
+    "dataset": "miljorapporter:api/v1/env-reports",
+    "table_id": "api/v1/env-reports",
+    "access_path": "https://api.fiskeridir.no/miljorapporter-api/api/v1/env-reports",
+    "request_url": "https://api.fiskeridir.no/miljorapporter-api/api/v1/env-reports",
+    "http_status": 200,
+    "listed": 100,
+    "inserted": 100,
+    "updated": 0,
+    "license": "https://www.fiskeridir.no/Tall-og-analyse/Lisens-for-bruk-av-Fiskeridirektoratets-data",
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "siteName",
+        "value": "Leivsethammran"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset miljorapporter:api/v1/env-reports --db /tmp/pda-miljorapporter-proof/registry.sqlite",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "Miljørapporter /api/v1/env-reports prints site names. Those are not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed OpenAPI paths. access_path is the printed server URL plus path. No miljorapporter id was written onto an envreportreg, omregning, fiskeridir, histyles, or datanorge row.",
+    "License is copied from the printed OpenAPI license URL. Publisher is null: the OpenAPI prints no publisher field.",
+    "OpenAPI prints a document-level Keycloak scheme. Collection GET operations print no operation security. Live GET of /api/v1/env-reports is HTTP 200 with no Authorization header. No token is sent.",
+    "Original harvested OpenAPI metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "python3 -m pytest: 887 passed, 1 skipped, 1 deselected.",
+    "Not a numeric time series with two or more periods. Fetch listed 100 printed site-name cells (sample Leivsethammran).",
+    "Open PR check at pickup and before PR found no open PRs. Lane A is implementing hitiles so unused. aviationforecast 2.0 and sigmets 2.0 stayed unused."
+  ]
+}
