@@ -1,0 +1,110 @@
+{
+  "produced_at": "2026-08-28T10:03:44Z",
+  "bound": {
+    "list_api": [
+      "https://services.kystverket.no/wms.ashx?service=WMS&request=GetCapabilities",
+      "https://services.kystverket.no/wfs.ashx?service=WFS&request=GetCapabilities"
+    ],
+    "walk": "copy the two printed leftover Kystverket GetCapabilities documents printed on Geonorge as Kystverkets WMS (uuid 768a3ca6-0655-45d5-8cd5-76bd7e0e59d2) and Kystverkets WFS (uuid de223e4c-e708-4c15-9afb-f8cedd3cd3ba); skip a document that is not WMS or WFS XML; skip havnedata collections already in --source havnedata, Kystdatahuset already in --source kystverket, and navigasjonsvarsler already in --source navwarnings; native ids are the printed last path segment so wms.ashx stays distinct from wfs.ashx; access_path is the GetCapabilities URL as printed; license stays null; publisher stays null; do not invent query filters or extra WMS paths",
+    "cap": 10,
+    "how": "pda ingest --source kystwms --limit 10. Both printed leftover GetCapabilities documents return XML 200. Cap 10 copies both. This is not --source kystverket, not --source havnedata, and not --source navwarnings."
+  },
+  "discarded": [
+    {
+      "candidate": "Kystverket Kystdatahuset / kystverket",
+      "url": "https://kystdatahuset.no/ws/swagger/v1/swagger.json",
+      "why": "Already on main as --source kystverket. This slice is leftover WMS/WFS on services.kystverket.no only."
+    },
+    {
+      "candidate": "Kartverket Havnedata collections / havnedata",
+      "url": "https://ogcapitest.kartverket.no/rest/services/havnedata3_0/collections",
+      "why": "Already on main as --source havnedata. Skip. Do not ingest havnedata collections as WMS."
+    },
+    {
+      "candidate": "Kystverket navigasjonsvarsler / navwarnings",
+      "url": "https://api.kystverket.no/data/navigationwarnings/coastal/",
+      "why": "Already on main as --source navwarnings. Host is api.kystverket.no, not services.kystverket.no."
+    },
+    {
+      "candidate": "Navigasjonsinstallasjoner WMS",
+      "url": "https://maps.kystverket.cloudgis.no/enterprise/services/PROD/nfs_sistop_ekstern_prod/MapServer/WMSServer?request=GetCapabilities&service=WMS",
+      "why": "Printed on Geonorge as a separate Kystverket WMS. Different host. This slice stays on the two leftover services.kystverket.no ashx documents."
+    },
+    {
+      "candidate": "Landbruksdirektoratet leftover WMS / ldirwms",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/165",
+      "why": "Now on main after PR 165 merge aaf24f7. Do not redo. Rebase after this proof."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source kystwms --db /tmp/pda-kystwms-proof/registry.sqlite --limit 10",
+    "listed": 2,
+    "inserted": 2,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "kystwms:wms.ashx",
+        "title": "wms.ashx",
+        "access_path": "https://services.kystverket.no/wms.ashx?service=WMS&request=GetCapabilities"
+      },
+      {
+        "id": "kystwms:wfs.ashx",
+        "title": "wfs.ashx",
+        "access_path": "https://services.kystverket.no/wfs.ashx?service=WFS&request=GetCapabilities"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search wms.ashx --db /tmp/pda-kystwms-proof/registry.sqlite --limit 10",
+    "query": "wms.ashx",
+    "returned": 1,
+    "hit_id": "kystwms:wms.ashx",
+    "title": "wms.ashx",
+    "source_id": "kystwms",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://services.kystverket.no/wms.ashx?service=WMS&request=GetCapabilities",
+    "original_source": "https://services.kystverket.no/wms.ashx?service=WMS&request=GetCapabilities",
+    "why_picked": "title matched wms, ashx"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset kystwms:wms.ashx --db /tmp/pda-kystwms-proof/registry.sqlite",
+    "dataset": "kystwms:wms.ashx",
+    "table_id": "wms.ashx",
+    "access_path": "https://services.kystverket.no/wms.ashx?service=WMS&request=GetCapabilities",
+    "request_url": "https://services.kystverket.no/wms.ashx?service=WMS&request=GetCapabilities",
+    "http_status": 200,
+    "listed": 57,
+    "inserted": 56,
+    "updated": 1,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "Name",
+        "value": "MS"
+      },
+      {
+        "measure": "Name",
+        "value": "group_1"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset kystwms:wms.ashx --db /tmp/pda-kystwms-proof/registry.sqlite",
+    "applicable": false,
+    "why": "wms.ashx GetCapabilities prints Layer names. Those are not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": false,
+    "called_fetch": false
+  },
+  "notes": [
+    "Ids are copied from printed last path segments. access_path is the GetCapabilities URL as printed. No kystwms id was written onto a kystverket, havnedata, or navwarnings row.",
+    "License is null: the leftover GetCapabilities documents print no license URL. Service AccessConstraints is the text none. Publisher is null.",
+    "Live GET of /wms.ashx?service=WMS&request=GetCapabilities is HTTP 200 WMS_Capabilities XML. Live GET of /wfs.ashx?service=WFS&request=GetCapabilities is HTTP 200 WFS_Capabilities XML. No token is sent. No extra Accept header is invented.",
+    "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "python3 -m pytest after adding the source: 1130 passed, 1 skipped, 1 deselected.",
+    "Not a numeric time series with two or more periods. Fetch listed 57 printed Layer Name cells (sample MS, group_1).",
+    "Kystdatahuset stays on --source kystverket. Havnedata stays on --source havnedata. Navigasjonsvarsler stay on --source navwarnings. ldirwms 165 is now on main at aaf24f7. Rebase after this proof."
+  ]
+}
