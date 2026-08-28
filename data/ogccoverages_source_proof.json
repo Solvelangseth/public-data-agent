@@ -222,8 +222,10 @@
     "Ids are copied from printed OpenAPI paths without a leading slash. access_path is printed servers[0].url plus path. No ogccoverages id was written onto a hoydedata, geonorge, georegister, norskelos, nortaxa, or datanorge row.",
     "License is the printed OpenAPI CC BY 4.0 URL. Publisher is null: contact name Kartverket stays in harvested OpenAPI info and is not copied as a publisher.",
     "Original harvested OpenAPI metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
-    "Open PRs at pickup were empty. Lane B (bc-918202b6) is implementing Artskart and has not opened a PR. This lane stayed on ogccoverages.",
+    "Open PRs at pickup were empty. Lane B (bc-918202b6) later opened and merged PR 131 Artskart. This lane stayed on ogccoverages.",
     "python3 -m pytest after Ogccoverages adapter: 780 passed, 1 skipped, 1 deselected.",
-    "Not a numeric time series with two or more periods. Fetch listed 2 printed collection-title cells (sample DTM 10 Terrengmodell (UTM32))."
+    "Not a numeric time series with two or more periods. Fetch listed 2 printed collection-title cells (sample DTM 10 Terrengmodell (UTM32)).",
+    "Rebased onto origin/main after Artskart 131 merge db799fe. All existing sources plus ogccoverages were kept. artskart adapter files were not edited.",
+    "python3 -m pytest after rebase onto Artskart 131: 790 passed, 1 skipped, 1 deselected."
   ]
 }
