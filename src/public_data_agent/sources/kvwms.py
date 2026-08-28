@@ -153,7 +153,7 @@ def is_kvwms_url(access_path: str | None) -> bool:
     host = parsed.netloc.lower()
     path = parsed.path
     if host == WMS_HOST and WMS_PATH_MARK in path:
-        return True
+        return kvwms_table_id(access_path) == "wms.topo"
     if host == WMTS_HOST and WMTS_PATH_MARK in path:
         return True
     return False
