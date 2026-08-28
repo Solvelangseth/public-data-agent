@@ -141,6 +141,6 @@
     "Original harvested documentation metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
     "python3 -m pytest: 1068 passed, 1 skipped, 1 deselected.",
     "is_vindkraft_url matches only /web/WindPowerplant/. It does not match Magasinstatistikk or /web/Powerplant/.",
-    "klass was not re-added. grep PR 161, sigmets PR 159, and regobs PR 162 are on main. vannkraft PR 164 stayed unused. kvwms/ldirwms/vegogc leftover GIS stayed unused. aviationforecast PR 166 stayed unused."
+    "klass was not re-added. grep PR 161, sigmets PR 159, regobs PR 162, kvwms PR 163, and aviationforecast PR 166 are on main. vannkraft PR 164 stayed unused. ldirwms/vegogc leftover GIS stayed unused."
   ]
 }
