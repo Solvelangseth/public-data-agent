@@ -4155,6 +4155,41 @@ has one time code (`2026M07`). It printed
 `no derived yoy_growth values to chart`. methods/ was not edited.
 Proof is `data/ssbv2_source_proof.json`.
 
+## Riksantikvaren leftover GIS source
+
+`pda ingest --source ragis` is another replaceable adapter. It lists printed
+leftover name+type services on the official Riksantikvaren MABYGIS ArcGIS
+REST catalog
+`https://kart.ra.no/arcgis/rest/services/MABYGIS?f=json`,
+capped at 10. The folder name `MABYGIS` is printed on the root services
+catalog. Empty names and empty types are skipped. Printed `admin` is
+skipped because live GET `/MABYGIS/admin/MapServer?f=json` is HTTP 403.
+Printed `MABYGIS_rest_ro` is skipped because that FeatureServer is
+already `--source riksantikvaren`. Dataset ids are the printed last path
+segment of `name`. `access_path` is the printed name plus first printed
+type plus the catalog's `f=json` query. License stays null: the catalog
+prints no license URL. Publisher stays null. This is not Riksantikvaren
+MABYGIS FeatureServer layers (`--source riksantikvaren`, now on main).
+
+```bash
+pda ingest --source ragis --db data/registry.sqlite --limit 10
+pda search MABYGIS_Askeladden --db data/registry.sqlite
+pda fetch --dataset ragis:MABYGIS_Askeladden --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored FeatureServer URL. Observation values are
+copied from printed JSON `name` when present, otherwise `mapName`,
+`title`, or `id`. License stays null. Publisher stays null.
+
+Live ingest 2026-08-28: 1 leftover service (catalog prints 5 name+type
+services; `admin` is HTTP 403; `MABYGIS_rest_ro` is already
+`--source riksantikvaren`; cap 10). Live search `MABYGIS_Askeladden`
+returns `ragis:MABYGIS_Askeladden`. Live fetch GETs
+`https://kart.ra.no/arcgis/rest/services/MABYGIS/MABYGIS_Askeladden/FeatureServer?f=json`
+HTTP 200, 1 layer-name cell. Sample printed value: `Dispensasjoner`.
+`pda methods` is not applicable: a layer name, not a numeric time series.
+Proof is `data/ragis_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
