@@ -4259,6 +4259,43 @@ names, not a numeric time series
 (`no observations matched entity/measure; available=[]`).
 Proof is `data/regobs_source_proof.json`.
 
+## MET Sigmets source
+
+`pda ingest --source sigmets` is another replaceable adapter. It lists
+printed collection GET paths on the official MET Sigmets swagger
+`https://api.met.no/weatherapi/sigmets/2.0/swagger`, capped at 10.
+Templated `{format}` paths and GET operations that print required query
+parameters are skipped. The root product path has no last-segment id so
+it is skipped. Dataset ids are the last printed path segment.
+`access_path` is the swagger origin + printed `basePath` + path.
+License is the printed swagger CC BY 4.0 URL. Publisher stays null.
+This is not Metalerts (`--source met`), not MET Sigcharts
+(`--source sigcharts`), not MET Volcanicashforecast
+(`--source volcanicashforecast`), and not MET Aviationforecast.
+
+```bash
+pda ingest --source sigmets --db data/registry.sqlite --limit 10
+pda search airmets --db data/registry.sqlite
+pda fetch --dataset sigmets:features --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored collection URL. Observation values are copied
+from printed FeatureCollection `id` on `/features`, or from printed string
+arrays on `/values`. License is the printed swagger CC BY 4.0 URL.
+Publisher stays null: the spec does not print a publisher.
+`/changelog` prints RSS and `/healthz` prints plain text, so they stay
+unused for fetch. `/available` prints XML. `/airmets`, `/sigmets`, and
+`/windshear` print text/plain.
+
+Live ingest 2026-08-28: 8 printed untemplated GET paths (catalog prints
+8 paths with a last-segment id and no required query parameter, cap 10).
+Live search `FeatureCollection` returns `sigmets:features`. Live fetch
+GETs `https://api.met.no/weatherapi/sigmets/2.0/features`
+HTTP 200, 3 printed feature-id cells. Sample printed value: `airmets`.
+`pda methods` is not applicable: printed feature ids, not a numeric time
+series (`no observations matched entity/measure; available=[]`).
+Proof is `data/sigmets_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
