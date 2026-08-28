@@ -139,8 +139,8 @@
     "License is null: the documentation prints no license URL. Publisher stays null.",
     "Live GET of the printed GetWindPowerPlants path is HTTP 200 with no Authorization header. No token is sent.",
     "Original harvested documentation metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
-    "python3 -m pytest after rebase onto aviationforecast 166: 1086 passed, 1 skipped, 1 deselected.",
+    "python3 -m pytest after rebase onto vannkraft 164: 1094 passed, 1 skipped, 1 deselected.",
     "is_vindkraft_url matches only /web/WindPowerplant/. It does not match Magasinstatistikk or /web/Powerplant/.",
-    "klass was not re-added. grep PR 161, sigmets PR 159, regobs PR 162, kvwms PR 163, and aviationforecast PR 166 are on main. vannkraft PR 164 stayed unused. ldirwms/vegogc leftover GIS stayed unused."
+    "klass was not re-added. grep PR 161, sigmets PR 159, regobs PR 162, kvwms PR 163, aviationforecast PR 166, and vannkraft PR 164 are on main. ldirwms/vegogc leftover GIS stayed unused."
   ]
 }

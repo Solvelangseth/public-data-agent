@@ -102,6 +102,7 @@ def test_vindkraft_is_a_registered_source() -> None:
     assert "kvwms" in SOURCE_IDS
     assert "grep" in SOURCE_IDS
     assert "aviationforecast" in SOURCE_IDS
+    assert "vannkraft" in SOURCE_IDS
     source = build_source("vindkraft")
     assert isinstance(source, VindkraftSource)
     assert source.source_id == "vindkraft"
