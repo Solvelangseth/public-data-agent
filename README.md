@@ -3203,6 +3203,36 @@ Utsira kommune. `pda methods` is not applicable: municipality names,
 not a numeric time series (`no observations matched entity/measure;
 available=[]`). Proof is `data/georegister_source_proof.json`.
 
+`pda ingest --source nortaxa` is another replaceable adapter. It lists printed
+collection GET paths on the official Artsdatabanken Nortaxa swagger
+`https://nortaxa.artsdatabanken.no/swagger/v1/swagger.json`, capped at 10.
+Templated `{id}` paths and GET operations that print required query
+parameters are skipped. Dataset ids are the last printed path segment.
+`access_path` is the swagger origin + printed path. Publisher and license
+stay null: the swagger document does not print those fields.
+This is not Artsdatabanken Natur i Norge (`--source nin`), not MET
+Locationforecast (`--source locationforecast`), and not Kartverket
+Register (`--source georegister`, now on main after PR 129).
+
+```bash
+pda ingest --source nortaxa --db data/registry.sqlite --limit 10
+pda search Ranks --db data/registry.sqlite
+pda fetch --dataset nortaxa:RankList --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored collection URL. Observation values are copied
+from printed JSON `name` when present, otherwise `displayName`, `title`,
+or `id`. Publisher and license stay null: the spec does not print them.
+
+Live ingest 2026-08-28: 9 printed untemplated GET paths (catalog prints
+9 paths with a last-segment id and no required query parameter, cap 10).
+Live search `Ranks` returns `nortaxa:RankList`. Live fetch GETs
+`https://nortaxa.artsdatabanken.no/api/v1/Lists/RankList` HTTP 200, 25
+rank-name cells. Sample printed value: `Kingdom`.
+`pda methods` is not applicable: taxonomic rank names, not a numeric
+time series (`no observations matched entity/measure; available=[]`).
+Proof is `data/nortaxa_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists

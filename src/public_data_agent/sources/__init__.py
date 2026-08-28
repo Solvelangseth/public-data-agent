@@ -40,6 +40,7 @@ from public_data_agent.sources.nor import NorSource
 from public_data_agent.sources.norskelos import NorskelosSource
 from public_data_agent.sources.npr import NprSource
 from public_data_agent.sources.norgesbank import NorgesBankSource
+from public_data_agent.sources.nortaxa import NortaxaSource
 from public_data_agent.sources.nowcast import NowcastSource
 from public_data_agent.sources.npolar import NpolarSource
 from public_data_agent.sources.nve import NveMagasinSource
@@ -155,6 +156,7 @@ SOURCE_IDS = (
     "norskelos",
     "locationforecast",
     "georegister",
+    "nortaxa",
 )
 
 
@@ -311,6 +313,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return LocationforecastSource()
     if source_id == "georegister":
         return GeoregisterSource()
+    if source_id == "nortaxa":
+        return NortaxaSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -353,6 +357,7 @@ __all__ = [
     "NorskelosSource",
     "NprSource",
     "NorgesBankSource",
+    "NortaxaSource",
     "NowcastSource",
     "NpolarSource",
     "NveMagasinSource",
