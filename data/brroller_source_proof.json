@@ -1,0 +1,152 @@
+{
+  "produced_at": "2026-08-28T10:52:05Z",
+  "bound": {
+    "list_api": "https://data.brreg.no/enhetsregisteret/api/dokumentasjon/no/openapi.json",
+    "walk": "copy leftover untemplated GET paths under /enhetsregisteret/api/roller/ from the official Enhetsregisteret OpenAPI; skip templated {enhetorgnr} paths, GET operations that print required parameters, and the printed gzip totalbestand dump; native ids are the last printed path segment so representanter stays distinct from rolletyper; access_path is printed servers[0].url plus path; license is the printed OpenAPI license URL; publisher stays null; live GET of representanter is HTTP 200 with no token; no token is sent; do not invent organisasjonsnummer or matrikkel filters",
+    "cap": 10,
+    "how": "pda ingest --source brroller --limit 10. The official OpenAPI names leftover untemplated JSON collection GETs under /enhetsregisteret/api/roller/. The adapter copies those three paths. GET uses the printed /representanter collection with no invented query filters. The gzip totalbestand dump and the authorized-api dump stay unused. This is not Enhetsregisteret (--source brreg) and not Frivillighetsregisteret (--source frivillig)."
+  },
+  "discarded": [
+    {
+      "candidate": "Norges Bank SDMX agency schemes / nbagency",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/193",
+      "why": "Open sibling JSON PR from Lane Q. Do not pick the other lane's source."
+    },
+    {
+      "candidate": "Norges Bank SDMX provision agreements / nbprov",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/186",
+      "why": "Open sibling JSON PR. Do not pick the other lane's source."
+    },
+    {
+      "candidate": "SSB Klass classifications / ssclass",
+      "url": "on main after PR 189",
+      "why": "Already on main after rebase. Do not re-add."
+    },
+    {
+      "candidate": "SSB Klass ssbsections / ssbsec",
+      "url": "on main after PR 187",
+      "why": "Already on main. Do not re-add."
+    },
+    {
+      "candidate": "SSB Klass classification families / ssbfam",
+      "url": "on main after PR 181",
+      "why": "Already on main. Do not re-add."
+    },
+    {
+      "candidate": "Enhetsregisteret root HAL / brreg",
+      "url": "https://data.brreg.no/enhetsregisteret/api",
+      "why": "Already on main as --source brreg. Root _links do not print the leftover /api/roller/ collections."
+    },
+    {
+      "candidate": "Frivillighetsregisteret / frivillig",
+      "url": "https://data.brreg.no/frivillighetsregisteret/api/icnpo-kategorier",
+      "why": "Already on main. is_brroller_url rejects /frivillighetsregisteret/ paths."
+    },
+    {
+      "candidate": "Enhetsregisteret /api/matrikkelenhet",
+      "url": "https://data.brreg.no/enhetsregisteret/api/matrikkelenhet",
+      "why": "Official leftover OpenAPI GET. Live GET is HTTP 400 without a printed matrikkelnummer. Do not invent a cadastral id."
+    },
+    {
+      "candidate": "Enhetsregisteret /api/roller/totalbestand",
+      "url": "https://data.brreg.no/enhetsregisteret/api/roller/totalbestand",
+      "why": "Printed leftover dump. Live GET is HTTP 200 application/gzip, not a JSON collection. Skipped like the frivillig CSV dump."
+    },
+    {
+      "candidate": "Enhetsregisteret autorisert-api roller totalbestand",
+      "url": "https://data.brreg.no/enhetsregisteret/autorisert-api/roller/totalbestand",
+      "why": "Known skip: live GET is HTTP 401. Do not invent auth."
+    },
+    {
+      "candidate": "Udir NLR",
+      "url": "https://data-nlr.udir.no/swagger/v4/swagger.json",
+      "why": "Known skip: live collection GETs are HTTP 401. Do not invent auth."
+    },
+    {
+      "candidate": "Frost MET sources",
+      "url": "https://frost.met.no/sources/v0.jsonld",
+      "why": "Known skip: HTTP 401. Do not retry."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source brroller --db /tmp/pda-brroller-proof/registry.sqlite --limit 10",
+    "listed": 3,
+    "inserted": 3,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "brroller:representanter",
+        "title": "Hent alle rollerepresentanter",
+        "access_path": "https://data.brreg.no/enhetsregisteret/api/roller/representanter"
+      },
+      {
+        "id": "brroller:rollegruppetyper",
+        "title": "Hent alle rollegruppetyper",
+        "access_path": "https://data.brreg.no/enhetsregisteret/api/roller/rollegruppetyper"
+      },
+      {
+        "id": "brroller:rolletyper",
+        "title": "Hent alle rolletyper",
+        "access_path": "https://data.brreg.no/enhetsregisteret/api/roller/rolletyper"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search rollerepresentanter --db /tmp/pda-brroller-proof/registry.sqlite --limit 10",
+    "query": "rollerepresentanter",
+    "returned": 1,
+    "hit_id": "brroller:representanter",
+    "title": "Hent alle rollerepresentanter",
+    "source_id": "brroller",
+    "publisher": null,
+    "license": "https://data.norge.no/nlod/no/2.0",
+    "access_path": "https://data.brreg.no/enhetsregisteret/api/roller/representanter",
+    "original_source": "https://data.brreg.no/enhetsregisteret/api/dokumentasjon/no/openapi.json",
+    "why_picked": "title matched rollerepresentanter"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset brroller:representanter --db /tmp/pda-brroller-proof/registry.sqlite",
+    "dataset": "brroller:representanter",
+    "table_id": "representanter",
+    "access_path": "https://data.brreg.no/enhetsregisteret/api/roller/representanter",
+    "request_url": "https://data.brreg.no/enhetsregisteret/api/roller/representanter",
+    "method": "GET",
+    "http_status": 200,
+    "listed": 4,
+    "inserted": 4,
+    "updated": 0,
+    "license": "https://data.norge.no/nlod/no/2.0",
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "beskrivelse",
+        "value": "Representant for A-aksjonærene"
+      }
+    ],
+    "new_numeric_time_series_ge_2_periods": false
+  },
+  "methods": {
+    "command": "pda methods --dataset brroller:representanter --db /tmp/pda-brroller-proof/registry.sqlite",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "representanter prints role descriptions. Those are not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Native ids are printed last path segments representanter, rollegruppetyper, rolletyper. access_path is printed servers[0].url plus path. No brroller id was written onto a brreg or frivillig row.",
+    "License is the printed OpenAPI info.license.url https://data.norge.no/nlod/no/2.0. Publisher is null. The catalog prints no publisher field.",
+    "Live GET of /enhetsregisteret/api/roller/representanter is HTTP 200 with no Authorization header. No token is sent.",
+    "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "Not a numeric time series with two or more periods. Fetch listed 4 printed representant descriptions (sample Representant for A-aksjonærene).",
+    "python3 -m pytest after rebase onto origin/main: 1288 passed, 1 skipped, 1 deselected."
+  ]
+}

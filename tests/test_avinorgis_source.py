@@ -154,7 +154,7 @@ def test_avinorgis_is_a_registered_source() -> None:
     assert "mattilsyn" in SOURCE_IDS
     assert "nibiorest" in SOURCE_IDS
     assert "nbprov" in SOURCE_IDS
-    assert SOURCE_IDS[-1] == "avinorgis"
+    assert SOURCE_IDS[SOURCE_IDS.index("nbprov") + 1] == "avinorgis"
     source = build_source("avinorgis")
     assert isinstance(source, AvinorgisSource)
     assert source.source_id == "avinorgis"
