@@ -5030,6 +5030,37 @@ HTTP 200, 76 name cells. Sample printed value: `Time Period`.
 series (`no observations matched entity/measure; available=[]`).
 Proof is `data/nbconcept_source_proof.json`.
 
+## SSB Klass classification families source
+
+`pda ingest --source ssbfam` is another replaceable adapter. It lists printed
+classification families on the official SSB Klass catalog
+`https://data.ssb.no/api/klass/v1/classificationfamilies`, the leftover
+collection GET named by `https://data.ssb.no/api/klass/v3/api-docs`, capped
+at 10. Dataset ids are the printed family `id`. `access_path` is the printed
+`_links.self.href`. License stays null. Publisher stays null. The families
+catalog prints neither. This is not Statbank (`--source ssb`), not PxWebApi 2
+(`--source ssbv2`), and not the Klass version fetch already on main
+(`/api/klass/v1/versions`).
+
+```bash
+pda ingest --source ssbfam --db data/registry.sqlite --limit 10
+pda search Arbeid --db data/registry.sqlite
+pda fetch --dataset ssbfam:1 --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored family URL. Observation values are copied from
+printed classification `name` when present, otherwise `id`. License stays
+null. Publisher stays null.
+
+Live ingest 2026-08-28: 10 printed families (catalog prints 22, cap 10).
+Live search `Arbeid` returns `ssbfam:1`. Live fetch GETs
+`https://data.ssb.no/api/klass/v1/classificationfamilies/1` HTTP 200, 1
+classification-name cell. Sample printed value: `Standard for
+yrkesklassifisering`. `pda methods` is not applicable: classification
+names, not a numeric time series
+(`no observations matched entity/measure; available=[]`).
+Proof is `data/ssbfam_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists

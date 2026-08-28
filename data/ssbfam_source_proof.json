@@ -1,0 +1,182 @@
+{
+  "produced_at": "2026-08-28T10:21:06Z",
+  "bound": {
+    "list_api": "https://data.ssb.no/api/klass/v1/classificationfamilies",
+    "walk": "copy printed family id and _links.self.href from the official SSB Klass classificationfamilies catalog named by https://data.ssb.no/api/klass/v3/api-docs GET /api/klass/v1/classificationfamilies; skip members with no printed id or self href; native ids are the printed family id so 1 stays distinct from 3; access_path is the printed self href; license stays null because the families catalog prints no license URL; publisher stays null; live GET of that printed family href is HTTP 200 with no token; no token is sent; do not invent query filters; this is not Statbank (--source ssb), not PxWebApi 2 (--source ssbv2), and not the Klass version fetch already on main (/api/klass/v1/versions)",
+    "cap": 10,
+    "how": "pda ingest --source ssbfam --limit 10. The official catalog prints 22 families. The adapter copies the first ten in document order. GET uses the printed self href for family 1 with no invented query."
+  },
+  "discarded": [
+    {
+      "candidate": "Norges Bank SDMX codelist / nbcodelist",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/177",
+      "why": "In-flight sibling JSON at pickup. Do not pick the other lane's source."
+    },
+    {
+      "candidate": "Norges Bank SDMX data structures / nbdsd",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/179",
+      "why": "Open sibling JSON PR. Do not pick the other lane's source."
+    },
+    {
+      "candidate": "Kartverket Stormflo / stormflo",
+      "url": "on main after PR 175",
+      "why": "Already on main. Do not re-add."
+    },
+    {
+      "candidate": "Kystverket leftover WMS / WFS and Kartverket grunnkart WMS",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/176",
+      "why": "Leftover GIS. This lane stays on national JSON."
+    },
+    {
+      "candidate": "Norges Bank conceptscheme / agencyscheme",
+      "url": "https://data.norges-bank.no/api/conceptscheme?format=sdmx-json",
+      "why": "Official SDMX leftover. Left unused so this slice stays off the Norges Bank structure catalogs other JSON lanes already opened."
+    },
+    {
+      "candidate": "Udir Register for lærebedrifter / nlr",
+      "url": "https://data-nlr.udir.no/swagger/v4/swagger.json",
+      "why": "Known skip: live collection GETs are HTTP 401. Do not invent auth."
+    },
+    {
+      "candidate": "Fiskeridirektoratet ERS / aqua-operations / Autorisasjonsregisteret",
+      "url": "https://api.fiskeridir.no/ers-api/openapi",
+      "why": "Known skip: 401 or only templated paths. Do not invent auth or a site number."
+    },
+    {
+      "candidate": "MET leftover swaggers (weathericon, forestfireindex, lightning, pollenforecast, thredds)",
+      "url": "https://api.met.no/weatherapi/weathericon/2.0/swagger",
+      "why": "Known skip: live swagger HTTP 500. Do not invent endpoints."
+    },
+    {
+      "candidate": "Frost MET sources",
+      "url": "https://frost.met.no/sources/v0.jsonld",
+      "why": "Known skip: HTTP 401. Do not retry."
+    },
+    {
+      "candidate": "NVE HydAPI / Inntektsrammer",
+      "url": "https://hydapi.nve.no/swagger/v1/swagger.json",
+      "why": "Known skip: HTTP 401. Do not invent auth."
+    },
+    {
+      "candidate": "SSB Klass classifications list",
+      "url": "https://data.ssb.no/api/klass/v1/classifications",
+      "why": "Klass version fetch is already on main. This adapter copies leftover classification families, not classifications or versions."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source ssbfam --db /tmp/pda-ssbfam-proof/registry.sqlite --limit 10",
+    "listed": 10,
+    "inserted": 10,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "ssbfam:1",
+        "title": "Arbeid og lønn",
+        "access_path": "https://data.ssb.no/api/klass/v1/classificationfamilies/1"
+      },
+      {
+        "id": "ssbfam:2",
+        "title": "Bank og finansmarked",
+        "access_path": "https://data.ssb.no/api/klass/v1/classificationfamilies/2"
+      },
+      {
+        "id": "ssbfam:3",
+        "title": "Befolkning",
+        "access_path": "https://data.ssb.no/api/klass/v1/classificationfamilies/3"
+      },
+      {
+        "id": "ssbfam:4",
+        "title": "Bygg, bolig og eiendom",
+        "access_path": "https://data.ssb.no/api/klass/v1/classificationfamilies/4"
+      },
+      {
+        "id": "ssbfam:5",
+        "title": "Energi og industri",
+        "access_path": "https://data.ssb.no/api/klass/v1/classificationfamilies/5"
+      },
+      {
+        "id": "ssbfam:6",
+        "title": "Helse",
+        "access_path": "https://data.ssb.no/api/klass/v1/classificationfamilies/6"
+      },
+      {
+        "id": "ssbfam:8",
+        "title": "Innvandring og innvandrere",
+        "access_path": "https://data.ssb.no/api/klass/v1/classificationfamilies/8"
+      },
+      {
+        "id": "ssbfam:9",
+        "title": "Jord, skog, jakt og fiskeri",
+        "access_path": "https://data.ssb.no/api/klass/v1/classificationfamilies/9"
+      },
+      {
+        "id": "ssbfam:11",
+        "title": "Nasjonalregnskap og konjunkturer",
+        "access_path": "https://data.ssb.no/api/klass/v1/classificationfamilies/11"
+      },
+      {
+        "id": "ssbfam:12",
+        "title": "Natur og miljø",
+        "access_path": "https://data.ssb.no/api/klass/v1/classificationfamilies/12"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search Arbeid --db /tmp/pda-ssbfam-proof/registry.sqlite --limit 5",
+    "query": "Arbeid",
+    "returned": 1,
+    "hit_id": "ssbfam:1",
+    "title": "Arbeid og lønn",
+    "source_id": "ssbfam",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://data.ssb.no/api/klass/v1/classificationfamilies/1",
+    "original_source": "https://data.ssb.no/api/klass/v1/classificationfamilies",
+    "why_picked": "title matched arbeid"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset ssbfam:1 --db /tmp/pda-ssbfam-proof/registry.sqlite",
+    "dataset": "ssbfam:1",
+    "table_id": "1",
+    "access_path": "https://data.ssb.no/api/klass/v1/classificationfamilies/1",
+    "request_url": "https://data.ssb.no/api/klass/v1/classificationfamilies/1",
+    "http_status": 200,
+    "listed": 1,
+    "inserted": 1,
+    "updated": 0,
+    "license": null,
+    "publisher": null,
+    "new_numeric_time_series_ge_2_periods": false,
+    "sample": [
+      {
+        "measure": "name",
+        "value": "Standard for yrkesklassifisering",
+        "dimensions": {
+          "id": "7",
+          "classificationType": "Klassifikasjon",
+          "classificationFamilyId": "1",
+          "lastModified": "2026-06-19T08:05:06.000+0000"
+        }
+      }
+    ]
+  },
+  "methods": {
+    "applicable": false,
+    "why": "Fetch of family 1 copies one printed classification name. That is not a numeric time series with two or more periods. Printed reason: no observations matched entity/measure; available=[]. methods/ was not edited.",
+    "read_from_store": true
+  },
+  "notes": [
+    "Ids are copied from printed family id. access_path is the printed self href. No ssbfam id was written onto an ssb, ssbv2, or klass version row.",
+    "License is null: the families catalog prints no license URL. Publisher is null: the catalog prints no publisher.",
+    "is_ssbfam_url is checked before is_klass_url so /api/klass/v1/classificationfamilies does not go through the Klass version parser.",
+    "Open PRs at pickup were 177 nbcodelist, 179 nbdsd, 176 kystwms, 178 kystwfs, later 180 kvgrunn. This lane stayed on ssbfam.",
+    "Fetch listed 1 printed classification-name cell. Sample Standard for yrkesklassifisering id=7.",
+    "python3 -m pytest after ssbfam adapter: 1175 passed, 1 skipped, 1 deselected."
+  ]
+}
