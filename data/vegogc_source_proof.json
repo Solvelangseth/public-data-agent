@@ -1,0 +1,145 @@
+{
+  "produced_at": "2026-08-28T09:39:59Z",
+  "bound": {
+    "list_api": "https://www.vegvesen.no/fag/teknologi/apne-data/et-utvalg-apne-data/ogc-karttjenester/kartlag/",
+    "walk": "copy printed ogckart-sn1.atlas.vegvesen.no GetCapabilities hrefs; skip vegvar.atlas.vegvesen.no web-map links and GetCapabilities bodies that are HTML or not WMS/WFS Capabilities XML; native ids join printed path segments so vegvar_1_0_ows stays distinct from vegvar_1_0_wfs; access_path is the GetCapabilities URL as printed; license stays null; publisher stays null; do not invent query filters or workspace names",
+    "cap": 10,
+    "how": "pda ingest --source vegogc --limit 10. The leftover kartlag page prints 10 GetCapabilities hrefs. All 10 return WMS or WFS Capabilities XML 200. Cap 10 copies all 10 in document order."
+  },
+  "discarded": [
+    {
+      "candidate": "Statens vegvesen Dataportalen / vegvesen",
+      "url": "https://dataut.vegvesen.no/api/3/action/package_list",
+      "why": "Already on main as --source vegvesen. This slice is leftover OGC GetCapabilities only."
+    },
+    {
+      "candidate": "combined ogckart /wfs",
+      "url": "https://ogckart-sn1.atlas.vegvesen.no/wfs?service=wfs&version=1.1.0&request=GetCapabilities",
+      "why": "Printed on dataut.vegvesen.no/dataset/ogc-karttjenester. Not printed on the kartlag leftover page. Live GET is XML 200 with 353 FeatureType names that already appear on the per-workspace WFS documents. Do not invent it onto kartlag."
+    },
+    {
+      "candidate": "Kartverket leftover WMS / kvwms",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/163",
+      "why": "In-flight sibling PR. Not on main. Do not pick."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "assigned skip",
+      "why": "Assigned skip. Not a leftover vegvesen OGC catalog."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source vegogc --db /tmp/pda-vegogc-proof/registry.sqlite --limit 10",
+    "listed": 10,
+    "inserted": 10,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "vegogc:vegvar_1_0_ows",
+        "title": "vegvar_1_0_ows",
+        "access_path": "https://ogckart-sn1.atlas.vegvesen.no/vegvar_1_0/ows?service=wms&request=GetCapabilities"
+      },
+      {
+        "id": "vegogc:vegvar_1_0_wfs",
+        "title": "vegvar_1_0_wfs",
+        "access_path": "https://ogckart-sn1.atlas.vegvesen.no/vegvar_1_0/wfs?service=wfs&request=GetCapabilities"
+      },
+      {
+        "id": "vegogc:norstoy_1_0_ows",
+        "title": "norstoy_1_0_ows",
+        "access_path": "https://ogckart-sn1.atlas.vegvesen.no/norstoy_1_0/ows?service=wms&request=GetCapabilities"
+      },
+      {
+        "id": "vegogc:norstoy_1_0_wfs",
+        "title": "norstoy_1_0_wfs",
+        "access_path": "https://ogckart-sn1.atlas.vegvesen.no/norstoy_1_0/wfs?service=wfs&request=GetCapabilities"
+      },
+      {
+        "id": "vegogc:nvdb_2_0_ows",
+        "title": "nvdb_2_0_ows",
+        "access_path": "https://ogckart-sn1.atlas.vegvesen.no/nvdb_2_0/ows?service=wms&request=GetCapabilities"
+      },
+      {
+        "id": "vegogc:nvdb_2_0_wfs",
+        "title": "nvdb_2_0_wfs",
+        "access_path": "https://ogckart-sn1.atlas.vegvesen.no/nvdb_2_0/wfs?service=wfs&request=GetCapabilities"
+      },
+      {
+        "id": "vegogc:rapportweb_1_0_ows",
+        "title": "rapportweb_1_0_ows",
+        "access_path": "https://ogckart-sn1.atlas.vegvesen.no/rapportweb_1_0/ows?service=wms&request=GetCapabilities"
+      },
+      {
+        "id": "vegogc:rapportweb_1_0_wfs",
+        "title": "rapportweb_1_0_wfs",
+        "access_path": "https://ogckart-sn1.atlas.vegvesen.no/rapportweb_1_0/wfs?service=wfs&request=GetCapabilities"
+      },
+      {
+        "id": "vegogc:datex_3_1_ows",
+        "title": "datex_3_1_ows",
+        "access_path": "https://ogckart-sn1.atlas.vegvesen.no/datex_3_1/ows?service=wms&request=GetCapabilities"
+      },
+      {
+        "id": "vegogc:datex_3_1_wfs",
+        "title": "datex_3_1_wfs",
+        "access_path": "https://ogckart-sn1.atlas.vegvesen.no/datex_3_1/wfs?service=wfs&request=GetCapabilities"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search vegvar_1_0_ows --db /tmp/pda-vegogc-proof/registry.sqlite --limit 5",
+    "query": "vegvar_1_0_ows",
+    "returned": 1,
+    "hit_id": "vegogc:vegvar_1_0_ows",
+    "title": "vegvar_1_0_ows",
+    "source_id": "vegogc",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://ogckart-sn1.atlas.vegvesen.no/vegvar_1_0/ows?service=wms&request=GetCapabilities",
+    "original_source": "https://www.vegvesen.no/fag/teknologi/apne-data/et-utvalg-apne-data/ogc-karttjenester/kartlag/",
+    "why_picked": "requirements vegvar AND ows; title matched vegvar, ows"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset vegogc:vegvar_1_0_ows --db /tmp/pda-vegogc-proof/registry.sqlite",
+    "dataset": "vegogc:vegvar_1_0_ows",
+    "table_id": "vegvar_1_0_ows",
+    "access_path": "https://ogckart-sn1.atlas.vegvesen.no/vegvar_1_0/ows?service=wms&request=GetCapabilities",
+    "request_url": "https://ogckart-sn1.atlas.vegvesen.no/vegvar_1_0/ows?service=wms&request=GetCapabilities",
+    "http_status": 200,
+    "listed": 2,
+    "inserted": 2,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "Name",
+        "value": "tunnel_segments"
+      },
+      {
+        "measure": "Name",
+        "value": "vv_road_prognosis_V2"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset vegogc:vegvar_1_0_ows --db /tmp/pda-vegogc-proof/registry.sqlite",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "vegvar_1_0_ows GetCapabilities prints Layer names. Those are not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed path segments joined with _. access_path is the GetCapabilities URL as printed. No vegogc id was written onto a vegvesen CKAN row.",
+    "License is null: the leftover kartlag page prints no license URL. Publisher is null.",
+    "Live GET of /vegvar_1_0/ows?service=wms&request=GetCapabilities is HTTP 200 WMS_Capabilities XML. No token is sent. No extra Accept header is invented.",
+    "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "python3 -m pytest tests/test_vegogc_source.py tests/test_vegvesen_source.py: 18 passed.",
+    "Not a numeric time series with two or more periods. Fetch listed 2 printed Layer Name cells (sample tunnel_segments, vv_road_prognosis_V2).",
+    "The dataut combined /wfs href is not printed on kartlag and was not ingested. All 10 printed kartlag hrefs were live XML 200.",
+    "Rebased onto origin/main after kvwms #163 (2cdbadb), aviationforecast #166, vannkraft #164, and vindkraft #169 (09cb994). SOURCE_IDS keeps vindkraft, vannkraft, kvwms, nibiowms, ragis, then vegogc."
+  ]
+}

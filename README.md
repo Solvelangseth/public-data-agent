@@ -4469,6 +4469,47 @@ not applicable: plant names, not a numeric time series
 (`no observations matched entity/measure; available=[]`).
 Proof is `data/vindkraft_source_proof.json`.
 
+## Statens vegvesen leftover OGC source
+
+`pda ingest --source vegogc` is another replaceable adapter. It lists
+printed GetCapabilities hrefs on the official leftover Statens vegvesen
+OGC kartlag page
+`https://www.vegvesen.no/fag/teknologi/apne-data/et-utvalg-apne-data/ogc-karttjenester/kartlag/`,
+capped at 10. It keeps host `ogckart-sn1.atlas.vegvesen.no` with
+`request=GetCapabilities` and skips `vegvar.atlas.vegvesen.no` web-map
+links. GetCapabilities bodies that are HTML or not WMS/WFS Capabilities
+XML are skipped. Dataset ids are the printed path segments after the
+host joined with `_` so `vegvar_1_0_ows` stays distinct from
+`vegvar_1_0_wfs`. `access_path` is the GetCapabilities URL as printed.
+License stays null. Publisher stays null. This is not the Vegvesen CKAN
+catalog (`--source vegvesen`) and not Kartverket leftover WMS/WMTS
+(`--source kvwms`, now on main after PR 163). It does not scrape
+`https://dataut.vegvesen.no/dataset/ogc-karttjenester`. MET Aviationforecast
+(`--source aviationforecast`, now on main after PR 166), NVE
+Vannkraftdatabase (`--source vannkraft`, now on main after PR 164), and
+NVE Vindkraftdatabase (`--source vindkraft`, now on main after PR 169)
+stay unused.
+
+```bash
+pda ingest --source vegogc --db data/registry.sqlite --limit 10
+pda search vegvar_1_0_ows --db data/registry.sqlite
+pda fetch --dataset vegogc:vegvar_1_0_ows --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored GetCapabilities URL as text. Observation
+values are copied from printed WMS `Layer`/`Name` text or WFS
+`FeatureType`/`Name` text. A printed `Title` sibling stays as a
+dimension. License stays null. Publisher stays null.
+
+Live ingest 2026-08-28: 10 printed GetCapabilities services (kartlag
+prints 10; all 10 return WMS or WFS Capabilities XML 200). Live search
+`vegvar_1_0_ows` returns `vegogc:vegvar_1_0_ows`. Live fetch GETs
+`https://ogckart-sn1.atlas.vegvesen.no/vegvar_1_0/ows?service=wms&request=GetCapabilities`
+HTTP 200, 2 Layer Name cells. Sample printed value: `tunnel_segments`.
+`pda methods` is not applicable: layer names, not a numeric time series
+(`no observations matched entity/measure; available=[]`).
+Proof is `data/vegogc_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
