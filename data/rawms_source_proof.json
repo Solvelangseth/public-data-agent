@@ -97,8 +97,8 @@
     "License is null: the leftover WMS documents print no license URL. Publisher is null.",
     "Live GET of /wms/kulturminner2?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetCapabilities is HTTP 200 WMS_Capabilities XML. No token is sent. No extra Accept header is invented.",
     "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
-    "python3 -m pytest after rebase onto kvwms #163: 1077 passed, 1 skipped, 1 deselected.",
+    "python3 -m pytest after rebase onto vannkraft #164: 1095 passed, 1 skipped, 1 deselected.",
     "Not a numeric time series with two or more periods. Fetch listed 6 printed Layer Name cells (sample Kulturminner, Enkeltminner).",
-    "MABYGIS REST stays on --source ragis. FeatureServer layers stay on --source riksantikvaren. kvwms is now on main. ldirwms 165 was an open sibling PR and was not picked."
+    "MABYGIS REST stays on --source ragis. FeatureServer layers stay on --source riksantikvaren. kvwms and vannkraft are now on main. ldirwms 165 and vegogc 168 were open sibling PRs and were not picked."
   ]
 }
