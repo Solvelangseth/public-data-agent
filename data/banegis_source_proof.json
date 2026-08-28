@@ -126,6 +126,7 @@
     "Live GET of each of the four printed leftover URLs is HTTP 200 WMS_Capabilities or WFS_Capabilities XML. No token is sent. No extra Accept header is invented.",
     "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
     "python3 -m pytest after adding the source onto origin/main after ssbfam #181: 1254 passed, 1 skipped, 1 deselected.",
+    "Rebased onto origin/main after ssbsec #187. Local pytest after rebase: 1261 passed, 1 skipped, 1 deselected. Live ingest on the new head listed 4, inserted 4. Search stoysonerjernbanenett still hits banegis. Fetch of wms.stoysonerjernbanenett is still HTTP 200 with 3 Layer Name cells.",
     "Not a numeric time series with two or more periods. Fetch listed 3 printed Layer Name cells (sample stoysonerjernbanenett, stoy, stoygrense).",
     "kvwms stays on wms.topo. kvgrunn stays on leftover grunnkart. vegogc stays on Statens vegvesen leftover OGC. geonorge stays on Kartkatalog metadata. nibiorest 188 stayed unused."
   ]
