@@ -4967,6 +4967,39 @@ not a numeric time series
 (`no observations matched entity/measure; available=[]`).
 Proof is `data/banegis_source_proof.json`.
 
+## Mattilsynet leftover WMS/WFS source
+
+`pda ingest --source mattilsyn` is another replaceable adapter. It lists printed
+leftover OGC:WMS and OGC:WFS Type=service rows on the official Geonorge
+Kartkatalog search
+`https://kartkatalog.geonorge.no/api/search?text=Mattilsynet&limit=50`,
+capped at 10. Other organizations, downloads, servicelayers, and W3C:REST
+rows are skipped. Leftover NIBIO WMS hosts, leftover Landbruksdirektoratet
+WMS hosts, Miljødirektoratet GIS hosts, and leftover Miljødirektoratet WMS
+hosts are skipped. GetCapabilities bodies that are not WMS or WFS XML are
+skipped. Dataset ids are the printed service path segment so the leftover
+`https://kart.mattilsynet.no/wmscache/service?service=WMS&request=GetCapabilities`
+keeps native id `service`. `access_path` is the printed `DistributionUrl`.
+License stays null: the catalog prints no license URL. Publisher stays
+null. This is not Mattilsynet plantevern JSON (`--source mattilsynet`),
+not leftover NIBIO WMS (`--source nibiowms`), not leftover
+Landbruksdirektoratet WMS (`--source ldirwms`), not Miljødirektoratet
+ArcGIS REST (`--source miljogis`), and not leftover Miljødirektoratet
+WMS/WFS (`--source mdirwms`).
+
+```bash
+pda ingest --source mattilsyn --db data/registry.sqlite --limit 10
+pda search Mattilsynet --db data/registry.sqlite
+pda fetch --dataset mattilsyn:service --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored GetCapabilities URL. Observation values are
+copied from printed WMS `Layer`/`Name` text or WFS `FeatureType`/`Name`
+text. A sibling `Title` stays as a dimension. License stays null. Publisher
+stays null.
+
+Live proof follows.
+
 ## Norges Bank SDMX Codelists source
 
 `pda ingest --source nbcodelist` is another replaceable adapter. It lists
