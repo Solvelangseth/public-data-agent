@@ -4368,6 +4368,38 @@ HTTP 200, 227 printed layer-name cells. Sample printed value: `topo`.
 (`no observations matched entity/measure; available=[]`).
 Proof is `data/kvwms_source_proof.json`.
 
+`pda ingest --source aviationforecast` is another replaceable adapter. It lists
+printed collection GET paths on the official MET Aviationforecast swagger
+`https://api.met.no/weatherapi/aviationforecast/2.0/swagger`, capped at 10.
+Templated `{format}` paths and GET operations that print required query
+parameters are skipped. Forecast paths `/aw` and `/iga` print required
+`icao` or `wmoheader`, so they are not listed. Dataset ids are the last
+printed path segment. `access_path` is the swagger origin + printed
+`basePath` + path. License is the printed swagger CC BY 4.0 URL.
+Publisher stays null. This is not Metalerts (`--source met`), not
+Locationforecast (`--source locationforecast`), not Tafmetar
+(`--source tafmetar`), not Sigmets, and not Udir Grep.
+
+```bash
+pda ingest --source aviationforecast --db data/registry.sqlite --limit 10
+pda search locations --db data/registry.sqlite
+pda fetch --dataset aviationforecast:locations --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored collection URL. Observation values are copied
+from printed GeoJSON feature `name` when present, otherwise the printed
+Feature `id`. License is the printed swagger CC BY 4.0 URL. Publisher
+stays null: the spec does not print a publisher.
+
+Live ingest 2026-08-28: 6 printed untemplated GET paths (catalog prints
+6 paths with a last-segment id and no required query parameter, cap 10).
+Live search `locations` returns `aviationforecast:locations`. Live fetch GETs
+`https://api.met.no/weatherapi/aviationforecast/2.0/locations` HTTP 200, 8
+location-name cells. Sample printed value: `BERGEN/FLESLAND`.
+`pda methods` is not applicable: GeoJSON ICAO names, not a numeric
+time series (`no observations matched entity/measure; available=[]`).
+Proof is `data/aviationforecast_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists

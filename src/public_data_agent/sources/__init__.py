@@ -3,6 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from public_data_agent.sources.airquality import AirqualitySource
+from public_data_agent.sources.aviationforecast import AviationforecastSource
 from public_data_agent.sources.aqua import AquaSource
 from public_data_agent.sources.arcticsdi import ArcticsdiSource
 from public_data_agent.sources.artskart import ArtskartSource
@@ -221,6 +222,7 @@ SOURCE_IDS = (
     "sigmets",
     "grep",
     "kvwms",
+    "aviationforecast",
 )
 
 
@@ -443,11 +445,14 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return GrepSource()
     if source_id == "kvwms":
         return KvwmsSource()
+    if source_id == "aviationforecast":
+        return AviationforecastSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
 __all__ = [
     "AirqualitySource",
+    "AviationforecastSource",
     "AquaSource",
     "ArcticsdiSource",
     "ArtskartSource",
