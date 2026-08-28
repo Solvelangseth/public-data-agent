@@ -20,6 +20,7 @@ from public_data_agent.sources.georegister import GeoregisterSource
 from public_data_agent.sources.geosatellite import GeosatelliteSource
 from public_data_agent.sources.gribfiles import GribfilesSource
 from public_data_agent.sources.hi import HiFeaturesSource
+from public_data_agent.sources.hicoverages import HicoveragesSource
 from public_data_agent.sources.hoydedata import HoydedataSource
 from public_data_agent.sources.icemap import IcemapSource
 from public_data_agent.sources.isobaricgrib import IsobaricgribSource
@@ -169,6 +170,7 @@ SOURCE_IDS = (
     "regnskap",
     "cristin",
     "omregning",
+    "hicoverages",
 )
 
 
@@ -339,6 +341,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return CristinSource()
     if source_id == "omregning":
         return OmregningSource()
+    if source_id == "hicoverages":
+        return HicoveragesSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -361,6 +365,7 @@ __all__ = [
     "GeosatelliteSource",
     "GribfilesSource",
     "HiFeaturesSource",
+    "HicoveragesSource",
     "HoydedataSource",
     "IcemapSource",
     "IsobaricgribSource",

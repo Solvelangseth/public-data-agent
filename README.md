@@ -3437,6 +3437,39 @@ HTTP 200, 1950 conversion-factor cells. Sample printed value: `0102`.
 time series (`no period in dimensions or period field`).
 Proof is `data/omregning_source_proof.json`.
 
+## Havforskningsinstituttet OGC Coverages source
+
+`pda ingest --source hicoverages` is another replaceable adapter. It lists
+printed `application/json` GET hrefs on the official Havforskningsinstituttet
+OGC Coverages landing page `https://kart.hi.no/data/ogc/coverages/v1`,
+capped at 10. `self` / `alternate` links, HTML links, and the OpenAPI
+service-desc (non-JSON type) are skipped. Dataset ids are the printed
+last path segment so `/collections` stays distinct from `/conformance`.
+`access_path` is the printed landing-page href, including the printed
+`f=application/json` query. License stays null: the landing page prints
+no license URL. Publisher stays null. This is not Havforskningsinstituttet
+OGC Features (`--source hi`) and not Kartverket OGC Coverages
+(`--source ogccoverages`).
+
+```bash
+pda ingest --source hicoverages --db data/registry.sqlite --limit 10
+pda search collections --db data/registry.sqlite
+pda fetch --dataset hicoverages:collections --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored collection URL. Observation values are copied
+from printed JSON `title` when present, otherwise `name` or `id`. License
+stays null. Publisher stays null.
+
+Live ingest 2026-08-28: 2 printed application/json GET hrefs (catalog
+prints conformance and collections; cap 10). Live search `collections`
+returns `hicoverages:collections`. Live fetch GETs
+`https://kart.hi.no/data/ogc/coverages/v1/collections?f=application%2Fjson`
+HTTP 200, 32 collection-title cells. Sample printed value: `reprojected`.
+`pda methods` is not applicable: collection titles, not a numeric
+time series (`no observations matched entity/measure; available=[]`).
+Proof is `data/hicoverages_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists

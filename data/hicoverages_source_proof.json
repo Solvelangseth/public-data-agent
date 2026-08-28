@@ -1,0 +1,200 @@
+{
+  "produced_at": "2026-08-28T01:25:37Z",
+  "bound": {
+    "list_api": "https://kart.hi.no/data/ogc/coverages/v1",
+    "walk": "copy printed application/json GET hrefs from the official Havforskningsinstituttet OGC Coverages landing-page links array; skip self and alternate links, non-JSON types, and hrefs with no last path segment; native ids are the printed last path segment so collections and conformance stay distinct; access_path is the printed href including the printed f=application/json query; title copies the printed link title when present; license stays null because the landing page prints no license URL; do not invent query filters or Accept workarounds for OpenAPI",
+    "cap": 10,
+    "how": "pda ingest --source hicoverages --limit 10. The official landing page prints application/json GET hrefs for /conformance and /collections. GET uses the printed collections href with the printed f=application/json query."
+  },
+  "discarded": [
+    {
+      "candidate": "Lane A after REGNSKAP (bc-e11feb47)",
+      "url": "https://cursor.com/agents/bc-e11feb47-4f3c-43f6-9dc6-22ef5e4b7df6",
+      "why": "Lane A was still running at pickup with no PR and no chosen source. Transcript hunt was HK-dir DBH, Stortinget, NVE hydrology siblings, Artsdatabanken, Naturbase. Do not pick the other lane's hunt."
+    },
+    {
+      "candidate": "Cristin",
+      "url": "PR 134 --source cristin, now on main",
+      "why": "Assigned skip. Already on main after merge f6fc4d8. Do not re-add."
+    },
+    {
+      "candidate": "Brønnøysundregistrene Regnskapsregisteret",
+      "url": "PR 135 --source regnskap, now on main",
+      "why": "Assigned skip. Already on main. Do not re-add."
+    },
+    {
+      "candidate": "Kartverket OGC Coverages",
+      "url": "PR 132 --source ogccoverages, now on main",
+      "why": "Assigned skip. Already on main. Distinct Kartverket host; not this HI coverages catalog."
+    },
+    {
+      "candidate": "Havforskningsinstituttet OGC Features",
+      "url": "--source hi",
+      "why": "Already on main. This slice is OGC Coverages on the same host, not Features."
+    },
+    {
+      "candidate": "MET Aviationforecast 2.0 swagger",
+      "url": "https://api.met.no/weatherapi/aviationforecast/2.0/swagger",
+      "why": "Assigned skip for this lane. Do not pick aviationforecast."
+    },
+    {
+      "candidate": "MET Sigmets 2.0 swagger",
+      "url": "https://api.met.no/weatherapi/sigmets/2.0/swagger",
+      "why": "Assigned skip for this lane. Do not pick sigmets."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    },
+    {
+      "candidate": "HI OGC Coverages OpenAPI",
+      "url": "https://kart.hi.no/data/ogc/coverages/v1/openapi",
+      "why": "Printed service-desc type is application/vnd.oai.openapi+json. Live GET with Accept application/json is HTTP 500 Could not find acceptable representation. Do not invent an Accept workaround. The landing page already prints JSON GET hrefs."
+    },
+    {
+      "candidate": "Udir Register for lærebedrifter",
+      "url": "https://data-nlr.udir.no/swagger/v4/swagger.json",
+      "why": "Known skip: live collection GETs are HTTP 401. Do not invent auth."
+    },
+    {
+      "candidate": "NVE Nettleietariffer",
+      "url": "https://biapi.nve.no/nettleietariffer/swagger/v1/swagger.json",
+      "why": "Known skip: live GETs are HTTP 422 required filters. Do not invent query filters."
+    },
+    {
+      "candidate": "NVE Inntektsrammer",
+      "url": "https://biapi.nve.no/inntektsrammer/swagger/v1/swagger.json",
+      "why": "Known skip: OpenAPI prints security ApiKey. Do not invent a key."
+    },
+    {
+      "candidate": "Artsdatabanken Fremmedartsbase API",
+      "url": "https://fab.artsdatabanken.no/swagger/v1/swagger.json",
+      "why": "Known skip: live collection GETs are HTTP 401. Do not invent auth."
+    },
+    {
+      "candidate": "Stortinget eksport",
+      "url": "https://data.stortinget.no/eksport/emner",
+      "why": "Known skip: printed default is XML and format=json is not printed. Do not invent a format query. Also in Lane A hunt."
+    },
+    {
+      "candidate": "Kartverket Adresser /sok /punktsok",
+      "url": "https://api.kartverket.no/adresser/v1/openapi.json",
+      "why": "OpenAPI prints /sok with no required parameters, but live GET without search params is HTTP 400. Do not invent a query."
+    },
+    {
+      "candidate": "Kartverket Eiendom /geokoding",
+      "url": "https://api.kartverket.no/eiendom/v1/geokoding",
+      "why": "Known skip: HTTP 400 without matrikkel params. Do not retry."
+    },
+    {
+      "candidate": "Frost MET sources",
+      "url": "https://frost.met.no/sources/v0.jsonld",
+      "why": "Known skip: HTTP 401. Do not retry."
+    },
+    {
+      "candidate": "NVDB Les V3 OpenAPI",
+      "url": "https://nvdbapiles-v3.atlas.vegvesen.no/dokumentasjon/openapi.json",
+      "why": "Known skip: HTTP 400 User-Agent. Do not retry."
+    },
+    {
+      "candidate": "Vegvesen Trafikkdata swagger / trafikkdata-api",
+      "url": "https://trafikkdata.atlas.vegvesen.no/",
+      "why": "Known skip: swagger HTML-only; trafikkdata-api 410. Do not retry."
+    },
+    {
+      "candidate": "NVE HydAPI /api/v1/Parameters",
+      "url": "https://hydapi.nve.no/swagger/v1/swagger.json",
+      "why": "Known skip: HTTP 401. Do not retry."
+    },
+    {
+      "candidate": "Udir Statistikkbanken /data",
+      "url": "Udir Statistikkbanken /Eksport/{id}/data",
+      "why": "Known skip: requires invented filters. Do not retry."
+    },
+    {
+      "candidate": "NVE Jordskredvarsel / Snøskred / Flom swagger",
+      "url": "https://api01.nve.no/hydrology/forecast/landslide/v1.0.6/swagger/docs/v1.0.6",
+      "why": "Official swagger 200. Left unused because paths are templated and Lane A was hunting this family."
+    },
+    {
+      "candidate": "HK-dir DBH",
+      "url": "https://dbh.hkdir.no/api",
+      "why": "Welcome JSON only; swagger URL is HTML SPA. Lane A was actively hunting this. Unused."
+    },
+    {
+      "candidate": "Digdir organization catalogue",
+      "url": "https://organization-catalogue.fellesdatakatalog.digdir.no/organizations",
+      "why": "Live JSON array 200, but no printed OpenAPI/path catalog. Do not invent endpoints."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source hicoverages --db /tmp/hicoverages-proof/registry.sqlite --limit 10",
+    "listed": 2,
+    "inserted": 2,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "hicoverages:conformance",
+        "title": "Conformance declaration as application/json",
+        "access_path": "https://kart.hi.no/data/ogc/coverages/v1/conformance?f=application%2Fjson"
+      },
+      {
+        "id": "hicoverages:collections",
+        "title": "Collections Metadata as application/json",
+        "access_path": "https://kart.hi.no/data/ogc/coverages/v1/collections?f=application%2Fjson"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search collections --db /tmp/hicoverages-proof/registry.sqlite --limit 10",
+    "query": "collections",
+    "returned": 1,
+    "hit_id": "hicoverages:collections",
+    "title": "Collections Metadata as application/json",
+    "source_id": "hicoverages",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://kart.hi.no/data/ogc/coverages/v1/collections?f=application%2Fjson",
+    "original_source": "https://kart.hi.no/data/ogc/coverages/v1",
+    "why_picked": "title matched collections"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset hicoverages:collections --db /tmp/hicoverages-proof/registry.sqlite",
+    "dataset": "hicoverages:collections",
+    "table_id": "collections",
+    "access_path": "https://kart.hi.no/data/ogc/coverages/v1/collections?f=application%2Fjson",
+    "request_url": "https://kart.hi.no/data/ogc/coverages/v1/collections?f=application%2Fjson",
+    "http_status": 200,
+    "listed": 32,
+    "inserted": 32,
+    "updated": 0,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "title",
+        "value": "reprojected"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset hicoverages:collections --db /tmp/hicoverages-proof/registry.sqlite",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "HI OGC Coverages /collections prints collection titles. Those are not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed landing-page last path segments. access_path is the printed href. No hicoverages id was written onto a hi, ogccoverages, cristin, or datanorge row.",
+    "License stays null: the landing page prints no license URL. Publisher is null: the landing page does not print a publisher.",
+    "Original harvested landing-page metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "python3 -m pytest: 829 passed, 1 skipped, 1 deselected.",
+    "Not a numeric time series with two or more periods. Fetch listed 32 printed collection-title cells (sample reprojected).",
+    "Open PR check at pickup found no open PRs. Lane A (bc-e11feb47) had no PR and no chosen source. aviationforecast 2.0 and sigmets 2.0 stayed unused. HI Coverages OpenAPI needs a non-JSON Accept so unused; landing-page JSON hrefs were used instead."
+  ]
+}
