@@ -99,6 +99,8 @@ def test_vindkraft_is_a_registered_source() -> None:
     assert "nve" in SOURCE_IDS
     assert "regobs" in SOURCE_IDS
     assert "sigmets" in SOURCE_IDS
+    assert "kvwms" in SOURCE_IDS
+    assert "grep" in SOURCE_IDS
     source = build_source("vindkraft")
     assert isinstance(source, VindkraftSource)
     assert source.source_id == "vindkraft"
