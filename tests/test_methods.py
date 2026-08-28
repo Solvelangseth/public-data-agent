@@ -16,6 +16,9 @@ from methods.types import (
     Lineage,
     INDEX,
     INDEX_FORMULA,
+    PERIOD_CHANGE,
+    PERIOD_CHANGE_FORMULA,
+    PERIOD_CHANGE_UNITS,
     RANK,
     RANK_CHANGE,
     RANK_CHANGE_FORMULA,
@@ -76,6 +79,26 @@ FIXTURE_ROWS = [
         "license": None,
         "access_path": None,
         "source_native_uri": None,
+    },
+]
+NON_ADJACENT_ROWS = [
+    {
+        **FIXTURE_ROWS[0],
+        "id": "fixture-obs-2025",
+        "value": 100,
+        "dimensions": {"year": "2025", "entity": FIXTURE_TOWN},
+    },
+    {
+        **FIXTURE_ROWS[0],
+        "id": "fixture-obs-2100",
+        "value": 150,
+        "dimensions": {"year": "2100", "entity": FIXTURE_TOWN},
+    },
+    {
+        **FIXTURE_ROWS[0],
+        "id": "fixture-obs-2150",
+        "value": 180,
+        "dimensions": {"year": "2150", "entity": FIXTURE_TOWN},
     },
 ]
 
@@ -157,6 +180,46 @@ def test_yoy_formula_and_first_period_absent() -> None:
         assert row.yoy_growth.lineage.input_columns == ("value",)
         assert row.yoy_growth.lineage.source_observation_ids
         assert row.yoy_growth.lineage.source_periods
+    assert all(row.period_change.value is None for row in derived)
+    assert derived[1].period_change.lineage.note == (
+        "undefined: step is one calendar year; rate is in yoy_growth"
+    )
+
+
+def test_non_adjacent_periods_use_period_change(tmp_path: Path) -> None:
+    derived = derive(clean(NON_ADJACENT_ROWS))
+
+    assert [row.observation.period for row in derived] == ["2025", "2100", "2150"]
+    assert [row.index.value for row in derived] == pytest.approx([100, 150, 180])
+    assert [row.period_change.value for row in derived] == [
+        None,
+        pytest.approx(0.5),
+        pytest.approx(0.2),
+    ]
+    assert derived[0].period_change.lineage.note == "undefined: no prior period"
+    assert derived[1].period_change.lineage.source_periods == ("2025", "2100")
+    assert derived[2].period_change.lineage.source_periods == ("2100", "2150")
+    assert all(row.yoy_growth.value is None for row in derived)
+    assert all(
+        row.yoy_growth.lineage.note == "undefined: periods are not adjacent calendar years"
+        for row in derived[1:]
+    )
+    for row in derived[1:]:
+        lineage = row.period_change.lineage
+        assert lineage.name == PERIOD_CHANGE
+        assert lineage.formula == PERIOD_CHANGE_FORMULA
+        assert lineage.units == PERIOD_CHANGE_UNITS
+        assert lineage.input_columns == ("value",)
+        assert lineage.note == "change across stored step; not a one-year rate"
+        assert "yoy" not in f"{lineage.name} {lineage.formula} {lineage.units}".lower()
+
+    paths = emit(derived, tmp_path)
+    assert "yoy_bar" not in paths
+    assert not (tmp_path / "yoy_bar.png").exists()
+    assert paths["chart"].read_bytes().startswith(b"\x89PNG")
+    assert paths["index_line"].read_bytes().startswith(b"\x89PNG")
+    markdown = paths["markdown"].read_text(encoding="utf-8")
+    assert "`period_change` describes the stored step. It is not a one-year rate." in markdown
 
 
 def test_zero_prior_value_is_undefined() -> None:
@@ -203,8 +266,8 @@ def test_rank_and_rank_change_two_entities_two_periods() -> None:
     assert by_key[("Fixture B", "2001")].rank.value == 2
     assert by_key[("Fixture A", "2000")].rank_change.value is None
     assert by_key[("Fixture B", "2000")].rank_change.value is None
-    assert by_key[("Fixture A", "2001")].rank_change.value == 1  # 2 -> 1, moved up
-    assert by_key[("Fixture B", "2001")].rank_change.value == -1  # 1 -> 2, moved down
+    assert by_key[("Fixture A", "2001")].rank_change.value == 1
+    assert by_key[("Fixture B", "2001")].rank_change.value == -1
     for row in derived:
         assert row.rank.lineage.name == RANK
         assert row.rank.lineage.formula == RANK_FORMULA
@@ -235,7 +298,6 @@ def test_rank_ties_share_min_and_skip() -> None:
 
 
 def test_index_two_entities_each_have_own_base(tmp_path: Path) -> None:
-    # Fixture Town A/B — not Oslo. Each (entity, measure) series has its own 100.
     rows = clean(
         [
             {**FIXTURE_ROWS[0], "id": "a-1", "value": 50, "dimensions": {"year": "2000", "entity": "Fixture A"}},
@@ -288,9 +350,9 @@ def test_index_missing_or_zero_base_is_undefined() -> None:
 
 def test_derived_without_lineage_is_unrepresentable() -> None:
     with pytest.raises(TypeError):
-        DerivedValue(value=0.1)  # type: ignore[call-arg]
+        DerivedValue(value=0.1)
     with pytest.raises(TypeError):
-        DerivedValue(value=0.1, lineage=None)  # type: ignore[arg-type]
+        DerivedValue(value=0.1, lineage=None)
     with pytest.raises(ValueError, match="formula"):
         Lineage(
             name="yoy_growth",
@@ -319,20 +381,25 @@ def test_emit_writes_table_chart_and_lineage(tmp_path: Path) -> None:
     assert "0.1" in csv_text
     md = paths["markdown"].read_text(encoding="utf-8")
     assert YOY_GROWTH_FORMULA in md
+    assert PERIOD_CHANGE_FORMULA in md
     assert INDEX_FORMULA in md
     assert "index" in csv_text
+    assert "period_change" in csv_text
     lineage = json.loads(paths["lineage"].read_text(encoding="utf-8"))
     names = [column["name"] for column in lineage["derived_columns"]]
-    assert names == [YOY_GROWTH, INDEX, RANK, RANK_CHANGE]
+    assert names == [YOY_GROWTH, PERIOD_CHANGE, INDEX, RANK, RANK_CHANGE]
     yoy = lineage["derived_columns"][0]
-    index = lineage["derived_columns"][1]
-    rank = lineage["derived_columns"][2]
-    rank_change = lineage["derived_columns"][3]
+    period_change = lineage["derived_columns"][1]
+    index = lineage["derived_columns"][2]
+    rank = lineage["derived_columns"][3]
+    rank_change = lineage["derived_columns"][4]
     assert yoy["formula"] == YOY_GROWTH_FORMULA
+    assert period_change["formula"] == PERIOD_CHANGE_FORMULA
     assert index["formula"] == INDEX_FORMULA
     assert rank["formula"] == RANK_FORMULA
     assert rank_change["formula"] == RANK_CHANGE_FORMULA
     assert len(yoy["rows"]) == 3
+    assert len(period_change["rows"]) == 3
     assert len(index["rows"]) == 3
     assert len(rank["rows"]) == 3
     assert len(rank_change["rows"]) == 3
@@ -433,10 +500,12 @@ def test_cli_methods_on_fixture_store(tmp_path: Path) -> None:
     assert (out / "chart.png").is_file()
     lineage = json.loads((out / "lineage.json").read_text(encoding="utf-8"))
     assert lineage["derived_columns"][0]["formula"] == YOY_GROWTH_FORMULA
-    assert lineage["derived_columns"][1]["formula"] == INDEX_FORMULA
-    assert lineage["derived_columns"][2]["formula"] == RANK_FORMULA
-    assert lineage["derived_columns"][3]["formula"] == RANK_CHANGE_FORMULA
+    assert lineage["derived_columns"][1]["formula"] == PERIOD_CHANGE_FORMULA
+    assert lineage["derived_columns"][2]["formula"] == INDEX_FORMULA
+    assert lineage["derived_columns"][3]["formula"] == RANK_FORMULA
+    assert lineage["derived_columns"][4]["formula"] == RANK_CHANGE_FORMULA
     assert "index" in table
+    assert "period_change" in table
     assert "rank" in table
 
 
