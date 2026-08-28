@@ -4918,6 +4918,38 @@ numeric time series
 (`no observations matched entity/measure; available=[]`).
 Proof is `data/kvgrunn_source_proof.json`.
 
+## Norges Bank SDMX Concept Schemes source
+
+`pda ingest --source nbconcept` is another replaceable adapter. It lists
+printed concept-scheme ids on the official Norges Bank SDMX catalog
+`https://data.norges-bank.no/api/conceptscheme?format=sdmx-json`,
+capped at 10. Dataset ids are the printed `id` values. `access_path`
+joins each printed `agencyID` and `id` onto the printed
+`/api/conceptscheme` path and keeps the catalog `format=sdmx-json`
+query. License stays null. Publisher stays null. This is not the Norges
+Bank dataflow list (`--source norgesbank`) and not leftover SDMX
+codelists (`--source nbcodelist`) or data structures
+(`--source nbdsd`).
+
+```bash
+pda ingest --source nbconcept --db data/registry.sqlite --limit 10
+pda search konsepter --db data/registry.sqlite
+pda fetch --dataset nbconcept:CS_NB --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored concept-scheme URL. Observation values are
+copied from printed concept `name` scalars. Other scalars stay as
+dimensions. Nested `names`, `links`, and `descriptions` objects are not
+copied. License stays null. Publisher stays null.
+
+Live ingest 2026-08-28: 1 printed concept scheme (catalog prints 1; cap
+10). Live search `konsepter` returns `nbconcept:CS_NB`. Live fetch GETs
+`https://data.norges-bank.no/api/conceptscheme/NB/CS_NB?format=sdmx-json`
+HTTP 200, 76 name cells. Sample printed value: `Time Period`.
+`pda methods` is not applicable: concept names, not a numeric time
+series (`no observations matched entity/measure; available=[]`).
+Proof is `data/nbconcept_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
