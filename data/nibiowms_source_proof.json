@@ -149,6 +149,7 @@
     "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
     "python3 -m pytest tests/test_nibiowms_source.py tests/test_nibio_source.py: 17 passed.",
     "Not a numeric time series with two or more periods. Fetch listed 4 printed Layer Name cells (sample ok_raster, ok_raster_data_35).",
-    "ar5 is not printed on the leftover pages and was not ingested. riparian_zones_GLE was printed and skipped as HTML. hrl is the 11th live service and stays unused under the cap of 10."
+    "ar5 is not printed on the leftover pages and was not ingested. riparian_zones_GLE was printed and skipped as HTML. hrl is the 11th live service and stays unused under the cap of 10.",
+    "Rebased onto origin/main after ssbv2 #157 and ragis #158. SOURCE_IDS keeps ssbv2, ragis, then nibiowms."
   ]
 }
