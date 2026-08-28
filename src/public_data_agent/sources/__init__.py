@@ -47,6 +47,7 @@ from public_data_agent.sources.ldirwms import LdirwmsSource
 from public_data_agent.sources.lister import ListerSource
 from public_data_agent.sources.locationforecast import LocationforecastSource
 from public_data_agent.sources.mattilsynet import MattilsynetPlantevernSource
+from public_data_agent.sources.mdirwms import MdirwmsSource
 from public_data_agent.sources.met import MetMetalertsSource
 from public_data_agent.sources.metgc import MetgcSource
 from public_data_agent.sources.metgm import MetgmSource
@@ -257,6 +258,7 @@ SOURCE_IDS = (
     "kvgrunn",
     "nbconcept",
     "kystnav",
+    "mdirwms",
 )
 
 
@@ -515,6 +517,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return NbconceptSource()
     if source_id == "kystnav":
         return KystnavSource()
+    if source_id == "mdirwms":
+        return MdirwmsSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -564,6 +568,7 @@ __all__ = [
     "ListerSource",
     "LocationforecastSource",
     "MattilsynetPlantevernSource",
+    "MdirwmsSource",
     "MetMetalertsSource",
     "MetgcSource",
     "MetgmSource",

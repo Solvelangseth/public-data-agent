@@ -4855,6 +4855,46 @@ HTTP 200, 10 Layer Name cells. Sample printed value: `Skilt6756`.
 (`no observations matched entity/measure; available=[]`).
 Proof is `data/kystnav_source_proof.json`.
 
+## Miljødirektoratet leftover WMS/WFS source
+
+`pda ingest --source mdirwms` is another replaceable adapter. It lists printed
+leftover OGC:WMS and OGC:WFS Type=service rows on the official Geonorge
+Kartkatalog search
+`https://kartkatalog.geonorge.no/api/search?text=Milj%C3%B8direktoratet`,
+capped at 10. Other organizations, downloads, and servicelayers are skipped.
+ArcGIS WMS wrappers already covered by Miljødirektoratet GIS are skipped.
+NIBIO leftover WMS hosts, NGU leftover WMS, and NVE GIS hosts are skipped.
+GetCapabilities bodies that are not WMS or WFS XML are skipped. Dataset ids
+are the printed service path segment so `industri` stays distinct from
+`miljoverdi_hav_wms`. `access_path` is the printed `DistributionUrl`. License
+stays null: the catalog prints no license URL. Publisher stays null. This is
+not Miljødirektoratet ArcGIS REST (`--source miljogis`), not Vannmiljø
+(`--source miljodir`), not leftover NIBIO WMS (`--source nibiowms`), and not
+leftover Landbruksdirektoratet WMS (`--source ldirwms`).
+
+```bash
+pda ingest --source mdirwms --db data/registry.sqlite --limit 10
+pda search Industri --db data/registry.sqlite
+pda fetch --dataset mdirwms:industri --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored GetCapabilities URL. Observation values are
+copied from printed WMS `Layer`/`Name` text or WFS `FeatureType`/`Name`
+text. A sibling `Title` stays as a dimension. License stays null. Publisher
+stays null.
+
+Live ingest 2026-08-28: 10 leftover WMS services (search prints 176 rows;
+59 are OGC:WMS or OGC:WFS Type=service; cap 10 copies the first ten leftover
+live documents after skipping miljogis ArcGIS wrappers, other organizations,
+downloads, servicelayers, HTML, 404, 504, and ServiceException bodies). Live
+search `Industri` returns `mdirwms:industri`. Live fetch GETs
+`https://kart3.miljodirektoratet.no/arcgis/services/industri/MapServer/WMSServer?service=WMS&request=GetCapabilities`
+HTTP 200, 2 Layer Name cells. Sample printed value:
+`industri_landbasert_overvaaking`. `pda methods` is not applicable: layer
+names, not a numeric time series
+(`no observations matched entity/measure; available=[]`).
+Proof is `data/mdirwms_source_proof.json`.
+
 ## Norges Bank SDMX Codelists source
 
 `pda ingest --source nbcodelist` is another replaceable adapter. It lists
