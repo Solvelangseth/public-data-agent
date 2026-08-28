@@ -1,0 +1,232 @@
+{
+  "produced_at": "2026-08-28T00:37:52Z",
+  "bound": {
+    "list_api": "https://kartverket-ogc-api.azurewebsites.net/openapi?f=json",
+    "walk": "copy printed untemplated GET paths from the official Kartverket OGC Coverages OpenAPI; skip the root path (no last-segment id), templated paths, POST execution, and GET operations that print required parameters; native ids are the printed path without a leading slash so two /coverage suffixes stay distinct; access_path is printed servers[0].url plus path; license is the printed OpenAPI CC BY 4.0 URL; do not invent dataset ids or format query filters",
+    "cap": 10,
+    "how": "pda ingest --source ogccoverages --limit 10. The official Kartverket OGC Coverages OpenAPI prints 13 untemplated GET paths that have a last-segment id and no required parameter. The adapter copies those paths and caps the walk at 10. GET uses the printed /collections catalog with no invented query filters. Coverage rasters stay unused for this first fetch because /collections already prints a JSON collection array."
+  },
+  "discarded": [
+    {
+      "candidate": "Artsdatabanken Artskart",
+      "url": "https://artskart.artsdatabanken.no/publicapi/swagger/docs/v1",
+      "why": "Lane B (bc-918202b6) is implementing --source artskart on branch cursor/artskart-artsdatabanken-source-fa48. Do not pick Artskart."
+    },
+    {
+      "candidate": "Artsdatabanken Nortaxa",
+      "url": "PR 130 --source nortaxa, now on main",
+      "why": "Assigned skip for this lane. Already on main after merge 7099609. Do not re-add."
+    },
+    {
+      "candidate": "Kartverket Register / georegister",
+      "url": "PR 129 --source georegister, now on main",
+      "why": "Assigned skip for this lane. Already on main. Do not re-add."
+    },
+    {
+      "candidate": "MET Locationforecast",
+      "url": "PR 128 --source locationforecast, now on main",
+      "why": "Assigned skip for this lane. Already on main. Do not re-add."
+    },
+    {
+      "candidate": "Kartverket Den norske los",
+      "url": "PR 127 --source norskelos, now on main",
+      "why": "Assigned skip for this lane. Already on main. Do not re-add."
+    },
+    {
+      "candidate": "MET Aviationforecast / Sigmets",
+      "url": "https://api.met.no/weatherapi/aviationforecast/2.0/swagger",
+      "why": "Assigned skip for this lane. Not selected."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    },
+    {
+      "candidate": "Stortinget data.stortinget.no eksport",
+      "url": "https://data.stortinget.no/eksport/stortingsperioder",
+      "why": "Live GET HTTP 200 but default Content-Type is text/xml. Lane B also discarded this because a JSON format query is not printed. Do not invent ?format=json."
+    },
+    {
+      "candidate": "NVE Inntektsrammer OpenAPI",
+      "url": "https://biapi.nve.no/inntektsrammer/swagger/v1/swagger.json",
+      "why": "Official OpenAPI HTTP 200 lists untemplated GET paths, but live GET /api/InntektsrammerType is HTTP 401. Do not invent an auth workaround."
+    },
+    {
+      "candidate": "NVE Nettleietariffer OpenAPI",
+      "url": "https://nettleietariffer.dataplattform.nve.no/v1/openapi.json",
+      "why": "Official OpenAPI HTTP 200. The only untemplated GET without required query parameters is /healthcheck. Data paths print required date/fylke filters. Do not invent those filters."
+    },
+    {
+      "candidate": "NVE Avalanche Warning API swagger",
+      "url": "https://api01.nve.no/hydrology/forecast/avalanche/v6.3.2/swagger/docs/v6.3.2",
+      "why": "Official swagger HTTP 200. Every printed GET path is templated or prints a required parameter. Do not invent langkey/region/date values."
+    },
+    {
+      "candidate": "NVE Elsertifikater / Vindkraftdatabase",
+      "url": "https://api.nve.no/doc/elsertifikater/",
+      "why": "Live GET /web/ElCert/GetApplications and /web/WindPowerplant/GetWindPowerPlantsInOperation are HTTP 200 JSON. The printed catalog is HTML documentation only. HTML-only catalogs stay unused."
+    },
+    {
+      "candidate": "Brønnøysundregistrene Regnskapsregisteret OpenAPI",
+      "url": "https://data.brreg.no/regnskapsregisteret/regnskap/v3/api-docs",
+      "why": "Official OpenAPI HTTP 200. /regnskapsregisteret/regnskap/log is live GET HTTP 200. Left unused because Kartverket OGC Coverages already prints a collection catalog of untemplated GET paths with a printed CC BY 4.0 license URL."
+    },
+    {
+      "candidate": "MET weathericon / verticalprofile / forecastmap / icing / thredds / lightning / pollenforecast / forestfireindex / uvforecast / probabilityforecast / thunderstorm swagger",
+      "url": "https://api.met.no/weatherapi/",
+      "why": "Known skip: swagger HTTP 500 HTML. Do not retry."
+    },
+    {
+      "candidate": "Frost MET sources",
+      "url": "https://frost.met.no/sources/v0.jsonld",
+      "why": "HTTP 401. Do not retry."
+    },
+    {
+      "candidate": "BarentsWatch bwapi",
+      "url": "https://www.barentswatch.no/bwapi/openapi/",
+      "why": "Auth required (401 without token). Do not invent a workaround."
+    },
+    {
+      "candidate": "NVDB Les V3 OpenAPI",
+      "url": "https://nvdbapiles-v3.atlas.vegvesen.no/dokumentasjon/openapi.json",
+      "why": "Known skip: HTTP 400 User-Agent. Do not retry."
+    },
+    {
+      "candidate": "Vegvesen Trafikkdata swagger / trafikkdata-api",
+      "url": "https://trafikkdata.atlas.vegvesen.no/",
+      "why": "Known skip: swagger HTML-only; trafikkdata-api 410. Do not retry."
+    },
+    {
+      "candidate": "Kartverket Eiendom /geokoding",
+      "url": "https://api.kartverket.no/eiendom/v1/geokoding",
+      "why": "Known skip: HTTP 400 without matrikkel params. Do not retry."
+    },
+    {
+      "candidate": "Kartverket Adresser /sok",
+      "url": "https://ws.geonorge.no/adresser/v1/sok",
+      "why": "OpenAPI prints /sok, but live GET without search params is HTTP 400. Do not invent a query."
+    },
+    {
+      "candidate": "Kartverket skred / kvikkleire / hoydekurver / seeiendom / nabovarsel / friluftsliv / tilgjengelighet OpenAPI",
+      "url": "https://ws.geonorge.no/skred/v1/openapi.json",
+      "why": "Live GET OpenAPI is HTTP 403. Do not invent an auth workaround."
+    },
+    {
+      "candidate": "NVE HydAPI /api/v1/Parameters",
+      "url": "https://hydapi.nve.no/swagger/v1/swagger.json",
+      "why": "HTTP 401. Do not retry."
+    },
+    {
+      "candidate": "Udir Statistikkbanken /data",
+      "url": "Udir Statistikkbanken /Eksport/{id}/data",
+      "why": "Known skip: requires invented filters. Do not retry."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source ogccoverages --db /tmp/pda-ogccoverages-proof/registry.sqlite --limit 10",
+    "listed": 10,
+    "inserted": 10,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "ogccoverages:collections",
+        "access_path": "https://kartverket-ogc-api.azurewebsites.net/collections"
+      },
+      {
+        "id": "ogccoverages:collections/dtm-10-terrengmodell",
+        "access_path": "https://kartverket-ogc-api.azurewebsites.net/collections/dtm-10-terrengmodell"
+      },
+      {
+        "id": "ogccoverages:collections/dtm-10-terrengmodell/coverage",
+        "access_path": "https://kartverket-ogc-api.azurewebsites.net/collections/dtm-10-terrengmodell/coverage"
+      },
+      {
+        "id": "ogccoverages:collections/dtm-10-terrengmodell/coverage/domainset",
+        "access_path": "https://kartverket-ogc-api.azurewebsites.net/collections/dtm-10-terrengmodell/coverage/domainset"
+      },
+      {
+        "id": "ogccoverages:collections/dtm-10-terrengmodell/coverage/rangetype",
+        "access_path": "https://kartverket-ogc-api.azurewebsites.net/collections/dtm-10-terrengmodell/coverage/rangetype"
+      },
+      {
+        "id": "ogccoverages:collections/dybdedata-terrengmodell-50-meters-grid-rogaland",
+        "access_path": "https://kartverket-ogc-api.azurewebsites.net/collections/dybdedata-terrengmodell-50-meters-grid-rogaland"
+      },
+      {
+        "id": "ogccoverages:collections/dybdedata-terrengmodell-50-meters-grid-rogaland/coverage",
+        "access_path": "https://kartverket-ogc-api.azurewebsites.net/collections/dybdedata-terrengmodell-50-meters-grid-rogaland/coverage"
+      },
+      {
+        "id": "ogccoverages:collections/dybdedata-terrengmodell-50-meters-grid-rogaland/coverage/domainset",
+        "access_path": "https://kartverket-ogc-api.azurewebsites.net/collections/dybdedata-terrengmodell-50-meters-grid-rogaland/coverage/domainset"
+      },
+      {
+        "id": "ogccoverages:collections/dybdedata-terrengmodell-50-meters-grid-rogaland/coverage/rangetype",
+        "access_path": "https://kartverket-ogc-api.azurewebsites.net/collections/dybdedata-terrengmodell-50-meters-grid-rogaland/coverage/rangetype"
+      },
+      {
+        "id": "ogccoverages:conformance",
+        "access_path": "https://kartverket-ogc-api.azurewebsites.net/conformance"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search Collections --db /tmp/pda-ogccoverages-proof/registry.sqlite --limit 5",
+    "query": "Collections",
+    "returned": 1,
+    "hit_id": "ogccoverages:collections",
+    "title": "Collections",
+    "source_id": "ogccoverages",
+    "publisher": null,
+    "license": "https://creativecommons.org/licenses/by/4.0/",
+    "access_path": "https://kartverket-ogc-api.azurewebsites.net/collections",
+    "original_source": "https://kartverket-ogc-api.azurewebsites.net/openapi?f=json",
+    "why_picked": "title matched collections"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset ogccoverages:collections --db /tmp/pda-ogccoverages-proof/registry.sqlite",
+    "dataset": "ogccoverages:collections",
+    "table_id": "collections",
+    "access_path": "https://kartverket-ogc-api.azurewebsites.net/collections",
+    "request_url": "https://kartverket-ogc-api.azurewebsites.net/collections",
+    "http_status": 200,
+    "listed": 2,
+    "inserted": 2,
+    "updated": 0,
+    "license": "https://creativecommons.org/licenses/by/4.0/",
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "title",
+        "value": "DTM 10 Terrengmodell (UTM32)"
+      },
+      {
+        "measure": "title",
+        "value": "Dybdedata - terrengmodell 50 meters grid for Rogaland"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset ogccoverages:collections --table collections --entity \"\" --measure \"\" --db /tmp/pda-ogccoverages-proof/registry.sqlite --out /tmp/pda-ogccoverages-proof/methods",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "Kartverket OGC /collections prints coverage collection titles. Those are not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed OpenAPI paths without a leading slash. access_path is printed servers[0].url plus path. No ogccoverages id was written onto a hoydedata, geonorge, georegister, norskelos, nortaxa, or datanorge row.",
+    "License is the printed OpenAPI CC BY 4.0 URL. Publisher is null: contact name Kartverket stays in harvested OpenAPI info and is not copied as a publisher.",
+    "Original harvested OpenAPI metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "Open PRs at pickup were empty. Lane B (bc-918202b6) later opened and merged PR 131 Artskart. This lane stayed on ogccoverages.",
+    "python3 -m pytest after Ogccoverages adapter: 780 passed, 1 skipped, 1 deselected.",
+    "Not a numeric time series with two or more periods. Fetch listed 2 printed collection-title cells (sample DTM 10 Terrengmodell (UTM32)).",
+    "Rebased onto origin/main after Artskart 131 merge db799fe. All existing sources plus ogccoverages were kept. artskart adapter files were not edited.",
+    "python3 -m pytest after rebase onto Artskart 131: 790 passed, 1 skipped, 1 deselected.",
+    "Rebased onto origin/main after Lister 133 merge a264de6. All existing sources plus ogccoverages were kept. lister adapter files were not edited."
+  ]
+}

@@ -44,6 +44,7 @@ from public_data_agent.sources.npr import NprSource
 from public_data_agent.sources.norgesbank import NorgesBankSource
 from public_data_agent.sources.nortaxa import NortaxaSource
 from public_data_agent.sources.nowcast import NowcastSource
+from public_data_agent.sources.ogccoverages import OgccoveragesSource
 from public_data_agent.sources.npolar import NpolarSource
 from public_data_agent.sources.nve import NveMagasinSource
 from public_data_agent.sources.nxr import NxrSource
@@ -161,6 +162,7 @@ SOURCE_IDS = (
     "nortaxa",
     "artskart",
     "lister",
+    "ogccoverages",
 )
 
 
@@ -323,6 +325,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return ArtskartSource()
     if source_id == "lister":
         return ListerSource()
+    if source_id == "ogccoverages":
+        return OgccoveragesSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -369,6 +373,7 @@ __all__ = [
     "NorgesBankSource",
     "NortaxaSource",
     "NowcastSource",
+    "OgccoveragesSource",
     "NpolarSource",
     "NveMagasinSource",
     "NxrSource",
