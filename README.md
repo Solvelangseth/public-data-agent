@@ -4224,6 +4224,41 @@ HTTP 200, 4 Layer Name cells. Sample printed value: `ok_raster`.
 (`no observations matched entity/measure; available=[]`).
 Proof is `data/nibiowms_source_proof.json`.
 
+## NVE RegObs KDV source
+
+`pda ingest --source regobs` is another replaceable adapter. It lists
+printed `KdvRepositories` keys on the official NVE RegObs KdvElements GET
+`https://api.regobs.no/v5/KdvElements`, capped at 10. That path is an
+untemplated collection GET in the official swagger
+`https://api.regobs.no/v5/swagger/docs/V5`. Empty keys and non-list
+repositories are skipped. Dataset ids are those printed keys so
+`Dirt_DangerSignKDV` stays distinct from `Dirt_ActivityInfluencedKDV`.
+Native URIs append that printed key as a fragment so the registry can
+store each repository. `access_path` is the printed KdvElements URL.
+License stays null: the
+catalog prints no license URL. Publisher stays null. Account paths that
+print HTTP 401 stay unused. This is not NVE Magasinstatistikk
+(`--source nve`) and not SSB PxWebApi 2 (`--source ssbv2`).
+
+```bash
+pda ingest --source regobs --db data/registry.sqlite --limit 10
+pda search Dirt_DangerSignKDV --db data/registry.sqlite
+pda fetch --dataset regobs:Dirt_DangerSignKDV --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored KdvElements URL. Observation values are
+copied from printed `Name` when present, otherwise `Id`, for that one
+repository. License stays null. Publisher stays null.
+
+Live ingest 2026-08-28: 10 printed repositories (catalog prints 73; cap
+10 copies the first 10 in document order). Live search
+`Dirt_DangerSignKDV` returns `regobs:Dirt_DangerSignKDV`. Live fetch GETs
+`https://api.regobs.no/v5/KdvElements` HTTP 200, 16 Name cells. Sample
+printed value: `Ikke gitt`. `pda methods` is not applicable: code-list
+names, not a numeric time series
+(`no observations matched entity/measure; available=[]`).
+Proof is `data/regobs_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
