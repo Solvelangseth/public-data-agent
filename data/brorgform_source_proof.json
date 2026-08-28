@@ -23,6 +23,11 @@
       "why": "Now on main as --source brroller. Paths under /enhetsregisteret/api/roller/. Do not redo."
     },
     {
+      "candidate": "Fiskeridirektoratet leftover WMS/WFS",
+      "url": "PR 197 --source fdirwms",
+      "why": "Now on main as leftover GIS. This lane stays on official national JSON."
+    },
+    {
       "candidate": "Norges Bank SDMX dataproviderscheme",
       "url": "https://data.norges-bank.no/api/dataproviderscheme?format=sdmx-json",
       "why": "Catalog GET 200. Item GET timed out. Skip known timeout leftovers."
@@ -170,7 +175,7 @@
     "Live GET of /enhetsregisteret/api/organisasjonsformer/AS is HTTP 200 with no Authorization header. No token is sent.",
     "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
     "is_brorgform_url matches only /organisasjonsformer/{kode} item paths. The bare collection URL stays on brreg:organisasjonsformer.",
-    "python3 -m pytest after rebase onto brroller 194: 1327 passed, 1 skipped.",
+    "python3 -m pytest after rebase onto fdirwms 197: 1336 passed, 1 skipped.",
     "Not a numeric time series with two or more periods. Fetch listed 1 printed beskrivelse cell (Aksjeselskap).",
     "Open PR check at pickup found nbagency 193 and brroller 194. Those stayed unused. nbprov 186 is on main."
   ]
