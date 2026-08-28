@@ -3980,6 +3980,39 @@ not a numeric time series
 (`no observations matched entity/measure; available=[]`).
 Proof is `data/npitema_source_proof.json`.
 
+## NVE Mapservices source
+
+`pda ingest --source nvemap` is another replaceable adapter. It lists
+printed name+type services on the official NVE ArcGIS REST Mapservices
+catalog `https://gis3.nve.no/map/rest/services/Mapservices?f=json`,
+capped at 10. The folder name `Mapservices` is printed on the root
+services catalog. Folders and entries with no name or type are skipped.
+Dataset ids are the printed last path segment of `name` so
+`Administrasjon2` stays distinct from `Administrasjon`. `access_path`
+keeps the printed name, printed type, and the catalog `f=json` query.
+License stays null: the catalog prints no license URL. Publisher stays
+null. This is not NVE Magasinstatistikk (`--source nve`), not NVE GIS
+(`--source nvegis`), and not NVE GIS 2 (`--source nve2gis`).
+
+```bash
+pda ingest --source nvemap --db data/registry.sqlite --limit 10
+pda search Administrasjon2 --db data/registry.sqlite
+pda fetch --dataset nvemap:Administrasjon2 --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored service URL. Observation values are copied
+from printed JSON `name` when present, otherwise `mapName`, `title`, or
+`id`. License stays null. Publisher stays null.
+
+Live ingest 2026-08-28: 10 printed services (catalog prints 64
+name+type rows; cap 10 copies the first 10). Live search
+`Avrenning9120` returns `nvemap:Avrenning9120`. Live fetch GETs
+`https://gis3.nve.no/map/rest/services/Mapservices/Administrasjon2/MapServer?f=json`
+HTTP 200, 13 layer-name cells. Sample printed value: `NVE Region`.
+`pda methods` is not applicable: layer names, not a numeric time series
+(`no observations matched entity/measure; available=[]`).
+Proof is `data/nvemap_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
