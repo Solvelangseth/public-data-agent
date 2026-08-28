@@ -23,6 +23,7 @@ from public_data_agent.sources.gribfiles import GribfilesSource
 from public_data_agent.sources.hi import HiFeaturesSource
 from public_data_agent.sources.hicoverages import HicoveragesSource
 from public_data_agent.sources.himaps import HimapsSource
+from public_data_agent.sources.histyles import HistylesSource
 from public_data_agent.sources.hoydedata import HoydedataSource
 from public_data_agent.sources.icemap import IcemapSource
 from public_data_agent.sources.isobaricgrib import IsobaricgribSource
@@ -177,6 +178,7 @@ SOURCE_IDS = (
     "envreportreg",
     "himaps",
     "stortinget",
+    "histyles",
 )
 
 
@@ -355,6 +357,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return HimapsSource()
     if source_id == "stortinget":
         return StortingetSource()
+    if source_id == "histyles":
+        return HistylesSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -380,6 +384,7 @@ __all__ = [
     "HiFeaturesSource",
     "HicoveragesSource",
     "HimapsSource",
+    "HistylesSource",
     "HoydedataSource",
     "IcemapSource",
     "IsobaricgribSource",

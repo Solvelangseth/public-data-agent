@@ -1,0 +1,190 @@
+{
+  "produced_at": "2026-08-28T01:55:09Z",
+  "bound": {
+    "list_api": "https://kart.hi.no/data/ogc/styles/v1",
+    "walk": "copy printed application/json GET hrefs from the official Havforskningsinstituttet OGC Styles landing-page links array; skip self and alternate links, non-JSON types, and hrefs with no last path segment; native ids are the printed last path segment so styles and conformance stay distinct; access_path is the printed href including the printed f=application/json query; title copies the printed link title when present; license stays null because the landing page prints no license URL; do not invent query filters or Accept workarounds for OpenAPI",
+    "cap": 10,
+    "how": "pda ingest --source histyles --limit 10. The official landing page prints application/json GET hrefs for /conformance and /styles. GET uses the printed styles href with the printed f=application/json query."
+  },
+  "discarded": [
+    {
+      "candidate": "Lane A stortinget",
+      "url": "PR 140 --source stortinget, now on main",
+      "why": "Assigned skip / already on main after merge eaeb59e. Open PRs were empty at pickup. Do not pick stortinget."
+    },
+    {
+      "candidate": "Havforskningsinstituttet OGC Maps",
+      "url": "PR 139 --source himaps, now on main",
+      "why": "Assigned skip. Already on main after merge b3a5279. This slice is OGC Styles on the same host, not Maps."
+    },
+    {
+      "candidate": "Havforskningsinstituttet OGC Coverages",
+      "url": "PR 137 --source hicoverages, now on main",
+      "why": "Assigned skip. Already on main. Distinct Coverages catalog on the same host."
+    },
+    {
+      "candidate": "Havforskningsinstituttet OGC Features",
+      "url": "--source hi",
+      "why": "Already on main. Distinct Features catalog on the same host."
+    },
+    {
+      "candidate": "Havforskningsinstituttet OGC Tiles",
+      "url": "https://kart.hi.no/data/ogc/tiles/v1",
+      "why": "Official landing page HTTP 200 JSON with printed application/json GET hrefs. Left unused because Styles already prints a JSON styles array that live-GETs HTTP 200. Prior himaps proof left Tiles unused because /collections is a large concatenated body. Do not invent a parser workaround."
+    },
+    {
+      "candidate": "MET Airqualityforecast swagger",
+      "url": "https://api.met.no/weatherapi/airqualityforecast/0.1/swagger",
+      "why": "Already on main as --source airquality. Do not re-add the same API."
+    },
+    {
+      "candidate": "MET Aviationforecast 2.0 swagger",
+      "url": "https://api.met.no/weatherapi/aviationforecast/2.0/swagger",
+      "why": "Assigned skip for this lane. Do not pick aviationforecast."
+    },
+    {
+      "candidate": "MET Sigmets 2.0 swagger",
+      "url": "https://api.met.no/weatherapi/sigmets/2.0/swagger",
+      "why": "Assigned skip for this lane. Do not pick sigmets."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    },
+    {
+      "candidate": "Udir Register for lærebedrifter",
+      "url": "https://data-nlr.udir.no/swagger/v4/swagger.json",
+      "why": "Known skip: live collection GETs are HTTP 401. Do not invent auth."
+    },
+    {
+      "candidate": "NVE Nettleietariffer",
+      "url": "https://biapi.nve.no/nettleietariffer/swagger/v1/swagger.json",
+      "why": "Known skip: live GETs are HTTP 422 required filters. Do not invent query filters."
+    },
+    {
+      "candidate": "NVE Inntektsrammer",
+      "url": "https://biapi.nve.no/inntektsrammer/swagger/v1/swagger.json",
+      "why": "Known skip: OpenAPI prints security ApiKey. Do not invent a key."
+    },
+    {
+      "candidate": "Artsdatabanken Fremmedartsbase API",
+      "url": "https://fab.artsdatabanken.no/swagger/v1/swagger.json",
+      "why": "Known skip: live collection GETs are HTTP 401. Do not invent auth."
+    },
+    {
+      "candidate": "Kartverket Adresser /sok /punktsok",
+      "url": "https://api.kartverket.no/adresser/v1/openapi.json",
+      "why": "Known skip: live GET without search params is HTTP 400. Do not invent a query."
+    },
+    {
+      "candidate": "Kartverket Eiendom /geokoding",
+      "url": "https://api.kartverket.no/eiendom/v1/geokoding",
+      "why": "Known skip: HTTP 400 without matrikkel params. Do not retry."
+    },
+    {
+      "candidate": "Frost MET sources",
+      "url": "https://frost.met.no/sources/v0.jsonld",
+      "why": "Known skip: HTTP 401. Do not retry."
+    },
+    {
+      "candidate": "NVDB Les V3 OpenAPI",
+      "url": "https://nvdbapiles-v3.atlas.vegvesen.no/dokumentasjon/openapi.json",
+      "why": "Known skip: HTTP 400 User-Agent. Do not retry."
+    },
+    {
+      "candidate": "Vegvesen Trafikkdata swagger / trafikkdata-api",
+      "url": "https://trafikkdata.atlas.vegvesen.no/",
+      "why": "Known skip: swagger HTML-only; trafikkdata-api 410. Do not retry."
+    },
+    {
+      "candidate": "NVE HydAPI /api/v1/Parameters",
+      "url": "https://hydapi.nve.no/swagger/v1/swagger.json",
+      "why": "Known skip: HTTP 401. Do not retry."
+    },
+    {
+      "candidate": "Udir Statistikkbanken /data",
+      "url": "Udir Statistikkbanken /Eksport/{id}/data",
+      "why": "Known skip: requires invented filters. Do not retry."
+    },
+    {
+      "candidate": "Fiskeridirektoratet Autorisasjonsregisteret",
+      "url": "https://api.fiskeridir.no/authreg-api/openapi",
+      "why": "Official catalog lists it. Prior himaps proof: OpenAPI prints only a templated /auth-status/{radio_call_sign} path. Not a collection catalog. Do not invent radio call signs."
+    },
+    {
+      "candidate": "Fiskeridirektoratet aqua-operations-public",
+      "url": "https://api.fiskeridir.no/aqua-operations-public/v3/api-docs",
+      "why": "OpenAPI HTTP 200 but the only printed path is templated GET /api/v1/joint-ops/{site-nr}. Not a collection catalog. Do not invent site numbers."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source histyles --db /tmp/pda-histyles-proof/registry.sqlite --limit 10",
+    "listed": 2,
+    "inserted": 2,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "histyles:conformance",
+        "title": "Conformance declaration as application/json",
+        "access_path": "https://kart.hi.no/data/ogc/styles/v1/conformance?f=application%2Fjson"
+      },
+      {
+        "id": "histyles:styles",
+        "title": "Styles Metadata as application/json",
+        "access_path": "https://kart.hi.no/data/ogc/styles/v1/styles?f=application%2Fjson"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search styles --db /tmp/pda-histyles-proof/registry.sqlite --limit 10",
+    "query": "styles",
+    "returned": 1,
+    "hit_id": "histyles:styles",
+    "title": "Styles Metadata as application/json",
+    "source_id": "histyles",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://kart.hi.no/data/ogc/styles/v1/styles?f=application%2Fjson",
+    "original_source": "https://kart.hi.no/data/ogc/styles/v1",
+    "why_picked": "title matched styles"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset histyles:styles --db /tmp/pda-histyles-proof/registry.sqlite",
+    "dataset": "histyles:styles",
+    "table_id": "styles",
+    "access_path": "https://kart.hi.no/data/ogc/styles/v1/styles?f=application%2Fjson",
+    "request_url": "https://kart.hi.no/data/ogc/styles/v1/styles?f=application%2Fjson",
+    "http_status": 200,
+    "listed": 238,
+    "inserted": 184,
+    "updated": 54,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "title",
+        "value": "Spredningssimulering torsk"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset histyles:styles --db /tmp/pda-histyles-proof/registry.sqlite",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "HI OGC Styles /styles prints style titles. Those are not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed landing-page last path segments. access_path is the printed href. No histyles id was written onto a hi, hicoverages, himaps, stortinget, or datanorge row.",
+    "License stays null: the landing page prints no license URL. Publisher is null: the landing page does not print a publisher.",
+    "Original harvested landing-page metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "python3 -m pytest: 877 passed, 1 skipped, 1 deselected.",
+    "Not a numeric time series with two or more periods. Fetch listed 238 printed style-title cells (sample Spredningssimulering torsk).",
+    "Open PR check at pickup found no open PRs. Lane A PR 140 stortinget was already on main (merge eaeb59e). aviationforecast 2.0 and sigmets 2.0 stayed unused. HI Tiles landing page left unused because Styles already prints a working styles catalog."
+  ]
+}

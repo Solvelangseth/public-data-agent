@@ -3576,6 +3576,40 @@ HTTP 200, 21 stortingsperiode cells. Sample printed value: `2025-2029`.
 time series (`no observations matched entity/measure; available=[]`).
 Proof is `data/stortinget_source_proof.json`.
 
+## Havforskningsinstituttet OGC Styles source
+
+`pda ingest --source histyles` is another replaceable adapter. It lists
+printed `application/json` GET hrefs on the official Havforskningsinstituttet
+OGC Styles landing page `https://kart.hi.no/data/ogc/styles/v1`,
+capped at 10. `self` / `alternate` links, HTML links, and the OpenAPI
+service-desc (non-JSON type) are skipped. Dataset ids are the printed
+last path segment so `/styles` stays distinct from `/conformance`.
+`access_path` is the printed landing-page href, including the printed
+`f=application/json` query. License stays null: the landing page prints
+no license URL. Publisher stays null. This is not Havforskningsinstituttet
+OGC Features (`--source hi`), not Havforskningsinstituttet OGC Coverages
+(`--source hicoverages`), and not Havforskningsinstituttet OGC Maps
+(`--source himaps`).
+
+```bash
+pda ingest --source histyles --db data/registry.sqlite --limit 10
+pda search styles --db data/registry.sqlite
+pda fetch --dataset histyles:styles --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored styles URL. Observation values are copied
+from printed JSON `title` when present, otherwise `name` or `id`. License
+stays null. Publisher stays null.
+
+Live ingest 2026-08-28: 2 printed application/json GET hrefs (catalog
+prints conformance and styles; cap 10). Live search `styles`
+returns `histyles:styles`. Live fetch GETs
+`https://kart.hi.no/data/ogc/styles/v1/styles?f=application%2Fjson`
+HTTP 200, 238 style-title cells. Sample printed value: `Spredningssimulering torsk`.
+`pda methods` is not applicable: style titles, not a numeric
+time series (`no observations matched entity/measure; available=[]`).
+Proof is `data/histyles_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
