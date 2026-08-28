@@ -128,6 +128,7 @@
     "python3 -m pytest after adding the source onto origin/main after ssbfam #181: 1254 passed, 1 skipped, 1 deselected.",
     "Rebased onto origin/main after ssbsec #187. Local pytest after rebase: 1261 passed, 1 skipped, 1 deselected. Live ingest on the new head listed 4, inserted 4. Search stoysonerjernbanenett still hits banegis. Fetch of wms.stoysonerjernbanenett is still HTTP 200 with 3 Layer Name cells.",
     "Rebased onto origin/main after ssclass #189. Keeps ssclass, ssbsec, ssbfam, mdirwms, kystnav, kvgrunn, vegogc, kvwms, and banegis. Local pytest after rebase: 1269 passed, 1 skipped, 1 deselected. Live ingest on that head listed 4, inserted 4. Search and fetch still hold.",
+    "Rebased onto origin/main after stormflo #191. Keeps stormflo, ssclass, mdirwms, kystnav, kvgrunn, vegogc, kvwms, and banegis. Local pytest after rebase: 1269 passed, 1 skipped, 1 deselected. Live ingest on that head listed 4, inserted 4. Search and fetch still hold.",
     "Not a numeric time series with two or more periods. Fetch listed 3 printed Layer Name cells (sample stoysonerjernbanenett, stoy, stoygrense).",
     "kvwms stays on wms.topo. kvgrunn stays on leftover grunnkart. vegogc stays on Statens vegvesen leftover OGC. geonorge stays on Kartkatalog metadata. nibiorest 188 stayed unused."
   ]
