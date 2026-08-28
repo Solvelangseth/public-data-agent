@@ -130,6 +130,7 @@ def test_rawms_is_a_registered_source() -> None:
     assert "ragis" in SOURCE_IDS
     assert "riksantikvaren" in SOURCE_IDS
     assert "nibiowms" in SOURCE_IDS
+    assert "kvwms" in SOURCE_IDS
     source = build_source("rawms")
     assert isinstance(source, RawmsSource)
     assert source.source_id == "rawms"
