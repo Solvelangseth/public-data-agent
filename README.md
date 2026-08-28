@@ -4115,6 +4115,14 @@ pda fetch --dataset npiintern:NP_Antarktis_WMTS_3031 --db data/registry.sqlite
 from printed JSON `name` when present, otherwise `mapName`, `title`, or
 `id`. License stays null. Publisher stays null.
 
+Live ingest 2026-08-28: 10 printed MapServer services (catalog prints
+24; cap 10 copies the first 10 in document order). Live search
+`NP_Lokalstyret_WMS_25833` returns `npiintern:NP_Lokalstyret_WMS_25833`.
+Live fetch GETs
+`https://geodata.npolar.no/arcgis/rest/services/Basisdata_Intern/NP_Antarktis_WMTS_3031/MapServer?f=json`
+HTTP 200, 20 layer-name cells. Sample printed value: `Stedsnavn_DML`.
+`pda methods` is not applicable: layer names, not a numeric time series
+(`no observations matched entity/measure; available=[]`).
 Proof is `data/npiintern_source_proof.json`.
 
 ## Architecture (long term)
