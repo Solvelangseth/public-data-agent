@@ -259,7 +259,13 @@ def test_mattilsyn_is_a_registered_source() -> None:
     assert "mattilsyn" in SOURCE_IDS
     assert "mattilsynet" in SOURCE_IDS
     assert "mdirwms" in SOURCE_IDS
+    assert "nibiorest" in SOURCE_IDS
+    assert "kystnav" in SOURCE_IDS
+    assert "kvgrunn" in SOURCE_IDS
+    assert "nibiowms" in SOURCE_IDS
+    assert "ldirwms" in SOURCE_IDS
     assert SOURCE_IDS.index("mattilsyn") > SOURCE_IDS.index("ssclass")
+    assert SOURCE_IDS[-1] == "nibiorest"
     assert "mattilsyn" != "mattilsynet"
     source = build_source("mattilsyn")
     assert isinstance(source, MattilsynSource)
