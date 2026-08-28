@@ -26,18 +26,6 @@ PATH_MARK = "wfs.ashx"
 
 
 class KystwfsSource(SourceBase):
-    """Replaceable ingest adapter for leftover Kystverket WFS.
-
-    Listing copies the official leftover GetCapabilities document printed
-    on Geonorge as Kystverkets WFS. The document is one dataset. It skips
-    a document that is not WFS XML. The native id is the printed last path
-    segment `wfs.ashx`. Access URLs keep the printed GetCapabilities URL.
-    This first slice stays inside that document and caps the walk. This is
-    not Kystdatahuset OpenAPI (`--source kystverket`), not Kartverket
-    Havnedata (`--source havnedata`), and not leftover Kystverket WMS
-    (`--source kystwms`).
-    """
-
     source_id = SOURCE_ID
     source_name = SOURCE_NAME
     endpoints = LIST_URLS
@@ -180,13 +168,6 @@ def kystwfs_table_id(access_path: str) -> str:
 
 
 def cells_from_kystwfs(payload: Any) -> list[tuple[str, Any, dict[str, str]]]:
-    """Copy printed WFS FeatureType/Name text into cells.
-
-    Each FeatureType keeps printed Name text. A Title sibling, when
-    present, stays as a dimension. Nested objects and other XML are not
-    copied. Nothing is invented.
-    """
-
     if not isinstance(payload, str) or not payload.strip():
         raise ValueError("kystwfs payload is empty or not WFS XML")
     if _is_html(payload):

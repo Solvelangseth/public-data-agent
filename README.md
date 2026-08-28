@@ -4771,6 +4771,15 @@ pda fetch --dataset kystwfs:wfs.ashx --db data/registry.sqlite
 copied from printed WFS `FeatureType`/`Name` text. A sibling `Title`
 stays as a dimension. License stays null. Publisher stays null.
 
+Live ingest 2026-08-28: 1 leftover WFS document (Geonorge prints one
+OGC:WFS DistributionUrl; live GetCapabilities is WFS XML 200). Live
+search `Kystverket` returns `kystwfs:wfs.ashx`. Live fetch GETs
+`https://services.kystverket.no/wfs.ashx?service=WFS&request=GetCapabilities`
+HTTP 200, 44 FeatureType Name cells. Sample printed value: `layer_611`.
+`pda methods` is not applicable: feature type names, not a numeric time
+series (`no observations matched entity/measure; available=[]`).
+Proof is `data/kystwfs_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
