@@ -1,0 +1,106 @@
+{
+  "produced_at": "2026-08-28T11:10:00Z",
+  "bound": {
+    "list_api": "https://data.ssb.no/api/klass/v1/classifications",
+    "openapi": "https://data.ssb.no/api/klass/v3/api-docs",
+    "walk": "copy printed _embedded.classifications[].id and _links.self.href from the official Klass classifications collection; GET each printed classification href; copy printed versions[].id and versions[]._links.self.href; the Klass OpenAPI names GET /api/klass/v1/versions/{id} and prints no versions collection; do not invent version ids; access_path is the printed version self href; license stays null; publisher stays null; catalog and OpenAPI print no security scheme; live GET of those printed version paths is HTTP 200 with no token; no token is sent",
+    "cap": 10,
+    "how": "pda ingest --source ssbver --limit 10. The official OpenAPI names GET /api/klass/v1/versions/{id}. The first printed classification prints 39 versions. Ingest copies the first ten in document order."
+  },
+  "discarded": [
+    {
+      "candidate": "Norges Bank SDMX categoryscheme",
+      "url": "https://data.norges-bank.no/api/categoryscheme?format=sdmx-json",
+      "why": "HTTP 404. Do not invent a workaround."
+    },
+    {
+      "candidate": "Norges Bank SDMX hierarchicalcodelist",
+      "url": "https://data.norges-bank.no/api/hierarchicalcodelist?format=sdmx-json",
+      "why": "HTTP 404. Do not invent a workaround."
+    },
+    {
+      "candidate": "Norges Bank SDMX dataproviderscheme",
+      "url": "https://data.norges-bank.no/api/dataproviderscheme?format=sdmx-json",
+      "why": "Live 200. Lane S is taking this leftover. Do not pick it."
+    },
+    {
+      "candidate": "Norges Bank SDMX agencyscheme / nbagency",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/193",
+      "why": "In flight. Do not pick nbagency."
+    },
+    {
+      "candidate": "Brreg leftover roller / brroller",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/194",
+      "why": "In flight. Do not pick brroller."
+    },
+    {
+      "candidate": "Norges Bank SDMX provision agreements / nbprov",
+      "url": "already on main via --source nbprov",
+      "why": "Merged as #186. Kept. Do not re-add."
+    },
+    {
+      "candidate": "SSB Klass classifications / ssclass",
+      "url": "already on main via --source ssclass",
+      "why": "Already on main. Do not re-add."
+    },
+    {
+      "candidate": "SSB Klass correspondencetables collection",
+      "url": "https://data.ssb.no/api/klass/v1/correspondencetables",
+      "why": "HTTP 404. The OpenAPI names only /correspondencetables/{id}. Do not invent table ids."
+    },
+    {
+      "candidate": "SSB Klass codes leftover",
+      "url": "https://data.ssb.no/api/klass/v1/classifications/1/codes",
+      "why": "HTTP 400. Required query parameter from. Do not invent a from date."
+    },
+    {
+      "candidate": "Fiskeridirektoratet ERS",
+      "url": "https://api.fiskeridir.no/ers-api/api/openapi",
+      "why": "HTTP 401. Do not invent auth."
+    },
+    {
+      "candidate": "Fiskeridirektoratet aqua-operations-public",
+      "url": "https://api.fiskeridir.no/aqua-operations-public/v3/api-docs",
+      "why": "OpenAPI HTTP 200. Only printed path is templated GET /api/v1/joint-ops/{site-nr}. Do not invent site-nr."
+    },
+    {
+      "candidate": "Udir Register for lærebedrifter",
+      "url": "https://data-nlr.udir.no/swagger/v4/swagger.json",
+      "why": "Known skip: live collection GETs are HTTP 401. Do not invent auth."
+    },
+    {
+      "candidate": "NVE HydAPI",
+      "url": "https://hydapi.nve.no/swagger/v1/swagger.json",
+      "why": "Known skip: HTTP 401. Do not retry."
+    },
+    {
+      "candidate": "Frost MET sources",
+      "url": "https://frost.met.no/sources/v0.jsonld",
+      "why": "Known skip: HTTP 401. Do not retry."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source ssbver --db /tmp/pda-ssbver-proof/registry.sqlite --limit 10",
+    "listed": null,
+    "inserted": null,
+    "updated": null,
+    "failed": null,
+    "tables": []
+  },
+  "search": {
+    "query": null,
+    "hit_id": null
+  },
+  "fetch": {
+    "dataset": "ssbver:1",
+    "url": "https://data.ssb.no/api/klass/v1/versions/1",
+    "http_status": null,
+    "rows": null
+  },
+  "methods": "N/A"
+}
