@@ -3868,6 +3868,46 @@ HTTP 200, 1 service-name cell. Sample printed value: `DTM`.
 time series (`no observations matched entity/measure; available=[]`).
 Proof is `data/hoydegis_source_proof.json`.
 
+## Norsk Polarinstitutt GIS source
+
+`pda ingest --source npigis` is another replaceable adapter. It lists
+printed MapServer services on the official Norsk Polarinstitutt ArcGIS
+REST Basisdata catalog
+`https://geodata.npolar.no/arcgis/rest/services/Basisdata?f=json`,
+capped at 10. The folder name `Basisdata` is printed on the root
+services catalog. Empty names and empty types are skipped. Dataset ids
+are the printed last path segment of `name` so
+`/NP_Basiskart_Svalbard_WMS/MapServer` stays distinct from
+`/NP_Basiskart_JanMayen_WMS/MapServer`. `access_path` is the printed
+name plus type plus the catalog's `f=json` query. License stays null:
+the catalog prints no license URL. Publisher stays null. This is not
+the NPI Open Data API (`--source npolar`), not NVE GIS
+(`--source nvegis`), not Kartverket Havnedata (`--source havnedata`),
+not Miljødirektoratet GIS (`--source miljogis`, now on main after
+PR 147), and not Kartverket Høydedata GIS (`--source hoydegis`, now on
+main after PR 149).
+
+```bash
+pda ingest --source npigis --db data/registry.sqlite --limit 10
+pda search JanMayen_WMS --db data/registry.sqlite
+pda fetch --dataset npigis:NP_Basiskart_Svalbard_WMS --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored MapServer URL. Observation values are copied
+from printed JSON `name` when present, otherwise `mapName`, `title`, or
+`id`. License stays null. Publisher stays null.
+
+Live ingest 2026-08-28: 10 printed MapServer services (catalog prints
+FKB and Basiskart services for Svalbard and Jan Mayen; cap 10). Live
+search `JanMayen_WMS` returns `npigis:NP_Basiskart_JanMayen_WMS`. Live
+fetch GETs
+`https://geodata.npolar.no/arcgis/rest/services/Basisdata/NP_Basiskart_Svalbard_WMS/MapServer?f=json`
+HTTP 200, 46 layer-name cells. Sample printed value:
+`S0_Svalbard_Stedsnavn`. `pda methods` is not applicable: layer names,
+not a numeric time series
+(`no observations matched entity/measure; available=[]`).
+Proof is `data/npigis_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
