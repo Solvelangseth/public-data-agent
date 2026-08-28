@@ -124,7 +124,8 @@
     "Live GET of each of the three printed leftover URLs is HTTP 200 WMS_Capabilities or WFS_Capabilities XML. No token is sent. No extra Accept header is invented.",
     "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
     "python3 -m pytest after adding the source onto origin/main after banegis #190: 1287 passed, 1 skipped, 1 deselected.",
+    "Rebased onto origin/main after nbprov #186, mattilsyn #192, and methods stormflo #185. Keeps mattilsyn, nibiorest, nbprov, then avinorgis last. methods/ is taken from main and was not edited. Local pytest after rebase: 1309 passed, 1 skipped, 1 deselected. Live ingest on that head listed 3, inserted 3. Search and fetch still hold.",
     "Not a numeric time series with two or more periods. Fetch listed 2 printed Layer Name cells (sample stoylufthavn_wms, stoylufthavn).",
-    "kvwms stays on wms.topo. kvgrunn stays on leftover grunnkart. vegogc stays on Statens vegvesen leftover OGC. geonorge stays on Kartkatalog metadata. banegis stays on Bane NOR leftover WMS/WFS. mattilsyn 192 and fdirwms stayed unused."
+    "kvwms stays on wms.topo. kvgrunn stays on leftover grunnkart. vegogc stays on Statens vegvesen leftover OGC. geonorge stays on Kartkatalog metadata. banegis stays on Bane NOR leftover WMS/WFS. mattilsyn and nbprov stay on main. fdirwms stayed unused."
   ]
 }
