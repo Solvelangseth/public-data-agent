@@ -190,6 +190,7 @@
     "Open PRs at pickup were 179 nbdsd, 180 kvgrunn, 176 kystwms. After those, 181 ssbfam and 182 nbconcept opened. This lane stayed on nbprov.",
     "python3 -m pytest after adding nbprov on origin/main 531f0a9: 1219 passed, 1 skipped, 1 deselected.",
     "Rebased onto origin/main after nbconcept #182 and kystnav #184. python3 -m pytest after rebase: 1236 passed, 1 skipped, 1 deselected.",
+    "Rebased onto origin/main after mdirwms #183. python3 -m pytest after rebase: 1245 passed, 1 skipped, 1 deselected. Did not pick ssbfam #181 or ssbsec #187.",
     "Not a numeric time series with two or more periods. Fetch listed 1 printed agreement-name cell (sample Norges Bank for Exchange rates)."
   ]
 }
