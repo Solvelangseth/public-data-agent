@@ -38,6 +38,7 @@ from public_data_agent.sources.isobaricgrib import IsobaricgribSource
 from public_data_agent.sources.kommuneinfo import KommuneinfoSource
 from public_data_agent.sources.kvwms import KvwmsSource
 from public_data_agent.sources.kystverket import KystverketSource
+from public_data_agent.sources.ldirwms import LdirwmsSource
 from public_data_agent.sources.lister import ListerSource
 from public_data_agent.sources.locationforecast import LocationforecastSource
 from public_data_agent.sources.mattilsynet import MattilsynetPlantevernSource
@@ -233,6 +234,7 @@ SOURCE_IDS = (
     "vegogc",
     "rawms",
     "elcert",
+    "ldirwms",
 )
 
 
@@ -467,6 +469,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return RawmsSource()
     if source_id == "elcert":
         return ElcertSource()
+    if source_id == "ldirwms":
+        return LdirwmsSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -507,6 +511,7 @@ __all__ = [
     "KommuneinfoSource",
     "KvwmsSource",
     "KystverketSource",
+    "LdirwmsSource",
     "ListerSource",
     "LocationforecastSource",
     "MattilsynetPlantevernSource",
