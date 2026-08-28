@@ -4574,6 +4574,42 @@ not applicable: plant names, not a numeric time series
 (`no observations matched entity/measure; available=[]`).
 Proof is `data/elcert_source_proof.json`.
 
+## Landbruksdirektoratet leftover WMS source
+
+`pda ingest --source ldirwms` is another replaceable adapter. It lists printed
+OGC:WMS Type=service rows on the official Geonorge Kartkatalog search
+`https://kartkatalog.geonorge.no/api/search?text=Landbruksdirektoratet`,
+capped at 10. Other organizations, WFS, downloads, and servicelayers are
+skipped. cgi-bin names already ingested by leftover NIBIO WMS are skipped.
+GetCapabilities bodies that are not WMS XML are skipped. Dataset ids are
+the printed last cgi-bin path segment so `vernskog2` stays distinct from
+`reindrift`. `access_path` is the printed `DistributionUrl`. License stays
+null: the catalog prints no license URL. Publisher stays null. This is not
+Geonorge Kartkatalog REST (`--source geonorge`), not NIBIO IPM weather
+(`--source nibio`), and not leftover NIBIO WMS (`--source nibiowms`, now
+on main after PR 160).
+
+```bash
+pda ingest --source ldirwms --db data/registry.sqlite --limit 10
+pda search vernskog --db data/registry.sqlite
+pda fetch --dataset ldirwms:vernskog2 --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored GetCapabilities URL. Observation values are
+copied from printed WMS `Layer`/`Name` text. A sibling `Title` stays as a
+dimension. License stays null. Publisher stays null.
+
+Live ingest 2026-08-28: 4 leftover WMS services (search prints 72 rows;
+27 are OGC:WMS; cap 10 copies the 4 leftover Type=service cgi-bin names
+after skipping servicelayers, WFS, downloads, and nibiowms cgi-bin
+names). Live search `vernskog` returns `ldirwms:vernskog2`. Live fetch
+GETs
+`https://wms.nibio.no/cgi-bin/vernskog2?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetCapabilities`
+HTTP 200, 9 Layer Name cells. Sample printed value: `VERNSKOG2`.
+`pda methods` is not applicable: layer names, not a numeric time series
+(`no observations matched entity/measure; available=[]`).
+Proof is `data/ldirwms_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
