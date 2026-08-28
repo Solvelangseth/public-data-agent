@@ -4565,7 +4565,14 @@ from printed JSON `KraftverksNavn` when present, otherwise `Status` or
 `TypeAnlegg`. Nested objects are not copied. License stays null.
 Publisher stays null.
 
-Live ingest, fetch, and search proof will follow on this PR.
+Live ingest 2026-08-28: 3 printed untemplated GET paths (docs print
+only those three, cap 10). Live search `elsertifikat` returns
+`elcert:GetApplications`. Live fetch GETs
+`https://api.nve.no/web/ElCert/GetApplications` HTTP 200, 914
+plant-name cells. Sample printed value: `Myrbekk`. `pda methods` is
+not applicable: plant names, not a numeric time series
+(`no observations matched entity/measure; available=[]`).
+Proof is `data/elcert_source_proof.json`.
 
 ## Architecture (long term)
 
