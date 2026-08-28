@@ -3908,6 +3908,39 @@ not a numeric time series
 (`no observations matched entity/measure; available=[]`).
 Proof is `data/npigis_source_proof.json`.
 
+## NVE GIS 2 source
+
+`pda ingest --source nve2gis` is another replaceable adapter. It lists
+printed name+type services on the official NVE gis2 ArcGIS REST
+mapservice catalog `https://gis2.nve.no/arcgis/rest/services/mapservice?f=json`,
+capped at 10. The folder name `mapservice` is printed on the root
+services catalog. Folders and entries with no name or type are skipped.
+Dataset ids are the printed last path segment of `name` so `AlphaBeta`
+stays distinct from `NGUFjellskred`. `access_path` keeps the printed
+name, printed type, and the catalog `f=json` query. License stays null:
+the catalog prints no license URL. Publisher stays null. This is not
+NVE Magasinstatistikk (`--source nve`) and not NVE GIS
+(`--source nvegis`).
+
+```bash
+pda ingest --source nve2gis --db data/registry.sqlite --limit 10
+pda search AlphaBeta --db data/registry.sqlite
+pda fetch --dataset nve2gis:AlphaBeta --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored service URL. Observation values are copied
+from printed JSON `name` when present, otherwise `mapName`, `title`, or
+`id`. License stays null. Publisher stays null.
+
+Live ingest 2026-08-28: 8 printed services (catalog prints 8 name+type
+rows; cap 10 copies all 8). Live search `NGUFjellskred` returns
+`nve2gis:NGUFjellskred`. Live fetch GETs
+`https://gis2.nve.no/arcgis/rest/services/mapservice/AlphaBeta/MapServer?f=json`
+HTTP 200, 4 layer-name cells. Sample printed value: `Utlopspunkt`.
+`pda methods` is not applicable: layer names, not a numeric time series
+(`no observations matched entity/measure; available=[]`).
+Proof is `data/nve2gis_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
