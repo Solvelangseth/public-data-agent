@@ -1,0 +1,175 @@
+{
+  "produced_at": "2026-08-28T02:38:50Z",
+  "bound": {
+    "list_api": "https://api.kystverket.no/openapi.json",
+    "walk": "copy printed untemplated collection GET paths from the official Kystverket Data API OpenAPI; skip templated paths and GET operations that print required parameters; native ids are the printed last path segment so /data/navigationwarnings/coastal/ stays distinct from /data/navigationwarnings/navareaxix/; access_path is the OpenAPI document origin plus the printed path; license stays null because the OpenAPI prints no license URL; publisher stays null; do not invent query filters",
+    "cap": 10,
+    "how": "pda ingest --source navwarnings --limit 10. The official OpenAPI prints 3 untemplated collection GET paths with no required parameters. GET uses the printed /data/navigationwarnings/coastal/ path. This is not Kystdatahuset (--source kystverket) and not NVE GIS (--source nvegis)."
+  },
+  "discarded": [
+    {
+      "candidate": "Kartverket Havnedata / havnedata",
+      "url": "PR 145 --source havnedata",
+      "why": "Lane B opened PR 145 on branch cursor/havnedata-kartverket-source-e50f. Do not pick the other lane's source."
+    },
+    {
+      "candidate": "NVE GIS / nvegis",
+      "url": "PR 144 --source nvegis, now on main",
+      "why": "Already on main after merge ec541d7. Do not re-add."
+    },
+    {
+      "candidate": "BarentsWatch OpenAPI / saltstraumen",
+      "url": "https://www.barentswatch.no/bwapi/v1/geodata/saltstraumen",
+      "why": "Official OpenAPI prints untemplated GETs. Root security is oauth2. Live GET without a token is HTTP 401. Do not invent an auth workaround."
+    },
+    {
+      "candidate": "Miljødirektoratet ArcGIS REST",
+      "url": "https://kart.miljodirektoratet.no/arcgis/rest/services?f=json",
+      "why": "Official JSON catalog HTTP 200 with printed services. Not selected. Lane B is already on a GIS-style leftover (havnedata). This slice uses the printed Kystverket Data API instead."
+    },
+    {
+      "candidate": "Nasjonalbiblioteket Catalog Search API",
+      "url": "https://api.nb.no/catalog/v1/items/api-docs",
+      "why": "Official OpenAPI HTTP 200. Untemplated GETs print required q. Do not invent a search query."
+    },
+    {
+      "candidate": "Nasjonalbiblioteket Skosmos /vocabularies",
+      "url": "https://api.nb.no/nbvok/rest/v1/vocabularies",
+      "why": "Official swagger. Live GET is HTTP 400 without lang. Do not invent a language parameter."
+    },
+    {
+      "candidate": "Havforskningsinstituttet OGC Processes",
+      "url": "https://kart.hi.no/data/ogc/processes/v1",
+      "why": "HTTP 404. Do not invent endpoints."
+    },
+    {
+      "candidate": "Havforskningsinstituttet OGC EDR",
+      "url": "https://kart.hi.no/data/ogc/edr/v1",
+      "why": "HTTP 404. Do not invent endpoints."
+    },
+    {
+      "candidate": "Norsk Polarinstitutt OGC Features",
+      "url": "https://geodata.npolar.no/ogc/features/v1/collections",
+      "why": "HTTP 404. Do not retry the GAPS leftover."
+    },
+    {
+      "candidate": "Udir Register for lærebedrifter / nlr",
+      "url": "https://data-nlr.udir.no/swagger/v4/swagger.json",
+      "why": "Known skip: live collection GETs are HTTP 401. Do not invent an auth workaround."
+    },
+    {
+      "candidate": "Kartverket Eiendom /geokoding",
+      "url": "https://api.kartverket.no/eiendom/v1/geokoding",
+      "why": "Known skip: HTTP 400 without matrikkel params. Do not invent kommunenummer/gardsnummer/bruksnummer."
+    },
+    {
+      "candidate": "Kartverket Adresser /sok /punktsok",
+      "url": "https://api.kartverket.no/adresser/v1/openapi.json",
+      "why": "Known skip: live GET without search params is HTTP 400. Do not invent a query."
+    },
+    {
+      "candidate": "MET lightning / pollenforecast / forestfireindex / weathericon swagger",
+      "url": "https://api.met.no/weatherapi/lightning/1.0/swagger",
+      "why": "Known skip: live swagger HTTP 500. Do not invent endpoints."
+    },
+    {
+      "candidate": "Frost MET sources",
+      "url": "https://frost.met.no/sources/v0.jsonld",
+      "why": "HTTP 401. Do not retry."
+    },
+    {
+      "candidate": "NVDB Les V3 OpenAPI",
+      "url": "https://nvdbapiles-v3.atlas.vegvesen.no/dokumentasjon/openapi.json",
+      "why": "Known skip: HTTP 400 User-Agent. Do not retry."
+    },
+    {
+      "candidate": "NVE HydAPI /api/v1/Parameters",
+      "url": "https://hydapi.nve.no/swagger/v1/swagger.json",
+      "why": "HTTP 401. Do not retry."
+    },
+    {
+      "candidate": "MET Aviationforecast / Sigmets",
+      "url": "https://api.met.no/weatherapi/aviationforecast/2.0/swagger",
+      "why": "Assigned skip for this lane. Not selected."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source navwarnings --db /tmp/pda-navwarnings-proof/registry.sqlite --limit 10",
+    "listed": 3,
+    "inserted": 3,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "navwarnings:coastal",
+        "title": "Coastal Navigation Warnings",
+        "access_path": "https://api.kystverket.no/data/navigationwarnings/coastal/"
+      },
+      {
+        "id": "navwarnings:navareaxix",
+        "title": "Get Navigation Warnings For Navarea Xix",
+        "access_path": "https://api.kystverket.no/data/navigationwarnings/navareaxix/"
+      },
+      {
+        "id": "navwarnings:dadjokes",
+        "title": "Dadjoke",
+        "access_path": "https://api.kystverket.no/data/dadjokes"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search coastal --db /tmp/pda-navwarnings-proof/registry.sqlite --limit 5",
+    "query": "coastal",
+    "returned": 1,
+    "hit_id": "navwarnings:coastal",
+    "title": "Coastal Navigation Warnings",
+    "source_id": "navwarnings",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://api.kystverket.no/data/navigationwarnings/coastal/",
+    "original_source": "https://api.kystverket.no/openapi.json",
+    "why_picked": "title matched coastal"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset navwarnings:coastal --db /tmp/pda-navwarnings-proof/registry.sqlite",
+    "dataset": "navwarnings:coastal",
+    "table_id": "coastal",
+    "access_path": "https://api.kystverket.no/data/navigationwarnings/coastal/",
+    "request_url": "https://api.kystverket.no/data/navigationwarnings/coastal/",
+    "http_status": 200,
+    "listed": 7,
+    "inserted": 7,
+    "updated": 0,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "location",
+        "value": "Rekefjordboen"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset navwarnings:coastal --db /tmp/pda-navwarnings-proof/registry.sqlite",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "Kystverket /data/navigationwarnings/coastal/ prints location-name strings. Those are not a numeric time series with a year-like period field and two or more periods. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed last path segments. access_path is the OpenAPI origin plus the printed path. No navwarnings id was written onto a kystverket, nvegis, or datanorge row.",
+    "License stays null: the OpenAPI prints no license URL. Publisher is null: the OpenAPI does not print a publisher.",
+    "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "python3 -m pytest after implement: 915 passed, 1 skipped, 1 deselected.",
+    "Not a numeric time series with two or more periods. Fetch listed 7 printed location-name cells (sample Rekefjordboen).",
+    "Open PR check at pickup found none. Before commit, Lane B had opened PR 145 havnedata so unused. aviationforecast and sigmets stayed unused."
+  ]
+}
