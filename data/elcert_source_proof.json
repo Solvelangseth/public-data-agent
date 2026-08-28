@@ -1,0 +1,151 @@
+{
+  "produced_at": "2026-08-28T09:50:00Z",
+  "bound": {
+    "list_api": "https://api.nve.no/doc/elsertifikater/",
+    "walk": "copy printed untemplated collection GET paths from the official NVE Elsertifikater documentation; skip templated {id} paths; native ids are the printed last path segment so GetApplications stays distinct from GetSummaryValuesPerQuarter; access_path joins each printed path onto the printed https:// base api.nve.no/web/ElCert; license stays null; publisher stays null; the documentation prints no license URL; live GET of GetApplications is HTTP 200 with no token; no token is sent; do not invent year/month for GetSummaryValues",
+    "cap": 10,
+    "how": "pda ingest --source elcert --limit 10. The official documentation prints three untemplated GET paths. The adapter copies those paths. GET uses the printed /GetApplications collection with no invented query."
+  },
+  "discarded": [
+    {
+      "candidate": "MET Aviationforecast",
+      "url": "PR 166 --source aviationforecast, now on main 4321ff4; this lane's PR 167 closed unmerged",
+      "why": "Lane G already owned aviationforecast as PR 166. Dropped --source aviationforecast. Closed PR 167. Do not merge 167."
+    },
+    {
+      "candidate": "NVE Vannkraftdatabase",
+      "url": "PR 164 --source vannkraft, now on main f309811",
+      "why": "Merged on main. Do not re-add. is_elcert_url rejects /web/Powerplant/."
+    },
+    {
+      "candidate": "NVE Vindkraftdatabase",
+      "url": "PR 169 --source vindkraft, now on main 09cb994",
+      "why": "Merged on main. Do not re-add. is_elcert_url rejects /web/WindPowerplant/."
+    },
+    {
+      "candidate": "Udir Grep",
+      "url": "PR 161 --source grep, now on main 5dc1261",
+      "why": "Already on main. Do not re-add."
+    },
+    {
+      "candidate": "NVE RegObs",
+      "url": "PR 162 --source regobs, now on main 5924d06",
+      "why": "Already on main. Do not re-add."
+    },
+    {
+      "candidate": "MET Sigmets",
+      "url": "PR 159 --source sigmets, now on main db02b12",
+      "why": "Already on main. Do not re-add."
+    },
+    {
+      "candidate": "SSB Klass",
+      "url": "already on main via ssb_klass / --source ssb",
+      "why": "Already on main. Do not re-add klass."
+    },
+    {
+      "candidate": "NVE Inntektsrammer",
+      "url": "https://api.nve.no/web/IR/GetTariffs",
+      "why": "Swagger live. Collection GETs are HTTP 401. Do not invent auth."
+    },
+    {
+      "candidate": "NVE HydAPI",
+      "url": "https://hydapi.nve.no/swagger/v1/swagger.json",
+      "why": "Known skip: HTTP 401. Do not retry."
+    },
+    {
+      "candidate": "Udir Register for lærebedrifter",
+      "url": "https://data-nlr.udir.no/swagger/v4/swagger.json",
+      "why": "OpenAPI HTTP 200. Live collection GETs are HTTP 401. Do not invent auth."
+    },
+    {
+      "candidate": "Fiskeridirektoratet aqua-operations-public",
+      "url": "https://api.fiskeridir.no/aqua-operations-public/v3/api-docs",
+      "why": "Only printed path is templated GET /api/v1/joint-ops/{site-nr}."
+    },
+    {
+      "candidate": "leftover GIS/WMS/OGC",
+      "url": "vegogc PR 168 now on main bf64c5e; rawms PR 171 now on main cde7e4c; open PR 165 ldirwms",
+      "why": "This lane stays on national JSON. vegogc and rawms were kept on rebase. Municipal CKAN/Opencom stayed unused."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source elcert --db /tmp/pda-elcert-proof/registry.sqlite --limit 10",
+    "listed": 3,
+    "inserted": 3,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "elcert:GetApplications",
+        "title": "Hent alle søknader om elsertifikat",
+        "access_path": "https://api.nve.no/web/ElCert/GetApplications"
+      },
+      {
+        "id": "elcert:GetSummaryValues",
+        "title": "Hent summerte verdier for et gitt år og måned eller kvartal",
+        "access_path": "https://api.nve.no/web/ElCert/GetSummaryValues"
+      },
+      {
+        "id": "elcert:GetSummaryValuesPerQuarter",
+        "title": "Hent summerte verdier per kvartal siden elsertifikatordningen startet",
+        "access_path": "https://api.nve.no/web/ElCert/GetSummaryValuesPerQuarter"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search elsertifikat --db /tmp/pda-elcert-proof/registry.sqlite --limit 10",
+    "query": "elsertifikat",
+    "returned": 1,
+    "hit_id": "elcert:GetApplications",
+    "title": "Hent alle søknader om elsertifikat",
+    "source_id": "elcert",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://api.nve.no/web/ElCert/GetApplications",
+    "original_source": "https://api.nve.no/doc/elsertifikater/",
+    "why_picked": "title matched elsertifikat",
+    "note": "Query GetApplications returned 0 because FTS ranks title/keyword/description, not the native id. Ranking was not changed."
+  },
+  "fetch": {
+    "command": "pda fetch --dataset elcert:GetApplications --db /tmp/pda-elcert-proof/registry.sqlite",
+    "dataset": "elcert:GetApplications",
+    "table_id": "GetApplications",
+    "access_path": "https://api.nve.no/web/ElCert/GetApplications",
+    "request_url": "https://api.nve.no/web/ElCert/GetApplications",
+    "method": "GET",
+    "http_status": 200,
+    "listed": 914,
+    "inserted": 914,
+    "updated": 0,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "KraftverksNavn",
+        "value": "Myrbekk"
+      }
+    ],
+    "new_numeric_time_series_ge_2_periods": false
+  },
+  "methods": {
+    "command": "pda methods --dataset elcert:GetApplications --db /tmp/pda-elcert-proof/registry.sqlite",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "Elsertifikater /GetApplications prints plant names. Those are not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed documentation paths. access_path joins the printed path onto https://api.nve.no/web/ElCert. No elcert id was written onto a nve, vannkraft, vindkraft, grep, or aviationforecast row.",
+    "License is null. Publisher is null. The documentation prints no license URL and no publisher field.",
+    "Live GET of /web/ElCert/GetApplications is HTTP 200 with no Authorization header. No token is sent.",
+    "GetSummaryValues is listed because the documentation prints it. Live GET without year/month is HTTP 404. The path is not fetched for proof and no year/month is invented.",
+    "Original harvested documentation metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "Not a numeric time series with two or more periods. Fetch listed 914 printed KraftverksNavn cells (sample Myrbekk).",
+    "Closed PR 167 (aviationforecast) instead of merging it. Rebased onto origin/main after vannkraft 164 (f309811) and vindkraft 169 (09cb994).",
+    "python3 -m pytest after vannkraft rebase: 1094 passed, 1 skipped, 1 deselected.",
+    "python3 -m pytest after vindkraft 169 rebase: 1102 passed, 1 skipped, 1 deselected."
+  ]
+}
