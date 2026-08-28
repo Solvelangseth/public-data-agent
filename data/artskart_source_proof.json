@@ -163,7 +163,7 @@
     "Ids are copied from printed swagger path last segments. access_path is the printed swagger host plus basePath plus path. No artskart id was written onto a nin, nortaxa, georegister, locationforecast, or datanorge row.",
     "License stays null: the swagger info prints no license URL. Publisher is null: the swagger does not print a publisher.",
     "Original harvested swagger metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
-    "python3 -m pytest before rebase onto Nortaxa 130: 770 passed, 1 skipped, 1 deselected.",
+    "python3 -m pytest after rebase onto Nortaxa 130: 780 passed, 1 skipped, 1 deselected.",
     "Not a numeric time series with two or more periods. Fetch listed 20 printed scientific-name cells (sample Myriospora scabrida).",
     "Open PR check at pickup found no open PRs. Lane A (bc-7a3aa143) had committed nortaxa and later merged PR 130 at 7099609. This branch rebases onto that main and keeps nortaxa plus artskart. aviationforecast 2.0 and sigmets 2.0 stayed unused."
   ]
