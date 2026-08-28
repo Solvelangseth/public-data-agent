@@ -5360,6 +5360,49 @@ HTTP 200, 4 beskrivelse cells. Sample printed value:
 series (`no observations matched entity/measure; available=[]`).
 Proof is `data/brroller_source_proof.json`.
 
+## Fiskeridirektoratet leftover WMS/WFS source
+
+`pda ingest --source fdirwms` is another replaceable adapter. It lists printed
+leftover OGC:WMS and OGC:WFS Type=service rows on the official Geonorge
+Kartkatalog search
+`https://kartkatalog.geonorge.no/api/search?text=Fiskeridirektoratet`,
+capped at 10. Other organizations, downloads, and servicelayers are skipped.
+ArcGIS REST already covered by Fiskeridirektoratet GIS is skipped. Kystverket
+leftover WMS/WFS hosts and havnedata are skipped. GetCapabilities bodies that
+are not WMS or WFS XML are skipped. Dataset ids are the printed service path
+segment so `FiskeridirWFS_fiskeri` stays distinct from `fiskeridirWMS`.
+`access_path` is the printed `DistributionUrl`. License stays null: the
+catalog prints no license URL. Publisher stays null. This is not
+Fiskeridirektoratet ArcGIS REST (`--source fiskerigis`), not Fartøyregisteret
+(`--source fiskeridir`), not leftover Kystverket WMS (`--source kystwms`),
+not leftover Kystverket WFS (`--source kystwfs`), not leftover
+Navigasjonsinstallasjoner (`--source kystnav`), and not havnedata
+(`--source havnedata`).
+
+```bash
+pda ingest --source fdirwms --db data/registry.sqlite --limit 10
+pda search FiskeridirWFS_fiskeri --db data/registry.sqlite
+pda fetch --dataset fdirwms:FiskeridirWFS_fiskeri --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored GetCapabilities URL. Observation values are
+copied from printed WMS `Layer`/`Name` text or WFS `FeatureType`/`Name`
+text. A sibling `Title` stays as a dimension. License stays null. Publisher
+stays null.
+
+Live ingest 2026-08-28: 10 leftover WMS/WFS services (search prints 48 rows;
+14 are OGC:WMS or OGC:WFS Type=service; cap 10 copies the first ten leftover
+live documents after skipping fiskerigis ArcGIS wrappers, other organizations,
+downloads, servicelayers, HTML, and HTTP 499). Live search
+`FiskeridirWFS_fiskeri` returns `fdirwms:FiskeridirWFS_fiskeri`. Live fetch
+GETs
+`https://gis.fiskeridir.no/server/services/FiskeridirWFS_fiskeri/MapServer/WFSServer?SERVICE=WFS&REQUEST=GetCapabilities`
+HTTP 200, 57 FeatureType Name cells. Sample printed value:
+`FiskeridirWFS_fiskeri:breivikfjorden_lokalregulering`. `pda methods` is not
+applicable: feature type names, not a numeric time series
+(`no observations matched entity/measure; available=[]`).
+Proof is `data/fdirwms_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
