@@ -4632,6 +4632,16 @@ pda fetch --dataset frivillig:icnpo-kategorier --db data/registry.sqlite
 copied from printed `navn` when present. Other scalars stay as
 dimensions. Nested objects and `_links` are not copied.
 
+Live ingest 2026-08-28: 3 printed untemplated JSON collection GET paths
+(catalog prints those three under `/frivillighetsregisteret/`, cap 10).
+Live search `ICNPO` returns `frivillig:icnpo-kategorier`. Live fetch GETs
+`https://data.brreg.no/frivillighetsregisteret/api/icnpo-kategorier`
+HTTP 200, 46 category-name cells. Sample printed value:
+`Kultur- og rekreasjon`.
+`pda methods` is not applicable: category names, not a numeric
+time series (`no observations matched entity/measure; available=[]`).
+Proof is `data/frivillig_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
