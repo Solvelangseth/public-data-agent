@@ -4666,8 +4666,15 @@ pda fetch --dataset sandnes:api --db data/registry.sqlite
 values are copied from printed participatory-process title texts. Null
 translation texts are skipped.
 
-Live ingest and fetch numbers are recorded in
-`data/sandnes_source_proof.json` after the live run.
+Live ingest 2026-08-28: 1 printed API route. Live search `Sviland`
+returns `sandnes:api`. Live fetch POSTs
+`https://medvirkning.sandnes.kommune.no/api`
+HTTP 200, 4 process-title rows. Sample printed titles: Ny plan for
+Sviland, Bedre tverrfaglig innsats, Kommunedelplan for kunst og kultur,
+Et nytt hus - for alle i Sandnes.
+`pda methods` is not applicable: titles, not a numeric time series
+(`no observations matched entity/measure; available=[]`).
+Proof is `data/sandnes_source_proof.json`.
 
 ## Architecture (long term)
 

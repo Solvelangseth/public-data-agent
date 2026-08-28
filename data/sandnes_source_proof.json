@@ -1,0 +1,119 @@
+{
+  "produced_at": "2026-08-28T09:54:55Z",
+  "bound": {
+    "list_api": "https://medvirkning.sandnes.kommune.no/api/docs",
+    "walk": "copy the one printed URL/api POST route from the official Sandnes kommune API docs; join the docs origin to the printed /api path; do not invent process slugs or extra endpoints; fetch POSTs the GraphiQL default_query printed on the same host",
+    "cap": 1,
+    "how": "pda ingest --source sandnes --limit 1. The official docs page prints URL/api as the POST request route. GraphiQL on the same host prints graphql_endpoint /api and the default_query for participatoryProcesses titles. The adapter lists that one route. Native id is api. access_path is https://medvirkning.sandnes.kommune.no/api."
+  },
+  "discarded": [
+    {
+      "candidate": "Bergen badevann",
+      "url": "https://api.bergen.kommune.no/badevann/waterinfo/temperature_locations",
+      "why": "Live GET 200 JSON (24 locations). No official Bergen HTML page prints api.bergen.kommune.no or /badevann as an API path. The host exists only in minified SPA JS. Unprinted. Do not ship."
+    },
+    {
+      "candidate": "Oslo kommune IO-API",
+      "url": "https://io.web.oslo.kommune.no/docs/api",
+      "why": "OpenAPI JSON 200. Live GET https://io.web.oslo.kommune.no/v3/water-repair is 200 JSON. OpenAPI servers print only localhost and test.io.web.oslo.kommune.no. The production fetch URL is not printed. Walking the spec would invent a catalog and a production origin."
+    },
+    {
+      "candidate": "Oslo kommune Statistikkbank",
+      "url": "https://statistikkbanken.oslo.kommune.no/statbank/api/v1/no",
+      "why": "Already on main as --source oslo."
+    },
+    {
+      "candidate": "Trondheim kommune Åpne Data",
+      "url": "https://data.trondheim.kommune.no/api/v3/datasets/export.json",
+      "why": "Already on main as --source trondheim."
+    },
+    {
+      "candidate": "Stavanger Opencom",
+      "url": "https://opencom.no/api/3/action/package_list",
+      "why": "Already on main as --source opencom."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source sandnes --db /tmp/pda-sandnes-proof/registry.sqlite --limit 1",
+    "listed": 1,
+    "inserted": 1,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "sandnes:api",
+        "access_path": "https://medvirkning.sandnes.kommune.no/api"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search Sviland --db /tmp/pda-sandnes-proof/registry.sqlite --limit 5",
+    "query": "Sviland",
+    "returned": 1,
+    "hit_id": "sandnes:api",
+    "title": "Sandnes kommune - API Documentation",
+    "source_id": "sandnes"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset sandnes:api --db /tmp/pda-sandnes-proof/registry.sqlite",
+    "dataset": "sandnes:api",
+    "table_id": "api",
+    "access_path": "https://medvirkning.sandnes.kommune.no/api",
+    "request_url": "https://medvirkning.sandnes.kommune.no/api",
+    "request_method": "POST",
+    "http_status": 200,
+    "listed": 4,
+    "inserted": 4,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "text",
+        "value": "Ny plan for Sviland",
+        "dimensions": {
+          "id": "8",
+          "locale": "no"
+        }
+      },
+      {
+        "measure": "text",
+        "value": "Bedre tverrfaglig innsats",
+        "dimensions": {
+          "id": "9",
+          "locale": "no"
+        }
+      },
+      {
+        "measure": "text",
+        "value": "Kommunedelplan for kunst og kultur",
+        "dimensions": {
+          "id": "10",
+          "locale": "no"
+        }
+      },
+      {
+        "measure": "text",
+        "value": "Et nytt hus - for alle i Sandnes",
+        "dimensions": {
+          "id": "11",
+          "locale": "no"
+        }
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset sandnes:api --table api --entity \"\" --measure \"\" --db /tmp/pda-sandnes-proof/registry.sqlite --out /tmp/pda-sandnes-proof/methods",
+    "applicable": false,
+    "exit_code": 1,
+    "why": "Printed process titles are strings, not a numeric time series. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "message": "no observations matched entity/measure; available=[]"
+  },
+  "notes": [
+    "Printed page https://medvirkning.sandnes.kommune.no/api/docs title is Sandnes kommune - API Documentation. That page prints URL/api as the POST request route. GraphiQL prints graphql_endpoint /api and the default_query used for fetch.",
+    "The docs page does not print the absolute https://medvirkning.sandnes.kommune.no/api string. The stock absolute example is Barcelona. access_path is the docs origin joined to the printed /api path.",
+    "Ids are not process slugs. One source_id, one DatasetRef. License and publisher stay null.",
+    "Bergen badevann stayed unused. Oslo IO-API stayed unused."
+  ]
+}
