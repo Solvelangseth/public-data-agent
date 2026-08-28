@@ -119,6 +119,6 @@
     "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
     "python3 -m pytest: 1237 passed, 1 skipped, 1 deselected.",
     "Not a numeric time series with two or more periods. Fetch listed 7 printed Layer Name cells (sample High_Resolution_Layers, HRL_Imperviousness).",
-    "Rebased onto origin/main after kystnav #184 and mdirwms #183. README keeps those leftover sections. SOURCE_IDS keeps kystnav, mdirwms, then nibiorest."
+    "Rebased onto origin/main after kystnav #184, mdirwms #183, and ssbfam #181. README keeps those leftover sections. SOURCE_IDS keeps kystnav, mdirwms, ssbfam, then nibiorest."
   ]
 }
