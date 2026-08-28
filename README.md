@@ -3688,6 +3688,40 @@ HTTP 200, 100 miljørapport cells. Sample printed value: `Leivsethammran`.
 time series (`no observations matched entity/measure; available=[]`).
 Proof is `data/miljorapporter_source_proof.json`.
 
+## NVE GIS source
+
+`pda ingest --source nvegis` is another replaceable adapter. It lists
+printed MapServer services on the official NVE ArcGIS REST catalog
+`https://gis3.nve.no/map/rest/services?f=json`, capped at 10. Folders,
+empty names, and empty types are skipped. Dataset ids are the printed
+last path segment of `name` so `/Fjellskred1/MapServer` stays distinct
+from `/Nettanlegg3/MapServer`. `access_path` is the printed name plus
+type plus the catalog's `f=json` query. License stays null: the catalog
+prints no license URL. Publisher stays null. This is not NVE
+Magasinstatistikk (`--source nve`), not Havforskningsinstituttet OGC
+Tiles (`--source hitiles`), and not Fiskeridirektoratet Miljørapporter
+(`--source miljorapporter`, now on main after PR 143).
+
+```bash
+pda ingest --source nvegis --db data/registry.sqlite --limit 10
+pda search Fjellskred1 --db data/registry.sqlite
+pda fetch --dataset nvegis:Fjellskred1 --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored MapServer URL. Observation values are copied
+from printed JSON `name` when present, otherwise `mapName`, `title`, or
+`id`. License stays null. Publisher stays null.
+
+Live ingest 2026-08-28: 5 printed MapServer services (catalog prints
+Fjellskred1, Nettanlegg3, Skredfaresoner3, SnoskredAktsomhetLosneOmr,
+and SnoskredAktsomhet; cap 10). Live search `Fjellskred1` returns
+`nvegis:Fjellskred1`. Live fetch GETs
+`https://gis3.nve.no/map/rest/services/Fjellskred1/MapServer?f=json`
+HTTP 200, 30 layer-name cells. Sample printed value: `Overvaking_fjellskred`.
+`pda methods` is not applicable: layer names, not a numeric
+time series (`no observations matched entity/measure; available=[]`).
+Proof is `data/nvegis_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
