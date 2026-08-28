@@ -53,6 +53,7 @@ from public_data_agent.sources.miljodir import MiljodirVannmiljoSource
 from public_data_agent.sources.miljogis import MiljogisSource
 from public_data_agent.sources.miljorapporter import MiljorapporterSource
 from public_data_agent.sources.nbr import NbrSource
+from public_data_agent.sources.nbconcept import NbconceptSource
 from public_data_agent.sources.nbdsd import NbdsdSource
 from public_data_agent.sources.nfr import NfrSource
 from public_data_agent.sources.ngu import NguSource
@@ -253,6 +254,7 @@ SOURCE_IDS = (
     "nbcodelist",
     "nbdsd",
     "kvgrunn",
+    "nbconcept",
 )
 
 
@@ -507,6 +509,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return NbdsdSource()
     if source_id == "kvgrunn":
         return KvgrunnSource()
+    if source_id == "nbconcept":
+        return NbconceptSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -562,6 +566,7 @@ __all__ = [
     "MiljogisSource",
     "MiljorapporterSource",
     "NbrSource",
+    "NbconceptSource",
     "NbdsdSource",
     "NcagalewarningsSource",
     "NfrSource",

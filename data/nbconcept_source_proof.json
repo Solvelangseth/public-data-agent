@@ -1,0 +1,125 @@
+{
+  "produced_at": "2026-08-28T10:18:57Z",
+  "bound": {
+    "list_api": "https://data.norges-bank.no/api/conceptscheme?format=sdmx-json",
+    "walk": "copy printed data.conceptSchemes[].id and agencyID; access_path joins those printed fields onto /api/conceptscheme/{agencyID}/{id}?format=sdmx-json and keeps the catalog format=sdmx-json query; do not invent concept-scheme ids",
+    "cap": 10,
+    "how": "pda ingest --source nbconcept --limit 10. The official Norges Bank SDMX conceptscheme catalog prints 1 concept-scheme id (CS_NB). The adapter copies that printed id. GET uses the printed /api/conceptscheme/NB/CS_NB collection with no invented query filters. This is not the dataflow list (--source norgesbank), not leftover codelists, and not leftover data structures."
+  },
+  "discarded": [
+    {
+      "candidate": "Norges Bank SDMX datastructures / nbdsd",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/179",
+      "why": "Open/in-flight PR 179. Do not pick the other lane's source."
+    },
+    {
+      "candidate": "Norges Bank SDMX codelists / nbcodelist",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/177",
+      "why": "Open then merged. Do not re-add."
+    },
+    {
+      "candidate": "Kartverket Stormflo / stormflo",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/175",
+      "why": "Other JSON lane. Merged on main. Do not re-add."
+    },
+    {
+      "candidate": "NVE Kulturminner geoJsonAPI",
+      "url": "https://api.nve.no/doc/kulturminner-i-vassdrags-og-energisektoren/",
+      "why": "Docs print GET paths. Live GET of the printed www.nve.no base plus those paths is HTTP 404 HTML."
+    },
+    {
+      "candidate": "NVE Flomvarsling / Jordskredvarsling / Snøskredvarsel",
+      "url": "https://api01.nve.no/hydrology/forecast/flood/v1.0.10/swagger/docs/v1.0.10",
+      "why": "Official swagger HTTP 200. Collection GETs are templated or require invented langkey/dates. Do not invent those."
+    },
+    {
+      "candidate": "Kartverket adresser",
+      "url": "https://ws.geonorge.no/adresser/v1/openapi.json",
+      "why": "Official OpenAPI HTTP 200. Live GET /sok is HTTP 400 without a search string. Do not invent a sok query."
+    },
+    {
+      "candidate": "NVE HydAPI",
+      "url": "https://hydapi.nve.no/swagger/v1/swagger.json",
+      "why": "Official OpenAPI HTTP 200 prints X-API-Key security. Do not invent auth."
+    },
+    {
+      "candidate": "Udir NLR",
+      "url": "https://data-nlr.udir.no/swagger/v4/swagger.json",
+      "why": "Known skip: live collection GETs are HTTP 401. Do not invent auth."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source nbconcept --db /tmp/pda-nbconcept-proof/registry.sqlite --limit 10",
+    "listed": 1,
+    "inserted": 1,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "nbconcept:CS_NB",
+        "access_path": "https://data.norges-bank.no/api/conceptscheme/NB/CS_NB?format=sdmx-json"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search konsepter --db /tmp/pda-nbconcept-proof/registry.sqlite --limit 5",
+    "query": "konsepter",
+    "returned": 1,
+    "hit_id": "nbconcept:CS_NB",
+    "title": "Norges Bank konsepter",
+    "source_id": "nbconcept",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://data.norges-bank.no/api/conceptscheme/NB/CS_NB?format=sdmx-json",
+    "original_source": "https://data.norges-bank.no/api/conceptscheme?format=sdmx-json",
+    "why_picked": "title matched konsepter"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset nbconcept:CS_NB --db /tmp/pda-nbconcept-proof/registry.sqlite",
+    "dataset": "nbconcept:CS_NB",
+    "table_id": "CS_NB",
+    "access_path": "https://data.norges-bank.no/api/conceptscheme/NB/CS_NB?format=sdmx-json",
+    "request_url": "https://data.norges-bank.no/api/conceptscheme/NB/CS_NB?format=sdmx-json",
+    "http_status": 200,
+    "listed": 76,
+    "inserted": 76,
+    "updated": 0,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "name",
+        "value": "Time Period"
+      },
+      {
+        "measure": "name",
+        "value": "Observation Value"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset nbconcept:CS_NB --table CS_NB --entity TIME_PERIOD --measure name --db /tmp/pda-nbconcept-proof/registry.sqlite --out /tmp/pda-nbconcept-proof/methods2",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "Norges Bank /api/conceptscheme/NB/CS_NB prints concept names. Those are not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed conceptSchemes[].id. access_path joins printed agencyID and id onto the printed /api/conceptscheme path. No nbconcept id was written onto a norgesbank, nbcodelist, or nbdsd row.",
+    "License is null. Publisher is null. The catalog prints neither.",
+    "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "Open PRs at pickup after origin/main refresh were 177 nbcodelist, 175 stormflo, 176 kystwms, 174 nguwms, 172 sandnes. After live work 179 nbdsd was open. This lane stayed on leftover conceptscheme.",
+    "python3 -m pytest after Norges Bank conceptscheme adapter: 1148 passed, 1 skipped, 1 deselected.",
+    "python3 -m pytest after rebase onto origin/main (nbcodelist 177 at 161a00e): 1192 passed, 1 skipped, 1 deselected.",
+    "python3 -m pytest after rebase onto origin/main (nbdsd 179 and kystwms 176 at 05053ab): 1209 passed, 1 skipped, 1 deselected.",
+    "Not a numeric time series with two or more periods. Fetch listed 76 printed concept-name cells (sample Time Period)."
+  ]
+}
