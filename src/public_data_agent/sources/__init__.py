@@ -22,6 +22,7 @@ from public_data_agent.sources.icemap import IcemapSource
 from public_data_agent.sources.isobaricgrib import IsobaricgribSource
 from public_data_agent.sources.kommuneinfo import KommuneinfoSource
 from public_data_agent.sources.kystverket import KystverketSource
+from public_data_agent.sources.locationforecast import LocationforecastSource
 from public_data_agent.sources.mattilsynet import MattilsynetPlantevernSource
 from public_data_agent.sources.met import MetMetalertsSource
 from public_data_agent.sources.metgc import MetgcSource
@@ -151,6 +152,7 @@ SOURCE_IDS = (
     "volcanicashforecast",
     "routeforecast",
     "norskelos",
+    "locationforecast",
 )
 
 
@@ -303,6 +305,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return RouteforecastSource()
     if source_id == "norskelos":
         return NorskelosSource()
+    if source_id == "locationforecast":
+        return LocationforecastSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -327,6 +331,7 @@ __all__ = [
     "IsobaricgribSource",
     "KommuneinfoSource",
     "KystverketSource",
+    "LocationforecastSource",
     "MattilsynetPlantevernSource",
     "MetMetalertsSource",
     "MetgcSource",

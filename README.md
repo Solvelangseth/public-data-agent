@@ -3112,6 +3112,61 @@ HTTP 200, 50 printed place-title rows. Sample printed value: Fillan.
 time series (`no observations matched entity/measure; available=[]`).
 Proof is `data/norskelos_source_proof.json`.
 
+`pda ingest --source locationforecast` is another replaceable adapter. It lists printed
+collection GET paths on the official MET Locationforecast swagger
+`https://api.met.no/weatherapi/locationforecast/2.0/swagger`, capped at 10.
+Templated `{format}` paths and GET operations that print required query
+parameters are skipped. Forecast paths `/classic`, `/compact`, and
+`/complete` print required `lat` and `lon`, so they are not listed.
+Dataset ids are the last printed path segment. `access_path` is the
+swagger origin + printed `basePath` + path. License is the printed
+swagger CC BY 4.0 URL. Publisher stays null.
+This is not Metalerts (`--source met`), not Nowcast (`--source nowcast`),
+not MET Airqualityforecast (`--source airquality`), not MET Tidalwater
+(`--source tidalwater`), not MET Oceanforecast (`--source oceanforecast`),
+not MET Sunrise (`--source sunrise`), not MET Radar (`--source radar`),
+not MET Spotwind (`--source spotwind`), not MET Textforecast
+(`--source textforecast`), not MET Icemap (`--source icemap`), not MET
+NCAgalewarnings (`--source ncagalewarnings`), not MET Tafmetar
+(`--source tafmetar`), not MET Subseasonal (`--source subseasonal`),
+not MET Geosatellite (`--source geosatellite`), not MET Metgm
+(`--source metgm`), not MET Subjectiveforecast
+(`--source subjectiveforecast`), not MET Polarsatellite
+(`--source polarsatellite`), not Kartverket Transformering
+(`--source transformering`), not MET Soundprofile
+(`--source soundprofile`), not MET Gribfiles (`--source gribfiles`),
+not MET Metgc (`--source metgc`), not MET Oslofjord
+(`--source oslofjord`), not MET Isobaricgrib
+(`--source isobaricgrib`), not MET Offshoremaps
+(`--source offshoremaps`), not MET Turbulence
+(`--source turbulence`), not MET NLAroutes
+(`--source nlaroutes`), not MET Sigcharts
+(`--source sigcharts`), not MET Volcanicashforecast
+(`--source volcanicashforecast`), not MET Routeforecast
+(`--source routeforecast`, now on main after PR 126), not Kartverket
+Den norske los (`--source norskelos`, now on main after PR 127), and
+not MET Aviationforecast or MET Sigmets.
+
+```bash
+pda ingest --source locationforecast --db data/registry.sqlite --limit 10
+pda search locations --db data/registry.sqlite
+pda fetch --dataset locationforecast:locations --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored collection URL. Observation values are copied
+from printed GeoJSON feature `name` when present, otherwise the printed
+Feature `id`. License is the printed swagger CC BY 4.0 URL. Publisher
+stays null: the spec does not print a publisher.
+
+Live ingest 2026-08-27: 5 printed untemplated GET paths (catalog prints
+5 paths with a last-segment id and no required query parameter, cap 10).
+Live search `locations` returns `locationforecast:locations`. Live fetch GETs
+`https://api.met.no/weatherapi/locationforecast/2.0/locations` HTTP 200, 2
+location-name cells. Sample printed value: `ECMWF area`.
+`pda methods` is not applicable: GeoJSON location names, not a numeric
+time series (`no observations matched entity/measure; available=[]`).
+Proof is `data/locationforecast_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
