@@ -5155,9 +5155,16 @@ values are copied from printed WMS `Layer`/`Name` text. A printed
 `Title` sibling stays as a dimension. License stays null. Publisher
 stays null.
 
-Live proof is recorded in `data/nibiorest_source_proof.json`.
-`pda methods` is not applicable: layer names, not a numeric time series.
-`methods/` is untouched.
+Live ingest 2026-08-28: 1 leftover GetCapabilities service (catalog
+prints 12 hrefs; nibiowms already took the first 10 live XML services;
+`riparian_zones_GLE` is HTML; cap 10 copies leftover `hrl`). Live search
+`hrl` returns `nibiorest:hrl`. Live fetch GETs
+`https://wms.nibio.no/cgi-bin/hrl?VERSION=1.3.0&REQUEST=GetCapabilities&service=wms`
+HTTP 200, 7 Layer Name cells. Sample printed value:
+`High_Resolution_Layers`. `pda methods` is not applicable: layer names,
+not a numeric time series
+(`no observations matched entity/measure; available=[]`).
+Proof is `data/nibiorest_source_proof.json`.
 
 ## Architecture (long term)
 
