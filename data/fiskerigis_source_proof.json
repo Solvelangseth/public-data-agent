@@ -1,0 +1,204 @@
+{
+  "produced_at": "2026-08-28T03:39:40Z",
+  "bound": {
+    "list_api": "https://gis.fiskeridir.no/arcgis/rest/services?f=json",
+    "walk": "copy printed name+type entries from the official Fiskeridirektoratet ArcGIS REST services catalog; skip folders and entries with no name or type; native ids are the printed last path segment of name so AIS_density_Norge_2016 stays distinct from AIS_Route_Density_2020; access_path is the catalog origin plus /arcgis/rest/services/{name}/{type}?f=json; license stays null because the catalog prints no license URL; publisher stays null; do not invent query filters",
+    "cap": 10,
+    "how": "pda ingest --source fiskerigis --limit 10. The official JSON catalog prints 22 name+type MapServer services. This first slice copies the first 10 printed names. GET uses the printed AIS_density_Norge_2016 MapServer path with the catalog f=json query. This is not Fartøyregisteret (--source fiskeridir), not buyer, not nytek, not aqua, not NVE Mapservices (--source nvemap), and not Norsk Polarinstitutt ArcticSDI (--source arcticsdi)."
+  },
+  "discarded": [
+    {
+      "candidate": "Norsk Polarinstitutt ArcticSDI / arcticsdi",
+      "url": "https://geodata.npolar.no/arcgis/rest/services/ArcticSDI?f=json",
+      "why": "Lane B PR 153 (bc-4906ba31) chose arcticsdi and later merged. Do not pick the other lane's source."
+    },
+    {
+      "candidate": "NVE Mapservices / nvemap",
+      "url": "https://gis3.nve.no/map/rest/services/Mapservices?f=json",
+      "why": "Already on main after PR 152. Do not re-add."
+    },
+    {
+      "candidate": "NVE Inntektsrammer OpenAPI",
+      "url": "https://biapi.nve.no/inntektsrammer/swagger/v1/swagger.json",
+      "why": "Official OpenAPI prints collection GET paths. Live GET /inntektsrammer/api/InntektsrammerType is HTTP 401. Do not invent an api-key workaround."
+    },
+    {
+      "candidate": "NVE Nettleietariffer OpenAPI",
+      "url": "https://nettleietariffer.dataplattform.nve.no/v1/openapi.json",
+      "why": "OpenAPI prints collection paths, but every data path requires query params (ValgtDato, FylkeNr, OrganisasjonsNr). Do not invent those values."
+    },
+    {
+      "candidate": "NVE Nettleie statistikk swagger",
+      "url": "https://biapi.nve.no/nettleiestatistikk/swagger/v1/swagger.json",
+      "why": "HTTP 410. Do not invent a replacement path."
+    },
+    {
+      "candidate": "NVE gis2 featureservice",
+      "url": "https://gis2.nve.no/arcgis/rest/services/featureservice?f=json",
+      "why": "Same gis2 host as --source nve2gis already on main. Unused. Fiskeridirektoratet GIS is a different official host."
+    },
+    {
+      "candidate": "NVE gis2 wmts",
+      "url": "https://gis2.nve.no/arcgis/rest/services/wmts?f=json",
+      "why": "Same gis2 host as --source nve2gis already on main. Unused."
+    },
+    {
+      "candidate": "NPI Basisdata_Intern",
+      "url": "https://geodata.npolar.no/arcgis/rest/services/Basisdata_Intern?f=json",
+      "why": "Same NPI ArcGIS host Lane B opened as arcticsdi. Folder name says Intern. Unused."
+    },
+    {
+      "candidate": "Riksantikvaren Andretjenester",
+      "url": "https://kart.ra.no/arcgis/rest/services/Andretjenester?f=json",
+      "why": "Printed folders and services arrays are empty. Unused."
+    },
+    {
+      "candidate": "MET leftover products",
+      "url": "https://api.met.no/weatherapi/available.json",
+      "why": "Every printed product is already a source or an assigned skip (aviationforecast, sigmets)."
+    },
+    {
+      "candidate": "Kartverket Adresser OpenAPI",
+      "url": "https://api.kartverket.no/adresser/v1/openapi.json",
+      "why": "OpenAPI prints only /sok and /punktsok. Live GET without search params is HTTP 400. Do not invent a search string."
+    },
+    {
+      "candidate": "Kartverket Eiendom OpenAPI",
+      "url": "https://api.kartverket.no/eiendom/v1/openapi.json",
+      "why": "Printed paths require matrikkel params. Live /geokoding without params is HTTP 400."
+    },
+    {
+      "candidate": "Udir NLR swagger",
+      "url": "https://data-nlr.udir.no/swagger/v4/swagger.json",
+      "why": "Known skip: live collection GETs are HTTP 401."
+    },
+    {
+      "candidate": "Frost MET sources",
+      "url": "https://frost.met.no/sources/v0.jsonld",
+      "why": "HTTP 401. Do not retry."
+    },
+    {
+      "candidate": "NVE HydAPI swagger",
+      "url": "https://hydapi.nve.no/swagger/v1/swagger.json",
+      "why": "HTTP 401. Do not retry."
+    },
+    {
+      "candidate": "Bergen CKAN package_list",
+      "url": "https://opendata.bergen.kommune.no/api/3/action/package_list",
+      "why": "Host did not resolve."
+    },
+    {
+      "candidate": "aviationforecast / sigmets / offentligdata.no",
+      "url": "https://api.met.no/weatherapi/aviationforecast/2.0/swagger",
+      "why": "Assigned skip for this lane. Not selected."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source fiskerigis --db /tmp/pda-fiskerigis-proof/registry.sqlite --limit 10",
+    "listed": 10,
+    "inserted": 10,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "fiskerigis:AIS_density_Norge_2016",
+        "title": "AIS_density_Norge_2016",
+        "access_path": "https://gis.fiskeridir.no/arcgis/rest/services/AIS_density_Norge_2016/MapServer?f=json"
+      },
+      {
+        "id": "fiskerigis:AIS_Route_Density_2020",
+        "title": "AIS_Route_Density_2020",
+        "access_path": "https://gis.fiskeridir.no/arcgis/rest/services/AIS_Route_Density_2020/MapServer?f=json"
+      },
+      {
+        "id": "fiskerigis:Areas_status_sodir",
+        "title": "Areas_status_sodir",
+        "access_path": "https://gis.fiskeridir.no/arcgis/rest/services/Areas_status_sodir/MapServer?f=json"
+      },
+      {
+        "id": "fiskerigis:Beregning_OECM_Norge",
+        "title": "Beregning_OECM_Norge",
+        "access_path": "https://gis.fiskeridir.no/arcgis/rest/services/Beregning_OECM_Norge/MapServer?f=json"
+      },
+      {
+        "id": "fiskerigis:Breddegrader",
+        "title": "Breddegrader",
+        "access_path": "https://gis.fiskeridir.no/arcgis/rest/services/Breddegrader/MapServer?f=json"
+      },
+      {
+        "id": "fiskerigis:Bunntraal_flytte_og_rapporteringsplikt",
+        "title": "Bunntraal_flytte_og_rapporteringsplikt",
+        "access_path": "https://gis.fiskeridir.no/arcgis/rest/services/Bunntraal_flytte_og_rapporteringsplikt/MapServer?f=json"
+      },
+      {
+        "id": "fiskerigis:Fiske_i_nord_Koraller",
+        "title": "Fiske_i_nord_Koraller",
+        "access_path": "https://gis.fiskeridir.no/arcgis/rest/services/Fiske_i_nord_Koraller/MapServer?f=json"
+      },
+      {
+        "id": "fiskerigis:Fjorder_med_sjeldan_utskifting_av_bassengvatn",
+        "title": "Fjorder_med_sjeldan_utskifting_av_bassengvatn",
+        "access_path": "https://gis.fiskeridir.no/arcgis/rest/services/Fjorder_med_sjeldan_utskifting_av_bassengvatn/MapServer?f=json"
+      },
+      {
+        "id": "fiskerigis:Forbudsområder_for_skytefelt_i_sjø_høring_2021",
+        "title": "Forbudsområder_for_skytefelt_i_sjø_høring_2021",
+        "access_path": "https://gis.fiskeridir.no/arcgis/rest/services/Forbudsområder_for_skytefelt_i_sjø_høring_2021/MapServer?f=json"
+      },
+      {
+        "id": "fiskerigis:gytefelt_torsk_lokaliteter",
+        "title": "gytefelt_torsk_lokaliteter",
+        "access_path": "https://gis.fiskeridir.no/arcgis/rest/services/gytefelt_torsk_lokaliteter/MapServer?f=json"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search AIS_density_Norge_2016 --db /tmp/pda-fiskerigis-proof/registry.sqlite --limit 5",
+    "query": "AIS_density_Norge_2016",
+    "returned": 1,
+    "hit_id": "fiskerigis:AIS_density_Norge_2016",
+    "title": "AIS_density_Norge_2016",
+    "source_id": "fiskerigis",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://gis.fiskeridir.no/arcgis/rest/services/AIS_density_Norge_2016/MapServer?f=json",
+    "original_source": "https://gis.fiskeridir.no/arcgis/rest/services?f=json",
+    "why_picked": "title matched ais, density, norge, 2016"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset fiskerigis:AIS_density_Norge_2016 --db /tmp/pda-fiskerigis-proof/registry.sqlite",
+    "dataset": "fiskerigis:AIS_density_Norge_2016",
+    "table_id": "AIS_density_Norge_2016",
+    "access_path": "https://gis.fiskeridir.no/arcgis/rest/services/AIS_density_Norge_2016/MapServer?f=json",
+    "request_url": "https://gis.fiskeridir.no/arcgis/rest/services/AIS_density_Norge_2016/MapServer?f=json",
+    "http_status": 200,
+    "listed": 1,
+    "inserted": 1,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "name",
+        "value": "AIS density Norge 2016"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset fiskerigis:AIS_density_Norge_2016 --db /tmp/pda-fiskerigis-proof/registry.sqlite --out /tmp/pda-fiskerigis-proof/methods",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "Fiskeridirektoratet /arcgis/rest/services/AIS_density_Norge_2016/MapServer prints a layer-name string. That is not a numeric time series with a year-like period field and two or more periods. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed last path segments of service names. access_path is the catalog origin plus /arcgis/rest/services/{name}/{type}?f=json. No fiskerigis id was written onto a fiskeridir, nvemap, arcticsdi, or datanorge row.",
+    "License stays null: the catalog prints no license URL. Publisher is null: the catalog does not print a publisher.",
+    "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "python3 -m pytest after rebase onto arcticsdi #153: 997 passed, 1 skipped, 1 deselected.",
+    "Not a numeric time series with two or more periods. Fetch listed 1 printed layer-name cell (sample AIS density Norge 2016).",
+    "Open PR check at pickup found PR 153 arcticsdi (Lane B bc-4906ba31). Unused. After implement, #153 merged at bb18663; branch rebased onto origin/main keeping arcticsdi plus fiskerigis."
+  ]
+}
