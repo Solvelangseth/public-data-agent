@@ -16,6 +16,7 @@ from public_data_agent.sources.entur import EnturGbfsSource
 from public_data_agent.sources.envreportreg import EnvreportregSource
 from public_data_agent.sources.fhi import FhiStatistikkSource
 from public_data_agent.sources.fiskeridir import FiskeridirVesselSource
+from public_data_agent.sources.fiskerigis import FiskerigisSource
 from public_data_agent.sources.fixture import FixtureSource
 from public_data_agent.sources.geonorge import GeonorgeKartkatalogSource
 from public_data_agent.sources.georegister import GeoregisterSource
@@ -203,6 +204,7 @@ SOURCE_IDS = (
     "npitema",
     "nvemap",
     "arcticsdi",
+    "fiskerigis",
 )
 
 
@@ -407,6 +409,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return NvemapSource()
     if source_id == "arcticsdi":
         return ArcticsdiSource()
+    if source_id == "fiskerigis":
+        return FiskerigisSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -425,6 +429,7 @@ __all__ = [
     "EnvreportregSource",
     "FhiStatistikkSource",
     "FiskeridirVesselSource",
+    "FiskerigisSource",
     "FixtureSource",
     "GeonorgeKartkatalogSource",
     "GeoregisterSource",

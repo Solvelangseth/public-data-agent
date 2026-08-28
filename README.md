@@ -4051,6 +4051,41 @@ not a numeric time series
 (`no observations matched entity/measure; available=[]`).
 Proof is `data/arcticsdi_source_proof.json`.
 
+## Fiskeridirektoratet GIS source
+
+`pda ingest --source fiskerigis` is another replaceable adapter. It lists
+printed name+type services on the official Fiskeridirektoratet ArcGIS REST
+catalog `https://gis.fiskeridir.no/arcgis/rest/services?f=json`, capped at
+10. Folders and entries with no name or type are skipped. Dataset ids are
+the printed last path segment of `name` so `AIS_density_Norge_2016` stays
+distinct from `AIS_Route_Density_2020`. `access_path` keeps the printed
+name, printed type, and the catalog `f=json` query. License stays null:
+the catalog prints no license URL. Publisher stays null. This is not
+Fartøyregisteret (`--source fiskeridir`), not Kjøperregisteret
+(`--source buyer`), not NYTEK (`--source nytek`), not Akvakulturregister
+(`--source aqua`), not NVE Mapservices (`--source nvemap`), and not Norsk
+Polarinstitutt ArcticSDI (`--source arcticsdi`).
+
+```bash
+pda ingest --source fiskerigis --db data/registry.sqlite --limit 10
+pda search AIS_density_Norge_2016 --db data/registry.sqlite
+pda fetch --dataset fiskerigis:AIS_density_Norge_2016 --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored service URL. Observation values are copied
+from printed JSON `name` when present, otherwise `mapName`, `title`, or
+`id`. License stays null. Publisher stays null.
+
+Live ingest 2026-08-28: 10 printed services (catalog prints 22 name+type
+MapServer rows; cap 10 copies the first 10). Live search
+`AIS_density_Norge_2016` returns `fiskerigis:AIS_density_Norge_2016`.
+Live fetch GETs
+`https://gis.fiskeridir.no/arcgis/rest/services/AIS_density_Norge_2016/MapServer?f=json`
+HTTP 200, 1 layer-name cell. Sample printed value: `AIS density Norge 2016`.
+`pda methods` is not applicable: layer names, not a numeric time series
+(`no observations matched entity/measure; available=[]`).
+Proof is `data/fiskerigis_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
