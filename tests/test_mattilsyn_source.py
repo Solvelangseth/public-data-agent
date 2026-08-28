@@ -267,7 +267,7 @@ def test_mattilsyn_is_a_registered_source() -> None:
     assert "banegis" in SOURCE_IDS
     assert SOURCE_IDS.index("mattilsyn") > SOURCE_IDS.index("ssclass")
     assert SOURCE_IDS.index("mattilsyn") > SOURCE_IDS.index("banegis")
-    assert SOURCE_IDS[-1] == "nibiorest"
+    assert SOURCE_IDS[SOURCE_IDS.index("mattilsyn") + 1] == "nibiorest"
     assert "mattilsyn" != "mattilsynet"
     source = build_source("mattilsyn")
     assert isinstance(source, MattilsynSource)

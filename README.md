@@ -5072,6 +5072,41 @@ HTTP 200, 10 component-id cells. Sample printed value: `FREQ`.
 (`no observations matched entity/measure; available=[]`).
 Proof is `data/nbdsd_source_proof.json`.
 
+## Norges Bank leftover SDMX provision agreements
+
+`pda ingest --source nbprov` is another replaceable adapter. It lists
+printed provision-agreement ids on the official Norges Bank SDMX catalog
+`https://data.norges-bank.no/api/provisionagreement?format=sdmx-json`,
+capped at 10. Dataset ids are the printed `id` so `EXR_NB_NB` stays
+distinct from `ANN_KPRA_NB_NB`. `access_path` joins printed `agencyID`
+and `id` onto `/api/provisionagreement/{agencyID}/{id}` and keeps the
+same `format=sdmx-json` query the catalog uses. License stays null.
+Publisher stays null. This is not the dataflow list
+(`--source norgesbank`), not the SDMX codelist list
+(`--source nbcodelist`), and not the data-structure list
+(`--source nbdsd`).
+
+```bash
+pda ingest --source nbprov --db data/registry.sqlite --limit 10
+pda search Exchange --db data/registry.sqlite
+pda fetch --dataset nbprov:EXR_NB_NB --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored provision-agreement URL. Observation values
+are copied from printed agreement `name` scalars. Other scalars stay as
+dimensions. Nested `names` objects are not copied. License stays null.
+Publisher stays null.
+
+Live ingest 2026-08-28: 10 printed provision agreements (catalog prints
+24, cap 10). Live search `Exchange` returns `nbprov:EXR_NB_NB`. Live
+fetch GETs
+`https://data.norges-bank.no/api/provisionagreement/NB/EXR_NB_NB?format=sdmx-json`
+HTTP 200, 1 name cell. Sample printed value:
+`Norges Bank for Exchange rates`. `pda methods` is not applicable:
+agreement names, not a numeric time series
+(`no observations matched entity/measure; available=[]`).
+Proof is `data/nbprov_source_proof.json`.
+
 ## Kartverket leftover grunnkart WMS source
 
 `pda ingest --source kvgrunn` is another replaceable adapter. It lists
