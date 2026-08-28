@@ -24,17 +24,7 @@ SKIP_LAST_SEGMENTS = ("totalbestand",)
 
 
 class BrrollerSource(SourceBase):
-    """Replaceable ingest adapter for leftover Enhetsregisteret roller lists.
-
-    Listing copies untemplated collection GET paths the official OpenAPI
-    prints under `/enhetsregisteret/api/roller/`. It skips templated paths,
-    GET operations that print required parameters, and the printed gzip
-    `totalbestand` dump. Native ids are the last printed path segment so
-    `representanter` stays distinct from `rolletyper`. This first slice
-    stays inside that document and caps the walk. This is not
-    Enhetsregisteret (`--source brreg`) and not Frivillighetsregisteret
-    (`--source frivillig`).
-    """
+    """Replaceable ingest adapter for leftover Enhetsregisteret roller lists."""
 
     source_id = SOURCE_ID
     source_name = SOURCE_NAME
@@ -150,11 +140,7 @@ def printed_operation_id(path: str) -> str:
 
 
 def printed_endpoint_url(spec: dict[str, Any], path: str, openapi_url: str) -> str:
-    """Join a printed path to a printed host/basePath/server or the OpenAPI origin.
-
-    The live Enhetsregisteret OpenAPI prints `servers[0].url`. No
-    organisasjonsnummer or matrikkel filter is invented.
-    """
+    """Join a printed path to a printed host/basePath/server or the OpenAPI origin."""
 
     host = spec.get("host")
     base_path = spec.get("basePath")
@@ -206,13 +192,7 @@ def brroller_table_id(access_path: str) -> str:
 
 
 def cells_from_brroller(payload: Any) -> list[tuple[str, Any, dict[str, str]]]:
-    """Copy printed Enhetsregisteret roller HAL records into observation cells.
-
-    A printed `_embedded` object keeps each list of records. Records keep
-    printed `beskrivelse` when present, otherwise `kode`. Other scalars
-    stay as dimensions. Nested objects, arrays, and `_links` are not
-    copied. Nothing is invented.
-    """
+    """Copy printed Enhetsregisteret roller HAL records into observation cells."""
 
     cells: list[tuple[str, Any, dict[str, str]]] = []
     if isinstance(payload, dict):
