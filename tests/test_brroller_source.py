@@ -158,7 +158,9 @@ def test_brroller_is_a_registered_source() -> None:
     assert "regnskap" in SOURCE_IDS
     assert "ssbsec" in SOURCE_IDS
     assert "ssclass" in SOURCE_IDS
+    assert "ssbfam" in SOURCE_IDS
     assert "banegis" in SOURCE_IDS
+    assert "mattilsyn" in SOURCE_IDS
     assert "nibiorest" in SOURCE_IDS
     assert "nbprov" in SOURCE_IDS
     assert "avinorgis" in SOURCE_IDS
