@@ -5046,9 +5046,16 @@ copied from printed WMS `Layer`/`Name` text or WFS `FeatureType`/`Name`
 text. A sibling `Title` stays as a dimension. License stays null. Publisher
 stays null.
 
-Live ingest, one live fetch, and `pda search` on `hiwms` follow in the
-next commit. Merge only after GitHub `test` SUCCESS, GitGuardian SUCCESS,
-and MERGEABLE CLEAN.
+Live ingest 2026-08-28: 10 leftover WMS/WFS services (search prints 325
+rows; cap 10 copies leftover live OGC:WMS and OGC:WFS Type=service
+documents after skipping covered HI OGC API paths, sibling GIS hosts,
+and bodies that are not WMS or WFS XML). Live search `Rådgivningskart`
+returns `hiwms:fraraadning_ows`. Live fetch GETs
+`https://kart.hi.no/data/fraraadning/ows?service=WMS&version=1.3.0&request=GetCapabilities`
+HTTP 200, 4 Layer Name cells. Sample printed value: `Raadgivning_2024`.
+`pda methods` is not applicable: layer names, not a numeric time series
+(`no observations matched entity/measure; available=[]`).
+Proof is `data/hiwms_source_proof.json`.
 
 ## Norges Bank SDMX Codelists source
 
