@@ -16,7 +16,7 @@
     {
       "candidate": "ragis / PR 158",
       "url": "https://github.com/Solvelangseth/public-data-agent/pull/158",
-      "why": "Open leftover Riksantikvaren MABYGIS catalog. Other teammate owns leftover GIS/WMS. Do not pick ragis."
+      "why": "Now on main after merge 5fa96c9. Leftover GIS. Do not pick ragis."
     },
     {
       "candidate": "ssbkart / PR 156",
@@ -173,8 +173,8 @@
     "License is null: the catalog prints no license URL. Publisher stays null.",
     "Live GET of the printed KdvElements path is HTTP 200 with no Authorization header. No token is sent.",
     "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
-    "python3 -m pytest: 1022 passed, 1 skipped, 1 deselected.",
+    "python3 -m pytest after rebase onto ragis 158: 1031 passed, 1 skipped, 1 deselected.",
     "Not a numeric time series with two or more periods. Fetch listed 16 printed Name cells (sample Ikke gitt, Ingen faretegn observert).",
-    "ssbv2 PR 157 is on main. ragis PR 158 leftover GIS unused. ssbkart PR 156 closed. NLR 401 unused. ERS 401 unused. Account 401 unused. aviationforecast/sigmets stayed unused."
+    "ssbv2 PR 157 is on main. ragis PR 158 is on main after 5fa96c9. ssbkart PR 156 closed. NLR 401 unused. ERS 401 unused. Account 401 unused. aviationforecast/sigmets stayed unused."
   ]
 }
