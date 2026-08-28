@@ -5052,8 +5052,14 @@ pda fetch --dataset ssbfam:1 --db data/registry.sqlite
 printed classification `name` when present, otherwise `id`. License stays
 null. Publisher stays null.
 
-Live ingest, fetch, and search numbers will be recorded in
-`data/ssbfam_source_proof.json` after the live run.
+Live ingest 2026-08-28: 10 printed families (catalog prints 22, cap 10).
+Live search `Arbeid` returns `ssbfam:1`. Live fetch GETs
+`https://data.ssb.no/api/klass/v1/classificationfamilies/1` HTTP 200, 1
+classification-name cell. Sample printed value: `Standard for
+yrkesklassifisering`. `pda methods` is not applicable: classification
+names, not a numeric time series
+(`no observations matched entity/measure; available=[]`).
+Proof is `data/ssbfam_source_proof.json`.
 
 ## Architecture (long term)
 
