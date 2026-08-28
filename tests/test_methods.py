@@ -1,3 +1,5 @@
+"""Unit tests over a tiny in-memory fixture. These numbers are not Oslo facts."""
+
 from __future__ import annotations
 
 import json
@@ -29,6 +31,7 @@ from public_data_agent.harvest import harvest
 from public_data_agent.registry import Registry
 from public_data_agent.sources.fixture import FixtureSource
 
+# In-memory fixture series. Deliberately not Norwegian population counts.
 FIXTURE_TOWN = "Fixture Town"
 FIXTURE_MEASURE = "fixture_count"
 FIXTURE_ROWS = [
