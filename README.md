@@ -4155,6 +4155,37 @@ has one time code (`2026M07`). It printed
 `no derived yoy_growth values to chart`. methods/ was not edited.
 Proof is `data/ssbv2_source_proof.json`.
 
+## SSB Klass leftover SSB-seksjoner
+
+`pda ingest --source ssbsec` is another replaceable adapter. It lists
+the leftover collection GET `/api/klass/v1/ssbsections` named in the
+official Statistisk sentralbyrå Klass OpenAPI
+`https://data.ssb.no/api/klass/v3/api-docs`. The live catalog
+`https://data.ssb.no/api/klass/v1/ssbsections` prints that path on
+`_links.self.href`. Dataset id is the printed last path segment
+`ssbsections`. Printed member `id` fields are null and are not copied.
+License stays null. Publisher stays null. This is not the Klass version
+fetch and not PxWebApi 2 (`--source ssbv2`).
+
+```bash
+pda ingest --source ssbsec --db data/registry.sqlite --limit 10
+pda search ssbsections --db data/registry.sqlite
+pda fetch --dataset ssbsec:ssbsections --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored ssbsections URL. Observation values are
+copied from printed section `name` scalars. Null `id` fields are not
+copied. License stays null. Publisher stays null.
+
+Live ingest 2026-08-28: listed 1, inserted 1 (catalog prints one
+collection path; 24 section names live on that GET). Live search
+`ssbsections` returns `ssbsec:ssbsections`. Live fetch GETs
+`https://data.ssb.no/api/klass/v1/ssbsections` HTTP 200, 24 name cells.
+Sample printed value: `210 - Seksjon for nasjonalregnskap`.
+`pda methods` is not applicable: section names, not a numeric time series
+(`no observations matched entity/measure; available=[]`).
+Proof is `data/ssbsec_source_proof.json`.
+
 ## Riksantikvaren leftover GIS source
 
 `pda ingest --source ragis` is another replaceable adapter. It lists printed
