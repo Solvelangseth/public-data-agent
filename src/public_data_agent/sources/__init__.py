@@ -73,6 +73,7 @@ from public_data_agent.sources.norskelos import NorskelosSource
 from public_data_agent.sources.npr import NprSource
 from public_data_agent.sources.norgesbank import NorgesBankSource
 from public_data_agent.sources.nbcodelist import NbcodelistSource
+from public_data_agent.sources.nbprov import NbprovSource
 from public_data_agent.sources.nortaxa import NortaxaSource
 from public_data_agent.sources.nowcast import NowcastSource
 from public_data_agent.sources.ogccoverages import OgccoveragesSource
@@ -271,6 +272,7 @@ SOURCE_IDS = (
     "banegis",
     "mattilsyn",
     "nibiorest",
+    "nbprov",
 )
 
 
@@ -543,6 +545,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return MattilsynSource()
     if source_id == "nibiorest":
         return NibiorestSource()
+    if source_id == "nbprov":
+        return NbprovSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -618,6 +622,7 @@ __all__ = [
     "NprSource",
     "NorgesBankSource",
     "NbcodelistSource",
+    "NbprovSource",
     "NortaxaSource",
     "NowcastSource",
     "OgccoveragesSource",

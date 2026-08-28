@@ -1,0 +1,194 @@
+{
+  "produced_at": "2026-08-28T10:33:00Z",
+  "bound": {
+    "list_api": "https://data.norges-bank.no/api/provisionagreement?format=sdmx-json",
+    "walk": "copy printed data.provisionAgreements[].id and agencyID from the official Norges Bank SDMX provisionagreement catalog; access_path joins those printed fields onto the printed /api/provisionagreement path and keeps format=sdmx-json from the catalog; do not invent agency or agreement ids; license stays null; publisher stays null",
+    "cap": 10,
+    "how": "pda ingest --source nbprov --limit 10. The official catalog prints 24 provision-agreement ids. Cap 10 copies the first ten in document order."
+  },
+  "discarded": [
+    {
+      "candidate": "Norges Bank SDMX data structures / nbdsd",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/179",
+      "why": "In-flight then merged on main. Do not re-add."
+    },
+    {
+      "candidate": "Norges Bank SDMX concept schemes / nbconcept",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/182",
+      "why": "Open sibling national JSON PR. Do not pick another lane's source."
+    },
+    {
+      "candidate": "SSB Klass classification families / ssbfam",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/181",
+      "why": "Open sibling national JSON PR. Do not pick another lane's source."
+    },
+    {
+      "candidate": "Kartverket leftover grunnkart WMS / kvgrunn",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/180",
+      "why": "Leftover GIS/WMS. This lane stays on national JSON. Now on main."
+    },
+    {
+      "candidate": "Miljødirektoratet leftover WMS / mdirwms",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/183",
+      "why": "Leftover GIS/WMS. This lane stays on national JSON."
+    },
+    {
+      "candidate": "Norges Bank SDMX codelists / nbcodelist",
+      "url": "already on main via --source nbcodelist",
+      "why": "Already on main. Do not re-add."
+    },
+    {
+      "candidate": "Kartverket Eiendom /geokoding",
+      "url": "https://api.kartverket.no/eiendom/v1/openapi.json",
+      "why": "Official OpenAPI HTTP 200. Live GET /geokoding without query is HTTP 400. Do not invent kommunenummer, gardsnummer, or bruksnummer."
+    },
+    {
+      "candidate": "NVE kulturminner geoJsonAPI",
+      "url": "https://api.nve.no/doc/kulturminner-i-vassdrags-og-energisektoren/",
+      "why": "Docs print GET paths. Live GET of those paths on the printed www.nve.no base is HTTP 404."
+    },
+    {
+      "candidate": "NVE vassmagasinstatistikk /Currentweek/",
+      "url": "https://api.nve.no/doc/vassmagasinstatistikk/",
+      "why": "Docs print GET /Currentweek/. Live GET on the printed api.nve.no/web/EnergyMarket base is HTTP 404."
+    },
+    {
+      "candidate": "NVE GridTimeSeries Themes",
+      "url": "https://api.nve.no/doc/gridtimeseries-data-gts/",
+      "why": "Every printed GET path is templated. Do not invent theme ids."
+    },
+    {
+      "candidate": "Udir NLR",
+      "url": "https://data-nlr.udir.no/swagger/v4/swagger.json",
+      "why": "Known skip: live collection GETs are HTTP 401. Do not invent auth."
+    },
+    {
+      "candidate": "Fiskeridirektoratet ERS",
+      "url": "https://api.fiskeridir.no/ers-api/openapi",
+      "why": "Known skip: HTTP 401. Do not invent auth."
+    },
+    {
+      "candidate": "Frost MET sources",
+      "url": "https://frost.met.no/sources/v0.jsonld",
+      "why": "Known skip: HTTP 401. Do not retry."
+    },
+    {
+      "candidate": "NVE HydAPI",
+      "url": "https://hydapi.nve.no/swagger/v1/swagger.json",
+      "why": "Known skip: HTTP 401. Do not retry."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source nbprov --db /tmp/pda-nbprov-proof/registry.sqlite --limit 10",
+    "listed": 10,
+    "inserted": 10,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "nbprov:ANN_FX_SPU_NB_NB",
+        "title": "Norges Bank for Foreign Exchange Transactions",
+        "access_path": "https://data.norges-bank.no/api/provisionagreement/NB/ANN_FX_SPU_NB_NB?format=sdmx-json"
+      },
+      {
+        "id": "nbprov:ANN_KPRA_NB_NB",
+        "title": "Norges Bank for Key policy rate announcement",
+        "access_path": "https://data.norges-bank.no/api/provisionagreement/NB/ANN_KPRA_NB_NB?format=sdmx-json"
+      },
+      {
+        "id": "nbprov:ANN_TEST_NB_NB",
+        "title": "Norges Bank test",
+        "access_path": "https://data.norges-bank.no/api/provisionagreement/NB/ANN_TEST_NB_NB?format=sdmx-json"
+      },
+      {
+        "id": "nbprov:CBC_CALENDAR_NB_NB",
+        "title": "Auksjonskalender for sentralbanksertifikater",
+        "access_path": "https://data.norges-bank.no/api/provisionagreement/NB/CBC_CALENDAR_NB_NB?format=sdmx-json"
+      },
+      {
+        "id": "nbprov:CBC_INSTRUMENTS_NB_NB",
+        "title": "Sentralbanksertifikat instrumenter",
+        "access_path": "https://data.norges-bank.no/api/provisionagreement/NB/CBC_INSTRUMENTS_NB_NB?format=sdmx-json"
+      },
+      {
+        "id": "nbprov:CBC_TRANSACTIONS_NB_NB",
+        "title": "Sentralbanksertifikat transaksjoner",
+        "access_path": "https://data.norges-bank.no/api/provisionagreement/NB/CBC_TRANSACTIONS_NB_NB?format=sdmx-json"
+      },
+      {
+        "id": "nbprov:DSD_GOVT_KEYFIGURES_NB_NB",
+        "title": "Norges Bank for  Key Goverment Debt Indicators",
+        "access_path": "https://data.norges-bank.no/api/provisionagreement/NB/DSD_GOVT_KEYFIGURES_NB_NB?format=sdmx-json"
+      },
+      {
+        "id": "nbprov:EXR_NB_NB",
+        "title": "Norges Bank for Exchange rates",
+        "access_path": "https://data.norges-bank.no/api/provisionagreement/NB/EXR_NB_NB?format=sdmx-json"
+      },
+      {
+        "id": "nbprov:FAUCTION_NB_NB",
+        "title": "Announcement F auction",
+        "access_path": "https://data.norges-bank.no/api/provisionagreement/NB/FAUCTION_NB_NB?format=sdmx-json"
+      },
+      {
+        "id": "nbprov:FINANCIAL_INDICATORS_NB_NB",
+        "title": "Norges Bank for Finansielle indikatorer",
+        "access_path": "https://data.norges-bank.no/api/provisionagreement/NB/FINANCIAL_INDICATORS_NB_NB?format=sdmx-json"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search Exchange --db /tmp/pda-nbprov-proof/registry.sqlite --limit 5",
+    "query": "Exchange",
+    "returned": 2,
+    "hit_id": "nbprov:EXR_NB_NB",
+    "title": "Norges Bank for Exchange rates",
+    "source_id": "nbprov",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://data.norges-bank.no/api/provisionagreement/NB/EXR_NB_NB?format=sdmx-json",
+    "original_source": "https://data.norges-bank.no/api/provisionagreement?format=sdmx-json",
+    "why_picked": "title matched exchange"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset nbprov:EXR_NB_NB --db /tmp/pda-nbprov-proof/registry.sqlite",
+    "dataset": "nbprov:EXR_NB_NB",
+    "table_id": "EXR_NB_NB",
+    "access_path": "https://data.norges-bank.no/api/provisionagreement/NB/EXR_NB_NB?format=sdmx-json",
+    "request_url": "https://data.norges-bank.no/api/provisionagreement/NB/EXR_NB_NB?format=sdmx-json",
+    "http_status": 200,
+    "listed": 1,
+    "inserted": 1,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "name",
+        "value": "Norges Bank for Exchange rates"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset nbprov:EXR_NB_NB --table EXR_NB_NB --entity EXR --measure name --db /tmp/pda-nbprov-proof/registry.sqlite --out /tmp/pda-nbprov-proof/methods",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "EXR_NB_NB prints a provision-agreement name. That is not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed catalog data.provisionAgreements[].id. access_path joins printed agencyID and id onto https://data.norges-bank.no/api/provisionagreement/{agencyID}/{id}?format=sdmx-json. No nbprov id was written onto a norgesbank, nbcodelist, or nbdsd row.",
+    "License is null. Publisher is null. The catalog prints neither.",
+    "Original harvested catalog metadata stays in harvested_payloads without the links array. Fetch writes observations only. enrichments count stayed 0.",
+    "Open PRs at pickup were 179 nbdsd, 180 kvgrunn, 176 kystwms. After those, 181 ssbfam and 182 nbconcept opened. This lane stayed on nbprov.",
+    "python3 -m pytest after adding nbprov on origin/main 531f0a9: 1219 passed, 1 skipped, 1 deselected.",
+    "Not a numeric time series with two or more periods. Fetch listed 1 printed agreement-name cell (sample Norges Bank for Exchange rates)."
+  ]
+}
