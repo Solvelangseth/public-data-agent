@@ -3401,6 +3401,42 @@ fetch GETs `https://api.cristin.no/v2/countries` HTTP 200 and copies
 printed country names. `pda methods` is not applicable: country names,
 not a numeric time series. Proof is `data/cristin_source_proof.json`.
 
+## Fiskeridirektoratet Omregningsfaktorer source
+
+`pda ingest --source omregning` is another replaceable adapter. It lists
+printed collection GET paths on the official Omregningsfaktorer OpenAPI
+`https://api.fiskeridir.no/conversion-factor-api/swagger/api`,
+capped at 10. Templated paths and GET operations that print required
+parameters are skipped. Dataset ids are the printed last path segment.
+`access_path` is the printed OpenAPI server URL plus path. License stays
+null: the OpenAPI prints no license URL. Publisher stays null: the
+OpenAPI prints no publisher field. This is not Fartøyregisteret
+(`--source fiskeridir`), Kjøperregisteret (`--source buyer`), NYTEK
+(`--source nytek`), Akvakulturregister (`--source aqua`),
+Akvakulturforskning (`--source research`), Akvakultursøknader
+(`--source portal`), Regnskapsregisteret (`--source regnskap`),
+or Cristin (`--source cristin`, now on main after PR 134).
+
+```bash
+pda ingest --source omregning --db data/registry.sqlite --limit 10
+pda search omregningsfaktorer --db data/registry.sqlite
+pda fetch --dataset omregning:search --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored collection URL. Observation values are
+copied from printed JSON `fish` codes or other scalars. License stays
+null. Publisher stays null.
+
+Live ingest 2026-08-28: 1 printed untemplated GET path (catalog
+prints 1 path with a last-segment id and no required parameter).
+Live search `omregningsfaktorer` returns `omregning:search`.
+Live fetch GETs
+`https://api.fiskeridir.no/conversion-factor-api/api/v1/conversionfactors/search`
+HTTP 200, 1950 conversion-factor cells. Sample printed value: `0102`.
+`pda methods` is not applicable: fish-code strings, not a numeric
+time series (`no period in dimensions or period field`).
+Proof is `data/omregning_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists

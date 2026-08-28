@@ -1,0 +1,148 @@
+{
+  "produced_at": "2026-08-28T01:16:11Z",
+  "bound": {
+    "list_api": "https://api.fiskeridir.no/conversion-factor-api/swagger/api",
+    "walk": "copy printed untemplated GET paths from the official Fiskeridirektoratet Omregningsfaktorer OpenAPI; skip templated paths and GET operations that print required parameters; native ids are the last printed path segment; access_path is printed servers[0].url plus path; license stays null because the OpenAPI prints no license URL; publisher stays null because the OpenAPI prints no publisher field; do not invent fish, condition, preservation, or date query filters",
+    "cap": 10,
+    "how": "pda ingest --source omregning --limit 10. The official Omregningsfaktorer OpenAPI prints 1 untemplated GET path with no required parameter. The adapter copies that path. GET uses the printed /api/v1/conversionfactors/search href with no invented query filters. This is not Fartøyregisteret (--source fiskeridir), Kjøperregisteret (--source buyer), NYTEK (--source nytek), Akvakulturregister (--source aqua), Akvakulturforskning (--source research), Akvakultursøknader (--source portal), or Regnskapsregisteret (--source regnskap)."
+  },
+  "discarded": [
+    {
+      "candidate": "Cristin",
+      "url": "PR 134 --source cristin",
+      "why": "Lane B has OPEN PR 134. Do not pick the other lane's source."
+    },
+    {
+      "candidate": "Udir Register for lærebedrifter / nlr",
+      "url": "https://data-nlr.udir.no/swagger/v4/swagger.json",
+      "why": "Official OpenAPI HTTP 200 lists 4 untemplated GET paths, but live collection GETs are HTTP 401. Do not invent an auth workaround."
+    },
+    {
+      "candidate": "Digdir organization catalogue",
+      "url": "https://organization-catalogue.fellesdatakatalog.digdir.no/organizations",
+      "why": "Live GET HTTP 200 JSON, but the service prints no OpenAPI/swagger catalog of GET paths. Do not invent /organizations as a listed endpoint."
+    },
+    {
+      "candidate": "Nasjonalbiblioteket Catalog / NBvok / DPS",
+      "url": "https://api.nb.no/catalog/v1/items/api-docs",
+      "why": "Official swagger-initializer prints several OpenAPI URLs. Catalog/items paths print required query q. NBvok /vocabularies prints required lang. DPS /v1/disseminations live GET is HTTP 401."
+    },
+    {
+      "candidate": "NVE Jordskredvarsel / Snøskredvarsel swagger",
+      "url": "https://api01.nve.no/hydrology/forecast/avalanche/v6.2.1/swagger/docs/v6.2.1",
+      "why": "Official swagger HTTP 200. Every printed GET path is templated or prints a required parameter. Do not invent langkey/region/date values."
+    },
+    {
+      "candidate": "Sikt European Social Survey API",
+      "url": "https://api.ess.sikt.no/docs/openapi",
+      "why": "Official OpenAPI HTTP 200. The only printed path is templated and prints required doiPrefix/doiSuffix/userId. Do not invent those values."
+    },
+    {
+      "candidate": "Brønnøysundregistrene Løsøreregisteret",
+      "url": "https://raw.githubusercontent.com/brreg/openAPI/master/specs/losore-tlg-api.json",
+      "why": "OpenAPI description says the API is protected with Maskinporten. Auth required. Do not invent a workaround."
+    },
+    {
+      "candidate": "Kartverket Adresser /sok /punktsok",
+      "url": "https://api.kartverket.no/adresser/v1/openapi.json",
+      "why": "Known skip: live GET without search params is HTTP 400. Do not invent a query."
+    },
+    {
+      "candidate": "Frost MET sources",
+      "url": "https://frost.met.no/sources/v0.jsonld",
+      "why": "HTTP 401. Do not retry."
+    },
+    {
+      "candidate": "NVDB Les V3 OpenAPI",
+      "url": "https://nvdbapiles-v3.atlas.vegvesen.no/dokumentasjon/openapi.json",
+      "why": "Known skip: HTTP 400 User-Agent. Do not retry."
+    },
+    {
+      "candidate": "NVE HydAPI /api/v1/Parameters",
+      "url": "https://hydapi.nve.no/swagger/v1/swagger.json",
+      "why": "HTTP 401. Do not retry."
+    },
+    {
+      "candidate": "MET Aviationforecast / Sigmets",
+      "url": "https://api.met.no/weatherapi/aviationforecast/2.0/swagger",
+      "why": "Assigned skip for this lane. Not selected."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    },
+    {
+      "candidate": "Brønnøysundregistrene Enhetsregisteret / Regnskapsregisteret",
+      "url": "--source brreg / --source regnskap, now on main",
+      "why": "Already on main. Do not re-add."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source omregning --db /tmp/pda-omregning-proof/registry.sqlite --limit 10",
+    "listed": 1,
+    "inserted": 1,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "omregning:search",
+        "access_path": "https://api.fiskeridir.no/conversion-factor-api/api/v1/conversionfactors/search"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search omregningsfaktorer --db /tmp/pda-omregning-proof/registry.sqlite --limit 5",
+    "query": "omregningsfaktorer",
+    "returned": 1,
+    "hit_id": "omregning:search",
+    "title": "Hent ut omregningsfaktorer gitt et filter",
+    "source_id": "omregning",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://api.fiskeridir.no/conversion-factor-api/api/v1/conversionfactors/search",
+    "original_source": "https://api.fiskeridir.no/conversion-factor-api/swagger/api",
+    "why_picked": "title matched omregningsfaktorer; description matched omregningsfaktorer"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset omregning:search --db /tmp/pda-omregning-proof/registry.sqlite",
+    "dataset": "omregning:search",
+    "table_id": "search",
+    "access_path": "https://api.fiskeridir.no/conversion-factor-api/api/v1/conversionfactors/search",
+    "request_url": "https://api.fiskeridir.no/conversion-factor-api/api/v1/conversionfactors/search",
+    "http_status": 200,
+    "listed": 1950,
+    "inserted": 1603,
+    "updated": 347,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "fish",
+        "value": "0102"
+      },
+      {
+        "measure": "fish",
+        "value": "0108"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset omregning:search --table search --entity \"\" --measure \"\" --db /tmp/pda-omregning-proof/registry.sqlite --out /tmp/pda-omregning-proof/methods",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "row 0 (00295526a2c54e3ef5b0b44957b6a1d68b7af9c4): no period in dimensions or period field",
+    "why": "Omregningsfaktorer /search prints fish-code strings plus factor/condition scalars. Those are not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from the printed OpenAPI last path segment. access_path is printed servers[0].url plus path. No omregning id was written onto a fiskeridir, buyer, aqua, nytek, research, portal, or regnskap row.",
+    "License is null: the OpenAPI prints no license URL. Publisher is null: the OpenAPI prints no publisher field.",
+    "Original harvested OpenAPI metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "Open PR at pickup was Lane B PR 134 Cristin. This lane stayed on omregning.",
+    "python3 -m pytest after Omregning adapter: 820 passed, 1 skipped, 1 deselected.",
+    "Not a numeric time series with two or more periods. Fetch listed 1950 printed conversion-factor cells (sample fish 0102). Observation upsert kept 1603 unique fish-code rows."
+  ]
+}
