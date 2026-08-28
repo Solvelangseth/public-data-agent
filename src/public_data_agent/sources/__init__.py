@@ -75,6 +75,7 @@ from public_data_agent.sources.opencom import OpencomSource
 from public_data_agent.sources.polarsatellite import PolarsatelliteSource
 from public_data_agent.sources.portal import PortalSource
 from public_data_agent.sources.radar import RadarSource
+from public_data_agent.sources.ragis import RagisSource
 from public_data_agent.sources.regnskap import RegnskapSource
 from public_data_agent.sources.research import ResearchSource
 from public_data_agent.sources.riksantikvaren import RiksantikvarenSource
@@ -209,6 +210,7 @@ SOURCE_IDS = (
     "fiskerigis",
     "npiintern",
     "ssbv2",
+    "ragis",
 )
 
 
@@ -419,6 +421,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return NpiinternSource()
     if source_id == "ssbv2":
         return Ssbv2Source()
+    if source_id == "ragis":
+        return RagisSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -496,6 +500,7 @@ __all__ = [
     "PolarsatelliteSource",
     "PortalSource",
     "RadarSource",
+    "RagisSource",
     "RegnskapSource",
     "ResearchSource",
     "RiksantikvarenSource",
