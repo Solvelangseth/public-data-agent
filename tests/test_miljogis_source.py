@@ -132,6 +132,7 @@ def test_miljogis_is_a_registered_source() -> None:
     assert "miljodir" in SOURCE_IDS
     assert "nvegis" in SOURCE_IDS
     assert "navwarnings" in SOURCE_IDS
+    assert "havnedata" in SOURCE_IDS
     source = build_source("miljogis")
     assert isinstance(source, MiljogisSource)
     assert source.source_id == "miljogis"
