@@ -180,7 +180,7 @@
     "License is null: the classifications catalog prints no license field. Publisher is null: the catalog prints no publisher field.",
     "OpenAPI prints no security scheme. Live GET of /api/klass/v1/classifications/1 is HTTP 200 with no Authorization header. No token is sent.",
     "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
-    "python3 -m pytest: 1227 passed, 1 skipped, 1 deselected.",
+    "python3 -m pytest after rebase onto mdirwms 183 / kystnav 184: 1245 passed, 1 skipped, 1 deselected.",
     "Not a numeric time series with two or more periods. Fetch listed 39 printed name cells (sample Delområde- og grunnkretsinndeling 2016).",
     "Open PR check at pickup found ssbfam 181, ssbsec 187, nbprov 186, and methods stormflo 185. Those stayed unused. is_ssclass_url is checked before is_klass_url so classification URLs do not go through the Klass version parser."
   ]
