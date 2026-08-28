@@ -1,0 +1,170 @@
+{
+  "produced_at": "2026-08-28T02:03:38Z",
+  "bound": {
+    "list_api": "https://kart.hi.no/data/ogc/tiles/v1",
+    "walk": "copy printed application/json GET hrefs from the official Havforskningsinstituttet OGC Tiles landing-page links array; skip self and alternate links, non-JSON types, and hrefs with no last path segment; native ids are the printed last path segment so tileMatrixSets, collections, and conformance stay distinct; access_path is the printed href including the printed f=application/json query; title copies the printed link title when present; license stays null because the landing page prints no license URL; do not invent query filters or Accept workarounds for OpenAPI",
+    "cap": 10,
+    "how": "pda ingest --source hitiles --limit 10. The official landing page prints application/json GET hrefs for /conformance, /collections, and /tileMatrixSets. GET uses the printed tileMatrixSets href with the printed f=application/json query. This is not Havforskningsinstituttet OGC Features (--source hi), OGC Coverages (--source hicoverages), OGC Maps (--source himaps), or Stortinget (--source stortinget, now on main after PR 140)."
+  },
+  "discarded": [
+    {
+      "candidate": "Havforskningsinstituttet OGC Styles / histyles",
+      "url": "https://kart.hi.no/data/ogc/styles/v1",
+      "why": "Lane B (bc-7eedc69c) is implementing histyles on branch cursor/histyles-hi-ogc-styles-source-4c2d. Do not pick the other lane's source."
+    },
+    {
+      "candidate": "Stortinget åpne data / stortinget",
+      "url": "PR 140 --source stortinget, now on main",
+      "why": "Assigned skip. Already on main after merge eaeb59e. Do not re-add."
+    },
+    {
+      "candidate": "Havforskningsinstituttet OGC Maps / himaps",
+      "url": "--source himaps, now on main",
+      "why": "Already on main. Distinct Maps catalog on the same host."
+    },
+    {
+      "candidate": "Havforskningsinstituttet OGC Coverages / hicoverages",
+      "url": "--source hicoverages, now on main",
+      "why": "Already on main. Distinct Coverages catalog on the same host."
+    },
+    {
+      "candidate": "Havforskningsinstituttet OGC Features / hi",
+      "url": "--source hi",
+      "why": "Already on main. Distinct Features catalog on the same host."
+    },
+    {
+      "candidate": "Fiskeridirektoratet miljorapporter-api",
+      "url": "https://api.fiskeridir.no/miljorapporter-api/v3/api-docs",
+      "why": "Official OpenAPI HTTP 200 lists untemplated GET paths, but the spec prints a global Keycloak scheme. /api/ping is HTTP 406. envreportreg-public is already on main. Do not invent an auth workaround."
+    },
+    {
+      "candidate": "Fiskeridirektoratet aqua-operations-public",
+      "url": "https://api.fiskeridir.no/aqua-operations-public/v3/api-docs",
+      "why": "Official OpenAPI HTTP 200. The only printed GET path is templated /api/v1/joint-ops/{site-nr}. Do not invent a site number."
+    },
+    {
+      "candidate": "Udir Register for lærebedrifter / nlr",
+      "url": "https://data-nlr.udir.no/swagger/v4/swagger.json",
+      "why": "Official OpenAPI HTTP 200 lists untemplated GET paths, but live collection GETs are HTTP 401. Do not invent an auth workaround."
+    },
+    {
+      "candidate": "Kartverket Eiendom /geokoding",
+      "url": "https://api.kartverket.no/eiendom/v1/geokoding",
+      "why": "Known skip: HTTP 400 without matrikkel params. Do not invent kommunenummer/gardsnummer/bruksnummer."
+    },
+    {
+      "candidate": "Kartverket Adresser /sok /punktsok",
+      "url": "https://api.kartverket.no/adresser/v1/openapi.json",
+      "why": "Known skip: live GET without search params is HTTP 400. Do not invent a query."
+    },
+    {
+      "candidate": "MET lightning / pollenforecast / forestfireindex / weathericon / mapcharts / verticalprofile / probabilityforecast swagger",
+      "url": "https://api.met.no/weatherapi/lightning/1.0/swagger",
+      "why": "Known skip: live swagger HTTP 500. Do not invent endpoints."
+    },
+    {
+      "candidate": "Frost MET sources",
+      "url": "https://frost.met.no/sources/v0.jsonld",
+      "why": "HTTP 401. Do not retry."
+    },
+    {
+      "candidate": "NVDB Les V3 OpenAPI",
+      "url": "https://nvdbapiles-v3.atlas.vegvesen.no/dokumentasjon/openapi.json",
+      "why": "Known skip: HTTP 400 User-Agent. Do not retry."
+    },
+    {
+      "candidate": "NVE HydAPI /api/v1/Parameters",
+      "url": "https://hydapi.nve.no/swagger/v1/swagger.json",
+      "why": "HTTP 401. Do not retry."
+    },
+    {
+      "candidate": "MET Aviationforecast / Sigmets",
+      "url": "https://api.met.no/weatherapi/aviationforecast/2.0/swagger",
+      "why": "Assigned skip for this lane. Not selected."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    },
+    {
+      "candidate": "Kartverket OGC Processes",
+      "url": "https://kartverket-ogc-api.azurewebsites.net/processes",
+      "why": "Already listed in the ogccoverages OpenAPI on main. Do not re-add the same host catalog."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source hitiles --db /tmp/pda-hitiles-proof/registry.sqlite --limit 10",
+    "listed": 3,
+    "inserted": 3,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "hitiles:conformance",
+        "title": "Conformance declaration as application/json",
+        "access_path": "https://kart.hi.no/data/ogc/tiles/v1/conformance?f=application%2Fjson"
+      },
+      {
+        "id": "hitiles:collections",
+        "title": "Tiled collections metadata as application/json",
+        "access_path": "https://kart.hi.no/data/ogc/tiles/v1/collections?f=application%2Fjson"
+      },
+      {
+        "id": "hitiles:tileMatrixSets",
+        "title": "Tile matrix set list as application/json",
+        "access_path": "https://kart.hi.no/data/ogc/tiles/v1/tileMatrixSets?f=application%2Fjson"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search matrix --db /tmp/pda-hitiles-proof/registry.sqlite --limit 5",
+    "query": "matrix",
+    "returned": 1,
+    "hit_id": "hitiles:tileMatrixSets",
+    "title": "Tile matrix set list as application/json",
+    "source_id": "hitiles",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://kart.hi.no/data/ogc/tiles/v1/tileMatrixSets?f=application%2Fjson",
+    "original_source": "https://kart.hi.no/data/ogc/tiles/v1",
+    "why_picked": "title matched matrix"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset hitiles:tileMatrixSets --db /tmp/pda-hitiles-proof/registry.sqlite",
+    "dataset": "hitiles:tileMatrixSets",
+    "table_id": "tileMatrixSets",
+    "access_path": "https://kart.hi.no/data/ogc/tiles/v1/tileMatrixSets?f=application%2Fjson",
+    "request_url": "https://kart.hi.no/data/ogc/tiles/v1/tileMatrixSets?f=application%2Fjson",
+    "http_status": 200,
+    "listed": 143,
+    "inserted": 143,
+    "updated": 0,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "title",
+        "value": "3575"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset hitiles:tileMatrixSets --db /tmp/pda-hitiles-proof/registry.sqlite",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no derived yoy_growth values to chart",
+    "why": "HI OGC Tiles /tileMatrixSets prints tile-matrix-set titles. Those are not a numeric time series with a year-like period field and two or more periods. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed landing-page last path segments. access_path is the printed href. No hitiles id was written onto a hi, himaps, hicoverages, ogccoverages, stortinget, or datanorge row.",
+    "License stays null: the landing page prints no license URL. Publisher is null: the landing page does not print a publisher.",
+    "Original harvested landing-page metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "python3 -m pytest after rebase onto histyles #141: 886 passed, 1 skipped, 1 deselected.",
+    "Not a numeric time series with two or more periods. Fetch listed 143 printed tile-matrix-set title cells (sample 3575).",
+    "Open PR check at pickup found no open PRs. Lane B bc-7eedc69c is implementing histyles so unused. aviationforecast and sigmets stayed unused. Tiles /collections live GET is HTTP 200 with a concatenated extra JSON object; fetch uses the printed tileMatrixSets href which is a single JSON object. Do not invent a concatenated-JSON parser."
+  ]
+}

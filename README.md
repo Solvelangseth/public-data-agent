@@ -3610,6 +3610,42 @@ HTTP 200, 238 style-title cells. Sample printed value: `Spredningssimulering tor
 time series (`no observations matched entity/measure; available=[]`).
 Proof is `data/histyles_source_proof.json`.
 
+## Havforskningsinstituttet OGC Tiles source
+
+`pda ingest --source hitiles` is another replaceable adapter. It lists
+printed `application/json` GET hrefs on the official Havforskningsinstituttet
+OGC Tiles landing page `https://kart.hi.no/data/ogc/tiles/v1`,
+capped at 10. `self` / `alternate` links, HTML links, and the OpenAPI
+service-desc (non-JSON type) are skipped. Dataset ids are the printed
+last path segment so `/tileMatrixSets` stays distinct from `/conformance`.
+`access_path` is the printed landing-page href, including the printed
+`f=application/json` query. License stays null: the landing page prints
+no license URL. Publisher stays null. This is not Havforskningsinstituttet
+OGC Features (`--source hi`), not Havforskningsinstituttet OGC Coverages
+(`--source hicoverages`), not Havforskningsinstituttet OGC Maps
+(`--source himaps`), not Stortinget åpne data (`--source stortinget`),
+and not Havforskningsinstituttet OGC Styles (`--source histyles`, now
+on main after PR 141).
+
+```bash
+pda ingest --source hitiles --db data/registry.sqlite --limit 10
+pda search matrix --db data/registry.sqlite
+pda fetch --dataset hitiles:tileMatrixSets --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored collection URL. Observation values are copied
+from printed JSON `title` when present, otherwise `name` or `id`. License
+stays null. Publisher stays null.
+
+Live ingest 2026-08-28: 3 printed application/json GET hrefs (catalog
+prints conformance, collections, and tileMatrixSets; cap 10). Live search
+`matrix` returns `hitiles:tileMatrixSets`. Live fetch GETs
+`https://kart.hi.no/data/ogc/tiles/v1/tileMatrixSets?f=application%2Fjson`
+HTTP 200, 143 tile-matrix-set title cells. Sample printed value: `3575`.
+`pda methods` is not applicable: tile-matrix-set titles, not a numeric
+time series (`no derived yoy_growth values to chart`).
+Proof is `data/hitiles_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
