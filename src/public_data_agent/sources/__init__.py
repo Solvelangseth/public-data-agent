@@ -161,6 +161,7 @@ from public_data_agent.sources.stormflo import StormfloSource
 from public_data_agent.sources.stortinget import StortingetSource
 from public_data_agent.sources.stkomiteer import StkomiteerSource
 from public_data_agent.sources.stpartier import StpartierSource
+from public_data_agent.sources.stmoter import StmoterSource
 from public_data_agent.sources.stperioder import StperioderSource
 from public_data_agent.sources.stsaker import StsakerSource
 from public_data_agent.sources.stsporre import StsporreSource
@@ -363,6 +364,7 @@ SOURCE_IDS = (
     "crperson",
     "stsporre",
     "crresult",
+    "stmoter",
 )
 
 
@@ -727,6 +729,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return StsporreSource()
     if source_id == "crresult":
         return CrresultSource()
+    if source_id == "stmoter":
+        return StmoterSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -892,6 +896,7 @@ __all__ = [
     "StortingetSource",
     "StkomiteerSource",
     "StpartierSource",
+    "StmoterSource",
     "StperioderSource",
     "StsakerSource",
     "StsporreSource",
