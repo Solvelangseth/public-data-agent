@@ -5276,6 +5276,45 @@ HTTP 200, 1 FeatureType Name cell. Sample printed value:
 names, not a numeric time series. Proof is
 `data/barmark_source_proof.json`.
 
+## SSB leftover WMS source
+
+`pda ingest --source ssbgis` is another replaceable adapter. It lists printed
+leftover OGC:WMS Type=service rows the official Geonorge Kartkatalog search
+`text=Statistisk sentralbyrå` prints, capped at 10. Other organizations,
+downloads, servicelayers, leftover WFS on `kart.ssb.no`, PxWebApi 2 already
+in `--source ssbv2`, leftover Kartverket WMS already in `--source kvwms`,
+`--source kvtopo`, and `--source kvgrunn`, and GetCapabilities bodies that
+are not WMS XML are skipped. Native ids are the printed last path segment so
+`sentrumssoner` stays distinct from `wms.arealbruk`. `access_path` is the
+printed DistributionUrl. License stays null: the documents print no license
+URL. Publisher stays null. This is not SSB PxWebApi 2 (`--source ssbv2`).
+
+```bash
+pda ingest --source ssbgis --db data/registry.sqlite --limit 10
+pda search Sentrumssoner --db data/registry.sqlite
+pda fetch --dataset ssbgis:sentrumssoner --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored GetCapabilities URL as text, with
+`Accept: application/xml, text/xml, */*`. Observation values are
+copied from printed WMS `Layer`/`Name` text. A printed `Title`
+sibling stays as a dimension. License stays null. Publisher stays
+null. `pda methods` is not applicable: layer names, not a numeric
+time series
+(`no observations matched entity/measure; available=[]`).
+
+Live ingest 2026-09-01: 7 leftover GetCapabilities documents (search
+prints leftover Type=service OGC:WMS from Statistisk sentralbyrå; leftover
+WFS, ssbv2, kvwms/kvtopo/kvgrunn, and Kartverket rows are skipped; cap 10
+copies the 7 leftover live WMS documents). Live search `Sentrumssoner`
+returns `ssbgis:sentrumssoner`. Live fetch GETs
+`https://kart.ssb.no/api/mapserver/v1/wms/sentrumssoner?service=WMS&version=1.3.0&request=GetCapabilities`
+HTTP 200, 3 printed layer-name cells. Sample printed value:
+`sentrumssoner_2025`. `pda methods` is not applicable: layer names,
+not a numeric time series
+(`no observations matched entity/measure; available=[]`).
+Proof is `data/ssbgis_source_proof.json`.
+
 ## Norges Bank SDMX Codelists source
 
 `pda ingest --source nbcodelist` is another replaceable adapter. It lists

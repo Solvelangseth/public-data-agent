@@ -142,6 +142,7 @@ from public_data_agent.sources.oslofjord import OslofjordSource
 from public_data_agent.sources.spotwind import SpotwindSource
 from public_data_agent.sources.ssb import SsbStatbankSource
 from public_data_agent.sources.ssbfam import SsbfamSource
+from public_data_agent.sources.ssbgis import SsbgisSource
 from public_data_agent.sources.ssbv2 import Ssbv2Source
 from public_data_agent.sources.ssbsec import SsbsecSource
 from public_data_agent.sources.ssclass import SsclassSource
@@ -347,6 +348,7 @@ SOURCE_IDS = (
     "crunit",
     "barmark",
     "crproj",
+    "ssbgis",
 )
 
 
@@ -695,6 +697,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return BarmarkSource()
     if source_id == "crproj":
         return CrprojSource()
+    if source_id == "ssbgis":
+        return SsbgisSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -839,6 +843,7 @@ __all__ = [
     "SpotwindSource",
     "SsbStatbankSource",
     "SsbfamSource",
+    "SsbgisSource",
     "Ssbv2Source",
     "SsbsecSource",
     "SsclassSource",

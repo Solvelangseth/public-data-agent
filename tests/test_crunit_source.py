@@ -99,7 +99,8 @@ def test_crunit_is_a_registered_source() -> None:
     assert SOURCE_IDS[SOURCE_IDS.index("stkomiteer") + 1] == "crunit"
     assert SOURCE_IDS[SOURCE_IDS.index("crunit") + 1] == "barmark"
     assert SOURCE_IDS[SOURCE_IDS.index("barmark") + 1] == "crproj"
-    assert SOURCE_IDS[-1] == "crproj"
+    assert SOURCE_IDS[SOURCE_IDS.index("crproj") + 1] == "ssbgis"
+    assert SOURCE_IDS[-1] == "ssbgis"
     source = build_source("crunit")
     assert isinstance(source, CrunitSource)
     assert source.source_id == "crunit"
