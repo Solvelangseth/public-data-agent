@@ -5575,6 +5575,48 @@ numeric time series
 (`no observations matched entity/measure; available=[]`).
 Proof is `data/kvtopo_source_proof.json`.
 
+## Kartverket leftover administrative enheter WMS/WFS source
+
+`pda ingest --source kvadm` is another replaceable adapter. It lists the
+two official leftover Kartverket administrative-enheter GetCapabilities
+documents Kartkatalog prints as Type=service OGC:WMS and OGC:WFS for
+`Administrative enheter`:
+`https://wms.geonorge.no/skwms1/wms.adm_enheter2?service=wms&request=GetCapabilities`
+and
+`https://wfs.geonorge.no/skwms1/wfs.administrative_enheter?&service=WFS&acceptversions=2.0.0&request=GetCapabilities`,
+capped at 10. Each document is one dataset. GetCapabilities bodies that
+are HTML or not WMS/WFS XML are skipped. `wms.topo` and WMTS already in
+`--source kvwms`, leftover topo ids already in `--source kvtopo`, leftover
+grunnkart ids already in `--source kvgrunn`, restricted Matrikkelen WMS,
+Kommuneinfo REST already in `--source kommuneinfo`, historical
+`wms.adm_enheter_historisk`, Arctic `wms.arctic_adm`, INSPIRE
+`wms.inspire_au`, and grunnkretser leftovers are skipped. Native ids are
+the printed last path segment so `wms.adm_enheter2` stays distinct from
+`wfs.administrative_enheter`. `access_path` is that printed
+GetCapabilities URL. License stays null: the documents print no license
+URL. Publisher stays null. This is not Kartverket leftover WMS/WMTS
+(`--source kvwms`), not leftover topo WMS (`--source kvtopo`), not leftover
+grunnkart WMS (`--source kvgrunn`), not Kommuneinfo
+(`--source kommuneinfo`), and not Geonorge Kartkatalog
+(`--source geonorge`).
+
+```bash
+pda ingest --source kvadm --db data/registry.sqlite --limit 10
+pda search kommuner --db data/registry.sqlite
+pda fetch --dataset kvadm:wms.adm_enheter2 --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored GetCapabilities URL as text, with
+`Accept: application/xml, text/xml, */*`. Observation values are
+copied from printed WMS `Layer`/`Name` text or WFS `FeatureType`/`Name`
+text. A printed `Title` sibling stays as a dimension. License stays
+null. Publisher stays null. `pda methods` is not applicable: layer and
+feature-type names, not a numeric time series
+(`no observations matched entity/measure; available=[]`).
+
+Live ingest and fetch numbers are recorded in
+`data/kvadm_source_proof.json`.
+
 ## Miljødirektoratet leftover ArcGIS WMS source
 
 `pda ingest --source mdirgis` is another replaceable adapter. It lists printed
