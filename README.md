@@ -6622,8 +6622,9 @@ HTTP 200, 524 `tittel` cells. `pda methods` is not applicable: question
 titles, not a numeric time series
 (`no observations matched entity/measure; available=[]`).
 Proof is `data/stsporre_source_proof.json`. After rebase onto
-origin/main (`kvfkb` #239, `nibioar5f` #232, and `crbio` #238), every
-existing source stayed registered and `stsporre` follows `kvfkb`.
+origin/main (`crperson` #240, `kvfkb` #239, `nibioar5f` #232, and
+`crbio` #238), every existing source stayed registered and `stsporre`
+follows `crperson`.
 
 ## Stortinget leftover stortingsperioder source
 
