@@ -105,7 +105,8 @@
     "License is null: the document prints empty Fees and AccessConstraints, not a license URL. Publisher is null.",
     "Live GET of the leftover Fritidsbyggområder WMS GetCapabilities URL is HTTP 200 WMS_Capabilities XML with no Authorization header. No token is sent. Accept is application/xml, text/xml, */* like kvfkb and ssbgis.",
     "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
-    "Branched from origin/main after kvfkb #239 (ad5c215). Rebased onto origin/main after crperson #240 (ec5ecfc). SOURCE_IDS keeps kvfkb, crperson, then ssbfritid. README keeps leftover GIS sections including kvfkb, nibioar5f, ssbgis, barmark, nibioar50, fbgis, nordatlas, bwgis, mdirgis, and nguminer.",
-    "python3 -m pytest after rebase onto crperson #240: 1660 passed, 1 skipped, 1 deselected."
+    "Branched from origin/main after kvfkb #239 (ad5c215). Rebased onto origin/main after crperson #240 (ec5ecfc), then after crresult #245 and stsporre #243 (43dbdb8). SOURCE_IDS keeps kvfkb, crperson, stsporre, crresult, then ssbfritid. README keeps leftover GIS sections including kvfkb, nibioar5f, ssbgis, barmark, nibioar50, fbgis, nordatlas, bwgis, mdirgis, and nguminer.",
+    "python3 -m pytest after rebase onto crperson #240: 1660 passed, 1 skipped, 1 deselected.",
+    "python3 -m pytest after rebase onto crresult #245 and stsporre #243: 1676 passed, 1 skipped, 1 deselected."
   ]
 }
