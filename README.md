@@ -5707,6 +5707,36 @@ HTTP 200, 1 row, `name` = `BEIARN KOMMUNE`. `pda methods` is not
 applicable. Organization names are not a numeric time series.
 Proof is `data/fdkorg_source_proof.json`.
 
+## Enhetsregisteret rolletyper source
+
+`pda ingest --source brrolletype` is another replaceable adapter. It lists
+printed rolletype codes on the official Enhetsregisteret collection
+`https://data.brreg.no/enhetsregisteret/api/roller/rolletyper`,
+capped at 10. Dataset ids are the printed `kode` values. `access_path`
+joins each printed kode onto that public collection path. Printed
+`_links.self.href` values point at `/enhetsregisteret/autorisert-api/`
+and that path is HTTP 401, so they are not copied. License stays null.
+Publisher stays null. This is not the Enhetsregisteret HAL root
+(`--source brreg`), not leftover roller OpenAPI paths
+(`--source brroller`), and not organisasjonsformer
+(`--source brorgform`).
+
+```bash
+pda ingest --source brrolletype --db data/registry.sqlite --limit 10
+pda search ADOS --db data/registry.sqlite
+pda fetch --dataset brrolletype:ADOS --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored rolletype URL. Observation values are copied
+from the printed `beskrivelse` scalar. Other scalars stay as dimensions.
+Nested `_links` objects are not copied. License stays null. Publisher
+stays null.
+
+The catalog prints 27 rolletyper. This walk copies the first ten in
+document order. Live ingest, search, and fetch proof is recorded in
+`data/brrolletype_source_proof.json`. `pda methods` is not applicable.
+Rolletype names are not a numeric time series.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
