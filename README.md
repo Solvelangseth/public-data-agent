@@ -5327,6 +5327,40 @@ numeric time series
 (`no observations matched entity/measure; available=[]`).
 Proof is `data/kvtopo_source_proof.json`.
 
+## Miljødirektoratet leftover ArcGIS WMS source
+
+`pda ingest --source mdirgis` is another replaceable adapter. It lists printed
+leftover OGC:WMS and OGC:WFS Type=service rows on the official Geonorge
+Kartkatalog search
+`https://kartkatalog.geonorge.no/api/search?text=Milj%C3%B8direktoratet`,
+capped at 10. Other organizations, downloads, and servicelayers are skipped.
+URLs already owned by leftover Miljødirektoratet WMS/WFS
+(`--source mdirwms`) or Miljødirektoratet ArcGIS REST
+(`--source miljogis`) are skipped, including `industri` and other
+kart2/kart3/image001/geoserver GetCapabilities already listed by
+`mdirwms`. GetCapabilities bodies that are not WMS or WFS XML are
+skipped. Dataset ids are the printed service path segment so
+`villrein` stays distinct from `snoscooterloyper`. `access_path` is
+the printed `DistributionUrl`. License stays null: the catalog prints
+no license URL. Publisher stays null. This is not leftover
+Miljødirektoratet WMS/WFS (`--source mdirwms`), not Miljødirektoratet
+ArcGIS REST (`--source miljogis`), not Vannmiljø (`--source miljodir`),
+not leftover NIBIO WMS (`--source nibiowms`), and not leftover
+Landbruksdirektoratet WMS (`--source ldirwms`).
+
+```bash
+pda ingest --source mdirgis --db data/registry.sqlite --limit 10
+pda search Villrein --db data/registry.sqlite
+pda fetch --dataset mdirgis:villrein --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored GetCapabilities URL. Observation values are
+copied from printed WMS `Layer`/`Name` text or WFS `FeatureType`/`Name`
+text. A sibling `Title` stays as a dimension. License stays null. Publisher
+stays null.
+
+Proof is `data/mdirgis_source_proof.json`.
+
 ## Norges Bank SDMX Concept Schemes source
 
 `pda ingest --source nbconcept` is another replaceable adapter. It lists
