@@ -107,6 +107,8 @@ def test_item_url_joins_printed_sesjon_id() -> None:
 
 def test_stsporre_is_a_registered_source() -> None:
     assert "stsporre" in SOURCE_IDS
+    assert "nibioar5f" in SOURCE_IDS
+    assert "crbio" in SOURCE_IDS
     assert "stpartier" in SOURCE_IDS
     assert "stsaker" in SOURCE_IDS
     assert "ssbsubj" in SOURCE_IDS

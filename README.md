@@ -6621,8 +6621,9 @@ in document order. Live ingest listed 10 and inserted 10. Live search
 HTTP 200, 524 `tittel` cells. `pda methods` is not applicable: question
 titles, not a numeric time series
 (`no observations matched entity/measure; available=[]`).
-Proof is `data/stsporre_source_proof.json`. Every existing source stayed
-registered and `stsporre` follows `stpartier`.
+Proof is `data/stsporre_source_proof.json`. After rebase onto
+origin/main (`nibioar5f` #232 and `crbio` #238), every existing source
+stayed registered and `stsporre` follows `nibioar5f`.
 
 ## Stortinget leftover stortingsperioder source
 
