@@ -21,6 +21,7 @@ from public_data_agent.sources.brreg import BrregEnhetsregisterSource
 from public_data_agent.sources.brrepresent import BrrepresentSource
 from public_data_agent.sources.brunder import BrunderSource
 from public_data_agent.sources.crbio import CrbioSource
+from public_data_agent.sources.crresult import CrresultSource
 from public_data_agent.sources.crinst import CrinstSource
 from public_data_agent.sources.crperson import CrpersonSource
 from public_data_agent.sources.crproj import CrprojSource
@@ -361,6 +362,7 @@ SOURCE_IDS = (
     "kvfkb",
     "crperson",
     "stsporre",
+    "crresult",
 )
 
 
@@ -723,6 +725,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return CrpersonSource()
     if source_id == "stsporre":
         return StsporreSource()
+    if source_id == "crresult":
+        return CrresultSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -751,6 +755,7 @@ __all__ = [
     "BwgisSource",
     "CatalogSource",
     "CrbioSource",
+    "CrresultSource",
     "CrinstSource",
     "CrpersonSource",
     "CrprojSource",
