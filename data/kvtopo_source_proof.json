@@ -1,0 +1,142 @@
+{
+  "produced_at": "2026-09-01T16:40:31Z",
+  "bound": {
+    "list_api": [
+      "https://wms.geonorge.no/skwms1/wms.kartdata?service=wms&request=getcapabilities",
+      "https://wms.geonorge.no/skwms1/wms.fkb?service=wms&request=getcapabilities",
+      "https://wms.geonorge.no/skwms1/wms.friluftsruter2?request=GetCapabilities&service=WMS&version=1.3.0",
+      "https://wms.geonorge.no/skwms1/wms.fjellskygge?request=GetCapabilities&service=WMS",
+      "https://wms.geonorge.no/skwms1/wms.n5raster2?service=wms&request=getcapabilities",
+      "https://wms.geonorge.no/skwms1/wms.markagrensen?request=GetCapabilities&Service=WMS"
+    ],
+    "walk": "copy the official leftover Kartverket WMS GetCapabilities documents that kvwms and kvgrunn left unused; each document is one dataset; skip HTML and non-WMS bodies; skip wms.topo and wmts already in kvwms; skip wms.topograatone and wms.norges_grunnkart already in kvgrunn; skip restricted Matrikkelen WMS wms.matrikkelkart; skip the havnedata URL already in havnedata; native ids are the printed last path segment so wms.kartdata stays distinct from wms.fkb; access_path is the GetCapabilities URL; license stays null because the documents print copyright text, not a license URL; publisher stays null; live GET of those printed documents is HTTP 200 WMS XML with no token; no token is sent; do not invent extra leftover wms.geonorge.no/skwms1/ service URLs",
+    "cap": 10,
+    "how": "pda ingest --source kvtopo --limit 10. All six printed leftover GetCapabilities documents return WMS_Capabilities XML 200. Cap 10 copies all six. This is not --source kvwms, --source kvgrunn, --source havnedata, --source geonorge, --source stedsnavn, --source hoydedata, --source transformering, --source georegister, or --source ogccoverages."
+  },
+  "discarded": [
+    {
+      "candidate": "Kartverket leftover WMS/WMTS / kvwms",
+      "url": "https://wms.geonorge.no/skwms1/wms.topo?service=wms&request=getcapabilities",
+      "why": "On main as --source kvwms after PR 163. Owns wms.topo and WMTS only. Printed leftover list included this URL; skipped because kvwms already owns it."
+    },
+    {
+      "candidate": "Kartverket leftover grunnkart WMS / kvgrunn",
+      "url": "https://wms.geonorge.no/skwms1/wms.norges_grunnkart?service=WMS&request=GetCapabilities",
+      "why": "On main as --source kvgrunn. Owns wms.topograatone and wms.norges_grunnkart. Skip."
+    },
+    {
+      "candidate": "Matrikkelen WMS / wms.matrikkelkart",
+      "url": "https://wms.geonorge.no/skwms1/wms.matrikkelkart?service=wms&request=getcapabilities",
+      "why": "Printed leftover GetCapabilities is live HTTP 200 WMS XML titled Matrikkelkart WMS, but Matrikkelen WMS is restricted/protected. Skip. Matrikkelkurs was not in the printed leftover list."
+    },
+    {
+      "candidate": "Kartverket Havnedata / havnedata",
+      "url": "https://ogcapitest.kartverket.no/rest/services/havnedata3_0/api?f=json",
+      "why": "Already --source havnedata. Different host. Skip."
+    },
+    {
+      "candidate": "Havforskningsinstituttet leftover WMS / hiwms",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/198",
+      "why": "On main after PR 198 merge 9d37eb3. Different host. Do not redo hiwms."
+    },
+    {
+      "candidate": "Norges Bank leftover SDMX agency schemes / nbagency",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/193",
+      "why": "Open sibling PR 193. JSON/SDMX, not GIS. Do not pick nbagency."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source kvtopo --db /tmp/pda-kvtopo-proof/registry.sqlite --limit 10",
+    "listed": 6,
+    "inserted": 6,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "kvtopo:wms.kartdata",
+        "title": "kartdata",
+        "access_path": "https://wms.geonorge.no/skwms1/wms.kartdata?service=wms&request=getcapabilities"
+      },
+      {
+        "id": "kvtopo:wms.fkb",
+        "title": "fkb WMS",
+        "access_path": "https://wms.geonorge.no/skwms1/wms.fkb?service=wms&request=getcapabilities"
+      },
+      {
+        "id": "kvtopo:wms.friluftsruter2",
+        "title": "Tur- og friluftsruter WMS",
+        "access_path": "https://wms.geonorge.no/skwms1/wms.friluftsruter2?request=GetCapabilities&service=WMS&version=1.3.0"
+      },
+      {
+        "id": "kvtopo:wms.fjellskygge",
+        "title": "Fjellskygge",
+        "access_path": "https://wms.geonorge.no/skwms1/wms.fjellskygge?request=GetCapabilities&service=WMS"
+      },
+      {
+        "id": "kvtopo:wms.n5raster2",
+        "title": "N5Raster2 WMS",
+        "access_path": "https://wms.geonorge.no/skwms1/wms.n5raster2?service=wms&request=getcapabilities"
+      },
+      {
+        "id": "kvtopo:wms.markagrensen",
+        "title": "Markagrensen",
+        "access_path": "https://wms.geonorge.no/skwms1/wms.markagrensen?request=GetCapabilities&Service=WMS"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search kartdata --db /tmp/pda-kvtopo-proof/registry.sqlite --limit 10",
+    "query": "kartdata",
+    "returned": 1,
+    "hit_id": "kvtopo:wms.kartdata",
+    "title": "kartdata",
+    "source_id": "kvtopo",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://wms.geonorge.no/skwms1/wms.kartdata?service=wms&request=getcapabilities",
+    "original_source": "https://wms.geonorge.no/skwms1/wms.kartdata?service=wms&request=getcapabilities",
+    "why_picked": "title matched kartdata"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset kvtopo:wms.kartdata --db /tmp/pda-kvtopo-proof/registry.sqlite",
+    "dataset": "kvtopo:wms.kartdata",
+    "table_id": "wms.kartdata",
+    "access_path": "https://wms.geonorge.no/skwms1/wms.kartdata?service=wms&request=getcapabilities",
+    "request_url": "https://wms.geonorge.no/skwms1/wms.kartdata?service=wms&request=getcapabilities",
+    "http_status": 200,
+    "listed": 160,
+    "inserted": 160,
+    "updated": 0,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "Name",
+        "value": "kartdata"
+      },
+      {
+        "measure": "Name",
+        "value": "kd_hoydelag"
+      }
+    ],
+    "note": "The WMS document prints 160 named Layer Name values. methods/ was not edited."
+  },
+  "methods": {
+    "command": "pda methods --dataset kvtopo:wms.kartdata --db /tmp/pda-kvtopo-proof/registry.sqlite",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "Kartverket leftover topo WMS prints layer names. Those are not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed last /skwms1/ path segments. access_path is the official leftover GetCapabilities URL. No kvtopo id was written onto a kvwms, kvgrunn, geonorge, or havnedata row.",
+    "License is null: the documents print copyright text and Fees, not a license URL. Publisher is null.",
+    "Live GET of all six leftover WMS GetCapabilities URLs is HTTP 200 WMS_Capabilities XML with no Authorization header. No token is sent. Accept is application/xml, text/xml, */* like kvwms and kvgrunn.",
+    "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "python3 -m pytest tests/test_kvtopo_source.py tests/test_kvgrunn_source.py tests/test_kvwms_source.py tests/test_hiwms_source.py tests/test_mattilsyn_source.py tests/test_nibiorest_source.py: 55 passed.",
+    "Branched from origin/main after hiwms #198 (9d37eb3). Rebased onto origin/main after nbagency #193 (5bde5e3). SOURCE_IDS keeps hiwms, nbagency, then kvtopo. README keeps both leftover GIS sections and the nbagency section."
+  ]
+}
