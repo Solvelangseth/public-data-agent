@@ -117,7 +117,8 @@
     "License stays null: the documents print no license URL. Publisher stays null.",
     "Kartkatalog search text=Norges geologiske undersøkelse prints leftover Type=service OGC:WMS for IndustrimineralerWMS3. MetallerWMS2 is also a printed leftover Type=service OGC:WMS GetCapabilities URL. Both return WMS_Capabilities XML 200.",
     "Open PR check at pickup found bwgis #205 and mdirgis #209 (different leftover GIS hosts). vegwms #206 was already on main at 10b20a5.",
-    "python3 -m pytest after adapter: 1398 passed, 1 skipped, 1 deselected.",
-    "SOURCE_IDS keeps nguminer last after vegwms after nbdps after kvtopo after nbagency after hiwms."
+    "Rebased onto origin/main after brrolletype #207 (a161788) and fdkorg #208 (054f172). Kept brrolletype, fdkorg, vegwms, nbdps, kvtopo, nbagency, ngu, nguwms, and every other main source plus nguminer. README keeps vegwms, nguminer, fdkorg, and brrolletype sections.",
+    "python3 -m pytest after rebase: 1414 passed, 1 skipped, 1 deselected.",
+    "SOURCE_IDS keeps nguminer last after brrolletype after fdkorg after vegwms after nbdps after kvtopo after nbagency after hiwms."
   ]
 }
