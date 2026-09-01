@@ -48,6 +48,11 @@
       "why": "Named skip. Already on main via #243. Kept after rebase. Do not redo."
     },
     {
+      "candidate": "crresult",
+      "url": "PR 245 on main SHA 43dbdb81991e15d68180396a0b292ad4a05c0746",
+      "why": "Named skip. Already on main via #245. Kept after rebase. Do not redo."
+    },
+    {
       "candidate": "offentligdata.no",
       "url": "https://offentligdata.no",
       "why": "Assigned skip for this lane. Do not use."
