@@ -6414,9 +6414,13 @@ dimensions. Nested `_links` objects are not copied. License is the
 printed OpenAPI license URL. Publisher stays null.
 
 The official OpenAPI prints two leftover collection GETs under
-`/organisasjonsformer/`. This walk copies those two paths. Live GET of
-`/organisasjonsformer/enheter` is HTTP 200. `pda methods` is not
-applicable. Organisasjonsform names are not a numeric time series.
+`/organisasjonsformer/`. This walk copies those two paths. Live ingest
+listed 2 and inserted 2. Live search `organisasjonsformer for enheter`
+returns `brorgformen:enheter`. Live fetch GETs
+`https://data.brreg.no/enhetsregisteret/api/organisasjonsformer/enheter`
+HTTP 200, 42 rows, sample `beskrivelse` = `Administrativ enhet -
+offentlig sektor`. `pda methods` is not applicable. Organisasjonsform
+names are not a numeric time series.
 Proof is `data/brorgformen_source_proof.json`.
 
 ## Architecture (long term)

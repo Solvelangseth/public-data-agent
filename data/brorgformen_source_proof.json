@@ -1,0 +1,138 @@
+{
+  "produced_at": "2026-09-01T18:05:00Z",
+  "bound": {
+    "list_api": "https://data.brreg.no/enhetsregisteret/api/dokumentasjon/no/openapi.json",
+    "walk": "copy leftover untemplated GET paths under /enhetsregisteret/api/organisasjonsformer/ from the official Enhetsregisteret OpenAPI; skip the root organisasjonsformer catalog, templated paths, and GET operations that print required parameters; native ids are the last printed path segment so enheter stays distinct from underenheter; access_path is printed servers[0].url plus path; license is the printed OpenAPI license URL; publisher stays null; live GET of enheter is HTTP 200 with no token; no token is sent; do not invent organisasjonskode or item hrefs that collide with brorgform",
+    "cap": 10,
+    "how": "pda ingest --source brorgformen --limit 10. The official OpenAPI names leftover untemplated JSON collection GETs under /enhetsregisteret/api/organisasjonsformer/. The adapter copies those two paths. GET uses the printed /enheter collection with no invented query filters. This is not Enhetsregisteret (--source brreg), not leftover organisasjonsform codes (--source brorgform), not leftover enheter (--source brenheter), not leftover underenheter (--source brunder), and not leftover oppdateringer (--source broppdater)."
+  },
+  "discarded": [
+    {
+      "candidate": "kikommuner",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/224",
+      "why": "Just merged on main at 7a05127. Do not re-add."
+    },
+    {
+      "candidate": "stperioder",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/226",
+      "why": "In-flight leftover Stortinget stortingsperioder representanter JSON. Do not pick the other lane's source."
+    },
+    {
+      "candidate": "Norges Bank SDMX categoryscheme / categorisation / contentconstraint / hierarchicalcodelist / metadataflow / structuremap",
+      "url": "https://data.norges-bank.no/api/categoryscheme?format=sdmx-json",
+      "why": "Live GET HTTP 404 or 501. Do not invent around a failure."
+    },
+    {
+      "candidate": "Udir NLR Register for lærebedrifter",
+      "url": "https://data-nlr.udir.no/swagger/v4/swagger.json",
+      "why": "OpenAPI GET 200 leftover collection paths. Live GET /v4/enheter HTTP 401. Do not invent around a failure."
+    },
+    {
+      "candidate": "NVE HydAPI leftover collection GETs",
+      "url": "https://hydapi.nve.no/swagger/v1/swagger.json",
+      "why": "Swagger GET 200 leftover collection paths. Live GET /api/v1/Parameters HTTP 401. Do not invent around a failure."
+    },
+    {
+      "candidate": "Kartverket Adresser /sok",
+      "url": "https://api.kartverket.no/adresser/v1/sok",
+      "why": "Live GET HTTP 400 without invented query params."
+    },
+    {
+      "candidate": "Kartverket Eiendom /geokoding",
+      "url": "https://api.kartverket.no/eiendom/v1/geokoding",
+      "why": "Known skip: live GET HTTP 400 without invented matrikkelnummer."
+    },
+    {
+      "candidate": "MET leftover swagger products",
+      "url": "https://api.met.no/weatherapi/available.json",
+      "why": "Printed weatherapi products already on main. Leftover swagger documents return HTTP 500. Do not invent around a failure."
+    },
+    {
+      "candidate": "Enhetsregisteret /api/matrikkelenhet",
+      "url": "https://data.brreg.no/enhetsregisteret/api/matrikkelenhet",
+      "why": "Official leftover OpenAPI GET. Live GET is HTTP 400 without a printed matrikkelnummer. Do not invent a cadastral id."
+    },
+    {
+      "candidate": "brorgformenheter item hrefs",
+      "url": "https://data.brreg.no/enhetsregisteret/api/organisasjonsformer/enheter",
+      "why": "Printed self.href values collide with --source brorgform item paths. Unused. This source copies leftover OpenAPI collection GET paths instead."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source brorgformen --db /tmp/pda-brorgformen-proof/registry.sqlite --limit 10",
+    "listed": 2,
+    "inserted": 2,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "brorgformen:enheter",
+        "title": "Hent organisasjonsformer for enheter",
+        "access_path": "https://data.brreg.no/enhetsregisteret/api/organisasjonsformer/enheter"
+      },
+      {
+        "id": "brorgformen:underenheter",
+        "title": "Hent organisasjonsformer for underenheter",
+        "access_path": "https://data.brreg.no/enhetsregisteret/api/organisasjonsformer/underenheter"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search \"organisasjonsformer for enheter\" --db /tmp/pda-brorgformen-proof/registry.sqlite --limit 10",
+    "query": "organisasjonsformer for enheter",
+    "returned": 2,
+    "hit_id": "brorgformen:enheter",
+    "title": "Hent organisasjonsformer for enheter",
+    "source_id": "brorgformen",
+    "publisher": null,
+    "license": "https://data.norge.no/nlod/no/2.0",
+    "access_path": "https://data.brreg.no/enhetsregisteret/api/organisasjonsformer/enheter",
+    "original_source": "https://data.brreg.no/enhetsregisteret/api/dokumentasjon/no/openapi.json",
+    "why_picked": "title matched organisasjonsformer, enheter"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset brorgformen:enheter --db /tmp/pda-brorgformen-proof/registry.sqlite",
+    "dataset": "brorgformen:enheter",
+    "table_id": "enheter",
+    "access_path": "https://data.brreg.no/enhetsregisteret/api/organisasjonsformer/enheter",
+    "request_url": "https://data.brreg.no/enhetsregisteret/api/organisasjonsformer/enheter",
+    "method": "GET",
+    "http_status": 200,
+    "listed": 42,
+    "inserted": 42,
+    "updated": 0,
+    "fetch_id": 1,
+    "license": "https://data.norge.no/nlod/no/2.0",
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "beskrivelse",
+        "value": "Administrativ enhet - offentlig sektor"
+      }
+    ],
+    "new_numeric_time_series_ge_2_periods": false
+  },
+  "methods": {
+    "command": "pda methods --dataset brorgformen:enheter --db /tmp/pda-brorgformen-proof/registry.sqlite",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "organisasjonsformer print kode/beskrivelse labels. Those are not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Native ids are printed last path segments enheter and underenheter. access_path is printed servers[0].url plus path. No brorgformen id was written onto a brreg, brorgform, brenheter, brunder, or broppdater row.",
+    "License is the printed OpenAPI info.license.url https://data.norge.no/nlod/no/2.0. Publisher is null. The catalog prints no publisher field.",
+    "Live GET of /enhetsregisteret/api/organisasjonsformer/enheter is HTTP 200 with no Authorization header. No token is sent.",
+    "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "Not a numeric time series with two or more periods. Fetch listed 42 printed beskrivelse cells (sample Administrativ enhet - offentlig sektor).",
+    "python3 -m pytest after adding brorgformen on origin/main HEAD 7a05127: 1533 passed, 1 skipped, 1 deselected."
+  ]
+}
