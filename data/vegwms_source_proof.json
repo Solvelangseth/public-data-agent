@@ -105,7 +105,8 @@
     "Kartlag leftover GetCapabilities from the assigned vegwms prompt are already --source vegogc. This slice is leftover Geonorge WFS only.",
     "Open PR check at pickup found nbagency #193 (JSON SDMX, not leftover GIS). hiwms #198 was already on main.",
     "Rebased onto origin/main after nbagency #193 (5bde5e3). Kept nbagency plus hiwms, vegogc, vegvesen, and every other main source plus vegwms.",
-    "python3 -m pytest after rebase: leftover GIS plus nbagency tests passed. Live ingest still listed 3 and search still hits vegwms:wfs.stoy_veg.",
-    "SOURCE_IDS keeps vegwms last after nbagency after hiwms."
+    "Rebased again onto origin/main after kvtopo #200 (9b0fc05). Kept kvtopo plus nbagency, hiwms, vegogc, vegvesen, and every other main source plus vegwms. Both README leftover GIS sections stay.",
+    "python3 -m pytest after rebase: leftover GIS plus nbagency and kvtopo tests passed. Live ingest still listed 3 and search still hits vegwms:wfs.stoy_veg.",
+    "SOURCE_IDS keeps vegwms last after kvtopo after nbagency after hiwms."
   ]
 }
