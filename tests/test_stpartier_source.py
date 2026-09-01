@@ -102,6 +102,7 @@ def test_item_url_joins_printed_sesjon_id() -> None:
 
 def test_stpartier_is_a_registered_source() -> None:
     assert "stpartier" in SOURCE_IDS
+    assert "stsporre" in SOURCE_IDS
     assert "stsaker" in SOURCE_IDS
     assert "ssbsubj" in SOURCE_IDS
     assert "stkomiteer" in SOURCE_IDS
@@ -139,7 +140,8 @@ def test_stpartier_is_a_registered_source() -> None:
     assert SOURCE_IDS[SOURCE_IDS.index("crbio") + 1] == "nibioar5f"
     assert SOURCE_IDS[SOURCE_IDS.index("nibioar5f") + 1] == "kvfkb"
     assert SOURCE_IDS[SOURCE_IDS.index("kvfkb") + 1] == "crperson"
-    assert SOURCE_IDS[-1] == "crperson"
+    assert SOURCE_IDS[SOURCE_IDS.index("crperson") + 1] == "stsporre"
+    assert SOURCE_IDS[-1] == "stsporre"
     source = build_source("stpartier")
     assert isinstance(source, StpartierSource)
     assert source.source_id == "stpartier"

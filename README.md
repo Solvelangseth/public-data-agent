@@ -6586,6 +6586,42 @@ After rebase onto origin/main (`ssbgis` #215, `crproj` #235, `barmark`
 #229, `crunit` #234, and `stkomiteer` #233), every existing source
 stayed registered and `stpartier` follows `ssbgis`.
 
+## Stortinget leftover sesjoner sporretimesporsmal source
+
+`pda ingest --source stsporre` is another replaceable adapter. It lists
+printed `sesjoner_liste[].id` values from the official Stortinget
+catalog `https://data.stortinget.no/eksport/sesjoner?format=json`,
+capped at 10. Dataset ids are the printed session `id` values so
+`2028-2029` stays distinct from `2027-2028`. `access_path` joins each
+printed id onto the leftover `/eksport/sporretimesporsmal` collection
+the official technical documentation prints, keeping the documented
+`sesjonid` and `format=json` query. License stays null. Publisher stays
+null. This is not the leftover untemplated Stortinget documentation
+paths (`--source stortinget`), not leftover stortingsperioder
+representanter (`--source stperioder`), not leftover sesjoner saker
+(`--source stsaker`), not leftover sesjoner komiteer
+(`--source stkomiteer`), and not leftover sesjoner partier
+(`--source stpartier`).
+
+```bash
+pda ingest --source stsporre --db data/registry.sqlite --limit 10
+pda search 2028-2029 --db data/registry.sqlite
+pda fetch --dataset stsporre:2025-2026 --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored sporretimesporsmal URL. Observation values
+are copied from printed `sporsmal_liste[].tittel` scalars. Other printed
+scalars stay as dimensions. Nested objects are not copied. License stays
+null. Publisher stays null.
+
+The official catalog prints 43 sessions. This walk copies the first ten
+in document order. Live ingest listed 10 and inserted 10. Live search
+`2028-2029` returns `stsporre:2028-2029`. Live fetch GETs a printed
+session that lists question members. `pda methods` is not applicable:
+question titles, not a numeric time series. Proof is
+`data/stsporre_source_proof.json`. Every existing source stayed
+registered and `stsporre` follows `stpartier`.
+
 ## Stortinget leftover stortingsperioder source
 
 `pda ingest --source stperioder` is another replaceable adapter. It lists
