@@ -6082,6 +6082,31 @@ HTTP 200, 1 row, `beskrivelse` = `Representant for A-aksjonærene`.
 time series.
 Proof is `data/brrepresent_source_proof.json`.
 
+## Enhetsregisteret enheter source
+
+`pda ingest --source brenheter` is another replaceable adapter. It lists
+printed `organisasjonsnummer` values from the official Enhetsregisteret
+`/enhetsregisteret/api/enheter` collection. The OpenAPI names that
+collection GET and GET `/enheter/{enhetorgnr}`. No optional `page`,
+`size`, or search filter is added. Dataset ids are the printed
+`organisasjonsnummer` values. `access_path` is the printed
+`_links.self.href`. License stays null. Publisher stays null. This is
+not the Enhetsregisteret HAL root (`--source brreg`), not leftover
+organisasjonsformer (`--source brorgform`), not leftover kommuner
+(`--source brkommuner`), and not leftover roller lists
+(`--source brroller`).
+
+```bash
+pda ingest --source brenheter --db data/registry.sqlite --limit 10
+pda search ZOTKO --db data/registry.sqlite
+pda fetch --dataset brenheter:933365573 --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored enhet URL. Observation values are copied
+from the printed `navn` scalar. Other scalars stay as dimensions.
+Nested objects and `_links` are not copied. License stays null.
+Publisher stays null.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
