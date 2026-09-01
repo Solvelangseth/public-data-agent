@@ -196,6 +196,7 @@
     "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
     "is_stsaker_url matches only /eksport/saker?sesjonid= paths and is checked before is_stortinget_url.",
     "Not a numeric time series with two or more periods. Fetch listed 665 printed korttittel cells.",
-    "python3 -m pytest after live ingest: 1548 passed, 1 skipped, 1 deselected."
+    "python3 -m pytest after live ingest: 1548 passed, 1 skipped, 1 deselected.",
+    "Rebased onto origin/main after nibioar50 #225 merge SHA 3902ffe01985ece63bc77f778ca7d6eac6db72d8. Kept every existing source plus stsaker."
   ]
 }
