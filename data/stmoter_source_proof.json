@@ -38,9 +38,9 @@
       "why": "Leftover GIS/WMS lane (Kartverket FKB). Not this leftover national JSON lane. Kept from main after rebase onto #239."
     },
     {
-      "candidate": "Cristin persons crperson",
-      "url": "https://github.com/Solvelangseth/public-data-agent/pull/240",
-      "why": "In-flight leftover Cristin persons. Do not pick."
+      "candidate": "crperson",
+      "url": "PR 240 on main SHA ec5ecfc322f1d257b4df4d51af7e60975cf1adca",
+      "why": "Named skip. Already on main via #240. Kept after rebase. Do not redo."
     },
     {
       "candidate": "offentligdata.no",
