@@ -25,7 +25,12 @@
     {
       "candidate": "crbio",
       "url": "PR 238 on main SHA a7f4743220b54534a216e021b95de7a8a0b5a1d3",
-      "why": "Just merged. Do not redo. Kept from main after rebase."
+      "why": "Already on main. Kept after rebase."
+    },
+    {
+      "candidate": "nibioar5f",
+      "url": "PR 232 on main SHA c2704a4",
+      "why": "Leftover GIS/WMS lane, not this leftover national JSON lane. Kept from main after rebase onto #232."
     },
     {
       "candidate": "Cristin persons crperson",
@@ -105,6 +110,6 @@
     "Live GET of /eksport/moter?sesjonid=2025-2026&format=json is HTTP 200 with no Authorization header.",
     "is_stmoter_url matches only /eksport/moter?sesjonid= paths and is checked before is_stortinget_url.",
     "Not a numeric time series with two or more periods. Fetch listed 155 printed mote cells (sample refs-202526-10-01).",
-    "python3 -m pytest after rebase onto crbio #238: 1640 passed, 1 skipped, 1 deselected."
+    "python3 -m pytest after rebase onto nibioar5f #232: 1650 passed, 1 skipped, 1 deselected."
   ]
 }
