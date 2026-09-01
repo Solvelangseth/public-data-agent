@@ -20,6 +20,7 @@ from public_data_agent.sources.brrepresent import BrrepresentSource
 from public_data_agent.sources.brrollegruppe import BrrollegruppeSource
 from public_data_agent.sources.brrolletype import BrrolletypeSource
 from public_data_agent.sources.brroller import BrrollerSource
+from public_data_agent.sources.brunder import BrunderSource
 from public_data_agent.sources.buyer import BuyerSource
 from public_data_agent.sources.bwgis import BwgisSource
 from public_data_agent.sources.cristin import CristinSource
@@ -321,6 +322,7 @@ SOURCE_IDS = (
     "brenheter",
     "ssbvar",
     "nordatlas",
+    "brunder",
 )
 
 
@@ -643,6 +645,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return SsbvarSource()
     if source_id == "nordatlas":
         return NordatlasSource()
+    if source_id == "brunder":
+        return BrunderSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -664,6 +668,7 @@ __all__ = [
     "BrrollegruppeSource",
     "BrrolletypeSource",
     "BrrollerSource",
+    "BrunderSource",
     "BuyerSource",
     "BwgisSource",
     "CatalogSource",

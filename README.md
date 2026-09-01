@@ -6198,6 +6198,36 @@ classification-item names, not a numeric time series
 (`no observations matched entity/measure; available=[]`).
 Proof is `data/ssbvar_source_proof.json`.
 
+## Enhetsregisteret underenheter source
+
+`pda ingest --source brunder` is another replaceable adapter. It lists
+printed underenhet organisation numbers on the official Enhetsregisteret
+collection `https://data.brreg.no/enhetsregisteret/api/underenheter`,
+capped at 10. Dataset ids are the printed `organisasjonsnummer` values.
+`access_path` is the printed `_links.self.href`. License stays null.
+Publisher stays null. This is not the Enhetsregisteret HAL root
+(`--source brreg`), not leftover enheter (`--source brenheter`), not
+leftover organisasjonsformer (`--source brorgform`), not leftover
+kommuner (`--source brkommuner`), not leftover roller OpenAPI paths
+(`--source brroller`), not leftover representanter
+(`--source brrepresent`), and not leftover oppdateringer
+(`--source broppdater`).
+
+```bash
+pda ingest --source brunder --db data/registry.sqlite --limit 10
+pda search "ZOTKO" --db data/registry.sqlite
+pda fetch --dataset brunder:933489272 --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored underenhet URL. Observation values are
+copied from the printed `navn` scalar. Other scalars stay as
+dimensions. Nested `_links` objects are not copied. License stays null.
+Publisher stays null.
+
+Live ingest, fetch, and search proof will be recorded after this
+revision. `pda methods` is not applicable. Entity names are not a
+numeric time series.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
