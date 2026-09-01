@@ -97,6 +97,7 @@ def test_item_url_copies_printed_url() -> None:
 
 def test_crresult_is_a_registered_source() -> None:
     assert "crresult" in SOURCE_IDS
+    assert "sthoringer" in SOURCE_IDS
     assert "crbio" in SOURCE_IDS
     assert "crproj" in SOURCE_IDS
     assert "crunit" in SOURCE_IDS
@@ -112,7 +113,8 @@ def test_crresult_is_a_registered_source() -> None:
     assert SOURCE_IDS[SOURCE_IDS.index("stmoter") + 1] == "ssbfritid"
     assert SOURCE_IDS[SOURCE_IDS.index("ssbfritid") + 1] == "kvadm"
     assert SOURCE_IDS[SOURCE_IDS.index("kvadm") + 1] == "kvkrets"
-    assert SOURCE_IDS[-1] == "kvkrets"
+    assert SOURCE_IDS[SOURCE_IDS.index("kvkrets") + 1] == "sthoringer"
+    assert SOURCE_IDS[-1] == "sthoringer"
     source = build_source("crresult")
     assert isinstance(source, CrresultSource)
     assert source.source_id == "crresult"

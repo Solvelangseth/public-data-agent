@@ -167,6 +167,7 @@ from public_data_agent.sources.stpartier import StpartierSource
 from public_data_agent.sources.stmoter import StmoterSource
 from public_data_agent.sources.stperioder import StperioderSource
 from public_data_agent.sources.stsaker import StsakerSource
+from public_data_agent.sources.sthoringer import SthoringerSource
 from public_data_agent.sources.stsporre import StsporreSource
 from public_data_agent.sources.subjectiveforecast import SubjectiveforecastSource
 from public_data_agent.sources.subseasonal import SubseasonalSource
@@ -371,6 +372,7 @@ SOURCE_IDS = (
     "ssbfritid",
     "kvadm",
     "kvkrets",
+    "sthoringer",
 )
 
 
@@ -743,6 +745,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return KvadmSource()
     if source_id == "kvkrets":
         return KvkretsSource()
+    if source_id == "sthoringer":
+        return SthoringerSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -914,6 +918,7 @@ __all__ = [
     "StmoterSource",
     "StperioderSource",
     "StsakerSource",
+    "SthoringerSource",
     "StsporreSource",
     "SubjectiveforecastSource",
     "SubseasonalSource",
