@@ -9,8 +9,8 @@
   "discarded": [
     {
       "candidate": "Norges Bank SDMX agencyscheme / nbagency",
-      "url": "https://github.com/Solvelangseth/public-data-agent/pull/193",
-      "why": "Lane U. Open/in-flight. Do not pick nbagency."
+      "url": "already on main via --source nbagency",
+      "why": "Merged as #193 at 5bde5e3. Kept during rebase. Do not re-add."
     },
     {
       "candidate": "Norges Bank SDMX categoryscheme",
@@ -200,9 +200,10 @@
     "Ids are copied from printed catalog data.dataProviderSchemes[].id. access_path joins printed agencyID and id onto https://data.norges-bank.no/api/dataproviderscheme/{agencyID}/{id}?format=sdmx-json. No nbdps id was written onto a norgesbank, nbcodelist, nbdsd, nbconcept, or nbprov row.",
     "License is null. Publisher is null. The catalog prints neither.",
     "Original harvested catalog metadata stays in harvested_payloads without the dataProviders array. Fetch writes observations only. enrichments count stayed 0.",
-    "Open PR check at pickup found nbagency 193. That stayed unused. hiwms 198 is on main and kept.",
+    "Open PR check at pickup found nbagency 193. That PR merged at 5bde5e3. Rebase kept nbagency plus every other main source. nbdps follows nbagency.",
     "Live GET https://data.norges-bank.no/api/dataproviderscheme?format=sdmx-json HTTP 200. Live GET https://data.norges-bank.no/api/dataproviderscheme/NB/DATA_PROVIDERS?format=sdmx-json HTTP 200.",
     "python3 -m pytest after adding nbdps on origin/main 9d37eb3: 1361 passed, 1 skipped, 1 deselected.",
+    "python3 -m pytest after rebase onto origin/main (nbagency 193 at 5bde5e3): 1369 passed, 1 skipped, 1 deselected.",
     "Not a numeric time series with two or more periods. Fetch listed 3 printed data-provider-name cells (sample Thomson Reuters)."
   ]
 }

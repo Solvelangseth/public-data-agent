@@ -33,8 +33,8 @@ class NbdpsSource(SourceBase):
     same `format=sdmx-json` query the catalog uses. This first slice
     stays inside that catalog and caps the walk. This is not the Norges
     Bank dataflow list (`--source norgesbank`) and not leftover
-    agencyscheme, codelist, datastructure, conceptscheme, or
-    provision-agreement catalogs.
+    agencyscheme (`--source nbagency`), codelist, datastructure,
+    conceptscheme, or provision-agreement catalogs.
     """
 
     source_id = SOURCE_ID
