@@ -6828,6 +6828,45 @@ Started from origin/main after crproj #235.
 `SOURCE_IDS` keeps every existing source plus `crperson` last.
 Rebased onto origin/main after stpartier #236 and crbio #238.
 
+## Cristin leftover results source
+
+`pda ingest --source crresult` is another replaceable adapter. It lists
+printed `cristin_result_id` values on the official Cristin results
+catalog `https://api.cristin.no/v2/results`, capped at 10. Dataset ids
+are the printed `cristin_result_id` values so `1903021` stays distinct
+from `10001604`. `access_path` is the printed `url` on
+`/v2/results/{cristin_result_id}`. License stays null. Publisher stays
+null. This is not the Cristin documentation path list
+(`--source cristin`), not leftover institutions (`--source crinst`),
+not leftover units (`--source crunit`), not leftover projects
+(`--source crproj`), and not leftover biobanks (`--source crbio`).
+
+```bash
+pda ingest --source crresult --db data/registry.sqlite --limit 10
+pda search Landstads --db data/registry.sqlite
+pda fetch --dataset crresult:10001604 --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored result URL. Observation values are copied
+from the printed localized `title`. Other printed scalars stay as
+dimensions. Nested `contributors`, `journal`, and `url` are not stored
+as a cell. License stays null. Publisher stays null.
+
+The catalog prints a default page of results. This walk copies the
+first ten in document order. No page or per_page query is invented.
+Live ingest listed 10 and inserted 10. Live search `Landstads` returns
+`crresult:10001604`. Live fetch GETs
+`https://api.cristin.no/v2/results/10001604`
+HTTP 200, 1 row, `title` = `Eskatologien i Landstads salmer`.
+`pda methods` is not applicable. Result titles are not a numeric time
+series (`no observations matched entity/measure; available=[]`).
+Proof is `data/crresult_source_proof.json`.
+Started from origin/main including kvfkb #239 (`ad5c215`). Rebased
+onto origin/main after stsporre #243 and crperson (`c9db4e5`). Every
+existing source stayed registered and `crresult` follows `stsporre`.
+PR #244 (`crpers`) was closed unmerged.
+After rebase, `python3 -m pytest`: 1676 passed, 1 skipped, 1 deselected.
+
 ## Brønnøysundregistrene Enhetsregisteret organisasjonsformer enheter source
 
 `pda ingest --source brorgformen` is another replaceable adapter. It lists
