@@ -199,6 +199,7 @@
     "python3 -m pytest after rebase onto kvadm #241: 1702 passed, 1 skipped, 1 deselected.",
     "Not a numeric time series with two or more periods. Fetch listed 350 printed horing_status cells (sample Avholdt).",
     "Did not pick stmoter #242. Did not pick crresult, stsporre, or crperson (just merged). Cristin funding_sources, journals, and publishers were HTTP 404. Enhetsregisteret naeringskoder, fylker, and institusjonellSektorkode were HTTP 404. Stortinget voteringer and dagsorden were HTTP 400. Did not pick leftover GIS, municipal portals, or offentligdata.no.",
-    "Branched from origin/main after crresult #245 (43dbdb8). Rebased onto origin/main after stmoter #242 (51c23bc) and ssbfritid #247 (8d0688b). SOURCE_IDS keeps those sources and sthoringer follows ssbfritid after stmoter after crresult."
+    "Branched from origin/main after crresult #245 (43dbdb8). Rebased onto origin/main after stmoter #242 (51c23bc) and ssbfritid #247 (8d0688b). SOURCE_IDS keeps those sources and sthoringer follows ssbfritid after stmoter after crresult.",
+    "Rebased onto origin/main after stmoter #242, ssbfritid #247, kvadm #241, and kvkrets #251 (5991edc). SOURCE_IDS keeps those sources and sthoringer follows kvkrets. python3 -m pytest after that rebase: 1712 passed, 1 skipped, 1 deselected."
   ]
 }
