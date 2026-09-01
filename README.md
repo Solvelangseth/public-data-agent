@@ -5415,6 +5415,46 @@ names, not a numeric time series
 (`no observations matched entity/measure; available=[]`).
 Proof is `data/mdirgis_source_proof.json`.
 
+## Statsforvalteren leftover Nordatlas WMS/WFS source
+
+`pda ingest --source nordatlas` is another replaceable adapter. It lists printed
+leftover OGC:WMS and OGC:WFS Type=service GetCapabilities rows on the official
+Geonorge Kartkatalog searches
+`https://kartkatalog.geonorge.no/api/search?text=Nordatlas` and
+`https://kartkatalog.geonorge.no/api/search?text=Statsforvalteren`,
+capped at 10. Other organizations, downloads, servicelayers, and software
+are skipped. DescribeFeatureType URLs are skipped. URLs already owned by
+leftover Miljødirektoratet WMS/WFS (`--source mdirwms`), leftover
+Miljødirektoratet ArcGIS WMS (`--source mdirgis`), Miljødirektoratet
+ArcGIS REST (`--source miljogis`), leftover NIBIO WMS
+(`--source nibiowms`), or leftover Landbruksdirektoratet WMS
+(`--source ldirwms`) are skipped. GetCapabilities bodies that are not
+WMS or WFS XML, including timed-out Nordatlas `wms.ashx` documents, are
+skipped. Dataset ids are the printed service path segment, or the printed
+host when the last segment is a generic ashx/wms/wfs name, so
+`kart.fylkesatlas.no` stays distinct from `wfs.barmarksloyper`.
+`access_path` is the printed `DistributionUrl`. License stays null: the
+catalog prints no license URL. Publisher stays null. This is not leftover
+Miljødirektoratet WMS/WFS (`--source mdirwms`), not leftover
+Miljødirektoratet ArcGIS WMS (`--source mdirgis`), and not
+Miljødirektoratet ArcGIS REST (`--source miljogis`).
+
+```bash
+pda ingest --source nordatlas --db data/registry.sqlite --limit 10
+pda search Fylkesatlas --db data/registry.sqlite
+pda fetch --dataset nordatlas:kart.fylkesatlas.no --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored GetCapabilities URL. Observation values are
+copied from printed WMS `Layer`/`Name` text or WFS `FeatureType`/`Name`
+text. A sibling `Title` stays as a dimension. License stays null. Publisher
+stays null.
+
+Live ingest 2026-09-01: leftover live WMS/WFS GetCapabilities after
+skipping timed-out Nordatlas `wms.ashx`, DescribeFeatureType, other
+organizations, downloads, servicelayers, software, mdirwms/mdirgis/miljogis
+hosts, and HTML. Proof is `data/nordatlas_source_proof.json`.
+
 ## Norges Bank SDMX Concept Schemes source
 
 `pda ingest --source nbconcept` is another replaceable adapter. It lists
