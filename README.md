@@ -5057,6 +5057,41 @@ HTTP 200, 4 Layer Name cells. Sample printed value: `Raadgivning_2024`.
 (`no observations matched entity/measure; available=[]`).
 Proof is `data/hiwms_source_proof.json`.
 
+## Statens vegvesen leftover WMS/WFS source
+
+`pda ingest --source vegwms` is another replaceable adapter. It lists printed
+leftover OGC:WMS and OGC:WFS Type=service rows on the official Geonorge
+Kartkatalog search
+`https://kartkatalog.geonorge.no/api/search?text=Statens%20vegvesen&limit=50`,
+capped at 10. Other organizations, downloads, servicelayers, and Vegkart
+HTML are skipped. Leftover kartlag GetCapabilities already ingested by
+`--source vegogc` on `ogckart-sn1.atlas.vegvesen.no` are skipped. The
+printed norstoy mirror
+`https://www.vegvesen.no/kart/ogc/norstoy_1_0/ows?service=WMS&request=getcapabilities`
+is skipped because that workspace is already `--source vegogc`.
+GetCapabilities bodies that are not WMS or WFS XML are skipped. Dataset
+ids are the printed service path segment so the leftover
+`https://wfs.geonorge.no/skwms1/wfs.stoy_veg?request=GetCapabilities&service=WFS`
+keeps native id `wfs.stoy_veg`. `access_path` is the printed
+`DistributionUrl`. License stays null: the catalog prints no license URL.
+Publisher stays null. This is not Statens vegvesen leftover OGC kartlag
+(`--source vegogc`) and not Statens vegvesen Dataportalen
+(`--source vegvesen`).
+
+```bash
+pda ingest --source vegwms --db data/registry.sqlite --limit 10
+pda search stoy_veg --db data/registry.sqlite
+pda fetch --dataset vegwms:wfs.stoy_veg --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored GetCapabilities URL. Observation values are
+copied from printed WMS `Layer`/`Name` text or WFS `FeatureType`/`Name`
+text. A sibling `Title` stays as a dimension. License stays null. Publisher
+stays null.
+
+Live ingest numbers, search hit, and fetch layer count are recorded in
+`data/vegwms_source_proof.json` after the live proof.
+
 ## Norges Bank SDMX Codelists source
 
 `pda ingest --source nbcodelist` is another replaceable adapter. It lists

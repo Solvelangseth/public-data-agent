@@ -144,6 +144,7 @@ from public_data_agent.sources.valg import ValgresultatSource
 from public_data_agent.sources.vannkraft import VannkraftSource
 from public_data_agent.sources.vegogc import VegogcSource
 from public_data_agent.sources.vegvesen import VegvesenSource
+from public_data_agent.sources.vegwms import VegwmsSource
 from public_data_agent.sources.vindkraft import VindkraftSource
 from public_data_agent.sources.volcanicashforecast import VolcanicashforecastSource
 
@@ -291,6 +292,7 @@ SOURCE_IDS = (
     "nbagency",
     "kvtopo",
     "nbdps",
+    "vegwms",
 )
 
 
@@ -583,6 +585,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return KvtopoSource()
     if source_id == "nbdps":
         return NbdpsSource()
+    if source_id == "vegwms":
+        return VegwmsSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -731,6 +735,7 @@ __all__ = [
     "VannkraftSource",
     "VegogcSource",
     "VegvesenSource",
+    "VegwmsSource",
     "VindkraftSource",
     "VolcanicashforecastSource",
     "build_source",
