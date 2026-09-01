@@ -5099,6 +5099,47 @@ HTTP 200, 2 FeatureType Name cells. Sample printed value: `app:Støy`.
 `pda methods` is not applicable: feature type names, not a numeric time
 series. Proof is `data/vegwms_source_proof.json`.
 
+## NGU leftover mineral WMS source
+
+`pda ingest --source nguminer` is another replaceable adapter. It lists the
+two official leftover NGU Type=service OGC:WMS GetCapabilities documents
+`https://geo.ngu.no/mapserver/IndustrimineralerWMS3?request=GetCapabilities&service=WMS`
+and
+`https://geo.ngu.no/mapserver/MetallerWMS2?request=GetCapabilities&service=WMS`,
+capped at 10. Each document is one dataset. GetCapabilities bodies that
+are HTML or not WMS XML are skipped. Leftover mapserver ids already in
+`--source nguwms` and OGC API Features already in `--source ngu` are
+skipped. Native ids are the printed last `/mapserver/` path segment so
+`IndustrimineralerWMS3` stays distinct from `MetallerWMS2`.
+`access_path` is that GetCapabilities URL. License stays null: the
+documents print no license URL. Publisher stays null. This is not NGU
+OGC API Features (`--source ngu`) and not leftover NGU WMS
+(`--source nguwms`).
+
+```bash
+pda ingest --source nguminer --db data/registry.sqlite --limit 10
+pda search IndustrimineralerWMS3 --db data/registry.sqlite
+pda fetch --dataset nguminer:IndustrimineralerWMS3 --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored GetCapabilities URL as text, with
+`Accept: application/xml, text/xml, */*`. Observation values are
+copied from printed WMS `Layer`/`Name` text. A printed `Title`
+sibling stays as a dimension. License stays null. Publisher stays
+null. `pda methods` is not applicable: layer names, not a numeric
+time series
+(`no observations matched entity/measure; available=[]`).
+
+Live ingest 2026-09-01: 2 leftover GetCapabilities documents. Live search
+`IndustrimineralerWMS3` returns `nguminer:IndustrimineralerWMS3`. Live
+fetch GETs
+`https://geo.ngu.no/mapserver/IndustrimineralerWMS3?request=GetCapabilities&service=WMS`
+HTTP 200, 78 printed layer-name cells. Sample printed value:
+`IndustrimineralerWMS3`. `pda methods` is not applicable: layer names,
+not a numeric time series
+(`no observations matched entity/measure; available=[]`).
+Proof is `data/nguminer_source_proof.json`.
+
 ## Norges Bank SDMX Codelists source
 
 `pda ingest --source nbcodelist` is another replaceable adapter. It lists

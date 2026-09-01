@@ -113,6 +113,8 @@ def test_brkommuner_is_a_registered_source() -> None:
     assert SOURCE_IDS[SOURCE_IDS.index("vegwms") + 1] == "fdkorg"
     assert SOURCE_IDS[SOURCE_IDS.index("fdkorg") + 1] == "brrolletype"
     assert SOURCE_IDS[SOURCE_IDS.index("brrolletype") + 1] == "brkommuner"
+    assert SOURCE_IDS[SOURCE_IDS.index("brkommuner") + 1] == "nguminer"
+    assert SOURCE_IDS[-1] == "nguminer"
     source = build_source("brkommuner")
     assert isinstance(source, BrkommunerSource)
     assert source.source_id == "brkommuner"

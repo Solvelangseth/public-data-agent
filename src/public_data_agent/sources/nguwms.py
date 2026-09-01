@@ -209,6 +209,10 @@ def is_wms_capabilities_body(body: str) -> bool:
     return "WMS_Capabilities" in body or "WMT_MS_Capabilities" in body
 
 
+# Leftover mineral mapserver ids owned by --source nguminer.
+NGUMINER_IDS = frozenset({"IndustrimineralerWMS3", "MetallerWMS2"})
+
+
 def is_nguwms_url(access_path: str | None) -> bool:
     if not access_path:
         return False
@@ -218,6 +222,9 @@ def is_nguwms_url(access_path: str | None) -> bool:
     if PATH_MARK not in parsed.path:
         return False
     if "/api/features" in parsed.path:
+        return False
+    ident = printed_service_id(parsed.path)
+    if ident in NGUMINER_IDS:
         return False
     return True
 
