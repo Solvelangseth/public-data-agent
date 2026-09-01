@@ -5264,9 +5264,17 @@ pda fetch --dataset barmark:wfs.barmarksloyper --db data/registry.sqlite
 copied from printed WFS `FeatureType`/`Name` text. A sibling `Title`
 stays as a dimension. License stays null. Publisher stays null.
 
-Live ingest 2026-09-01: pending live proof.
-
-Proof is `data/barmark_source_proof.json`.
+Live ingest 2026-09-01: 1 leftover WFS service (search prints 6
+rows; 1 is OGC:WFS Type=service from Statsforvalteren; cap 10 copies
+that leftover live document after skipping the download dataset,
+timed-out Nordatlas WMS, dead Nordatlas `wfs.ashx`, software, and a
+Barentswatch servicelayer). Live search `Barmarksløyper` returns
+`barmark:wfs.barmarksloyper`. Live fetch GETs
+`https://wfs.geonorge.no/skwms1/wfs.barmarksloyper?service=WFS&request=GetCapabilities`
+HTTP 200, 1 FeatureType Name cell. Sample printed value:
+`app:Barmarksløype`. `pda methods` is not applicable: feature type
+names, not a numeric time series. Proof is
+`data/barmark_source_proof.json`.
 
 ## Norges Bank SDMX Codelists source
 

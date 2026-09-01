@@ -1,0 +1,132 @@
+{
+  "produced_at": "2026-09-01T18:04:09Z",
+  "bound": {
+    "list_api": "https://kartkatalog.geonorge.no/api/search?text=Barmarksløyper",
+    "walk": "copy printed leftover OGC:WFS Type=service GetCapabilities rows the official Geonorge Kartkatalog search text=Barmarksløyper prints; skip other organizations, downloads, servicelayers, and software; skip DescribeFeatureType; skip Nordatlas WMS hosts, Fylkesatlas WMS, and the dead Nordatlas wfs.ashx endpoint; skip leftover NIBIO WMS/REST, leftover Forsvarsbygg GIS, leftover BarentsWatch hosts, municipal CKAN/Opencom, national JSON APIs, and offentligdata.no; skip GetCapabilities bodies that are not WFS XML; native ids are the printed last path segment so the leftover /skwms1/wfs.barmarksloyper GetCapabilities URL keeps id wfs.barmarksloyper; access_path is the printed DistributionUrl; license stays null because the catalog prints no license URL; publisher stays null; do not invent query filters or feature type names",
+    "cap": 10,
+    "how": "pda ingest --source barmark --limit 10. The official search prints 6 catalog rows. 1 is OGC:WFS Type=service from Statsforvalteren. Cap 10 copies that leftover live document after skipping the GEONORGE:DOWNLOAD dataset, timed-out Nordatlas WMS, dead Nordatlas wfs.ashx DescribeFeatureType, NordAtlas software, and a Barentswatch servicelayer. This is leftover from nordatlas: printed Nordatlas WMS timed out; Fylkesatlas WMS is already --source nordatlas. This is not leftover Nordatlas WMS/WFS (--source nordatlas) and not leftover Forsvarsbygg WMS/WFS (--source fbgis)."
+  },
+  "discarded": [
+    {
+      "candidate": "Barmarksløyper i Finnmark / GEONORGE:DOWNLOAD",
+      "url": "https://nedlasting.geonorge.no/api/capabilities/",
+      "why": "Printed Type=dataset GEONORGE:DOWNLOAD. Ingest copies Type=service OGC:WFS only."
+    },
+    {
+      "candidate": "Nordatlas - WMS / wms.nordatlas.no",
+      "url": "http://wms.nordatlas.no/wms.ashx?request=GetCapabilities&service=WMS",
+      "why": "Printed leftover Type=service OGC:WMS. Live GET timed out. Fylkesatlas WMS is already --source nordatlas. Do not redo nordatlas."
+    },
+    {
+      "candidate": "Mapserver WFS - www.nordatlas.no / wfs.ashx",
+      "url": "http://wms.nordatlas.no/wfs.ashx?service=wfs&request=describefeatureType&version=1.1.0",
+      "why": "Printed leftover Type=service OGC:WFS is DescribeFeatureType, not GetCapabilities. Dead endpoint. Skip."
+    },
+    {
+      "candidate": "NordAtlas software",
+      "url": "http://www.nordatlas.no",
+      "why": "Printed Type=software WWW:LINK. Ingest copies Type=service OGC:WFS only."
+    },
+    {
+      "candidate": "Fiskeriaktivitet (passive redskaper) / bwgis",
+      "url": "https://geo.barentswatch.no/geoserver/bw/ows?service=wms&request=getcapabilities",
+      "why": "Organization is Barentswatch. Type=servicelayer. Already --source bwgis. Skip."
+    },
+    {
+      "candidate": "Fylkesatlas Vestland / nordatlas",
+      "url": "https://kart.fylkesatlas.no/wms.ashx?service=WMS&request=GetCapabilities",
+      "why": "Already --source nordatlas. Do not redo nordatlas."
+    },
+    {
+      "candidate": "Forsvarsbygg leftover GIS / fbgis",
+      "url": "already --source fbgis",
+      "why": "Already on origin/main after #218. Do not redo fbgis."
+    },
+    {
+      "candidate": "SSB leftover GIS / ssbgis",
+      "url": "in-flight sibling PR #215",
+      "why": "Named skip. Do not pick."
+    },
+    {
+      "candidate": "NIBIO leftover AR50 / nibioar50",
+      "url": "in-flight sibling PR #225",
+      "why": "Named skip. Do not pick."
+    },
+    {
+      "candidate": "NIBIO leftover WMS / nibiowms",
+      "url": "already --source nibiowms",
+      "why": "Assigned skip. Do not redo."
+    },
+    {
+      "candidate": "NIBIO leftover REST / nibiorest",
+      "url": "already --source nibiorest",
+      "why": "Assigned skip. Do not redo."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source barmark --db /tmp/pda-barmark-proof/registry.sqlite --limit 10",
+    "listed": 1,
+    "inserted": 1,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "barmark:wfs.barmarksloyper",
+        "title": "Barmarksløyper i Finnmark WFS",
+        "access_path": "https://wfs.geonorge.no/skwms1/wfs.barmarksloyper?service=WFS&request=GetCapabilities"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search Barmarksløyper --db /tmp/pda-barmark-proof/registry.sqlite --limit 10",
+    "query": "Barmarksløyper",
+    "returned": 1,
+    "hit_id": "barmark:wfs.barmarksloyper",
+    "title": "Barmarksløyper i Finnmark WFS",
+    "source_id": "barmark",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://wfs.geonorge.no/skwms1/wfs.barmarksloyper?service=WFS&request=GetCapabilities",
+    "original_source": "https://kartkatalog.geonorge.no/api/search",
+    "why_picked": "title matched barmarksløyper"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset barmark:wfs.barmarksloyper --db /tmp/pda-barmark-proof/registry.sqlite",
+    "dataset": "barmark:wfs.barmarksloyper",
+    "table_id": "wfs.barmarksloyper",
+    "access_path": "https://wfs.geonorge.no/skwms1/wfs.barmarksloyper?service=WFS&request=GetCapabilities",
+    "request_url": "https://wfs.geonorge.no/skwms1/wfs.barmarksloyper?service=WFS&request=GetCapabilities",
+    "http_status": 200,
+    "listed": 1,
+    "inserted": 1,
+    "feature_type_count": 1,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "Name",
+        "value": "app:Barmarksløype"
+      }
+    ],
+    "note": "Live GET 200 WFS_Capabilities 2.0.0. The WFS document prints 1 FeatureType Name: app:Barmarksløype, Title Barmarksløyper. methods/ was not edited."
+  },
+  "methods": {
+    "applicable": false,
+    "why": "Statsforvalteren leftover WFS GetCapabilities prints FeatureType Name strings. That is not a numeric time series. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false
+  },
+  "notes": [
+    "Ids are copied from printed last path segments. access_path is the printed Geonorge DistributionUrl. No barmark id was written onto a nordatlas, fbgis, nibiowms, or nibiorest row.",
+    "License stays null: the catalog prints no license URL. Publisher is null: this adapter does not copy Organization onto publisher.",
+    "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "python3 -m pytest after rebase onto stperioder #226: 1540 passed, 1 skipped, 1 deselected.",
+    "Branched from origin/main after fbgis #218 (d6ed0a2). Rebased onto origin/main after stperioder #226 (ccd2336). SOURCE_IDS keeps fbgis then stperioder then barmark.",
+    "Open PR check at pickup found ssbgis #215 and nibioar50 #225 named as possible main movers. Those leftover catalogs stayed unused."
+  ]
+}
