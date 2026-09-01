@@ -5901,6 +5901,41 @@ HTTP 200, 6 Layer Name cells. Sample printed value: `GARDSKART`.
 `pda methods` is not applicable: layer names, not a numeric time series.
 Proof is `data/nibiogard_source_proof.json`.
 
+## NIBIO leftover Markslag WMS source
+
+`pda ingest --source nibiomark` is another replaceable adapter. It lists the
+official leftover NIBIO Markslag WMS GetCapabilities document
+`https://wms.nibio.no/cgi-bin/markslag?SERVICE=WMS&REQUEST=GetCapabilities`,
+capped at 10. GetCapabilities bodies that are HTML or not WMS XML are
+skipped. Native ids are the printed last cgi-bin path segment so the leftover
+Markslag WMS keeps native id `markslag`. `access_path` is that GetCapabilities
+URL. License stays null: the document prints AccessConstraints `none`, not a
+license URL. Publisher stays null. This is not leftover NIBIO WMS
+(`--source nibiowms`), not leftover NIBIO WMS past that cap
+(`--source nibiorest`), not leftover NIBIO AR50 (`--source nibioar50`), not
+leftover NIBIO AR5-forvaltning (`--source nibioar5f`), and not leftover NIBIO
+Gårdskart (`--source nibiogard`).
+
+```bash
+pda ingest --source nibiomark --db data/registry.sqlite --limit 10
+pda search Markslag --db data/registry.sqlite
+pda fetch --dataset nibiomark:markslag --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored GetCapabilities URL as text, with
+`Accept: application/xml, text/xml, */*`. Observation values are
+copied from printed WMS `Layer`/`Name` text. A printed `Title`
+sibling stays as a dimension. License stays null. Publisher stays
+null. `pda methods` is not applicable: layer names, not a numeric
+time series.
+
+Live ingest 2026-09-01: 1 leftover GetCapabilities document. Live search
+`Markslag` returns `nibiomark:markslag`. Live fetch GETs
+`https://wms.nibio.no/cgi-bin/markslag?SERVICE=WMS&REQUEST=GetCapabilities`
+HTTP 200, 14 Layer Name cells. Sample printed value: `MARKSLAG`.
+`pda methods` is not applicable: layer names, not a numeric time series.
+Proof is `data/nibiomark_source_proof.json`.
+
 ## Norges Bank SDMX Concept Schemes source
 
 `pda ingest --source nbconcept` is another replaceable adapter. It lists

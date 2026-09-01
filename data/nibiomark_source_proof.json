@@ -1,0 +1,128 @@
+{
+  "produced_at": "2026-09-01T19:21:25Z",
+  "bound": {
+    "list_api": [
+      "https://wms.nibio.no/cgi-bin/markslag?SERVICE=WMS&REQUEST=GetCapabilities"
+    ],
+    "walk": "copy the official leftover NIBIO Markslag WMS GetCapabilities document; skip HTML and non-WMS bodies; native id is the printed last cgi-bin path segment markslag; access_path is the GetCapabilities URL; license stays null because the document prints AccessConstraints none, not a license URL; publisher stays null; live GET of that printed document is HTTP 200 WMS XML with no token; no token is sent; do not invent extra leftover wms.nibio.no/cgi-bin/ service URLs",
+    "cap": 10,
+    "how": "pda ingest --source nibiomark --limit 10. The printed leftover Markslag GetCapabilities document returns WMS_Capabilities XML 200. Cap 10 copies that one document. This is not --source nibiowms, --source nibiorest, --source nibioar50, --source nibioar5f, or --source nibiogard."
+  },
+  "discarded": [
+    {
+      "candidate": "NIBIO leftover WMS / nibiowms",
+      "url": "https://nibio.no/tjenester/wms-tjenester",
+      "why": "Already on main as --source nibiowms. Do not redo."
+    },
+    {
+      "candidate": "NIBIO leftover WMS past nibiowms cap / nibiorest",
+      "url": "https://wms.nibio.no/cgi-bin/hrl?VERSION=1.3.0&REQUEST=GetCapabilities&service=wms",
+      "why": "Already on main as --source nibiorest. Do not redo."
+    },
+    {
+      "candidate": "NIBIO leftover AR50 / nibioar50",
+      "url": "https://wms.nibio.no/cgi-bin/ar50_2?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetCapabilities",
+      "why": "Already on main as --source nibioar50. Not leftover Markslag. Do not redo."
+    },
+    {
+      "candidate": "NIBIO leftover AR5-forvaltning / nibioar5f",
+      "url": "https://wms.nibio.no/cgi-bin/ar5forvaltning2?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetCapabilities",
+      "why": "Already on main as --source nibioar5f. Not leftover Markslag. Do not redo."
+    },
+    {
+      "candidate": "NIBIO leftover Gårdskart / nibiogard",
+      "url": "https://wms.nibio.no/cgi-bin/gardskart?SERVICE=WMS&REQUEST=GetCapabilities",
+      "why": "Already on main as --source nibiogard. Not leftover Markslag. Do not redo."
+    },
+    {
+      "candidate": "municipal CKAN / Opencom",
+      "url": "already --source opencom",
+      "why": "Assigned skip for this lane. Stay off municipal CKAN/Opencom."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source nibiomark --db /tmp/pda-nibiomark-proof/registry.sqlite --limit 10",
+    "listed": 1,
+    "inserted": 1,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "nibiomark:markslag",
+        "title": "WMS for markslag fra NIBIO",
+        "access_path": "https://wms.nibio.no/cgi-bin/markslag?SERVICE=WMS&REQUEST=GetCapabilities"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search Markslag --db /tmp/pda-nibiomark-proof/registry.sqlite --limit 10",
+    "query": "Markslag",
+    "returned": 1,
+    "hit_id": "nibiomark:markslag",
+    "title": "WMS for markslag fra NIBIO",
+    "source_id": "nibiomark",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://wms.nibio.no/cgi-bin/markslag?SERVICE=WMS&REQUEST=GetCapabilities",
+    "original_source": "https://wms.nibio.no/cgi-bin/markslag?SERVICE=WMS&REQUEST=GetCapabilities",
+    "why_picked": "title matched markslag"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset nibiomark:markslag --db /tmp/pda-nibiomark-proof/registry.sqlite",
+    "dataset": "nibiomark:markslag",
+    "table_id": "markslag",
+    "access_path": "https://wms.nibio.no/cgi-bin/markslag?SERVICE=WMS&REQUEST=GetCapabilities",
+    "request_url": "https://wms.nibio.no/cgi-bin/markslag?SERVICE=WMS&REQUEST=GetCapabilities",
+    "http_status": 200,
+    "listed": 14,
+    "inserted": 14,
+    "license": null,
+    "publisher": null,
+    "layers": [
+      "MARKSLAG",
+      "Arealtype_myr",
+      "Nyttbar_myr_type",
+      "Nyttbar_myr_omdanning",
+      "Nyttbar_myr_myrkost",
+      "Bonitet",
+      "Myr",
+      "Marginalt_areal",
+      "Jordbruksareal",
+      "Treslag",
+      "Produksjonsevne_i_skog",
+      "Hovedgrupper_av_markslag",
+      "DMK_dyrkbar_jord",
+      "Status_markslagskartlegging"
+    ],
+    "sample": [
+      {
+        "measure": "Name",
+        "value": "MARKSLAG"
+      },
+      {
+        "measure": "Name",
+        "value": "Arealtype_myr"
+      }
+    ],
+    "note": "Live GET 200 WMS_Capabilities 1.3.0. Live POST of the same printed URL is also HTTP 200. The WMS document prints 14 named Layer Name values: MARKSLAG, Arealtype_myr, Nyttbar_myr_type, Nyttbar_myr_omdanning, Nyttbar_myr_myrkost, Bonitet, Myr, Marginalt_areal, Jordbruksareal, Treslag, Produksjonsevne_i_skog, Hovedgrupper_av_markslag, DMK_dyrkbar_jord, Status_markslagskartlegging. methods/ was not edited."
+  },
+  "methods": {
+    "applicable": false,
+    "why": "NIBIO leftover Markslag WMS prints layer names. Those are not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false
+  },
+  "notes": [
+    "Ids are copied from the printed last cgi-bin path segment. access_path is the official leftover GetCapabilities URL. No nibiomark id was written onto a nibiowms, nibiorest, nibioar50, nibioar5f, or nibiogard row.",
+    "License is null: the document prints AccessConstraints none, not a license URL. Publisher is null.",
+    "Live GET of the leftover Markslag WMS GetCapabilities URL is HTTP 200 WMS_Capabilities XML with no Authorization header. No token is sent. Accept is application/xml, text/xml, */* like nibiogard and kvkrets.",
+    "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "Branched from origin/main after nibiogard #255 (38dfde3), then rebased onto origin/main after stskrift #253 (a6f4832). SOURCE_IDS keeps nibiogard, then stskrift, then nibiomark. README keeps leftover GIS sections including dsbgis, kvkrets, kvadm, ssbfritid, nibiogard, and stskrift.",
+    "python3 -m pytest after live proof and rebase onto stskrift #253: 1721 passed, 1 skipped, 1 deselected."
+  ]
+}
