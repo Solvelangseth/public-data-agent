@@ -146,6 +146,7 @@ from public_data_agent.sources.statnett import StatnettDriftsdataSource
 from public_data_agent.sources.stedsnavn import StedsnavnSource
 from public_data_agent.sources.stormflo import StormfloSource
 from public_data_agent.sources.stortinget import StortingetSource
+from public_data_agent.sources.stperioder import StperioderSource
 from public_data_agent.sources.subjectiveforecast import SubjectiveforecastSource
 from public_data_agent.sources.subseasonal import SubseasonalSource
 from public_data_agent.sources.sunrise import SunriseSource
@@ -327,6 +328,7 @@ SOURCE_IDS = (
     "brunder",
     "kikommuner",
     "fbgis",
+    "stperioder",
 )
 
 
@@ -655,6 +657,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return KikommunerSource()
     if source_id == "fbgis":
         return FbgisSource()
+    if source_id == "stperioder":
+        return StperioderSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -805,6 +809,7 @@ __all__ = [
     "StedsnavnSource",
     "StormfloSource",
     "StortingetSource",
+    "StperioderSource",
     "SubjectiveforecastSource",
     "SubseasonalSource",
     "SunriseSource",
