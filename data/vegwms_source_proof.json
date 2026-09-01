@@ -1,0 +1,110 @@
+{
+  "produced_at": "2026-09-01T16:45:00Z",
+  "bound": {
+    "list_api": "https://kartkatalog.geonorge.no/api/search?text=Statens vegvesen",
+    "walk": "copy printed leftover OGC:WMS and OGC:WFS Type=service rows the official Geonorge Kartkatalog search text=Statens vegvesen prints; skip other organizations, downloads, servicelayers, and Vegkart HTML; skip leftover kartlag GetCapabilities already in --source vegogc on ogckart-sn1.atlas.vegvesen.no; skip the printed norstoy mirror on www.vegvesen.no/kart/ogc/ because that workspace is already vegogc:norstoy_1_0_ows; skip GetCapabilities bodies that are not WMS or WFS XML; native ids are the printed service path segment so wfs.stoy_veg stays distinct from wfs.trafikkulykker; access_path is the printed DistributionUrl; license stays null because the catalog prints no license URL; publisher stays null; do not invent query filters or layer names",
+    "cap": 10,
+    "how": "pda ingest --source vegwms --limit 10. The official search prints 24 catalog rows. 4 are OGC:WMS or OGC:WFS Type=service from Statens vegvesen. After skipping the printed norstoy mirror already owned by vegogc, 3 leftover Geonorge WFS documents remain. All 3 return WFS_Capabilities XML 200. Cap 10 copies those 3. This is not Statens vegvesen leftover OGC kartlag (--source vegogc) and not Statens vegvesen Dataportalen (--source vegvesen)."
+  },
+  "discarded": [
+    {
+      "candidate": "Statens vegvesen leftover OGC kartlag / vegogc",
+      "url": "https://www.vegvesen.no/fag/teknologi/apne-data/et-utvalg-apne-data/ogc-karttjenester/kartlag/",
+      "why": "Already on main as --source vegogc. The leftover kartlag page prints 10 GetCapabilities hrefs on ogckart-sn1.atlas.vegvesen.no. All 10 are already ingested. Assigned vegwms kartlag URLs were skipped."
+    },
+    {
+      "candidate": "Støy Veg WMS norstoy mirror",
+      "url": "https://www.vegvesen.no/kart/ogc/norstoy_1_0/ows?service=WMS&request=getcapabilities",
+      "why": "Printed leftover OGC:WMS Type=service row. Live GET is WMS_Capabilities XML 200. Same norstoy_1_0 workspace already in --source vegogc. Skipped."
+    },
+    {
+      "candidate": "Statens vegvesen Dataportalen / vegvesen",
+      "url": "https://dataut.vegvesen.no/api/3/action/package_list",
+      "why": "Already on main as --source vegvesen. This slice is leftover Geonorge WMS/WFS only."
+    },
+    {
+      "candidate": "Havforskningsinstituttet leftover WMS/WFS / hiwms",
+      "url": "PR 198 --source hiwms, merged on main",
+      "why": "Already on main. Do not redo."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source vegwms --db /tmp/pda-vegwms-proof/registry.sqlite --limit 10",
+    "listed": 3,
+    "inserted": 3,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "vegwms:wfs.stoy_veg",
+        "title": "Støykartlegging veg etter T-1442 WFS",
+        "access_path": "https://wfs.geonorge.no/skwms1/wfs.stoy_veg?request=GetCapabilities&service=WFS"
+      },
+      {
+        "id": "vegwms:wfs.trafikkulykker",
+        "title": "Trafikkulykker WFS",
+        "access_path": "https://wfs.geonorge.no/skwms1/wfs.trafikkulykker?service=wfs&request=getcapabilities"
+      },
+      {
+        "id": "vegwms:wfs.trafikkmengde",
+        "title": "Trafikkmengde WFS",
+        "access_path": "https://wfs.geonorge.no/skwms1/wfs.trafikkmengde?service=wfs&request=getcapabilities"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search stoy_veg --db /tmp/pda-vegwms-proof/registry.sqlite --limit 5",
+    "query": "stoy_veg",
+    "returned": 1,
+    "hit_id": "vegwms:wfs.stoy_veg",
+    "title": "Støykartlegging veg etter T-1442 WFS",
+    "source_id": "vegwms",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://wfs.geonorge.no/skwms1/wfs.stoy_veg?request=GetCapabilities&service=WFS",
+    "original_source": "https://kartkatalog.geonorge.no/api/search",
+    "why_picked": "title matched veg"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset vegwms:wfs.stoy_veg --db /tmp/pda-vegwms-proof/registry.sqlite",
+    "dataset": "vegwms:wfs.stoy_veg",
+    "table_id": "wfs.stoy_veg",
+    "access_path": "https://wfs.geonorge.no/skwms1/wfs.stoy_veg?request=GetCapabilities&service=WFS",
+    "request_url": "https://wfs.geonorge.no/skwms1/wfs.stoy_veg?request=GetCapabilities&service=WFS",
+    "http_status": 200,
+    "listed": 2,
+    "inserted": 2,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "Name",
+        "value": "app:Støy"
+      },
+      {
+        "measure": "Name",
+        "value": "app:Støygrense"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset vegwms:wfs.stoy_veg --db /tmp/pda-vegwms-proof/registry.sqlite",
+    "applicable": false,
+    "why": "Statens vegvesen leftover WFS GetCapabilities prints FeatureType Name strings. That is not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false
+  },
+  "notes": [
+    "Ids are copied from printed service path segments. access_path is the printed Geonorge DistributionUrl. No vegwms id was written onto a vegogc, vegvesen, hiwms, fdirwms, or avinorgis row.",
+    "License stays null: the catalog prints no license URL. Publisher is null: this adapter does not copy Organization onto publisher.",
+    "Kartlag leftover GetCapabilities from the assigned vegwms prompt are already --source vegogc. This slice is leftover Geonorge WFS only.",
+    "Open PR check at pickup found nbagency #193 (JSON SDMX, not leftover GIS). hiwms #198 was already on main.",
+    "python3 -m pytest: full non-live suite passed after the adapter landed.",
+    "SOURCE_IDS keeps vegwms last after hiwms."
+  ]
+}

@@ -5089,8 +5089,15 @@ copied from printed WMS `Layer`/`Name` text or WFS `FeatureType`/`Name`
 text. A sibling `Title` stays as a dimension. License stays null. Publisher
 stays null.
 
-Live ingest numbers, search hit, and fetch layer count are recorded in
-`data/vegwms_source_proof.json` after the live proof.
+Live ingest 2026-09-01: 3 leftover WFS services (search prints 24 rows;
+4 are OGC:WMS or OGC:WFS Type=service from Statens vegvesen; the printed
+norstoy mirror is already `--source vegogc`; cap 10 copies the 3 leftover
+live Geonorge WFS documents). Live search `stoy_veg` returns
+`vegwms:wfs.stoy_veg`. Live fetch GETs
+`https://wfs.geonorge.no/skwms1/wfs.stoy_veg?request=GetCapabilities&service=WFS`
+HTTP 200, 2 FeatureType Name cells. Sample printed value: `app:Støy`.
+`pda methods` is not applicable: feature type names, not a numeric time
+series. Proof is `data/vegwms_source_proof.json`.
 
 ## Norges Bank SDMX Codelists source
 
