@@ -311,7 +311,8 @@ def test_mattilsyn_is_a_registered_source() -> None:
     assert SOURCE_IDS[SOURCE_IDS.index("kvkrets") + 1] == "dsbgis"
     assert SOURCE_IDS[SOURCE_IDS.index("dsbgis") + 1] == "nibiogard"
     assert SOURCE_IDS[SOURCE_IDS.index("nibiogard") + 1] == "stskrift"
-    assert SOURCE_IDS[-1] == "stskrift"
+    assert SOURCE_IDS[SOURCE_IDS.index("stskrift") + 1] == "sthoring"
+    assert SOURCE_IDS[-1] == "sthoring"
     assert "nibiorest" in SOURCE_IDS
     assert "fdirwms" in SOURCE_IDS
     assert "avinorgis" in SOURCE_IDS
