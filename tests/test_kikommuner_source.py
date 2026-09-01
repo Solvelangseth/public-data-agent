@@ -127,7 +127,8 @@ def test_kikommuner_is_a_registered_source() -> None:
     assert SOURCE_IDS[SOURCE_IDS.index("crbio") + 1] == "nibioar5f"
     assert SOURCE_IDS[SOURCE_IDS.index("nibioar5f") + 1] == "kvfkb"
     assert SOURCE_IDS[SOURCE_IDS.index("kvfkb") + 1] == "crperson"
-    assert SOURCE_IDS[-1] == "crperson"
+    assert SOURCE_IDS[SOURCE_IDS.index("crperson") + 1] == "stsporre"
+    assert SOURCE_IDS[-1] == "stsporre"
     source = build_source("kikommuner")
     assert isinstance(source, KikommunerSource)
     assert source.source_id == "kikommuner"
