@@ -6340,8 +6340,14 @@ copied from printed `representanter_liste[].fornavn` scalars. Other
 printed scalars stay as dimensions. Nested objects are not copied.
 License stays null. Publisher stays null.
 
-Live ingest numbers are recorded in `data/stperioder_source_proof.json`
-after the first live walk.
+Live ingest 2026-09-01: listed 10, inserted 10 (official catalog prints
+21 periods; cap 10 copies the first ten printed ids). Live search
+`2021-2025` returns `stperioder:2021-2025`. Live fetch GETs
+`https://data.stortinget.no/eksport/representanter?stortingsperiodeid=2021-2025&format=json`
+HTTP 200, 169 fornavn cells. Sample printed value: `Abid`.
+`pda methods` is not applicable: representant names, not a numeric time
+series (`no observations matched entity/measure; available=[]`).
+Proof is `data/stperioder_source_proof.json`.
 
 ## Architecture (long term)
 

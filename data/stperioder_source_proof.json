@@ -1,0 +1,163 @@
+{
+  "produced_at": "2026-09-01T17:54:19Z",
+  "bound": {
+    "list_api": "https://data.stortinget.no/eksport/stortingsperioder?format=json",
+    "walk": "copy printed stortingsperioder_liste[].id from the official Stortinget stortingsperioder catalog; native ids are the printed period id values so 2025-2029 stays distinct from 2021-2025; access_path joins each printed id onto leftover /eksport/representanter with the documented stortingsperiodeid and format=json query; license stays null; publisher stays null; the catalog prints neither; live GET of those printed representanter paths is HTTP 200 with no token; no token is sent; do not invent other query filters",
+    "cap": 10,
+    "how": "pda ingest --source stperioder --limit 10. The official catalog lists 21 printed periods. Ingest copies the first ten in document order."
+  },
+  "discarded": [
+    {
+      "candidate": "brunder",
+      "url": "PR 221 on main SHA ced9752183e3bb41288bbc3a6532bea9aa65ce5f; closed unused PR 223",
+      "why": "Already on main. Do not redo."
+    },
+    {
+      "candidate": "kikommuner",
+      "url": "PR 224",
+      "why": "In-flight leftover Kartverket Kommuneinfo kommuner. Do not pick."
+    },
+    {
+      "candidate": "Norges Bank SDMX categoryscheme",
+      "url": "https://data.norges-bank.no/api/categoryscheme?format=sdmx-json",
+      "why": "Live GET HTTP 404 after earlier timeout. Do not invent around a failure."
+    },
+    {
+      "candidate": "SSB Klass codes/changes",
+      "url": "https://data.ssb.no/api/klass/v1/classifications/1/codes",
+      "why": "Live GET HTTP 400 without required dates. Do not invent dates."
+    },
+    {
+      "candidate": "MET Frost sources",
+      "url": "https://frost.met.no/sources/v0.jsonld",
+      "why": "Live GET HTTP 401. Do not invent auth."
+    },
+    {
+      "candidate": "Udir NLR",
+      "url": "https://data-nlr.udir.no/swagger/v4/swagger.json",
+      "why": "Swagger GET 200. Live collection GETs are HTTP 401. Do not invent auth."
+    },
+    {
+      "candidate": "Kartverket Stedsnavn navneobjekttyper item paths",
+      "url": "https://api.kartverket.no/stedsnavn/v1/navneobjekttyper/by",
+      "why": "Collection GET 200. Joined item GET HTTP 404. Do not invent item paths."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source stperioder --db /tmp/pda-stperioder-proof/registry.sqlite --limit 10",
+    "listed": 10,
+    "inserted": 10,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "stperioder:2025-2029",
+        "title": "2025-2029",
+        "access_path": "https://data.stortinget.no/eksport/representanter?stortingsperiodeid=2025-2029&format=json"
+      },
+      {
+        "id": "stperioder:2021-2025",
+        "title": "2021-2025",
+        "access_path": "https://data.stortinget.no/eksport/representanter?stortingsperiodeid=2021-2025&format=json"
+      },
+      {
+        "id": "stperioder:2017-2021",
+        "title": "2017-2021",
+        "access_path": "https://data.stortinget.no/eksport/representanter?stortingsperiodeid=2017-2021&format=json"
+      },
+      {
+        "id": "stperioder:2013-2017",
+        "title": "2013-2017",
+        "access_path": "https://data.stortinget.no/eksport/representanter?stortingsperiodeid=2013-2017&format=json"
+      },
+      {
+        "id": "stperioder:2009-2013",
+        "title": "2009-2013",
+        "access_path": "https://data.stortinget.no/eksport/representanter?stortingsperiodeid=2009-2013&format=json"
+      },
+      {
+        "id": "stperioder:2005-2009",
+        "title": "2005-2009",
+        "access_path": "https://data.stortinget.no/eksport/representanter?stortingsperiodeid=2005-2009&format=json"
+      },
+      {
+        "id": "stperioder:2001-2005",
+        "title": "2001-2005",
+        "access_path": "https://data.stortinget.no/eksport/representanter?stortingsperiodeid=2001-2005&format=json"
+      },
+      {
+        "id": "stperioder:1997-2001",
+        "title": "1997-2001",
+        "access_path": "https://data.stortinget.no/eksport/representanter?stortingsperiodeid=1997-2001&format=json"
+      },
+      {
+        "id": "stperioder:1993-97",
+        "title": "1993-97",
+        "access_path": "https://data.stortinget.no/eksport/representanter?stortingsperiodeid=1993-97&format=json"
+      },
+      {
+        "id": "stperioder:1989-93",
+        "title": "1989-93",
+        "access_path": "https://data.stortinget.no/eksport/representanter?stortingsperiodeid=1989-93&format=json"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search 2021-2025 --db /tmp/pda-stperioder-proof/registry.sqlite --limit 10",
+    "query": "2021-2025",
+    "returned": 1,
+    "hit_id": "stperioder:2021-2025",
+    "title": "2021-2025",
+    "source_id": "stperioder",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://data.stortinget.no/eksport/representanter?stortingsperiodeid=2021-2025&format=json",
+    "original_source": "https://data.stortinget.no/eksport/stortingsperioder?format=json",
+    "why_picked": "title matched 2021, 2025"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset stperioder:2021-2025 --db /tmp/pda-stperioder-proof/registry.sqlite",
+    "dataset": "stperioder:2021-2025",
+    "table_id": "2021-2025",
+    "fetch_id": 1,
+    "access_path": "https://data.stortinget.no/eksport/representanter?stortingsperiodeid=2021-2025&format=json",
+    "request_url": "https://data.stortinget.no/eksport/representanter?stortingsperiodeid=2021-2025&format=json",
+    "http_status": 200,
+    "listed": 169,
+    "inserted": 169,
+    "updated": 0,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "fornavn",
+        "value": "Abid"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset stperioder:2021-2025 --db /tmp/pda-stperioder-proof/registry.sqlite",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "Stortinget /eksport/representanter?stortingsperiodeid=2021-2025 prints representant fornavn strings, not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed catalog stortingsperiode id values. access_path joins those printed ids onto leftover /eksport/representanter. No stperioder id was written onto a stortinget or brunder row.",
+    "License is null: the perioder catalog prints no license field. Publisher is null: the catalog prints no publisher field.",
+    "Live GET of /eksport/representanter?stortingsperiodeid=2021-2025&format=json is HTTP 200 with no Authorization header. No token is sent.",
+    "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "is_stperioder_url matches only /eksport/representanter?stortingsperiodeid= paths and is checked before is_stortinget_url.",
+    "Not a numeric time series with two or more periods. Fetch listed 169 printed fornavn cells (sample Abid).",
+    "Closed unused PR 223 (duplicate brunder). brunder stays on main via #221.",
+    "python3 -m pytest after live ingest: 1523 passed, 1 skipped, 1 deselected."
+  ]
+}
