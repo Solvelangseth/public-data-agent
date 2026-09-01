@@ -1,0 +1,131 @@
+{
+  "produced_at": "2026-09-01T17:55:00Z",
+  "bound": {
+    "list_api": "https://kartkatalog.geonorge.no/api/search",
+    "search_texts": ["Nordatlas", "Statsforvalteren"],
+    "walk": "copy printed leftover OGC:WMS and OGC:WFS Type=service GetCapabilities rows the official Geonorge Kartkatalog searches text=Nordatlas and text=Statsforvalteren print; skip other organizations, downloads, servicelayers, and software; skip DescribeFeatureType; skip URLs already owned by mdirwms, mdirgis, miljogis, nibiowms, and ldirwms; skip GetCapabilities bodies that are not WMS or WFS XML including timed-out Nordatlas wms.ashx; native ids are the printed service path segment, or the printed host when the last segment is a generic ashx/wms/wfs name, so kart.fylkesatlas.no stays distinct from wfs.barmarksloyper; access_path is the printed DistributionUrl; license stays null because the catalog prints no license URL; publisher stays null; do not invent query filters or layer names",
+    "cap": 10,
+    "how": "pda ingest --source nordatlas --limit 10. The official Nordatlas search prints 3 catalog rows. The official Statsforvalteren search prints 22 catalog rows. Leftover live WMS/WFS XML 200 rows remain after skipping timed-out Nordatlas wms.ashx, DescribeFeatureType, other organizations, downloads, servicelayers, software, mdirwms/mdirgis/miljogis hosts, and nibiowms vernskog. Cap 10 copies both leftover live documents. This is not leftover Miljødirektoratet WMS/WFS (--source mdirwms), not leftover Miljødirektoratet ArcGIS WMS (--source mdirgis), and not Miljødirektoratet ArcGIS REST (--source miljogis)."
+  },
+  "discarded": [
+    {
+      "candidate": "Nordatlas - WMS / wms.nordatlas.no",
+      "url": "http://wms.nordatlas.no/wms.ashx?request=GetCapabilities&service=WMS",
+      "why": "Printed leftover Type=service OGC:WMS GetCapabilities. Live GET timed out after 120s with 0 bytes on http and https. Skip."
+    },
+    {
+      "candidate": "Mapserver WFS - www.nordatlas.no",
+      "url": "http://wms.nordatlas.no/wfs.ashx?service=wfs&request=describefeatureType&version=1.1.0",
+      "why": "Printed leftover Type=service OGC:WFS is DescribeFeatureType, not GetCapabilities. Skip."
+    },
+    {
+      "candidate": "Vernskog - WMS",
+      "url": "https://wms.nibio.no/cgi-bin/vernskog2?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetCapabilities",
+      "why": "Organization is Landbruksdirektoratet. Host already owned by leftover NIBIO WMS. Skip."
+    },
+    {
+      "candidate": "Kartverket leftover WMS / wms.friluftsruter2 / wms.fjellskygge / wms.matrikkelkart",
+      "url": "https://wms.geonorge.no/skwms1/wms.friluftsruter2?request=GetCapabilities&service=WMS&version=1.3.0",
+      "why": "Already --source kvtopo (friluftsruter2 and fjellskygge). wms.matrikkelkart stays unused because kvtopo skipped it as restricted Matrikkelen WMS."
+    },
+    {
+      "candidate": "Forsvarsbygg leftover GIS",
+      "url": "https://kartkatalog.geonorge.no/api/search?text=Forsvarsbygg",
+      "why": "Named next leftover after Nordatlas. Unused because leftover live Statsforvalteren Type=service OGC:WMS/WFS GetCapabilities already met the bar."
+    },
+    {
+      "candidate": "Miljødirektoratet leftover WMS/WFS / mdirwms",
+      "url": "https://kart3.miljodirektoratet.no/arcgis/services/industri/MapServer/WMSServer?service=WMS&request=GetCapabilities",
+      "why": "Already --source mdirwms. Skip."
+    },
+    {
+      "candidate": "Miljødirektoratet leftover ArcGIS WMS / mdirgis",
+      "url": "https://kart.miljodirektoratet.no/arcgis/services/villrein/MapServer/WMSServer?request=GetCapabilities&service=WMS",
+      "why": "Already --source mdirgis. Skip."
+    },
+    {
+      "candidate": "Miljødirektoratet ArcGIS REST / miljogis",
+      "url": "https://kart.miljodirektoratet.no/arcgis/rest/services?f=json",
+      "why": "Already --source miljogis. REST URLs stay unused."
+    },
+    {
+      "candidate": "BarentsWatch leftover GIS / bwgis",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/205",
+      "why": "In-flight sibling PR 205. Different host. Do not pick."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source nordatlas --db /tmp/pda-nordatlas-proof/registry.sqlite --limit 10",
+    "listed": 2,
+    "inserted": 2,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "nordatlas:kart.fylkesatlas.no",
+        "title": "Fylkesatlas Vestland - wms https",
+        "access_path": "https://kart.fylkesatlas.no/wms.ashx?service=WMS&request=GetCapabilities"
+      },
+      {
+        "id": "nordatlas:wfs.barmarksloyper",
+        "title": "Barmarksløyper i Finnmark WFS",
+        "access_path": "https://wfs.geonorge.no/skwms1/wfs.barmarksloyper?service=WFS&request=GetCapabilities"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search Fylkesatlas --db /tmp/pda-nordatlas-proof/registry.sqlite --limit 10",
+    "query": "Fylkesatlas",
+    "returned": 1,
+    "hit_id": "nordatlas:kart.fylkesatlas.no",
+    "title": "Fylkesatlas Vestland - wms https",
+    "source_id": "nordatlas",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://kart.fylkesatlas.no/wms.ashx?service=WMS&request=GetCapabilities",
+    "original_source": "https://kartkatalog.geonorge.no/api/search",
+    "why_picked": "title matched fylkesatlas"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset nordatlas:kart.fylkesatlas.no --db /tmp/pda-nordatlas-proof/registry.sqlite",
+    "dataset": "nordatlas:kart.fylkesatlas.no",
+    "table_id": "kart.fylkesatlas.no",
+    "access_path": "https://kart.fylkesatlas.no/wms.ashx?service=WMS&request=GetCapabilities",
+    "request_url": "https://kart.fylkesatlas.no/wms.ashx?service=WMS&request=GetCapabilities",
+    "http_status": 200,
+    "listed": 63,
+    "inserted": 62,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "Name",
+        "value": "MS"
+      },
+      {
+        "measure": "Name",
+        "value": "layer_2391"
+      }
+    ],
+    "note": "The WMS document prints 63 named Layer Name values. methods/ was not edited."
+  },
+  "methods": {
+    "applicable": false,
+    "why": "Statsforvalteren leftover WMS GetCapabilities prints Layer Name strings. That is not a numeric time series. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false
+  },
+  "notes": [
+    "Ids are copied from printed hosts or last path segments. access_path is the printed Geonorge DistributionUrl. No nordatlas id was written onto a mdirwms, mdirgis, miljogis, or geonorge row.",
+    "License stays null: the catalog prints no license URL. Publisher is null: this adapter does not copy Organization onto publisher.",
+    "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "python3 -m pytest after nordatlas leftover WMS/WFS: 1448 passed, 1 skipped, 1 deselected.",
+    "Branched from origin/main after mdirgis #209 (0e2930b). SOURCE_IDS keeps mdirgis then nordatlas.",
+    "Open PR check at pickup found bwgis #205, ssbcorr #214, brrepresent #213, kifylker #212. Those leftover catalogs stayed unused."
+  ]
+}

@@ -5450,10 +5450,17 @@ copied from printed WMS `Layer`/`Name` text or WFS `FeatureType`/`Name`
 text. A sibling `Title` stays as a dimension. License stays null. Publisher
 stays null.
 
-Live ingest 2026-09-01: leftover live WMS/WFS GetCapabilities after
-skipping timed-out Nordatlas `wms.ashx`, DescribeFeatureType, other
-organizations, downloads, servicelayers, software, mdirwms/mdirgis/miljogis
-hosts, and HTML. Proof is `data/nordatlas_source_proof.json`.
+Live ingest 2026-09-01: 2 leftover GetCapabilities documents (Nordatlas
+search prints 3 rows; Statsforvalteren search prints 22; leftover live
+WMS/WFS XML 200 remain after skipping timed-out Nordatlas `wms.ashx`,
+DescribeFeatureType, other organizations, downloads, servicelayers,
+software, mdirwms/mdirgis/miljogis hosts, and nibiowms vernskog; cap 10
+copies both). Live search `Fylkesatlas` returns
+`nordatlas:kart.fylkesatlas.no`. Live fetch GETs
+`https://kart.fylkesatlas.no/wms.ashx?service=WMS&request=GetCapabilities`
+HTTP 200, 63 Layer Name cells. Sample printed value: `MS`. `pda methods`
+is not applicable: layer names, not a numeric time series. Proof is
+`data/nordatlas_source_proof.json`.
 
 ## Norges Bank SDMX Concept Schemes source
 
