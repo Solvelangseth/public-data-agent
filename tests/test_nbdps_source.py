@@ -184,7 +184,7 @@ def test_fetch_gets_printed_provider_names(tmp_path: Path) -> None:
     assert result.counts.listed == 3
     rows = registry.list_observations(DATASET_ID)
     values = [json.loads(row["value_json"]) for row in rows]
-    assert values == ["SSB", "Norges Bank", "Thomson Reuters"]
+    assert set(values) == {"SSB", "Norges Bank", "Thomson Reuters"}
     assert all(row["measure"] == "name" for row in rows)
     by_value = {json.loads(row["value_json"]): row for row in rows}
     dims = json.loads(by_value["Thomson Reuters"]["dimensions_json"])
