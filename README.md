@@ -5841,8 +5841,13 @@ copied from the printed `beskrivelse` scalar. Other scalars stay as
 dimensions. Nested `_links` objects are not copied. License stays
 null. Publisher stays null.
 
-Live ingest, search, and fetch proof will be recorded after the first
-test pass.
+Live ingest 2026-09-01: 10 printed rollegruppetyper (catalog prints 21;
+cap 10). Live search `Daglig leder` returns `brrollegruppe:DAGL`. Live
+fetch GETs
+`https://data.brreg.no/enhetsregisteret/api/roller/rollegruppetyper/DAGL`
+HTTP 200, 1 beskrivelse cell. Sample printed value: `Daglig leder`.
+`pda methods` is not applicable: role-group names, not a numeric time
+series. Proof is `data/brrollegruppe_source_proof.json`.
 
 ## Architecture (long term)
 
