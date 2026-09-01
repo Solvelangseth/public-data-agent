@@ -6752,6 +6752,7 @@ Started from origin/main including crbio #238
 (`a7f4743220b54534a216e021b95de7a8a0b5a1d3`). Rebased onto origin/main
 after nibioar5f #232 (`c2704a4`). Every existing source stayed
 registered and `crpers` follows `nibioar5f`.
+After rebase, `python3 -m pytest`: 1650 passed, 1 skipped, 1 deselected.
 
 ## Brønnøysundregistrene Enhetsregisteret organisasjonsformer enheter source
 

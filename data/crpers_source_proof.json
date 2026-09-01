@@ -164,7 +164,8 @@
     "Live GET of /v2/persons/1805404 is HTTP 200 with no Authorization header. No token is sent.",
     "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
     "is_crpers_url matches only /v2/persons/{id} item paths. The bare collection URL and other Cristin v2 paths stay with --source cristin. Institution item paths stay with --source crinst. Unit item paths stay with --source crunit. Project item paths stay with --source crproj. Biobank item paths stay with --source crbio.",
-    "python3 -m pytest: 1640 passed, 1 skipped, 1 deselected.",
+    "python3 -m pytest before rebase: 1640 passed, 1 skipped, 1 deselected.",
+    "python3 -m pytest after rebase onto nibioar5f #232: 1650 passed, 1 skipped, 1 deselected.",
     "Not a numeric time series with two or more periods. Fetch listed 1 printed first_name cell (Yassine).",
     "Did not pick crbio (already on main #238). Cristin funding_sources, journals, and publishers were HTTP 404. Enhetsregisteret naeringskoder, fylker, and institusjonellSektorkode were HTTP 404. Did not pick leftover GIS, municipal portals, or offentligdata.no.",
     "Rebased onto origin/main after nibioar5f #232 (c2704a4). SOURCE_IDS keeps nibioar5f and crpers follows it."
