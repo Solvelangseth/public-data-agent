@@ -6488,7 +6488,7 @@ HTTP 200, 665 korttittel cells. Sample printed value starts with
 `pda methods` is not applicable: sak titles, not a numeric time series
 (`no observations matched entity/measure; available=[]`).
 Proof is `data/stsaker_source_proof.json`.
-Rebased onto origin/main after nibioar50 #225.
+Rebased onto origin/main after brorgformen #230.
 
 ## Architecture (long term)
 
