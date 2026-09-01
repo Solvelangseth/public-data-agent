@@ -1,0 +1,176 @@
+{
+  "produced_at": "2026-09-01T18:33:38Z",
+  "bound": {
+    "list_api": "https://api.cristin.no/v2/biobanks",
+    "walk": "copy printed cristin_biobank_id values from the official Cristin biobanks catalog; native ids are the printed cristin_biobank_id values; access_path copies the printed url on /v2/biobanks/{cristin_biobank_id}; license stays null; publisher stays null; the catalog prints neither; live GET of those printed item paths is HTTP 200 with no token; no token is sent; do not invent page or per_page query filters",
+    "cap": 10,
+    "how": "pda ingest --source crbio --limit 10. The official catalogue prints a default page of biobanks. Ingest copies the first ten in document order."
+  },
+  "discarded": [
+    {
+      "candidate": "Cristin units / crunit",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/234",
+      "why": "Already on main via PR #234 SHA 4ca78cf02bd299c7819904a12ad18622d074138b. Do not pick crunit."
+    },
+    {
+      "candidate": "Cristin projects / crproj",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/235",
+      "why": "In flight. Do not pick crproj."
+    },
+    {
+      "candidate": "Stortinget sesjoner partier / stpartier",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/236",
+      "why": "In flight. Do not pick stpartier."
+    },
+    {
+      "candidate": "Cristin countries item path",
+      "url": "https://api.cristin.no/v2/countries/AD",
+      "why": "HTTP 404. The countries catalog prints codes but no item url, and GET countries/{code} is 404. Do not invent a workaround."
+    },
+    {
+      "candidate": "Enhetsregisteret matrikkelenhet",
+      "url": "https://data.brreg.no/enhetsregisteret/api/matrikkelenhet",
+      "why": "HTTP 400. Do not invent required query parameters."
+    },
+    {
+      "candidate": "SSB Klass /api/klass/v1/codes",
+      "url": "https://data.ssb.no/api/klass/v1/codes",
+      "why": "HTTP 404. Do not invent a workaround."
+    },
+    {
+      "candidate": "Norges Bank SDMX categoryscheme",
+      "url": "https://data.norges-bank.no/api/categoryscheme?format=sdmx-json",
+      "why": "HTTP 404. Do not invent a workaround."
+    },
+    {
+      "candidate": "Norges Bank SDMX hierarchicalcodelist",
+      "url": "https://data.norges-bank.no/api/hierarchicalcodelist?format=sdmx-json",
+      "why": "HTTP 404. Do not invent a workaround."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    },
+    {
+      "candidate": "municipal CKAN / Opencom",
+      "url": "already on main via --source opencom and municipal CKAN adapters",
+      "why": "This lane stays off municipal CKAN/Opencom."
+    },
+    {
+      "candidate": "leftover GIS/WMS/OGC/ArcGIS",
+      "url": "already on main via leftover GIS adapters",
+      "why": "This lane stays off leftover GIS/WMS."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source crbio --db /tmp/pda-crbio-proof/registry.sqlite --limit 10",
+    "listed": 10,
+    "inserted": 10,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "crbio:2052825",
+        "title": "Daratumumab for behandling av immunologisk trombocytopeni (ITP) -DART-studien",
+        "access_path": "https://api.cristin.no/v2/biobanks/2052825"
+      },
+      {
+        "id": "crbio:2052832",
+        "title": "EWOG-SAA-2010",
+        "access_path": "https://api.cristin.no/v2/biobanks/2052832"
+      },
+      {
+        "id": "crbio:2052838",
+        "title": "En studie av inflammatoriske og trombogene biomarkører hos elektrikere utsatt for dieseleksos under tunnelreparasjon",
+        "access_path": "https://api.cristin.no/v2/biobanks/2052838"
+      },
+      {
+        "id": "crbio:2052840",
+        "title": "Barn og unge med Juvenil Idiopatisk Artritt (JIA)",
+        "access_path": "https://api.cristin.no/v2/biobanks/2052840"
+      },
+      {
+        "id": "crbio:2052841",
+        "title": "Forskningsbiobanken for aldring, demens og nevrologi",
+        "access_path": "https://api.cristin.no/v2/biobanks/2052841"
+      },
+      {
+        "id": "crbio:2052842",
+        "title": "TANN-banken",
+        "access_path": "https://api.cristin.no/v2/biobanks/2052842"
+      },
+      {
+        "id": "crbio:2052843",
+        "title": "Serum fra pasienter med påvist flåttbåren sykdom",
+        "access_path": "https://api.cristin.no/v2/biobanks/2052843"
+      },
+      {
+        "id": "crbio:2052844",
+        "title": "Sykehuset Østfolds Generelle Nyrebiobank",
+        "access_path": "https://api.cristin.no/v2/biobanks/2052844"
+      },
+      {
+        "id": "crbio:2052846",
+        "title": "Generell Forskningsbiobank Roche Norge AS",
+        "access_path": "https://api.cristin.no/v2/biobanks/2052846"
+      },
+      {
+        "id": "crbio:2052847",
+        "title": "Lever og gallegangssykdommer",
+        "access_path": "https://api.cristin.no/v2/biobanks/2052847"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search DART-studien --db /tmp/pda-crbio-proof/registry.sqlite --limit 10",
+    "query": "DART-studien",
+    "returned": 1,
+    "hit_id": "crbio:2052825",
+    "title": "Daratumumab for behandling av immunologisk trombocytopeni (ITP) -DART-studien",
+    "source_id": "crbio",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://api.cristin.no/v2/biobanks/2052825",
+    "original_source": "https://api.cristin.no/v2/biobanks",
+    "why_picked": "title matched dart, studien"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset crbio:2052825 --db /tmp/pda-crbio-proof/registry.sqlite",
+    "dataset": "crbio:2052825",
+    "table_id": "2052825",
+    "fetch_id": 1,
+    "access_path": "https://api.cristin.no/v2/biobanks/2052825",
+    "request_url": "https://api.cristin.no/v2/biobanks/2052825",
+    "http_status": 200,
+    "listed": 1,
+    "inserted": 1,
+    "updated": 0,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "name",
+        "value": "Daratumumab for behandling av immunologisk trombocytopeni (ITP) -DART-studien"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset crbio:2052825 --db /tmp/pda-crbio-proof/registry.sqlite --out /tmp/pda-crbio-proof/methods",
+    "applicable": false,
+    "why": "Cristin /v2/biobanks/{id} prints name and cristin_biobank_id strings, not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed catalog cristin_biobank_id values. access_path copies the printed url. No crbio id was written onto a cristin docs-path row, a crinst institution row, or a crunit unit row.",
+    "License is null: the biobanks catalog prints no license field. Publisher is null: the catalog prints no publisher field.",
+    "Live GET of /v2/biobanks/2052825 is HTTP 200 with no Authorization header. No token is sent.",
+    "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "is_crbio_url matches only /v2/biobanks/{id} item paths. The bare collection URL and other Cristin v2 paths stay with --source cristin. Institution item paths stay with --source crinst. Unit item paths stay with --source crunit.",
+    "python3 -m pytest: 1607 passed, 1 skipped, 1 deselected.",
+    "Not a numeric time series with two or more periods. Fetch listed 1 printed name cell (Daratumumab for behandling av immunologisk trombocytopeni (ITP) -DART-studien).",
+    "Did not pick crunit (already on main #234). Did not pick crproj #235 or stpartier #236. Cristin countries/{code} was HTTP 404. Did not pick leftover GIS, municipal portals, or offentligdata.no."
+  ]
+}
