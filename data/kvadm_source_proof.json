@@ -157,8 +157,8 @@
     "Ids are copied from printed last path segments. access_path is the printed Kartkatalog DistributionUrl. No kvadm id was written onto a kvwms, kvtopo, kvgrunn, or kommuneinfo row.",
     "License stays null: the documents print no license URL. Publisher stays null.",
     "Kartkatalog search text=Administrative enheter prints leftover Type=service OGC:WMS for wms.adm_enheter2 and leftover Type=service OGC:WFS for wfs.administrative_enheter. Both return XML 200.",
-    "Rebased onto origin/main after stpartier #236, crbio #238, and nibioar5f #232 (c2704a4). SOURCE_IDS keeps ssbgis then stpartier then crbio then nibioar5f then kvadm.",
-    "python3 -m pytest after rebase onto nibioar5f #232: 1652 passed, 1 skipped, 1 deselected.",
-    "Open PR check at pickup found kvfkb #239 and nibioar5f #232. Those leftover catalogs stayed unused."
+    "Rebased onto origin/main after stpartier #236, crbio #238, nibioar5f #232, and kvfkb #239 (ad5c215). SOURCE_IDS keeps ssbgis then stpartier then crbio then nibioar5f then kvfkb then kvadm.",
+    "python3 -m pytest after rebase onto kvfkb #239: 1662 passed, 1 skipped, 1 deselected.",
+    "kvfkb #239 is on main. This adapter does not redo kvfkb."
   ]
 }
