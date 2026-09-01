@@ -1,0 +1,184 @@
+{
+  "produced_at": "2026-09-01T17:12:00Z",
+  "bound": {
+    "list_api": "https://data.ssb.no/api/klass/v1/classifications",
+    "openapi": "https://data.ssb.no/api/klass/v3/api-docs",
+    "walk": "copy printed _embedded.classifications[].id and _links.self.href from the official Klass classifications collection; GET each printed classification href; GET each printed versions[]._links.self.href; copy printed correspondenceTables[].id and correspondenceTables[]._links.self.href; the Klass OpenAPI names GET /api/klass/v1/correspondencetables/{id} and prints no correspondence-tables collection; do not invent table ids; access_path is the printed table self href; license stays null; publisher stays null; catalog and OpenAPI print no security scheme; live GET of those printed table paths is HTTP 200 with no token; no token is sent",
+    "cap": 10,
+    "how": "pda ingest --source ssbcorr --limit 10. The official OpenAPI names GET /api/klass/v1/correspondencetables/{id}. The first printed classification versions print correspondence tables. Ingest copies the first ten unique printed table ids in document order."
+  },
+  "discarded": [
+    {
+      "candidate": "SSB Klass correspondencetables collection",
+      "url": "https://data.ssb.no/api/klass/v1/correspondencetables",
+      "why": "HTTP 404. The OpenAPI names only /correspondencetables/{id}. Do not invent table ids from a missing collection."
+    },
+    {
+      "candidate": "Norges Bank SDMX categoryscheme",
+      "url": "https://data.norges-bank.no/api/categoryscheme?format=sdmx-json",
+      "why": "HTTP 404. Do not invent a workaround."
+    },
+    {
+      "candidate": "Norges Bank SDMX hierarchicalcodelist",
+      "url": "https://data.norges-bank.no/api/hierarchicalcodelist?format=sdmx-json",
+      "why": "HTTP 404. Do not invent a workaround."
+    },
+    {
+      "candidate": "Norges Bank SDMX metadataflow",
+      "url": "https://data.norges-bank.no/api/metadataflow?format=sdmx-json",
+      "why": "HTTP 404. Do not invent a workaround."
+    },
+    {
+      "candidate": "Enhetsregisteret organisasjonsformer/enheter",
+      "url": "https://data.brreg.no/enhetsregisteret/api/organisasjonsformer/enheter",
+      "why": "Live 200 printed list, but item self hrefs are /organisasjonsformer/{kode} already routed by --source brorgform. Do not invent a colliding access_path."
+    },
+    {
+      "candidate": "Enhetsregisteret matrikkelenhet",
+      "url": "https://data.brreg.no/enhetsregisteret/api/matrikkelenhet",
+      "why": "HTTP 400. Required matrikkelnummer or matrikkelenhetid. Do not invent those ids."
+    },
+    {
+      "candidate": "Enhetsregisteret rollegruppetyper / brrollegruppe",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/211",
+      "why": "In flight. Do not pick brrollegruppe."
+    },
+    {
+      "candidate": "Kartverket Kommuneinfo fylker / kifylker",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/212",
+      "why": "In flight. Do not pick kifylker."
+    },
+    {
+      "candidate": "Fiskeridirektoratet ERS",
+      "url": "https://api.fiskeridir.no/ers-api/openapi",
+      "why": "HTTP 401. Do not invent auth."
+    },
+    {
+      "candidate": "Frost MET sources",
+      "url": "https://frost.met.no/sources/v0.jsonld",
+      "why": "HTTP 401. Do not invent auth."
+    },
+    {
+      "candidate": "NVE HydAPI",
+      "url": "https://hydapi.nve.no/api/v1/Stations",
+      "why": "HTTP 401. Do not invent auth."
+    },
+    {
+      "candidate": "Udir Register for lærebedrifter",
+      "url": "https://data-nlr.udir.no/swagger/v4/swagger.json",
+      "why": "Known skip: live collection GETs are HTTP 401. Do not invent auth."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source ssbcorr --db /tmp/pda-ssbcorr-proof/registry.sqlite --limit 10",
+    "listed": 10,
+    "inserted": 10,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "ssbcorr:160",
+        "title": "Delområde- og grunnkretsinndeling 2016 - Delområde- og grunnkretsinndeling 2014",
+        "access_path": "https://data.ssb.no/api/klass/v1/correspondencetables/160"
+      },
+      {
+        "id": "ssbcorr:734",
+        "title": "Bydelsinndeling 2004 - Delområde- og grunnkretsinndeling 2016",
+        "access_path": "https://data.ssb.no/api/klass/v1/correspondencetables/734"
+      },
+      {
+        "id": "ssbcorr:171",
+        "title": "Delområde- og grunnkretsinndeling 2017 - Delområde- og grunnkretsinndeling 2016",
+        "access_path": "https://data.ssb.no/api/klass/v1/correspondencetables/171"
+      },
+      {
+        "id": "ssbcorr:2065",
+        "title": "Kommuneinndeling 2015 - Delområde- og grunnkretsinndeling 2016",
+        "access_path": "https://data.ssb.no/api/klass/v1/correspondencetables/2065"
+      },
+      {
+        "id": "ssbcorr:1835",
+        "title": "STN-området 2013 - Delområde- og grunnkretsinndeling 2016",
+        "access_path": "https://data.ssb.no/api/klass/v1/correspondencetables/1835"
+      },
+      {
+        "id": "ssbcorr:576",
+        "title": "Delområde- og grunnkretsinndeling 2014 - Delområde- og grunnkretsinndeling 2013",
+        "access_path": "https://data.ssb.no/api/klass/v1/correspondencetables/576"
+      },
+      {
+        "id": "ssbcorr:733",
+        "title": "Bydelsinndeling 2004 - Delområde- og grunnkretsinndeling 2014",
+        "access_path": "https://data.ssb.no/api/klass/v1/correspondencetables/733"
+      },
+      {
+        "id": "ssbcorr:523",
+        "title": "Delbydeler i Oslo 2007 - Delområde- og grunnkretsinndeling 2014",
+        "access_path": "https://data.ssb.no/api/klass/v1/correspondencetables/523"
+      },
+      {
+        "id": "ssbcorr:835",
+        "title": "Kommuneinndeling 2013 - Delområde- og grunnkretsinndeling 2014",
+        "access_path": "https://data.ssb.no/api/klass/v1/correspondencetables/835"
+      },
+      {
+        "id": "ssbcorr:1834",
+        "title": "STN-området 2013 - Delområde- og grunnkretsinndeling 2014",
+        "access_path": "https://data.ssb.no/api/klass/v1/correspondencetables/1834"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search \"2016 - Delområde- og grunnkretsinndeling 2014\" --db /tmp/pda-ssbcorr-proof/registry.sqlite --limit 10",
+    "query": "2016 - Delområde- og grunnkretsinndeling 2014",
+    "returned": 1,
+    "hit_id": "ssbcorr:160",
+    "title": "Delområde- og grunnkretsinndeling 2016 - Delområde- og grunnkretsinndeling 2014",
+    "source_id": "ssbcorr",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://data.ssb.no/api/klass/v1/correspondencetables/160",
+    "original_source": "https://data.ssb.no/api/klass/v1/classifications",
+    "why_picked": "title matched 2016, delområde, grunnkretsinndeling, 2014"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset ssbcorr:160 --db /tmp/pda-ssbcorr-proof/registry.sqlite",
+    "dataset": "ssbcorr:160",
+    "table_id": "160",
+    "access_path": "https://data.ssb.no/api/klass/v1/correspondencetables/160",
+    "request_url": "https://data.ssb.no/api/klass/v1/correspondencetables/160",
+    "http_status": 200,
+    "listed": 8,
+    "inserted": 8,
+    "updated": 0,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "sourceName",
+        "value": "Stabekk 26"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset ssbcorr:160 --db /tmp/pda-ssbcorr-proof/registry.sqlite",
+    "applicable": false,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "Klass /api/klass/v1/correspondencetables/160 prints correspondence-map sourceName values. Those are not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true
+  },
+  "notes": [
+    "Ids are copied from printed correspondenceTables[].id values. access_path is the printed correspondenceTables[]._links.self.href. No ssbcorr id was written onto an ssbver, ssclass, ssb, or ssbv2 row.",
+    "License is null: the classifications catalog and correspondence-table payload print no license field. Publisher is null: they print no publisher field.",
+    "OpenAPI prints no security scheme. Live GET of /api/klass/v1/correspondencetables/160 is HTTP 200 with no Authorization header. No token is sent.",
+    "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "python3 -m pytest: 1420 passed, 1 skipped.",
+    "Not a numeric time series with two or more periods. Fetch listed 8 printed correspondence-map sourceName cells.",
+    "is_ssbcorr_url is checked before is_klass_url so correspondence-table URLs do not go through the Klass classificationItems parser."
+  ]
+}

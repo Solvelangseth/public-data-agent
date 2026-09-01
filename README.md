@@ -5893,6 +5893,46 @@ HTTP 200, 1 beskrivelse cell. Sample printed value: `Daglig leder`.
 `pda methods` is not applicable: role-group names, not a numeric time
 series. Proof is `data/brrollegruppe_source_proof.json`.
 
+## SSB Klass correspondence tables source
+
+`pda ingest --source ssbcorr` is another replaceable adapter. It lists
+printed correspondence-table ids on official Klass versions. The Klass
+OpenAPI names GET `/api/klass/v1/correspondencetables/{id}` and prints
+no correspondence-tables collection. The walk copies printed
+`_links.self.href` values from the classifications catalog, GETs those
+printed classification paths, GETs printed version self hrefs, and
+copies printed `correspondenceTables[].id` plus
+`correspondenceTables[]._links.self.href`. The walk caps at 10.
+Dataset ids are the printed table `id` values. `access_path` is the
+printed table self href. License stays null. Publisher stays null.
+This is not the SSB PxWeb v0 Statbank (`--source ssb`), not PxWebApi 2
+(`--source ssbv2`), not Klass families (`--source ssbfam`), not Klass
+sections (`--source ssbsec`), not Klass classifications
+(`--source ssclass`), and not Klass versions (`--source ssbver`).
+
+```bash
+pda ingest --source ssbcorr --db data/registry.sqlite --limit 10
+pda search "2016 - Delområde- og grunnkretsinndeling 2014" --db data/registry.sqlite
+pda fetch --dataset ssbcorr:160 --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored correspondence-table URL. Observation
+values are copied from printed `correspondenceMaps[].sourceName`
+scalars. Other scalars stay as dimensions. Nested `_links` and
+`published` objects are not copied. License stays null. Publisher
+stays null.
+
+Live ingest 2026-09-01: listed 10, inserted 10. The first printed
+classification versions print correspondence tables. This walk copies
+the first ten unique printed table ids in document order. Live search
+`2016 - Delområde- og grunnkretsinndeling 2014` returns `ssbcorr:160`.
+Live fetch GETs
+`https://data.ssb.no/api/klass/v1/correspondencetables/160` HTTP 200,
+8 sourceName cells. Sample printed value: `Stabekk 26`. `pda methods`
+is not applicable: correspondence-map names, not a numeric time series
+(`no observations matched entity/measure; available=[]`).
+Proof is `data/ssbcorr_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
