@@ -858,3 +858,4 @@ ts	phase	decision	why	evidence	result
 2026-09-01T18:40:00Z	test	run pytest after rebase onto crinst 228	do not leave the count only in the PR body	python3 -m pytest 1567 passed 1 skipped 1 deselected	tests green
 2026-09-01T18:45:00Z	rebase	rebase barmark branch onto origin/main after stsaker #231	keep barmark plus stsaker/crinst/brorgformen/nibioar50/stperioder/fbgis/nordatlas and leftover GIS README sections; last-id crinst then stsaker then barmark	git rebase origin/main resolved __init__.py last-id tests; stsaker predecessor stays crinst; barmark follows stsaker	resolved
 2026-09-01T18:45:00Z	test	run pytest after rebase onto stsaker 231	do not leave the count only in the PR body	python3 -m pytest 1575 passed 1 skipped 1 deselected	tests green
+2026-09-01T19:25:00Z	test	run pytest after rebase onto crunit 234	do not leave the count only in the PR body	python3 -m pytest 1599 passed 1 skipped 1 deselected	tests green
