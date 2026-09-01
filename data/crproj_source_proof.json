@@ -157,6 +157,6 @@
     "python3 -m pytest: 1607 passed, 1 skipped, 1 deselected.",
     "Not a numeric time series with two or more periods. Fetch listed 1 printed title cell.",
     "Did not pick crunit (already on main #234). Did not pick stkomiteer, ssbsubj, stsaker, crinst, leftover GIS, municipal portals, or offentligdata.no.",
-    "Reset onto origin/main after crunit #234. SOURCE_IDS keeps every existing source plus crproj last."
+    "Reset onto origin/main after crunit #234. Rebased onto origin/main after barmark #229. SOURCE_IDS keeps every existing source plus crproj last."
   ]
 }

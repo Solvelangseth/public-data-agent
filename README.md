@@ -6561,6 +6561,7 @@ HTTP 200, 1 row, `title` starts with `Life and Death at Vinjefjorden`.
 `pda methods` is not applicable. Project titles are not a numeric time
 series. Proof is `data/crproj_source_proof.json`.
 Reset onto origin/main after crunit #234.
+Rebased onto origin/main after barmark #229.
 
 ## Brønnøysundregistrene Enhetsregisteret organisasjonsformer enheter source
 
