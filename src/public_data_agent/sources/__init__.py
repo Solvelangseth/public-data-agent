@@ -148,6 +148,7 @@ from public_data_agent.sources.spotwind import SpotwindSource
 from public_data_agent.sources.ssb import SsbStatbankSource
 from public_data_agent.sources.ssbfam import SsbfamSource
 from public_data_agent.sources.ssbgis import SsbgisSource
+from public_data_agent.sources.ssbfritid import SsbfritidSource
 from public_data_agent.sources.ssbv2 import Ssbv2Source
 from public_data_agent.sources.ssbsec import SsbsecSource
 from public_data_agent.sources.ssclass import SsclassSource
@@ -365,6 +366,7 @@ SOURCE_IDS = (
     "stsporre",
     "crresult",
     "stmoter",
+    "ssbfritid",
 )
 
 
@@ -731,6 +733,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return CrresultSource()
     if source_id == "stmoter":
         return StmoterSource()
+    if source_id == "ssbfritid":
+        return SsbfritidSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -881,6 +885,7 @@ __all__ = [
     "SsbStatbankSource",
     "SsbfamSource",
     "SsbgisSource",
+    "SsbfritidSource",
     "Ssbv2Source",
     "SsbsecSource",
     "SsclassSource",
