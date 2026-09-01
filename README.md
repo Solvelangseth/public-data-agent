@@ -6529,6 +6529,32 @@ After rebase onto origin/main (`stkomiteer` #233, `ssbsubj` #227,
 `stsaker` #231, `crinst` #228), `SOURCE_IDS` keeps those sources and
 `crunit` follows `stkomiteer`.
 
+## Cristin leftover projects source
+
+`pda ingest --source crproj` is another replaceable adapter. It lists
+printed `cristin_project_id` values on the official Cristin projects
+catalog `https://api.cristin.no/v2/projects`, capped at 10. Dataset ids
+are the printed `cristin_project_id` values so `113` stays distinct from
+`1234981`. `access_path` is the printed `url` on
+`/v2/projects/{cristin_project_id}`. License stays null. Publisher stays
+null. This is not the Cristin documentation path list
+(`--source cristin`), not leftover institutions (`--source crinst`),
+and not leftover units (`--source crunit`).
+
+```bash
+pda ingest --source crproj --db data/registry.sqlite --limit 10
+pda search Vinjefjorden --db data/registry.sqlite
+pda fetch --dataset crproj:1234981 --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored project URL. Observation values are copied
+from the printed localized `title`. Other printed scalars stay as
+dimensions. Nested `coordinating_institution` and `url` are not stored
+as a cell. License stays null. Publisher stays null.
+
+The catalog prints a default page of projects. This walk copies the
+first ten in document order. No page or per_page query is invented.
+
 ## Brønnøysundregistrene Enhetsregisteret organisasjonsformer enheter source
 
 `pda ingest --source brorgformen` is another replaceable adapter. It lists
