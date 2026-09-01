@@ -130,6 +130,7 @@ from public_data_agent.sources.ssbfam import SsbfamSource
 from public_data_agent.sources.ssbv2 import Ssbv2Source
 from public_data_agent.sources.ssbsec import SsbsecSource
 from public_data_agent.sources.ssclass import SsclassSource
+from public_data_agent.sources.ssbcorr import SsbcorrSource
 from public_data_agent.sources.ssbver import SsbverSource
 from public_data_agent.sources.statnett import StatnettDriftsdataSource
 from public_data_agent.sources.stedsnavn import StedsnavnSource
@@ -305,6 +306,7 @@ SOURCE_IDS = (
     "nguminer",
     "brrollegruppe",
     "mdirgis",
+    "ssbcorr",
 )
 
 
@@ -611,6 +613,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return BrrollegruppeSource()
     if source_id == "mdirgis":
         return MdirgisSource()
+    if source_id == "ssbcorr":
+        return SsbcorrSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -743,6 +747,7 @@ __all__ = [
     "Ssbv2Source",
     "SsbsecSource",
     "SsclassSource",
+    "SsbcorrSource",
     "SsbverSource",
     "SOURCE_IDS",
     "SourceBase",
