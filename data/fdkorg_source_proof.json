@@ -1,5 +1,5 @@
 {
-  "produced_at": "2026-09-01T16:48:00Z",
+  "produced_at": "2026-09-01T16:50:00Z",
   "bound": {
     "list_api": "https://organization-catalogue.fellesdatakatalog.digdir.no/organizations",
     "walk": "copy printed organizationId values from the official Digdir Felles datakatalog organization catalogue; native ids are the printed organizationId values so 961147867 stays distinct from 964983380; access_path joins each printed organizationId onto the printed /organizations path; license stays null; publisher stays null; the catalog prints neither; live GET of those printed organization paths is HTTP 200 with no token; no token is sent; do not invent query filters",
@@ -70,28 +70,114 @@
   ],
   "ingest": {
     "command": "pda ingest --source fdkorg --db /tmp/pda-fdkorg-proof/registry.sqlite --limit 10",
-    "listed": null,
-    "inserted": null,
-    "tables": []
+    "listed": 10,
+    "inserted": 10,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "fdkorg:961147867",
+        "title": "Beiarn kommune",
+        "access_path": "https://organization-catalogue.fellesdatakatalog.digdir.no/organizations/961147867"
+      },
+      {
+        "id": "fdkorg:962388108",
+        "title": "Berlevåg kommune",
+        "access_path": "https://organization-catalogue.fellesdatakatalog.digdir.no/organizations/962388108"
+      },
+      {
+        "id": "fdkorg:964983380",
+        "title": "Bindal kommune",
+        "access_path": "https://organization-catalogue.fellesdatakatalog.digdir.no/organizations/964983380"
+      },
+      {
+        "id": "fdkorg:964965870",
+        "title": "Birkenes kommune",
+        "access_path": "https://organization-catalogue.fellesdatakatalog.digdir.no/organizations/964965870"
+      },
+      {
+        "id": "fdkorg:970490361",
+        "title": "Bjerkreim kommune",
+        "access_path": "https://organization-catalogue.fellesdatakatalog.digdir.no/organizations/970490361"
+      },
+      {
+        "id": "fdkorg:964979723",
+        "title": "Bokn kommune",
+        "access_path": "https://organization-catalogue.fellesdatakatalog.digdir.no/organizations/964979723"
+      },
+      {
+        "id": "fdkorg:959318166",
+        "title": "Bremanger kommune",
+        "access_path": "https://organization-catalogue.fellesdatakatalog.digdir.no/organizations/959318166"
+      },
+      {
+        "id": "fdkorg:964983291",
+        "title": "Brønnøy kommune",
+        "access_path": "https://organization-catalogue.fellesdatakatalog.digdir.no/organizations/964983291"
+      },
+      {
+        "id": "fdkorg:964966397",
+        "title": "Bygland kommune",
+        "access_path": "https://organization-catalogue.fellesdatakatalog.digdir.no/organizations/964966397"
+      },
+      {
+        "id": "fdkorg:944521836",
+        "title": "Sparebank 1 sørøst-norge",
+        "access_path": "https://organization-catalogue.fellesdatakatalog.digdir.no/organizations/944521836"
+      }
+    ]
   },
   "search": {
     "command": "pda search BEIARN --db /tmp/pda-fdkorg-proof/registry.sqlite --limit 10",
     "query": "BEIARN",
-    "hit_id": null
+    "returned": 1,
+    "hit_id": "fdkorg:961147867",
+    "title": "Beiarn kommune",
+    "source_id": "fdkorg",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://organization-catalogue.fellesdatakatalog.digdir.no/organizations/961147867",
+    "original_source": "https://organization-catalogue.fellesdatakatalog.digdir.no/organizations",
+    "why_picked": "title matched beiarn"
   },
   "fetch": {
     "command": "pda fetch --dataset fdkorg:961147867 --db /tmp/pda-fdkorg-proof/registry.sqlite",
     "dataset": "fdkorg:961147867",
-    "http_status": null
+    "table_id": "961147867",
+    "fetch_id": 1,
+    "access_path": "https://organization-catalogue.fellesdatakatalog.digdir.no/organizations/961147867",
+    "request_url": "https://organization-catalogue.fellesdatakatalog.digdir.no/organizations/961147867",
+    "http_status": 200,
+    "listed": 1,
+    "inserted": 1,
+    "updated": 0,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "name",
+        "value": "BEIARN KOMMUNE"
+      }
+    ]
   },
   "methods": {
+    "command": "pda methods --dataset fdkorg:961147867 --db /tmp/pda-fdkorg-proof/registry.sqlite --out /tmp/pda-fdkorg-proof/methods",
     "applicable": false,
-    "why": "Digdir /organizations/{organizationId} prints name and organizationId strings, not a numeric time series with a year-like period field. methods/ was not edited."
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "Digdir /organizations/961147867 prints name and organizationId strings, not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
   },
   "notes": [
-    "Live ingest, search, and fetch are pending the first test pass.",
-    "Ids are copied from printed catalog organizationId values. access_path joins that printed id onto /organizations.",
+    "Ids are copied from printed catalog organizationId values. access_path joins that printed id onto /organizations. No fdkorg id was written onto a datanorge, brreg, or kommuneinfo row.",
     "License is null: the organization catalogue prints no license field. Publisher is null: the catalog prints no publisher field.",
-    "is_fdkorg_url matches only /organizations/{organizationId} item paths. The bare collection URL is not an fdkorg item."
+    "Live GET of /organizations/961147867 is HTTP 200 with no Authorization header. No token is sent.",
+    "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "is_fdkorg_url matches only /organizations/{organizationId} item paths. The bare collection URL is not an fdkorg item.",
+    "python3 -m pytest: 1369 passed, 1 skipped, 1 deselected.",
+    "Not a numeric time series with two or more periods. Fetch listed 1 printed name cell (BEIARN KOMMUNE).",
+    "Closed colliding brkommune #204. Did not pick brkommuner #203, nbdps #201, or nbagency now on main."
   ]
 }

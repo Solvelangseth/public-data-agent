@@ -5700,10 +5700,12 @@ dimensions. Nested `prefLabel` objects are not copied. License stays
 null. Publisher stays null.
 
 The catalog prints 977 organizations. This walk copies the first ten
-in document order. License stays null: the catalog prints no license
-field. Publisher stays null. `pda methods` is not applicable.
-Organization names are not a numeric time series. Proof is
-`data/fdkorg_source_proof.json`.
+in document order. Live ingest listed 10 and inserted 10. Live search
+`BEIARN` returns `fdkorg:961147867`. Live fetch GETs
+`https://organization-catalogue.fellesdatakatalog.digdir.no/organizations/961147867`
+HTTP 200, 1 row, `name` = `BEIARN KOMMUNE`. `pda methods` is not
+applicable. Organization names are not a numeric time series.
+Proof is `data/fdkorg_source_proof.json`.
 
 ## Architecture (long term)
 
