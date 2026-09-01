@@ -110,7 +110,8 @@ def test_crbio_is_a_registered_source() -> None:
     assert SOURCE_IDS[SOURCE_IDS.index("ssbfritid") + 1] == "kvadm"
     assert SOURCE_IDS[SOURCE_IDS.index("kvadm") + 1] == "kvkrets"
     assert SOURCE_IDS[SOURCE_IDS.index("kvkrets") + 1] == "dsbgis"
-    assert SOURCE_IDS[-1] == "dsbgis"
+    assert SOURCE_IDS[SOURCE_IDS.index("dsbgis") + 1] == "ssbens"
+    assert SOURCE_IDS[-1] == "ssbens"
     source = build_source("crbio")
     assert isinstance(source, CrbioSource)
     assert source.source_id == "crbio"

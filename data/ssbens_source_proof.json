@@ -1,0 +1,185 @@
+{
+  "produced_at": "2026-09-01T19:20:05Z",
+  "bound": {
+    "list_api": "https://data.ssb.no/api/v0/en/table",
+    "walk": "copy printed alphabetic type=l subject id values from the official SSB PxWeb v0 English table catalog; native ids are the printed subject ids so al stays distinct from bf; access_path joins each printed id onto the printed /api/v0/en/table path; license stays null; publisher stays null; the catalog prints neither; live GET of those printed subject folders is HTTP 200 with no token; no token is sent; five-digit table numbers used by --source ssb are not copied from this catalog; Norwegian leftover subjects stay on --source ssbsubj",
+    "cap": 10,
+    "how": "pda ingest --source ssbens --limit 10. The official catalogue prints 23 leftover English subject folders. Ingest copies the first ten in document order."
+  },
+  "discarded": [
+    {
+      "candidate": "sthoringer leftover Stortinget horinger",
+      "url": "https://data.stortinget.no/eksport/horinger",
+      "why": "Dropped. Duplicate of leftover Stortinget horinger already in flight as sthoring on AY PR #252. Same printed API. PR #250 closed unmerged."
+    },
+    {
+      "candidate": "sthoring leftover Stortinget horinger",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/252",
+      "why": "In flight. Same printed API as dropped sthoringer. One source only."
+    },
+    {
+      "candidate": "stinterp leftover Stortinget interpellasjoner",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/248",
+      "why": "In flight. Do not pick stinterp."
+    },
+    {
+      "candidate": "stskrift leftover Stortinget skriftligesporsmal",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/253",
+      "why": "In flight. Do not pick stskrift."
+    },
+    {
+      "candidate": "Udir NLR v4 enheter",
+      "url": "https://data-nlr.udir.no/v4/enheter",
+      "why": "Printed OpenAPI path exists, live GET is HTTP 401. Do not invent auth."
+    },
+    {
+      "candidate": "Cristin funding_sources / journals / publishers",
+      "url": "https://api.cristin.no/v2/funding_sources",
+      "why": "HTTP 404. Do not invent a workaround."
+    },
+    {
+      "candidate": "Enhetsregisteret naeringskoder / fylker / institusjonellSektorkode",
+      "url": "https://data.brreg.no/enhetsregisteret/api/naeringskoder",
+      "why": "HTTP 404. Do not invent a workaround."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    },
+    {
+      "candidate": "municipal CKAN / Opencom",
+      "url": "already on main via --source opencom and municipal CKAN adapters",
+      "why": "This lane stays off municipal CKAN/Opencom."
+    },
+    {
+      "candidate": "leftover GIS/WMS/OGC/ArcGIS",
+      "url": "already on main via leftover GIS adapters; nibiogard #255 and ssbtett #254 in flight",
+      "why": "This lane stays off leftover GIS/WMS."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source ssbens --db /tmp/pda-ssbens-proof/registry.sqlite --limit 10",
+    "listed": 10,
+    "inserted": 10,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "ssbens:al",
+        "title": "Labour market and earnings",
+        "access_path": "https://data.ssb.no/api/v0/en/table/al"
+      },
+      {
+        "id": "ssbens:bf",
+        "title": "Banking and financial markets",
+        "access_path": "https://data.ssb.no/api/v0/en/table/bf"
+      },
+      {
+        "id": "ssbens:vf",
+        "title": "Establishments, enterprises and accounts",
+        "access_path": "https://data.ssb.no/api/v0/en/table/vf"
+      },
+      {
+        "id": "ssbens:be",
+        "title": "Population",
+        "access_path": "https://data.ssb.no/api/v0/en/table/be"
+      },
+      {
+        "id": "ssbens:bb",
+        "title": "Construction, housing and property",
+        "access_path": "https://data.ssb.no/api/v0/en/table/bb"
+      },
+      {
+        "id": "ssbens:ei",
+        "title": "Energy and manufacturing",
+        "access_path": "https://data.ssb.no/api/v0/en/table/ei"
+      },
+      {
+        "id": "ssbens:he",
+        "title": "Health",
+        "access_path": "https://data.ssb.no/api/v0/en/table/he"
+      },
+      {
+        "id": "ssbens:if",
+        "title": "Income and consumption",
+        "access_path": "https://data.ssb.no/api/v0/en/table/if"
+      },
+      {
+        "id": "ssbens:in",
+        "title": "Immigration and immigrants",
+        "access_path": "https://data.ssb.no/api/v0/en/table/in"
+      },
+      {
+        "id": "ssbens:js",
+        "title": "Agriculture, forestry, hunting and fishing",
+        "access_path": "https://data.ssb.no/api/v0/en/table/js"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search \"Labour market and earnings\" --db /tmp/pda-ssbens-proof/registry.sqlite --limit 10",
+    "query": "Labour market and earnings",
+    "returned": 1,
+    "hit_id": "ssbens:al",
+    "title": "Labour market and earnings",
+    "source_id": "ssbens",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://data.ssb.no/api/v0/en/table/al",
+    "original_source": "https://data.ssb.no/api/v0/en/table",
+    "why_picked": "requirements labour AND market AND and AND earnings; title matched labour, market, and, earnings"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset ssbens:al --db /tmp/pda-ssbens-proof/registry.sqlite",
+    "dataset": "ssbens:al",
+    "table_id": "al",
+    "fetch_id": 1,
+    "access_path": "https://data.ssb.no/api/v0/en/table/al",
+    "request_url": "https://data.ssb.no/api/v0/en/table/al",
+    "http_status": 200,
+    "listed": 4,
+    "inserted": 4,
+    "updated": 0,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "text",
+        "value": "Unemployment"
+      },
+      {
+        "measure": "text",
+        "value": "Working environment, sickness absence, strikes and lockouts"
+      },
+      {
+        "measure": "text",
+        "value": "Earnings and labour costs"
+      },
+      {
+        "measure": "text",
+        "value": "Employment"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset ssbens:al --db /tmp/pda-ssbens-proof/registry.sqlite --out /tmp/pda-ssbens-proof/methods",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "SSB /api/v0/en/table/al prints leftover child-folder text strings, not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed catalog alphabetic subject ids. access_path joins that printed id onto /api/v0/en/table. No ssbens id was written onto an ssbsubj, ssb, ssbv2, or Klass row.",
+    "License is null: the leftover-subject catalog prints no license field. Publisher is null: the catalog prints no publisher field.",
+    "Live GET of /api/v0/en/table/al is HTTP 200 with no Authorization header. No token is sent.",
+    "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "is_ssbens_url matches only /api/v0/en/table/{subject} folders whose last segment is alphabetic. Norwegian /api/v0/no/table folders stay on ssbsubj. Five-digit table numbers and child folders such as al03 are not ssbens items.",
+    "python3 -m pytest: 1721 passed, 1 skipped, 1 deselected.",
+    "Not a numeric time series with two or more periods. Fetch listed 4 printed child-folder text cells.",
+    "Dropped sthoringer and closed PR #250 unmerged. Did not pick sthoring #252, stinterp #248, stskrift #253, leftover GIS, or offentligdata.no."
+  ]
+}

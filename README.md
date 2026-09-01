@@ -6708,6 +6708,40 @@ After rebase onto origin/main (`stsaker` #231, `crinst` #228,
 and `kikommuner` #224), every existing source stayed registered and
 `ssbsubj` follows `stsaker`.
 
+## SSB leftover PxWeb v0 English subjects source
+
+`pda ingest --source ssbens` is another replaceable adapter. It lists
+printed leftover subject `id` values on the official SSB PxWeb v0 English
+table catalog `https://data.ssb.no/api/v0/en/table`, capped at 10. Dataset
+ids are the printed alphabetic subject ids so `al` stays distinct from
+`bf`. `access_path` joins each printed `id` onto that same `/en/table`
+path. License stays null. Publisher stays null. This is not the Norwegian
+leftover subjects catalog (`--source ssbsubj`), not the SSB PxWeb v0
+Statbank table walk under subject `be` (`--source ssb`), not PxWebApi 2
+(`--source ssbv2`), and not Klass leftovers (`--source ssclass`,
+`--source ssbfam`, `--source ssbsec`, `--source ssbver`,
+`--source ssbcorr`, `--source ssbvar`).
+
+```bash
+pda ingest --source ssbens --db data/registry.sqlite --limit 10
+pda search "Labour market and earnings" --db data/registry.sqlite
+pda fetch --dataset ssbens:al --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored leftover-subject folder URL. Observation
+values are copied from the printed `text` scalars on the child folders.
+Other scalars stay as dimensions. License stays null. Publisher stays
+null.
+
+The catalog prints 23 leftover English subject folders. This walk copies
+the first ten in document order. Live ingest listed 10 and inserted 10.
+Live search `Labour market and earnings` returns `ssbens:al`. Live fetch
+GETs `https://data.ssb.no/api/v0/en/table/al` HTTP 200, 4 rows,
+`text` = `Unemployment`. `pda methods` is not applicable.
+Child-folder names are not a numeric time series.
+Proof is `data/ssbens_source_proof.json`.
+`ssbens` follows `dsbgis`.
+
 ## Stortinget leftover sesjoner partier source
 
 `pda ingest --source stpartier` is another replaceable adapter. It lists

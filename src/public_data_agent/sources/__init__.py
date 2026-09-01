@@ -156,6 +156,7 @@ from public_data_agent.sources.ssbv2 import Ssbv2Source
 from public_data_agent.sources.ssbsec import SsbsecSource
 from public_data_agent.sources.ssclass import SsclassSource
 from public_data_agent.sources.ssbcorr import SsbcorrSource
+from public_data_agent.sources.ssbens import SsbensSource
 from public_data_agent.sources.ssbsubj import SsbsubjSource
 from public_data_agent.sources.ssbvar import SsbvarSource
 from public_data_agent.sources.ssbver import SsbverSource
@@ -373,6 +374,7 @@ SOURCE_IDS = (
     "kvadm",
     "kvkrets",
     "dsbgis",
+    "ssbens",
 )
 
 
@@ -747,6 +749,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return KvkretsSource()
     if source_id == "dsbgis":
         return DsbgisSource()
+    if source_id == "ssbens":
+        return SsbensSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -905,6 +909,7 @@ __all__ = [
     "SsbsecSource",
     "SsclassSource",
     "SsbcorrSource",
+    "SsbensSource",
     "SsbsubjSource",
     "SsbvarSource",
     "SsbverSource",
