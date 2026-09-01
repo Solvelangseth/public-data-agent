@@ -1,0 +1,157 @@
+{
+  "produced_at": "2026-09-01T18:38:16Z",
+  "bound": {
+    "list_api": "https://api.cristin.no/v2/persons",
+    "walk": "copy printed cristin_person_id values from the official Cristin persons catalog; native ids are the printed cristin_person_id values; access_path copies the printed url on /v2/persons/{cristin_person_id}; license stays null; publisher stays null; the catalog prints neither; live GET of those printed item paths is HTTP 200 with no token; no token is sent; do not invent page or per_page query filters",
+    "cap": 10,
+    "how": "pda ingest --source crperson --limit 10. The official catalogue prints a default page of persons. Ingest copies the first ten in document order."
+  },
+  "discarded": [
+    {
+      "candidate": "Cristin leftover projects / crproj",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/235",
+      "why": "Already on main via PR #235 SHA a02a6b35a33dcd171a252433a7636d63cc82f80c. Do not pick crproj or duplicate /v2/projects."
+    },
+    {
+      "candidate": "Stortinget leftover sesjoner partier / stpartier",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/236",
+      "why": "In flight (#236 and #237). Do not pick stpartier."
+    },
+    {
+      "candidate": "Cristin leftover units / crunit",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/234",
+      "why": "Already on main. Do not pick crunit or duplicate /v2/units."
+    },
+    {
+      "candidate": "Cristin leftover institutions / crinst",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/228",
+      "why": "Already on main. Do not pick crinst or duplicate /v2/institutions."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    },
+    {
+      "candidate": "municipal CKAN / Opencom",
+      "url": "already on main via --source opencom and municipal CKAN adapters",
+      "why": "This lane stays off municipal CKAN/Opencom."
+    },
+    {
+      "candidate": "leftover GIS/WMS/OGC/ArcGIS",
+      "url": "already on main via leftover GIS adapters",
+      "why": "This lane stays off leftover GIS/WMS."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source crperson --db /tmp/pda-crperson-proof/registry.sqlite --limit 10",
+    "listed": 10,
+    "inserted": 10,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "crperson:1048266",
+        "title": "Maria Abad Colom",
+        "access_path": "https://api.cristin.no/v2/persons/1048266"
+      },
+      {
+        "id": "crperson:1290482",
+        "title": "Lawrence Abada",
+        "access_path": "https://api.cristin.no/v2/persons/1290482"
+      },
+      {
+        "id": "crperson:1336557",
+        "title": "Mohammad Mahdi Abaei",
+        "access_path": "https://api.cristin.no/v2/persons/1336557"
+      },
+      {
+        "id": "crperson:1765108",
+        "title": "Paul Nti Ababio",
+        "access_path": "https://api.cristin.no/v2/persons/1765108"
+      },
+      {
+        "id": "crperson:1805404",
+        "title": "Yassine Ababri",
+        "access_path": "https://api.cristin.no/v2/persons/1805404"
+      },
+      {
+        "id": "crperson:1870357",
+        "title": "Gorka Abad Garcia",
+        "access_path": "https://api.cristin.no/v2/persons/1870357"
+      },
+      {
+        "id": "crperson:1878891",
+        "title": "Gorka Abad Garcia",
+        "access_path": "https://api.cristin.no/v2/persons/1878891"
+      },
+      {
+        "id": "crperson:1880614",
+        "title": "Wafa Subhi Abahra",
+        "access_path": "https://api.cristin.no/v2/persons/1880614"
+      },
+      {
+        "id": "crperson:1887257",
+        "title": "Kiya Nezif Abagojjam",
+        "access_path": "https://api.cristin.no/v2/persons/1887257"
+      },
+      {
+        "id": "crperson:428956",
+        "title": "Shadab Abadpour",
+        "access_path": "https://api.cristin.no/v2/persons/428956"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search Ababri --db /tmp/pda-crperson-proof/registry.sqlite --limit 10",
+    "query": "Ababri",
+    "returned": 1,
+    "hit_id": "crperson:1805404",
+    "title": "Yassine Ababri",
+    "source_id": "crperson",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://api.cristin.no/v2/persons/1805404",
+    "original_source": "https://api.cristin.no/v2/persons",
+    "why_picked": "title matched ababri"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset crperson:1805404 --db /tmp/pda-crperson-proof/registry.sqlite",
+    "dataset": "crperson:1805404",
+    "table_id": "1805404",
+    "fetch_id": 1,
+    "access_path": "https://api.cristin.no/v2/persons/1805404",
+    "request_url": "https://api.cristin.no/v2/persons/1805404",
+    "http_status": 200,
+    "listed": 1,
+    "inserted": 1,
+    "updated": 0,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "first_name",
+        "value": "Yassine"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset crperson:1805404 --db /tmp/pda-crperson-proof/registry.sqlite --out /tmp/pda-crperson-proof/methods",
+    "applicable": false,
+    "why": "Cristin /v2/persons/{id} prints first_name and surname strings, not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed catalog cristin_person_id values. access_path copies the printed url. No crperson id was written onto a cristin docs-path, crinst institution, crunit unit, or crproj project row.",
+    "License is null: the persons catalog prints no license field. Publisher is null: the catalog prints no publisher field.",
+    "Live GET of /v2/persons/1805404 is HTTP 200 with no Authorization header. No token is sent.",
+    "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "is_crperson_url matches only /v2/persons/{id} item paths. The bare collection URL and other Cristin v2 paths stay with --source cristin. Institution item paths stay with --source crinst. Unit item paths stay with --source crunit. Project item paths stay with --source crproj.",
+    "python3 -m pytest: 1615 passed, 1 skipped.",
+    "Not a numeric time series with two or more periods. Fetch listed 1 printed first_name cell.",
+    "Did not pick crproj (already on main #235). Did not pick crunit, crinst, stpartier, leftover GIS, municipal portals, or offentligdata.no.",
+    "Started from origin/main after crproj #235. SOURCE_IDS keeps every existing source plus crperson last."
+  ]
+}
