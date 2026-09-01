@@ -5756,7 +5756,7 @@ roller lists (`--source brroller`), not Frivillighetsregisteret
 
 ```bash
 pda ingest --source brkommuner --db data/registry.sqlite --limit 10
-pda search UTENLANDS --db data/registry.sqlite
+pda search OSLO --db data/registry.sqlite
 pda fetch --dataset brkommuner:0301 --db data/registry.sqlite
 ```
 
@@ -5767,8 +5767,11 @@ stays null.
 
 The first printed catalog page lists kommuner. This walk copies the
 first ten in document order and does not invent page or size query
-parameters. `pda methods` is not applicable. Kommune names are not a
-numeric time series.
+parameters. Live ingest listed 10 and inserted 10. Live search `OSLO`
+returns `brkommuner:0301`. Live fetch GETs
+`https://data.brreg.no/enhetsregisteret/api/kommuner/0301`
+HTTP 200, 1 row, `navn` = `OSLO`. `pda methods` is not applicable.
+Kommune names are not a numeric time series.
 Proof is `data/brkommuner_source_proof.json`.
 
 ## Architecture (long term)
