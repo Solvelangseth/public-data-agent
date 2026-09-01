@@ -201,6 +201,7 @@ def test_nibiorest_is_a_registered_source() -> None:
     assert SOURCE_IDS[SOURCE_IDS.index("vegwms") + 1] == "fdkorg"
     assert SOURCE_IDS[SOURCE_IDS.index("fdkorg") + 1] == "brrolletype"
     assert SOURCE_IDS[SOURCE_IDS.index("brrolletype") + 1] == "brkommuner"
+    assert SOURCE_IDS[-1] == "nguminer"
     assert "nibiorest" in SOURCE_IDS
     assert "fdirwms" in SOURCE_IDS
     assert "avinorgis" in SOURCE_IDS

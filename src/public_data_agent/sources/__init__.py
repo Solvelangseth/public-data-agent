@@ -72,6 +72,7 @@ from public_data_agent.sources.nbdps import NbdpsSource
 from public_data_agent.sources.nbdsd import NbdsdSource
 from public_data_agent.sources.nfr import NfrSource
 from public_data_agent.sources.ngu import NguSource
+from public_data_agent.sources.nguminer import NguminerSource
 from public_data_agent.sources.nguwms import NguwmsSource
 from public_data_agent.sources.ncagalewarnings import NcagalewarningsSource
 from public_data_agent.sources.nibio import NibioWeatherSource
@@ -299,6 +300,7 @@ SOURCE_IDS = (
     "fdkorg",
     "brrolletype",
     "brkommuner",
+    "nguminer",
 )
 
 
@@ -599,6 +601,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return BrrolletypeSource()
     if source_id == "brkommuner":
         return BrkommunerSource()
+    if source_id == "nguminer":
+        return NguminerSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -674,6 +678,7 @@ __all__ = [
     "NcagalewarningsSource",
     "NfrSource",
     "NguSource",
+    "NguminerSource",
     "NguwmsSource",
     "NibioWeatherSource",
     "NibiorestSource",
