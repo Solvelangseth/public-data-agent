@@ -6014,6 +6014,38 @@ HTTP 200, 20 endringstype cells. Sample printed value: `Ukjent`.
 `pda methods` is not applicable: update event labels, not a numeric time
 series (`no observations matched entity/measure; available=[]`).
 Proof is `data/broppdater_source_proof.json`.
+## Kartverket Kommuneinfo fylker source
+
+`pda ingest --source kifylker` is another replaceable adapter. It lists
+printed fylkesnummer values on the official Kartverket Kommuneinfo
+fylker catalog
+`https://api.kartverket.no/kommuneinfo/v1/fylker`,
+capped at 10. Dataset ids are the printed `fylkesnummer` values.
+`access_path` joins each printed `fylkesnummer` onto the printed
+`/kommuneinfo/v1/fylker` path. The official Kommuneinfo OpenAPI names
+GET `/fylker/{fylkesnummer}`. License stays null. Publisher stays
+null. This is not Kartverket Kommuneinfo OpenAPI collection paths
+(`--source kommuneinfo`) and not Enhetsregisteret kommuner
+(`--source brkommuner`).
+
+```bash
+pda ingest --source kifylker --db data/registry.sqlite --limit 10
+pda search Troms --db data/registry.sqlite
+pda fetch --dataset kifylker:55 --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored fylke URL. Observation values are copied
+from the printed `fylkesnavn` scalar. Other scalars stay as
+dimensions. Nested `avgrensningsboks` and `kommuner` objects are not
+copied. License stays null. Publisher stays null.
+
+The catalog prints 15 fylker. This walk copies the first ten in
+document order. Live ingest listed 10 and inserted 10. Live search
+`Troms` returns `kifylker:55`. Live fetch GETs
+`https://api.kartverket.no/kommuneinfo/v1/fylker/55`
+HTTP 200, 1 row, `fylkesnavn` = `Troms`. `pda methods` is not
+applicable. Fylke names are not a numeric time series.
+Proof is `data/kifylker_source_proof.json`.
 
 ## Architecture (long term)
 
