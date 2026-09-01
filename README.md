@@ -7176,6 +7176,7 @@ Started from origin/main after crresult #245 (`43dbdb8`). Rebased onto
 origin/main after stmoter #242, ssbfritid #247, kvadm #241, kvkrets
 #251, dsbgis #246, and nibiogard #255 (`38dfde3`). Every existing
 source stayed registered and `stinterp` follows `nibiogard`.
+`python3 -m pytest`: 1721 passed, 1 skipped, 1 deselected.
 
 ## Brønnøysundregistrene Enhetsregisteret organisasjonsformer enheter source
 

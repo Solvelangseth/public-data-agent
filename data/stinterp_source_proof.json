@@ -180,6 +180,7 @@
     "python3 -m pytest after rebase onto stmoter #242: 1692 passed 1 skipped 1 deselected",
     "python3 -m pytest after rebase onto ssbfritid #247: 1692 passed 1 skipped 1 deselected",
     "python3 -m pytest after rebase onto kvadm #241: 1702 passed 1 skipped 1 deselected",
+    "python3 -m pytest after rebase onto nibiogard #255: 1721 passed 1 skipped 1 deselected",
     "Started from origin/main after crresult #245 merge SHA 43dbdb81991e15d68180396a0b292ad4a05c0746. Rebased onto origin/main after stmoter #242, ssbfritid #247, kvadm #241, kvkrets #251, dsbgis #246, and nibiogard #255 merge SHA 38dfde3. Kept every existing source plus stinterp including kvkrets, dsbgis, and nibiogard. Did not pick stmoter, stsporre, crperson, crresult, or leftover GIS."
   ]
 }
