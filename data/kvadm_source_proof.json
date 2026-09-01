@@ -1,0 +1,169 @@
+{
+  "produced_at": "2026-09-01T19:50:00Z",
+  "bound": {
+    "list_api": [
+      "https://wms.geonorge.no/skwms1/wms.adm_enheter2?service=wms&request=GetCapabilities",
+      "https://wfs.geonorge.no/skwms1/wfs.administrative_enheter?&service=WFS&acceptversions=2.0.0&request=GetCapabilities"
+    ],
+    "kartkatalog": "https://kartkatalog.geonorge.no/api/search?text=Administrative%20enheter&limit=50",
+    "walk": "copy the two printed leftover Kartverket OGC:WMS and OGC:WFS Type=service GetCapabilities rows Kartkatalog search text=Administrative enheter prints for Administrative enheter WMS and Administrative enheter WFS; each leftover document is one dataset; skip leftover topo/WMTS already in kvwms; skip leftover topo WMS already in kvtopo; skip leftover grunnkart already in kvgrunn; skip restricted Matrikkelen WMS; skip kommuneinfo REST already in kommuneinfo; skip historical wms.adm_enheter_historisk, Arctic wms.arctic_adm, INSPIRE wms.inspire_au, and grunnkretser leftovers; skip downloads, other organizations, HTML, and non-WMS/WFS bodies; skip 404/401; native ids are the printed last path segment so wms.adm_enheter2 stays distinct from wfs.administrative_enheter; access_path is the printed GetCapabilities URL; license stays null because the documents print no license URL; publisher stays null; live GET of those printed leftover documents is HTTP 200 WMS/WFS XML; do not invent extra leftover service URLs",
+    "cap": 10,
+    "how": "pda ingest --source kvadm --limit 10. Kartkatalog search text=Administrative enheter prints leftover Type=service OGC:WMS for wms.adm_enheter2 and leftover Type=service OGC:WFS for wfs.administrative_enheter. Those leftover GetCapabilities documents return WMS_Capabilities 1.3.0 and WFS_Capabilities 2.0 XML 200. Cap 10 copies the 2 leftover live documents. This is not --source kvwms, kvtopo, kvgrunn, kommuneinfo, or geonorge."
+  },
+  "discarded": [
+    {
+      "candidate": "Kartverket leftover WMS / kvwms",
+      "url": "https://wms.geonorge.no/skwms1/wms.topo?service=WMS&request=GetCapabilities",
+      "why": "Already on main as --source kvwms. Skip."
+    },
+    {
+      "candidate": "Kartverket leftover topo WMS / kvtopo",
+      "url": "https://wms.geonorge.no/skwms1/wms.kartdata?service=wms&request=getcapabilities",
+      "why": "Already on main as --source kvtopo. Skip."
+    },
+    {
+      "candidate": "Kartverket leftover grunnkart WMS / kvgrunn",
+      "url": "https://wms.geonorge.no/skwms1/wms.topograatone?service=WMS&request=GetCapabilities",
+      "why": "Already on main as --source kvgrunn. Skip."
+    },
+    {
+      "candidate": "Kartverket leftover FKB WMS / kvfkb",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/239",
+      "why": "In-flight sibling PR 239. Do not redo kvfkb."
+    },
+    {
+      "candidate": "Administrative inndelinger REST-API / kommuneinfo",
+      "url": "https://ws.geonorge.no/kommuneinfo/v1/",
+      "why": "Printed Type=service W3C:REST. Already --source kommuneinfo. Skip."
+    },
+    {
+      "candidate": "Administrative enheter - historiske versjoner WMS",
+      "url": "https://wms.geonorge.no/skwms1/wms.adm_enheter_historisk?service=WMS&request=GetCapabilities",
+      "why": "Printed leftover Type=service OGC:WMS. Not one of the two leftover administrative-enheter documents this first slice copies. Do not invent extra leftover ids."
+    },
+    {
+      "candidate": "Arktiske administrative enheter WMS",
+      "url": "https://wms.geonorge.no/skwms1/wms.arctic_adm?request=GetCapabilities&service=WMS",
+      "why": "Printed leftover Type=service OGC:WMS. Not one of the two leftover administrative-enheter documents this first slice copies. Skip."
+    },
+    {
+      "candidate": "INSPIRE Administrative units WMS",
+      "url": "https://wms.geonorge.no/skwms1/wms.inspire_au?service=wms&version=1.3.0&request=getcapabilities",
+      "why": "Printed leftover Type=service OGC:WMS. Not one of the two leftover administrative-enheter documents this first slice copies. Skip."
+    },
+    {
+      "candidate": "Administrative enheter kommuner / GEONORGE:DOWNLOAD",
+      "url": "https://nedlasting.geonorge.no/api/capabilities/",
+      "why": "Printed Type=dataset GEONORGE:DOWNLOAD. Ingest copies Type=service leftover WMS/WFS only."
+    },
+    {
+      "candidate": "NIBIO leftover AR5-forvaltning / nibioar5f",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/232",
+      "why": "In-flight sibling PR 232. Different host. Do not pick nibioar5f."
+    },
+    {
+      "candidate": "SSB leftover GIS / ssbgis",
+      "url": "already --source ssbgis",
+      "why": "Already on origin/main after #215. Do not redo ssbgis."
+    },
+    {
+      "candidate": "Statsforvalteren leftover Barmarksløyper / barmark",
+      "url": "already --source barmark",
+      "why": "Already on origin/main after #229. Do not redo barmark."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source kvadm --db /tmp/pda-kvadm-proof/registry.sqlite --limit 10",
+    "listed": 2,
+    "inserted": 2,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "kvadm:wms.adm_enheter2",
+        "title": "Administrative enheter WMS versjon 2",
+        "access_path": "https://wms.geonorge.no/skwms1/wms.adm_enheter2?service=wms&request=GetCapabilities"
+      },
+      {
+        "id": "kvadm:wfs.administrative_enheter",
+        "title": "administrative_enheter 2025",
+        "access_path": "https://wfs.geonorge.no/skwms1/wfs.administrative_enheter?&service=WFS&acceptversions=2.0.0&request=GetCapabilities"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search \"administrative enheter\" --db /tmp/pda-kvadm-proof/registry.sqlite --limit 10",
+    "query": "administrative enheter",
+    "returned": 2,
+    "hit_id": "kvadm:wms.adm_enheter2",
+    "title": "Administrative enheter WMS versjon 2",
+    "source_id": "kvadm",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://wms.geonorge.no/skwms1/wms.adm_enheter2?service=wms&request=GetCapabilities",
+    "original_source": "https://wms.geonorge.no/skwms1/wms.adm_enheter2?service=wms&request=GetCapabilities",
+    "why_picked": "title matched administrative, enheter"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset kvadm:wms.adm_enheter2 --db /tmp/pda-kvadm-proof/registry.sqlite",
+    "dataset": "kvadm:wms.adm_enheter2",
+    "table_id": "wms.adm_enheter2",
+    "access_path": "https://wms.geonorge.no/skwms1/wms.adm_enheter2?service=wms&request=GetCapabilities",
+    "request_url": "https://wms.geonorge.no/skwms1/wms.adm_enheter2?service=wms&request=GetCapabilities",
+    "http_status": 200,
+    "listed": 5,
+    "inserted": 5,
+    "updated": 0,
+    "unchanged": 0,
+    "layers": 5,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "Name",
+        "value": "adm_enheter_V2_WMS"
+      },
+      {
+        "measure": "Name",
+        "value": "kommuner"
+      },
+      {
+        "measure": "Name",
+        "value": "kommuner_gjel"
+      },
+      {
+        "measure": "Name",
+        "value": "fylker"
+      },
+      {
+        "measure": "Name",
+        "value": "fylker_gjel"
+      }
+    ],
+    "note": "Live GET 200 WMS_Capabilities 1.3.0. The WMS document prints 5 Layer Name cells: adm_enheter_V2_WMS, kommuner, kommuner_gjel, fylker, fylker_gjel. methods/ was not edited."
+  },
+  "methods": {
+    "applicable": false,
+    "why": "Kartverket leftover administrative-enheter GetCapabilities prints layer names and feature type names. Those are not a numeric time series. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false
+  },
+  "notes": [
+    "Ids are copied from printed last path segments. access_path is the printed Kartkatalog DistributionUrl. No kvadm id was written onto a kvwms, kvtopo, kvgrunn, or kommuneinfo row.",
+    "License stays null: the documents print no license URL. Publisher stays null.",
+    "Kartkatalog search text=Administrative enheter prints leftover Type=service OGC:WMS for wms.adm_enheter2 and leftover Type=service OGC:WFS for wfs.administrative_enheter. Both return XML 200.",
+    "Rebased onto origin/main after stpartier #236, crbio #238, nibioar5f #232, kvfkb #239, crperson #240, stsporre #243, crresult #245, stmoter #242, and ssbfritid #247 (8d0688b). SOURCE_IDS keeps ssbgis then stpartier then crbio then nibioar5f then kvfkb then crperson then stsporre then crresult then stmoter then ssbfritid then kvadm.",
+    "python3 -m pytest after rebase onto kvfkb #239: 1662 passed, 1 skipped, 1 deselected.",
+    "python3 -m pytest after rebase onto stsporre #243: 1678 passed, 1 skipped, 1 deselected.",
+    "python3 -m pytest after rebase onto crresult #245: 1686 passed, 1 skipped, 1 deselected.",
+    "python3 -m pytest after rebase onto stmoter #242: 1694 passed, 1 skipped, 1 deselected.",
+    "python3 -m pytest after rebase onto ssbfritid #247: 1694 passed, 1 skipped, 1 deselected.",
+    "kvfkb #239 is on main. This adapter does not redo kvfkb.",
+    "nibioar5f #232, ssbgis, ssbfritid, and barmark stay on main. Leftover GIS README sections kept."
+  ]
+}

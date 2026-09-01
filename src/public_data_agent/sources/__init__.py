@@ -63,6 +63,7 @@ from public_data_agent.sources.isobaricgrib import IsobaricgribSource
 from public_data_agent.sources.kifylker import KifylkerSource
 from public_data_agent.sources.kikommuner import KikommunerSource
 from public_data_agent.sources.kommuneinfo import KommuneinfoSource
+from public_data_agent.sources.kvadm import KvadmSource
 from public_data_agent.sources.kvgrunn import KvgrunnSource
 from public_data_agent.sources.kvfkb import KvfkbSource
 from public_data_agent.sources.kvtopo import KvtopoSource
@@ -367,6 +368,7 @@ SOURCE_IDS = (
     "crresult",
     "stmoter",
     "ssbfritid",
+    "kvadm",
 )
 
 
@@ -735,6 +737,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return StmoterSource()
     if source_id == "ssbfritid":
         return SsbfritidSource()
+    if source_id == "kvadm":
+        return KvadmSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -800,6 +804,7 @@ __all__ = [
     "KifylkerSource",
     "KikommunerSource",
     "KommuneinfoSource",
+    "KvadmSource",
     "KvgrunnSource",
     "KvfkbSource",
     "KvtopoSource",
