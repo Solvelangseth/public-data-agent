@@ -28,6 +28,7 @@ from public_data_agent.sources.datanorge import DataNorgeSource
 from public_data_agent.sources.elcert import ElcertSource
 from public_data_agent.sources.entur import EnturGbfsSource
 from public_data_agent.sources.envreportreg import EnvreportregSource
+from public_data_agent.sources.fbgis import FbgisSource
 from public_data_agent.sources.fdkorg import FdkorgSource
 from public_data_agent.sources.fdirwms import FdirwmsSource
 from public_data_agent.sources.fhi import FhiStatistikkSource
@@ -325,6 +326,7 @@ SOURCE_IDS = (
     "nordatlas",
     "brunder",
     "kikommuner",
+    "fbgis",
 )
 
 
@@ -651,6 +653,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return BrunderSource()
     if source_id == "kikommuner":
         return KikommunerSource()
+    if source_id == "fbgis":
+        return FbgisSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -681,6 +685,7 @@ __all__ = [
     "ElcertSource",
     "EnturGbfsSource",
     "EnvreportregSource",
+    "FbgisSource",
     "FdirwmsSource",
     "FdkorgSource",
     "FhiStatistikkSource",

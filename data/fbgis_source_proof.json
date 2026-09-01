@@ -1,0 +1,194 @@
+{
+  "produced_at": "2026-09-01T17:45:00Z",
+  "bound": {
+    "list_api": "https://kartkatalog.geonorge.no/api/search?text=Forsvarsbygg",
+    "walk": "copy printed leftover OGC:WMS and OGC:WFS Type=service rows the official Geonorge Kartkatalog search text=Forsvarsbygg prints; skip other organizations, downloads, servicelayers, and W3C:REST; skip leftover Kartverket WMS already in kvwms/kvgrunn/kvtopo including printed kvfriluft ids wms.friluftsruter2, wms.fjellskygge, wms.n5raster2, and wms.markagrensen; skip restricted Matrikkelen WMS; skip leftover Avinor and Bane NOR skwms1 ids, Kartverket Havnedata, leftover SSB WMS hosts, and leftover BarentsWatch hosts; skip GetCapabilities bodies that are not WMS or WFS XML; native ids are the printed last path segment so the leftover /skwms1/wms.skytefelt GetCapabilities URL keeps id wms.skytefelt; access_path is the printed DistributionUrl; license stays null because the catalog prints no license URL; publisher stays null; do not invent query filters or layer names",
+    "cap": 10,
+    "how": "pda ingest --source fbgis --limit 10. The official search prints 17 catalog rows. 10 are OGC:WMS or OGC:WFS Type=service from Forsvarsbygg. Cap 10 copies those leftover live documents after skipping downloads, other organizations, and ids already covered by kvwms, kvgrunn, kvtopo, havnedata, avinorgis, and banegis."
+  },
+  "discarded": [
+    {
+      "candidate": "kvfriluft leftover Kartverket WMS",
+      "url": "https://wms.geonorge.no/skwms1/wms.friluftsruter2?request=GetCapabilities&service=WMS&version=1.3.0",
+      "why": "Printed leftover Kartverket GetCapabilities live 200 WMS XML, but already --source kvtopo KEPT_IDS together with wms.fjellskygge, wms.n5raster2, and wms.markagrensen. Do not invent a second owner."
+    },
+    {
+      "candidate": "wms.fjellskygge",
+      "url": "https://wms.geonorge.no/skwms1/wms.fjellskygge?request=GetCapabilities&service=WMS",
+      "why": "Already --source kvtopo. Skip URL already owned."
+    },
+    {
+      "candidate": "wms.n5raster2",
+      "url": "https://wms.geonorge.no/skwms1/wms.n5raster2?service=wms&request=getcapabilities",
+      "why": "Already --source kvtopo. Skip URL already owned."
+    },
+    {
+      "candidate": "wms.markagrensen",
+      "url": "https://wms.geonorge.no/skwms1/wms.markagrensen?request=GetCapabilities&Service=WMS",
+      "why": "Already --source kvtopo. Skip URL already owned."
+    },
+    {
+      "candidate": "wms.matrikkelkart",
+      "url": "https://wms.geonorge.no/skwms1/wms.matrikkelkart?service=wms&request=getcapabilities",
+      "why": "Restricted Matrikkelen WMS. kvtopo SKIP_IDS. Skip restricted/protected."
+    },
+    {
+      "candidate": "wms.kartdata / wms.fkb",
+      "url": "already --source kvtopo",
+      "why": "Already --source kvtopo. Skip URL already owned."
+    },
+    {
+      "candidate": "wms.topo / kvwms",
+      "url": "https://wms.geonorge.no/skwms1/wms.topo?service=WMS&request=GetCapabilities",
+      "why": "Already --source kvwms. Id skipped."
+    },
+    {
+      "candidate": "grunnkart / kvgrunn",
+      "url": "https://wms.geonorge.no/skwms1/wms.topograatone?service=WMS&request=GetCapabilities",
+      "why": "Already --source kvgrunn. Id skipped."
+    },
+    {
+      "candidate": "Kartverket Havnedata / havnedata",
+      "url": "https://ogcapitest.kartverket.no/rest/services/havnedata3_0/api?f=json",
+      "why": "Already --source havnedata. Host skipped."
+    },
+    {
+      "candidate": "Avinor leftover WMS/WFS / avinorgis",
+      "url": "https://wms.geonorge.no/skwms1/wms.stoylufthavn?service=wms&request=getcapabilities",
+      "why": "Already --source avinorgis. Id skipped."
+    },
+    {
+      "candidate": "Bane NOR leftover WMS/WFS / banegis",
+      "url": "https://wms.geonorge.no/skwms1/wms.banenettverk?request=GetCapabilities&service=WMS",
+      "why": "Already --source banegis. Id skipped."
+    },
+    {
+      "candidate": "SSB leftover WMS / ssbgis",
+      "url": "in-flight sibling PR #215",
+      "why": "In-flight sibling. Host skipped."
+    },
+    {
+      "candidate": "Statsforvalteren Nordatlas leftover WMS / nordatlas",
+      "url": "in-flight sibling named by the lane prompt",
+      "why": "In-flight sibling. Do not pick."
+    },
+    {
+      "candidate": "GEONORGE:DOWNLOAD Forsvarsbygg datasets",
+      "url": "https://nedlasting.geonorge.no/api/capabilities/",
+      "why": "Printed Type=dataset GEONORGE:DOWNLOAD. Ingest copies Type=service OGC:WMS or OGC:WFS only."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source fbgis --db /tmp/pda-fbgis-proof/registry.sqlite --limit 10",
+    "listed": 10,
+    "inserted": 10,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "fbgis:wms.skytefelt",
+        "title": "Forsvarets skyte- og øvingsfelt land WMS",
+        "access_path": "https://wms.geonorge.no/skwms1/wms.skytefelt?service=wms&request=getcapabilities"
+      },
+      {
+        "id": "fbgis:wms.militereforbudsomradersjo",
+        "title": "Militære forbudsområder innen sjøforsvaret WMS",
+        "access_path": "https://wms.geonorge.no/skwms1/wms.militereforbudsomradersjo?service=wms&request=getcapabilities"
+      },
+      {
+        "id": "fbgis:wms.stoysonerforsvaretsflyplasser",
+        "title": "Støysoner for Forsvarets flyplasser WMS",
+        "access_path": "https://wms.geonorge.no/skwms1/wms.stoysonerforsvaretsflyplasser?service=WMS&request=GetCapabilities"
+      },
+      {
+        "id": "fbgis:wms.ovingsfeltsjo",
+        "title": "Forsvarets skyte- og øvingsfelt i sjø WMS",
+        "access_path": "https://wms.geonorge.no/skwms1/wms.ovingsfeltsjo?request=GetCapabilities&service=WMS"
+      },
+      {
+        "id": "fbgis:wms.stoyskytebane",
+        "title": "Støysoner for Forsvarets skyte- og øvingsfelt WMS",
+        "access_path": "https://wms.geonorge.no/skwms1/wms.stoyskytebane?service=wms&request=getcapabilities"
+      },
+      {
+        "id": "fbgis:wfs.militereforbudsomradersjo",
+        "title": "Militære forbudsområder innen sjøforsvaret WFS",
+        "access_path": "http://wfs.geonorge.no/skwms1/wfs.militereforbudsomradersjo?service=WFS&request=GetCapabilities"
+      },
+      {
+        "id": "fbgis:wfs.stoysonerforsvaretsflyplasser",
+        "title": "Støysoner for Forsvarets flyplasser WFS",
+        "access_path": "https://wfs.geonorge.no/skwms1/wfs.stoysonerforsvaretsflyplasser?service=WFS&request=GetCapabilities"
+      },
+      {
+        "id": "fbgis:wfs.forsvarets_skyteogovingsfelt",
+        "title": "Forsvarets skyte- og øvingsfelt land WFS",
+        "access_path": "https://wfs.geonorge.no/skwms1/wfs.forsvarets_skyteogovingsfelt?service=WFS&request=GetCapabilities"
+      },
+      {
+        "id": "fbgis:wfs.ovingsfeltsjo",
+        "title": "Forsvarets skyte- og øvingsfelt i sjø WFS",
+        "access_path": "https://wfs.geonorge.no/skwms1/wfs.ovingsfeltsjo?request=GetCapabilities&service=WFS"
+      },
+      {
+        "id": "fbgis:wfs.stoy_skytebane",
+        "title": "Støysoner for Forsvarets skyte- og øvingsfelt WFS",
+        "access_path": "https://wfs.geonorge.no/skwms1/wfs.stoy_skytebane?service=WFS&request=GetCapabilities"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search Forsvarets --db /tmp/pda-fbgis-proof/registry.sqlite --limit 5",
+    "query": "Forsvarets",
+    "returned": 3,
+    "hit_id": "fbgis:wfs.ovingsfeltsjo",
+    "title": "Forsvarets skyte- og øvingsfelt i sjø WFS",
+    "source_id": "fbgis",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://wfs.geonorge.no/skwms1/wfs.ovingsfeltsjo?request=GetCapabilities&service=WFS",
+    "original_source": "https://kartkatalog.geonorge.no/api/search",
+    "why_picked": "title matched forsvarets"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset fbgis:wms.skytefelt --db /tmp/pda-fbgis-proof/registry.sqlite",
+    "dataset": "fbgis:wms.skytefelt",
+    "table_id": "wms.skytefelt",
+    "access_path": "https://wms.geonorge.no/skwms1/wms.skytefelt?service=wms&request=getcapabilities",
+    "request_url": "https://wms.geonorge.no/skwms1/wms.skytefelt?service=wms&request=getcapabilities",
+    "http_status": 200,
+    "listed": 2,
+    "inserted": 2,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "Name",
+        "value": "skytefelt_wms"
+      },
+      {
+        "measure": "Name",
+        "value": "Skytefelt"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset fbgis:wms.skytefelt --table wms.skytefelt --entity \"\" --measure \"\" --db /tmp/pda-fbgis-proof/registry.sqlite --out /tmp/pda-fbgis-proof/methods",
+    "applicable": false,
+    "why": "Forsvarsbygg leftover WMS GetCapabilities prints Layer Name strings. That is not a numeric time series with a year-like period field and two or more periods. methods/ was not edited.",
+    "read_from_store": false,
+    "called_fetch": false
+  },
+  "notes": [
+    "kvfriluft could not meet the bar: printed leftover Kartverket WMS URLs are already owned by kvtopo on origin/main 1550fcd. Next leftover official GIS catalog is Forsvarsbygg Kartkatalog Type=service OGC:WMS/WFS.",
+    "Ids are copied from printed last path segments. access_path is the printed Geonorge DistributionUrl. No fbgis id was written onto a kvwms, kvgrunn, kvtopo, havnedata, avinorgis, or banegis row.",
+    "License stays null: the catalog prints no license URL. Publisher is null: this adapter does not copy Organization onto publisher.",
+    "Open PR check at pickup found ssbgis #215 (GIS sibling), broppdater #216, brrepresent #213, kifylker #212. nordatlas was named in the lane prompt and was not an open PR.",
+    "Branched from origin/main at 1550fcd after bwgis #205."
+  ]
+}
