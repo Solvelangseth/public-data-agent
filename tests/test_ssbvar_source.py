@@ -227,7 +227,8 @@ def test_ssbvar_is_a_registered_source() -> None:
     assert SOURCE_IDS[SOURCE_IDS.index("ssbfritid") + 1] == "kvadm"
     assert SOURCE_IDS[SOURCE_IDS.index("kvadm") + 1] == "kvkrets"
     assert SOURCE_IDS[SOURCE_IDS.index("kvkrets") + 1] == "dsbgis"
-    assert SOURCE_IDS[-1] == "dsbgis"
+    assert SOURCE_IDS[SOURCE_IDS.index("dsbgis") + 1] == "nibiogard"
+    assert SOURCE_IDS[-1] == "nibiogard"
     source = build_source("ssbvar")
     assert isinstance(source, SsbvarSource)
     assert source.source_id == "ssbvar"
