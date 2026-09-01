@@ -198,7 +198,7 @@ def test_nibiorest_is_a_registered_source() -> None:
     assert "mdirwms" in SOURCE_IDS
     assert SOURCE_IDS[SOURCE_IDS.index("mattilsyn") + 1] == "nibiorest"
     assert SOURCE_IDS[SOURCE_IDS.index("ssbver") + 1] == "hiwms"
-    assert SOURCE_IDS[-1] == "nbdps"
+    assert SOURCE_IDS[-1] == "vegwms"
     assert "nibiorest" in SOURCE_IDS
     assert "fdirwms" in SOURCE_IDS
     assert "avinorgis" in SOURCE_IDS

@@ -331,6 +331,9 @@ def test_hiwms_is_a_registered_source() -> None:
     assert SOURCE_IDS[SOURCE_IDS.index("ssbver") + 1] == "hiwms"
     assert SOURCE_IDS[SOURCE_IDS.index("hiwms") + 1] == "nbagency"
     assert SOURCE_IDS[SOURCE_IDS.index("nbagency") + 1] == "kvtopo"
+    assert SOURCE_IDS[SOURCE_IDS.index("kvtopo") + 1] == "nbdps"
+    assert SOURCE_IDS[SOURCE_IDS.index("nbdps") + 1] == "vegwms"
+    assert SOURCE_IDS[-1] == "vegwms"
     source = build_source("hiwms")
     assert isinstance(source, HiwmsSource)
     assert source.source_id == "hiwms"
@@ -436,6 +439,10 @@ def test_is_hiwms_url_accepts_leftover_hosts_only() -> None:
     assert not is_hiwms_url(HAVNEDATA_URL)
     assert not is_hiwms_url(BANEGIS_URL)
     assert not is_hiwms_url(AVINOR_URL)
+    assert not is_hiwms_url(
+        "https://wfs.geonorge.no/skwms1/wfs.stoy_veg"
+        "?request=GetCapabilities&service=WFS"
+    )
     assert not is_hiwms_url(PORTAL_URL)
     assert not is_hiwms_url(SEARCH_URL)
     assert not is_hiwms_url(None)

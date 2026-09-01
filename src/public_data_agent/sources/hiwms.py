@@ -58,6 +58,9 @@ TAKEN_SKWMS1 = frozenset(
         "wms.topo",
         "wms.topograatone",
         "wms.norges_grunnkart",
+        "wfs.stoy_veg",
+        "wfs.trafikkulykker",
+        "wfs.trafikkmengde",
     }
 )
 SKIP_HI_PATHS = frozenset({"/data", "/datasett", ""})
