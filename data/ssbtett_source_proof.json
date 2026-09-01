@@ -123,7 +123,7 @@
     "License is null: the document prints empty Fees and AccessConstraints, not a license URL. Publisher is null.",
     "Live GET of the leftover Tettsteder WMS GetCapabilities URL is HTTP 200 WMS_Capabilities XML with no Authorization header. No token is sent. Accept is application/xml, text/xml, */* like ssbfritid and ssbgis.",
     "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
-    "Branched from origin/main after kvadm #241 (b583453) with ssbfritid #247 already on main. Rebased onto origin/main after kvkrets #251 (5991edc). SOURCE_IDS keeps kvadm, kvkrets, then ssbtett. README keeps leftover GIS sections including kvkrets, kvadm, ssbfritid, kvfkb, nibioar5f, ssbgis, barmark, and kvgrunn.",
+    "Branched from origin/main after kvadm #241 (b583453) with ssbfritid #247 already on main. Rebased onto origin/main after kvkrets #251 (5991edc), then after dsbgis #246 (3c22035). SOURCE_IDS keeps kvadm, kvkrets, dsbgis, then ssbtett. README keeps leftover GIS sections including dsbgis, kvkrets, kvadm, ssbfritid, kvfkb, nibioar5f, ssbgis, barmark, and kvgrunn.",
     "python3 -m pytest after rebase onto kvkrets #251: 1704 passed, 1 skipped, 1 deselected."
   ]
 }
