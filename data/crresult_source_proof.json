@@ -1,0 +1,196 @@
+{
+  "produced_at": "2026-09-01T18:52:00Z",
+  "bound": {
+    "list_api": "https://api.cristin.no/v2/results",
+    "walk": "copy printed cristin_result_id values from the official Cristin results catalog; native ids are the printed cristin_result_id values; access_path copies the printed url on /v2/results/{cristin_result_id}; license stays null; publisher stays null; the catalog prints neither; live GET of those printed item paths is HTTP 200 with no token; no token is sent; do not invent page or per_page query filters",
+    "cap": 10,
+    "how": "pda ingest --source crresult --limit 10. The official catalogue prints a default page of results. Ingest copies the first ten in document order."
+  },
+  "discarded": [
+    {
+      "candidate": "Cristin persons / crpers",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/244",
+      "why": "Closed unmerged. Duplicate of leftover Cristin persons already in flight as crperson on PR #240."
+    },
+    {
+      "candidate": "Cristin persons / crperson",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/240",
+      "why": "In flight. Do not pick crperson."
+    },
+    {
+      "candidate": "Stortinget sesjoner moter / stmoter",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/242",
+      "why": "In flight. Do not pick stmoter."
+    },
+    {
+      "candidate": "Stortinget sesjoner sporretimesporsmal / stsporre",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/243",
+      "why": "In flight. Do not pick stsporre."
+    },
+    {
+      "candidate": "Cristin funding_sources",
+      "url": "https://api.cristin.no/v2/funding_sources",
+      "why": "HTTP 404. Do not invent a workaround."
+    },
+    {
+      "candidate": "Cristin journals",
+      "url": "https://api.cristin.no/v2/journals",
+      "why": "HTTP 404. Do not invent a workaround."
+    },
+    {
+      "candidate": "Cristin publishers",
+      "url": "https://api.cristin.no/v2/publishers",
+      "why": "HTTP 404. Do not invent a workaround."
+    },
+    {
+      "candidate": "Enhetsregisteret naeringskoder",
+      "url": "https://data.brreg.no/enhetsregisteret/api/naeringskoder",
+      "why": "HTTP 404. Do not invent a workaround."
+    },
+    {
+      "candidate": "Enhetsregisteret fylker",
+      "url": "https://data.brreg.no/enhetsregisteret/api/fylker",
+      "why": "HTTP 404. Do not invent a workaround."
+    },
+    {
+      "candidate": "Enhetsregisteret institusjonellSektorkode",
+      "url": "https://data.brreg.no/enhetsregisteret/api/institusjonellSektorkode",
+      "why": "HTTP 404. Do not invent a workaround."
+    },
+    {
+      "candidate": "Stortinget voteringer",
+      "url": "https://data.stortinget.no/eksport/voteringer?sesjonid=2024-2025&format=json",
+      "why": "HTTP 400. Do not invent a workaround."
+    },
+    {
+      "candidate": "Stortinget dagsorden",
+      "url": "https://data.stortinget.no/eksport/dagsorden?sesjonid=2024-2025&format=json",
+      "why": "HTTP 400. Do not invent a workaround."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    },
+    {
+      "candidate": "municipal CKAN / Opencom",
+      "url": "already on main via --source opencom and municipal CKAN adapters",
+      "why": "This lane stays off municipal CKAN/Opencom."
+    },
+    {
+      "candidate": "leftover GIS/WMS/OGC/ArcGIS",
+      "url": "already on main via leftover GIS adapters",
+      "why": "This lane stays off leftover GIS/WMS."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source crresult --db /tmp/pda-crresult-proof/registry.sqlite --limit 10",
+    "listed": 10,
+    "inserted": 10,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "crresult:1903021",
+        "title": "Considerations about the Theological Meaning of Migration in the Book of Acts",
+        "access_path": "https://api.cristin.no/v2/results/1903021"
+      },
+      {
+        "id": "crresult:10001715",
+        "title": "«Hellige outsidere» fra Det gamle testamentet",
+        "access_path": "https://api.cristin.no/v2/results/10001715"
+      },
+      {
+        "id": "crresult:1797696",
+        "title": "Jesus and the Food Laws Revisited",
+        "access_path": "https://api.cristin.no/v2/results/1797696"
+      },
+      {
+        "id": "crresult:10002493",
+        "title": "Bibelens absolutte ufeilbarlighet – et enhetlig dogme? : viktigheten av å skjelne mellom ulik argumentasjon til støtte for Bibelens absolutte ufeilbarlighet",
+        "access_path": "https://api.cristin.no/v2/results/10002493"
+      },
+      {
+        "id": "crresult:10001604",
+        "title": "Eskatologien i Landstads salmer",
+        "access_path": "https://api.cristin.no/v2/results/10001604"
+      },
+      {
+        "id": "crresult:1862491",
+        "title": "Approaching Genesis and Science : Hermeneutical Principles and a Case Study",
+        "access_path": "https://api.cristin.no/v2/results/1862491"
+      },
+      {
+        "id": "crresult:10003197",
+        "title": "Gudstjenesten i et dannelsesperspektiv",
+        "access_path": "https://api.cristin.no/v2/results/10003197"
+      },
+      {
+        "id": "crresult:10001342",
+        "title": "Short Term Mission and Formation – A Norwegian Perspective",
+        "access_path": "https://api.cristin.no/v2/results/10001342"
+      },
+      {
+        "id": "crresult:1895544",
+        "title": "Profetiene om Donald Trump, USA og NAR-bevegelsen : en kritisk undersøkelse av profetier om Donald Trump, USA og Guds rike innen New Apostolic Reformation-bevegelsen",
+        "access_path": "https://api.cristin.no/v2/results/1895544"
+      },
+      {
+        "id": "crresult:10002955",
+        "title": "Overskrifter i bibler - førstehjelp og leseveiledning",
+        "access_path": "https://api.cristin.no/v2/results/10002955"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search Landstads --db /tmp/pda-crresult-proof/registry.sqlite --limit 10",
+    "query": "Landstads",
+    "returned": 1,
+    "hit_id": "crresult:10001604",
+    "title": "Eskatologien i Landstads salmer",
+    "source_id": "crresult",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://api.cristin.no/v2/results/10001604",
+    "original_source": "https://api.cristin.no/v2/results",
+    "why_picked": "title matched landstads"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset crresult:10001604 --db /tmp/pda-crresult-proof/registry.sqlite",
+    "dataset": "crresult:10001604",
+    "table_id": "10001604",
+    "fetch_id": 1,
+    "access_path": "https://api.cristin.no/v2/results/10001604",
+    "request_url": "https://api.cristin.no/v2/results/10001604",
+    "http_status": 200,
+    "listed": 1,
+    "inserted": 1,
+    "updated": 0,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "title",
+        "value": "Eskatologien i Landstads salmer"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset crresult:10001604 --db /tmp/pda-crresult-proof/registry.sqlite --out /tmp/pda-crresult-proof/methods",
+    "applicable": false,
+    "why": "Cristin /v2/results/{id} prints title and cristin_result_id strings, not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed catalog cristin_result_id values. access_path copies the printed url. No crresult id was written onto a cristin docs-path row, a crinst institution row, a crunit unit row, a crproj project row, or a crbio biobank row.",
+    "License is null: the results catalog prints no license field. Publisher is null: the catalog prints no publisher field.",
+    "Live GET of /v2/results/10001604 is HTTP 200 with no Authorization header. No token is sent.",
+    "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "is_crresult_url matches only /v2/results/{id} item paths. The bare collection URL and other Cristin v2 paths stay with --source cristin.",
+    "python3 -m pytest: 1660 passed, 1 skipped, 1 deselected.",
+    "Not a numeric time series with two or more periods. Fetch listed 1 printed title cell (Eskatologien i Landstads salmer).",
+    "Closed PR #244 crpers unmerged. Did not pick crperson #240, stmoter #242, or stsporre #243. Cristin funding_sources, journals, and publishers were HTTP 404. Enhetsregisteret naeringskoder, fylker, and institusjonellSektorkode were HTTP 404. Stortinget voteringer and dagsorden were HTTP 400. Did not pick leftover GIS, municipal portals, or offentligdata.no."
+  ]
+}

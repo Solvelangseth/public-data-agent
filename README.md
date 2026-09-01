@@ -6854,6 +6854,16 @@ as a cell. License stays null. Publisher stays null.
 
 The catalog prints a default page of results. This walk copies the
 first ten in document order. No page or per_page query is invented.
+Live ingest listed 10 and inserted 10. Live search `Landstads` returns
+`crresult:10001604`. Live fetch GETs
+`https://api.cristin.no/v2/results/10001604`
+HTTP 200, 1 row, `title` = `Eskatologien i Landstads salmer`.
+`pda methods` is not applicable. Result titles are not a numeric time
+series (`no observations matched entity/measure; available=[]`).
+Proof is `data/crresult_source_proof.json`.
+Started from origin/main including kvfkb #239 (`ad5c215`). Every
+existing source stayed registered and `crresult` follows `kvfkb`.
+PR #244 (`crpers`) was closed unmerged.
 
 ## Brønnøysundregistrene Enhetsregisteret organisasjonsformer enheter source
 
