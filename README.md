@@ -5424,6 +5424,43 @@ HTTP 200, 3 FeatureType Name cells. Sample printed value: `app:Grunnkrets`.
 `pda methods` is not applicable: feature type names, not a numeric time
 series. Proof is `data/kvkrets_source_proof.json`.
 
+## DSB leftover WMS source
+
+`pda ingest --source dsbgis` is another replaceable adapter. It lists printed
+leftover OGC:WMS Type=service GetCapabilities rows on the official Geonorge
+Kartkatalog search
+`https://kartkatalog.geonorge.no/api/search?text=DSB`,
+capped at 10. Other organizations, downloads, servicelayers, and software
+are skipped. The kart.dsb.no software/link row is skipped. Leftover DSB
+WFS on `ogc.dsb.no` is skipped. GetCapabilities bodies that are not WMS
+XML, including 401/HTML, are skipped. Dataset ids are the printed host
+when the last path segment is a generic ashx name so `ogc.dsb.no` stays
+the leftover WMS. `access_path` is the printed `DistributionUrl`. Harvest
+title stays the printed Geonorge Title. License stays null: the catalog
+search prints no license URL. Publisher stays null. This is not leftover
+SSB WMS (`--source ssbgis`) and not leftover Kartverket FKB WMS
+(`--source kvfkb`).
+
+```bash
+pda ingest --source dsbgis --db data/registry.sqlite --limit 10
+pda search DSB --db data/registry.sqlite
+pda fetch --dataset dsbgis:ogc.dsb.no --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored GetCapabilities URL. Observation values are
+copied from printed WMS `Layer`/`Name` text. A sibling `Title` stays as
+a dimension. License stays null. Publisher stays null.
+
+Live ingest 2026-09-01: 1 leftover GetCapabilities document (DSB search
+prints leftover live WMS XML 200 after skipping kart.dsb.no software/link,
+leftover DSB WFS, other organizations, downloads, and servicelayers; cap
+10 copies the leftover live document). Live search `DSB` returns
+`dsbgis:ogc.dsb.no`. Live fetch GETs
+`https://ogc.dsb.no/wms.ashx?SERVICE=WMS&REQUEST=GetCapabilities&version=1.3.0`
+HTTP 200, 12 Layer Name cells. Sample printed value: `layer_183`.
+`pda methods` is not applicable: layer names, not a numeric time series.
+Proof is `data/dsbgis_source_proof.json`.
+
 ## Norges Bank SDMX Codelists source
 
 `pda ingest --source nbcodelist` is another replaceable adapter. It lists

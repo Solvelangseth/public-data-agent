@@ -33,6 +33,7 @@ from public_data_agent.sources.buyer import BuyerSource
 from public_data_agent.sources.bwgis import BwgisSource
 from public_data_agent.sources.cristin import CristinSource
 from public_data_agent.sources.datanorge import DataNorgeSource
+from public_data_agent.sources.dsbgis import DsbgisSource
 from public_data_agent.sources.elcert import ElcertSource
 from public_data_agent.sources.entur import EnturGbfsSource
 from public_data_agent.sources.envreportreg import EnvreportregSource
@@ -371,6 +372,7 @@ SOURCE_IDS = (
     "ssbfritid",
     "kvadm",
     "kvkrets",
+    "dsbgis",
 )
 
 
@@ -743,6 +745,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return KvadmSource()
     if source_id == "kvkrets":
         return KvkretsSource()
+    if source_id == "dsbgis":
+        return DsbgisSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -778,6 +782,7 @@ __all__ = [
     "CrunitSource",
     "CristinSource",
     "DataNorgeSource",
+    "DsbgisSource",
     "ElcertSource",
     "EnturGbfsSource",
     "EnvreportregSource",

@@ -1,0 +1,154 @@
+{
+  "produced_at": "2026-09-01T18:50:00Z",
+  "bound": {
+    "list_api": "https://kartkatalog.geonorge.no/api/search",
+    "search_text": "DSB",
+    "walk": "copy printed leftover OGC:WMS Type=service GetCapabilities rows the official Geonorge Kartkatalog search text=DSB prints; skip other organizations, downloads, and servicelayers; skip kart.dsb.no software/link rows; skip leftover DSB WFS on ogc.dsb.no; skip GetCapabilities bodies that are not WMS XML including 401/HTML; native ids are the printed host when the last path segment is a generic ashx name so ogc.dsb.no stays the leftover WMS; access_path is the printed DistributionUrl; harvest title stays the printed Geonorge Title; description stays the printed DistributionUrl; license stays null because the catalog search prints no license URL; publisher stays null; do not invent query filters or layer names",
+    "cap": 10,
+    "how": "pda ingest --source dsbgis --limit 10. The official DSB search prints leftover live WMS XML 200 after skipping kart.dsb.no software/link, leftover DSB WFS, other organizations, downloads, and servicelayers. Cap 10 copies that leftover live document. This is not leftover SSB WMS (--source ssbgis) and not leftover Kartverket FKB WMS (--source kvfkb)."
+  },
+  "discarded": [
+    {
+      "candidate": "DSB kartinnsyn / kart.dsb.no",
+      "url": "https://kart.dsb.no",
+      "why": "Printed software WWW:LINK row. Assigned skip. Not leftover WMS GetCapabilities."
+    },
+    {
+      "candidate": "DSB Grensekart / kart.dsb.no",
+      "url": "https://kart.dsb.no/grensekart",
+      "why": "Printed software WWW:LINK row. Assigned skip."
+    },
+    {
+      "candidate": "DSBs WFS-tjenester",
+      "url": "https://ogc.dsb.no/wfs.ashx?SERVICE=WFS&REQUEST=GetCapabilities",
+      "why": "Printed Type=service OGC:WFS. This leftover slice is DSB WMS only. Skip WFS."
+    },
+    {
+      "candidate": "SSB leftover GIS / ssbgis",
+      "url": "already --source ssbgis",
+      "why": "On main after #215. Different host. Do not redo ssbgis."
+    },
+    {
+      "candidate": "Statsforvalteren leftover Barmarksløyper / barmark",
+      "url": "already --source barmark",
+      "why": "On main. Different host. Do not redo barmark."
+    },
+    {
+      "candidate": "NIBIO leftover AR5-forvaltning / nibioar5f",
+      "url": "already --source nibioar5f",
+      "why": "On main after #232. Different host. Do not redo nibioar5f."
+    },
+    {
+      "candidate": "NIBIO leftover AR50 / nibioar50",
+      "url": "already --source nibioar50",
+      "why": "On main. Different host. Do not redo nibioar50."
+    },
+    {
+      "candidate": "Forsvarsbygg leftover GIS / fbgis",
+      "url": "already --source fbgis",
+      "why": "On main. Different host. Do not redo fbgis."
+    },
+    {
+      "candidate": "Statsforvalteren leftover Nordatlas / nordatlas",
+      "url": "already --source nordatlas",
+      "why": "On main. Different host. Do not redo nordatlas."
+    },
+    {
+      "candidate": "Kartverket leftover FKB / kvfkb",
+      "url": "already --source kvfkb",
+      "why": "On main after #239. Different host. Do not redo kvfkb."
+    },
+    {
+      "candidate": "Kartverket leftover WMS/WMTS / kvwms",
+      "url": "already --source kvwms",
+      "why": "On main. Do not redo kvwms."
+    },
+    {
+      "candidate": "Kartverket leftover topo / kvtopo",
+      "url": "already --source kvtopo",
+      "why": "On main. Do not redo kvtopo."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source dsbgis --db /tmp/pda-dsbgis-proof/registry.sqlite --limit 10",
+    "listed": 1,
+    "inserted": 1,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "dsbgis:ogc.dsb.no",
+        "title": "DSBs WMS-tjenester",
+        "access_path": "https://ogc.dsb.no/wms.ashx?SERVICE=WMS&REQUEST=GetCapabilities&version=1.3.0"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search DSB --db /tmp/pda-dsbgis-proof/registry.sqlite --limit 10",
+    "query": "DSB",
+    "returned": 1,
+    "hit_id": "dsbgis:ogc.dsb.no",
+    "title": "DSBs WMS-tjenester",
+    "source_id": "dsbgis",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://ogc.dsb.no/wms.ashx?SERVICE=WMS&REQUEST=GetCapabilities&version=1.3.0",
+    "original_source": "https://kartkatalog.geonorge.no/api/search",
+    "why_picked": "description matched dsb"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset dsbgis:ogc.dsb.no --db /tmp/pda-dsbgis-proof/registry.sqlite",
+    "dataset": "dsbgis:ogc.dsb.no",
+    "table_id": "ogc.dsb.no",
+    "access_path": "https://ogc.dsb.no/wms.ashx?SERVICE=WMS&REQUEST=GetCapabilities&version=1.3.0",
+    "request_url": "https://ogc.dsb.no/wms.ashx?SERVICE=WMS&REQUEST=GetCapabilities&version=1.3.0",
+    "http_status": 200,
+    "listed": 12,
+    "inserted": 12,
+    "updated": 0,
+    "license": null,
+    "publisher": null,
+    "layers": [
+      "MS",
+      "layer_183",
+      "layer_184",
+      "layer_179",
+      "layer_186",
+      "layer_189",
+      "layer_190",
+      "layer_185",
+      "layer_243",
+      "layer_340",
+      "layer_444",
+      "layer_443"
+    ],
+    "sample": [
+      {
+        "measure": "Name",
+        "value": "MS"
+      },
+      {
+        "measure": "Name",
+        "value": "layer_183"
+      }
+    ],
+    "note": "Live GET 200 WMS_Capabilities 1.3.0. The WMS document prints 12 named Layer Name values. Live POST of the same printed URL is HTTP 405 Method Not Allowed. Fetch uses GET like the other leftover WMS adapters. methods/ was not edited."
+  },
+  "methods": {
+    "applicable": false,
+    "why": "DSB leftover WMS GetCapabilities prints Layer Name strings. That is not a numeric time series. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false
+  },
+  "notes": [
+    "Ids are copied from the printed host when the last path segment is a generic ashx name. access_path is the printed Geonorge DistributionUrl. Harvest title is the printed Geonorge Title. Description is the printed DistributionUrl so search DSB matches token dsb. No dsbgis id was written onto an ssbgis, kvfkb, kvwms, kvtopo, or geonorge row.",
+    "License stays null: the catalog search prints no license URL. The WMS document prints Fees none and AccessConstraints none, not a license URL. Publisher is null: this adapter does not copy Organization onto publisher.",
+    "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "Branched from origin/main after kvfkb #239 (ad5c215). Rebased onto origin/main after stsporre #243 (c9db4e5, also crperson #240). SOURCE_IDS keeps kvfkb, crperson, stsporre, then dsbgis. README keeps leftover GIS sections including nibioar5f, ssbgis, barmark, nibioar50, fbgis, nordatlas, bwgis, mdirgis, nguminer, and kvfkb."
+  ]
+}
