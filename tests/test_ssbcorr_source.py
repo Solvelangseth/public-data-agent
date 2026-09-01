@@ -196,6 +196,7 @@ def test_ssbcorr_is_a_registered_source() -> None:
     assert SOURCE_IDS[SOURCE_IDS.index("nguminer") + 1] == "brrollegruppe"
     assert SOURCE_IDS[SOURCE_IDS.index("brrollegruppe") + 1] == "mdirgis"
     assert SOURCE_IDS[SOURCE_IDS.index("mdirgis") + 1] == "ssbcorr"
+    assert SOURCE_IDS[SOURCE_IDS.index("ssbcorr") + 1] == "bwgis"
     source = build_source("ssbcorr")
     assert isinstance(source, SsbcorrSource)
     assert source.source_id == "ssbcorr"
