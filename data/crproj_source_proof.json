@@ -1,0 +1,162 @@
+{
+  "produced_at": "2026-09-01T18:26:00Z",
+  "bound": {
+    "list_api": "https://api.cristin.no/v2/projects",
+    "walk": "copy printed cristin_project_id values from the official Cristin projects catalog; native ids are the printed cristin_project_id values; access_path copies the printed url on /v2/projects/{cristin_project_id}; license stays null; publisher stays null; the catalog prints neither; live GET of those printed item paths is HTTP 200 with no token; no token is sent; do not invent page or per_page query filters",
+    "cap": 10,
+    "how": "pda ingest --source crproj --limit 10. The official catalogue prints a default page of projects. Ingest copies the first ten in document order."
+  },
+  "discarded": [
+    {
+      "candidate": "Cristin leftover units / crunit",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/234",
+      "why": "Already on main via PR #234 SHA 4ca78cf02bd299c7819904a12ad18622d074138b. Do not pick crunit or duplicate /v2/units."
+    },
+    {
+      "candidate": "Cristin leftover units / crunits",
+      "url": "https://api.cristin.no/v2/units",
+      "why": "Same leftover catalog as crunit #234. Switched to leftover /v2/projects."
+    },
+    {
+      "candidate": "Stortinget leftover sesjoner komiteer / stkomiteer",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/233",
+      "why": "Already on main. Do not pick stkomiteer."
+    },
+    {
+      "candidate": "SSB PxWeb v0 subject folders / ssbsubj",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/227",
+      "why": "Already on main. Do not pick ssbsubj."
+    },
+    {
+      "candidate": "Stortinget leftover sesjoner partier / stpartier",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/236",
+      "why": "In flight. Do not pick stpartier."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    },
+    {
+      "candidate": "municipal CKAN / Opencom",
+      "url": "already on main via --source opencom and municipal CKAN adapters",
+      "why": "This lane stays off municipal CKAN/Opencom."
+    },
+    {
+      "candidate": "leftover GIS/WMS/OGC/ArcGIS",
+      "url": "already on main via leftover GIS adapters",
+      "why": "This lane stays off leftover GIS/WMS."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source crproj --db /tmp/pda-crproj-proof/registry.sqlite --limit 10",
+    "listed": 10,
+    "inserted": 10,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "crproj:113",
+        "title": "The Spatial Embeddedness of Foreign Direct Investment. Investigating the complex dynamics of FDI for power, regional development and poverty",
+        "access_path": "https://api.cristin.no/v2/projects/113"
+      },
+      {
+        "id": "crproj:1179456",
+        "title": "Data collection and analysis from Monolithic Active Pixel Sensors in Heavy Ion Physics at ALICE/CERN and proton CT prototype at Haukeland Universitetssykehus/Bergen",
+        "access_path": "https://api.cristin.no/v2/projects/1179456"
+      },
+      {
+        "id": "crproj:1232261",
+        "title": "Developing Reading Skills Based on Vision Activities in Primary Schools in Tanzania",
+        "access_path": "https://api.cristin.no/v2/projects/1232261"
+      },
+      {
+        "id": "crproj:1234981",
+        "title": "Life and Death at Vinjefjorden: Burials, Settlements, and Landscape – Archaeological Excavations along the new E39 Betna to Stormyra Route.",
+        "access_path": "https://api.cristin.no/v2/projects/1234981"
+      },
+      {
+        "id": "crproj:128",
+        "title": "Biological-Inspired Design of Systems for Complex Real-World Applications",
+        "access_path": "https://api.cristin.no/v2/projects/128"
+      },
+      {
+        "id": "crproj:152",
+        "title": "Mor-barn studien: konsekvenser ved bruk av antidepressiva i svangerskapet",
+        "access_path": "https://api.cristin.no/v2/projects/152"
+      },
+      {
+        "id": "crproj:1576139",
+        "title": "Real world learning in business education",
+        "access_path": "https://api.cristin.no/v2/projects/1576139"
+      },
+      {
+        "id": "crproj:162",
+        "title": "GECHS International Project Office",
+        "access_path": "https://api.cristin.no/v2/projects/162"
+      },
+      {
+        "id": "crproj:1936638",
+        "title": "Brukermedvirkning og personer med alvorlig utviklingshemming, case 2B.",
+        "access_path": "https://api.cristin.no/v2/projects/1936638"
+      },
+      {
+        "id": "crproj:2015087",
+        "title": "Sykepleiemangel - teamorganisering for bedre utnytting av kompetanse i kommunale helsetjenester.",
+        "access_path": "https://api.cristin.no/v2/projects/2015087"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search Vinjefjorden --db /tmp/pda-crproj-proof/registry.sqlite --limit 10",
+    "query": "Vinjefjorden",
+    "returned": 1,
+    "hit_id": "crproj:1234981",
+    "title": "Life and Death at Vinjefjorden: Burials, Settlements, and Landscape – Archaeological Excavations along the new E39 Betna to Stormyra Route.",
+    "source_id": "crproj",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://api.cristin.no/v2/projects/1234981",
+    "original_source": "https://api.cristin.no/v2/projects",
+    "why_picked": "title matched vinjefjorden"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset crproj:1234981 --db /tmp/pda-crproj-proof/registry.sqlite",
+    "dataset": "crproj:1234981",
+    "table_id": "1234981",
+    "fetch_id": 1,
+    "access_path": "https://api.cristin.no/v2/projects/1234981",
+    "request_url": "https://api.cristin.no/v2/projects/1234981",
+    "http_status": 200,
+    "listed": 1,
+    "inserted": 1,
+    "updated": 0,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "title",
+        "value": "Life and Death at Vinjefjorden: Burials, Settlements, and Landscape – Archaeological Excavations along the new E39 Betna to Stormyra Route."
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset crproj:1234981 --db /tmp/pda-crproj-proof/registry.sqlite --out /tmp/pda-crproj-proof/methods",
+    "applicable": false,
+    "why": "Cristin /v2/projects/{id} prints title and cristin_project_id strings, not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed catalog cristin_project_id values. access_path copies the printed url. No crproj id was written onto a cristin docs-path, crinst institution, or crunit unit row.",
+    "License is null: the projects catalog prints no license field. Publisher is null: the catalog prints no publisher field.",
+    "Live GET of /v2/projects/1234981 is HTTP 200 with no Authorization header. No token is sent.",
+    "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "is_crproj_url matches only /v2/projects/{id} item paths. The bare collection URL and other Cristin v2 paths stay with --source cristin. Institution item paths stay with --source crinst. Unit item paths stay with --source crunit.",
+    "python3 -m pytest: 1607 passed, 1 skipped, 1 deselected.",
+    "Not a numeric time series with two or more periods. Fetch listed 1 printed title cell.",
+    "Did not pick crunit (already on main #234). Did not pick stkomiteer, ssbsubj, stsaker, crinst, leftover GIS, municipal portals, or offentligdata.no.",
+    "Reset onto origin/main after crunit #234. SOURCE_IDS keeps every existing source plus crproj last."
+  ]
+}

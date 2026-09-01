@@ -6553,7 +6553,14 @@ dimensions. Nested `coordinating_institution` and `url` are not stored
 as a cell. License stays null. Publisher stays null.
 
 The catalog prints a default page of projects. This walk copies the
-first ten in document order. No page or per_page query is invented.
+first ten in document order. No page or per_page query is invented. Live
+ingest listed 10 and inserted 10. Live search `Vinjefjorden` returns
+`crproj:1234981`. Live fetch GETs
+`https://api.cristin.no/v2/projects/1234981`
+HTTP 200, 1 row, `title` starts with `Life and Death at Vinjefjorden`.
+`pda methods` is not applicable. Project titles are not a numeric time
+series. Proof is `data/crproj_source_proof.json`.
+Reset onto origin/main after crunit #234.
 
 ## Brønnøysundregistrene Enhetsregisteret organisasjonsformer enheter source
 
