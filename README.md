@@ -5867,6 +5867,40 @@ HTTP 200, 27 Layer Name cells. Sample printed value: `AR5FORVALTNING`.
 `pda methods` is not applicable: layer names, not a numeric time series.
 Proof is `data/nibioar5f_source_proof.json`.
 
+## NIBIO leftover Gårdskart WMS source
+
+`pda ingest --source nibiogard` is another replaceable adapter. It lists the
+official leftover NIBIO Gårdskart WMS GetCapabilities document
+`https://wms.nibio.no/cgi-bin/gardskart?SERVICE=WMS&REQUEST=GetCapabilities`,
+capped at 10. GetCapabilities bodies that are HTML or not WMS XML are
+skipped. Native ids are the printed last cgi-bin path segment so the leftover
+Gårdskart WMS keeps native id `gardskart`. `access_path` is that GetCapabilities
+URL. License stays null: the document prints AccessConstraints `none`, not a
+license URL. Publisher stays null. This is not leftover NIBIO WMS
+(`--source nibiowms`), not leftover NIBIO WMS past that cap
+(`--source nibiorest`), not leftover NIBIO AR50 (`--source nibioar50`), and
+not leftover NIBIO AR5-forvaltning (`--source nibioar5f`).
+
+```bash
+pda ingest --source nibiogard --db data/registry.sqlite --limit 10
+pda search Gårdskart --db data/registry.sqlite
+pda fetch --dataset nibiogard:gardskart --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored GetCapabilities URL as text, with
+`Accept: application/xml, text/xml, */*`. Observation values are
+copied from printed WMS `Layer`/`Name` text. A printed `Title`
+sibling stays as a dimension. License stays null. Publisher stays
+null. `pda methods` is not applicable: layer names, not a numeric
+time series.
+
+Live ingest 2026-09-01: 1 leftover GetCapabilities document. Live search
+`Gårdskart` returns `nibiogard:gardskart`. Live fetch GETs
+`https://wms.nibio.no/cgi-bin/gardskart?SERVICE=WMS&REQUEST=GetCapabilities`
+HTTP 200, 6 Layer Name cells. Sample printed value: `GARDSKART`.
+`pda methods` is not applicable: layer names, not a numeric time series.
+Proof is `data/nibiogard_source_proof.json`.
+
 ## Norges Bank SDMX Concept Schemes source
 
 `pda ingest --source nbconcept` is another replaceable adapter. It lists
