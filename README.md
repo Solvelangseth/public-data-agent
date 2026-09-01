@@ -6352,6 +6352,33 @@ document order. Live ingest listed 10 and inserted 10. Live search
 HTTP 200, 1 row, `kommunenavnNorsk` = `Hemsedal`. `pda methods` is not
 applicable. Kommune names are not a numeric time series.
 Proof is `data/kikommuner_source_proof.json`.
+## SSB leftover PxWeb v0 subjects source
+
+`pda ingest --source ssbsubj` is another replaceable adapter. It lists
+printed leftover subject `id` values on the official SSB PxWeb v0 table
+catalog `https://data.ssb.no/api/v0/no/table`, capped at 10. Dataset ids
+are the printed alphabetic subject ids so `al` stays distinct from `bf`.
+`access_path` joins each printed `id` onto that same `/table` path.
+License stays null. Publisher stays null. This is not the SSB PxWeb v0
+Statbank table walk under subject `be` (`--source ssb`), not PxWebApi 2
+(`--source ssbv2`), and not Klass leftovers (`--source ssclass`,
+`--source ssbfam`, `--source ssbsec`, `--source ssbver`,
+`--source ssbcorr`, `--source ssbvar`).
+
+```bash
+pda ingest --source ssbsubj --db data/registry.sqlite --limit 10
+pda search "Arbeid og lønn" --db data/registry.sqlite
+pda fetch --dataset ssbsubj:al --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored leftover-subject folder URL. Observation
+values are copied from the printed `text` scalars on the child folders.
+Other scalars stay as dimensions. License stays null. Publisher stays
+null.
+
+The catalog prints 23 leftover subject folders. This walk copies the
+first ten in document order. Live ingest, search, and fetch proof is
+recorded in `data/ssbsubj_source_proof.json` after the live run.
 
 ## Stortinget leftover stortingsperioder source
 

@@ -107,7 +107,8 @@ def test_crinst_is_a_registered_source() -> None:
     assert SOURCE_IDS[SOURCE_IDS.index("nibioar50") + 1] == "brorgformen"
     assert SOURCE_IDS[SOURCE_IDS.index("brorgformen") + 1] == "crinst"
     assert SOURCE_IDS[SOURCE_IDS.index("crinst") + 1] == "stsaker"
-    assert SOURCE_IDS[-1] == "stsaker"
+    assert SOURCE_IDS[SOURCE_IDS.index("stsaker") + 1] == "ssbsubj"
+    assert SOURCE_IDS[-1] == "ssbsubj"
     source = build_source("crinst")
     assert isinstance(source, CrinstSource)
     assert source.source_id == "crinst"
