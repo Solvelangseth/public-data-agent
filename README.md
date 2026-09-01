@@ -6498,9 +6498,16 @@ stay as dimensions. Nested objects are not copied. License stays null.
 Publisher stays null.
 
 The official catalog prints 43 sessions. This walk copies the first ten
-in document order. Live proof is recorded in
-`data/stpartier_source_proof.json`. `pda methods` is not applicable.
-Party names are not a numeric time series.
+in document order. Live ingest listed 10 and inserted 10. Live search
+`2028-2029` returns `stpartier:2028-2029`. Live fetch GETs
+`https://data.stortinget.no/eksport/partier?sesjonid=2028-2029&format=json`
+HTTP 200, 9 `navn` cells. Sample printed value is `Arbeiderpartiet`.
+`pda methods` is not applicable: party names, not a numeric time series
+(`no observations matched entity/measure; available=[]`).
+Proof is `data/stpartier_source_proof.json`.
+After rebase onto origin/main (`barmark` #229, `crunit` #234, and
+`stkomiteer` #233), every existing source stayed registered and
+`stpartier` follows `ssbgis`.
 
 ## Stortinget leftover stortingsperioder source
 

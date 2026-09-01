@@ -108,6 +108,7 @@ def test_stpartier_is_a_registered_source() -> None:
     assert "crunit" in SOURCE_IDS
     assert "barmark" in SOURCE_IDS
     assert "crproj" in SOURCE_IDS
+    assert "ssbgis" in SOURCE_IDS
     assert "crinst" in SOURCE_IDS
     assert "brorgformen" in SOURCE_IDS
     assert "nibioar50" in SOURCE_IDS
