@@ -6709,6 +6709,41 @@ sosialkomiteen`. `pda methods` is not applicable: komite names, not a
 numeric time series (`no observations matched entity/measure; available=[]`).
 Proof is `data/stkomiteer_source_proof.json`.
 
+## Stortinget leftover sesjoner partier source
+
+`pda ingest --source stpartier` is another replaceable adapter. It lists
+printed `sesjoner_liste[].id` values from the official Stortinget catalog
+`https://data.stortinget.no/eksport/sesjoner?format=json`, capped at 10.
+Dataset ids are the printed session `id` values so `2025-2026` stays
+distinct from `2024-2025`. `access_path` joins each printed id onto the
+leftover `/eksport/partier` collection the official technical
+documentation prints, keeping the documented `sesjonid` and `format=json`
+query. License stays null. Publisher stays null. This is not the leftover
+untemplated Stortinget documentation paths (`--source stortinget`), not
+leftover untemplated allepartier, not leftover stortingsperioder
+representanter (`--source stperioder`), not leftover sesjoner saker
+(`--source stsaker`), and not leftover sesjoner komiteer
+(`--source stkomiteer`).
+
+```bash
+pda ingest --source stpartier --db data/registry.sqlite --limit 10
+pda search 2025-2026 --db data/registry.sqlite
+pda fetch --dataset stpartier:2025-2026 --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored partier URL. Observation values are copied
+from printed `partier_liste[].navn` scalars. Other printed scalars stay
+as dimensions. Nested objects are not copied. License stays null.
+Publisher stays null.
+
+Live ingest 2026-09-01: listed 10, inserted 10 (official catalog prints
+43 sessions; cap 10 copies the first ten printed ids). Live search
+`2025-2026` returns `stpartier:2025-2026`. Live fetch GETs
+`https://data.stortinget.no/eksport/partier?sesjonid=2025-2026&format=json`
+HTTP 200, 9 navn cells. Sample printed value: `Arbeiderpartiet`.
+`pda methods` is not applicable: party names, not a numeric time series.
+Proof is `data/stpartier_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
