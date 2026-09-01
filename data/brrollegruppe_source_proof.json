@@ -1,0 +1,229 @@
+{
+  "produced_at": "2026-09-01T17:00:42Z",
+  "bound": {
+    "list_api": "https://data.brreg.no/enhetsregisteret/api/roller/rollegruppetyper",
+    "walk": "copy printed _embedded.rollegruppetyper[].kode from the official Enhetsregisteret rollegruppetyper catalog; access_path joins each printed kode onto the printed public collection path; do not copy printed self hrefs (autorisert-api HTTP 401); do not invent kodes; license stays null; publisher stays null",
+    "cap": 10,
+    "how": "pda ingest --source brrollegruppe --limit 10. The official catalog prints 21 rollegruppetype kodes. Cap 10 copies the first 10 printed kodes in document order."
+  },
+  "discarded": [
+    {
+      "candidate": "Enhetsregisteret kommuner / brkommuner",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/203",
+      "why": "In flight Lane X. Do not pick brkommuner."
+    },
+    {
+      "candidate": "Enhetsregisteret rolletyper / brrolletype",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/207",
+      "why": "In flight. Do not pick brrolletype."
+    },
+    {
+      "candidate": "Digdir organization catalogue / fdkorg",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/208",
+      "why": "In flight. Do not pick fdkorg."
+    },
+    {
+      "candidate": "Norges Bank SDMX dataproviderscheme / nbdps",
+      "url": "already on main via --source nbdps",
+      "why": "Merged as #201 at 05c47d0. Kept. Do not re-add."
+    },
+    {
+      "candidate": "Kartverket topo WMS / kvtopo",
+      "url": "already on main via --source kvtopo",
+      "why": "Already on main. GIS lane. This lane stays on national JSON."
+    },
+    {
+      "candidate": "Norges Bank SDMX categoryscheme",
+      "url": "https://data.norges-bank.no/api/categoryscheme?format=sdmx-json",
+      "why": "HTTP 404. Do not invent a workaround."
+    },
+    {
+      "candidate": "Norges Bank SDMX hierarchicalcodelist",
+      "url": "https://data.norges-bank.no/api/hierarchicalcodelist?format=sdmx-json",
+      "why": "HTTP 404. Do not invent a workaround."
+    },
+    {
+      "candidate": "Norges Bank SDMX organisationscheme / structure",
+      "url": "https://data.norges-bank.no/api/organisationscheme?format=sdmx-json",
+      "why": "HTTP 200 reprints already-on-main agencySchemes and dataProviderSchemes. Not a leftover catalog of new ids."
+    },
+    {
+      "candidate": "Udir NLR",
+      "url": "https://data-nlr.udir.no/swagger/v4/swagger.json",
+      "why": "Swagger HTTP 200. Live collection GETs /v4/enheter /v4/organisasjonsformer /v4/utgaattyper are HTTP 401. Do not invent auth."
+    },
+    {
+      "candidate": "Fiskeridirektoratet authreg-api",
+      "url": "https://api.fiskeridir.no/authreg-api/openapi",
+      "why": "OpenAPI HTTP 200 prints only templated GET /authreg-api/api/v1/messages/auth-status/{radio_call_sign}. Do not invent ids."
+    },
+    {
+      "candidate": "Fiskeridirektoratet aqua-operations-public",
+      "url": "https://api.fiskeridir.no/aqua-operations-public/v3/api-docs",
+      "why": "OpenAPI HTTP 200 prints only templated GET /api/v1/joint-ops/{site-nr}. Do not invent ids."
+    },
+    {
+      "candidate": "Fiskeridirektoratet ERS",
+      "url": "https://api.fiskeridir.no/ers-api/api/openapi",
+      "why": "Known skip: HTTP 401. Do not invent auth."
+    },
+    {
+      "candidate": "SSB Klass correspondencetables",
+      "url": "https://data.ssb.no/api/klass/v1/correspondencetables",
+      "why": "HTTP 404. First 20 classifications print no correspondenceTables or variants. Do not invent table ids."
+    },
+    {
+      "candidate": "Kartverket Adresser /sok",
+      "url": "https://ws.geonorge.no/adresser/v1/sok",
+      "why": "OpenAPI names /sok with no required query. Live GET without a search string is HTTP 400. Do not invent a sok value."
+    },
+    {
+      "candidate": "Enhetsregisteret matrikkelenhet",
+      "url": "https://data.brreg.no/enhetsregisteret/api/matrikkelenhet",
+      "why": "HTTP 400 without matrikkelnummer or matrikkelenhetid. Do not invent those."
+    },
+    {
+      "candidate": "Frivillighetsregisteret icnpo-kategorier item paths",
+      "url": "https://data.brreg.no/frivillighetsregisteret/api/icnpo-kategorier/1",
+      "why": "Collection GET 200. Joined item paths HTTP 404. Do not invent item URLs."
+    },
+    {
+      "candidate": "MET leftover swaggers (weathericon, forestfireindex, lightning, pollenforecast)",
+      "url": "https://api.met.no/weatherapi/weathericon/2.0/swagger",
+      "why": "Known skip: live swagger HTTP 500. Do not invent endpoints."
+    },
+    {
+      "candidate": "Frost MET sources",
+      "url": "https://frost.met.no/sources/v0.jsonld",
+      "why": "Known skip: HTTP 401. Do not retry."
+    },
+    {
+      "candidate": "NVE HydAPI",
+      "url": "https://hydapi.nve.no/swagger/v1/swagger.json",
+      "why": "Known skip: HTTP 401. Do not invent auth."
+    },
+    {
+      "candidate": "municipal CKAN / Opencom",
+      "url": "already on main via --source opencom / oslo / trondheim / sandnes",
+      "why": "This lane stays off municipal CKAN/Opencom."
+    },
+    {
+      "candidate": "leftover GIS/WMS/OGC/ArcGIS",
+      "url": "already on main via --source kvtopo and sibling GIS adapters",
+      "why": "This lane stays off leftover GIS/WMS/OGC/ArcGIS."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source brrollegruppe --db /tmp/pda-brrollegruppe-proof/registry.sqlite --limit 10",
+    "listed": 10,
+    "inserted": 10,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "brrollegruppe:ADOS",
+        "title": "Administrativ enhet - offentlig sektor",
+        "access_path": "https://data.brreg.no/enhetsregisteret/api/roller/rollegruppetyper/ADOS"
+      },
+      {
+        "id": "brrollegruppe:BEST",
+        "title": "Bestyrende reder",
+        "access_path": "https://data.brreg.no/enhetsregisteret/api/roller/rollegruppetyper/BEST"
+      },
+      {
+        "id": "brrollegruppe:BOBE",
+        "title": "Bostyrer",
+        "access_path": "https://data.brreg.no/enhetsregisteret/api/roller/rollegruppetyper/BOBE"
+      },
+      {
+        "id": "brrollegruppe:DAGL",
+        "title": "Daglig leder",
+        "access_path": "https://data.brreg.no/enhetsregisteret/api/roller/rollegruppetyper/DAGL"
+      },
+      {
+        "id": "brrollegruppe:DELT",
+        "title": "Deltakere",
+        "access_path": "https://data.brreg.no/enhetsregisteret/api/roller/rollegruppetyper/DELT"
+      },
+      {
+        "id": "brrollegruppe:EIKM",
+        "title": "Eierkommune",
+        "access_path": "https://data.brreg.no/enhetsregisteret/api/roller/rollegruppetyper/EIKM"
+      },
+      {
+        "id": "brrollegruppe:FFØR",
+        "title": "Forretningsfører",
+        "access_path": "https://data.brreg.no/enhetsregisteret/api/roller/rollegruppetyper/FFØR"
+      },
+      {
+        "id": "brrollegruppe:HFOR",
+        "title": "Hovedforetak",
+        "access_path": "https://data.brreg.no/enhetsregisteret/api/roller/rollegruppetyper/HFOR"
+      },
+      {
+        "id": "brrollegruppe:HLSE",
+        "title": "Helseforetak",
+        "access_path": "https://data.brreg.no/enhetsregisteret/api/roller/rollegruppetyper/HLSE"
+      },
+      {
+        "id": "brrollegruppe:INNH",
+        "title": "Innehaver",
+        "access_path": "https://data.brreg.no/enhetsregisteret/api/roller/rollegruppetyper/INNH"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search \"Daglig leder\" --db /tmp/pda-brrollegruppe-proof/registry.sqlite --limit 5",
+    "query": "Daglig leder",
+    "returned": 1,
+    "hit_id": "brrollegruppe:DAGL",
+    "title": "Daglig leder",
+    "source_id": "brrollegruppe",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://data.brreg.no/enhetsregisteret/api/roller/rollegruppetyper/DAGL",
+    "original_source": "https://data.brreg.no/enhetsregisteret/api/roller/rollegruppetyper",
+    "why_picked": "title matched daglig, leder"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset brrollegruppe:DAGL --db /tmp/pda-brrollegruppe-proof/registry.sqlite",
+    "dataset": "brrollegruppe:DAGL",
+    "fetch_id": 1,
+    "table_id": "DAGL",
+    "access_path": "https://data.brreg.no/enhetsregisteret/api/roller/rollegruppetyper/DAGL",
+    "request_url": "https://data.brreg.no/enhetsregisteret/api/roller/rollegruppetyper/DAGL",
+    "http_status": 200,
+    "listed": 1,
+    "inserted": 1,
+    "license": null,
+    "publisher": null,
+    "new_numeric_time_series_ge_2_periods": false,
+    "sample": [
+      {
+        "measure": "beskrivelse",
+        "value": "Daglig leder",
+        "dimensions": {
+          "kode": "DAGL"
+        }
+      }
+    ]
+  },
+  "methods": {
+    "applicable": false,
+    "why": "rollegruppetyper prints role-group names. That is not a numeric time series with a year-like period field. methods/ was not edited."
+  },
+  "notes": [
+    "Ids are copied from printed catalog _embedded.rollegruppetyper[].kode. access_path joins printed kode onto https://data.brreg.no/enhetsregisteret/api/roller/rollegruppetyper/{kode}. Printed self hrefs point at autorisert-api and are not copied.",
+    "License is null. Publisher is null. The catalog prints neither.",
+    "Original harvested catalog metadata stays in harvested_payloads without _links. Fetch writes observations only. enrichments count stayed 0.",
+    "Open PR check at pickup found brkommuner 203, brrolletype 207, fdkorg 208. Those stayed unused. nbdps 201 is on main.",
+    "Live GET https://data.brreg.no/enhetsregisteret/api/roller/rollegruppetyper HTTP 200. Live GET https://data.brreg.no/enhetsregisteret/api/roller/rollegruppetyper/DAGL HTTP 200.",
+    "python3 -m pytest after adding brrollegruppe on origin/main 05c47d0: 1387 passed, 1 skipped, 1 deselected.",
+    "Not a numeric time series with two or more periods. Fetch listed 1 printed beskrivelse cell (Daglig leder)."
+  ]
+}
