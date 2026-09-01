@@ -7174,9 +7174,9 @@ time series (`no observations matched entity/measure; available=[]`).
 Proof is `data/stinterp_source_proof.json`.
 Started from origin/main after crresult #245 (`43dbdb8`). Rebased onto
 origin/main after stmoter #242, ssbfritid #247, kvadm #241, kvkrets
-#251, dsbgis #246, and nibiogard #255 (`38dfde3`). Every existing
-source stayed registered and `stinterp` follows `nibiogard`.
-`python3 -m pytest`: 1721 passed, 1 skipped, 1 deselected.
+#251, dsbgis #246, nibiogard #255, and stskrift #253 (`a6f4832`).
+Every existing source stayed registered and `stinterp` follows
+`stskrift`.
 
 ## Brønnøysundregistrene Enhetsregisteret organisasjonsformer enheter source
 
