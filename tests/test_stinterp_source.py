@@ -163,7 +163,8 @@ def test_stinterp_is_a_registered_source() -> None:
     assert SOURCE_IDS[SOURCE_IDS.index("crresult") + 1] == "stmoter"
     assert SOURCE_IDS[SOURCE_IDS.index("stmoter") + 1] == "ssbfritid"
     assert SOURCE_IDS[SOURCE_IDS.index("ssbfritid") + 1] == "kvadm"
-    assert SOURCE_IDS[SOURCE_IDS.index("kvadm") + 1] == "stinterp"
+    assert SOURCE_IDS[SOURCE_IDS.index("kvadm") + 1] == "kvkrets"
+    assert SOURCE_IDS[SOURCE_IDS.index("kvkrets") + 1] == "stinterp"
     assert SOURCE_IDS[-1] == "stinterp"
     source = build_source("stinterp")
     assert isinstance(source, StinterpSource)
