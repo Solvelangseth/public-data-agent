@@ -65,6 +65,7 @@ from public_data_agent.sources.miljorapporter import MiljorapporterSource
 from public_data_agent.sources.nbr import NbrSource
 from public_data_agent.sources.nbagency import NbagencySource
 from public_data_agent.sources.nbconcept import NbconceptSource
+from public_data_agent.sources.nbdps import NbdpsSource
 from public_data_agent.sources.nbdsd import NbdsdSource
 from public_data_agent.sources.nfr import NfrSource
 from public_data_agent.sources.ngu import NguSource
@@ -289,6 +290,7 @@ SOURCE_IDS = (
     "hiwms",
     "nbagency",
     "kvtopo",
+    "nbdps",
 )
 
 
@@ -579,6 +581,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return NbagencySource()
     if source_id == "kvtopo":
         return KvtopoSource()
+    if source_id == "nbdps":
+        return NbdpsSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -646,6 +650,7 @@ __all__ = [
     "NbrSource",
     "NbagencySource",
     "NbconceptSource",
+    "NbdpsSource",
     "NbdsdSource",
     "NcagalewarningsSource",
     "NfrSource",

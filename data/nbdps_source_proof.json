@@ -1,0 +1,210 @@
+{
+  "produced_at": "2026-09-01T16:43:00Z",
+  "bound": {
+    "list_api": "https://data.norges-bank.no/api/dataproviderscheme?format=sdmx-json",
+    "walk": "copy printed data.dataProviderSchemes[].id and agencyID from the official Norges Bank SDMX dataproviderscheme catalog; access_path joins those printed fields onto the printed /api/dataproviderscheme path and keeps format=sdmx-json from the catalog; do not invent agency or scheme ids; license stays null; publisher stays null",
+    "cap": 10,
+    "how": "pda ingest --source nbdps --limit 10. The official catalog prints 1 data-provider-scheme id (DATA_PROVIDERS). Cap 10 copies that printed id in document order."
+  },
+  "discarded": [
+    {
+      "candidate": "Norges Bank SDMX agencyscheme / nbagency",
+      "url": "already on main via --source nbagency",
+      "why": "Merged as #193 at 5bde5e3. Kept during rebase. Do not re-add."
+    },
+    {
+      "candidate": "Norges Bank SDMX categoryscheme",
+      "url": "https://data.norges-bank.no/api/categoryscheme?format=sdmx-json",
+      "why": "HTTP 404. Lane W. Do not invent a workaround."
+    },
+    {
+      "candidate": "Norges Bank SDMX hierarchicalcodelist",
+      "url": "https://data.norges-bank.no/api/hierarchicalcodelist?format=sdmx-json",
+      "why": "HTTP 404. Lane W. Do not invent a workaround."
+    },
+    {
+      "candidate": "Norges Bank SDMX dataconsumerscheme",
+      "url": "https://data.norges-bank.no/api/dataconsumerscheme?format=sdmx-json",
+      "why": "HTTP 404. Do not invent a workaround."
+    },
+    {
+      "candidate": "Fiskeridir / Udir leftovers",
+      "url": "Lane X",
+      "why": "Assigned to Lane X. Do not pick Fiskeridir or Udir leftovers."
+    },
+    {
+      "candidate": "Enhetsregisteret roller / brroller",
+      "url": "already on main via --source brroller",
+      "why": "Already on main. Do not re-add."
+    },
+    {
+      "candidate": "Enhetsregisteret organisasjonsformer / brorgform",
+      "url": "already on main via --source brorgform",
+      "why": "Already on main. Do not re-add."
+    },
+    {
+      "candidate": "SSB Klass versions / ssbver",
+      "url": "already on main via --source ssbver",
+      "why": "Already on main. Do not re-add."
+    },
+    {
+      "candidate": "Norges Bank SDMX provision agreements / nbprov",
+      "url": "already on main via --source nbprov",
+      "why": "Already on main. Do not re-add."
+    },
+    {
+      "candidate": "SSB Klass classifications / ssclass",
+      "url": "already on main via --source ssclass",
+      "why": "Already on main. Do not re-add."
+    },
+    {
+      "candidate": "SSB Klass sections / ssbsec",
+      "url": "already on main via --source ssbsec",
+      "why": "Already on main. Do not re-add."
+    },
+    {
+      "candidate": "SSB Klass classification families / ssbfam",
+      "url": "already on main via --source ssbfam",
+      "why": "Already on main. Do not re-add."
+    },
+    {
+      "candidate": "Norges Bank SDMX codelists / nbcodelist",
+      "url": "already on main via --source nbcodelist",
+      "why": "Already on main. Do not re-add."
+    },
+    {
+      "candidate": "Norges Bank SDMX data structures / nbdsd",
+      "url": "already on main via --source nbdsd",
+      "why": "Already on main. Do not re-add."
+    },
+    {
+      "candidate": "Norges Bank SDMX concept schemes / nbconcept",
+      "url": "already on main via --source nbconcept",
+      "why": "Already on main. Do not re-add."
+    },
+    {
+      "candidate": "Norges Bank Open Data / norgesbank",
+      "url": "already on main via --source norgesbank",
+      "why": "Already on main. Do not re-add."
+    },
+    {
+      "candidate": "Kartverket Stormflo / stormflo",
+      "url": "already on main via --source stormflo",
+      "why": "Already on main. Do not re-add."
+    },
+    {
+      "candidate": "Frivillighetsregisteret / frivillig",
+      "url": "already on main via --source frivillig",
+      "why": "Already on main. Do not re-add."
+    },
+    {
+      "candidate": "municipal CKAN / Opencom",
+      "url": "already on main via --source opencom / oslo / trondheim / sandnes",
+      "why": "This lane stays off municipal CKAN/Opencom."
+    },
+    {
+      "candidate": "leftover GIS/WMS/OGC/ArcGIS",
+      "url": "already on main via --source hiwms and sibling GIS adapters",
+      "why": "This lane stays off leftover GIS/WMS/OGC/ArcGIS."
+    },
+    {
+      "candidate": "Udir NLR",
+      "url": "https://data-nlr.udir.no/swagger/v4/swagger.json",
+      "why": "Known skip: live collection GETs are HTTP 401. Do not invent auth."
+    },
+    {
+      "candidate": "Fiskeridirektoratet ERS",
+      "url": "https://api.fiskeridir.no/ers-api/api/openapi",
+      "why": "Known skip: HTTP 401. Do not invent auth."
+    },
+    {
+      "candidate": "NVE HydAPI",
+      "url": "https://hydapi.nve.no/swagger/v1/swagger.json",
+      "why": "Known skip: HTTP 401. Do not retry."
+    },
+    {
+      "candidate": "Frost MET sources",
+      "url": "https://frost.met.no/sources/v0.jsonld",
+      "why": "Known skip: HTTP 401. Do not retry."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source nbdps --db /tmp/pda-nbdps-proof/registry.sqlite --limit 10",
+    "listed": 1,
+    "inserted": 1,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "nbdps:DATA_PROVIDERS",
+        "title": "DATA_PROVIDERS",
+        "access_path": "https://data.norges-bank.no/api/dataproviderscheme/NB/DATA_PROVIDERS?format=sdmx-json"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search DATA_PROVIDERS --db /tmp/pda-nbdps-proof/registry.sqlite --limit 5",
+    "query": "DATA_PROVIDERS",
+    "returned": 1,
+    "hit_id": "nbdps:DATA_PROVIDERS",
+    "title": "DATA_PROVIDERS",
+    "source_id": "nbdps",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://data.norges-bank.no/api/dataproviderscheme/NB/DATA_PROVIDERS?format=sdmx-json",
+    "original_source": "https://data.norges-bank.no/api/dataproviderscheme?format=sdmx-json",
+    "why_picked": "title matched data, providers"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset nbdps:DATA_PROVIDERS --db /tmp/pda-nbdps-proof/registry.sqlite",
+    "dataset": "nbdps:DATA_PROVIDERS",
+    "table_id": "DATA_PROVIDERS",
+    "access_path": "https://data.norges-bank.no/api/dataproviderscheme/NB/DATA_PROVIDERS?format=sdmx-json",
+    "request_url": "https://data.norges-bank.no/api/dataproviderscheme/NB/DATA_PROVIDERS?format=sdmx-json",
+    "http_status": 200,
+    "listed": 3,
+    "inserted": 3,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "name",
+        "value": "SSB"
+      },
+      {
+        "measure": "name",
+        "value": "Norges Bank"
+      },
+      {
+        "measure": "name",
+        "value": "Thomson Reuters"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset nbdps:DATA_PROVIDERS --table DATA_PROVIDERS --entity DATA_PROVIDERS --measure name --db /tmp/pda-nbdps-proof/registry.sqlite --out /tmp/pda-nbdps-proof/methods",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "DATA_PROVIDERS prints data-provider names. That is not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed catalog data.dataProviderSchemes[].id. access_path joins printed agencyID and id onto https://data.norges-bank.no/api/dataproviderscheme/{agencyID}/{id}?format=sdmx-json. No nbdps id was written onto a norgesbank, nbcodelist, nbdsd, nbconcept, or nbprov row.",
+    "License is null. Publisher is null. The catalog prints neither.",
+    "Original harvested catalog metadata stays in harvested_payloads without the dataProviders array. Fetch writes observations only. enrichments count stayed 0.",
+    "Open PR check at pickup found nbagency 193. That PR merged at 5bde5e3. Rebase kept nbagency plus every other main source. nbdps follows nbagency.",
+    "Live GET https://data.norges-bank.no/api/dataproviderscheme?format=sdmx-json HTTP 200. Live GET https://data.norges-bank.no/api/dataproviderscheme/NB/DATA_PROVIDERS?format=sdmx-json HTTP 200.",
+    "python3 -m pytest after adding nbdps on origin/main 9d37eb3: 1361 passed, 1 skipped, 1 deselected.",
+    "python3 -m pytest after rebase onto origin/main (nbagency 193 at 5bde5e3): 1369 passed, 1 skipped, 1 deselected.",
+    "python3 -m pytest after rebase onto origin/main (kvtopo 200 at 9b0fc05): 1379 passed, 1 skipped, 1 deselected. Kept kvtopo.",
+    "Not a numeric time series with two or more periods. Fetch listed 3 printed data-provider-name cells (sample Thomson Reuters)."
+  ]
+}
