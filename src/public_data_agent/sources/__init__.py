@@ -20,6 +20,7 @@ from public_data_agent.sources.broppdater import BroppdaterSource
 from public_data_agent.sources.brreg import BrregEnhetsregisterSource
 from public_data_agent.sources.brrepresent import BrrepresentSource
 from public_data_agent.sources.brunder import BrunderSource
+from public_data_agent.sources.crbio import CrbioSource
 from public_data_agent.sources.crinst import CrinstSource
 from public_data_agent.sources.crproj import CrprojSource
 from public_data_agent.sources.crunit import CrunitSource
@@ -351,6 +352,7 @@ SOURCE_IDS = (
     "crproj",
     "ssbgis",
     "stpartier",
+    "crbio",
 )
 
 
@@ -703,6 +705,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return SsbgisSource()
     if source_id == "stpartier":
         return StpartierSource()
+    if source_id == "crbio":
+        return CrbioSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -730,6 +734,7 @@ __all__ = [
     "BuyerSource",
     "BwgisSource",
     "CatalogSource",
+    "CrbioSource",
     "CrinstSource",
     "CrprojSource",
     "CrunitSource",

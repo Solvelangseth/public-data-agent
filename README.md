@@ -6640,6 +6640,32 @@ series. Proof is `data/crproj_source_proof.json`.
 Reset onto origin/main after crunit #234.
 Rebased onto origin/main after barmark #229.
 
+## Cristin leftover biobanks source
+
+`pda ingest --source crbio` is another replaceable adapter. It lists
+printed `cristin_biobank_id` values on the official Cristin biobanks
+catalog `https://api.cristin.no/v2/biobanks`, capped at 10. Dataset ids
+are the printed `cristin_biobank_id` values. `access_path` is the
+printed `url` on `/v2/biobanks/{cristin_biobank_id}`. License stays
+null. Publisher stays null. This is not the Cristin documentation path
+list (`--source cristin`), not leftover institutions (`--source crinst`),
+and not leftover units (`--source crunit`).
+
+```bash
+pda ingest --source crbio --db data/registry.sqlite --limit 10
+pda search DART-studien --db data/registry.sqlite
+pda fetch --dataset crbio:2052825 --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored biobank URL. Observation values are copied
+from the printed localized `name`. Other printed scalars stay as
+dimensions. Nested `url` is not stored as a cell. License stays null.
+Publisher stays null.
+
+The catalog prints a default page of biobanks. This walk copies the
+first ten in document order. No page or per_page query is invented.
+Proof is `data/crbio_source_proof.json`.
+
 ## Brønnøysundregistrene Enhetsregisteret organisasjonsformer enheter source
 
 `pda ingest --source brorgformen` is another replaceable adapter. It lists
