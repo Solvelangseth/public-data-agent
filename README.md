@@ -6224,9 +6224,14 @@ copied from the printed `navn` scalar. Other scalars stay as
 dimensions. Nested `_links` objects are not copied. License stays null.
 Publisher stays null.
 
-Live ingest, fetch, and search proof will be recorded after this
-revision. `pda methods` is not applicable. Entity names are not a
-numeric time series.
+The catalog prints many underenheter. This walk copies the first ten
+in document order. Live ingest listed 10 and inserted 10. Live search
+`ZOTKO` returns `brunder:933489272`. Live fetch GETs
+`https://data.brreg.no/enhetsregisteret/api/underenheter/933489272`
+HTTP 200, 1 row, `navn` = `- ZOTKO .NO`.
+`pda methods` is not applicable. Entity names are not a numeric
+time series.
+Proof is `data/brunder_source_proof.json`.
 
 ## Architecture (long term)
 
