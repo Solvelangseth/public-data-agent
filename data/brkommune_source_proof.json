@@ -1,0 +1,105 @@
+{
+  "produced_at": "2026-09-01T16:39:37Z",
+  "bound": {
+    "list_api": "https://data.brreg.no/enhetsregisteret/api/kommuner",
+    "walk": "copy printed _embedded.kommuner[].nummer and _links.self.href from the official Enhetsregisteret kommuner collection; native ids are the printed nummer values so 0301 stays distinct from 0999; access_path is the printed self href; license stays null; publisher stays null; the catalog prints neither; live GET of those printed kommune paths is HTTP 200 with no token; no token is sent; do not invent size/page query filters",
+    "cap": 10,
+    "how": "pda ingest --source brkommune --limit 10. The first printed page lists 20 kommuner of 365. Ingest copies the first ten in document order."
+  },
+  "discarded": [
+    {
+      "candidate": "Norges Bank SDMX categoryscheme",
+      "url": "https://data.norges-bank.no/api/categoryscheme?format=sdmx-json",
+      "why": "HTTP 404. Do not invent a workaround."
+    },
+    {
+      "candidate": "Norges Bank SDMX hierarchicalcodelist",
+      "url": "https://data.norges-bank.no/api/hierarchicalcodelist?format=sdmx-json",
+      "why": "HTTP 404. Do not invent a workaround."
+    },
+    {
+      "candidate": "Norges Bank SDMX agencyscheme / nbagency",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/193",
+      "why": "In flight Lane U. Do not pick nbagency."
+    },
+    {
+      "candidate": "Norges Bank SDMX dataproviderscheme",
+      "url": "https://data.norges-bank.no/api/dataproviderscheme?format=sdmx-json",
+      "why": "Live GET 200. Lane V. Do not pick dataproviderscheme."
+    },
+    {
+      "candidate": "Fiskeridir / Udir leftovers",
+      "url": "Lane X",
+      "why": "Assigned to Lane X. Stay off Fiskeridir and Udir leftovers."
+    },
+    {
+      "candidate": "Norges Bank SDMX /api/structure",
+      "url": "https://data.norges-bank.no/api/structure?format=sdmx-json",
+      "why": "Live GET 200 reprints agencySchemes, dataProviderSchemes, codelists, conceptSchemes, dataStructures, dataflows, and provisionAgreements already on main. Prints no categorySchemes or hierarchicalCodelists."
+    },
+    {
+      "candidate": "SSB Klass leftover collection GETs",
+      "url": "https://data.ssb.no/api/klass/v3/api-docs",
+      "why": "classifications, classificationfamilies, and ssbsections are already on main. correspondencetables/variants collections 404. search 400. codes require from."
+    },
+    {
+      "candidate": "Enhetsregisteret organisasjonsformer",
+      "url": "already on main via --source brorgform",
+      "why": "Already on main. Do not re-add."
+    },
+    {
+      "candidate": "Enhetsregisteret roller",
+      "url": "already on main via --source brroller",
+      "why": "Already on main. Do not re-add."
+    },
+    {
+      "candidate": "Kartverket Kommuneinfo",
+      "url": "already on main via --source kommuneinfo",
+      "why": "Different host api.kartverket.no. Already on main. Do not re-add."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    },
+    {
+      "candidate": "municipal CKAN / Opencom",
+      "url": "already on main via --source opencom and municipal CKAN adapters",
+      "why": "This lane stays off municipal CKAN/Opencom."
+    },
+    {
+      "candidate": "leftover GIS/WMS/OGC/ArcGIS",
+      "url": "already on main via hiwms and sibling GIS adapters",
+      "why": "This lane stays off leftover GIS/WMS/OGC/ArcGIS."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source brkommune --db /tmp/pda-brkommune-proof/registry.sqlite --limit 10",
+    "listed": null,
+    "inserted": null,
+    "updated": null,
+    "failed": null,
+    "tables": []
+  },
+  "search": {
+    "command": "pda search EIGERSUND --db /tmp/pda-brkommune-proof/registry.sqlite --limit 10",
+    "query": "EIGERSUND",
+    "returned": null,
+    "hit_id": null
+  },
+  "fetch": {
+    "command": "pda fetch --dataset brkommune:0301 --db /tmp/pda-brkommune-proof/registry.sqlite",
+    "dataset": "brkommune:0301",
+    "http_status": null
+  },
+  "methods": {
+    "applicable": false,
+    "why": "Enhetsregisteret /kommuner/{nummer} prints nummer and navn strings, not a numeric time series with a year-like period field. methods/ was not edited."
+  },
+  "notes": [
+    "Live ingest, search, and fetch are pending the first test pass.",
+    "Ids are copied from printed catalog nummer values. access_path is the printed _links.self.href.",
+    "License is null: the kommuner catalog prints no license field. Publisher is null: the catalog prints no publisher field.",
+    "is_brkommune_url matches only /kommuner/{nummer} item paths. The bare collection URL stays on brreg:kommuner."
+  ]
+}

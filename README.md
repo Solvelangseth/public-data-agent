@@ -5057,6 +5057,35 @@ HTTP 200, 4 Layer Name cells. Sample printed value: `Raadgivning_2024`.
 (`no observations matched entity/measure; available=[]`).
 Proof is `data/hiwms_source_proof.json`.
 
+## Enhetsregisteret kommuner source
+
+`pda ingest --source brkommune` is another replaceable adapter. It lists
+printed kommune numbers on the official Enhetsregisteret collection
+`https://data.brreg.no/enhetsregisteret/api/kommuner`,
+capped at 10. Dataset ids are the printed `nummer` values. `access_path`
+is the printed `_links.self.href`. License stays null. Publisher stays
+null. This is not the Enhetsregisteret HAL root (`--source brreg`), not
+Kartverket Kommuneinfo (`--source kommuneinfo`), not leftover
+organisasjonsformer (`--source brorgform`), and not leftover roller
+lists (`--source brroller`).
+
+```bash
+pda ingest --source brkommune --db data/registry.sqlite --limit 10
+pda search EIGERSUND --db data/registry.sqlite
+pda fetch --dataset brkommune:0301 --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored kommune URL. Observation values are copied
+from the printed `navn` scalar. Other scalars stay as dimensions.
+Nested `_links` objects are not copied. License stays null. Publisher
+stays null.
+
+The first printed page lists 20 kommuner of 365. This walk copies the
+first ten in document order. License stays null: the catalog prints no
+license field. Publisher stays null. `pda methods` is not applicable.
+Kommune names are not a numeric time series. Proof is
+`data/brkommune_source_proof.json`.
+
 ## Norges Bank SDMX Codelists source
 
 `pda ingest --source nbcodelist` is another replaceable adapter. It lists
