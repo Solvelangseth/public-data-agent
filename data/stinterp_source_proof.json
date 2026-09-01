@@ -1,0 +1,172 @@
+{
+  "produced_at": "2026-09-01T19:05:00Z",
+  "bound": {
+    "list_api": "https://data.stortinget.no/eksport/sesjoner?format=json",
+    "walk": "copy printed sesjoner_liste[].id from the official Stortinget sesjoner catalog; native ids are the printed session id values so 2028-2029 stays distinct from 2027-2028; access_path joins each printed id onto leftover /eksport/interpellasjoner with the documented sesjonid and format=json query; license stays null; publisher stays null; the catalog prints neither; live GET of those printed interpellasjoner paths is HTTP 200 with no token; no token is sent; do not invent other query filters",
+    "cap": 10,
+    "how": "pda ingest --source stinterp --limit 10. The official catalog lists 43 printed sessions. Ingest copies the first ten in document order."
+  },
+  "discarded": [
+    {
+      "candidate": "stsporre",
+      "url": "PR 243 on main SHA c9db4e52b6affa17e41eab436ff59e935033a5d5",
+      "why": "Just merged. Do not redo."
+    },
+    {
+      "candidate": "crperson",
+      "url": "PR 240 on main",
+      "why": "Just merged. Do not redo."
+    },
+    {
+      "candidate": "stmoter",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/242",
+      "why": "In flight. Do not pick."
+    },
+    {
+      "candidate": "crresult",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/245",
+      "why": "In flight. Do not pick."
+    },
+    {
+      "candidate": "crpers",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/244",
+      "why": "Closed as duplicate of crperson. Do not pick."
+    },
+    {
+      "candidate": "Cristin funding_sources / journals / publishers",
+      "url": "https://api.cristin.no/v2/funding_sources",
+      "why": "HTTP 404. Assigned skip."
+    },
+    {
+      "candidate": "Enhetsregisteret naeringskoder / fylker / institusjonellSektorkode",
+      "url": "https://data.brreg.no/enhetsregisteret/api/naeringskoder",
+      "why": "HTTP 404. Assigned skip."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    },
+    {
+      "candidate": "municipal CKAN / Opencom",
+      "url": "already on main via --source opencom and municipal CKAN adapters",
+      "why": "This lane stays off municipal CKAN/Opencom."
+    },
+    {
+      "candidate": "leftover GIS/WMS/OGC/ArcGIS",
+      "url": "already on main via leftover GIS adapters",
+      "why": "This lane stays off leftover GIS/WMS."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source stinterp --db /tmp/pda-stinterp-proof/registry.sqlite --limit 10",
+    "listed": 10,
+    "inserted": 10,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "stinterp:2028-2029",
+        "title": "2028-2029",
+        "access_path": "https://data.stortinget.no/eksport/interpellasjoner?sesjonid=2028-2029&format=json"
+      },
+      {
+        "id": "stinterp:2027-2028",
+        "title": "2027-2028",
+        "access_path": "https://data.stortinget.no/eksport/interpellasjoner?sesjonid=2027-2028&format=json"
+      },
+      {
+        "id": "stinterp:2026-2027",
+        "title": "2026-2027",
+        "access_path": "https://data.stortinget.no/eksport/interpellasjoner?sesjonid=2026-2027&format=json"
+      },
+      {
+        "id": "stinterp:2025-2026",
+        "title": "2025-2026",
+        "access_path": "https://data.stortinget.no/eksport/interpellasjoner?sesjonid=2025-2026&format=json"
+      },
+      {
+        "id": "stinterp:2024-2025",
+        "title": "2024-2025",
+        "access_path": "https://data.stortinget.no/eksport/interpellasjoner?sesjonid=2024-2025&format=json"
+      },
+      {
+        "id": "stinterp:2023-2024",
+        "title": "2023-2024",
+        "access_path": "https://data.stortinget.no/eksport/interpellasjoner?sesjonid=2023-2024&format=json"
+      },
+      {
+        "id": "stinterp:2022-2023",
+        "title": "2022-2023",
+        "access_path": "https://data.stortinget.no/eksport/interpellasjoner?sesjonid=2022-2023&format=json"
+      },
+      {
+        "id": "stinterp:2021-2022",
+        "title": "2021-2022",
+        "access_path": "https://data.stortinget.no/eksport/interpellasjoner?sesjonid=2021-2022&format=json"
+      },
+      {
+        "id": "stinterp:2020-2021",
+        "title": "2020-2021",
+        "access_path": "https://data.stortinget.no/eksport/interpellasjoner?sesjonid=2020-2021&format=json"
+      },
+      {
+        "id": "stinterp:2019-2020",
+        "title": "2019-2020",
+        "access_path": "https://data.stortinget.no/eksport/interpellasjoner?sesjonid=2019-2020&format=json"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search \"2028-2029\" --db /tmp/pda-stinterp-proof/registry.sqlite --limit 10",
+    "query": "2028-2029",
+    "returned": 1,
+    "hit_id": "stinterp:2028-2029",
+    "title": "2028-2029",
+    "source_id": "stinterp",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://data.stortinget.no/eksport/interpellasjoner?sesjonid=2028-2029&format=json",
+    "original_source": "https://data.stortinget.no/eksport/sesjoner?format=json",
+    "why_picked": "title matched 2028, 2029"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset stinterp:2025-2026 --db /tmp/pda-stinterp-proof/registry.sqlite",
+    "dataset": "stinterp:2025-2026",
+    "table_id": "2025-2026",
+    "fetch_id": 1,
+    "access_path": "https://data.stortinget.no/eksport/interpellasjoner?sesjonid=2025-2026&format=json",
+    "request_url": "https://data.stortinget.no/eksport/interpellasjoner?sesjonid=2025-2026&format=json",
+    "http_status": 200,
+    "listed": 30,
+    "inserted": 30,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "tittel",
+        "value": "om hvordan statsråden kan forsvare å fjerne den reelle klageadgangen knyttet til fastsettelsen av grunntilskuddssatsene til private barnehager, og hvilke vurderinger av rettssikkerheten som er gjort."
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset stinterp:2025-2026 --db /tmp/pda-stinterp-proof/registry.sqlite",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "Stortinget /eksport/interpellasjoner?sesjonid=2025-2026 prints question tittel strings, not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed catalog sesjon id values. access_path joins those printed ids onto leftover /eksport/interpellasjoner. No stinterp id was written onto a stortinget, stperioder, stsaker, stkomiteer, stpartier, or stsporre row.",
+    "License is null: the sesjoner catalog prints no license field. Publisher is null: the catalog prints no publisher field.",
+    "Live GET of /eksport/interpellasjoner?sesjonid=2025-2026&format=json is HTTP 200 with no Authorization header. No token is sent.",
+    "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "is_stinterp_url matches only /eksport/interpellasjoner?sesjonid= paths and is checked before is_stortinget_url.",
+    "Not a numeric time series with two or more periods. Fetch listed 30 printed tittel cells.",
+    "python3 -m pytest after live ingest: 1676 passed 1 skipped 1 deselected",
+    "Started from origin/main after stsporre #243 merge SHA c9db4e52b6affa17e41eab436ff59e935033a5d5. Kept every existing source plus stinterp. Did not pick stsporre, crperson, stmoter, crresult, leftover GIS, or offentligdata.no."
+  ]
+}
