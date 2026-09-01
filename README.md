@@ -5350,7 +5350,7 @@ Landbruksdirektoratet WMS (`--source ldirwms`).
 
 ```bash
 pda ingest --source mdirgis --db data/registry.sqlite --limit 10
-pda search Villrein --db data/registry.sqlite
+pda search Villreinområder --db data/registry.sqlite
 pda fetch --dataset mdirgis:villrein --db data/registry.sqlite
 ```
 
@@ -5359,6 +5359,16 @@ copied from printed WMS `Layer`/`Name` text or WFS `FeatureType`/`Name`
 text. A sibling `Title` stays as a dimension. License stays null. Publisher
 stays null.
 
+Live ingest 2026-09-01: 10 leftover WMS services (search prints 176 rows;
+leftover live ArcGIS WMS wrappers remain after skipping mdirwms hosts,
+miljogis REST, industri, other organizations, downloads, servicelayers,
+HTML, 404, and ServiceException bodies; cap 10 copies the first ten). Live
+search `Villreinområder` returns `mdirgis:villrein`. Live fetch GETs
+`https://kart.miljodirektoratet.no/arcgis/services/villrein/MapServer/WMSServer?request=GetCapabilities&service=WMS`
+HTTP 200, 8 Layer Name cells. Sample printed value:
+`villrein_helarsbeite`. `pda methods` is not applicable: layer
+names, not a numeric time series
+(`no observations matched entity/measure; available=[]`).
 Proof is `data/mdirgis_source_proof.json`.
 
 ## Norges Bank SDMX Concept Schemes source
