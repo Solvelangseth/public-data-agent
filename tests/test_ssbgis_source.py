@@ -338,7 +338,8 @@ def test_ssbgis_is_a_registered_source() -> None:
     assert SOURCE_IDS[SOURCE_IDS.index("kikommuner") + 1] == "fbgis"
     assert SOURCE_IDS[SOURCE_IDS.index("fbgis") + 1] == "stperioder"
     assert SOURCE_IDS[SOURCE_IDS.index("stperioder") + 1] == "nibioar50"
-    assert SOURCE_IDS[SOURCE_IDS.index("nibioar50") + 1] == "ssbgis"
+    assert SOURCE_IDS[SOURCE_IDS.index("nibioar50") + 1] == "brorgformen"
+    assert SOURCE_IDS[SOURCE_IDS.index("brorgformen") + 1] == "ssbgis"
     assert SOURCE_IDS[-1] == "ssbgis"
     source = build_source("ssbgis")
     assert isinstance(source, SsbgisSource)
