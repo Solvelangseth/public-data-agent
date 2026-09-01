@@ -6386,6 +6386,39 @@ HTTP 200, 169 fornavn cells. Sample printed value: `Abid`.
 series (`no observations matched entity/measure; available=[]`).
 Proof is `data/stperioder_source_proof.json`.
 
+## Brønnøysundregistrene Enhetsregisteret organisasjonsformer enheter source
+
+`pda ingest --source brorgformen` is another replaceable adapter. It lists
+leftover collection GET paths the official Enhetsregisteret OpenAPI
+prints under `/enhetsregisteret/api/organisasjonsformer/`,
+`https://data.brreg.no/enhetsregisteret/api/dokumentasjon/no/openapi.json`,
+capped at 10. It skips the root organisasjonsformer catalog, templated
+paths, and GET operations that print required parameters. Native ids
+are the last printed path segment so `enheter` stays distinct from
+`underenheter`. License is the printed OpenAPI license URL. Publisher
+stays null. This is not the Enhetsregisteret HAL root
+(`--source brreg`), not leftover organisasjonsform codes
+(`--source brorgform`), not leftover enheter (`--source brenheter`),
+not leftover underenheter (`--source brunder`), and not leftover
+oppdateringer (`--source broppdater`).
+
+```bash
+pda ingest --source brorgformen --db data/registry.sqlite --limit 10
+pda search "organisasjonsformer for enheter" --db data/registry.sqlite
+pda fetch --dataset brorgformen:enheter --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored leftover collection URL. Observation values
+are copied from the printed `beskrivelse` scalar. Other scalars stay as
+dimensions. Nested `_links` objects are not copied. License is the
+printed OpenAPI license URL. Publisher stays null.
+
+The official OpenAPI prints two leftover collection GETs under
+`/organisasjonsformer/`. This walk copies those two paths. Live GET of
+`/organisasjonsformer/enheter` is HTTP 200. `pda methods` is not
+applicable. Organisasjonsform names are not a numeric time series.
+Proof is `data/brorgformen_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists

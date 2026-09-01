@@ -14,6 +14,7 @@ from public_data_agent.sources.base import CatalogSource, SourceBase
 from public_data_agent.sources.brenheter import BrenheterSource
 from public_data_agent.sources.brkommuner import BrkommunerSource
 from public_data_agent.sources.brorgform import BrorgformSource
+from public_data_agent.sources.brorgformen import BrorgformenSource
 from public_data_agent.sources.broppdater import BroppdaterSource
 from public_data_agent.sources.brreg import BrregEnhetsregisterSource
 from public_data_agent.sources.brrepresent import BrrepresentSource
@@ -331,6 +332,7 @@ SOURCE_IDS = (
     "fbgis",
     "stperioder",
     "nibioar50",
+    "brorgformen",
 )
 
 
@@ -663,6 +665,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return StperioderSource()
     if source_id == "nibioar50":
         return Nibioar50Source()
+    if source_id == "brorgformen":
+        return BrorgformenSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -678,6 +682,7 @@ __all__ = [
     "BrenheterSource",
     "BrkommunerSource",
     "BrorgformSource",
+    "BrorgformenSource",
     "BroppdaterSource",
     "BrregEnhetsregisterSource",
     "BrrepresentSource",
