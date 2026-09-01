@@ -276,7 +276,7 @@ def test_mattilsyn_is_a_registered_source() -> None:
     assert SOURCE_IDS[SOURCE_IDS.index("nguminer") + 1] == "brrollegruppe"
     assert SOURCE_IDS[SOURCE_IDS.index("brrollegruppe") + 1] == "mdirgis"
     assert SOURCE_IDS[SOURCE_IDS.index("mdirgis") + 1] == "ssbcorr"
-    assert SOURCE_IDS[-1] == "ssbcorr"
+    assert SOURCE_IDS[-1] == "bwgis"
     assert "nibiorest" in SOURCE_IDS
     assert "fdirwms" in SOURCE_IDS
     assert "avinorgis" in SOURCE_IDS

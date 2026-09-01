@@ -18,6 +18,7 @@ from public_data_agent.sources.brrollegruppe import BrrollegruppeSource
 from public_data_agent.sources.brrolletype import BrrolletypeSource
 from public_data_agent.sources.brroller import BrrollerSource
 from public_data_agent.sources.buyer import BuyerSource
+from public_data_agent.sources.bwgis import BwgisSource
 from public_data_agent.sources.cristin import CristinSource
 from public_data_agent.sources.datanorge import DataNorgeSource
 from public_data_agent.sources.elcert import ElcertSource
@@ -307,6 +308,7 @@ SOURCE_IDS = (
     "brrollegruppe",
     "mdirgis",
     "ssbcorr",
+    "bwgis",
 )
 
 
@@ -615,6 +617,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return MdirgisSource()
     if source_id == "ssbcorr":
         return SsbcorrSource()
+    if source_id == "bwgis":
+        return BwgisSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -634,6 +638,7 @@ __all__ = [
     "BrrolletypeSource",
     "BrrollerSource",
     "BuyerSource",
+    "BwgisSource",
     "CatalogSource",
     "CristinSource",
     "DataNorgeSource",
