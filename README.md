@@ -6741,6 +6741,16 @@ License stays null. Publisher stays null.
 
 The catalog prints a default page of persons. This walk copies the
 first ten in document order. No page or per_page query is invented.
+Live ingest listed 10 and inserted 10. Live search `Ababri` returns
+`crpers:1805404`. Live fetch GETs
+`https://api.cristin.no/v2/persons/1805404`
+HTTP 200, 1 row, `first_name` = `Yassine`. `pda methods` is not
+applicable. Person names are not a numeric time series
+(`no observations matched entity/measure; available=[]`).
+Proof is `data/crpers_source_proof.json`.
+Started from origin/main including crbio #238
+(`a7f4743220b54534a216e021b95de7a8a0b5a1d3`). Every existing source
+stayed registered and `crpers` follows `crbio`.
 
 ## Brønnøysundregistrene Enhetsregisteret organisasjonsformer enheter source
 

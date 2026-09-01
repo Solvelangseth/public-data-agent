@@ -1,0 +1,171 @@
+{
+  "produced_at": "2026-09-01T18:45:00Z",
+  "bound": {
+    "list_api": "https://api.cristin.no/v2/persons",
+    "walk": "copy printed cristin_person_id values from the official Cristin persons catalog; native ids are the printed cristin_person_id values; access_path copies the printed url on /v2/persons/{cristin_person_id}; license stays null; publisher stays null; the catalog prints neither; live GET of those printed item paths is HTTP 200 with no token; no token is sent; do not invent page or per_page query filters",
+    "cap": 10,
+    "how": "pda ingest --source crpers --limit 10. The official catalogue prints a default page of persons. Ingest copies the first ten in document order."
+  },
+  "discarded": [
+    {
+      "candidate": "Cristin biobanks / crbio",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/238",
+      "why": "Already on main via PR #238 SHA a7f4743220b54534a216e021b95de7a8a0b5a1d3. Do not pick crbio."
+    },
+    {
+      "candidate": "Cristin funding_sources",
+      "url": "https://api.cristin.no/v2/funding_sources",
+      "why": "HTTP 404. Do not invent a workaround."
+    },
+    {
+      "candidate": "Cristin journals",
+      "url": "https://api.cristin.no/v2/journals",
+      "why": "HTTP 404. Do not invent a workaround."
+    },
+    {
+      "candidate": "Cristin publishers",
+      "url": "https://api.cristin.no/v2/publishers",
+      "why": "HTTP 404. Do not invent a workaround."
+    },
+    {
+      "candidate": "Enhetsregisteret naeringskoder",
+      "url": "https://data.brreg.no/enhetsregisteret/api/naeringskoder",
+      "why": "HTTP 404. Do not invent a workaround."
+    },
+    {
+      "candidate": "Enhetsregisteret fylker",
+      "url": "https://data.brreg.no/enhetsregisteret/api/fylker",
+      "why": "HTTP 404. Do not invent a workaround."
+    },
+    {
+      "candidate": "Enhetsregisteret institusjonellSektorkode",
+      "url": "https://data.brreg.no/enhetsregisteret/api/institusjonellSektorkode",
+      "why": "HTTP 404. Do not invent a workaround."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    },
+    {
+      "candidate": "municipal CKAN / Opencom",
+      "url": "already on main via --source opencom and municipal CKAN adapters",
+      "why": "This lane stays off municipal CKAN/Opencom."
+    },
+    {
+      "candidate": "leftover GIS/WMS/OGC/ArcGIS",
+      "url": "already on main via leftover GIS adapters",
+      "why": "This lane stays off leftover GIS/WMS."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source crpers --db /tmp/pda-crpers-proof/registry.sqlite --limit 10",
+    "listed": 10,
+    "inserted": 10,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "crpers:1765108",
+        "title": "Paul Nti Ababio",
+        "access_path": "https://api.cristin.no/v2/persons/1765108"
+      },
+      {
+        "id": "crpers:1805404",
+        "title": "Yassine Ababri",
+        "access_path": "https://api.cristin.no/v2/persons/1805404"
+      },
+      {
+        "id": "crpers:1290482",
+        "title": "Lawrence Abada",
+        "access_path": "https://api.cristin.no/v2/persons/1290482"
+      },
+      {
+        "id": "crpers:1048266",
+        "title": "Maria Abad Colom",
+        "access_path": "https://api.cristin.no/v2/persons/1048266"
+      },
+      {
+        "id": "crpers:1870357",
+        "title": "Gorka Abad Garcia",
+        "access_path": "https://api.cristin.no/v2/persons/1870357"
+      },
+      {
+        "id": "crpers:1878891",
+        "title": "Gorka Abad Garcia",
+        "access_path": "https://api.cristin.no/v2/persons/1878891"
+      },
+      {
+        "id": "crpers:428956",
+        "title": "Shadab Abadpour",
+        "access_path": "https://api.cristin.no/v2/persons/428956"
+      },
+      {
+        "id": "crpers:1336557",
+        "title": "Mohammad Mahdi Abaei",
+        "access_path": "https://api.cristin.no/v2/persons/1336557"
+      },
+      {
+        "id": "crpers:1887257",
+        "title": "Kiya Nezif Abagojjam",
+        "access_path": "https://api.cristin.no/v2/persons/1887257"
+      },
+      {
+        "id": "crpers:1880614",
+        "title": "Wafa Subhi Abahra",
+        "access_path": "https://api.cristin.no/v2/persons/1880614"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search Ababri --db /tmp/pda-crpers-proof/registry.sqlite --limit 10",
+    "query": "Ababri",
+    "returned": 1,
+    "hit_id": "crpers:1805404",
+    "title": "Yassine Ababri",
+    "source_id": "crpers",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://api.cristin.no/v2/persons/1805404",
+    "original_source": "https://api.cristin.no/v2/persons",
+    "why_picked": "title matched ababri"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset crpers:1805404 --db /tmp/pda-crpers-proof/registry.sqlite",
+    "dataset": "crpers:1805404",
+    "table_id": "1805404",
+    "fetch_id": 1,
+    "access_path": "https://api.cristin.no/v2/persons/1805404",
+    "request_url": "https://api.cristin.no/v2/persons/1805404",
+    "http_status": 200,
+    "listed": 1,
+    "inserted": 1,
+    "updated": 0,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "first_name",
+        "value": "Yassine"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset crpers:1805404 --db /tmp/pda-crpers-proof/registry.sqlite --out /tmp/pda-crpers-proof/methods",
+    "applicable": false,
+    "why": "Cristin /v2/persons/{id} prints first_name and surname strings, not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed catalog cristin_person_id values. access_path copies the printed url. No crpers id was written onto a cristin docs-path row, a crinst institution row, a crunit unit row, a crproj project row, or a crbio biobank row.",
+    "License is null: the persons catalog prints no license field. Publisher is null: the catalog prints no publisher field.",
+    "Live GET of /v2/persons/1805404 is HTTP 200 with no Authorization header. No token is sent.",
+    "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "is_crpers_url matches only /v2/persons/{id} item paths. The bare collection URL and other Cristin v2 paths stay with --source cristin. Institution item paths stay with --source crinst. Unit item paths stay with --source crunit. Project item paths stay with --source crproj. Biobank item paths stay with --source crbio.",
+    "python3 -m pytest: 1640 passed, 1 skipped, 1 deselected.",
+    "Not a numeric time series with two or more periods. Fetch listed 1 printed first_name cell (Yassine).",
+    "Did not pick crbio (already on main #238). Cristin funding_sources, journals, and publishers were HTTP 404. Enhetsregisteret naeringskoder, fylker, and institusjonellSektorkode were HTTP 404. Did not pick leftover GIS, municipal portals, or offentligdata.no."
+  ]
+}
