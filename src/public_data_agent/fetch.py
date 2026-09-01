@@ -405,6 +405,11 @@ from public_data_agent.sources.brenheter import (
     cells_from_brenheter,
     is_brenheter_url,
 )
+from public_data_agent.sources.brunder import (
+    brunder_table_id,
+    cells_from_brunder,
+    is_brunder_url,
+)
 from public_data_agent.sources.brkommuner import (
     brkommuner_table_id,
     cells_from_brkommuner,
@@ -952,6 +957,8 @@ def fetch_observations(
         return _fetch_brkommuner(registry, dataset, http=http)
     if is_brenheter_url(access_path):
         return _fetch_brenheter(registry, dataset, http=http)
+    if is_brunder_url(access_path):
+        return _fetch_brunder(registry, dataset, http=http)
     if is_brorgform_url(access_path):
         return _fetch_brorgform(registry, dataset, http=http)
     if is_brrollegruppe_url(access_path):
@@ -1316,6 +1323,63 @@ def _fetch_brenheter(
         http_status = got.status
         registry.set_fetch_request(run_id, request_url=access_path, request_body={"method": "GET"})
         cells = cells_from_brenheter(got.body)
+        counts.listed = len(cells)
+        sample = _store_cells(
+            registry,
+            dataset,
+            run_id,
+            table_id=table_id,
+            cells=cells,
+            retrieved_at=utc_now(),
+            request_url=access_path,
+            http_status=http_status,
+            counts=counts,
+        )
+        status = "completed"
+    except Exception as exc:
+        counts.failed += 1
+        counts.errors.append({"error": str(exc), "url": access_path})
+        raise
+    finally:
+        registry.finish_fetch_run(run_id, counts, status=status, http_status=http_status)
+    return FetchResult(
+        dataset_id=dataset["id"],
+        table_id=table_id,
+        request_url=access_path,
+        http_status=http_status,
+        counts=counts,
+        sample=sample,
+    )
+
+
+def _fetch_brunder(
+    registry: Registry,
+    dataset: dict[str, Any],
+    *,
+    http: JsonHttp | None = None,
+) -> FetchResult:
+    if dataset.get("source_id") != "brunder":
+        return _fetch_brreg(registry, dataset, http=http)
+    access_path = dataset.get("access_path") or ""
+    client = http or HttpClient(timeout=60.0, max_retries=4)
+    table_id = brunder_table_id(access_path)
+    started = utc_now()
+    run_id = registry.start_fetch_run(
+        dataset_id=dataset["id"],
+        table_id=table_id,
+        request_url=access_path,
+        request_method="GET",
+        started_at=started,
+    )
+    counts = HarvestCounts()
+    status = "failed"
+    http_status = 0
+    sample: list[dict[str, Any]] = []
+    try:
+        got = client.get_json_response(access_path)
+        http_status = got.status
+        registry.set_fetch_request(run_id, request_url=access_path, request_body={"method": "GET"})
+        cells = cells_from_brunder(got.body)
         counts.listed = len(cells)
         sample = _store_cells(
             registry,

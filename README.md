@@ -6151,6 +6151,34 @@ classification-item names, not a numeric time series
 (`no observations matched entity/measure; available=[]`).
 Proof is `data/ssbvar_source_proof.json`.
 
+## Enhetsregisteret underenheter source
+
+`pda ingest --source brunder` is another replaceable adapter. It lists
+printed `organisasjonsnummer` values from the official Enhetsregisteret
+`/enhetsregisteret/api/underenheter` collection. The OpenAPI names that
+collection GET and GET `/underenheter/{organisasjonsnummer}`. No optional
+`page`, `size`, or search filter is added. Dataset ids are the printed
+`organisasjonsnummer` values. `access_path` is the printed
+`_links.self.href`. License stays null. Publisher stays null. This is
+not the Enhetsregisteret HAL root (`--source brreg`), not leftover
+enheter (`--source brenheter`), not leftover organisasjonsformer
+(`--source brorgform`), not leftover kommuner (`--source brkommuner`),
+and not leftover roller lists (`--source brroller`).
+
+```bash
+pda ingest --source brunder --db data/registry.sqlite --limit 10
+pda search '----ADVOKATFIRMAET' --db data/registry.sqlite
+pda fetch --dataset brunder:934551524 --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored underenhet URL. Observation values are copied
+from the printed `navn` scalar. Other scalars stay as dimensions.
+Nested objects and `_links` are not copied. License stays null.
+Publisher stays null.
+
+Live ingest numbers are recorded in `data/brunder_source_proof.json`
+after the first live walk.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
