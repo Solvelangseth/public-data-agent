@@ -151,7 +151,8 @@ def test_brunder_is_a_registered_source() -> None:
     assert SOURCE_IDS[SOURCE_IDS.index("kvkrets") + 1] == "dsbgis"
     assert SOURCE_IDS[SOURCE_IDS.index("dsbgis") + 1] == "nibiogard"
     assert SOURCE_IDS[SOURCE_IDS.index("nibiogard") + 1] == "stskrift"
-    assert SOURCE_IDS[-1] == "stskrift"
+    assert SOURCE_IDS[SOURCE_IDS.index("stskrift") + 1] == "stinterp"
+    assert SOURCE_IDS[-1] == "stinterp"
     source = build_source("brunder")
     assert isinstance(source, BrunderSource)
     assert source.source_id == "brunder"
