@@ -133,6 +133,7 @@
     "Live GET of the leftover FKB WMS GetCapabilities URL is HTTP 200 WMS_Capabilities XML with no Authorization header. No token is sent. Accept is application/xml, text/xml, */* like kvtopo and kvwms.",
     "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
     "Branched from origin/main after barmark #229 (7403542827e5594693fa2dbb690a051c1cdd21ab). Rebased onto origin/main after ssbgis #215 (95cef0f) and stpartier #236 (a86ddfe). SOURCE_IDS keeps barmark, crproj, ssbgis, stpartier, then kvfkb. README keeps leftover GIS sections including barmark, nordatlas, nibioar50, fbgis, bwgis, mdirgis, nguminer, and ssbgis.",
-    "python3 -m pytest after rebase onto ssbgis #215: 1626 passed, 1 skipped, 1 deselected."
+    "python3 -m pytest after rebase onto ssbgis #215: 1626 passed, 1 skipped, 1 deselected.",
+    "python3 -m pytest after rebase onto stpartier #236: 1634 passed, 1 skipped, 1 deselected."
   ]
 }
