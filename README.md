@@ -6663,7 +6663,13 @@ dimensions. Nested `url` is not stored as a cell. License stays null.
 Publisher stays null.
 
 The catalog prints a default page of biobanks. This walk copies the
-first ten in document order. No page or per_page query is invented.
+first ten in document order. No page or per_page query is invented. Live
+ingest listed 10 and inserted 10. Live search `DART-studien` returns
+`crbio:2052825`. Live fetch GETs
+`https://api.cristin.no/v2/biobanks/2052825`
+HTTP 200, 1 row, `name` = `Daratumumab for behandling av immunologisk
+trombocytopeni (ITP) -DART-studien`. `pda methods` is not applicable.
+Biobank names are not a numeric time series.
 Proof is `data/crbio_source_proof.json`.
 
 ## Brønnøysundregistrene Enhetsregisteret organisasjonsformer enheter source
