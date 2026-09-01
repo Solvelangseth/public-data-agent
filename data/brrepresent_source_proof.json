@@ -1,0 +1,163 @@
+{
+  "produced_at": "2026-09-01T17:07:25Z",
+  "bound": {
+    "list_api": "https://data.brreg.no/enhetsregisteret/api/roller/representanter",
+    "walk": "copy printed _embedded.representanter[].kode from the official Enhetsregisteret representanter collection; native ids are the printed kode values so A-AK stays distinct from AREP; access_path joins printed kode onto the public /enhetsregisteret/api/roller/representanter path; printed _links.self.href values point at /enhetsregisteret/autorisert-api/ and that path is HTTP 401 so they are not copied; license stays null; publisher stays null; the catalog prints neither; live GET of those printed public kode paths is HTTP 200 with no token; no token is sent; do not invent query filters",
+    "cap": 10,
+    "how": "pda ingest --source brrepresent --limit 10. The official collection prints 4 representant codes. Ingest copies those four in document order."
+  },
+  "discarded": [
+    {
+      "candidate": "Enhetsregisteret kommuner",
+      "url": "PR 203 --source brkommuner",
+      "why": "In-flight leftover Enhetsregisteret kommuner. Do not pick."
+    },
+    {
+      "candidate": "Enhetsregisteret rollegruppetyper",
+      "url": "PR 211 --source brrollegruppe",
+      "why": "In-flight leftover Enhetsregisteret rollegruppetyper. Do not pick."
+    },
+    {
+      "candidate": "Enhetsregisteret rolletyper",
+      "url": "--source brrolletype",
+      "why": "Just merged on main as #207. Do not redo."
+    },
+    {
+      "candidate": "Norges Bank SDMX categoryscheme and hierarchicalcodelist",
+      "url": "https://data.norges-bank.no/api/categoryscheme?format=sdmx-json",
+      "why": "Live GETs are HTTP 404. Assigned skip."
+    },
+    {
+      "candidate": "Norges Bank SDMX leftover structure types",
+      "url": "https://data.norges-bank.no/api/structure?format=sdmx-json",
+      "why": "Live 200 but prints only already-ingested agencySchemes, dataProviderSchemes, codelists, conceptSchemes, dataStructures, dataflows, and provisionAgreements."
+    },
+    {
+      "candidate": "MET leftover swagger (weathericon, uvforecast, pollenforecast, forestfireindex, lightning, frost, subjectivesummary)",
+      "url": "https://api.met.no/weatherapi/weathericon/2.0/swagger",
+      "why": "Live GETs are HTTP 500. Assigned skip."
+    },
+    {
+      "candidate": "Enhetsregisteret leftover roller OpenAPI paths",
+      "url": "--source brroller",
+      "why": "Already on main as --source brroller. This adapter lists printed representant codes, not OpenAPI collection paths."
+    },
+    {
+      "candidate": "Enhetsregisteret organisasjonsformer",
+      "url": "https://data.brreg.no/enhetsregisteret/api/organisasjonsformer",
+      "why": "Already on main as --source brorgform."
+    },
+    {
+      "candidate": "Enhetsregisteret organisasjonsformer/enheter item paths",
+      "url": "https://data.brreg.no/enhetsregisteret/api/organisasjonsformer/enheter/ADOS",
+      "why": "Collection is HTTP 200. Joined item GET is HTTP 404. Do not invent a workaround."
+    },
+    {
+      "candidate": "Frivillighetsregisteret icnpo-kategorier items",
+      "url": "https://data.brreg.no/frivillighetsregisteret/api/icnpo-kategorier/1",
+      "why": "Item GET is HTTP 404. Collection is already a frivillig OpenAPI path."
+    },
+    {
+      "candidate": "Enhetsregisteret autorisert-api representanter item hrefs",
+      "url": "https://data.brreg.no/enhetsregisteret/autorisert-api/roller/representanter/A-AK",
+      "why": "Printed self href. Live GET is HTTP 401. Do not invent auth."
+    },
+    {
+      "candidate": "municipal CKAN/Opencom",
+      "url": "assigned skip",
+      "why": "This lane stays off municipal CKAN/Opencom."
+    },
+    {
+      "candidate": "leftover GIS/WMS/OGC/ArcGIS",
+      "url": "assigned skip",
+      "why": "This lane stays on official national JSON."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source brrepresent --db /tmp/pda-brrepresent-proof/registry.sqlite --limit 10",
+    "listed": 4,
+    "inserted": 4,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "brrepresent:A-AK",
+        "title": "Representant for A-aksjonærene",
+        "access_path": "https://data.brreg.no/enhetsregisteret/api/roller/representanter/A-AK"
+      },
+      {
+        "id": "brrepresent:AREP",
+        "title": "Representant for de ansatte",
+        "access_path": "https://data.brreg.no/enhetsregisteret/api/roller/representanter/AREP"
+      },
+      {
+        "id": "brrepresent:B-AK",
+        "title": "Representant for B-aksjonærene",
+        "access_path": "https://data.brreg.no/enhetsregisteret/api/roller/representanter/B-AK"
+      },
+      {
+        "id": "brrepresent:C-AK",
+        "title": "Representant for C-aksjonærene",
+        "access_path": "https://data.brreg.no/enhetsregisteret/api/roller/representanter/C-AK"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search A-aksjonærene --db /tmp/pda-brrepresent-proof/registry.sqlite --limit 10",
+    "query": "A-aksjonærene",
+    "returned": 3,
+    "hit_id": "brrepresent:A-AK",
+    "title": "Representant for A-aksjonærene",
+    "source_id": "brrepresent",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://data.brreg.no/enhetsregisteret/api/roller/representanter/A-AK",
+    "original_source": "https://data.brreg.no/enhetsregisteret/api/roller/representanter",
+    "why_picked": "title matched aksjonærene"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset brrepresent:A-AK --db /tmp/pda-brrepresent-proof/registry.sqlite",
+    "dataset": "brrepresent:A-AK",
+    "table_id": "A-AK",
+    "access_path": "https://data.brreg.no/enhetsregisteret/api/roller/representanter/A-AK",
+    "request_url": "https://data.brreg.no/enhetsregisteret/api/roller/representanter/A-AK",
+    "http_status": 200,
+    "listed": 1,
+    "inserted": 1,
+    "updated": 0,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "beskrivelse",
+        "value": "Representant for A-aksjonærene"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset brrepresent:A-AK --db /tmp/pda-brrepresent-proof/registry.sqlite --out /tmp/pda-brrepresent-proof/methods",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "Enhetsregisteret /roller/representanter/A-AK prints kode and beskrivelse strings, not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed catalog kode values. access_path joins printed kode onto the public collection path. No brrepresent id was written onto a brreg, brroller, brrolletype, or brorgform row.",
+    "License is null: the representanter catalog prints no license field. Publisher is null: the catalog prints no publisher field.",
+    "Live GET of /enhetsregisteret/api/roller/representanter/A-AK is HTTP 200 with no Authorization header. No token is sent.",
+    "Printed self hrefs under /enhetsregisteret/autorisert-api/ are HTTP 401 and were not copied.",
+    "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "is_brrepresent_url matches only /roller/representanter/{kode} item paths. The bare collection URL stays on brroller:representanter.",
+    "python3 -m pytest after adding brrepresent on origin/main a161788: 1412 passed, 1 skipped, 1 deselected.",
+    "Not a numeric time series with two or more periods. Fetch listed 1 printed beskrivelse cell (Representant for A-aksjonærene).",
+    "Lane X brkommuner 203 and brrollegruppe 211 stayed unused."
+  ]
+}

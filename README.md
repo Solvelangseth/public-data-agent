@@ -6047,6 +6047,41 @@ HTTP 200, 1 row, `fylkesnavn` = `Troms`. `pda methods` is not
 applicable. Fylke names are not a numeric time series.
 Proof is `data/kifylker_source_proof.json`.
 
+## Enhetsregisteret rollerepresentanter source
+
+`pda ingest --source brrepresent` is another replaceable adapter. It lists
+printed representant codes on the official Enhetsregisteret collection
+`https://data.brreg.no/enhetsregisteret/api/roller/representanter`,
+capped at 10. Dataset ids are the printed `kode` values. `access_path`
+joins each printed kode onto that public collection path. Printed
+`_links.self.href` values point at `/enhetsregisteret/autorisert-api/`
+and that path is HTTP 401, so they are not copied. License stays null.
+Publisher stays null. This is not the Enhetsregisteret HAL root
+(`--source brreg`), not leftover roller OpenAPI paths
+(`--source brroller`), not rolletyper (`--source brrolletype`), not
+rollegruppetyper (`--source brrollegruppe`), not organisasjonsformer
+(`--source brorgform`), and not kommuner (`--source brkommuner`).
+
+```bash
+pda ingest --source brrepresent --db data/registry.sqlite --limit 10
+pda search A-aksjonærene --db data/registry.sqlite
+pda fetch --dataset brrepresent:A-AK --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored representant URL. Observation values are
+copied from the printed `beskrivelse` scalar. Other scalars stay as
+dimensions. Nested `_links` objects are not copied. License stays null.
+Publisher stays null.
+
+The catalog prints 4 representanter. This walk copies those four in
+document order. Live ingest listed 4 and inserted 4. Live search
+`A-aksjonærene` returns `brrepresent:A-AK`. Live fetch GETs
+`https://data.brreg.no/enhetsregisteret/api/roller/representanter/A-AK`
+HTTP 200, 1 row, `beskrivelse` = `Representant for A-aksjonærene`.
+`pda methods` is not applicable. Representant names are not a numeric
+time series.
+Proof is `data/brrepresent_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists

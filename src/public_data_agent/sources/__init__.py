@@ -15,6 +15,7 @@ from public_data_agent.sources.brkommuner import BrkommunerSource
 from public_data_agent.sources.brorgform import BrorgformSource
 from public_data_agent.sources.broppdater import BroppdaterSource
 from public_data_agent.sources.brreg import BrregEnhetsregisterSource
+from public_data_agent.sources.brrepresent import BrrepresentSource
 from public_data_agent.sources.brrollegruppe import BrrollegruppeSource
 from public_data_agent.sources.brrolletype import BrrolletypeSource
 from public_data_agent.sources.brroller import BrrollerSource
@@ -313,6 +314,7 @@ SOURCE_IDS = (
     "bwgis",
     "broppdater",
     "kifylker",
+    "brrepresent",
 )
 
 
@@ -627,6 +629,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return BroppdaterSource()
     if source_id == "kifylker":
         return KifylkerSource()
+    if source_id == "brrepresent":
+        return BrrepresentSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -643,6 +647,7 @@ __all__ = [
     "BrorgformSource",
     "BroppdaterSource",
     "BrregEnhetsregisterSource",
+    "BrrepresentSource",
     "BrrollegruppeSource",
     "BrrolletypeSource",
     "BrrollerSource",
