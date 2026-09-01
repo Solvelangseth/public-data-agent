@@ -333,7 +333,7 @@ def test_hiwms_is_a_registered_source() -> None:
     assert SOURCE_IDS[SOURCE_IDS.index("nbagency") + 1] == "kvtopo"
     assert SOURCE_IDS[SOURCE_IDS.index("kvtopo") + 1] == "nbdps"
     assert SOURCE_IDS[SOURCE_IDS.index("nbdps") + 1] == "vegwms"
-    assert SOURCE_IDS[-1] == "vegwms"
+    assert SOURCE_IDS[SOURCE_IDS.index("vegwms") + 1] == "fdkorg"
     source = build_source("hiwms")
     assert isinstance(source, HiwmsSource)
     assert source.source_id == "hiwms"

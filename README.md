@@ -5675,6 +5675,36 @@ HTTP 200, 3 name cells. Sample printed value: `Thomson Reuters`.
 series (`no observations matched entity/measure; available=[]`).
 Proof is `data/nbdps_source_proof.json`.
 
+## Digdir Felles datakatalog organization catalogue source
+
+`pda ingest --source fdkorg` is another replaceable adapter. It lists
+printed organization ids on the official Digdir Felles datakatalog
+organization catalogue
+`https://organization-catalogue.fellesdatakatalog.digdir.no/organizations`,
+capped at 10. Dataset ids are the printed `organizationId` values.
+`access_path` joins each printed `organizationId` onto the printed
+`/organizations` path. License stays null. Publisher stays null. This
+is not Data.norge (`--source datanorge`), not Enhetsregisteret
+(`--source brreg`), and not Kartverket Kommuneinfo
+(`--source kommuneinfo`).
+
+```bash
+pda ingest --source fdkorg --db data/registry.sqlite --limit 10
+pda search BEIARN --db data/registry.sqlite
+pda fetch --dataset fdkorg:961147867 --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored organization URL. Observation values are
+copied from the printed `name` scalar. Other scalars stay as
+dimensions. Nested `prefLabel` objects are not copied. License stays
+null. Publisher stays null.
+
+The catalog prints 977 organizations. This walk copies the first ten
+in document order. License stays null: the catalog prints no license
+field. Publisher stays null. `pda methods` is not applicable.
+Organization names are not a numeric time series. Proof is
+`data/fdkorg_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists

@@ -1,0 +1,97 @@
+{
+  "produced_at": "2026-09-01T16:48:00Z",
+  "bound": {
+    "list_api": "https://organization-catalogue.fellesdatakatalog.digdir.no/organizations",
+    "walk": "copy printed organizationId values from the official Digdir Felles datakatalog organization catalogue; native ids are the printed organizationId values so 961147867 stays distinct from 964983380; access_path joins each printed organizationId onto the printed /organizations path; license stays null; publisher stays null; the catalog prints neither; live GET of those printed organization paths is HTTP 200 with no token; no token is sent; do not invent query filters",
+    "cap": 10,
+    "how": "pda ingest --source fdkorg --limit 10. The official catalogue prints 977 organizations. Ingest copies the first ten in document order."
+  },
+  "discarded": [
+    {
+      "candidate": "Enhetsregisteret kommuner / brkommune",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/204",
+      "why": "Closed. Lane X already has leftover kommuner as brkommuner PR 203."
+    },
+    {
+      "candidate": "Enhetsregisteret kommuner / brkommuner",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/203",
+      "why": "In flight Lane X. Do not pick brkommuner."
+    },
+    {
+      "candidate": "Norges Bank SDMX agency schemes / nbagency",
+      "url": "already on main via --source nbagency",
+      "why": "Merged as #193. Kept. Do not re-add."
+    },
+    {
+      "candidate": "Norges Bank SDMX dataproviderscheme / nbdps",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/201",
+      "why": "In flight Lane V. Do not pick nbdps."
+    },
+    {
+      "candidate": "Norges Bank SDMX categoryscheme",
+      "url": "https://data.norges-bank.no/api/categoryscheme?format=sdmx-json",
+      "why": "HTTP 404. Do not invent a workaround."
+    },
+    {
+      "candidate": "Norges Bank SDMX hierarchicalcodelist",
+      "url": "https://data.norges-bank.no/api/hierarchicalcodelist?format=sdmx-json",
+      "why": "HTTP 404. Do not invent a workaround."
+    },
+    {
+      "candidate": "Enhetsregisteret oppdateringer/enheter",
+      "url": "https://data.brreg.no/enhetsregisteret/api/oppdateringer/enheter",
+      "why": "Collection GET 200. Item path /oppdateringer/enheter/1 is HTTP 404. Printed members have no self href. Do not invent item URLs."
+    },
+    {
+      "candidate": "Udir Register for lærebedrifter",
+      "url": "https://data-nlr.udir.no/v4/organisasjonsformer",
+      "why": "Known skip: live collection GETs are HTTP 401. Do not invent auth."
+    },
+    {
+      "candidate": "Kartverket Adresser OpenAPI",
+      "url": "https://ws.geonorge.no/adresser/v1/openapi.json",
+      "why": "Printed paths /punktsok and /sok require search params. Do not invent a query."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    },
+    {
+      "candidate": "municipal CKAN / Opencom",
+      "url": "already on main via --source opencom and municipal CKAN adapters",
+      "why": "This lane stays off municipal CKAN/Opencom."
+    },
+    {
+      "candidate": "leftover GIS/WMS/OGC/ArcGIS",
+      "url": "open PRs bwgis 205 and kvtopo 200",
+      "why": "This lane stays off leftover GIS/WMS."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source fdkorg --db /tmp/pda-fdkorg-proof/registry.sqlite --limit 10",
+    "listed": null,
+    "inserted": null,
+    "tables": []
+  },
+  "search": {
+    "command": "pda search BEIARN --db /tmp/pda-fdkorg-proof/registry.sqlite --limit 10",
+    "query": "BEIARN",
+    "hit_id": null
+  },
+  "fetch": {
+    "command": "pda fetch --dataset fdkorg:961147867 --db /tmp/pda-fdkorg-proof/registry.sqlite",
+    "dataset": "fdkorg:961147867",
+    "http_status": null
+  },
+  "methods": {
+    "applicable": false,
+    "why": "Digdir /organizations/{organizationId} prints name and organizationId strings, not a numeric time series with a year-like period field. methods/ was not edited."
+  },
+  "notes": [
+    "Live ingest, search, and fetch are pending the first test pass.",
+    "Ids are copied from printed catalog organizationId values. access_path joins that printed id onto /organizations.",
+    "License is null: the organization catalogue prints no license field. Publisher is null: the catalog prints no publisher field.",
+    "is_fdkorg_url matches only /organizations/{organizationId} item paths. The bare collection URL is not an fdkorg item."
+  ]
+}

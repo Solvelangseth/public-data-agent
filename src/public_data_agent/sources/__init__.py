@@ -20,6 +20,7 @@ from public_data_agent.sources.datanorge import DataNorgeSource
 from public_data_agent.sources.elcert import ElcertSource
 from public_data_agent.sources.entur import EnturGbfsSource
 from public_data_agent.sources.envreportreg import EnvreportregSource
+from public_data_agent.sources.fdkorg import FdkorgSource
 from public_data_agent.sources.fdirwms import FdirwmsSource
 from public_data_agent.sources.fhi import FhiStatistikkSource
 from public_data_agent.sources.fiskeridir import FiskeridirVesselSource
@@ -293,6 +294,7 @@ SOURCE_IDS = (
     "kvtopo",
     "nbdps",
     "vegwms",
+    "fdkorg",
 )
 
 
@@ -587,6 +589,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return NbdpsSource()
     if source_id == "vegwms":
         return VegwmsSource()
+    if source_id == "fdkorg":
+        return FdkorgSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -610,6 +614,7 @@ __all__ = [
     "EnturGbfsSource",
     "EnvreportregSource",
     "FdirwmsSource",
+    "FdkorgSource",
     "FhiStatistikkSource",
     "FiskeridirVesselSource",
     "FiskerigisSource",
