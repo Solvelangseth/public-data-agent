@@ -10,6 +10,7 @@ from public_data_agent.sources.artskart import ArtskartSource
 from public_data_agent.sources.avinorgis import AvinorgisSource
 from public_data_agent.sources.baf import BafSource
 from public_data_agent.sources.banegis import BanegisSource
+from public_data_agent.sources.barmark import BarmarkSource
 from public_data_agent.sources.base import CatalogSource, SourceBase
 from public_data_agent.sources.brenheter import BrenheterSource
 from public_data_agent.sources.brkommuner import BrkommunerSource
@@ -343,6 +344,7 @@ SOURCE_IDS = (
     "ssbsubj",
     "stkomiteer",
     "crunit",
+    "barmark",
 )
 
 
@@ -687,6 +689,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return StkomiteerSource()
     if source_id == "crunit":
         return CrunitSource()
+    if source_id == "barmark":
+        return BarmarkSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -699,6 +703,7 @@ __all__ = [
     "AvinorgisSource",
     "BafSource",
     "BanegisSource",
+    "BarmarkSource",
     "BrenheterSource",
     "BrkommunerSource",
     "BrorgformSource",

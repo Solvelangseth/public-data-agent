@@ -5232,6 +5232,42 @@ HTTP 200, 2 Layer Name cells. Sample printed value: `skytefelt_wms`.
 `pda methods` is not applicable: layer names, not a numeric time series.
 Proof is `data/fbgis_source_proof.json`.
 
+## Statsforvalteren leftover Barmarksløyper WFS source
+
+`pda ingest --source barmark` is another replaceable adapter. It lists printed
+leftover OGC:WFS Type=service GetCapabilities rows on the official Geonorge
+Kartkatalog search
+`https://kartkatalog.geonorge.no/api/search?text=Barmarksløyper&limit=50`,
+capped at 10. Other organizations, downloads, servicelayers, and software
+are skipped. DescribeFeatureType URLs are skipped. Nordatlas WMS hosts,
+Fylkesatlas WMS, and the dead Nordatlas `wfs.ashx` endpoint are skipped.
+Leftover NIBIO WMS/REST, leftover Forsvarsbygg GIS, leftover BarentsWatch
+hosts, municipal CKAN/Opencom, national JSON APIs, and offentligdata.no
+are skipped. GetCapabilities bodies that are not WFS XML are skipped.
+Dataset ids are the printed last path segment so the leftover
+`https://wfs.geonorge.no/skwms1/wfs.barmarksloyper?service=WFS&request=GetCapabilities`
+keeps native id `wfs.barmarksloyper`. `access_path` is the printed
+`DistributionUrl`. License stays null: the catalog prints no license URL.
+Publisher stays null. This is leftover from nordatlas: printed Nordatlas
+WMS timed out and was skipped; Fylkesatlas WMS is already
+`--source nordatlas`. This is not leftover Nordatlas WMS/WFS
+(`--source nordatlas`) and not leftover Forsvarsbygg WMS/WFS
+(`--source fbgis`).
+
+```bash
+pda ingest --source barmark --db data/registry.sqlite --limit 10
+pda search Barmarksløyper --db data/registry.sqlite
+pda fetch --dataset barmark:wfs.barmarksloyper --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored GetCapabilities URL. Observation values are
+copied from printed WFS `FeatureType`/`Name` text. A sibling `Title`
+stays as a dimension. License stays null. Publisher stays null.
+
+Live ingest 2026-09-01: pending live proof.
+
+Proof is `data/barmark_source_proof.json`.
+
 ## Norges Bank SDMX Codelists source
 
 `pda ingest --source nbcodelist` is another replaceable adapter. It lists
