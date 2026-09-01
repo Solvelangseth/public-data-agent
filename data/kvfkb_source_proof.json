@@ -1,0 +1,137 @@
+{
+  "produced_at": "2026-09-01T18:35:00Z",
+  "bound": {
+    "list_api": [
+      "https://wms.geonorge.no/skwms1/wms.fkb?service=wms&request=getcapabilities"
+    ],
+    "walk": "copy the official leftover Kartverket FKB WMS GetCapabilities document that Geonorge Kartkatalog prints as Type=service OGC:WMS uuid 84178e68-f40d-4bb4-b9f6-9bfdee2bcc7a; skip HTML and non-WMS bodies; native id is the printed last path segment wms.fkb; access_path is the GetCapabilities URL; license stays null because the document prints copyright text, not a license URL; publisher stays null; live GET of that printed document is HTTP 200 WMS XML with no token; no token is sent; do not invent extra leftover wms.geonorge.no/skwms1/ service URLs",
+    "cap": 10,
+    "how": "pda ingest --source kvfkb --limit 10. The printed leftover FKB GetCapabilities document returns WMS_Capabilities XML 200. Cap 10 copies that one document. This is not --source kvwms, --source kvtopo, --source kvgrunn, or --source geonorge."
+  },
+  "discarded": [
+    {
+      "candidate": "Kartverket leftover WMS/WMTS / kvwms",
+      "url": "https://wms.geonorge.no/skwms1/wms.topo?service=wms&request=getcapabilities",
+      "why": "On main as --source kvwms. Owns wms.topo and WMTS only. Skip."
+    },
+    {
+      "candidate": "Kartverket leftover topo WMS / kvtopo",
+      "url": "https://wms.geonorge.no/skwms1/wms.kartdata?service=wms&request=getcapabilities",
+      "why": "On main as --source kvtopo after listing six leftover topo WMS documents including wms.fkb. kvfkb is the FKB-only leftover Type=service document. Do not redo kvtopo."
+    },
+    {
+      "candidate": "Kartverket leftover grunnkart WMS / kvgrunn",
+      "url": "https://wms.geonorge.no/skwms1/wms.norges_grunnkart?service=WMS&request=GetCapabilities",
+      "why": "On main as --source kvgrunn. Owns wms.topograatone and wms.norges_grunnkart. Skip."
+    },
+    {
+      "candidate": "Geonorge Kartkatalog / geonorge",
+      "url": "https://kartkatalog.geonorge.no/api/search",
+      "why": "Already --source geonorge. kvfkb copies the printed leftover FKB WMS GetCapabilities document, not the Kartkatalog JSON catalog."
+    },
+    {
+      "candidate": "FKB Datakvalitet WMS / wms.fkb_kvalitet",
+      "url": "https://wms.geonorge.no/skwms1/wms.fkb_kvalitet",
+      "why": "Printed Geonorge Type=service row has no request=GetCapabilities query. Live GET of that printed URL is HTML, not WMS XML. Do not invent a GetCapabilities query."
+    },
+    {
+      "candidate": "FKB Dataalder WMS / wms.fkb_dataalder",
+      "url": "https://wms.geonorge.no/skwms1/wms.fkb_dataalder",
+      "why": "Printed Geonorge Type=service row has no request=GetCapabilities query. Live GET of that printed URL is HTML, not WMS XML. Do not invent a GetCapabilities query."
+    },
+    {
+      "candidate": "Statsforvalteren leftover Barmarksløyper WFS / barmark",
+      "url": "already --source barmark",
+      "why": "On main after #229. Different host. Do not redo barmark."
+    },
+    {
+      "candidate": "NIBIO leftover AR50 / nibioar50",
+      "url": "already --source nibioar50",
+      "why": "On main. Different host. Do not redo nibioar50."
+    },
+    {
+      "candidate": "NIBIO leftover WMS / nibiowms",
+      "url": "already --source nibiowms",
+      "why": "Assigned skip. Do not redo."
+    },
+    {
+      "candidate": "NIBIO leftover REST / nibiorest",
+      "url": "already --source nibiorest",
+      "why": "Assigned skip. Do not redo."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source kvfkb --db /tmp/pda-kvfkb-proof/registry.sqlite --limit 10",
+    "listed": 1,
+    "inserted": 1,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "kvfkb:wms.fkb",
+        "title": "fkb WMS",
+        "access_path": "https://wms.geonorge.no/skwms1/wms.fkb?service=wms&request=getcapabilities"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search FKB --db /tmp/pda-kvfkb-proof/registry.sqlite --limit 10",
+    "query": "FKB",
+    "returned": 1,
+    "hit_id": "kvfkb:wms.fkb",
+    "title": "fkb WMS",
+    "source_id": "kvfkb",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://wms.geonorge.no/skwms1/wms.fkb?service=wms&request=getcapabilities",
+    "original_source": "https://wms.geonorge.no/skwms1/wms.fkb?service=wms&request=getcapabilities",
+    "why_picked": "title matched fkb",
+    "also_tried": {
+      "query": "fkb_arealdekke",
+      "hit_id": "kvfkb:wms.fkb",
+      "why_picked": "title matched fkb"
+    }
+  },
+  "fetch": {
+    "command": "pda fetch --dataset kvfkb:wms.fkb --db /tmp/pda-kvfkb-proof/registry.sqlite",
+    "dataset": "kvfkb:wms.fkb",
+    "table_id": "wms.fkb",
+    "access_path": "https://wms.geonorge.no/skwms1/wms.fkb?service=wms&request=getcapabilities",
+    "request_url": "https://wms.geonorge.no/skwms1/wms.fkb?service=wms&request=getcapabilities",
+    "http_status": 200,
+    "listed": 55,
+    "inserted": 54,
+    "updated": 1,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "Name",
+        "value": "fkb"
+      },
+      {
+        "measure": "Name",
+        "value": "fkb_arealdekke"
+      }
+    ],
+    "note": "Live GET 200 WMS_Capabilities 1.3.0. The WMS document prints 55 named Layer Name values including fkb, fkb_arealdekke, ar5, arealbruk, fkb_hoydekurver. methods/ was not edited."
+  },
+  "methods": {
+    "applicable": false,
+    "why": "Kartverket leftover FKB WMS prints layer names. Those are not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false
+  },
+  "notes": [
+    "Ids are copied from the printed last /skwms1/ path segment. access_path is the official leftover GetCapabilities URL. No kvfkb id was written onto a kvwms, kvtopo, kvgrunn, or geonorge row.",
+    "License is null: the document prints copyright text and Fees, not a license URL. Publisher is null.",
+    "Live GET of the leftover FKB WMS GetCapabilities URL is HTTP 200 WMS_Capabilities XML with no Authorization header. No token is sent. Accept is application/xml, text/xml, */* like kvtopo and kvwms.",
+    "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "Branched from origin/main after barmark #229 (7403542827e5594693fa2dbb690a051c1cdd21ab). Rebased onto origin/main after ssbgis #215 (95cef0f). SOURCE_IDS keeps barmark, crproj, ssbgis, then kvfkb. README keeps leftover GIS sections including barmark, nordatlas, nibioar50, fbgis, bwgis, mdirgis, nguminer, and ssbgis."
+  ]
+}
