@@ -1,0 +1,190 @@
+{
+  "produced_at": "2026-09-01T17:57:10Z",
+  "bound": {
+    "list_api": "https://data.ssb.no/api/v0/no/table",
+    "walk": "copy printed alphabetic type=l subject id values from the official SSB PxWeb v0 table catalog; native ids are the printed subject ids so al stays distinct from bf; access_path joins each printed id onto the printed /api/v0/no/table path; license stays null; publisher stays null; the catalog prints neither; live GET of those printed subject folders is HTTP 200 with no token; no token is sent; five-digit table numbers used by --source ssb are not copied from this catalog",
+    "cap": 10,
+    "how": "pda ingest --source ssbsubj --limit 10. The official catalogue prints 23 leftover subject folders. Ingest copies the first ten in document order."
+  },
+  "discarded": [
+    {
+      "candidate": "Norges Bank SDMX organisationscheme",
+      "url": "https://data.norges-bank.no/api/organisationscheme?format=sdmx-json",
+      "why": "HTTP 200 but the body reprints agencySchemes and dataProviderSchemes already ingested by nbagency and nbdps. Not a leftover catalog."
+    },
+    {
+      "candidate": "Norges Bank SDMX categoryscheme",
+      "url": "https://data.norges-bank.no/api/categoryscheme?format=sdmx-json",
+      "why": "HTTP 404. Do not invent a workaround."
+    },
+    {
+      "candidate": "Norges Bank SDMX hierarchicalcodelist",
+      "url": "https://data.norges-bank.no/api/hierarchicalcodelist?format=sdmx-json",
+      "why": "HTTP 404. Do not invent a workaround."
+    },
+    {
+      "candidate": "Enhetsregisteret organisasjonsformer/enheter",
+      "url": "https://data.brreg.no/enhetsregisteret/api/organisasjonsformer/enheter",
+      "why": "HTTP 200 but printed self hrefs are /enhetsregisteret/api/organisasjonsformer/{kode}, already owned by --source brorgform. Do not invent a different item path."
+    },
+    {
+      "candidate": "Enhetsregisteret organisasjonsformer/underenheter",
+      "url": "https://data.brreg.no/enhetsregisteret/api/organisasjonsformer/underenheter",
+      "why": "HTTP 200 but printed self hrefs collide with --source brorgform item paths."
+    },
+    {
+      "candidate": "Enhetsregisteret matrikkelenhet",
+      "url": "https://data.brreg.no/enhetsregisteret/api/matrikkelenhet",
+      "why": "HTTP 400. Do not invent required query parameters."
+    },
+    {
+      "candidate": "Kartverket Kommuneinfo kommuner / kikommuner",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/224",
+      "why": "In flight. Do not pick kikommuner."
+    },
+    {
+      "candidate": "Kartverket Stedsnavn navneobjekttyper items",
+      "url": "https://api.kartverket.no/stedsnavn/v1/navneobjekttyper",
+      "why": "HTTP 200 prints navneobjekttypekode values, but the official OpenAPI does not name GET /navneobjekttyper/{kode}. Do not invent an item path."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    },
+    {
+      "candidate": "municipal CKAN / Opencom",
+      "url": "already on main via --source opencom and municipal CKAN adapters",
+      "why": "This lane stays off municipal CKAN/Opencom."
+    },
+    {
+      "candidate": "leftover GIS/WMS/OGC/ArcGIS",
+      "url": "already on main via leftover GIS adapters",
+      "why": "This lane stays off leftover GIS/WMS."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source ssbsubj --db /tmp/pda-ssbsubj-proof/registry.sqlite --limit 10",
+    "listed": 10,
+    "inserted": 10,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "ssbsubj:al",
+        "title": "Arbeid og lønn",
+        "access_path": "https://data.ssb.no/api/v0/no/table/al"
+      },
+      {
+        "id": "ssbsubj:bf",
+        "title": "Bank og finansmarked",
+        "access_path": "https://data.ssb.no/api/v0/no/table/bf"
+      },
+      {
+        "id": "ssbsubj:vf",
+        "title": "Bedrifter, foretak og regnskap",
+        "access_path": "https://data.ssb.no/api/v0/no/table/vf"
+      },
+      {
+        "id": "ssbsubj:be",
+        "title": "Befolkning",
+        "access_path": "https://data.ssb.no/api/v0/no/table/be"
+      },
+      {
+        "id": "ssbsubj:bb",
+        "title": "Bygg, bolig og eiendom",
+        "access_path": "https://data.ssb.no/api/v0/no/table/bb"
+      },
+      {
+        "id": "ssbsubj:ei",
+        "title": "Energi og industri",
+        "access_path": "https://data.ssb.no/api/v0/no/table/ei"
+      },
+      {
+        "id": "ssbsubj:he",
+        "title": "Helse",
+        "access_path": "https://data.ssb.no/api/v0/no/table/he"
+      },
+      {
+        "id": "ssbsubj:if",
+        "title": "Inntekt og forbruk",
+        "access_path": "https://data.ssb.no/api/v0/no/table/if"
+      },
+      {
+        "id": "ssbsubj:in",
+        "title": "Innvandring og innvandrere",
+        "access_path": "https://data.ssb.no/api/v0/no/table/in"
+      },
+      {
+        "id": "ssbsubj:js",
+        "title": "Jord, skog, jakt og fiskeri",
+        "access_path": "https://data.ssb.no/api/v0/no/table/js"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search \"Arbeid og lønn\" --db /tmp/pda-ssbsubj-proof/registry.sqlite --limit 10",
+    "query": "Arbeid og lønn",
+    "returned": 1,
+    "hit_id": "ssbsubj:al",
+    "title": "Arbeid og lønn",
+    "source_id": "ssbsubj",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://data.ssb.no/api/v0/no/table/al",
+    "original_source": "https://data.ssb.no/api/v0/no/table",
+    "why_picked": "requirements arbeid AND lønn; title matched arbeid, lønn"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset ssbsubj:al --db /tmp/pda-ssbsubj-proof/registry.sqlite",
+    "dataset": "ssbsubj:al",
+    "table_id": "al",
+    "fetch_id": 1,
+    "access_path": "https://data.ssb.no/api/v0/no/table/al",
+    "request_url": "https://data.ssb.no/api/v0/no/table/al",
+    "http_status": 200,
+    "listed": 4,
+    "inserted": 4,
+    "updated": 0,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "text",
+        "value": "Arbeidsledighet"
+      },
+      {
+        "measure": "text",
+        "value": "Arbeidsmiljø, sykefravær og arbeidskonflikter"
+      },
+      {
+        "measure": "text",
+        "value": "Lønn og arbeidskraftkostnader"
+      },
+      {
+        "measure": "text",
+        "value": "Sysselsetting"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset ssbsubj:al --db /tmp/pda-ssbsubj-proof/registry.sqlite --out /tmp/pda-ssbsubj-proof/methods",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "SSB /api/v0/no/table/al prints leftover child-folder text strings, not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed catalog alphabetic subject ids. access_path joins that printed id onto /api/v0/no/table. No ssbsubj id was written onto an ssb, ssbv2, or Klass row.",
+    "License is null: the leftover-subject catalog prints no license field. Publisher is null: the catalog prints no publisher field.",
+    "Live GET of /api/v0/no/table/al is HTTP 200 with no Authorization header. No token is sent.",
+    "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "is_ssbsubj_url matches only /api/v0/no/table/{subject} folders whose last segment is alphabetic. Five-digit table numbers and child folders such as al03 are not ssbsubj items.",
+    "python3 -m pytest: 1540 passed, 1 skipped, 1 deselected.",
+    "Not a numeric time series with two or more periods. Fetch listed 4 printed child-folder text cells.",
+    "Did not pick kikommuner #224, Norges Bank organisationscheme, leftover GIS, or offentligdata.no."
+  ]
+}
