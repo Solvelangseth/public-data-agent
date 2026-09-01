@@ -5195,6 +5195,55 @@ numeric time series
 (`no observations matched entity/measure; available=[]`).
 Proof is `data/kvgrunn_source_proof.json`.
 
+## Kartverket leftover topo WMS source
+
+`pda ingest --source kvtopo` is another replaceable adapter. It lists the
+six official leftover Kartverket WMS GetCapabilities documents
+`https://wms.geonorge.no/skwms1/wms.kartdata?service=wms&request=getcapabilities`,
+`https://wms.geonorge.no/skwms1/wms.fkb?service=wms&request=getcapabilities`,
+`https://wms.geonorge.no/skwms1/wms.friluftsruter2?request=GetCapabilities&service=WMS&version=1.3.0`,
+`https://wms.geonorge.no/skwms1/wms.fjellskygge?request=GetCapabilities&service=WMS`,
+`https://wms.geonorge.no/skwms1/wms.n5raster2?service=wms&request=getcapabilities`,
+and
+`https://wms.geonorge.no/skwms1/wms.markagrensen?request=GetCapabilities&Service=WMS`,
+capped at 10. Each document is one dataset. GetCapabilities bodies that
+are HTML or not WMS XML are skipped. `wms.topo` and WMTS already in
+`--source kvwms`, leftover grunnkart ids already in `--source kvgrunn`,
+and restricted Matrikkelen WMS are skipped. Native ids are the printed
+last path segment so `wms.kartdata` stays distinct from `wms.fkb`.
+`access_path` is that GetCapabilities URL. License stays null: the
+documents print copyright text, not a license URL. Publisher stays
+null. This is not Kartverket leftover WMS/WMTS (`--source kvwms`), not
+leftover grunnkart WMS (`--source kvgrunn`), not Havnedata
+(`--source havnedata`), not Geonorge Kartkatalog (`--source geonorge`),
+not Stedsnavn (`--source stedsnavn`), not Høydedata
+(`--source hoydedata`), not Transformering (`--source transformering`),
+not Kartverket Register (`--source georegister`), and not Kartverket
+OGC API Coverages (`--source ogccoverages`).
+
+```bash
+pda ingest --source kvtopo --db data/registry.sqlite --limit 10
+pda search kartdata --db data/registry.sqlite
+pda fetch --dataset kvtopo:wms.kartdata --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored GetCapabilities URL as text, with
+`Accept: application/xml, text/xml, */*`. Observation values are
+copied from printed WMS `Layer`/`Name` text. A printed `Title`
+sibling stays as a dimension. License stays null. Publisher stays
+null. `pda methods` is not applicable: layer names, not a numeric
+time series
+(`no observations matched entity/measure; available=[]`).
+
+Live ingest 2026-09-01: 6 leftover GetCapabilities documents. Live search
+`kartdata` returns `kvtopo:wms.kartdata`. Live fetch GETs
+`https://wms.geonorge.no/skwms1/wms.kartdata?service=wms&request=getcapabilities`
+HTTP 200, 160 printed layer-name cells. Sample printed value:
+`kartdata`. `pda methods` is not applicable: layer names, not a
+numeric time series
+(`no observations matched entity/measure; available=[]`).
+Proof is `data/kvtopo_source_proof.json`.
+
 ## Norges Bank SDMX Concept Schemes source
 
 `pda ingest --source nbconcept` is another replaceable adapter. It lists

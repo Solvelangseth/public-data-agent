@@ -44,6 +44,7 @@ from public_data_agent.sources.icemap import IcemapSource
 from public_data_agent.sources.isobaricgrib import IsobaricgribSource
 from public_data_agent.sources.kommuneinfo import KommuneinfoSource
 from public_data_agent.sources.kvgrunn import KvgrunnSource
+from public_data_agent.sources.kvtopo import KvtopoSource
 from public_data_agent.sources.kvwms import KvwmsSource
 from public_data_agent.sources.kystnav import KystnavSource
 from public_data_agent.sources.kystverket import KystverketSource
@@ -287,6 +288,7 @@ SOURCE_IDS = (
     "ssbver",
     "hiwms",
     "nbagency",
+    "kvtopo",
 )
 
 
@@ -575,6 +577,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return HiwmsSource()
     if source_id == "nbagency":
         return NbagencySource()
+    if source_id == "kvtopo":
+        return KvtopoSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -621,6 +625,7 @@ __all__ = [
     "IsobaricgribSource",
     "KommuneinfoSource",
     "KvgrunnSource",
+    "KvtopoSource",
     "KvwmsSource",
     "KystnavSource",
     "KystverketSource",
