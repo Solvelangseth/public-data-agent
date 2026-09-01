@@ -6505,9 +6505,9 @@ HTTP 200, 9 `navn` cells. Sample printed value is `Arbeiderpartiet`.
 `pda methods` is not applicable: party names, not a numeric time series
 (`no observations matched entity/measure; available=[]`).
 Proof is `data/stpartier_source_proof.json`.
-After rebase onto origin/main (`barmark` #229, `crunit` #234, and
-`stkomiteer` #233), every existing source stayed registered and
-`stpartier` follows `ssbgis`.
+After rebase onto origin/main (`ssbgis` #215, `crproj` #235, `barmark`
+#229, `crunit` #234, and `stkomiteer` #233), every existing source
+stayed registered and `stpartier` follows `ssbgis`.
 
 ## Stortinget leftover stortingsperioder source
 
