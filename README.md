@@ -6777,10 +6777,14 @@ dimensions. Nested `affiliations` and `url` are not stored as a cell.
 License stays null. Publisher stays null.
 
 The catalog prints a default page of persons. This walk copies the
-first ten in document order. No page or per_page query is invented.
+first ten in document order. No page or per_page query is invented. Live
+ingest listed 10 and inserted 10. Live search `Ababri` returns
+`crperson:1805404`. Live fetch GETs
+`https://api.cristin.no/v2/persons/1805404`
+HTTP 200, 1 row, `first_name` is `Yassine`.
 `pda methods` is not applicable. Person names are not a numeric time
-series. After live proof this section records ingest, search, and fetch
-counts. Proof will be `data/crperson_source_proof.json`.
+series. Proof is `data/crperson_source_proof.json`.
+Started from origin/main after crproj #235.
 `SOURCE_IDS` keeps every existing source plus `crperson` last.
 Rebased onto origin/main after stpartier #236 and crbio #238.
 
