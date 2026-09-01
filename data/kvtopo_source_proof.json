@@ -137,6 +137,6 @@
     "Live GET of all six leftover WMS GetCapabilities URLs is HTTP 200 WMS_Capabilities XML with no Authorization header. No token is sent. Accept is application/xml, text/xml, */* like kvwms and kvgrunn.",
     "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
     "python3 -m pytest tests/test_kvtopo_source.py tests/test_kvgrunn_source.py tests/test_kvwms_source.py tests/test_hiwms_source.py tests/test_mattilsyn_source.py tests/test_nibiorest_source.py: 55 passed.",
-    "Branched from origin/main after hiwms #198 (9d37eb3). SOURCE_IDS keeps ssbver, hiwms, then kvtopo."
+    "Branched from origin/main after hiwms #198 (9d37eb3). Rebased onto origin/main after nbagency #193 (5bde5e3). SOURCE_IDS keeps hiwms, nbagency, then kvtopo. README keeps both leftover GIS sections and the nbagency section."
   ]
 }
