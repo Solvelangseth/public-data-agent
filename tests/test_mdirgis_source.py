@@ -340,7 +340,8 @@ def test_mdirgis_is_a_registered_source() -> None:
     assert SOURCE_IDS[SOURCE_IDS.index("brorgformen") + 1] == "crinst"
     assert SOURCE_IDS[SOURCE_IDS.index("crinst") + 1] == "stsaker"
     assert SOURCE_IDS[SOURCE_IDS.index("stsaker") + 1] == "ssbsubj"
-    assert SOURCE_IDS[-1] == "ssbsubj"
+    assert SOURCE_IDS[SOURCE_IDS.index("ssbsubj") + 1] == "stkomiteer"
+    assert SOURCE_IDS[-1] == "stkomiteer"
     source = build_source("mdirgis")
     assert isinstance(source, MdirgisSource)
     assert source.source_id == "mdirgis"
