@@ -969,3 +969,4 @@ ts	phase	decision	why	evidence	result
 2026-09-01T21:20:00Z	rebase	rebase kvadm onto origin/main after stmoter #242	keep leftover GIS sections including kvfkb/nibioar5f/ssbgis/barmark and stmoter/crresult; do not drop main sources	git rebase origin/main resolved SOURCE_IDS last-id after stmoter; kvadm stays last	resolved
 2026-09-01T21:30:00Z	test	run pytest after rebase onto stmoter 242	do not leave the count only in the PR body	python3 -m pytest 1694 passed 1 skipped 1 deselected	tests green
 2026-09-01T21:40:00Z	rebase	rebase kvadm onto origin/main after ssbfritid #247	keep leftover GIS sections including ssbfritid/kvfkb/nibioar5f/ssbgis/barmark; do not drop main sources	git rebase origin/main resolved SOURCE_IDS last-id after ssbfritid; kvadm stays last	resolved
+2026-09-01T21:50:00Z	test	run pytest after rebase onto ssbfritid 247	do not leave the count only in the PR body	python3 -m pytest 1694 passed 1 skipped 1 deselected	tests green
