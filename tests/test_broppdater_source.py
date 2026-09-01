@@ -193,7 +193,8 @@ def test_broppdater_is_a_registered_source() -> None:
     assert SOURCE_IDS[SOURCE_IDS.index("brrepresent") + 1] == "brenheter"
     assert SOURCE_IDS[SOURCE_IDS.index("brenheter") + 1] == "ssbvar"
     assert SOURCE_IDS[SOURCE_IDS.index("ssbvar") + 1] == "nordatlas"
-    assert SOURCE_IDS[-1] == "nordatlas"
+    assert SOURCE_IDS[SOURCE_IDS.index("nordatlas") + 1] == "brunder"
+    assert SOURCE_IDS[-1] == "brunder"
     source = build_source("broppdater")
     assert isinstance(source, BroppdaterSource)
     assert source.source_id == "broppdater"

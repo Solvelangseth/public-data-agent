@@ -6198,6 +6198,42 @@ classification-item names, not a numeric time series
 (`no observations matched entity/measure; available=[]`).
 Proof is `data/ssbvar_source_proof.json`.
 
+## Enhetsregisteret leftover underenheter source
+
+`pda ingest --source brunder` is another replaceable adapter. It lists
+printed `organisasjonsnummer` values on the official Enhetsregisteret
+underenheter catalog
+`https://data.brreg.no/enhetsregisteret/api/underenheter`,
+capped at 10. Dataset ids are the printed `organisasjonsnummer` values.
+`access_path` is the printed `_links.self.href` on
+`/enhetsregisteret/api/underenheter/{organisasjonsnummer}`. License stays
+null. Publisher stays null. This is not the Enhetsregisteret HAL root
+(`--source brreg`), not leftover organisasjonsformer
+(`--source brorgform`), not leftover kommuner (`--source brkommuner`),
+not leftover roller lists (`--source brroller`), not leftover
+oppdateringer (`--source broppdater`), not leftover representanter
+(`--source brrepresent`), and not leftover enheter (`--source brenheter`).
+
+```bash
+pda ingest --source brunder --db data/registry.sqlite --limit 10
+pda search ZOTKO --db data/registry.sqlite
+pda fetch --dataset brunder:933489272 --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored underenhet URL. Observation values are copied
+from the printed `navn` scalar. Other scalars stay as dimensions. Nested
+address and `_links` objects are not copied. License stays null.
+Publisher stays null.
+
+The catalog prints a default page of underenheter. This walk copies the
+first ten in document order. No page or size query is invented. Live
+ingest listed 10 and inserted 10. Live search `ZOTKO` returns
+`brunder:933489272`. Live fetch GETs
+`https://data.brreg.no/enhetsregisteret/api/underenheter/933489272`
+HTTP 200, 1 row, `navn` = `- ZOTKO .NO`. `pda methods` is not
+applicable. Unit names are not a numeric time series.
+Proof is `data/brunder_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
