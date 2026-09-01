@@ -6890,8 +6890,8 @@ HTTP 200, 3615 `tittel` cells. `pda methods` is not applicable: question
 titles, not a numeric time series
 (`no observations matched entity/measure; available=[]`).
 Proof is `data/stskrift_source_proof.json`. Branched from origin/main
-after `kvadm` #241, then rebased onto `kvkrets` #251 and `dsbgis` #246.
-Every existing source stayed registered and `stskrift` follows `dsbgis`.
+after `kvadm` #241, then rebased onto `kvkrets` #251, `dsbgis` #246, and `nibiogard` #255.
+Every existing source stayed registered and `stskrift` follows `nibiogard`.
 
 ## Stortinget leftover stortingsperioder source
 
