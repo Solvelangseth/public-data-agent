@@ -6142,6 +6142,15 @@ from printed `classificationItems[].name` scalars. Other printed
 scalars stay as dimensions. Nested objects are not copied. License
 stays null. Publisher stays null.
 
+Live ingest 2026-09-01: listed 10, inserted 10 (official versions print
+classification variants; cap 10 copies the first ten unique printed
+ids). Live search `begge kjønn` returns `ssbvar:802`. Live fetch GETs
+`https://data.ssb.no/api/klass/v1/variants/802` HTTP 200, 3 name cells.
+Sample printed value: `Begge kjønn`. `pda methods` is not applicable:
+classification-item names, not a numeric time series
+(`no observations matched entity/measure; available=[]`).
+Proof is `data/ssbvar_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists

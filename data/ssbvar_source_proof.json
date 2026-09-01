@@ -1,0 +1,130 @@
+{
+  "produced_at": "2026-09-01T17:33:36Z",
+  "bound": {
+    "list_api": "https://data.ssb.no/api/klass/v1/classifications",
+    "openapi": "https://data.ssb.no/api/klass/v3/api-docs",
+    "walk": "copy printed _embedded.classifications[].id and _links.self.href from the official Klass classifications collection; GET each printed classification href; GET each printed versions[]._links.self.href; copy printed classificationVariants[].id and classificationVariants[]._links.self.href; the Klass OpenAPI names GET /api/klass/v1/variants/{id} and prints no variants collection; do not invent variant ids; access_path is the printed variant self href; license stays null; publisher stays null; catalog and OpenAPI print no security scheme; live GET of those printed variant paths is HTTP 200 with no token; no token is sent",
+    "cap": 10,
+    "how": "pda ingest --source ssbvar --limit 10. The official OpenAPI names GET /api/klass/v1/variants/{id}. Official classification versions print classificationVariants. Ingest copies the first ten unique printed variant ids in document order."
+  },
+  "discarded": [
+    {
+      "candidate": "Norges Bank SDMX categoryscheme",
+      "url": "https://data.norges-bank.no/api/categoryscheme?format=sdmx-json",
+      "why": "HTTP 404. Do not invent a workaround."
+    },
+    {
+      "candidate": "Norges Bank SDMX dataconsumerscheme",
+      "url": "https://data.norges-bank.no/api/dataconsumerscheme?format=sdmx-json",
+      "why": "HTTP 404. Do not invent a workaround."
+    },
+    {
+      "candidate": "Norges Bank SDMX hierarchicalcodelist",
+      "url": "https://data.norges-bank.no/api/hierarchicalcodelist?format=sdmx-json",
+      "why": "HTTP 404. Do not invent a workaround."
+    },
+    {
+      "candidate": "Norges Bank SDMX metadataflow",
+      "url": "https://data.norges-bank.no/api/metadataflow?format=sdmx-json",
+      "why": "HTTP 404. Do not invent a workaround."
+    },
+    {
+      "candidate": "Enhetsregisteret matrikkelenhet",
+      "url": "https://data.brreg.no/enhetsregisteret/api/matrikkelenhet",
+      "why": "HTTP 400. Required matrikkelnummer or matrikkelenhetid. Do not invent those ids."
+    },
+    {
+      "candidate": "Enhetsregisteret organisasjonsformer/enheter",
+      "url": "https://data.brreg.no/enhetsregisteret/api/organisasjonsformer/enheter",
+      "why": "Live 200 printed list, but item self hrefs are /organisasjonsformer/{kode} already routed by --source brorgform. Do not invent a colliding access_path."
+    },
+    {
+      "candidate": "Enhetsregisteret representanter / brrepresent",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/213",
+      "why": "In flight. Do not pick brrepresent."
+    },
+    {
+      "candidate": "Kartverket Kommuneinfo fylker / kifylker",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/212",
+      "why": "In flight. Do not pick kifylker."
+    },
+    {
+      "candidate": "Frost MET sources",
+      "url": "https://frost.met.no/sources/v0.jsonld",
+      "why": "HTTP 401. Do not invent auth."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source ssbvar --db /tmp/pda-ssbvar-proof/registry.sqlite --limit 10",
+    "listed": 10,
+    "inserted": 10,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "ssbvar:802",
+        "title": "Kjønn, inkl. \"begge kjønn\" 1960  - variant av Kjønn 1960",
+        "access_path": "https://data.ssb.no/api/klass/v1/variants/802"
+      },
+      {
+        "id": "ssbvar:1630",
+        "title": "Yrkesklassifisering for oppdragstakere 2019-04  - variant av Yrkesklassifisering 08 (STYRK-08)",
+        "access_path": "https://data.ssb.no/api/klass/v1/variants/1630"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search \"begge kjønn\" --db /tmp/pda-ssbvar-proof/registry.sqlite --limit 10",
+    "query": "begge kjønn",
+    "returned": 1,
+    "hit_id": "ssbvar:802",
+    "title": "Kjønn, inkl. \"begge kjønn\" 1960  - variant av Kjønn 1960",
+    "source_id": "ssbvar",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://data.ssb.no/api/klass/v1/variants/802",
+    "original_source": "https://data.ssb.no/api/klass/v1/classifications",
+    "why_picked": "title matched begge, kjønn"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset ssbvar:802 --db /tmp/pda-ssbvar-proof/registry.sqlite",
+    "dataset": "ssbvar:802",
+    "fetch_id": 1,
+    "table_id": "802",
+    "access_path": "https://data.ssb.no/api/klass/v1/variants/802",
+    "request_url": "https://data.ssb.no/api/klass/v1/variants/802",
+    "http_status": 200,
+    "listed": 3,
+    "inserted": 3,
+    "updated": 0,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "name",
+        "value": "Begge kjønn"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset ssbvar:802 --db /tmp/pda-ssbvar-proof/registry.sqlite",
+    "applicable": false,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "Klass /api/klass/v1/variants/802 prints classificationItems name values. Those are not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true
+  },
+  "notes": [
+    "Ids are copied from printed classificationVariants[].id values. access_path is the printed classificationVariants[]._links.self.href. No ssbvar id was written onto an ssbver, ssbcorr, ssclass, ssb, or ssbv2 row.",
+    "License is null: the classifications catalog and variant payload print no license field. Publisher is null: they print no publisher field.",
+    "OpenAPI prints no security scheme. Live GET of /api/klass/v1/variants/802 is HTTP 200 with no Authorization header. No token is sent.",
+    "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "python3 -m pytest: 1474 passed, 1 skipped, 1 deselected.",
+    "Not a numeric time series with two or more periods. Fetch listed 3 printed classification-item name cells.",
+    "is_ssbvar_url is checked before is_klass_url so variant URLs do not go through the Klass classificationItems parser."
+  ]
+}
