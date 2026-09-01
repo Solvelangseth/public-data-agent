@@ -6377,8 +6377,12 @@ Other scalars stay as dimensions. License stays null. Publisher stays
 null.
 
 The catalog prints 23 leftover subject folders. This walk copies the
-first ten in document order. Live ingest, search, and fetch proof is
-recorded in `data/ssbsubj_source_proof.json` after the live run.
+first ten in document order. Live ingest listed 10 and inserted 10.
+Live search `Arbeid og lønn` returns `ssbsubj:al`. Live fetch GETs
+`https://data.ssb.no/api/v0/no/table/al` HTTP 200, 4 rows,
+`text` = `Arbeidsledighet`. `pda methods` is not applicable.
+Child-folder names are not a numeric time series.
+Proof is `data/ssbsubj_source_proof.json`.
 
 ## Stortinget leftover stortingsperioder source
 

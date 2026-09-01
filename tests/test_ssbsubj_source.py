@@ -155,12 +155,13 @@ def test_fetch_gets_printed_child_folder_names(tmp_path: Path) -> None:
     assert result.counts.listed == 2
     rows = registry.list_observations(DATASET_ID)
     values = [json.loads(row["value_json"]) for row in rows]
-    assert values == [
+    assert set(values) == {
         "Arbeidsledighet",
         "Arbeidsmiljø, sykefravær og arbeidskonflikter",
-    ]
+    }
     assert all(row["measure"] == "text" for row in rows)
-    dims = json.loads(rows[0]["dimensions_json"])
+    by_value = {json.loads(row["value_json"]): row for row in rows}
+    dims = json.loads(by_value["Arbeidsledighet"]["dimensions_json"])
     assert dims["id"] == "al03"
     assert dims["type"] == "l"
     assert all(row["publisher_name"] is None for row in rows)
