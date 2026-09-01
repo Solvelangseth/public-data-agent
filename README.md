@@ -5351,6 +5351,44 @@ HTTP 200, 2 Layer Name cells. Sample printed value:
 layer names, not a numeric time series.
 Proof is `data/ssbfritid_source_proof.json`.
 
+## SSB leftover Tettsteder WMS source
+
+`pda ingest --source ssbtett` is another replaceable adapter. It lists the
+official leftover SSB Tettsteder WMS GetCapabilities document
+`https://kart.ssb.no/api/mapserver/v1/wms/tettsteder?service=WMS&version=1.3.0&request=GetCapabilities`
+that Geonorge Kartkatalog prints as Type=service OGC:WMS
+(`https://kartkatalog.geonorge.no/metadata/uuid/e0fed363-9df9-44de-8079-6a710ede1aae`),
+capped at 10.
+GetCapabilities bodies that are HTML or not WMS XML are skipped. Native
+ids are the printed last path segment so the leftover Tettsteder WMS
+keeps native id `tettsteder`. `access_path` is that GetCapabilities URL.
+License stays null: the document prints empty Fees and AccessConstraints,
+not a license URL. Publisher stays null. This is not leftover SSB WMS
+(`--source ssbgis`), not leftover Fritidsbyggområder WMS
+(`--source ssbfritid`), not SSB PxWebApi 2 (`--source ssbv2`), and not
+Geonorge Kartkatalog (`--source geonorge`).
+
+```bash
+pda ingest --source ssbtett --db data/registry.sqlite --limit 10
+pda search Tettsteder --db data/registry.sqlite
+pda fetch --dataset ssbtett:tettsteder --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored GetCapabilities URL as text, with
+`Accept: application/xml, text/xml, */*`. Observation values are
+copied from printed WMS `Layer`/`Name` text. A printed `Title`
+sibling stays as a dimension. License stays null. Publisher stays
+null. `pda methods` is not applicable: layer names, not a numeric
+time series.
+
+Live ingest 2026-09-01: 1 leftover GetCapabilities document. Live search
+`Tettsteder` returns `ssbtett:tettsteder`. Live fetch GETs
+`https://kart.ssb.no/api/mapserver/v1/wms/tettsteder?service=WMS&version=1.3.0&request=GetCapabilities`
+HTTP 200, 11 Layer Name cells. Sample printed value:
+`tettsted_2024`. `pda methods` is not applicable: layer names, not a
+numeric time series.
+Proof is `data/ssbtett_source_proof.json`.
+
 ## Kartverket leftover FKB WMS source
 
 `pda ingest --source kvfkb` is another replaceable adapter. It lists the

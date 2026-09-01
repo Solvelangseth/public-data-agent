@@ -153,6 +153,7 @@ from public_data_agent.sources.ssb import SsbStatbankSource
 from public_data_agent.sources.ssbfam import SsbfamSource
 from public_data_agent.sources.ssbgis import SsbgisSource
 from public_data_agent.sources.ssbfritid import SsbfritidSource
+from public_data_agent.sources.ssbtett import SsbtettSource
 from public_data_agent.sources.ssbv2 import Ssbv2Source
 from public_data_agent.sources.ssbsec import SsbsecSource
 from public_data_agent.sources.ssclass import SsclassSource
@@ -377,6 +378,7 @@ SOURCE_IDS = (
     "dsbgis",
     "nibiogard",
     "stskrift",
+    "ssbtett",
 )
 
 
@@ -755,6 +757,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return NibiogardSource()
     if source_id == "stskrift":
         return StskriftSource()
+    if source_id == "ssbtett":
+        return SsbtettSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -910,6 +914,7 @@ __all__ = [
     "SsbfamSource",
     "SsbgisSource",
     "SsbfritidSource",
+    "SsbtettSource",
     "Ssbv2Source",
     "SsbsecSource",
     "SsclassSource",
