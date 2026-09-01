@@ -1,0 +1,186 @@
+{
+  "produced_at": "2026-09-01T17:36:13Z",
+  "bound": {
+    "list_api": "https://data.brreg.no/enhetsregisteret/api/underenheter",
+    "walk": "copy printed organisasjonsnummer values from the official Enhetsregisteret underenheter catalog; native ids are the printed organisasjonsnummer values; access_path copies the printed public _links.self.href on /enhetsregisteret/api/underenheter/{organisasjonsnummer}; license stays null; publisher stays null; the catalog prints neither; live GET of those printed item paths is HTTP 200 with no token; no token is sent; do not invent page or size query filters",
+    "cap": 10,
+    "how": "pda ingest --source brunder --limit 10. The official catalogue prints a default page of underenheter. Ingest copies the first ten in document order."
+  },
+  "discarded": [
+    {
+      "candidate": "Enhetsregisteret representanter / brrepresent",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/213",
+      "why": "In flight. Do not pick brrepresent."
+    },
+    {
+      "candidate": "Enhetsregisteret enheter / brenheter",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/217",
+      "why": "In flight. Do not pick brenheter."
+    },
+    {
+      "candidate": "Kartverket Kommuneinfo fylker / kifylker",
+      "url": "already on main via --source kifylker",
+      "why": "Merged as #212. Kept. Do not re-add."
+    },
+    {
+      "candidate": "Enhetsregisteret organisasjonsformer/enheter",
+      "url": "https://data.brreg.no/enhetsregisteret/api/organisasjonsformer/enheter",
+      "why": "HTTP 200 but printed self hrefs are /enhetsregisteret/api/organisasjonsformer/{kode}, already owned by --source brorgform. Do not invent a different item path."
+    },
+    {
+      "candidate": "Enhetsregisteret organisasjonsformer/underenheter",
+      "url": "https://data.brreg.no/enhetsregisteret/api/organisasjonsformer/underenheter",
+      "why": "HTTP 200 but printed self hrefs collide with --source brorgform item paths."
+    },
+    {
+      "candidate": "Enhetsregisteret matrikkelenhet",
+      "url": "https://data.brreg.no/enhetsregisteret/api/matrikkelenhet",
+      "why": "HTTP 400. Do not invent required query parameters."
+    },
+    {
+      "candidate": "Enhetsregisteret roller/totalbestand",
+      "url": "https://data.brreg.no/enhetsregisteret/api/roller/totalbestand",
+      "why": "HTTP 200 gzip, not JSON. Do not invent a JSON wrapper."
+    },
+    {
+      "candidate": "Norges Bank SDMX categoryscheme",
+      "url": "https://data.norges-bank.no/api/categoryscheme?format=sdmx-json",
+      "why": "HTTP 404. Do not invent a workaround."
+    },
+    {
+      "candidate": "Norges Bank SDMX hierarchicalcodelist",
+      "url": "https://data.norges-bank.no/api/hierarchicalcodelist?format=sdmx-json",
+      "why": "HTTP 404. Do not invent a workaround."
+    },
+    {
+      "candidate": "Norges Bank SDMX structure",
+      "url": "https://data.norges-bank.no/api/structure?format=sdmx-json",
+      "why": "HTTP 200 but the body reprints agencySchemes, dataProviderSchemes, codelists, conceptSchemes, dataStructures, dataflows, and provisionAgreements already ingested by existing Norges Bank sources. Not a leftover catalog."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    },
+    {
+      "candidate": "municipal CKAN / Opencom",
+      "url": "already on main via --source opencom and municipal CKAN adapters",
+      "why": "This lane stays off municipal CKAN/Opencom."
+    },
+    {
+      "candidate": "leftover GIS/WMS/OGC/ArcGIS",
+      "url": "already on main via leftover GIS adapters",
+      "why": "This lane stays off leftover GIS/WMS."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source brunder --db /tmp/pda-brunder-proof/registry.sqlite --limit 10",
+    "listed": 10,
+    "inserted": 10,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "brunder:919549238",
+        "title": "...BARE MODALEN",
+        "access_path": "https://data.brreg.no/enhetsregisteret/api/underenheter/919549238"
+      },
+      {
+        "id": "brunder:923603263",
+        "title": ".EAGL TECHNOLOGIES AS",
+        "access_path": "https://data.brreg.no/enhetsregisteret/api/underenheter/923603263"
+      },
+      {
+        "id": "brunder:925833371",
+        "title": ":INNSIKT",
+        "access_path": "https://data.brreg.no/enhetsregisteret/api/underenheter/925833371"
+      },
+      {
+        "id": "brunder:926775367",
+        "title": "-JAIME- OFFICIAL PETTERSEN",
+        "access_path": "https://data.brreg.no/enhetsregisteret/api/underenheter/926775367"
+      },
+      {
+        "id": "brunder:928391213",
+        "title": "¡ HOLY TOLEDO !",
+        "access_path": "https://data.brreg.no/enhetsregisteret/api/underenheter/928391213"
+      },
+      {
+        "id": "brunder:933489272",
+        "title": "- ZOTKO .NO",
+        "access_path": "https://data.brreg.no/enhetsregisteret/api/underenheter/933489272"
+      },
+      {
+        "id": "brunder:934551524",
+        "title": "----ADVOKATFIRMAET CATO MYHRE",
+        "access_path": "https://data.brreg.no/enhetsregisteret/api/underenheter/934551524"
+      },
+      {
+        "id": "brunder:935768144",
+        "title": "· JYNEX MIROZADA",
+        "access_path": "https://data.brreg.no/enhetsregisteret/api/underenheter/935768144"
+      },
+      {
+        "id": "brunder:935876273",
+        "title": ".BEIN BERGEN AS",
+        "access_path": "https://data.brreg.no/enhetsregisteret/api/underenheter/935876273"
+      },
+      {
+        "id": "brunder:995858266",
+        "title": ":-) PROSJEKTER",
+        "access_path": "https://data.brreg.no/enhetsregisteret/api/underenheter/995858266"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search ZOTKO --db /tmp/pda-brunder-proof/registry.sqlite --limit 10",
+    "query": "ZOTKO",
+    "returned": 1,
+    "hit_id": "brunder:933489272",
+    "title": "- ZOTKO .NO",
+    "source_id": "brunder",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://data.brreg.no/enhetsregisteret/api/underenheter/933489272",
+    "original_source": "https://data.brreg.no/enhetsregisteret/api/underenheter",
+    "why_picked": "title matched zotko"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset brunder:933489272 --db /tmp/pda-brunder-proof/registry.sqlite",
+    "dataset": "brunder:933489272",
+    "table_id": "933489272",
+    "fetch_id": 1,
+    "access_path": "https://data.brreg.no/enhetsregisteret/api/underenheter/933489272",
+    "request_url": "https://data.brreg.no/enhetsregisteret/api/underenheter/933489272",
+    "http_status": 200,
+    "listed": 1,
+    "inserted": 1,
+    "updated": 0,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "navn",
+        "value": "- ZOTKO .NO"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset brunder:933489272 --db /tmp/pda-brunder-proof/registry.sqlite --out /tmp/pda-brunder-proof/methods",
+    "applicable": false,
+    "why": "Enhetsregisteret /underenheter/{organisasjonsnummer} prints navn and organisasjonsnummer strings, not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed catalog organisasjonsnummer values. access_path copies the printed public self href. No brunder id was written onto a brreg, broppdater, or brorgform row.",
+    "License is null: the underenheter catalog prints no license field. Publisher is null: the catalog prints no publisher field.",
+    "Live GET of /enhetsregisteret/api/underenheter/933489272 is HTTP 200 with no Authorization header. No token is sent.",
+    "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "is_brunder_url matches only /enhetsregisteret/api/underenheter/{organisasjonsnummer} item paths with a digit id. The bare collection URL and lastned paths are not brunder items.",
+    "python3 -m pytest: 1482 passed, 1 skipped, 1 deselected.",
+    "Not a numeric time series with two or more periods. Fetch listed 1 printed navn cell (- ZOTKO .NO).",
+    "Did not pick brrepresent #213, brenheter #217, kifylker now on main, leftover GIS, or offentligdata.no."
+  ]
+}

@@ -119,6 +119,8 @@ def test_brrepresent_is_a_registered_source() -> None:
     assert "bwgis" in SOURCE_IDS
     assert "broppdater" in SOURCE_IDS
     assert "kifylker" in SOURCE_IDS
+    assert "brenheter" in SOURCE_IDS
+    assert "brunder" in SOURCE_IDS
     assert SOURCE_IDS[SOURCE_IDS.index("nbdps") + 1] == "vegwms"
     assert SOURCE_IDS[SOURCE_IDS.index("vegwms") + 1] == "fdkorg"
     assert SOURCE_IDS[SOURCE_IDS.index("fdkorg") + 1] == "brrolletype"

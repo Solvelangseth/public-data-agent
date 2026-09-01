@@ -6226,9 +6226,13 @@ address and `_links` objects are not copied. License stays null.
 Publisher stays null.
 
 The catalog prints a default page of underenheter. This walk copies the
-first ten in document order. No page or size query is invented.
-`pda methods` is not applicable. Unit names are not a numeric time
-series.
+first ten in document order. No page or size query is invented. Live
+ingest listed 10 and inserted 10. Live search `ZOTKO` returns
+`brunder:933489272`. Live fetch GETs
+`https://data.brreg.no/enhetsregisteret/api/underenheter/933489272`
+HTTP 200, 1 row, `navn` = `- ZOTKO .NO`. `pda methods` is not
+applicable. Unit names are not a numeric time series.
+Proof is `data/brunder_source_proof.json`.
 
 ## Architecture (long term)
 
