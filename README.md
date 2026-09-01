@@ -6752,6 +6752,38 @@ After rebase onto origin/main (`stpartier` #236, `ssbgis` #215,
 `crproj` #235), `SOURCE_IDS` keeps those sources and `crbio` follows
 `stpartier`.
 
+## Cristin leftover persons source
+
+`pda ingest --source crperson` is another replaceable adapter. It lists
+printed `cristin_person_id` values on the official Cristin persons
+catalog `https://api.cristin.no/v2/persons`, capped at 10. Dataset ids
+are the printed `cristin_person_id` values so `1765108` stays distinct
+from `1805404`. `access_path` is the printed `url` on
+`/v2/persons/{cristin_person_id}`. License stays null. Publisher stays
+null. This is not the Cristin documentation path list
+(`--source cristin`), not leftover institutions (`--source crinst`),
+not leftover units (`--source crunit`), and not leftover projects
+(`--source crproj`).
+
+```bash
+pda ingest --source crperson --db data/registry.sqlite --limit 10
+pda search Ababri --db data/registry.sqlite
+pda fetch --dataset crperson:1805404 --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored person URL. Observation values are copied
+from the printed `first_name`. Other printed scalars stay as
+dimensions. Nested `affiliations` and `url` are not stored as a cell.
+License stays null. Publisher stays null.
+
+The catalog prints a default page of persons. This walk copies the
+first ten in document order. No page or per_page query is invented.
+`pda methods` is not applicable. Person names are not a numeric time
+series. After live proof this section records ingest, search, and fetch
+counts. Proof will be `data/crperson_source_proof.json`.
+`SOURCE_IDS` keeps every existing source plus `crperson` last.
+Rebased onto origin/main after stpartier #236 and crbio #238.
+
 ## Brønnøysundregistrene Enhetsregisteret organisasjonsformer enheter source
 
 `pda ingest --source brorgformen` is another replaceable adapter. It lists

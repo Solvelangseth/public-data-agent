@@ -22,6 +22,7 @@ from public_data_agent.sources.brrepresent import BrrepresentSource
 from public_data_agent.sources.brunder import BrunderSource
 from public_data_agent.sources.crbio import CrbioSource
 from public_data_agent.sources.crinst import CrinstSource
+from public_data_agent.sources.crperson import CrpersonSource
 from public_data_agent.sources.crproj import CrprojSource
 from public_data_agent.sources.crunit import CrunitSource
 from public_data_agent.sources.brrollegruppe import BrrollegruppeSource
@@ -357,6 +358,7 @@ SOURCE_IDS = (
     "crbio",
     "nibioar5f",
     "kvfkb",
+    "crperson",
 )
 
 
@@ -715,6 +717,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return Nibioar5fSource()
     if source_id == "kvfkb":
         return KvfkbSource()
+    if source_id == "crperson":
+        return CrpersonSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -744,6 +748,7 @@ __all__ = [
     "CatalogSource",
     "CrbioSource",
     "CrinstSource",
+    "CrpersonSource",
     "CrprojSource",
     "CrunitSource",
     "CristinSource",
