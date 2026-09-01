@@ -334,12 +334,8 @@ def test_ssbgis_is_a_registered_source() -> None:
     assert SOURCE_IDS[SOURCE_IDS.index("brenheter") + 1] == "ssbvar"
     assert SOURCE_IDS[SOURCE_IDS.index("ssbvar") + 1] == "nordatlas"
     assert SOURCE_IDS[SOURCE_IDS.index("nordatlas") + 1] == "brunder"
-<<<<<<< HEAD
     assert SOURCE_IDS[SOURCE_IDS.index("brunder") + 1] == "kikommuner"
     assert SOURCE_IDS[SOURCE_IDS.index("kikommuner") + 1] == "ssbgis"
-=======
-    assert SOURCE_IDS[SOURCE_IDS.index("brunder") + 1] == "ssbgis"
->>>>>>> bbaae98 (docs(ssbgis): record rebase onto origin/main after brunder #221)
     assert SOURCE_IDS[-1] == "ssbgis"
     source = build_source("ssbgis")
     assert isinstance(source, SsbgisSource)
