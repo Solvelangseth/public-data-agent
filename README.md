@@ -6316,6 +6316,39 @@ HTTP 200, 1 row, `kommunenavnNorsk` = `Hemsedal`. `pda methods` is not
 applicable. Kommune names are not a numeric time series.
 Proof is `data/kikommuner_source_proof.json`.
 
+## Stortinget leftover stortingsperioder source
+
+`pda ingest --source stperioder` is another replaceable adapter. It lists
+printed `stortingsperioder_liste[].id` values from the official Stortinget
+catalog `https://data.stortinget.no/eksport/stortingsperioder?format=json`,
+capped at 10. Dataset ids are the printed period `id` values so
+`2025-2029` stays distinct from `2021-2025`. `access_path` joins each
+printed id onto the leftover `/eksport/representanter` collection the
+official technical documentation prints, keeping the documented
+`stortingsperiodeid` and `format=json` query. License stays null.
+Publisher stays null. This is not the leftover untemplated Stortinget
+documentation paths (`--source stortinget`).
+
+```bash
+pda ingest --source stperioder --db data/registry.sqlite --limit 10
+pda search 2021-2025 --db data/registry.sqlite
+pda fetch --dataset stperioder:2021-2025 --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored representanter URL. Observation values are
+copied from printed `representanter_liste[].fornavn` scalars. Other
+printed scalars stay as dimensions. Nested objects are not copied.
+License stays null. Publisher stays null.
+
+Live ingest 2026-09-01: listed 10, inserted 10 (official catalog prints
+21 periods; cap 10 copies the first ten printed ids). Live search
+`2021-2025` returns `stperioder:2021-2025`. Live fetch GETs
+`https://data.stortinget.no/eksport/representanter?stortingsperiodeid=2021-2025&format=json`
+HTTP 200, 169 fornavn cells. Sample printed value: `Abid`.
+`pda methods` is not applicable: representant names, not a numeric time
+series (`no observations matched entity/measure; available=[]`).
+Proof is `data/stperioder_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
