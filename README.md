@@ -5519,6 +5519,34 @@ HTTP 200, 1 row, `beskrivelse` = `Aksjeselskap`. `pda methods` is not
 applicable. Organisasjonsform names are not a numeric time series.
 Proof is `data/brorgform_source_proof.json`.
 
+## Enhetsregisteret kommuner source
+
+`pda ingest --source brkommune` is another replaceable adapter. It lists
+printed kommune numbers on the official Enhetsregisteret collection
+`https://data.brreg.no/enhetsregisteret/api/kommuner`,
+capped at 10. Dataset ids are the printed `nummer` values. `access_path`
+is the printed `_links.self.href`. License stays null. Publisher stays
+null. This is not the Enhetsregisteret HAL root (`--source brreg`), not
+organisasjonsformer (`--source brorgform`), not leftover roller lists
+(`--source brroller`), and not Kartverket Kommuneinfo
+(`--source kommuneinfo`).
+
+```bash
+pda ingest --source brkommune --db data/registry.sqlite --limit 10
+pda search OSLO --db data/registry.sqlite
+pda fetch --dataset brkommune:0301 --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored kommune URL. Observation values are copied
+from the printed `navn` scalar. Other scalars stay as dimensions.
+Nested `_links` objects are not copied. License stays null. Publisher
+stays null.
+
+The catalog prints 365 kommuner. This walk copies the first ten in
+document order. Live ingest, search, and fetch proof is recorded in
+`data/brkommune_source_proof.json`. `pda methods` is not applicable.
+Kommune names are not a numeric time series.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
