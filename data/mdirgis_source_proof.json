@@ -1,0 +1,159 @@
+{
+  "produced_at": "2026-09-01T16:55:20Z",
+  "bound": {
+    "list_api": "https://kartkatalog.geonorge.no/api/search?text=Miljødirektoratet",
+    "walk": "copy printed leftover OGC:WMS and OGC:WFS Type=service rows the official Geonorge Kartkatalog search text=Miljødirektoratet prints on kart.miljodirektoratet.no/arcgis/services/; skip other organizations, downloads, and servicelayers; skip URLs already owned by mdirwms (kart2/kart3/image001/geoserver including industri/vannmiljo/avloep/tettbebyggelse/prioriteringskart_sjo) and miljogis REST; skip industri; skip GetCapabilities bodies that are not WMS or WFS XML; native ids are the printed service path segment so villrein stays distinct from snoscooterloyper; access_path is the printed DistributionUrl; license stays null because the catalog prints no license URL; publisher stays null; do not invent query filters or layer names",
+    "cap": 10,
+    "how": "pda ingest --source mdirgis --limit 10. The official search prints 176 catalog rows. Leftover live WMS XML 200 rows remain after skipping mdirwms hosts, miljogis REST, industri, other organizations, downloads, servicelayers, HTML, 404 (petroleumsvirksomhet), and ServiceException (kartleggingsenheter_nin). Cap 10 copies the first ten leftover live ArcGIS WMS wrappers. This is not leftover Miljødirektoratet WMS/WFS (--source mdirwms) and not Miljødirektoratet ArcGIS REST (--source miljogis)."
+  },
+  "discarded": [
+    {
+      "candidate": "Miljødirektoratet leftover WMS/WFS / mdirwms",
+      "url": "https://kart3.miljodirektoratet.no/arcgis/services/industri/MapServer/WMSServer?service=WMS&request=GetCapabilities",
+      "why": "Already --source mdirwms. Owns kart2/kart3/image001 leftover hosts and kart.miljodirektoratet.no/geoserver/. Printed leftovers vannmiljo, tettbebyggelse, avloep, and prioriteringskart_sjo stay unused here."
+    },
+    {
+      "candidate": "Miljødirektoratet ArcGIS REST / miljogis",
+      "url": "https://kart.miljodirektoratet.no/arcgis/rest/services?f=json",
+      "why": "Already --source miljogis. REST URLs stay unused."
+    },
+    {
+      "candidate": "Petroleumsvirksomhet WMS",
+      "url": "https://kart.miljodirektoratet.no/arcgis/services/petroleumsvirksomhet/mapserver/WMSServer?request=GetCapabilities&service=WMS",
+      "why": "Printed leftover Type=service OGC:WMS URL returns HTTP 404. Skip."
+    },
+    {
+      "candidate": "Kartleggingsenheter NiN WMS",
+      "url": "https://kart.miljodirektoratet.no/arcgis/services/kartleggingsenheter_nin/MapServer/WmsServer",
+      "why": "Printed leftover URL returns ServiceExceptionReport, not WMS XML."
+    },
+    {
+      "candidate": "BarentsWatch leftover GIS / bwgis",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/205",
+      "why": "In-flight sibling PR 205. Different host. Do not pick."
+    },
+    {
+      "candidate": "Statens vegvesen leftover OGC / vegwms",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/206",
+      "why": "In-flight sibling PR 206. Different host. Do not pick."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source mdirgis --db /tmp/pda-mdirgis-proof/registry.sqlite --limit 10",
+    "listed": 10,
+    "inserted": 10,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "mdirgis:vern_naturomrader_nin",
+        "title": "Natur i verneområder (NiN) WMS",
+        "access_path": "https://kart.miljodirektoratet.no/arcgis/services/vern_naturomrader_nin/MapServer/WMSServer?request=GetCapabilities&service=WMS"
+      },
+      {
+        "id": "mdirgis:naturtyper_nin",
+        "title": "Naturtyper på land (NiN) WMS",
+        "access_path": "https://kart.miljodirektoratet.no/arcgis/services/naturtyper_nin/MapServer/WMSServer?service=wms&version=1.1.1&request=getcapabilities"
+      },
+      {
+        "id": "mdirgis:friluftsliv_statlig_sikra",
+        "title": "Friluftslivsområder - statlig sikra  WMS",
+        "access_path": "https://kart.miljodirektoratet.no/arcgis/services/friluftsliv_statlig_sikra/mapserver/WMSServer?service=wms&request=getcapabilities"
+      },
+      {
+        "id": "mdirgis:vern_restriksjonsomrader",
+        "title": "Restriksjonsområder - Naturvern WMS",
+        "access_path": "https://kart.miljodirektoratet.no/arcgis/services/vern_restriksjonsomrader/MapServer/WMSServer?request=GetCapabilities&service=WMS"
+      },
+      {
+        "id": "mdirgis:villrein",
+        "title": "Villreinområder WMS",
+        "access_path": "https://kart.miljodirektoratet.no/arcgis/services/villrein/MapServer/WMSServer?request=GetCapabilities&service=WMS"
+      },
+      {
+        "id": "mdirgis:vern",
+        "title": "Naturvernområder WMS",
+        "access_path": "https://kart.miljodirektoratet.no/arcgis/services/vern/mapserver/WMSServer?service=wms&request=getcapabilities"
+      },
+      {
+        "id": "mdirgis:grunnforurensning2",
+        "title": "Grunnforurensning 2 WMS",
+        "access_path": "https://kart.miljodirektoratet.no/arcgis/services/grunnforurensning2/MapServer/WMSServer?service=wms&version=1.3.0&request=getcapabilities"
+      },
+      {
+        "id": "mdirgis:friluftsliv_vern",
+        "title": "Friluftslivsområder - vernede WMS",
+        "access_path": "https://kart.miljodirektoratet.no/arcgis/services/friluftsliv_vern/mapserver/WMSServer?request=GetCapabilities&service=WMS"
+      },
+      {
+        "id": "mdirgis:snoscooterloyper",
+        "title": "Snøscooterløyper WMS",
+        "access_path": "https://kart.miljodirektoratet.no/arcgis/services/snoscooterloyper/MapServer/WMSServer?service=wms&version=1.3.0&request=getCapabilities"
+      },
+      {
+        "id": "mdirgis:naturtyper_utvalgte2",
+        "title": "Naturtyper - utvalgte WMS2",
+        "access_path": "https://kart.miljodirektoratet.no/arcgis/services/naturtyper_utvalgte2/MapServer/WMSServer?request=GetCapabilities&service=WMS"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search Villreinområder --db /tmp/pda-mdirgis-proof/registry.sqlite --limit 10",
+    "query": "Villreinområder",
+    "returned": 1,
+    "hit_id": "mdirgis:villrein",
+    "title": "Villreinområder WMS",
+    "source_id": "mdirgis",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://kart.miljodirektoratet.no/arcgis/services/villrein/MapServer/WMSServer?request=GetCapabilities&service=WMS",
+    "original_source": "https://kartkatalog.geonorge.no/api/search",
+    "why_picked": "title matched villreinområder"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset mdirgis:villrein --db /tmp/pda-mdirgis-proof/registry.sqlite",
+    "dataset": "mdirgis:villrein",
+    "table_id": "villrein",
+    "access_path": "https://kart.miljodirektoratet.no/arcgis/services/villrein/MapServer/WMSServer?request=GetCapabilities&service=WMS",
+    "request_url": "https://kart.miljodirektoratet.no/arcgis/services/villrein/MapServer/WMSServer?request=GetCapabilities&service=WMS",
+    "http_status": 200,
+    "listed": 8,
+    "inserted": 8,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "Name",
+        "value": "villrein_helarsbeite"
+      },
+      {
+        "measure": "Name",
+        "value": "villrein_barmarksbeite"
+      }
+    ],
+    "note": "The WMS document prints 8 named Layer Name values. methods/ was not edited."
+  },
+  "methods": {
+    "command": "pda methods --dataset mdirgis:villrein --db /tmp/pda-mdirgis-proof/registry.sqlite",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "Miljødirektoratet leftover ArcGIS WMS GetCapabilities prints Layer Name strings. That is not a numeric time series with a year-like period field and two or more periods. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed service path segments. access_path is the printed Geonorge DistributionUrl. No mdirgis id was written onto a mdirwms, miljogis, miljodir, or geonorge row.",
+    "License stays null: the catalog prints no license URL. Publisher is null: this adapter does not copy Organization onto publisher.",
+    "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "python3 -m pytest after rebase onto brrollegruppe #211 (2de8746): 1439 passed, 2 skipped.",
+    "Branched from origin/main after kvtopo #200 (9b0fc05). Rebased onto origin/main after vegwms #206, brrolletype #207, brkommuner #203, nguminer #210, and brrollegruppe #211 (2de8746). SOURCE_IDS keeps kvtopo, nbdps, vegwms, fdkorg, brrolletype, brkommuner, nguminer, brrollegruppe, then mdirgis. README keeps both leftover GIS sections.",
+    "Open PR check at pickup found bwgis #205 and vegwms #206. vegwms is now on main and kept. bwgis leftover GIS catalog stayed unused."
+  ]
+}
