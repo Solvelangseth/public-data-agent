@@ -112,6 +112,7 @@ def test_item_url_joins_printed_sesjon_id() -> None:
 
 def test_stinterp_is_a_registered_source() -> None:
     assert "stinterp" in SOURCE_IDS
+    assert "kvadm" in SOURCE_IDS
     assert "ssbfritid" in SOURCE_IDS
     assert "stmoter" in SOURCE_IDS
     assert "crresult" in SOURCE_IDS
@@ -161,7 +162,8 @@ def test_stinterp_is_a_registered_source() -> None:
     assert SOURCE_IDS[SOURCE_IDS.index("stsporre") + 1] == "crresult"
     assert SOURCE_IDS[SOURCE_IDS.index("crresult") + 1] == "stmoter"
     assert SOURCE_IDS[SOURCE_IDS.index("stmoter") + 1] == "ssbfritid"
-    assert SOURCE_IDS[SOURCE_IDS.index("ssbfritid") + 1] == "stinterp"
+    assert SOURCE_IDS[SOURCE_IDS.index("ssbfritid") + 1] == "kvadm"
+    assert SOURCE_IDS[SOURCE_IDS.index("kvadm") + 1] == "stinterp"
     assert SOURCE_IDS[-1] == "stinterp"
     source = build_source("stinterp")
     assert isinstance(source, StinterpSource)
