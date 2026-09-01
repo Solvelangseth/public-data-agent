@@ -1,0 +1,178 @@
+{
+  "produced_at": "2026-09-01T16:52:30Z",
+  "bound": {
+    "list_api": "https://data.brreg.no/enhetsregisteret/api/roller/rolletyper",
+    "walk": "copy printed _embedded.rolletyper[].kode from the official Enhetsregisteret rolletyper collection; native ids are the printed kode values so ADOS stays distinct from DAGL; access_path joins printed kode onto the public /enhetsregisteret/api/roller/rolletyper path; printed _links.self.href values point at /enhetsregisteret/autorisert-api/ and that path is HTTP 401 so they are not copied; license stays null; publisher stays null; the catalog prints neither; live GET of those printed public kode paths is HTTP 200 with no token; no token is sent; do not invent query filters",
+    "cap": 10,
+    "how": "pda ingest --source brrolletype --limit 10. The official collection prints 27 rolletype codes. Ingest copies the first ten in document order."
+  },
+  "discarded": [
+    {
+      "candidate": "Enhetsregisteret kommuner",
+      "url": "PR 202 --source brkommune / PR 203 --source brkommuner",
+      "why": "Lane X already has leftover Enhetsregisteret kommuner as brkommuner PR 203. Closed duplicate brkommune 202."
+    },
+    {
+      "candidate": "Norges Bank SDMX agency schemes",
+      "url": "PR 193 --source nbagency",
+      "why": "Now merged on main. Do not redo."
+    },
+    {
+      "candidate": "Norges Bank SDMX dataproviderscheme",
+      "url": "PR 201 --source nbdps",
+      "why": "Reserved for Lane V."
+    },
+    {
+      "candidate": "Norges Bank SDMX categoryscheme and hierarchicalcodelist",
+      "url": "https://data.norges-bank.no/api/categoryscheme?format=sdmx-json",
+      "why": "Live GETs are HTTP 404. Assigned skip."
+    },
+    {
+      "candidate": "Enhetsregisteret leftover roller OpenAPI paths",
+      "url": "--source brroller",
+      "why": "Already on main as --source brroller. This adapter lists printed rolletype codes, not OpenAPI collection paths."
+    },
+    {
+      "candidate": "Enhetsregisteret organisasjonsformer",
+      "url": "https://data.brreg.no/enhetsregisteret/api/organisasjonsformer",
+      "why": "Already on main as --source brorgform."
+    },
+    {
+      "candidate": "Enhetsregisteret autorisert-api rolletyper item hrefs",
+      "url": "https://data.brreg.no/enhetsregisteret/autorisert-api/roller/rolletyper/ADOS",
+      "why": "Printed self href. Live GET is HTTP 401. Do not invent auth."
+    },
+    {
+      "candidate": "Frivillighetsregisteret icnpo-kategorier items",
+      "url": "https://data.brreg.no/frivillighetsregisteret/api/icnpo-kategorier/1",
+      "why": "Item GET is HTTP 404. Collection is already a frivillig OpenAPI path."
+    },
+    {
+      "candidate": "municipal CKAN/Opencom",
+      "url": "assigned skip",
+      "why": "This lane stays off municipal CKAN/Opencom."
+    },
+    {
+      "candidate": "leftover GIS/WMS/OGC/ArcGIS",
+      "url": "assigned skip",
+      "why": "This lane stays on official national JSON."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source brrolletype --db /tmp/pda-brrolletype-proof/registry.sqlite --limit 10",
+    "listed": 10,
+    "inserted": 10,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "brrolletype:ADOS",
+        "title": "Administrativ enhet - offentlig sektor",
+        "access_path": "https://data.brreg.no/enhetsregisteret/api/roller/rolletyper/ADOS"
+      },
+      {
+        "id": "brrolletype:BEST",
+        "title": "Bestyrende reder",
+        "access_path": "https://data.brreg.no/enhetsregisteret/api/roller/rolletyper/BEST"
+      },
+      {
+        "id": "brrolletype:BOBE",
+        "title": "Bostyrer",
+        "access_path": "https://data.brreg.no/enhetsregisteret/api/roller/rolletyper/BOBE"
+      },
+      {
+        "id": "brrolletype:DAGL",
+        "title": "Daglig leder",
+        "access_path": "https://data.brreg.no/enhetsregisteret/api/roller/rolletyper/DAGL"
+      },
+      {
+        "id": "brrolletype:DTPR",
+        "title": "Deltaker med proratarisk ansvar (delt ansvar)",
+        "access_path": "https://data.brreg.no/enhetsregisteret/api/roller/rolletyper/DTPR"
+      },
+      {
+        "id": "brrolletype:DTSO",
+        "title": "Deltaker med solidarisk ansvar (fullt ansvarlig)",
+        "access_path": "https://data.brreg.no/enhetsregisteret/api/roller/rolletyper/DTSO"
+      },
+      {
+        "id": "brrolletype:EIKM",
+        "title": "Eierkommune",
+        "access_path": "https://data.brreg.no/enhetsregisteret/api/roller/rolletyper/EIKM"
+      },
+      {
+        "id": "brrolletype:FFØR",
+        "title": "Forretningsfører",
+        "access_path": "https://data.brreg.no/enhetsregisteret/api/roller/rolletyper/FFØR"
+      },
+      {
+        "id": "brrolletype:HFOR",
+        "title": "Opplysninger om foretaket i hjemlandet",
+        "access_path": "https://data.brreg.no/enhetsregisteret/api/roller/rolletyper/HFOR"
+      },
+      {
+        "id": "brrolletype:HLSE",
+        "title": "Helseforetak",
+        "access_path": "https://data.brreg.no/enhetsregisteret/api/roller/rolletyper/HLSE"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search Administrativ --db /tmp/pda-brrolletype-proof/registry.sqlite --limit 10",
+    "query": "Administrativ",
+    "returned": 1,
+    "hit_id": "brrolletype:ADOS",
+    "title": "Administrativ enhet - offentlig sektor",
+    "source_id": "brrolletype",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://data.brreg.no/enhetsregisteret/api/roller/rolletyper/ADOS",
+    "original_source": "https://data.brreg.no/enhetsregisteret/api/roller/rolletyper",
+    "why_picked": "title matched administrativ"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset brrolletype:ADOS --db /tmp/pda-brrolletype-proof/registry.sqlite",
+    "dataset": "brrolletype:ADOS",
+    "table_id": "ADOS",
+    "access_path": "https://data.brreg.no/enhetsregisteret/api/roller/rolletyper/ADOS",
+    "request_url": "https://data.brreg.no/enhetsregisteret/api/roller/rolletyper/ADOS",
+    "http_status": 200,
+    "listed": 1,
+    "inserted": 1,
+    "updated": 0,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "beskrivelse",
+        "value": "Administrativ enhet - offentlig sektor"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset brrolletype:ADOS --db /tmp/pda-brrolletype-proof/registry.sqlite --out /tmp/pda-brrolletype-proof/methods",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "Enhetsregisteret /roller/rolletyper/ADOS prints kode and beskrivelse strings, not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed catalog kode values. access_path joins printed kode onto the public collection path. No brrolletype id was written onto a brreg, brroller, or brorgform row.",
+    "License is null: the rolletyper catalog prints no license field. Publisher is null: the catalog prints no publisher field.",
+    "Live GET of /enhetsregisteret/api/roller/rolletyper/ADOS is HTTP 200 with no Authorization header. No token is sent.",
+    "Printed self hrefs under /enhetsregisteret/autorisert-api/ are HTTP 401 and were not copied.",
+    "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "is_brrolletype_url matches only /roller/rolletyper/{kode} item paths. The bare collection URL stays on brroller:rolletyper.",
+    "python3 -m pytest after adding brrolletype on origin/main 5bde5e3: 1369 passed, 1 skipped, 1 deselected.",
+    "Not a numeric time series with two or more periods. Fetch listed 1 printed beskrivelse cell (Administrativ enhet - offentlig sektor).",
+    "Closed brkommune PR 202. Lane X brkommuner 203 and Lane V nbdps 201 stayed unused."
+  ]
+}

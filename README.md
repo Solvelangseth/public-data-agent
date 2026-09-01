@@ -5723,7 +5723,7 @@ Publisher stays null. This is not the Enhetsregisteret HAL root
 
 ```bash
 pda ingest --source brrolletype --db data/registry.sqlite --limit 10
-pda search ADOS --db data/registry.sqlite
+pda search Administrativ --db data/registry.sqlite
 pda fetch --dataset brrolletype:ADOS --db data/registry.sqlite
 ```
 
@@ -5733,9 +5733,13 @@ Nested `_links` objects are not copied. License stays null. Publisher
 stays null.
 
 The catalog prints 27 rolletyper. This walk copies the first ten in
-document order. Live ingest, search, and fetch proof is recorded in
-`data/brrolletype_source_proof.json`. `pda methods` is not applicable.
-Rolletype names are not a numeric time series.
+document order. Live ingest listed 10 and inserted 10. Live search
+`Administrativ` returns `brrolletype:ADOS`. Live fetch GETs
+`https://data.brreg.no/enhetsregisteret/api/roller/rolletyper/ADOS`
+HTTP 200, 1 row, `beskrivelse` = `Administrativ enhet - offentlig sektor`.
+`pda methods` is not applicable. Rolletype names are not a numeric time
+series.
+Proof is `data/brrolletype_source_proof.json`.
 
 ## Architecture (long term)
 
