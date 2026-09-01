@@ -5388,6 +5388,42 @@ HTTP 200, 55 Layer Name cells. Sample printed value: `fkb_arealdekke`.
 `pda methods` is not applicable: layer names, not a numeric time series.
 Proof is `data/kvfkb_source_proof.json`.
 
+## Kartverket leftover Grunnkretser WFS source
+
+`pda ingest --source kvkrets` is another replaceable adapter. It lists the
+official leftover Kartverket Grunnkretser WFS GetCapabilities document
+`https://wfs.geonorge.no/skwms1/wfs.grunnkretser?service=WFS&request=GetCapabilities`
+that Geonorge Kartkatalog prints as Type=service OGC:WFS
+(`https://kartkatalog.geonorge.no/metadata/uuid/cc7ded0b-7d34-4db6-8fdb-c5a7682b6836`),
+capped at 10. GetCapabilities bodies that are HTML or not WFS XML are
+skipped. Native ids are the printed last path segment so the leftover
+Grunnkretser WFS keeps native id `wfs.grunnkretser`. `access_path` is
+that GetCapabilities URL. License stays null: the document prints no
+license URL. Publisher stays null. This is not leftover grunnkart WMS
+(`--source kvgrunn`), not leftover FKB WMS (`--source kvfkb`), not
+leftover topo WMS (`--source kvtopo`), not leftover WMS/WMTS
+(`--source kvwms`), and not Geonorge Kartkatalog (`--source geonorge`).
+
+```bash
+pda ingest --source kvkrets --db data/registry.sqlite --limit 10
+pda search Grunnkretser --db data/registry.sqlite
+pda fetch --dataset kvkrets:wfs.grunnkretser --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored GetCapabilities URL as text, with
+`Accept: application/xml, text/xml, */*`. Observation values are
+copied from printed WFS `FeatureType`/`Name` text. A printed `Title`
+sibling stays as a dimension. License stays null. Publisher stays
+null. `pda methods` is not applicable: feature type names, not a
+numeric time series.
+
+Live ingest 2026-09-01: 1 leftover GetCapabilities document. Live search
+`Grunnkretser` returns `kvkrets:wfs.grunnkretser`. Live fetch GETs
+`https://wfs.geonorge.no/skwms1/wfs.grunnkretser?service=WFS&request=GetCapabilities`
+HTTP 200, 3 FeatureType Name cells. Sample printed value: `app:Grunnkrets`.
+`pda methods` is not applicable: feature type names, not a numeric time
+series. Proof is `data/kvkrets_source_proof.json`.
+
 ## Norges Bank SDMX Codelists source
 
 `pda ingest --source nbcodelist` is another replaceable adapter. It lists
