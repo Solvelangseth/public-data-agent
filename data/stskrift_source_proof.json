@@ -145,7 +145,7 @@
     "Live GET of /eksport/skriftligesporsmal?sesjonid=2025-2026&format=json is HTTP 200 with no Authorization header.",
     "is_stskrift_url matches only /eksport/skriftligesporsmal?sesjonid= paths and is checked before is_stortinget_url.",
     "Not a numeric time series with two or more periods. Fetch listed 3615 printed tittel cells (sample id 127118).",
-    "Branched from origin/main after kvadm #241 (b583453). SOURCE_IDS keeps kvadm, ssbfritid, stmoter, crresult, stsporre, crperson, and every other main source. stskrift follows kvadm.",
+    "Branched from origin/main after kvadm #241 (b583453). Rebased onto origin/main after kvkrets #251 (5991edc). SOURCE_IDS keeps kvkrets, kvadm, ssbfritid, stmoter, crresult, stsporre, crperson, and every other main source. stskrift follows kvkrets.",
     "python3 -m pytest after adding stskrift: 1702 passed, 1 skipped, 1 deselected."
   ]
 }
