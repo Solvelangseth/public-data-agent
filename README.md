@@ -5510,6 +5510,43 @@ HTTP 200, 63 Layer Name cells. Sample printed value: `MS`. `pda methods`
 is not applicable: layer names, not a numeric time series. Proof is
 `data/nordatlas_source_proof.json`.
 
+## NIBIO leftover AR50 WMS/WFS source
+
+`pda ingest --source nibioar50` is another replaceable adapter. It lists printed
+leftover OGC:WMS and OGC:WFS Type=service GetCapabilities rows on the official
+Geonorge Kartkatalog search
+`https://kartkatalog.geonorge.no/api/search?text=AR50`,
+capped at 10. Other organizations, downloads, servicelayers, and software
+are skipped. Restricted Norge-digitalt FKB-AR5 WMS is skipped. cgi-bin
+names that are not leftover AR50 are skipped. GetCapabilities bodies that
+are not WMS or WFS XML, including verified-HTTPS failures on leftover AR50
+WFS, are skipped. Dataset ids are the printed last cgi-bin path segment so
+`ar50_2` stays the leftover WMS path. `access_path` is the printed
+`DistributionUrl`. License stays null: the catalog prints no license URL.
+Publisher stays null. This is not leftover NIBIO WMS (`--source nibiowms`)
+and not leftover NIBIO WMS past that cap (`--source nibiorest`).
+
+```bash
+pda ingest --source nibioar50 --db data/registry.sqlite --limit 10
+pda search AR50 --db data/registry.sqlite
+pda fetch --dataset nibioar50:ar50_2 --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored GetCapabilities URL. Observation values are
+copied from printed WMS `Layer`/`Name` text or WFS `FeatureType`/`Name`
+text. A sibling `Title` stays as a dimension. License stays null. Publisher
+stays null.
+
+Live ingest 2026-09-01: 1 leftover GetCapabilities document (AR50 search
+prints 8 rows; leftover live WMS XML 200 remains after skipping the AR50
+dataset download, restricted FKB-AR5 WMS, other organizations, and AR50
+WFS whose verified HTTPS GET fails SSL; cap 10 copies the leftover live
+document). Live search `AR50` returns `nibioar50:ar50_2`. Live fetch GETs
+`https://wms.nibio.no/cgi-bin/ar50_2?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetCapabilities`
+HTTP 200, 9 Layer Name cells. Sample printed value: `AR50_2`. `pda methods`
+is not applicable: layer names, not a numeric time series. Proof is
+`data/nibioar50_source_proof.json`.
+
 ## Norges Bank SDMX Concept Schemes source
 
 `pda ingest --source nbconcept` is another replaceable adapter. It lists

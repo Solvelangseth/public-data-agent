@@ -1,0 +1,132 @@
+{
+  "produced_at": "2026-09-01T18:10:00Z",
+  "bound": {
+    "list_api": "https://kartkatalog.geonorge.no/api/search",
+    "search_text": "AR50",
+    "walk": "copy printed leftover OGC:WMS and OGC:WFS Type=service GetCapabilities rows the official Geonorge Kartkatalog search text=AR50 prints; skip other organizations, downloads, and servicelayers; skip restricted Norge-digitalt FKB-AR5 WMS; skip cgi-bin names that are not leftover AR50; skip GetCapabilities bodies that are not WMS or WFS XML including verified-HTTPS SSL failure on leftover AR50 WFS; native ids are the printed last cgi-bin path segment so ar50_2 stays the leftover WMS path; access_path is the printed DistributionUrl; license stays null because the catalog prints no license URL; publisher stays null; do not invent query filters or layer names",
+    "cap": 10,
+    "how": "pda ingest --source nibioar50 --limit 10. The official AR50 search prints 8 catalog rows. Leftover live WMS XML 200 remains after skipping the AR50 dataset download, restricted FKB-AR5 WMS, other organizations, and AR50 WFS whose verified HTTPS GET fails SSL. Cap 10 copies that leftover live document. This is not leftover NIBIO WMS (--source nibiowms) and not leftover NIBIO WMS past that cap (--source nibiorest)."
+  },
+  "discarded": [
+    {
+      "candidate": "Arealressurskart - AR50 / GEONORGE:DOWNLOAD",
+      "url": "https://kart8.nibio.no/api/capabilities/",
+      "why": "Printed Type=dataset download, not leftover Type=service OGC:WMS/WFS. Skip."
+    },
+    {
+      "candidate": "Arealressurskart - AR50 - WFS",
+      "url": "https://wfs.nibio.no/cgi-bin/ar50_2?Service=WFS&Request=GetCapabilities",
+      "why": "Printed leftover Type=service OGC:WFS GetCapabilities. Verified HTTPS GET fails SSL certificate verify (unable to get local issuer certificate). Unverified GET is HTTP 200 WFS_Capabilities with FeatureType Name ms:AR50. Skip verified-HTTPS failure."
+    },
+    {
+      "candidate": "FKB-AR5 - WMS",
+      "url": "https://wms.nibio.no/cgi-bin/ar5?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetCapabilities",
+      "why": "Printed Type=service OGC:WMS but AccessConstraint is norway digital restricted. Not leftover AR50. Skip."
+    },
+    {
+      "candidate": "NIBIO leftover WMS / nibiowms",
+      "url": "https://nibio.no/tjenester/wms-tjenester",
+      "why": "Already on main as --source nibiowms. Do not redo."
+    },
+    {
+      "candidate": "NIBIO leftover WMS past nibiowms cap / nibiorest",
+      "url": "https://wms.nibio.no/cgi-bin/hrl?VERSION=1.3.0&REQUEST=GetCapabilities&service=wms",
+      "why": "Already on main as --source nibiorest. Do not redo."
+    },
+    {
+      "candidate": "SSB leftover GIS / ssbgis",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/215",
+      "why": "In-flight sibling PR 215. Different host. Do not pick."
+    },
+    {
+      "candidate": "Forsvarsbygg leftover GIS / fbgis",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/218",
+      "why": "In-flight sibling PR 218. Different host. Do not pick."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source nibioar50 --db /tmp/pda-nibioar50-proof/registry.sqlite --limit 10",
+    "listed": 1,
+    "inserted": 1,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "nibioar50:ar50_2",
+        "title": "Arealressurskart - AR50 - WMS",
+        "access_path": "https://wms.nibio.no/cgi-bin/ar50_2?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetCapabilities"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search AR50 --db /tmp/pda-nibioar50-proof/registry.sqlite --limit 10",
+    "query": "AR50",
+    "returned": 1,
+    "hit_id": "nibioar50:ar50_2",
+    "title": "Arealressurskart - AR50 - WMS",
+    "source_id": "nibioar50",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://wms.nibio.no/cgi-bin/ar50_2?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetCapabilities",
+    "original_source": "https://kartkatalog.geonorge.no/api/search",
+    "why_picked": "title matched ar50",
+    "also": {
+      "command": "pda search Arealressurskart --db /tmp/pda-nibioar50-proof/registry.sqlite --limit 10",
+      "query": "Arealressurskart",
+      "hit_id": "nibioar50:ar50_2"
+    }
+  },
+  "fetch": {
+    "command": "pda fetch --dataset nibioar50:ar50_2 --db /tmp/pda-nibioar50-proof/registry.sqlite",
+    "dataset": "nibioar50:ar50_2",
+    "table_id": "ar50_2",
+    "access_path": "https://wms.nibio.no/cgi-bin/ar50_2?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetCapabilities",
+    "request_url": "https://wms.nibio.no/cgi-bin/ar50_2?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetCapabilities",
+    "http_status": 200,
+    "listed": 9,
+    "inserted": 9,
+    "license": null,
+    "publisher": null,
+    "layers": [
+      "AR50_2",
+      "Bonitet",
+      "Bonitet11kl",
+      "Arealtyper",
+      "Skogbonitet",
+      "Myr",
+      "Treslag",
+      "Jordbruk",
+      "Snaumark"
+    ],
+    "sample": [
+      {
+        "measure": "Name",
+        "value": "AR50_2"
+      },
+      {
+        "measure": "Name",
+        "value": "Bonitet"
+      }
+    ],
+    "note": "The WMS document prints 9 named Layer Name values. methods/ was not edited."
+  },
+  "methods": {
+    "applicable": false,
+    "why": "NIBIO leftover AR50 WMS GetCapabilities prints Layer Name strings. That is not a numeric time series. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false
+  },
+  "notes": [
+    "Ids are copied from printed last cgi-bin path segments. access_path is the printed Geonorge DistributionUrl. No nibioar50 id was written onto a nibiowms, nibiorest, or geonorge row.",
+    "License stays null: the catalog prints no license URL. Publisher is null: this adapter does not copy Organization onto publisher.",
+    "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "python3 -m pytest after rebase onto kikommuner 224 and brunder 221: 1532 passed, 1 skipped, 1 deselected.",
+    "Branched from origin/main after nordatlas #220 (2dadb9c). Rebased onto origin/main after kikommuner #224 (7a05127) and brunder #221. SOURCE_IDS keeps nordatlas, brunder, kikommuner, then nibioar50.",
+    "Open PR check at pickup found ssbgis #215 and fbgis #218. Those leftover catalogs stayed unused."
+  ]
+}

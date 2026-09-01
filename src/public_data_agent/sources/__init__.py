@@ -88,6 +88,7 @@ from public_data_agent.sources.ncagalewarnings import NcagalewarningsSource
 from public_data_agent.sources.nibio import NibioWeatherSource
 from public_data_agent.sources.nibiowms import NibiowmsSource
 from public_data_agent.sources.nibiorest import NibiorestSource
+from public_data_agent.sources.nibioar50 import Nibioar50Source
 from public_data_agent.sources.nordatlas import NordatlasSource
 from public_data_agent.sources.nin import NinSource
 from public_data_agent.sources.nlaroutes import NlaroutesSource
@@ -329,6 +330,7 @@ SOURCE_IDS = (
     "kikommuner",
     "fbgis",
     "stperioder",
+    "nibioar50",
 )
 
 
@@ -659,6 +661,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return FbgisSource()
     if source_id == "stperioder":
         return StperioderSource()
+    if source_id == "nibioar50":
+        return Nibioar50Source()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -748,6 +752,7 @@ __all__ = [
     "NguwmsSource",
     "NibioWeatherSource",
     "NibiorestSource",
+    "Nibioar50Source",
     "NordatlasSource",
     "NibiowmsSource",
     "NinSource",
