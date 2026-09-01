@@ -5184,6 +5184,45 @@ HTTP 200, 29 Layer Name cells. Sample printed value:
 `fisheryactivity_wms_longline`. `pda methods` is not applicable: layer
 names, not a numeric time series. Proof is `data/bwgis_source_proof.json`.
 
+## Forsvarsbygg leftover WMS/WFS source
+
+`pda ingest --source fbgis` is another replaceable adapter. It lists printed
+leftover OGC:WMS and OGC:WFS Type=service rows on the official Geonorge
+Kartkatalog search
+`https://kartkatalog.geonorge.no/api/search?text=Forsvarsbygg&limit=50`,
+capped at 10. Other organizations, downloads, servicelayers, and
+W3C:REST rows are skipped. Leftover Kartverket WMS already in
+`--source kvwms` / `--source kvgrunn` / `--source kvtopo` (including the
+printed `wms.friluftsruter2`, `wms.fjellskygge`, `wms.n5raster2`, and
+`wms.markagrensen` ids that would have been `kvfriluft`), restricted
+Matrikkelen WMS, leftover Avinor and Bane NOR skwms1 ids, Kartverket
+Havnedata, leftover SSB WMS hosts, and leftover BarentsWatch hosts are
+skipped. GetCapabilities bodies that are not WMS or WFS XML are skipped.
+Dataset ids are the printed last path segment so the leftover
+`https://wms.geonorge.no/skwms1/wms.skytefelt?service=wms&request=getcapabilities`
+keeps native id `wms.skytefelt`. `access_path` is the printed
+`DistributionUrl`. License stays null: the catalog prints no license URL.
+Publisher stays null. This is not Kartverket leftover WMS/WMTS
+(`--source kvwms`), not leftover grunnkart WMS (`--source kvgrunn`), not
+leftover topo WMS (`--source kvtopo`), not Kartverket Havnedata
+(`--source havnedata`), not leftover Avinor WMS/WFS (`--source avinorgis`),
+and not leftover Bane NOR WMS/WFS (`--source banegis`). The first
+Kartverket leftover candidate `kvfriluft` could not meet the bar: those
+printed GetCapabilities URLs are already owned by `--source kvtopo`.
+
+```bash
+pda ingest --source fbgis --db data/registry.sqlite --limit 10
+pda search skytefelt --db data/registry.sqlite
+pda fetch --dataset fbgis:wms.skytefelt --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored GetCapabilities URL. Observation values are
+copied from printed WMS `Layer`/`Name` text or WFS `FeatureType`/`Name`
+text. A sibling `Title` stays as a dimension. License stays null. Publisher
+stays null.
+
+Live ingest and fetch proof will be recorded in `data/fbgis_source_proof.json`.
+
 ## Norges Bank SDMX Codelists source
 
 `pda ingest --source nbcodelist` is another replaceable adapter. It lists
