@@ -5543,9 +5543,12 @@ Nested `_links` objects are not copied. License stays null. Publisher
 stays null.
 
 The catalog prints 365 kommuner. This walk copies the first ten in
-document order. Live ingest, search, and fetch proof is recorded in
-`data/brkommune_source_proof.json`. `pda methods` is not applicable.
+document order. Live ingest listed 10 and inserted 10. Live search
+`OSLO` returns `brkommune:0301`. Live fetch GETs
+`https://data.brreg.no/enhetsregisteret/api/kommuner/0301`
+HTTP 200, 1 row, `navn` = `OSLO`. `pda methods` is not applicable.
 Kommune names are not a numeric time series.
+Proof is `data/brkommune_source_proof.json`.
 
 ## Architecture (long term)
 
