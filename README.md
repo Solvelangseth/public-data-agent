@@ -5977,6 +5977,44 @@ is not applicable: correspondence-map names, not a numeric time series
 (`no observations matched entity/measure; available=[]`).
 Proof is `data/ssbcorr_source_proof.json`.
 
+## Enhetsregisteret leftover oppdateringer source
+
+`pda ingest --source broppdater` is another replaceable adapter. It lists
+leftover collection GET paths under `/enhetsregisteret/api/oppdateringer/`
+named in the official Brønnøysundregistrene OpenAPI
+`https://data.brreg.no/enhetsregisteret/api/dokumentasjon/no/openapi.json`.
+Templated paths and GET operations that print required parameters are
+skipped. Dataset ids are the printed last path segment so `enheter`
+stays distinct from `underenheter` and `roller`. `access_path` is
+printed `servers[0].url` plus path. License is the printed OpenAPI NLOD
+URL. Publisher stays null. This is not the Enhetsregisteret HAL root
+(`--source brreg`), not leftover roller OpenAPI collection GETs
+(`--source brroller`), not leftover organisasjonsformer
+(`--source brorgform`), not leftover rolletyper
+(`--source brrolletype`), not leftover kommuner
+(`--source brkommuner`), and not leftover rollegruppetyper
+(`--source brrollegruppe`).
+
+```bash
+pda ingest --source broppdater --db data/registry.sqlite --limit 10
+pda search "oppdateringer på enheter" --db data/registry.sqlite
+pda fetch --dataset broppdater:enheter --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored enheter-oppdateringer URL. Observation
+values are copied from printed `endringstype` scalars when present.
+Other printed scalars stay as dimensions. Nested `_links` objects are
+not copied. License is the printed NLOD URL. Publisher stays null.
+
+Live ingest 2026-09-01: listed 3, inserted 3 (catalog prints three
+leftover JSON collection paths; cap 10 copies all three). Live search
+`oppdateringer på enheter` returns `broppdater:enheter`. Live fetch GETs
+`https://data.brreg.no/enhetsregisteret/api/oppdateringer/enheter`
+HTTP 200, 20 endringstype cells. Sample printed value: `Ukjent`.
+`pda methods` is not applicable: update event labels, not a numeric time
+series (`no observations matched entity/measure; available=[]`).
+Proof is `data/broppdater_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists

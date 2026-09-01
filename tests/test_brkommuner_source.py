@@ -118,7 +118,8 @@ def test_brkommuner_is_a_registered_source() -> None:
     assert SOURCE_IDS[SOURCE_IDS.index("brrollegruppe") + 1] == "mdirgis"
     assert SOURCE_IDS[SOURCE_IDS.index("mdirgis") + 1] == "ssbcorr"
     assert SOURCE_IDS[SOURCE_IDS.index("ssbcorr") + 1] == "bwgis"
-    assert SOURCE_IDS[-1] == "bwgis"
+    assert SOURCE_IDS[SOURCE_IDS.index("bwgis") + 1] == "broppdater"
+    assert SOURCE_IDS[-1] == "broppdater"
     source = build_source("brkommuner")
     assert isinstance(source, BrkommunerSource)
     assert source.source_id == "brkommuner"
