@@ -1,0 +1,133 @@
+{
+  "produced_at": "2026-09-01T19:12:00Z",
+  "bound": {
+    "list_api": [
+      "https://wfs.geonorge.no/skwms1/wfs.grunnkretser?service=WFS&request=GetCapabilities"
+    ],
+    "walk": "copy the official leftover Kartverket Grunnkretser WFS GetCapabilities document that Geonorge Kartkatalog prints as Type=service OGC:WFS uuid cc7ded0b-7d34-4db6-8fdb-c5a7682b6836; skip HTML and non-WFS bodies; native id is the printed last path segment wfs.grunnkretser; access_path is the GetCapabilities URL; license stays null because the document prints no license URL; publisher stays null; live GET of that printed document is HTTP 200 WFS XML with no token; no token is sent; do not invent extra leftover wfs.geonorge.no/skwms1/ service URLs",
+    "cap": 10,
+    "how": "pda ingest --source kvkrets --limit 10. The printed leftover Grunnkretser GetCapabilities document returns WFS_Capabilities XML 200. Cap 10 copies that one document. Assigned slot kvgrunn is already leftover grunnkart WMS on main. This is not --source kvgrunn, --source kvfkb, --source kvtopo, --source kvwms, or --source geonorge."
+  },
+  "discarded": [
+    {
+      "candidate": "Kartverket leftover grunnkart WMS / kvgrunn",
+      "url": "https://wms.geonorge.no/skwms1/wms.norges_grunnkart?service=WMS&request=GetCapabilities",
+      "why": "On main as --source kvgrunn after #180. Owns wms.topograatone and wms.norges_grunnkart. Assigned Grunnkretser slot reused that id. Do not redo kvgrunn."
+    },
+    {
+      "candidate": "Kartverket leftover FKB WMS / kvfkb",
+      "url": "https://wms.geonorge.no/skwms1/wms.fkb?service=wms&request=getcapabilities",
+      "why": "On main as --source kvfkb. Different leftover WMS. Skip."
+    },
+    {
+      "candidate": "Kartverket leftover topo WMS / kvtopo",
+      "url": "https://wms.geonorge.no/skwms1/wms.kartdata?service=wms&request=getcapabilities",
+      "why": "On main as --source kvtopo. Do not redo kvtopo."
+    },
+    {
+      "candidate": "Kartverket leftover WMS/WMTS / kvwms",
+      "url": "https://wms.geonorge.no/skwms1/wms.topo?service=wms&request=getcapabilities",
+      "why": "On main as --source kvwms. Owns wms.topo and WMTS only. Skip."
+    },
+    {
+      "candidate": "Kartverket leftover administrative-enheter / kvadm",
+      "url": "in flight #241",
+      "why": "Assigned skip. Do not redo kvadm."
+    },
+    {
+      "candidate": "Statistiske enheter grunnkretser WMS",
+      "url": "https://wms.geonorge.no/skwms1/wms.grunnkretser?request=GetCapabilities&service=WMS",
+      "why": "Printed Geonorge Type=service OGC:WMS sibling. This leftover is the WFS document. Do not invent a second leftover WMS into kvkrets."
+    },
+    {
+      "candidate": "Statistiske enheter grunnkretser - historiske versjoner WFS",
+      "url": "https://wfs.geonorge.no/skwms1/wfs.grunnkretserhistorisk?service=WFS&request=GetCapabilities",
+      "why": "Different printed leftover WFS. This first slice copies only the printed Grunnkretser WFS document. Do not invent extra leftover URLs."
+    },
+    {
+      "candidate": "Befolkning på grunnkretsnivå WFS",
+      "url": "https://wfs.geonorge.no/skwms1/wfs.befolkningpagrunnkretsniva?service=WFS&request=GetCapabilities",
+      "why": "Different printed leftover WFS. Do not invent extra leftover URLs."
+    },
+    {
+      "candidate": "Geonorge Kartkatalog / geonorge",
+      "url": "https://kartkatalog.geonorge.no/api/search",
+      "why": "Already --source geonorge. kvkrets copies the printed leftover Grunnkretser WFS GetCapabilities document, not the Kartkatalog JSON catalog."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source kvkrets --db /tmp/pda-kvkrets-proof/registry.sqlite --limit 10",
+    "listed": 1,
+    "inserted": 1,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "kvkrets:wfs.grunnkretser",
+        "title": "Grunnkretser",
+        "access_path": "https://wfs.geonorge.no/skwms1/wfs.grunnkretser?service=WFS&request=GetCapabilities"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search Grunnkretser --db /tmp/pda-kvkrets-proof/registry.sqlite --limit 10",
+    "query": "Grunnkretser",
+    "returned": 1,
+    "hit_id": "kvkrets:wfs.grunnkretser",
+    "title": "Grunnkretser",
+    "source_id": "kvkrets",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://wfs.geonorge.no/skwms1/wfs.grunnkretser?service=WFS&request=GetCapabilities",
+    "original_source": "https://wfs.geonorge.no/skwms1/wfs.grunnkretser?service=WFS&request=GetCapabilities",
+    "why_picked": "title matched grunnkretser"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset kvkrets:wfs.grunnkretser --db /tmp/pda-kvkrets-proof/registry.sqlite",
+    "dataset": "kvkrets:wfs.grunnkretser",
+    "table_id": "wfs.grunnkretser",
+    "access_path": "https://wfs.geonorge.no/skwms1/wfs.grunnkretser?service=WFS&request=GetCapabilities",
+    "request_url": "https://wfs.geonorge.no/skwms1/wfs.grunnkretser?service=WFS&request=GetCapabilities",
+    "http_status": 200,
+    "listed": 3,
+    "inserted": 3,
+    "updated": 0,
+    "license": null,
+    "publisher": null,
+    "feature_type_count": 3,
+    "sample": [
+      {
+        "measure": "Name",
+        "value": "app:Delområde"
+      },
+      {
+        "measure": "Name",
+        "value": "app:Grense"
+      },
+      {
+        "measure": "Name",
+        "value": "app:Grunnkrets"
+      }
+    ],
+    "note": "Live GET 200 WFS_Capabilities 2.0.0. The WFS document prints 3 FeatureType Name values: app:Delområde, app:Grense, app:Grunnkrets. Live POST of the printed GetCapabilities URL is HTTP 400; leftover GIS fetch stays GET like kvfkb/kystwfs. methods/ was not edited."
+  },
+  "methods": {
+    "applicable": false,
+    "why": "Kartverket leftover Grunnkretser WFS prints feature type names. Those are not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false
+  },
+  "notes": [
+    "Assigned source_id kvgrunn is already leftover grunnkart WMS on main. This leftover uses unused source_id kvkrets. No kvkrets id was written onto a kvgrunn, kvfkb, kvtopo, kvwms, or geonorge row.",
+    "Ids are copied from the printed last /skwms1/ path segment. access_path is the official leftover GetCapabilities URL.",
+    "License is null: the document prints no license URL. Publisher is null.",
+    "Live GET of the leftover Grunnkretser WFS GetCapabilities URL is HTTP 200 WFS_Capabilities XML with no Authorization header. No token is sent. Accept is application/xml, text/xml, */* like kvfkb and kvgrunn.",
+    "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "Branched from origin/main after stmoter #242 (51c23bc). SOURCE_IDS keeps stmoter then kvkrets. README keeps leftover GIS sections including kvfkb, kvgrunn, ssbgis, barmark, nibioar5f, nibioar50, fbgis, nordatlas, bwgis, mdirgis, and nguminer."
+  ]
+}
