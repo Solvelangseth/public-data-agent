@@ -6550,6 +6550,13 @@ from printed `komiteer_liste[].navn` scalars. Other printed scalars stay
 as dimensions. Nested objects are not copied. License stays null.
 Publisher stays null.
 
+Live ingest 2026-09-01: listed 10, inserted 10 (official catalog prints
+43 sessions; cap 10 copies the first ten printed ids). Live search
+`2025-2026` returns `stkomiteer:2025-2026`. Live fetch GETs
+`https://data.stortinget.no/eksport/komiteer?sesjonid=2025-2026&format=json`
+HTTP 200, 18 navn cells. Sample printed value: `Arbeids- og
+sosialkomiteen`. `pda methods` is not applicable: komite names, not a
+numeric time series (`no observations matched entity/measure; available=[]`).
 Proof is `data/stkomiteer_source_proof.json`.
 
 ## Architecture (long term)
