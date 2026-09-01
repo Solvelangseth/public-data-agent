@@ -183,7 +183,7 @@
     "Live GET of /api/v0/no/table/al is HTTP 200 with no Authorization header. No token is sent.",
     "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
     "is_ssbsubj_url matches only /api/v0/no/table/{subject} folders whose last segment is alphabetic. Five-digit table numbers and child folders such as al03 are not ssbsubj items.",
-    "python3 -m pytest: 1523 passed, 1 skipped, 1 deselected.",
+    "python3 -m pytest: 1540 passed, 1 skipped, 1 deselected.",
     "Not a numeric time series with two or more periods. Fetch listed 4 printed child-folder text cells.",
     "Did not pick kikommuner #224, Norges Bank organisationscheme, leftover GIS, or offentligdata.no."
   ]
