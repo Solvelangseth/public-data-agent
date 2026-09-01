@@ -19,6 +19,7 @@ from public_data_agent.sources.broppdater import BroppdaterSource
 from public_data_agent.sources.brreg import BrregEnhetsregisterSource
 from public_data_agent.sources.brrepresent import BrrepresentSource
 from public_data_agent.sources.brunder import BrunderSource
+from public_data_agent.sources.crinst import CrinstSource
 from public_data_agent.sources.brrollegruppe import BrrollegruppeSource
 from public_data_agent.sources.brrolletype import BrrolletypeSource
 from public_data_agent.sources.brroller import BrrollerSource
@@ -333,6 +334,7 @@ SOURCE_IDS = (
     "stperioder",
     "nibioar50",
     "brorgformen",
+    "crinst",
 )
 
 
@@ -667,6 +669,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return Nibioar50Source()
     if source_id == "brorgformen":
         return BrorgformenSource()
+    if source_id == "crinst":
+        return CrinstSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -693,6 +697,7 @@ __all__ = [
     "BuyerSource",
     "BwgisSource",
     "CatalogSource",
+    "CrinstSource",
     "CristinSource",
     "DataNorgeSource",
     "ElcertSource",

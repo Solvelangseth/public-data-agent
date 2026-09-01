@@ -1,0 +1,211 @@
+{
+  "produced_at": "2026-09-01T18:00:41Z",
+  "bound": {
+    "list_api": "https://api.cristin.no/v2/institutions",
+    "walk": "copy printed cristin_institution_id values from the official Cristin institutions catalog; native ids are the printed cristin_institution_id values; access_path copies the printed url on /v2/institutions/{cristin_institution_id}; license stays null; publisher stays null; the catalog prints neither; live GET of those printed item paths is HTTP 200 with no token; no token is sent; do not invent page or per_page query filters",
+    "cap": 10,
+    "how": "pda ingest --source crinst --limit 10. The official catalogue prints a default page of institutions. Ingest copies the first ten in document order."
+  },
+  "discarded": [
+    {
+      "candidate": "Enhetsregisteret underenheter / brunder",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/221",
+      "why": "Already on main via PR #221 SHA ced9752183e3bb41288bbc3a6532bea9aa65ce5f. Dropped PR #222. Do not merge #222. Pick a different leftover."
+    },
+    {
+      "candidate": "Kartverket Kommuneinfo kommuner / kikommuner",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/224",
+      "why": "In flight. Do not pick kikommuner."
+    },
+    {
+      "candidate": "Kartverket Kommuneinfo fylkerkommuner item",
+      "url": "https://ws.geonorge.no/kommuneinfo/v1/fylkerkommuner/{id}",
+      "why": "HTTP 404. Do not invent a workaround."
+    },
+    {
+      "candidate": "Kartverket Adresser /sok",
+      "url": "https://ws.geonorge.no/adresser/v1/sok",
+      "why": "HTTP 400. Do not invent required query parameters."
+    },
+    {
+      "candidate": "Kartverket Eiendom /geokoding",
+      "url": "https://ws.geonorge.no/eiendom/v1/geokoding",
+      "why": "HTTP 400. Do not invent required query parameters."
+    },
+    {
+      "candidate": "NVE HydAPI Parameters/Series",
+      "url": "https://hydapi.nve.no/api/v1/Parameters",
+      "why": "HTTP 401. Do not invent a token."
+    },
+    {
+      "candidate": "Frivillighetsregisteret icnpo-kategorier/{id}",
+      "url": "https://data.brreg.no/frivillighetsregisteret/api/icnpo-kategorier/{id}",
+      "why": "HTTP 404. Do not invent a workaround."
+    },
+    {
+      "candidate": "Frivillighetsregisteret informasjonstyper/{id}",
+      "url": "https://data.brreg.no/frivillighetsregisteret/api/informasjonstyper/{id}",
+      "why": "HTTP 404. Do not invent a workaround."
+    },
+    {
+      "candidate": "Norges Bank SDMX categoryscheme",
+      "url": "https://data.norges-bank.no/api/categoryscheme?format=sdmx-json",
+      "why": "HTTP 404. Do not invent a workaround."
+    },
+    {
+      "candidate": "Norges Bank SDMX dataconsumerscheme",
+      "url": "https://data.norges-bank.no/api/dataconsumerscheme?format=sdmx-json",
+      "why": "HTTP 404. Do not invent a workaround."
+    },
+    {
+      "candidate": "Norges Bank SDMX hierarchicalcodelist",
+      "url": "https://data.norges-bank.no/api/hierarchicalcodelist?format=sdmx-json",
+      "why": "HTTP 404. Do not invent a workaround."
+    },
+    {
+      "candidate": "Norges Bank SDMX metadataflow",
+      "url": "https://data.norges-bank.no/api/metadataflow?format=sdmx-json",
+      "why": "HTTP 404. Do not invent a workaround."
+    },
+    {
+      "candidate": "Norges Bank SDMX organisationscheme",
+      "url": "https://data.norges-bank.no/api/organisationscheme?format=sdmx-json",
+      "why": "HTTP 200 but reprints agency/data-provider catalogs already ingested. Not a leftover catalog."
+    },
+    {
+      "candidate": "NVDB vegobjekttyper",
+      "url": "https://nvdbapiles.atlas.vegvesen.no/vegobjekttyper",
+      "why": "HTTP 400. Do not invent required query parameters."
+    },
+    {
+      "candidate": "Fiskeridir aqua-operations-public",
+      "url": "already printed as templated {site-nr}",
+      "why": "Only templated site-nr paths. Do not invent site numbers."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    },
+    {
+      "candidate": "municipal CKAN / Opencom",
+      "url": "already on main via --source opencom and municipal CKAN adapters",
+      "why": "This lane stays off municipal CKAN/Opencom."
+    },
+    {
+      "candidate": "leftover GIS/WMS/OGC/ArcGIS",
+      "url": "already on main via leftover GIS adapters",
+      "why": "This lane stays off leftover GIS/WMS."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source crinst --db /tmp/pda-crinst-proof/registry.sqlite --limit 10",
+    "listed": 10,
+    "inserted": 10,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "crinst:1000",
+        "title": "AOF Haugaland",
+        "access_path": "https://api.cristin.no/v2/institutions/1000"
+      },
+      {
+        "id": "crinst:1001",
+        "title": "AOF - Arbeidernes Opplysningsforbund",
+        "access_path": "https://api.cristin.no/v2/institutions/1001"
+      },
+      {
+        "id": "crinst:10100000",
+        "title": "Denmark",
+        "access_path": "https://api.cristin.no/v2/institutions/10100000"
+      },
+      {
+        "id": "crinst:10100001",
+        "title": "Aalborg Seminarium",
+        "access_path": "https://api.cristin.no/v2/institutions/10100001"
+      },
+      {
+        "id": "crinst:10100002",
+        "title": "Aalborg University",
+        "access_path": "https://api.cristin.no/v2/institutions/10100002"
+      },
+      {
+        "id": "crinst:10100003",
+        "title": "Aarhus University",
+        "access_path": "https://api.cristin.no/v2/institutions/10100003"
+      },
+      {
+        "id": "crinst:10100004",
+        "title": "Alborg Socialpædagogiske Seminarium",
+        "access_path": "https://api.cristin.no/v2/institutions/10100004"
+      },
+      {
+        "id": "crinst:10100005",
+        "title": "Aarhus School of Architecture",
+        "access_path": "https://api.cristin.no/v2/institutions/10100005"
+      },
+      {
+        "id": "crinst:10100008",
+        "title": "Royal School of Library and Information Science",
+        "access_path": "https://api.cristin.no/v2/institutions/10100008"
+      },
+      {
+        "id": "crinst:10100009",
+        "title": "The Danish University of Pharmaceutical Sciences",
+        "access_path": "https://api.cristin.no/v2/institutions/10100009"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search Haugaland --db /tmp/pda-crinst-proof/registry.sqlite --limit 10",
+    "query": "Haugaland",
+    "returned": 1,
+    "hit_id": "crinst:1000",
+    "title": "AOF Haugaland",
+    "source_id": "crinst",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://api.cristin.no/v2/institutions/1000",
+    "original_source": "https://api.cristin.no/v2/institutions",
+    "why_picked": "title matched haugaland"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset crinst:1000 --db /tmp/pda-crinst-proof/registry.sqlite",
+    "dataset": "crinst:1000",
+    "table_id": "1000",
+    "fetch_id": 1,
+    "access_path": "https://api.cristin.no/v2/institutions/1000",
+    "request_url": "https://api.cristin.no/v2/institutions/1000",
+    "http_status": 200,
+    "listed": 1,
+    "inserted": 1,
+    "updated": 0,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "institution_name",
+        "value": "AOF Haugaland"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset crinst:1000 --db /tmp/pda-crinst-proof/registry.sqlite --out /tmp/pda-crinst-proof/methods",
+    "applicable": false,
+    "why": "Cristin /v2/institutions/{id} prints institution_name and cristin_institution_id strings, not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed catalog cristin_institution_id values. access_path copies the printed url. No crinst id was written onto a cristin docs-path row.",
+    "License is null: the institutions catalog prints no license field. Publisher is null: the catalog prints no publisher field.",
+    "Live GET of /v2/institutions/1000 is HTTP 200 with no Authorization header. No token is sent.",
+    "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "is_crinst_url matches only /v2/institutions/{id} item paths. The bare collection URL and other Cristin v2 paths stay with --source cristin.",
+    "python3 -m pytest: 1523 passed, 1 skipped, 1 deselected.",
+    "Not a numeric time series with two or more periods. Fetch listed 1 printed institution_name cell (AOF Haugaland).",
+    "Did not pick brunder (already on main #221). Dropped #222. Did not pick kikommuner #224, leftover GIS, municipal portals, or offentligdata.no."
+  ]
+}

@@ -6386,6 +6386,37 @@ HTTP 200, 169 fornavn cells. Sample printed value: `Abid`.
 series (`no observations matched entity/measure; available=[]`).
 Proof is `data/stperioder_source_proof.json`.
 
+## Cristin leftover institutions source
+
+`pda ingest --source crinst` is another replaceable adapter. It lists
+printed `cristin_institution_id` values on the official Cristin
+institutions catalog `https://api.cristin.no/v2/institutions`,
+capped at 10. Dataset ids are the printed `cristin_institution_id`
+values. `access_path` is the printed `url` on
+`/v2/institutions/{cristin_institution_id}`. License stays null.
+Publisher stays null. This is not the Cristin documentation path list
+(`--source cristin`).
+
+```bash
+pda ingest --source crinst --db data/registry.sqlite --limit 10
+pda search Haugaland --db data/registry.sqlite
+pda fetch --dataset crinst:1000 --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored institution URL. Observation values are
+copied from the printed localized `institution_name`. Other printed
+scalars stay as dimensions. Nested `url` is not stored as a cell.
+License stays null. Publisher stays null.
+
+The catalog prints a default page of institutions. This walk copies the
+first ten in document order. No page or per_page query is invented. Live
+ingest listed 10 and inserted 10. Live search `Haugaland` returns
+`crinst:1000`. Live fetch GETs
+`https://api.cristin.no/v2/institutions/1000`
+HTTP 200, 1 row, `institution_name` = `AOF Haugaland`. `pda methods` is
+not applicable. Institution names are not a numeric time series.
+Proof is `data/crinst_source_proof.json`.
+
 ## Brønnøysundregistrene Enhetsregisteret organisasjonsformer enheter source
 
 `pda ingest --source brorgformen` is another replaceable adapter. It lists
