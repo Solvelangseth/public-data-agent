@@ -369,7 +369,10 @@ def test_fbgis_is_a_registered_source() -> None:
     assert SOURCE_IDS[SOURCE_IDS.index("brrollegruppe") + 1] == "mdirgis"
     assert SOURCE_IDS[SOURCE_IDS.index("mdirgis") + 1] == "ssbcorr"
     assert SOURCE_IDS[SOURCE_IDS.index("ssbcorr") + 1] == "bwgis"
-    assert SOURCE_IDS[SOURCE_IDS.index("bwgis") + 1] == "fbgis"
+    assert SOURCE_IDS[SOURCE_IDS.index("bwgis") + 1] == "broppdater"
+    assert SOURCE_IDS[SOURCE_IDS.index("broppdater") + 1] == "kifylker"
+    assert SOURCE_IDS[SOURCE_IDS.index("kifylker") + 1] == "brrepresent"
+    assert SOURCE_IDS[SOURCE_IDS.index("brrepresent") + 1] == "fbgis"
     assert SOURCE_IDS[-1] == "fbgis"
     source = build_source("fbgis")
     assert isinstance(source, FbgisSource)
