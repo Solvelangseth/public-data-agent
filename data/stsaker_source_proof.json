@@ -197,6 +197,6 @@
     "is_stsaker_url matches only /eksport/saker?sesjonid= paths and is checked before is_stortinget_url.",
     "Not a numeric time series with two or more periods. Fetch listed 665 printed korttittel cells.",
     "python3 -m pytest after live ingest: 1548 passed, 1 skipped, 1 deselected.",
-    "Rebased onto origin/main after brorgformen #230 merge SHA a4d6d9a7ac2b7b175495ba74991026350e4a4885. Kept every existing source plus stsaker."
+    "Rebased onto origin/main after crinst #228 merge SHA 36ce44e. Kept every existing source plus stsaker. Did not pick crinst."
   ]
 }
