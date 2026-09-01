@@ -7173,9 +7173,9 @@ HTTP 200, 30 `tittel` cells. Sample printed value starts with
 time series (`no observations matched entity/measure; available=[]`).
 Proof is `data/stinterp_source_proof.json`.
 Started from origin/main after crresult #245 (`43dbdb8`). Rebased onto
-origin/main after stmoter #242, ssbfritid #247, kvadm #241, and
-kvkrets #251 (`5991edc`). Every existing source stayed registered and
-`stinterp` follows `kvkrets`.
+origin/main after stmoter #242, ssbfritid #247, kvadm #241, kvkrets
+#251, and dsbgis #246 (`3c22035`). Every existing source stayed
+registered and `stinterp` follows `dsbgis`.
 
 ## Brønnøysundregistrene Enhetsregisteret organisasjonsformer enheter source
 
