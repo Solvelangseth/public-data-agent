@@ -224,7 +224,8 @@ def test_ssbcorr_is_a_registered_source() -> None:
     assert SOURCE_IDS[SOURCE_IDS.index("kvfkb") + 1] == "crperson"
     assert SOURCE_IDS[SOURCE_IDS.index("crperson") + 1] == "stsporre"
     assert SOURCE_IDS[SOURCE_IDS.index("stsporre") + 1] == "crresult"
-    assert SOURCE_IDS[-1] == "crresult"
+    assert SOURCE_IDS[SOURCE_IDS.index("crresult") + 1] == "stmoter"
+    assert SOURCE_IDS[-1] == "stmoter"
     source = build_source("ssbcorr")
     assert isinstance(source, SsbcorrSource)
     assert source.source_id == "ssbcorr"

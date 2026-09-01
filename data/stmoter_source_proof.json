@@ -1,0 +1,130 @@
+{
+  "produced_at": "2026-09-01T18:41:38Z",
+  "bound": {
+    "list_api": "https://data.stortinget.no/eksport/sesjoner?format=json",
+    "walk": "copy printed sesjoner_liste[].id from the official Stortinget sesjoner catalog; native ids are the printed session id values so 2025-2026 stays distinct from 2024-2025; access_path joins each printed id onto leftover /eksport/moter with the documented sesjonid and format=json query; license stays null; publisher stays null; the catalog prints neither; live GET of those printed moter paths is HTTP 200 with no token; no token is sent; do not invent other query filters",
+    "cap": 10,
+    "how": "pda ingest --source stmoter --limit 10. The official catalog lists 43 printed sessions. Ingest copies the first ten in document order."
+  },
+  "discarded": [
+    {
+      "candidate": "stpartier",
+      "url": "PR 236 on main SHA a86ddfeca54b0272e7573dffc04846624785cf18",
+      "why": "Just merged. Do not redo."
+    },
+    {
+      "candidate": "crunit",
+      "url": "PR 234 on main SHA 4ca78cf02bd299c7819904a12ad18622d074138b",
+      "why": "Named skip. Already on main."
+    },
+    {
+      "candidate": "crproj",
+      "url": "PR 235 on main SHA a02a6b35a33dcd171a252433a7636d63cc82f80c",
+      "why": "Named skip. Already on main."
+    },
+    {
+      "candidate": "crbio",
+      "url": "PR 238 on main SHA a7f4743220b54534a216e021b95de7a8a0b5a1d3",
+      "why": "Already on main. Kept after rebase."
+    },
+    {
+      "candidate": "nibioar5f",
+      "url": "PR 232 on main SHA c2704a4",
+      "why": "Leftover GIS/WMS lane, not this leftover national JSON lane. Kept from main after rebase onto #232."
+    },
+    {
+      "candidate": "kvfkb",
+      "url": "PR 239 on main SHA ad5c215db69f93cb7109b969a1dd11a76f63824d",
+      "why": "Leftover GIS/WMS lane (Kartverket FKB). Not this leftover national JSON lane. Kept from main after rebase onto #239."
+    },
+    {
+      "candidate": "crperson",
+      "url": "PR 240 on main SHA ec5ecfc322f1d257b4df4d51af7e60975cf1adca",
+      "why": "Named skip. Already on main via #240. Kept after rebase. Do not redo."
+    },
+    {
+      "candidate": "stsporre",
+      "url": "PR 243 on main SHA c9db4e52b6affa17e41eab436ff59e935033a5d5",
+      "why": "Named skip. Already on main via #243. Kept after rebase. Do not redo."
+    },
+    {
+      "candidate": "crresult",
+      "url": "PR 245 on main SHA 43dbdb81991e15d68180396a0b292ad4a05c0746",
+      "why": "Named skip. Already on main via #245. Kept after rebase. Do not redo."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source stmoter --db /tmp/pda-stmoter-proof/registry.sqlite --limit 10",
+    "listed": 10,
+    "inserted": 10,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "stmoter:2028-2029",
+        "title": "2028-2029",
+        "access_path": "https://data.stortinget.no/eksport/moter?sesjonid=2028-2029&format=json"
+      },
+      {
+        "id": "stmoter:2025-2026",
+        "title": "2025-2026",
+        "access_path": "https://data.stortinget.no/eksport/moter?sesjonid=2025-2026&format=json"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search 2025-2026 --db /tmp/pda-stmoter-proof/registry.sqlite --limit 5",
+    "query": "2025-2026",
+    "returned": 1,
+    "hit_id": "stmoter:2025-2026",
+    "title": "2025-2026",
+    "source_id": "stmoter",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://data.stortinget.no/eksport/moter?sesjonid=2025-2026&format=json",
+    "original_source": "https://data.stortinget.no/eksport/sesjoner?format=json",
+    "why_picked": "title matched 2025, 2026"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset stmoter:2025-2026 --db /tmp/pda-stmoter-proof/registry.sqlite",
+    "dataset": "stmoter:2025-2026",
+    "table_id": "2025-2026",
+    "fetch_id": 1,
+    "access_path": "https://data.stortinget.no/eksport/moter?sesjonid=2025-2026&format=json",
+    "request_url": "https://data.stortinget.no/eksport/moter?sesjonid=2025-2026&format=json",
+    "http_status": 200,
+    "listed": 155,
+    "inserted": 155,
+    "updated": 0,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "referat_id",
+        "value": "refs-202526-10-01"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset stmoter:2025-2026 --db /tmp/pda-stmoter-proof/registry.sqlite",
+    "applicable": false,
+    "printed_reason": "no period in dimensions or period field",
+    "why": "Stortinget /eksport/moter?sesjonid=2025-2026 prints meeting referat_id/id scalars, not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed catalog sesjon id values. access_path joins those printed ids onto leftover /eksport/moter.",
+    "License is null: the sesjoner catalog prints no license field. Publisher is null.",
+    "Live GET of /eksport/moter?sesjonid=2025-2026&format=json is HTTP 200 with no Authorization header.",
+    "is_stmoter_url matches only /eksport/moter?sesjonid= paths and is checked before is_stortinget_url.",
+    "Not a numeric time series with two or more periods. Fetch listed 155 printed mote cells (sample refs-202526-10-01).",
+    "python3 -m pytest after rebase onto crresult #245: 1684 passed, 1 skipped, 1 deselected."
+  ]
+}
