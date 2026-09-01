@@ -33,6 +33,11 @@
       "why": "Leftover GIS/WMS lane, not this leftover national JSON lane. Kept from main after rebase onto #232."
     },
     {
+      "candidate": "kvfkb",
+      "url": "PR 239 on main SHA ad5c215db69f93cb7109b969a1dd11a76f63824d",
+      "why": "Leftover GIS/WMS lane (Kartverket FKB). Not this leftover national JSON lane. Kept from main after rebase onto #239."
+    },
+    {
       "candidate": "Cristin persons crperson",
       "url": "https://github.com/Solvelangseth/public-data-agent/pull/240",
       "why": "In-flight leftover Cristin persons. Do not pick."
@@ -110,6 +115,6 @@
     "Live GET of /eksport/moter?sesjonid=2025-2026&format=json is HTTP 200 with no Authorization header.",
     "is_stmoter_url matches only /eksport/moter?sesjonid= paths and is checked before is_stortinget_url.",
     "Not a numeric time series with two or more periods. Fetch listed 155 printed mote cells (sample refs-202526-10-01).",
-    "python3 -m pytest after rebase onto nibioar5f #232: 1650 passed, 1 skipped, 1 deselected."
+    "python3 -m pytest after rebase onto kvfkb #239: 1660 passed, 1 skipped, 1 deselected."
   ]
 }
