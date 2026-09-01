@@ -339,7 +339,8 @@ def test_bwgis_is_a_registered_source() -> None:
     assert SOURCE_IDS[SOURCE_IDS.index("bwgis") + 1] == "broppdater"
     assert SOURCE_IDS[SOURCE_IDS.index("broppdater") + 1] == "kifylker"
     assert SOURCE_IDS[SOURCE_IDS.index("kifylker") + 1] == "brrepresent"
-    assert SOURCE_IDS[-1] == "brrepresent"
+    assert SOURCE_IDS[SOURCE_IDS.index("brrepresent") + 1] == "brenheter"
+    assert SOURCE_IDS[-1] == "brenheter"
     source = build_source("bwgis")
     assert isinstance(source, BwgisSource)
     assert source.source_id == "bwgis"
