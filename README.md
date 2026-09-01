@@ -6471,6 +6471,44 @@ After rebase onto origin/main (`stsaker` #231, `crinst` #228,
 and `kikommuner` #224), every existing source stayed registered and
 `ssbsubj` follows `stsaker`.
 
+## Stortinget leftover sesjoner partier source
+
+`pda ingest --source stpartier` is another replaceable adapter. It lists
+printed `sesjoner_liste[].id` values from the official Stortinget
+catalog `https://data.stortinget.no/eksport/sesjoner?format=json`,
+capped at 10. Dataset ids are the printed session `id` values so
+`2028-2029` stays distinct from `2027-2028`. `access_path` joins each
+printed id onto the leftover `/eksport/partier` collection the official
+technical documentation prints, keeping the documented `sesjonid` and
+`format=json` query. License stays null. Publisher stays null. This is
+not the leftover untemplated Stortinget documentation paths
+(`--source stortinget`), not leftover stortingsperioder representanter
+(`--source stperioder`), and not leftover sesjoner saker
+(`--source stsaker`).
+
+```bash
+pda ingest --source stpartier --db data/registry.sqlite --limit 10
+pda search 2028-2029 --db data/registry.sqlite
+pda fetch --dataset stpartier:2028-2029 --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored partier URL. Observation values are copied
+from printed `partier_liste[].navn` scalars. Other printed scalars
+stay as dimensions. Nested objects are not copied. License stays null.
+Publisher stays null.
+
+The official catalog prints 43 sessions. This walk copies the first ten
+in document order. Live ingest listed 10 and inserted 10. Live search
+`2028-2029` returns `stpartier:2028-2029`. Live fetch GETs
+`https://data.stortinget.no/eksport/partier?sesjonid=2028-2029&format=json`
+HTTP 200, 9 `navn` cells. Sample printed value is `Arbeiderpartiet`.
+`pda methods` is not applicable: party names, not a numeric time series
+(`no observations matched entity/measure; available=[]`).
+Proof is `data/stpartier_source_proof.json`.
+After rebase onto origin/main (`ssbgis` #215, `crproj` #235, `barmark`
+#229, `crunit` #234, and `stkomiteer` #233), every existing source
+stayed registered and `stpartier` follows `ssbgis`.
+
 ## Stortinget leftover stortingsperioder source
 
 `pda ingest --source stperioder` is another replaceable adapter. It lists
