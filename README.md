@@ -7065,6 +7065,7 @@ Started from origin/main including crresult #245 (`43dbdb8`). Rebased
 onto origin/main after stmoter #242 (`51c23bc`) and ssbfritid #247
 (`8d0688b`). Every existing source stayed registered, including
 `stmoter` and `ssbfritid`, and `sthoringer` follows `ssbfritid`.
+After rebase, `python3 -m pytest`: 1692 passed, 1 skipped, 1 deselected.
 
 ## Brønnøysundregistrene Enhetsregisteret organisasjonsformer enheter source
 
