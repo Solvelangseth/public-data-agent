@@ -6385,6 +6385,7 @@ HTTP 200, 169 fornavn cells. Sample printed value: `Abid`.
 `pda methods` is not applicable: representant names, not a numeric time
 series (`no observations matched entity/measure; available=[]`).
 Proof is `data/stperioder_source_proof.json`.
+
 ## Cristin leftover institutions source
 
 `pda ingest --source crinst` is another replaceable adapter. It lists
@@ -6408,10 +6409,13 @@ scalars stay as dimensions. Nested `url` is not stored as a cell.
 License stays null. Publisher stays null.
 
 The catalog prints a default page of institutions. This walk copies the
-first ten in document order. No page or per_page query is invented.
-Live ingest, search, and fetch proof is recorded after the first
-bounded run. `pda methods` is not applicable. Institution names are
-not a numeric time series.
+first ten in document order. No page or per_page query is invented. Live
+ingest listed 10 and inserted 10. Live search `Haugaland` returns
+`crinst:1000`. Live fetch GETs
+`https://api.cristin.no/v2/institutions/1000`
+HTTP 200, 1 row, `institution_name` = `AOF Haugaland`. `pda methods` is
+not applicable. Institution names are not a numeric time series.
+Proof is `data/crinst_source_proof.json`.
 
 ## Brønnøysundregistrene Enhetsregisteret organisasjonsformer enheter source
 
