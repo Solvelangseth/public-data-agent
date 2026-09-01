@@ -6383,9 +6383,9 @@ Live search `Arbeid og lønn` returns `ssbsubj:al`. Live fetch GETs
 `text` = `Arbeidsledighet`. `pda methods` is not applicable.
 Child-folder names are not a numeric time series.
 Proof is `data/ssbsubj_source_proof.json`.
-After rebase onto origin/main (`nibioar50` #225, `stperioder` #226,
-`fbgis` #218, and `kikommuner` #224), every existing source stayed
-registered and `ssbsubj` follows `nibioar50`.
+After rebase onto origin/main (`brorgformen` #230, `nibioar50` #225,
+`stperioder` #226, `fbgis` #218, and `kikommuner` #224), every existing
+source stayed registered and `ssbsubj` follows `brorgformen`.
 
 ## Stortinget leftover stortingsperioder source
 
