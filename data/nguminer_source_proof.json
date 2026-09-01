@@ -1,0 +1,123 @@
+{
+  "produced_at": "2026-09-01T16:58:30Z",
+  "bound": {
+    "list_api": [
+      "https://geo.ngu.no/mapserver/IndustrimineralerWMS3?request=GetCapabilities&service=WMS",
+      "https://geo.ngu.no/mapserver/MetallerWMS2?request=GetCapabilities&service=WMS"
+    ],
+    "walk": "copy the official leftover NGU Type=service OGC:WMS GetCapabilities documents that ngu and nguwms left unused; each document is one dataset; skip HTML and non-WMS bodies; skip leftover mapserver ids already in nguwms; skip OGC API Features already in ngu; native ids are the printed last /mapserver/ path segment so IndustrimineralerWMS3 stays distinct from MetallerWMS2; access_path is the printed GetCapabilities URL; license stays null because the documents print no license URL; publisher stays null; live GET of those printed documents is HTTP 200 WMS XML; do not invent extra leftover geo.ngu.no/mapserver/ service URLs",
+    "cap": 10,
+    "how": "pda ingest --source nguminer --limit 10. Both printed leftover GetCapabilities documents return WMS_Capabilities XML 200. Cap 10 copies both. This is not --source ngu or --source nguwms."
+  },
+  "discarded": [
+    {
+      "candidate": "NGU OGC API Features / ngu",
+      "url": "https://geo.ngu.no/api/features",
+      "why": "Already on main as --source ngu. This slice is leftover mineral WMS only."
+    },
+    {
+      "candidate": "NGU leftover WMS / nguwms",
+      "url": "https://www.ngu.no/taxonomy/term/36",
+      "why": "Already on main as --source nguwms. Owns the first 10 leftover mapserver GetCapabilities from the official NGU WMS pages. Skip those ids."
+    },
+    {
+      "candidate": "LosmasserWMS3",
+      "url": "https://geo.ngu.no/mapserver/LosmasserWMS3?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetCapabilities",
+      "why": "Already listed by --source nguwms. Skip any URL already owned by nguwms."
+    },
+    {
+      "candidate": "KritiskeMineralerWMS",
+      "url": "https://geo.ngu.no/mapserver/KritiskeMineralerWMS?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetCapabilities",
+      "why": "Already listed by --source nguwms. Skip."
+    },
+    {
+      "candidate": "BarentsWatch leftover GIS / bwgis",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/205",
+      "why": "In-flight sibling PR 205. Different host. Do not pick bwgis."
+    },
+    {
+      "candidate": "Miljødirektoratet leftover WMS / mdirgis",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/209",
+      "why": "In-flight sibling PR 209. Different host. Do not pick mdirgis."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source nguminer --db /tmp/pda-nguminer-proof/registry.sqlite --limit 10",
+    "listed": 2,
+    "inserted": 2,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "nguminer:IndustrimineralerWMS3",
+        "title": "IndustrimineralerWMS3",
+        "access_path": "https://geo.ngu.no/mapserver/IndustrimineralerWMS3?request=GetCapabilities&service=WMS"
+      },
+      {
+        "id": "nguminer:MetallerWMS2",
+        "title": "MetallerWMS2",
+        "access_path": "https://geo.ngu.no/mapserver/MetallerWMS2?request=GetCapabilities&service=WMS"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search IndustrimineralerWMS3 --db /tmp/pda-nguminer-proof/registry.sqlite --limit 10",
+    "query": "IndustrimineralerWMS3",
+    "returned": 1,
+    "hit_id": "nguminer:IndustrimineralerWMS3",
+    "title": "IndustrimineralerWMS3",
+    "source_id": "nguminer",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://geo.ngu.no/mapserver/IndustrimineralerWMS3?request=GetCapabilities&service=WMS",
+    "original_source": "https://geo.ngu.no/mapserver/IndustrimineralerWMS3?request=GetCapabilities&service=WMS",
+    "why_picked": "title matched industrimineralerwms3"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset nguminer:IndustrimineralerWMS3 --db /tmp/pda-nguminer-proof/registry.sqlite",
+    "dataset": "nguminer:IndustrimineralerWMS3",
+    "table_id": "IndustrimineralerWMS3",
+    "access_path": "https://geo.ngu.no/mapserver/IndustrimineralerWMS3?request=GetCapabilities&service=WMS",
+    "request_url": "https://geo.ngu.no/mapserver/IndustrimineralerWMS3?request=GetCapabilities&service=WMS",
+    "http_status": 200,
+    "listed": 78,
+    "inserted": 71,
+    "updated": 1,
+    "unchanged": 6,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "Name",
+        "value": "IndustrimineralerWMS3"
+      },
+      {
+        "measure": "Name",
+        "value": "Forekomster_zoom"
+      }
+    ],
+    "note": "The WMS document prints 78 named Layer Name values. Duplicate printed names collapse on upsert. methods/ was not edited."
+  },
+  "methods": {
+    "command": "pda methods --dataset nguminer:IndustrimineralerWMS3 --db /tmp/pda-nguminer-proof/registry.sqlite",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "NGU leftover mineral WMS prints layer names. Those are not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false
+  },
+  "notes": [
+    "Ids are copied from printed last /mapserver/ path segments. access_path is the printed GetCapabilities URL. No nguminer id was written onto a ngu or nguwms row.",
+    "License stays null: the documents print no license URL. Publisher stays null.",
+    "Kartkatalog search text=Norges geologiske undersøkelse prints leftover Type=service OGC:WMS for IndustrimineralerWMS3. MetallerWMS2 is also a printed leftover Type=service OGC:WMS GetCapabilities URL. Both return WMS_Capabilities XML 200.",
+    "Open PR check at pickup found bwgis #205 and mdirgis #209 (different leftover GIS hosts). vegwms #206 was already on main at 10b20a5.",
+    "python3 -m pytest after adapter: 1398 passed, 1 skipped, 1 deselected.",
+    "SOURCE_IDS keeps nguminer last after vegwms after nbdps after kvtopo after nbagency after hiwms."
+  ]
+}

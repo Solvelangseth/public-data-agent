@@ -5130,7 +5130,14 @@ null. `pda methods` is not applicable: layer names, not a numeric
 time series
 (`no observations matched entity/measure; available=[]`).
 
-Live ingest and fetch proof follows after the first live run.
+Live ingest 2026-09-01: 2 leftover GetCapabilities documents. Live search
+`IndustrimineralerWMS3` returns `nguminer:IndustrimineralerWMS3`. Live
+fetch GETs
+`https://geo.ngu.no/mapserver/IndustrimineralerWMS3?request=GetCapabilities&service=WMS`
+HTTP 200, 78 printed layer-name cells. Sample printed value:
+`IndustrimineralerWMS3`. `pda methods` is not applicable: layer names,
+not a numeric time series
+(`no observations matched entity/measure; available=[]`).
 Proof is `data/nguminer_source_proof.json`.
 
 ## Norges Bank SDMX Codelists source
