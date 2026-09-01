@@ -6452,6 +6452,30 @@ HTTP 200, 1 row, `institution_name` = `AOF Haugaland`. `pda methods` is
 not applicable. Institution names are not a numeric time series.
 Proof is `data/crinst_source_proof.json`.
 
+## Cristin leftover units source
+
+`pda ingest --source crunit` is another replaceable adapter. It lists
+printed `cristin_unit_id` values on the official Cristin units catalog
+`https://api.cristin.no/v2/units`, capped at 10. Dataset ids are the
+printed `cristin_unit_id` values. `access_path` is the printed `url` on
+`/v2/units/{cristin_unit_id}`. License stays null. Publisher stays
+null. This is not the Cristin documentation path list
+(`--source cristin`) and not leftover institutions (`--source crinst`).
+
+```bash
+pda ingest --source crunit --db data/registry.sqlite --limit 10
+pda search Haugaland --db data/registry.sqlite
+pda fetch --dataset crunit:1000.0.0.0 --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored unit URL. Observation values are copied
+from the printed localized `unit_name`. Other printed scalars stay as
+dimensions. Nested `url` is not stored as a cell. License stays null.
+Publisher stays null.
+
+The catalog prints a default page of units. This walk copies the first
+ten in document order. No page or per_page query is invented.
+
 ## Brønnøysundregistrene Enhetsregisteret organisasjonsformer enheter source
 
 `pda ingest --source brorgformen` is another replaceable adapter. It lists

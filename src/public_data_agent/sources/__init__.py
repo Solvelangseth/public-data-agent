@@ -20,6 +20,7 @@ from public_data_agent.sources.brreg import BrregEnhetsregisterSource
 from public_data_agent.sources.brrepresent import BrrepresentSource
 from public_data_agent.sources.brunder import BrunderSource
 from public_data_agent.sources.crinst import CrinstSource
+from public_data_agent.sources.crunit import CrunitSource
 from public_data_agent.sources.brrollegruppe import BrrollegruppeSource
 from public_data_agent.sources.brrolletype import BrrolletypeSource
 from public_data_agent.sources.brroller import BrrollerSource
@@ -341,6 +342,7 @@ SOURCE_IDS = (
     "stsaker",
     "ssbsubj",
     "stkomiteer",
+    "crunit",
 )
 
 
@@ -683,6 +685,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return SsbsubjSource()
     if source_id == "stkomiteer":
         return StkomiteerSource()
+    if source_id == "crunit":
+        return CrunitSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -710,6 +714,7 @@ __all__ = [
     "BwgisSource",
     "CatalogSource",
     "CrinstSource",
+    "CrunitSource",
     "CristinSource",
     "DataNorgeSource",
     "ElcertSource",
