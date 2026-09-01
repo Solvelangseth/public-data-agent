@@ -5303,6 +5303,16 @@ null. `pda methods` is not applicable: layer names, not a numeric
 time series
 (`no observations matched entity/measure; available=[]`).
 
+Live ingest 2026-09-01: 7 leftover GetCapabilities documents (search
+prints leftover Type=service OGC:WMS from Statistisk sentralbyrå; leftover
+WFS, ssbv2, kvwms/kvtopo/kvgrunn, and Kartverket rows are skipped; cap 10
+copies the 7 leftover live WMS documents). Live search `Sentrumssoner`
+returns `ssbgis:sentrumssoner`. Live fetch GETs
+`https://kart.ssb.no/api/mapserver/v1/wms/sentrumssoner?service=WMS&version=1.3.0&request=GetCapabilities`
+HTTP 200, 3 printed layer-name cells. Sample printed value:
+`sentrumssoner_2025`. `pda methods` is not applicable: layer names,
+not a numeric time series
+(`no observations matched entity/measure; available=[]`).
 Proof is `data/ssbgis_source_proof.json`.
 
 ## Norges Bank SDMX Codelists source
