@@ -21,6 +21,7 @@ from public_data_agent.sources.brreg import BrregEnhetsregisterSource
 from public_data_agent.sources.brrepresent import BrrepresentSource
 from public_data_agent.sources.brunder import BrunderSource
 from public_data_agent.sources.crbio import CrbioSource
+from public_data_agent.sources.crpers import CrpersSource
 from public_data_agent.sources.crinst import CrinstSource
 from public_data_agent.sources.crproj import CrprojSource
 from public_data_agent.sources.crunit import CrunitSource
@@ -355,6 +356,7 @@ SOURCE_IDS = (
     "stpartier",
     "crbio",
     "nibioar5f",
+    "crpers",
 )
 
 
@@ -711,6 +713,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return CrbioSource()
     if source_id == "nibioar5f":
         return Nibioar5fSource()
+    if source_id == "crpers":
+        return CrpersSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -739,6 +743,7 @@ __all__ = [
     "BwgisSource",
     "CatalogSource",
     "CrbioSource",
+    "CrpersSource",
     "CrinstSource",
     "CrprojSource",
     "CrunitSource",
