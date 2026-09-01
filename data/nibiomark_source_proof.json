@@ -123,6 +123,6 @@
     "Live GET of the leftover Markslag WMS GetCapabilities URL is HTTP 200 WMS_Capabilities XML with no Authorization header. No token is sent. Accept is application/xml, text/xml, */* like nibiogard and kvkrets.",
     "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
     "Branched from origin/main after nibiogard #255 (38dfde3), then rebased onto origin/main after stskrift #253 (a6f4832). SOURCE_IDS keeps nibiogard, then stskrift, then nibiomark. README keeps leftover GIS sections including dsbgis, kvkrets, kvadm, ssbfritid, nibiogard, and stskrift.",
-    "python3 -m pytest after live proof and rebase onto stskrift #253: recorded in the following rebase/test rows."
+    "python3 -m pytest after live proof and rebase onto stskrift #253: 1721 passed, 1 skipped, 1 deselected."
   ]
 }
