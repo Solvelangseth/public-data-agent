@@ -128,7 +128,8 @@
     "License is null: the document prints no license URL. Publisher is null.",
     "Live GET of the leftover Grunnkretser WFS GetCapabilities URL is HTTP 200 WFS_Capabilities XML with no Authorization header. No token is sent. Accept is application/xml, text/xml, */* like kvfkb and kvgrunn.",
     "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
-    "Branched from origin/main after stmoter #242 (51c23bc). Rebased onto origin/main after ssbfritid #247 (8d0688b). SOURCE_IDS keeps stmoter, ssbfritid, then kvkrets. README keeps leftover GIS sections including ssbfritid, kvfkb, kvgrunn, ssbgis, barmark, nibioar5f, nibioar50, fbgis, nordatlas, bwgis, mdirgis, and nguminer.",
-    "python3 -m pytest after rebase onto ssbfritid #247: 1694 passed, 1 skipped, 1 deselected."
+    "Branched from origin/main after stmoter #242 (51c23bc). Rebased onto origin/main after ssbfritid #247 (8d0688b) and kvadm #241 (b583453). SOURCE_IDS keeps stmoter, ssbfritid, kvadm, then kvkrets. README keeps leftover GIS sections including kvadm, ssbfritid, kvfkb, kvgrunn, ssbgis, barmark, nibioar5f, nibioar50, fbgis, nordatlas, bwgis, mdirgis, and nguminer.",
+    "python3 -m pytest after rebase onto ssbfritid #247: 1694 passed, 1 skipped, 1 deselected.",
+    "python3 -m pytest after rebase onto kvadm #241: 1704 passed, 1 skipped, 1 deselected."
   ]
 }
