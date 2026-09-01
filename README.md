@@ -6671,6 +6671,8 @@ HTTP 200, 1 row, `name` = `Daratumumab for behandling av immunologisk
 trombocytopeni (ITP) -DART-studien`. `pda methods` is not applicable.
 Biobank names are not a numeric time series.
 Proof is `data/crbio_source_proof.json`.
+After rebase onto origin/main (`ssbgis` #215, `crproj` #235),
+`SOURCE_IDS` keeps those sources and `crbio` follows `ssbgis`.
 
 ## Brønnøysundregistrene Enhetsregisteret organisasjonsformer enheter source
 
