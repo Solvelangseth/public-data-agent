@@ -6474,7 +6474,13 @@ dimensions. Nested `url` is not stored as a cell. License stays null.
 Publisher stays null.
 
 The catalog prints a default page of units. This walk copies the first
-ten in document order. No page or per_page query is invented.
+ten in document order. No page or per_page query is invented. Live
+ingest listed 10 and inserted 10. Live search `Haugaland` returns
+`crunit:1000.0.0.0`. Live fetch GETs
+`https://api.cristin.no/v2/units/1000.0.0.0`
+HTTP 200, 1 row, `unit_name` = `AOF Haugaland`. `pda methods` is not
+applicable. Unit names are not a numeric time series.
+Proof is `data/crunit_source_proof.json`.
 
 ## Brønnøysundregistrene Enhetsregisteret organisasjonsformer enheter source
 

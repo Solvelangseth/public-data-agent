@@ -1,0 +1,186 @@
+{
+  "produced_at": "2026-09-01T18:30:00Z",
+  "bound": {
+    "list_api": "https://api.cristin.no/v2/units",
+    "walk": "copy printed cristin_unit_id values from the official Cristin units catalog; native ids are the printed cristin_unit_id values; access_path copies the printed url on /v2/units/{cristin_unit_id}; license stays null; publisher stays null; the catalog prints neither; live GET of those printed item paths is HTTP 200 with no token; no token is sent; do not invent page or per_page query filters",
+    "cap": 10,
+    "how": "pda ingest --source crunit --limit 10. The official catalogue prints a default page of units. Ingest copies the first ten in document order."
+  },
+  "discarded": [
+    {
+      "candidate": "Cristin institutions / crinst",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/228",
+      "why": "Already on main via PR #228 SHA 36ce44ecf1018a728df0485928421ee7313661c4. Do not pick crinst."
+    },
+    {
+      "candidate": "SSB PxWeb v0 subjects / ssbsubj",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/227",
+      "why": "In flight. Do not pick ssbsubj."
+    },
+    {
+      "candidate": "Stortinget sesjoner saker / stsaker",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/231",
+      "why": "In flight. Do not pick stsaker."
+    },
+    {
+      "candidate": "Stortinget dagsorden",
+      "url": "https://data.stortinget.no/eksport/dagsorden?format=json",
+      "why": "HTTP 400. Do not invent required query parameters."
+    },
+    {
+      "candidate": "Enhetsregisteret naeringskoder",
+      "url": "https://data.brreg.no/enhetsregisteret/api/naeringskoder",
+      "why": "HTTP 404. Do not invent a workaround."
+    },
+    {
+      "candidate": "SSB Klass /api/klass/v1/codes",
+      "url": "https://data.ssb.no/api/klass/v1/codes",
+      "why": "HTTP 404. Do not invent a workaround."
+    },
+    {
+      "candidate": "Norges Bank SDMX categoryscheme",
+      "url": "https://data.norges-bank.no/api/categoryscheme?format=sdmx-json",
+      "why": "HTTP 404. Do not invent a workaround."
+    },
+    {
+      "candidate": "Norges Bank SDMX hierarchicalcodelist",
+      "url": "https://data.norges-bank.no/api/hierarchicalcodelist?format=sdmx-json",
+      "why": "HTTP 404. Do not invent a workaround."
+    },
+    {
+      "candidate": "Norges Bank SDMX contentconstraint",
+      "url": "https://data.norges-bank.no/api/contentconstraint?format=sdmx-json",
+      "why": "HTTP 404. Do not invent a workaround."
+    },
+    {
+      "candidate": "Norges Bank SDMX metadatastructure",
+      "url": "https://data.norges-bank.no/api/metadatastructure?format=sdmx-json",
+      "why": "Timeout. Do not invent a workaround."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    },
+    {
+      "candidate": "municipal CKAN / Opencom",
+      "url": "already on main via --source opencom and municipal CKAN adapters",
+      "why": "This lane stays off municipal CKAN/Opencom."
+    },
+    {
+      "candidate": "leftover GIS/WMS/OGC/ArcGIS",
+      "url": "already on main via leftover GIS adapters",
+      "why": "This lane stays off leftover GIS/WMS."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source crunit --db /tmp/pda-crunit-proof/registry.sqlite --limit 10",
+    "listed": 10,
+    "inserted": 10,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "crunit:0.0.0.0",
+        "title": "Unknown",
+        "access_path": "https://api.cristin.no/v2/units/0.0.0.0"
+      },
+      {
+        "id": "crunit:1000.0.0.0",
+        "title": "AOF Haugaland",
+        "access_path": "https://api.cristin.no/v2/units/1000.0.0.0"
+      },
+      {
+        "id": "crunit:1001.0.0.0",
+        "title": "AOF - Arbeidernes Opplysningsforbund",
+        "access_path": "https://api.cristin.no/v2/units/1001.0.0.0"
+      },
+      {
+        "id": "crunit:10100000.0.0.0",
+        "title": "Denmark",
+        "access_path": "https://api.cristin.no/v2/units/10100000.0.0.0"
+      },
+      {
+        "id": "crunit:10100001.0.0.0",
+        "title": "Aalborg Seminarium",
+        "access_path": "https://api.cristin.no/v2/units/10100001.0.0.0"
+      },
+      {
+        "id": "crunit:10100002.0.0.0",
+        "title": "Aalborg University",
+        "access_path": "https://api.cristin.no/v2/units/10100002.0.0.0"
+      },
+      {
+        "id": "crunit:10100003.0.0.0",
+        "title": "Aarhus University",
+        "access_path": "https://api.cristin.no/v2/units/10100003.0.0.0"
+      },
+      {
+        "id": "crunit:10100004.0.0.0",
+        "title": "Alborg Socialpædagogiske Seminarium",
+        "access_path": "https://api.cristin.no/v2/units/10100004.0.0.0"
+      },
+      {
+        "id": "crunit:10100005.0.0.0",
+        "title": "Aarhus School of Architecture",
+        "access_path": "https://api.cristin.no/v2/units/10100005.0.0.0"
+      },
+      {
+        "id": "crunit:10100008.0.0.0",
+        "title": "Royal School of Library and Information Science",
+        "access_path": "https://api.cristin.no/v2/units/10100008.0.0.0"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search Haugaland --db /tmp/pda-crunit-proof/registry.sqlite --limit 10",
+    "query": "Haugaland",
+    "returned": 1,
+    "hit_id": "crunit:1000.0.0.0",
+    "title": "AOF Haugaland",
+    "source_id": "crunit",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://api.cristin.no/v2/units/1000.0.0.0",
+    "original_source": "https://api.cristin.no/v2/units",
+    "why_picked": "title matched haugaland"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset crunit:1000.0.0.0 --db /tmp/pda-crunit-proof/registry.sqlite",
+    "dataset": "crunit:1000.0.0.0",
+    "table_id": "1000.0.0.0",
+    "fetch_id": 1,
+    "access_path": "https://api.cristin.no/v2/units/1000.0.0.0",
+    "request_url": "https://api.cristin.no/v2/units/1000.0.0.0",
+    "http_status": 200,
+    "listed": 1,
+    "inserted": 1,
+    "updated": 0,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "unit_name",
+        "value": "AOF Haugaland"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset crunit:1000.0.0.0 --db /tmp/pda-crunit-proof/registry.sqlite --out /tmp/pda-crunit-proof/methods",
+    "applicable": false,
+    "why": "Cristin /v2/units/{id} prints unit_name and cristin_unit_id strings, not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed catalog cristin_unit_id values. access_path copies the printed url. No crunit id was written onto a cristin docs-path row or a crinst institution row.",
+    "License is null: the units catalog prints no license field. Publisher is null: the catalog prints no publisher field.",
+    "Live GET of /v2/units/1000.0.0.0 is HTTP 200 with no Authorization header. No token is sent.",
+    "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "is_crunit_url matches only /v2/units/{id} item paths. The bare collection URL and other Cristin v2 paths stay with --source cristin. Institution item paths stay with --source crinst.",
+    "python3 -m pytest: 1575 passed, 1 skipped, 1 deselected.",
+    "Not a numeric time series with two or more periods. Fetch listed 1 printed unit_name cell (AOF Haugaland).",
+    "Did not pick crinst (already on main #228). Did not pick ssbsubj #227 or stsaker #231. Did not pick leftover GIS, municipal portals, or offentligdata.no."
+  ]
+}
