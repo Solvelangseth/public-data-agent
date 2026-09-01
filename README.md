@@ -5614,8 +5614,17 @@ null. Publisher stays null. `pda methods` is not applicable: layer and
 feature-type names, not a numeric time series
 (`no observations matched entity/measure; available=[]`).
 
-Live ingest and fetch numbers are recorded in
-`data/kvadm_source_proof.json`.
+Live ingest 2026-09-01: 2 leftover GetCapabilities documents (Kartkatalog
+prints leftover Type=service OGC:WMS and OGC:WFS for Administrative
+enheter; cap 10 copies those two leftover live documents after skipping
+downloads, kommuneinfo REST, historical/Arctic/INSPIRE leftovers, and
+grunnkretser). Live search `administrative enheter` returns
+`kvadm:wms.adm_enheter2`. Live fetch GETs
+`https://wms.geonorge.no/skwms1/wms.adm_enheter2?service=wms&request=GetCapabilities`
+HTTP 200, 5 printed layer-name cells. Sample printed value: `kommuner`.
+`pda methods` is not applicable: layer names, not a numeric time series
+(`no observations matched entity/measure; available=[]`).
+Proof is `data/kvadm_source_proof.json`.
 
 ## Miljødirektoratet leftover ArcGIS WMS source
 
