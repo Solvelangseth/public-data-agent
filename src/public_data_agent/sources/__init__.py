@@ -52,6 +52,7 @@ from public_data_agent.sources.hoydegis import HoydegisSource
 from public_data_agent.sources.icemap import IcemapSource
 from public_data_agent.sources.isobaricgrib import IsobaricgribSource
 from public_data_agent.sources.kifylker import KifylkerSource
+from public_data_agent.sources.kikommuner import KikommunerSource
 from public_data_agent.sources.kommuneinfo import KommuneinfoSource
 from public_data_agent.sources.kvgrunn import KvgrunnSource
 from public_data_agent.sources.kvtopo import KvtopoSource
@@ -323,6 +324,7 @@ SOURCE_IDS = (
     "ssbvar",
     "nordatlas",
     "brunder",
+    "kikommuner",
 )
 
 
@@ -647,6 +649,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return NordatlasSource()
     if source_id == "brunder":
         return BrunderSource()
+    if source_id == "kikommuner":
+        return KikommunerSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -701,6 +705,7 @@ __all__ = [
     "IcemapSource",
     "IsobaricgribSource",
     "KifylkerSource",
+    "KikommunerSource",
     "KommuneinfoSource",
     "KvgrunnSource",
     "KvtopoSource",

@@ -1,0 +1,188 @@
+{
+  "produced_at": "2026-09-01T17:42:28Z",
+  "bound": {
+    "list_api": "https://api.kartverket.no/kommuneinfo/v1/kommuner",
+    "walk": "copy printed kommunenummer values from the official Kartverket Kommuneinfo kommuner catalog; native ids are the printed kommunenummer values so 3419 stays distinct from 3326; access_path joins each printed kommunenummer onto the printed /kommuneinfo/v1/kommuner path; the official Kommuneinfo OpenAPI names GET /kommuner/{kommunenummer}; license stays null; publisher stays null; the catalog prints neither; live GET of those printed kommune paths is HTTP 200 with no token; no token is sent; do not invent query filters",
+    "cap": 10,
+    "how": "pda ingest --source kikommuner --limit 10. The official catalogue prints 357 kommuner. Ingest copies the first ten in document order."
+  },
+  "discarded": [
+    {
+      "candidate": "Enhetsregisteret underenheter / brunder",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/221",
+      "why": "In flight. Do not pick brunder."
+    },
+    {
+      "candidate": "SSB Klass classification variants / ssbvar",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/219",
+      "why": "In flight. Do not pick ssbvar."
+    },
+    {
+      "candidate": "Enhetsregisteret enheter / brenheter",
+      "url": "already on main via --source brenheter",
+      "why": "Just merged as #217 at f749ca6. Kept. Do not re-add."
+    },
+    {
+      "candidate": "Enhetsregisteret organisasjonsformer/enheter",
+      "url": "https://data.brreg.no/enhetsregisteret/api/organisasjonsformer/enheter",
+      "why": "HTTP 200 printed catalog, but item self hrefs are /enhetsregisteret/api/organisasjonsformer/{kode} and collide with brorgform access paths. Not a leftover item catalog."
+    },
+    {
+      "candidate": "Frivillighetsregisteret ICNPO kategorier items",
+      "url": "https://data.brreg.no/frivillighetsregisteret/api/icnpo-kategorier",
+      "why": "HTTP 200 printed icnpoNummer values, but items print no self href and OpenAPI names no item GET. Do not invent item URLs. Collection path already ingested by --source frivillig."
+    },
+    {
+      "candidate": "Norges Bank SDMX organisationscheme",
+      "url": "https://data.norges-bank.no/api/organisationscheme?format=sdmx-json",
+      "why": "HTTP 200 but the body reprints agencySchemes and dataProviderSchemes already ingested by nbagency and nbdps. Not a leftover catalog."
+    },
+    {
+      "candidate": "Norges Bank SDMX categoryscheme",
+      "url": "https://data.norges-bank.no/api/categoryscheme?format=sdmx-json",
+      "why": "HTTP 404. Do not invent a workaround."
+    },
+    {
+      "candidate": "Norges Bank SDMX hierarchicalcodelist",
+      "url": "https://data.norges-bank.no/api/hierarchicalcodelist?format=sdmx-json",
+      "why": "HTTP 404. Do not invent a workaround."
+    },
+    {
+      "candidate": "Enhetsregisteret matrikkelenhet",
+      "url": "https://data.brreg.no/enhetsregisteret/api/matrikkelenhet",
+      "why": "HTTP 400. Do not invent required filters."
+    },
+    {
+      "candidate": "MET leftover swaggers (weathericon, forestfireindex, lightning, pollenforecast, thredds)",
+      "url": "https://api.met.no/weatherapi/available.json",
+      "why": "Those leftover products are not a printed list API with leftover item ids after the already-ingested weatherapi swaggers. Do not invent a workaround."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    },
+    {
+      "candidate": "municipal CKAN / Opencom",
+      "url": "already on main via --source opencom and municipal CKAN adapters",
+      "why": "This lane stays off municipal CKAN/Opencom."
+    },
+    {
+      "candidate": "leftover GIS/WMS/OGC/ArcGIS",
+      "url": "open PRs nordatlas 220, fbgis 218, ssbgis 215",
+      "why": "This lane stays off leftover GIS/WMS."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source kikommuner --db /tmp/pda-kikommuner-proof/registry.sqlite --limit 10",
+    "listed": 10,
+    "inserted": 10,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "kikommuner:3419",
+        "title": "Våler",
+        "access_path": "https://api.kartverket.no/kommuneinfo/v1/kommuner/3419"
+      },
+      {
+        "id": "kikommuner:3326",
+        "title": "Hemsedal",
+        "access_path": "https://api.kartverket.no/kommuneinfo/v1/kommuner/3326"
+      },
+      {
+        "id": "kikommuner:4622",
+        "title": "Kvam",
+        "access_path": "https://api.kartverket.no/kommuneinfo/v1/kommuner/4622"
+      },
+      {
+        "id": "kikommuner:5054",
+        "title": "Indre Fosen",
+        "access_path": "https://api.kartverket.no/kommuneinfo/v1/kommuner/5054"
+      },
+      {
+        "id": "kikommuner:4617",
+        "title": "Kvinnherad",
+        "access_path": "https://api.kartverket.no/kommuneinfo/v1/kommuner/4617"
+      },
+      {
+        "id": "kikommuner:4621",
+        "title": "Voss",
+        "access_path": "https://api.kartverket.no/kommuneinfo/v1/kommuner/4621"
+      },
+      {
+        "id": "kikommuner:4036",
+        "title": "Vinje",
+        "access_path": "https://api.kartverket.no/kommuneinfo/v1/kommuner/4036"
+      },
+      {
+        "id": "kikommuner:3420",
+        "title": "Elverum",
+        "access_path": "https://api.kartverket.no/kommuneinfo/v1/kommuner/3420"
+      },
+      {
+        "id": "kikommuner:4643",
+        "title": "Årdal",
+        "access_path": "https://api.kartverket.no/kommuneinfo/v1/kommuner/4643"
+      },
+      {
+        "id": "kikommuner:4642",
+        "title": "Lærdal",
+        "access_path": "https://api.kartverket.no/kommuneinfo/v1/kommuner/4642"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search Hemsedal --db /tmp/pda-kikommuner-proof/registry.sqlite --limit 10",
+    "query": "Hemsedal",
+    "returned": 1,
+    "hit_id": "kikommuner:3326",
+    "title": "Hemsedal",
+    "source_id": "kikommuner",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://api.kartverket.no/kommuneinfo/v1/kommuner/3326",
+    "original_source": "https://api.kartverket.no/kommuneinfo/v1/kommuner",
+    "why_picked": "title matched hemsedal"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset kikommuner:3326 --db /tmp/pda-kikommuner-proof/registry.sqlite",
+    "dataset": "kikommuner:3326",
+    "table_id": "3326",
+    "fetch_id": 1,
+    "access_path": "https://api.kartverket.no/kommuneinfo/v1/kommuner/3326",
+    "request_url": "https://api.kartverket.no/kommuneinfo/v1/kommuner/3326",
+    "http_status": 200,
+    "listed": 1,
+    "inserted": 1,
+    "updated": 0,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "kommunenavnNorsk",
+        "value": "Hemsedal"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset kikommuner:3326 --db /tmp/pda-kikommuner-proof/registry.sqlite --out /tmp/pda-kikommuner-proof/methods",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "Kartverket /kommuneinfo/v1/kommuner/3326 prints kommunenavnNorsk and kommunenummer strings, not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed catalog kommunenummer values. access_path joins that printed id onto /kommuneinfo/v1/kommuner. No kikommuner id was written onto a kommuneinfo, kifylker, brkommuner, or datanorge row.",
+    "License is null: the kommuner catalog prints no license field. Publisher is null: the catalog prints no publisher field.",
+    "Live GET of /kommuneinfo/v1/kommuner/3326 is HTTP 200 with no Authorization header. No token is sent.",
+    "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "is_kikommuner_url matches only /kommuneinfo/v1/kommuner/{kommunenummer} item paths. The bare collection URL and /illustrasjonskart are not kikommuner items.",
+    "python3 -m pytest: 1498 passed, 1 skipped, 1 deselected.",
+    "Not a numeric time series with two or more periods. Fetch listed 1 printed kommunenavnNorsk cell (Hemsedal).",
+    "Did not pick brunder #221, ssbvar #219, brenheter now on main, leftover GIS, or offentligdata.no."
+  ]
+}
