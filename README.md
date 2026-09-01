@@ -6695,6 +6695,49 @@ Live ingest 2026-09-01: listed 10, inserted 10 (official catalog prints
 HTTP 200. `pda methods` is not applicable: meeting referat ids, not a
 numeric time series. Proof is `data/stmoter_source_proof.json`.
 
+## Stortinget leftover sesjoner interpellasjoner source
+
+`pda ingest --source stinterp` is another replaceable adapter. It lists
+printed `sesjoner_liste[].id` values from the official Stortinget
+catalog `https://data.stortinget.no/eksport/sesjoner?format=json`,
+capped at 10. Dataset ids are the printed session `id` values so
+`2028-2029` stays distinct from `2027-2028`. `access_path` joins each
+printed id onto the leftover `/eksport/interpellasjoner` collection
+the official technical documentation prints, keeping the documented
+`sesjonid` and `format=json` query. License stays null. Publisher stays
+null. This is not the leftover untemplated Stortinget documentation
+paths (`--source stortinget`), not leftover stortingsperioder
+representanter (`--source stperioder`), not leftover sesjoner saker
+(`--source stsaker`), not leftover sesjoner komiteer
+(`--source stkomiteer`), not leftover sesjoner partier
+(`--source stpartier`), and not leftover sesjoner sporretimesporsmal
+(`--source stsporre`).
+
+```bash
+pda ingest --source stinterp --db data/registry.sqlite --limit 10
+pda search 2028-2029 --db data/registry.sqlite
+pda fetch --dataset stinterp:2025-2026 --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored interpellasjoner URL. Observation values
+are copied from printed `sporsmal_liste[].tittel` scalars. Other printed
+scalars stay as dimensions. Nested objects are not copied. License stays
+null. Publisher stays null.
+
+The official catalog prints 43 sessions. This walk copies the first ten
+in document order. Live ingest listed 10 and inserted 10. Live search
+`2028-2029` returns `stinterp:2028-2029`. Live fetch GETs
+`https://data.stortinget.no/eksport/interpellasjoner?sesjonid=2025-2026&format=json`
+HTTP 200, 30 `tittel` cells. `pda methods` is not applicable: question
+titles, not a numeric time series
+(`no observations matched entity/measure; available=[]`).
+Proof is `data/stinterp_source_proof.json`. After rebase onto
+origin/main (`ssbfritid` #247, `stmoter` #242, `crresult` #245,
+`stsporre` #243, and `crperson` #240), every existing source stayed
+registered and `stinterp` follows `ssbfritid`. Leftover GIS README
+sections including ssbfritid, kvfkb, nibioar5f, ssbgis, and barmark
+are kept.
+
 ## Stortinget leftover stortingsperioder source
 
 `pda ingest --source stperioder` is another replaceable adapter. It lists
