@@ -7177,6 +7177,7 @@ origin/main after stmoter #242, ssbfritid #247, kvadm #241, kvkrets
 #251, dsbgis #246, nibiogard #255, and stskrift #253 (`a6f4832`).
 Every existing source stayed registered and `stinterp` follows
 `stskrift`.
+`python3 -m pytest`: 1729 passed, 1 skipped, 1 deselected.
 
 ## Brønnøysundregistrene Enhetsregisteret organisasjonsformer enheter source
 
