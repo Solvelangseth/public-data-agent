@@ -112,6 +112,7 @@ def test_item_url_joins_printed_sesjon_id() -> None:
 
 def test_stinterp_is_a_registered_source() -> None:
     assert "stinterp" in SOURCE_IDS
+    assert "ssbfritid" in SOURCE_IDS
     assert "stmoter" in SOURCE_IDS
     assert "crresult" in SOURCE_IDS
     assert "stsporre" in SOURCE_IDS
