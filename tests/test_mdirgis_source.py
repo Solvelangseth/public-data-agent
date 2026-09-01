@@ -327,7 +327,8 @@ def test_mdirgis_is_a_registered_source() -> None:
     assert SOURCE_IDS[SOURCE_IDS.index("ssbcorr") + 1] == "bwgis"
     assert SOURCE_IDS[SOURCE_IDS.index("bwgis") + 1] == "broppdater"
     assert SOURCE_IDS[SOURCE_IDS.index("broppdater") + 1] == "kifylker"
-    assert SOURCE_IDS[-1] == "kifylker"
+    assert SOURCE_IDS[SOURCE_IDS.index("kifylker") + 1] == "brrepresent"
+    assert SOURCE_IDS[-1] == "brrepresent"
     source = build_source("mdirgis")
     assert isinstance(source, MdirgisSource)
     assert source.source_id == "mdirgis"
