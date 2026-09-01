@@ -6116,6 +6116,40 @@ returns `brenheter:933365573`. Live fetch GETs
 applicable: entity names, not a numeric time series
 (`no observations matched entity/measure; available=[]`).
 Proof is `data/brenheter_source_proof.json`.
+## SSB Klass leftover classification variants source
+
+`pda ingest --source ssbvar` is another replaceable adapter. The official
+Klass OpenAPI `https://data.ssb.no/api/klass/v3/api-docs` names GET
+`/api/klass/v1/variants/{id}` and does not print a variants collection.
+Listing copies printed `classificationVariants[].id` and
+`_links.self.href` from official version payloads reached through
+`https://data.ssb.no/api/klass/v1/classifications`, capped at 10.
+Dataset ids are the printed variant `id` values. `access_path` is the
+printed variant self href. License stays null. Publisher stays null.
+This is not the SSB PxWeb v0 Statbank (`--source ssb`), not PxWebApi 2
+(`--source ssbv2`), not Klass classifications (`--source ssclass`), not
+Klass versions (`--source ssbver`), and not leftover correspondence
+tables (`--source ssbcorr`).
+
+```bash
+pda ingest --source ssbvar --db data/registry.sqlite --limit 10
+pda search 'begge kjønn' --db data/registry.sqlite
+pda fetch --dataset ssbvar:802 --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored variant URL. Observation values are copied
+from printed `classificationItems[].name` scalars. Other printed
+scalars stay as dimensions. Nested objects are not copied. License
+stays null. Publisher stays null.
+
+Live ingest 2026-09-01: listed 10, inserted 10 (official versions print
+classification variants; cap 10 copies the first ten unique printed
+ids). Live search `begge kjønn` returns `ssbvar:802`. Live fetch GETs
+`https://data.ssb.no/api/klass/v1/variants/802` HTTP 200, 3 name cells.
+Sample printed value: `Begge kjønn`. `pda methods` is not applicable:
+classification-item names, not a numeric time series
+(`no observations matched entity/measure; available=[]`).
+Proof is `data/ssbvar_source_proof.json`.
 
 ## Architecture (long term)
 
