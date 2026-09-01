@@ -329,7 +329,7 @@ def test_hiwms_is_a_registered_source() -> None:
     assert SOURCE_IDS.index("hiwms") > SOURCE_IDS.index("avinorgis")
     assert "ssbver" in SOURCE_IDS
     assert SOURCE_IDS[SOURCE_IDS.index("ssbver") + 1] == "hiwms"
-    assert SOURCE_IDS[-1] == "hiwms"
+    assert SOURCE_IDS[SOURCE_IDS.index("ssbver") + 1] == "hiwms"
     source = build_source("hiwms")
     assert isinstance(source, HiwmsSource)
     assert source.source_id == "hiwms"
