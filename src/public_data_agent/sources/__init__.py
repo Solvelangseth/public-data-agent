@@ -164,6 +164,7 @@ from public_data_agent.sources.statnett import StatnettDriftsdataSource
 from public_data_agent.sources.stedsnavn import StedsnavnSource
 from public_data_agent.sources.stormflo import StormfloSource
 from public_data_agent.sources.stortinget import StortingetSource
+from public_data_agent.sources.stinterp import StinterpSource
 from public_data_agent.sources.stkomiteer import StkomiteerSource
 from public_data_agent.sources.stpartier import StpartierSource
 from public_data_agent.sources.stmoter import StmoterSource
@@ -377,6 +378,7 @@ SOURCE_IDS = (
     "dsbgis",
     "nibiogard",
     "stskrift",
+    "stinterp",
 )
 
 
@@ -755,6 +757,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return NibiogardSource()
     if source_id == "stskrift":
         return StskriftSource()
+    if source_id == "stinterp":
+        return StinterpSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -923,6 +927,7 @@ __all__ = [
     "StedsnavnSource",
     "StormfloSource",
     "StortingetSource",
+    "StinterpSource",
     "StkomiteerSource",
     "StpartierSource",
     "StmoterSource",

@@ -7134,6 +7134,41 @@ existing source stayed registered and `crresult` follows `stsporre`.
 PR #244 (`crpers`) was closed unmerged.
 After rebase, `python3 -m pytest`: 1676 passed, 1 skipped, 1 deselected.
 
+## Stortinget leftover sesjoner interpellasjoner source
+
+`pda ingest --source stinterp` is another replaceable adapter. It lists
+printed `sesjoner_liste[].id` values from the official Stortinget
+catalog `https://data.stortinget.no/eksport/sesjoner?format=json`,
+capped at 10. Dataset ids are the printed session `id` values so
+`2025-2026` stays distinct from `2024-2025`. `access_path` joins each
+printed id onto the leftover `/eksport/interpellasjoner` collection the
+official technical documentation prints, keeping the documented
+`sesjonid` and `format=json` query. License stays null. Publisher stays
+null. This is not the leftover untemplated Stortinget documentation
+paths (`--source stortinget`), not leftover stortingsperioder
+representanter (`--source stperioder`), not leftover sesjoner saker
+(`--source stsaker`), not leftover sesjoner komiteer
+(`--source stkomiteer`), not leftover sesjoner partier
+(`--source stpartier`), and not leftover sesjoner sporretimesporsmal
+(`--source stsporre`).
+
+```bash
+pda ingest --source stinterp --db data/registry.sqlite --limit 10
+pda search 2025-2026 --db data/registry.sqlite
+pda fetch --dataset stinterp:2025-2026 --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored interpellasjoner URL. Observation values
+are copied from printed `sporsmal_liste[].tittel` scalars. Other
+printed scalars stay as dimensions. Nested objects are not copied.
+License stays null. Publisher stays null.
+
+The official catalog prints 43 sessions. This walk copies the first ten
+in document order. Live proof is recorded in
+`data/stinterp_source_proof.json`.
+Started from origin/main after crresult #245 (`43dbdb8`). Every
+existing source stayed registered and `stinterp` follows `crresult`.
+
 ## Brønnøysundregistrene Enhetsregisteret organisasjonsformer enheter source
 
 `pda ingest --source brorgformen` is another replaceable adapter. It lists
