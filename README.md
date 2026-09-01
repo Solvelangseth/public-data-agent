@@ -6481,6 +6481,9 @@ ingest listed 10 and inserted 10. Live search `Haugaland` returns
 HTTP 200, 1 row, `unit_name` = `AOF Haugaland`. `pda methods` is not
 applicable. Unit names are not a numeric time series.
 Proof is `data/crunit_source_proof.json`.
+After rebase onto origin/main (`stkomiteer` #233, `ssbsubj` #227,
+`stsaker` #231, `crinst` #228), `SOURCE_IDS` keeps those sources and
+`crunit` follows `stkomiteer`.
 
 ## Brønnøysundregistrene Enhetsregisteret organisasjonsformer enheter source
 
