@@ -5600,6 +5600,39 @@ HTTP 200, 2 name cells. Sample printed value: `Norges Bank`.
 series (`no observations matched entity/measure; available=[]`).
 Proof is `data/nbagency_source_proof.json`.
 
+## Norges Bank SDMX Data Provider Schemes source
+
+`pda ingest --source nbdps` is another replaceable adapter. It lists
+printed data-provider-scheme ids on the official Norges Bank SDMX
+catalog `https://data.norges-bank.no/api/dataproviderscheme?format=sdmx-json`,
+capped at 10. Dataset ids are the printed `id` values. `access_path`
+joins each printed `agencyID` and `id` onto the printed
+`/api/dataproviderscheme` path and keeps the catalog `format=sdmx-json`
+query. License stays null. Publisher stays null. This is not the Norges
+Bank dataflow list (`--source norgesbank`), not leftover SDMX
+agency schemes (`--source nbagency`), not leftover categoryscheme,
+and not leftover provision agreements (`--source nbprov`).
+
+```bash
+pda ingest --source nbdps --db data/registry.sqlite --limit 10
+pda search DATA_PROVIDERS --db data/registry.sqlite
+pda fetch --dataset nbdps:DATA_PROVIDERS --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored data-provider-scheme URL. Observation values
+are copied from printed data-provider `name` scalars. Other scalars stay
+as dimensions. Nested `names`, `links`, and `descriptions` objects are
+not copied. License stays null. Publisher stays null.
+
+Live ingest 2026-09-01: 1 printed data-provider scheme (catalog prints 1;
+cap 10). Live search `DATA_PROVIDERS` returns `nbdps:DATA_PROVIDERS`.
+Live fetch GETs
+`https://data.norges-bank.no/api/dataproviderscheme/NB/DATA_PROVIDERS?format=sdmx-json`
+HTTP 200, 3 name cells. Sample printed value: `Thomson Reuters`.
+`pda methods` is not applicable: data-provider names, not a numeric time
+series (`no observations matched entity/measure; available=[]`).
+Proof is `data/nbdps_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
