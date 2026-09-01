@@ -6234,6 +6234,40 @@ HTTP 200, 1 row, `navn` = `- ZOTKO .NO`. `pda methods` is not
 applicable. Unit names are not a numeric time series.
 Proof is `data/brunder_source_proof.json`.
 
+## Kartverket Kommuneinfo kommuner source
+
+`pda ingest --source kikommuner` is another replaceable adapter. It lists
+printed kommunenummer values on the official Kartverket Kommuneinfo
+kommuner catalog
+`https://api.kartverket.no/kommuneinfo/v1/kommuner`,
+capped at 10. Dataset ids are the printed `kommunenummer` values.
+`access_path` joins each printed `kommunenummer` onto the printed
+`/kommuneinfo/v1/kommuner` path. The official Kommuneinfo OpenAPI names
+GET `/kommuner/{kommunenummer}`. License stays null. Publisher stays
+null. This is not Kartverket Kommuneinfo OpenAPI collection paths
+(`--source kommuneinfo`), not leftover fylker (`--source kifylker`),
+and not Enhetsregisteret kommuner (`--source brkommuner`).
+
+```bash
+pda ingest --source kikommuner --db data/registry.sqlite --limit 10
+pda search Hemsedal --db data/registry.sqlite
+pda fetch --dataset kikommuner:3326 --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored kommune URL. Observation values are copied
+from the printed `kommunenavnNorsk` scalar. Other scalars stay as
+dimensions. Nested `avgrensningsboks`, `gyldigeNavn`, and
+`punktIOmrade` objects are not copied. License stays null. Publisher
+stays null.
+
+The catalog prints 357 kommuner. This walk copies the first ten in
+document order. Live ingest listed 10 and inserted 10. Live search
+`Hemsedal` returns `kikommuner:3326`. Live fetch GETs
+`https://api.kartverket.no/kommuneinfo/v1/kommuner/3326`
+HTTP 200, 1 row, `kommunenavnNorsk` = `Hemsedal`. `pda methods` is not
+applicable. Kommune names are not a numeric time series.
+Proof is `data/kikommuner_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
