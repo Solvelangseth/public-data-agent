@@ -6525,6 +6525,33 @@ HTTP 200, 665 korttittel cells. Sample printed value starts with
 Proof is `data/stsaker_source_proof.json`.
 Rebased onto origin/main after crinst #228.
 
+## Stortinget leftover sesjoner komiteer source
+
+`pda ingest --source stkomiteer` is another replaceable adapter. It lists
+printed `sesjoner_liste[].id` values from the official Stortinget catalog
+`https://data.stortinget.no/eksport/sesjoner?format=json`, capped at 10.
+Dataset ids are the printed session `id` values so `2025-2026` stays
+distinct from `2024-2025`. `access_path` joins each printed id onto the
+leftover `/eksport/komiteer` collection the official technical
+documentation prints, keeping the documented `sesjonid` and `format=json`
+query. License stays null. Publisher stays null. This is not the leftover
+untemplated Stortinget documentation paths (`--source stortinget`), not
+leftover stortingsperioder representanter (`--source stperioder`), and not
+leftover sesjoner saker (`--source stsaker`).
+
+```bash
+pda ingest --source stkomiteer --db data/registry.sqlite --limit 10
+pda search 2025-2026 --db data/registry.sqlite
+pda fetch --dataset stkomiteer:2025-2026 --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored komiteer URL. Observation values are copied
+from printed `komiteer_liste[].navn` scalars. Other printed scalars stay
+as dimensions. Nested objects are not copied. License stays null.
+Publisher stays null.
+
+Proof is `data/stkomiteer_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
