@@ -144,6 +144,8 @@ def test_nbdps_is_a_registered_source() -> None:
     assert SOURCE_IDS[SOURCE_IDS.index("kifylker") + 1] == "brrepresent"
     assert SOURCE_IDS[SOURCE_IDS.index("brrepresent") + 1] == "brenheter"
     assert SOURCE_IDS[SOURCE_IDS.index("brenheter") + 1] == "ssbvar"
+    assert SOURCE_IDS[SOURCE_IDS.index("ssbvar") + 1] == "nordatlas"
+    assert SOURCE_IDS[-1] == "nordatlas"
     source = build_source("nbdps")
     assert isinstance(source, NbdpsSource)
     assert source.source_id == "nbdps"
