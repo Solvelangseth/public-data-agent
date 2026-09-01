@@ -1,0 +1,145 @@
+{
+  "produced_at": "2026-09-01T16:50:00Z",
+  "bound": {
+    "list_api": "https://kartkatalog.geonorge.no/api/search?text=Barentswatch",
+    "walk": "copy printed leftover OGC:WMS and OGC:WFS Type=service rows the official Geonorge Kartkatalog search text=Barentswatch prints; skip other organizations, downloads, servicelayers, and W3C:REST; skip leftover Kystverket WMS/WFS hosts, leftover Navigasjonsinstallasjoner hosts, Kartverket Havnedata, Fiskeridirektoratet GIS, leftover Fiskeridirektoratet WMS, and leftover Havforskningsinstituttet WMS/WFS hosts; skip GetCapabilities bodies that are not WMS or WFS XML; native ids are the printed service path segment so the leftover /geoserver/bw/ows GetCapabilities URL keeps id bw_ows; access_path is the printed DistributionUrl; license stays null because the catalog prints no license URL; publisher stays null; do not invent query filters or layer names",
+    "cap": 10,
+    "how": "pda ingest --source bwgis --limit 10. The official search prints 164 catalog rows. 1 is OGC:WMS Type=service from Barentswatch. Cap 10 copies that leftover live document after skipping W3C:REST, other organizations, downloads, servicelayers, and hosts already covered by kystwms, kystwfs, kystnav, havnedata, fiskerigis, fdirwms, and hiwms."
+  },
+  "discarded": [
+    {
+      "candidate": "BarentsWatch Fiskehelse API",
+      "url": "https://www.barentswatch.no/bwapi/",
+      "why": "Printed Type=service W3C:REST from Barentswatch. Not leftover OGC:WMS or OGC:WFS."
+    },
+    {
+      "candidate": "ILA overvåkningssoner servicelayer",
+      "url": "https://geo.barentswatch.no/geoserver/bw/ows?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetCapabilities",
+      "why": "Printed Type=servicelayer. Ingest copies Type=service only."
+    },
+    {
+      "candidate": "Kystverket leftover WMS / kystwms",
+      "url": "https://services.kystverket.no/wms.ashx?service=WMS&request=GetCapabilities",
+      "why": "Already --source kystwms. Host skipped."
+    },
+    {
+      "candidate": "Kystverket leftover WFS / kystwfs",
+      "url": "https://services.kystverket.no/wfs.ashx?service=WFS&request=GetCapabilities",
+      "why": "Already --source kystwfs. Host skipped."
+    },
+    {
+      "candidate": "Kystverket leftover Navigasjonsinstallasjoner / kystnav",
+      "url": "https://maps.kystverket.cloudgis.no/enterprise/services/PROD/nfs_sistop_ekstern_prod/MapServer/WMSServer?request=GetCapabilities&service=WMS",
+      "why": "Already --source kystnav. Host skipped."
+    },
+    {
+      "candidate": "Kartverket Havnedata / havnedata",
+      "url": "https://ogcapitest.kartverket.no/rest/services/havnedata3_0/api?f=json",
+      "why": "Already --source havnedata. Host skipped."
+    },
+    {
+      "candidate": "Fiskeridirektoratet GIS / fiskerigis",
+      "url": "https://gis.fiskeridir.no/arcgis/rest/services?f=json",
+      "why": "Already --source fiskerigis. Host skipped."
+    },
+    {
+      "candidate": "Fiskeridirektoratet leftover WMS / fdirwms",
+      "url": "https://gis.fiskeridir.no/server/services/fiskeridirWMS/MapServer/WMSServer?service=wms&request=getcapabilities",
+      "why": "Already --source fdirwms. Host skipped."
+    },
+    {
+      "candidate": "Havforskningsinstituttet leftover WMS/WFS / hiwms",
+      "url": "https://kart.hi.no/data/fraraadning/ows?service=WMS&version=1.3.0&request=GetCapabilities",
+      "why": "Already --source hiwms. Host skipped."
+    },
+    {
+      "candidate": "Kartverket leftover WMS / kvtopo",
+      "url": "in-flight sibling named by the lane prompt",
+      "why": "In-flight sibling. Do not pick."
+    },
+    {
+      "candidate": "Vegvesen leftover OGC / vegwms",
+      "url": "in-flight sibling named by the lane prompt",
+      "why": "In-flight sibling. Do not pick."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source bwgis --db /tmp/pda-bwgis-proof/registry.sqlite --limit 10",
+    "listed": 1,
+    "inserted": 1,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "bwgis:bw_ows",
+        "title": "BarentsWatch WMS",
+        "access_path": "https://geo.barentswatch.no/geoserver/bw/ows?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetCapabilities"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search BarentsWatch --db /tmp/pda-bwgis-proof/registry.sqlite --limit 5",
+    "query": "BarentsWatch",
+    "returned": 1,
+    "hit_id": "bwgis:bw_ows",
+    "title": "BarentsWatch WMS",
+    "source_id": "bwgis",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://geo.barentswatch.no/geoserver/bw/ows?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetCapabilities",
+    "original_source": "https://kartkatalog.geonorge.no/api/search",
+    "why_picked": "title matched barentswatch"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset bwgis:bw_ows --db /tmp/pda-bwgis-proof/registry.sqlite",
+    "dataset": "bwgis:bw_ows",
+    "table_id": "bw_ows",
+    "access_path": "https://geo.barentswatch.no/geoserver/bw/ows?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetCapabilities",
+    "request_url": "https://geo.barentswatch.no/geoserver/bw/ows?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetCapabilities",
+    "http_status": 200,
+    "listed": 29,
+    "inserted": 29,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "Name",
+        "value": "fisheryactivity_wms_longline"
+      },
+      {
+        "measure": "Name",
+        "value": "fisheryactivity_wms_nets"
+      },
+      {
+        "measure": "Name",
+        "value": "fisheryactivity_wms_crabpot"
+      },
+      {
+        "measure": "Name",
+        "value": "fisheryactivity_wms_danpurseine"
+      },
+      {
+        "measure": "Name",
+        "value": "fisheryactivity"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset bwgis:bw_ows --table bw_ows --entity \"\" --measure \"\" --db /tmp/pda-bwgis-proof/registry.sqlite --out /tmp/pda-bwgis-proof/methods",
+    "applicable": false,
+    "why": "BarentsWatch leftover WMS GetCapabilities prints Layer Name strings. That is not a numeric time series with a year-like period field and two or more periods. methods/ was not edited.",
+    "read_from_store": false,
+    "called_fetch": false
+  },
+  "notes": [
+    "Ids are copied from printed service path segments. access_path is the printed Geonorge DistributionUrl. No bwgis id was written onto a kystwms, kystwfs, kystnav, havnedata, fiskerigis, fdirwms, or hiwms row.",
+    "License stays null: the catalog prints no license URL. Publisher is null: this adapter does not copy Organization onto publisher.",
+    "Open PR check at pickup found nbagency #193 (JSON lane). kvtopo and vegwms were named in the lane prompt and were not open PRs.",
+    "Branched from origin/main at 9d37eb3 after hiwms #198."
+  ]
+}

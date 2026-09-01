@@ -5174,8 +5174,15 @@ copied from printed WMS `Layer`/`Name` text or WFS `FeatureType`/`Name`
 text. A sibling `Title` stays as a dimension. License stays null. Publisher
 stays null.
 
-Live ingest proof is recorded after the first live walk. Proof is
-`data/bwgis_source_proof.json`.
+Live ingest 2026-09-01: 1 leftover WMS service (search prints 164
+rows; 1 is OGC:WMS Type=service from Barentswatch; cap 10 copies that
+leftover live document after skipping W3C:REST, servicelayers, sibling
+GIS hosts, and bodies that are not WMS or WFS XML). Live search
+`BarentsWatch` returns `bwgis:bw_ows`. Live fetch GETs
+`https://geo.barentswatch.no/geoserver/bw/ows?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetCapabilities`
+HTTP 200, 29 Layer Name cells. Sample printed value:
+`fisheryactivity_wms_longline`. `pda methods` is not applicable: layer
+names, not a numeric time series. Proof is `data/bwgis_source_proof.json`.
 
 ## Norges Bank SDMX Codelists source
 
