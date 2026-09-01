@@ -133,7 +133,8 @@ def test_kifylker_is_a_registered_source() -> None:
     assert SOURCE_IDS[SOURCE_IDS.index("ssbgis") + 1] == "stpartier"
     assert SOURCE_IDS[SOURCE_IDS.index("stpartier") + 1] == "crbio"
     assert SOURCE_IDS[SOURCE_IDS.index("crbio") + 1] == "nibioar5f"
-    assert SOURCE_IDS[-1] == "nibioar5f"
+    assert SOURCE_IDS[SOURCE_IDS.index("nibioar5f") + 1] == "kvfkb"
+    assert SOURCE_IDS[-1] == "kvfkb"
     source = build_source("kifylker")
     assert isinstance(source, KifylkerSource)
     assert source.source_id == "kifylker"

@@ -62,6 +62,7 @@ from public_data_agent.sources.kifylker import KifylkerSource
 from public_data_agent.sources.kikommuner import KikommunerSource
 from public_data_agent.sources.kommuneinfo import KommuneinfoSource
 from public_data_agent.sources.kvgrunn import KvgrunnSource
+from public_data_agent.sources.kvfkb import KvfkbSource
 from public_data_agent.sources.kvtopo import KvtopoSource
 from public_data_agent.sources.kvwms import KvwmsSource
 from public_data_agent.sources.kystnav import KystnavSource
@@ -355,6 +356,7 @@ SOURCE_IDS = (
     "stpartier",
     "crbio",
     "nibioar5f",
+    "kvfkb",
 )
 
 
@@ -711,6 +713,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return CrbioSource()
     if source_id == "nibioar5f":
         return Nibioar5fSource()
+    if source_id == "kvfkb":
+        return KvfkbSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -775,6 +779,7 @@ __all__ = [
     "KikommunerSource",
     "KommuneinfoSource",
     "KvgrunnSource",
+    "KvfkbSource",
     "KvtopoSource",
     "KvwmsSource",
     "KystnavSource",

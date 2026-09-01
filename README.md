@@ -5315,6 +5315,43 @@ not a numeric time series
 (`no observations matched entity/measure; available=[]`).
 Proof is `data/ssbgis_source_proof.json`.
 
+## Kartverket leftover FKB WMS source
+
+`pda ingest --source kvfkb` is another replaceable adapter. It lists the
+official leftover Kartverket FKB WMS GetCapabilities document
+`https://wms.geonorge.no/skwms1/wms.fkb?service=wms&request=getcapabilities`
+that Geonorge Kartkatalog prints as Type=service OGC:WMS
+(`https://kartkatalog.geonorge.no/metadata/uuid/84178e68-f40d-4bb4-b9f6-9bfdee2bcc7a`),
+capped at 10. GetCapabilities bodies that are HTML or not WMS XML are
+skipped. Native ids are the printed last path segment so the leftover
+FKB WMS keeps native id `wms.fkb`. `access_path` is that GetCapabilities
+URL. License stays null: the document prints copyright text, not a
+license URL. Publisher stays null. This is not Kartverket leftover
+WMS/WMTS (`--source kvwms`), not leftover topo WMS (`--source kvtopo`),
+not leftover grunnkart WMS (`--source kvgrunn`), and not Geonorge
+Kartkatalog (`--source geonorge`).
+
+```bash
+pda ingest --source kvfkb --db data/registry.sqlite --limit 10
+pda search FKB --db data/registry.sqlite
+pda fetch --dataset kvfkb:wms.fkb --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored GetCapabilities URL as text, with
+`Accept: application/xml, text/xml, */*`. Observation values are
+copied from printed WMS `Layer`/`Name` text. A printed `Title`
+sibling stays as a dimension. License stays null. Publisher stays
+null. `pda methods` is not applicable: layer names, not a numeric
+time series.
+
+Live ingest 2026-09-01: 1 leftover GetCapabilities document. Live search
+`FKB` returns `kvfkb:wms.fkb`. Live search `fkb_arealdekke` also returns
+`kvfkb:wms.fkb`. Live fetch GETs
+`https://wms.geonorge.no/skwms1/wms.fkb?service=wms&request=getcapabilities`
+HTTP 200, 55 Layer Name cells. Sample printed value: `fkb_arealdekke`.
+`pda methods` is not applicable: layer names, not a numeric time series.
+Proof is `data/kvfkb_source_proof.json`.
+
 ## Norges Bank SDMX Codelists source
 
 `pda ingest --source nbcodelist` is another replaceable adapter. It lists
