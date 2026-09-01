@@ -6861,9 +6861,11 @@ HTTP 200, 1 row, `title` = `Eskatologien i Landstads salmer`.
 `pda methods` is not applicable. Result titles are not a numeric time
 series (`no observations matched entity/measure; available=[]`).
 Proof is `data/crresult_source_proof.json`.
-Started from origin/main including kvfkb #239 (`ad5c215`). Every
-existing source stayed registered and `crresult` follows `kvfkb`.
+Started from origin/main including kvfkb #239 (`ad5c215`). Rebased
+onto origin/main after stsporre #243 and crperson (`c9db4e5`). Every
+existing source stayed registered and `crresult` follows `stsporre`.
 PR #244 (`crpers`) was closed unmerged.
+After rebase, `python3 -m pytest`: 1676 passed, 1 skipped, 1 deselected.
 
 ## Brønnøysundregistrene Enhetsregisteret organisasjonsformer enheter source
 

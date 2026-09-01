@@ -189,8 +189,10 @@
     "Live GET of /v2/results/10001604 is HTTP 200 with no Authorization header. No token is sent.",
     "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
     "is_crresult_url matches only /v2/results/{id} item paths. The bare collection URL and other Cristin v2 paths stay with --source cristin.",
-    "python3 -m pytest: 1660 passed, 1 skipped, 1 deselected.",
+    "python3 -m pytest before rebase: 1660 passed, 1 skipped, 1 deselected.",
+    "python3 -m pytest after rebase onto stsporre #243 and crperson: 1676 passed, 1 skipped, 1 deselected.",
     "Not a numeric time series with two or more periods. Fetch listed 1 printed title cell (Eskatologien i Landstads salmer).",
-    "Closed PR #244 crpers unmerged. Did not pick crperson #240, stmoter #242, or stsporre #243. Cristin funding_sources, journals, and publishers were HTTP 404. Enhetsregisteret naeringskoder, fylker, and institusjonellSektorkode were HTTP 404. Stortinget voteringer and dagsorden were HTTP 400. Did not pick leftover GIS, municipal portals, or offentligdata.no."
+    "Closed PR #244 crpers unmerged. Did not pick crperson (now on main) or stmoter #242. Cristin funding_sources, journals, and publishers were HTTP 404. Enhetsregisteret naeringskoder, fylker, and institusjonellSektorkode were HTTP 404. Stortinget voteringer and dagsorden were HTTP 400. Did not pick leftover GIS, municipal portals, or offentligdata.no.",
+    "Rebased onto origin/main after stsporre #243 and crperson (c9db4e5). SOURCE_IDS keeps those sources and crresult follows stsporre."
   ]
 }
