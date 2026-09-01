@@ -204,6 +204,7 @@
     "Live GET https://data.norges-bank.no/api/dataproviderscheme?format=sdmx-json HTTP 200. Live GET https://data.norges-bank.no/api/dataproviderscheme/NB/DATA_PROVIDERS?format=sdmx-json HTTP 200.",
     "python3 -m pytest after adding nbdps on origin/main 9d37eb3: 1361 passed, 1 skipped, 1 deselected.",
     "python3 -m pytest after rebase onto origin/main (nbagency 193 at 5bde5e3): 1369 passed, 1 skipped, 1 deselected.",
+    "python3 -m pytest after rebase onto origin/main (kvtopo 200 at 9b0fc05): 1379 passed, 1 skipped, 1 deselected. Kept kvtopo.",
     "Not a numeric time series with two or more periods. Fetch listed 3 printed data-provider-name cells (sample Thomson Reuters)."
   ]
 }
