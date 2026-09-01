@@ -7164,10 +7164,17 @@ printed scalars stay as dimensions. Nested objects are not copied.
 License stays null. Publisher stays null.
 
 The official catalog prints 43 sessions. This walk copies the first ten
-in document order. Live proof is recorded in
-`data/stinterp_source_proof.json`.
+in document order. Live ingest listed 10 and inserted 10. Live search
+`2028-2029` returns `stinterp:2028-2029`. Live fetch GETs
+`https://data.stortinget.no/eksport/interpellasjoner?sesjonid=2025-2026&format=json`
+HTTP 200, 30 `tittel` cells. Sample printed value starts with
+`om hvordan statsråden kan forsvare å fjerne den reelle klageadgangen`.
+`pda methods` is not applicable: interpellation titles, not a numeric
+time series (`no observations matched entity/measure; available=[]`).
+Proof is `data/stinterp_source_proof.json`.
 Started from origin/main after crresult #245 (`43dbdb8`). Every
 existing source stayed registered and `stinterp` follows `crresult`.
+`python3 -m pytest`: 1684 passed, 1 skipped, 1 deselected.
 
 ## Brønnøysundregistrene Enhetsregisteret organisasjonsformer enheter source
 
