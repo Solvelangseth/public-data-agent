@@ -6107,6 +6107,16 @@ from the printed `navn` scalar. Other scalars stay as dimensions.
 Nested objects and `_links` are not copied. License stays null.
 Publisher stays null.
 
+Live ingest 2026-09-01: listed 10, inserted 10. The official first
+printed page lists enheter. This walk copies the first ten printed
+organisasjonsnummer values in document order. Live search `ZOTKO`
+returns `brenheter:933365573`. Live fetch GETs
+`https://data.brreg.no/enhetsregisteret/api/enheter/933365573` HTTP 200,
+1 navn cell. Sample printed value: `- ZOTKO .NO`. `pda methods` is not
+applicable: entity names, not a numeric time series
+(`no observations matched entity/measure; available=[]`).
+Proof is `data/brenheter_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
