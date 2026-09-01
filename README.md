@@ -6749,8 +6749,9 @@ applicable. Person names are not a numeric time series
 (`no observations matched entity/measure; available=[]`).
 Proof is `data/crpers_source_proof.json`.
 Started from origin/main including crbio #238
-(`a7f4743220b54534a216e021b95de7a8a0b5a1d3`). Every existing source
-stayed registered and `crpers` follows `crbio`.
+(`a7f4743220b54534a216e021b95de7a8a0b5a1d3`). Rebased onto origin/main
+after nibioar5f #232 (`c2704a4`). Every existing source stayed
+registered and `crpers` follows `nibioar5f`.
 
 ## Brønnøysundregistrene Enhetsregisteret organisasjonsformer enheter source
 
