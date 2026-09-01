@@ -1,0 +1,155 @@
+{
+  "produced_at": "2026-08-28T10:44:20Z",
+  "bound": {
+    "list_api": "https://data.norges-bank.no/api/agencyscheme?format=sdmx-json",
+    "walk": "copy printed data.agencySchemes[].id and agencyID; access_path joins those printed fields onto /api/agencyscheme/{agencyID}/{id}?format=sdmx-json and keeps the catalog format=sdmx-json query; do not invent agency-scheme ids; printed links[].uri is the SDMX-JSON schema, not the live item",
+    "cap": 10,
+    "how": "pda ingest --source nbagency --limit 10. The official Norges Bank SDMX agencyscheme catalog prints 1 agency-scheme id (AGENCIES). The adapter copies that printed id. GET uses the printed /api/agencyscheme/SDMX/AGENCIES collection with no invented query filters. This is not the dataflow list (--source norgesbank), not leftover codelists, not leftover data structures, and not leftover concept schemes."
+  },
+  "discarded": [
+    {
+      "candidate": "Norges Bank SDMX provision agreements / nbprov",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/186",
+      "why": "In-flight sibling JSON at pickup. Do not pick the other lane's source."
+    },
+    {
+      "candidate": "SSB Klass ssbsections / ssbsec",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/187",
+      "why": "In-flight sibling JSON. Do not pick the other lane's source."
+    },
+    {
+      "candidate": "SSB Klass classifications / ssclass",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/189",
+      "why": "In-flight sibling JSON. Do not pick the other lane's source."
+    },
+    {
+      "candidate": "NIBIO leftover WMS / nibiorest",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/188",
+      "why": "Leftover GIS. This lane stays on national JSON."
+    },
+    {
+      "candidate": "Norges Bank SDMX dataProviderSchemes",
+      "url": "https://data.norges-bank.no/api/dataproviderscheme?format=sdmx-json",
+      "why": "Official SDMX leftover. Left unused so this slice stays on the printed agencyscheme catalog."
+    },
+    {
+      "candidate": "SSB Klass classification families / ssbfam",
+      "url": "on main after PR 181",
+      "why": "Already on main. Do not re-add."
+    },
+    {
+      "candidate": "Udir Register for lærebedrifter / nlr",
+      "url": "https://data-nlr.udir.no/swagger/v4/swagger.json",
+      "why": "Known skip: live collection GETs are HTTP 401. Do not invent auth."
+    },
+    {
+      "candidate": "Fiskeridirektoratet ERS",
+      "url": "https://api.fiskeridir.no/ers-api/openapi",
+      "why": "Known skip: 401 or only templated paths. Do not invent auth."
+    },
+    {
+      "candidate": "MET leftover swaggers (weathericon, forestfireindex, lightning, pollenforecast, thredds)",
+      "url": "https://api.met.no/weatherapi/weathericon/2.0/swagger",
+      "why": "Known skip: live swagger HTTP 500. Do not invent endpoints."
+    },
+    {
+      "candidate": "Frost MET sources",
+      "url": "https://frost.met.no/sources/v0.jsonld",
+      "why": "Known skip: HTTP 401. Do not retry."
+    },
+    {
+      "candidate": "NVE HydAPI",
+      "url": "https://hydapi.nve.no/swagger/v1/swagger.json",
+      "why": "Known skip: HTTP 401. Do not invent auth."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source nbagency --db /tmp/pda-nbagency-proof/registry.sqlite --limit 10",
+    "listed": 1,
+    "inserted": 1,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "nbagency:AGENCIES",
+        "title": "SDMX Agency Scheme",
+        "access_path": "https://data.norges-bank.no/api/agencyscheme/SDMX/AGENCIES?format=sdmx-json"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search Agency --db /tmp/pda-nbagency-proof/registry.sqlite --limit 5",
+    "query": "Agency",
+    "returned": 1,
+    "hit_id": "nbagency:AGENCIES",
+    "title": "SDMX Agency Scheme",
+    "source_id": "nbagency",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://data.norges-bank.no/api/agencyscheme/SDMX/AGENCIES?format=sdmx-json",
+    "original_source": "https://data.norges-bank.no/api/agencyscheme?format=sdmx-json",
+    "why_picked": "title matched agency"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset nbagency:AGENCIES --db /tmp/pda-nbagency-proof/registry.sqlite",
+    "dataset": "nbagency:AGENCIES",
+    "table_id": "AGENCIES",
+    "access_path": "https://data.norges-bank.no/api/agencyscheme/SDMX/AGENCIES?format=sdmx-json",
+    "request_url": "https://data.norges-bank.no/api/agencyscheme/SDMX/AGENCIES?format=sdmx-json",
+    "http_status": 200,
+    "listed": 2,
+    "inserted": 2,
+    "updated": 0,
+    "license": null,
+    "publisher": null,
+    "new_numeric_time_series_ge_2_periods": false,
+    "sample": [
+      {
+        "measure": "name",
+        "value": "SDMX",
+        "dimensions": {
+          "id": "SDMX"
+        }
+      },
+      {
+        "measure": "name",
+        "value": "Norges Bank",
+        "dimensions": {
+          "id": "NB",
+          "description": "Central Bank of Norway"
+        }
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset nbagency:AGENCIES --table AGENCIES --entity NB --measure name --db /tmp/pda-nbagency-proof/registry.sqlite --out /tmp/pda-nbagency-proof/methods",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "Norges Bank /api/agencyscheme/SDMX/AGENCIES prints agency names. Those are not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed agencySchemes[].id. access_path joins printed agencyID and id onto the printed /api/agencyscheme path. No nbagency id was written onto a norgesbank, nbcodelist, nbdsd, or nbconcept row.",
+    "License is null. Publisher is null. The catalog prints neither.",
+    "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "Open PRs at pickup were 186 nbprov, 187 ssbsec, 189 ssclass, 188 nibiorest, 185 methods. This lane stayed on leftover agencyscheme.",
+    "python3 -m pytest after nbagency adapter: 1253 passed, 1 skipped, 1 deselected.",
+    "python3 -m pytest after rebase onto origin/main after ssclass 189: 1268 passed, 1 skipped, 1 deselected.",
+    "python3 -m pytest after rebase onto origin/main after nibiorest 188: 1277 passed, 1 skipped, 1 deselected.",
+    "python3 -m pytest after rebase onto origin/main after banegis 190: 1286 passed, 1 skipped, 1 deselected.",
+    "python3 -m pytest after rebase onto origin/main after mattilsyn 192: 1295 passed, 1 skipped, 1 deselected.",
+    "python3 -m pytest after rebase onto origin/main after methods 185: 1300 passed, 1 skipped, 1 deselected.",
+    "python3 -m pytest after rebase onto origin/main after nbprov 186: 1308 passed, 1 skipped, 1 deselected.",
+    "python3 -m pytest after rebase onto origin/main after avinorgis 195: 1317 passed, 1 skipped, 1 deselected.",
+    "python3 -m pytest after rebase onto origin/main after hiwms 198: 1361 passed, 1 skipped, 1 deselected.",
+    "Not a numeric time series with two or more periods. Fetch listed 2 printed agency-name cells (sample Norges Bank)."
+  ]
+}

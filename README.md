@@ -5519,6 +5519,38 @@ HTTP 200, 1 row, `beskrivelse` = `Aksjeselskap`. `pda methods` is not
 applicable. Organisasjonsform names are not a numeric time series.
 Proof is `data/brorgform_source_proof.json`.
 
+## Norges Bank SDMX Agency Schemes source
+
+`pda ingest --source nbagency` is another replaceable adapter. It lists
+printed agency-scheme ids on the official Norges Bank SDMX catalog
+`https://data.norges-bank.no/api/agencyscheme?format=sdmx-json`,
+capped at 10. Dataset ids are the printed `id` values. `access_path`
+joins each printed `agencyID` and `id` onto the printed
+`/api/agencyscheme` path and keeps the catalog `format=sdmx-json`
+query. License stays null. Publisher stays null. This is not the Norges
+Bank dataflow list (`--source norgesbank`) and not leftover SDMX
+codelists (`--source nbcodelist`), data structures (`--source nbdsd`),
+or concept schemes (`--source nbconcept`).
+
+```bash
+pda ingest --source nbagency --db data/registry.sqlite --limit 10
+pda search Agency --db data/registry.sqlite
+pda fetch --dataset nbagency:AGENCIES --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored agency-scheme URL. Observation values are
+copied from printed agency `name` scalars. Other scalars stay as
+dimensions. Nested `names`, `links`, `descriptions`, and `contacts`
+objects are not copied. License stays null. Publisher stays null.
+
+Live ingest 2026-08-28: 1 printed agency scheme (catalog prints 1; cap
+10). Live search `Agency` returns `nbagency:AGENCIES`. Live fetch GETs
+`https://data.norges-bank.no/api/agencyscheme/SDMX/AGENCIES?format=sdmx-json`
+HTTP 200, 2 name cells. Sample printed value: `Norges Bank`.
+`pda methods` is not applicable: agency names, not a numeric time
+series (`no observations matched entity/measure; available=[]`).
+Proof is `data/nbagency_source_proof.json`.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
