@@ -854,3 +854,4 @@ ts	phase	decision	why	evidence	result
 2026-09-01T18:12:00Z	live	record live ingest fetch and search for barmark	prove on the real leftover GetCapabilities document	data/barmark_source_proof.json ingest listed=1 inserted=1 failed=0; fetch HTTP 200 listed=1 feature_type_count=1; search Barmarksløyper hits barmark:wfs.barmarksloyper; methods not applicable	added
 2026-09-01T18:12:00Z	test	run pytest after rebase onto stperioder 226 and live barmark proof	do not leave the count only in the PR body	python3 -m pytest 1540 passed 1 skipped 1 deselected	tests green
 2026-09-01T18:20:00Z	test	run pytest after rebase onto nibioar50 225	do not leave the count only in the PR body	python3 -m pytest 1549 passed 1 skipped 1 deselected	tests green
+2026-09-01T18:30:00Z	test	run pytest after rebase onto brorgformen 230	do not leave the count only in the PR body	python3 -m pytest 1559 passed 1 skipped 1 deselected	tests green
