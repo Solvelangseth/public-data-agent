@@ -904,3 +904,4 @@ ts	phase	decision	why	evidence	result
 2026-09-01T18:45:00Z	test	run pytest after rebase onto crunit 234 and stkomiteer 233	do not leave the count only in the PR body	python3 -m pytest 1607 passed 1 skipped 1 deselected	tests green
 2026-09-01T18:55:00Z	test	run pytest after rebase onto barmark 229	do not leave the count only in the PR body	python3 -m pytest 1607 passed 1 skipped 1 deselected	tests green
 2026-09-01T19:05:00Z	test	run pytest after rebase onto crproj 235	do not leave the count only in the PR body	python3 -m pytest 1615 passed 1 skipped 1 deselected	tests green
+2026-09-01T19:15:00Z	test	run pytest after rebase onto ssbgis 215	do not leave the count only in the PR body	python3 -m pytest 1624 passed 1 skipped 1 deselected	tests green
