@@ -30,6 +30,7 @@ STORTINGET_PERIODER_URL = "https://data.stortinget.no/eksport/stortingsperioder?
 STSAKER_URL = "https://data.stortinget.no/eksport/saker?sesjonid=2025-2026&format=json"
 STKOMITEER_URL = "https://data.stortinget.no/eksport/komiteer?sesjonid=2025-2026&format=json"
 STPARTIER_URL = "https://data.stortinget.no/eksport/partier?sesjonid=2025-2026&format=json"
+STHORING_URL = "https://data.stortinget.no/eksport/horinger?sesjonid=2025-2026&format=json"
 STPERIODER_URL = (
     "https://data.stortinget.no/eksport/representanter"
     "?stortingsperiodeid=2025-2029&format=json"
@@ -94,6 +95,7 @@ def test_item_url_joins_printed_sesjon_id() -> None:
 
 def test_stmoter_is_a_registered_source() -> None:
     assert "stmoter" in SOURCE_IDS
+    assert "sthoring" in SOURCE_IDS
     assert "stpartier" in SOURCE_IDS
     assert "stortinget" in SOURCE_IDS
     assert "stkomiteer" in SOURCE_IDS
@@ -115,7 +117,8 @@ def test_stmoter_is_a_registered_source() -> None:
     assert SOURCE_IDS[SOURCE_IDS.index("kvkrets") + 1] == "dsbgis"
     assert SOURCE_IDS[SOURCE_IDS.index("dsbgis") + 1] == "nibiogard"
     assert SOURCE_IDS[SOURCE_IDS.index("nibiogard") + 1] == "stskrift"
-    assert SOURCE_IDS[-1] == "stskrift"
+    assert SOURCE_IDS[SOURCE_IDS.index("stskrift") + 1] == "sthoring"
+    assert SOURCE_IDS[-1] == "sthoring"
     source = build_source("stmoter")
     assert isinstance(source, StmoterSource)
     assert source.source_id == "stmoter"
@@ -205,6 +208,7 @@ def test_is_stmoter_url_accepts_only_moter_sesjon_paths() -> None:
     assert not is_stmoter_url(STSAKER_URL)
     assert not is_stmoter_url(STKOMITEER_URL)
     assert not is_stmoter_url(STPARTIER_URL)
+    assert not is_stmoter_url(STHORING_URL)
     assert not is_stmoter_url(STPERIODER_URL)
     assert not is_stmoter_url("https://data.stortinget.no/eksport/moter")
     assert not is_stmoter_url(DATANORGE_URL)
