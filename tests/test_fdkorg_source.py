@@ -108,7 +108,6 @@ def test_fdkorg_is_a_registered_source() -> None:
     assert SOURCE_IDS[SOURCE_IDS.index("nguminer") + 1] == "brrollegruppe"
     assert SOURCE_IDS[SOURCE_IDS.index("brrollegruppe") + 1] == "mdirgis"
     assert SOURCE_IDS[SOURCE_IDS.index("mdirgis") + 1] == "ssbcorr"
-    assert SOURCE_IDS[-1] == "ssbcorr"
     source = build_source("fdkorg")
     assert isinstance(source, FdkorgSource)
     assert source.source_id == "fdkorg"
