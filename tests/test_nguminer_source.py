@@ -193,7 +193,8 @@ def test_nguminer_is_a_registered_source() -> None:
     assert SOURCE_IDS[SOURCE_IDS.index("fdkorg") + 1] == "brrolletype"
     assert SOURCE_IDS[SOURCE_IDS.index("brrolletype") + 1] == "brkommuner"
     assert SOURCE_IDS[SOURCE_IDS.index("brkommuner") + 1] == "nguminer"
-    assert SOURCE_IDS[-1] == "nguminer"
+    assert SOURCE_IDS[SOURCE_IDS.index("nguminer") + 1] == "brrollegruppe"
+    assert SOURCE_IDS[-1] == "brrollegruppe"
     source = build_source("nguminer")
     assert isinstance(source, NguminerSource)
     assert source.source_id == "nguminer"

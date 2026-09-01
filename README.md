@@ -5815,6 +5815,35 @@ HTTP 200, 1 row, `navn` = `OSLO`. `pda methods` is not applicable.
 Kommune names are not a numeric time series.
 Proof is `data/brkommuner_source_proof.json`.
 
+## Enhetsregisteret rollegruppetyper source
+
+`pda ingest --source brrollegruppe` is another replaceable adapter. It
+lists printed `kode` values on the official Enhetsregisteret
+rollegruppetyper catalog
+`https://data.brreg.no/enhetsregisteret/api/roller/rollegruppetyper`,
+capped at 10. Dataset ids are the printed `kode` values. `access_path`
+joins each printed `kode` onto that public collection path. Printed
+`self` hrefs point at `/enhetsregisteret/autorisert-api/` (HTTP 401)
+and are not copied. License stays null. Publisher stays null. This is
+not the Enhetsregisteret HAL root (`--source brreg`), not leftover
+roller OpenAPI collection GETs (`--source brroller`), not leftover
+organisasjonsformer (`--source brorgform`), and not leftover
+rolletyper (`--source brrolletype`).
+
+```bash
+pda ingest --source brrollegruppe --db data/registry.sqlite --limit 10
+pda search "Daglig leder" --db data/registry.sqlite
+pda fetch --dataset brrollegruppe:DAGL --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored public kode URL. Observation values are
+copied from the printed `beskrivelse` scalar. Other scalars stay as
+dimensions. Nested `_links` objects are not copied. License stays
+null. Publisher stays null.
+
+Live ingest, search, and fetch proof will be recorded after the first
+test pass.
+
 ## Architecture (long term)
 
 1. **Dataset discovery** — find what data exists
