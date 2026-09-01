@@ -7172,9 +7172,10 @@ HTTP 200, 30 `tittel` cells. Sample printed value starts with
 `pda methods` is not applicable: interpellation titles, not a numeric
 time series (`no observations matched entity/measure; available=[]`).
 Proof is `data/stinterp_source_proof.json`.
-Started from origin/main after crresult #245 (`43dbdb8`). Every
-existing source stayed registered and `stinterp` follows `crresult`.
-`python3 -m pytest`: 1684 passed, 1 skipped, 1 deselected.
+Started from origin/main after crresult #245 (`43dbdb8`). Rebased onto
+origin/main after stmoter #242 (`51c23bc`). Every existing source stayed
+registered and `stinterp` follows `stmoter`.
+`python3 -m pytest`: 1692 passed, 1 skipped, 1 deselected.
 
 ## Brønnøysundregistrene Enhetsregisteret organisasjonsformer enheter source
 

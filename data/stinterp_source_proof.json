@@ -177,6 +177,7 @@
     "is_stinterp_url matches only /eksport/interpellasjoner?sesjonid= paths and is checked before is_stortinget_url.",
     "Not a numeric time series with two or more periods. Fetch listed 30 printed tittel cells.",
     "python3 -m pytest after live ingest: 1684 passed 1 skipped 1 deselected",
-    "Started from origin/main after crresult #245 merge SHA 43dbdb81991e15d68180396a0b292ad4a05c0746. Kept every existing source plus stinterp. Did not pick stmoter, stsporre, crperson, or leftover GIS."
+    "python3 -m pytest after rebase onto stmoter #242: 1692 passed 1 skipped 1 deselected",
+    "Started from origin/main after crresult #245 merge SHA 43dbdb81991e15d68180396a0b292ad4a05c0746. Rebased onto origin/main after stmoter #242 merge SHA 51c23bc. Kept every existing source plus stinterp. Did not pick stmoter, stsporre, crperson, or leftover GIS."
   ]
 }
