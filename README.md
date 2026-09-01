@@ -5221,7 +5221,16 @@ copied from printed WMS `Layer`/`Name` text or WFS `FeatureType`/`Name`
 text. A sibling `Title` stays as a dimension. License stays null. Publisher
 stays null.
 
-Live ingest and fetch proof will be recorded in `data/fbgis_source_proof.json`.
+Live ingest 2026-09-01: 10 leftover WMS/WFS services (search prints 17
+rows; 10 are OGC:WMS or OGC:WFS Type=service from Forsvarsbygg; cap 10
+copies those leftover live documents after skipping downloads and ids
+already in kvwms, kvgrunn, kvtopo, havnedata, avinorgis, and banegis).
+Live search `Forsvarets` returns `fbgis:wfs.ovingsfeltsjo`. Live fetch
+GETs
+`https://wms.geonorge.no/skwms1/wms.skytefelt?service=wms&request=getcapabilities`
+HTTP 200, 2 Layer Name cells. Sample printed value: `skytefelt_wms`.
+`pda methods` is not applicable: layer names, not a numeric time series.
+Proof is `data/fbgis_source_proof.json`.
 
 ## Norges Bank SDMX Codelists source
 
