@@ -6479,6 +6479,14 @@ from printed `saker_liste[].korttittel` scalars. Other printed scalars
 stay as dimensions. Nested objects are not copied. License stays null.
 Publisher stays null.
 
+Live ingest 2026-09-01: listed 10, inserted 10 (official catalog prints
+43 sessions; cap 10 copies the first ten printed ids). Live search
+`2025-2026` returns `stsaker:2025-2026`. Live fetch GETs
+`https://data.stortinget.no/eksport/saker?sesjonid=2025-2026&format=json`
+HTTP 200, 665 korttittel cells. Sample printed value starts with
+`Representantforslag fra stortingsrepresentantene Remi Sølvberg`.
+`pda methods` is not applicable: sak titles, not a numeric time series
+(`no observations matched entity/measure; available=[]`).
 Proof is `data/stsaker_source_proof.json`.
 
 ## Architecture (long term)
