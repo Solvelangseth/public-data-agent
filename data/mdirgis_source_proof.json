@@ -152,8 +152,8 @@
     "Ids are copied from printed service path segments. access_path is the printed Geonorge DistributionUrl. No mdirgis id was written onto a mdirwms, miljogis, miljodir, or geonorge row.",
     "License stays null: the catalog prints no license URL. Publisher is null: this adapter does not copy Organization onto publisher.",
     "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
-    "python3 -m pytest after rebase onto brrolletype #207: 1413 passed, 1 skipped, 1 deselected.",
-    "Branched from origin/main after kvtopo #200 (9b0fc05). Rebased onto origin/main after vegwms #206, fdkorg #208, and brrolletype #207 (a161788). SOURCE_IDS keeps kvtopo, nbdps, vegwms, fdkorg, brrolletype, then mdirgis. README keeps both leftover GIS sections.",
+    "python3 -m pytest after rebase onto nguminer #210 and brkommuner #203: 1431 passed, 1 skipped, 1 deselected.",
+    "Branched from origin/main after kvtopo #200 (9b0fc05). Rebased onto origin/main after vegwms #206, brrolletype #207, brkommuner #203, and nguminer #210 (8513b00). SOURCE_IDS keeps kvtopo, nbdps, vegwms, fdkorg, brrolletype, brkommuner, nguminer, then mdirgis. README keeps both leftover GIS sections.",
     "Open PR check at pickup found bwgis #205 and vegwms #206. vegwms is now on main and kept. bwgis leftover GIS catalog stayed unused."
   ]
 }
