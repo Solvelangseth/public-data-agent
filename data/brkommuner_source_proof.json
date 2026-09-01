@@ -1,0 +1,173 @@
+{
+  "produced_at": "2026-09-01T16:41:46Z",
+  "bound": {
+    "list_api": "https://data.brreg.no/enhetsregisteret/api/kommuner",
+    "walk": "copy printed _embedded.kommuner[].nummer and _links.self.href from the official Enhetsregisteret kommuner collection; native ids are the printed nummer values so 0301 stays distinct from 1103; access_path is the printed self href; license stays null; publisher stays null; the catalog prints neither; live GET of those printed kommune paths is HTTP 200 with no token; no token is sent; do not invent page or size query filters",
+    "cap": 10,
+    "how": "pda ingest --source brkommuner --limit 10. The official first printed page lists kommuner. Ingest copies the first ten in document order."
+  },
+  "discarded": [
+    {
+      "candidate": "Fiskeridirektoratet Autorisasjonsregisteret",
+      "url": "https://api.fiskeridir.no/authreg-api/openapi",
+      "why": "OpenAPI GET 200. Only printed GET path is templated /authreg-api/api/v1/messages/auth-status/{radio_call_sign} with required path param. Do not invent radio_call_sign."
+    },
+    {
+      "candidate": "Fiskeridirektoratet operasjonelle akvakulturrettigheter",
+      "url": "https://api.fiskeridir.no/aqua-operations-public/v3/api-docs",
+      "why": "OpenAPI GET 200. Only printed GET path is templated /api/v1/joint-ops/{site-nr} with required path param. Do not invent site-nr."
+    },
+    {
+      "candidate": "Udir Register for lærebedrifter",
+      "url": "https://data-nlr.udir.no/swagger/v4/swagger.json",
+      "why": "Swagger GET 200 prints untemplated collection GETs. Live GET /v4/organisasjonsformer, /v4/utgaattyper, /v4/enheter are HTTP 401. Do not invent auth."
+    },
+    {
+      "candidate": "Norges Bank SDMX agency schemes",
+      "url": "PR 193 --source nbagency",
+      "why": "Assigned Lane U. Do not pick nbagency."
+    },
+    {
+      "candidate": "Norges Bank SDMX dataproviderscheme",
+      "url": "https://data.norges-bank.no/api/dataproviderscheme?format=sdmx-json",
+      "why": "Assigned Lane V. Do not pick dataproviderscheme."
+    },
+    {
+      "candidate": "Norges Bank SDMX categoryscheme / hierarchicalcodelist",
+      "url": "assigned Lane W",
+      "why": "Assigned Lane W. Do not pick categoryscheme or hierarchicalcodelist."
+    },
+    {
+      "candidate": "SSB Klass leftover collection GETs",
+      "url": "https://data.ssb.no/api/klass/v3/api-docs",
+      "why": "classifications, classificationfamilies, ssbsections, and versions are already on main. correspondencetables collection is HTTP 404."
+    },
+    {
+      "candidate": "Enhetsregisteret leftover roller lists",
+      "url": "--source brroller",
+      "why": "Already on main. Do not redo."
+    },
+    {
+      "candidate": "Enhetsregisteret leftover organisasjonsformer",
+      "url": "--source brorgform",
+      "why": "Already on main. Do not redo."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source brkommuner --db /tmp/pda-brkommuner-proof/registry.sqlite --limit 10",
+    "listed": 10,
+    "inserted": 10,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "brkommuner:0301",
+        "title": "OSLO",
+        "access_path": "https://data.brreg.no/enhetsregisteret/api/kommuner/0301"
+      },
+      {
+        "id": "brkommuner:0999",
+        "title": "UTENLANDS",
+        "access_path": "https://data.brreg.no/enhetsregisteret/api/kommuner/0999"
+      },
+      {
+        "id": "brkommuner:1101",
+        "title": "EIGERSUND",
+        "access_path": "https://data.brreg.no/enhetsregisteret/api/kommuner/1101"
+      },
+      {
+        "id": "brkommuner:1103",
+        "title": "STAVANGER",
+        "access_path": "https://data.brreg.no/enhetsregisteret/api/kommuner/1103"
+      },
+      {
+        "id": "brkommuner:1106",
+        "title": "HAUGESUND",
+        "access_path": "https://data.brreg.no/enhetsregisteret/api/kommuner/1106"
+      },
+      {
+        "id": "brkommuner:1108",
+        "title": "SANDNES",
+        "access_path": "https://data.brreg.no/enhetsregisteret/api/kommuner/1108"
+      },
+      {
+        "id": "brkommuner:1111",
+        "title": "SOKNDAL",
+        "access_path": "https://data.brreg.no/enhetsregisteret/api/kommuner/1111"
+      },
+      {
+        "id": "brkommuner:1112",
+        "title": "LUND",
+        "access_path": "https://data.brreg.no/enhetsregisteret/api/kommuner/1112"
+      },
+      {
+        "id": "brkommuner:1114",
+        "title": "BJERKREIM",
+        "access_path": "https://data.brreg.no/enhetsregisteret/api/kommuner/1114"
+      },
+      {
+        "id": "brkommuner:1119",
+        "title": "HÅ",
+        "access_path": "https://data.brreg.no/enhetsregisteret/api/kommuner/1119"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search OSLO --db /tmp/pda-brkommuner-proof/registry.sqlite --limit 10",
+    "query": "OSLO",
+    "returned": 1,
+    "hit_id": "brkommuner:0301",
+    "title": "OSLO",
+    "source_id": "brkommuner",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://data.brreg.no/enhetsregisteret/api/kommuner/0301",
+    "original_source": "https://data.brreg.no/enhetsregisteret/api/kommuner",
+    "why_picked": "title matched oslo"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset brkommuner:0301 --db /tmp/pda-brkommuner-proof/registry.sqlite",
+    "dataset": "brkommuner:0301",
+    "table_id": "0301",
+    "fetch_id": 1,
+    "access_path": "https://data.brreg.no/enhetsregisteret/api/kommuner/0301",
+    "request_url": "https://data.brreg.no/enhetsregisteret/api/kommuner/0301",
+    "http_status": 200,
+    "listed": 1,
+    "inserted": 1,
+    "updated": 0,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "navn",
+        "value": "OSLO"
+      }
+    ]
+  },
+  "methods": {
+    "command": "pda methods --dataset brkommuner:0301 --db /tmp/pda-brkommuner-proof/registry.sqlite --out /tmp/pda-brkommuner-proof/methods",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "Enhetsregisteret /kommuner/0301 prints nummer and navn strings, not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Ids are copied from printed catalog nummer values. access_path is the printed _links.self.href. No brkommuner id was written onto a brreg, brorgform, brroller, frivillig, or kommuneinfo row.",
+    "License is null: the kommuner catalog prints no license field. Publisher is null: the catalog prints no publisher field.",
+    "Live GET of /enhetsregisteret/api/kommuner/0301 is HTTP 200 with no Authorization header. No token is sent.",
+    "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "is_brkommuner_url matches only /kommuner/{nummer} item paths. The bare collection URL stays on brreg:kommuner.",
+    "Not a numeric time series with two or more periods. Fetch listed 1 printed navn cell (OSLO).",
+    "Open PR check at pickup found nbagency 193. That stayed unused.",
+    "python3 -m pytest after live ingest: 1361 passed, 1 skipped, 1 deselected."
+  ]
+}
