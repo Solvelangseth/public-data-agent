@@ -6616,10 +6616,12 @@ null. Publisher stays null.
 
 The official catalog prints 43 sessions. This walk copies the first ten
 in document order. Live ingest listed 10 and inserted 10. Live search
-`2028-2029` returns `stsporre:2028-2029`. Live fetch GETs a printed
-session that lists question members. `pda methods` is not applicable:
-question titles, not a numeric time series. Proof is
-`data/stsporre_source_proof.json`. Every existing source stayed
+`2028-2029` returns `stsporre:2028-2029`. Live fetch GETs
+`https://data.stortinget.no/eksport/sporretimesporsmal?sesjonid=2025-2026&format=json`
+HTTP 200, 524 `tittel` cells. `pda methods` is not applicable: question
+titles, not a numeric time series
+(`no observations matched entity/measure; available=[]`).
+Proof is `data/stsporre_source_proof.json`. Every existing source stayed
 registered and `stsporre` follows `stpartier`.
 
 ## Stortinget leftover stortingsperioder source
