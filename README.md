@@ -5081,10 +5081,12 @@ Nested `_links` objects are not copied. License stays null. Publisher
 stays null.
 
 The first printed page lists 20 kommuner of 365. This walk copies the
-first ten in document order. License stays null: the catalog prints no
-license field. Publisher stays null. `pda methods` is not applicable.
-Kommune names are not a numeric time series. Proof is
-`data/brkommune_source_proof.json`.
+first ten in document order. Live ingest listed 10 and inserted 10.
+Live search `EIGERSUND` returns `brkommune:1101`. Live fetch GETs
+`https://data.brreg.no/enhetsregisteret/api/kommuner/0301`
+HTTP 200, 1 row, `navn` = `OSLO`. `pda methods` is not applicable.
+Kommune names are not a numeric time series.
+Proof is `data/brkommune_source_proof.json`.
 
 ## Norges Bank SDMX Codelists source
 

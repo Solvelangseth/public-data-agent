@@ -1,5 +1,5 @@
 {
-  "produced_at": "2026-09-01T16:39:37Z",
+  "produced_at": "2026-09-01T16:42:02Z",
   "bound": {
     "list_api": "https://data.brreg.no/enhetsregisteret/api/kommuner",
     "walk": "copy printed _embedded.kommuner[].nummer and _links.self.href from the official Enhetsregisteret kommuner collection; native ids are the printed nummer values so 0301 stays distinct from 0999; access_path is the printed self href; license stays null; publisher stays null; the catalog prints neither; live GET of those printed kommune paths is HTTP 200 with no token; no token is sent; do not invent size/page query filters",
@@ -75,31 +75,114 @@
   ],
   "ingest": {
     "command": "pda ingest --source brkommune --db /tmp/pda-brkommune-proof/registry.sqlite --limit 10",
-    "listed": null,
-    "inserted": null,
-    "updated": null,
-    "failed": null,
-    "tables": []
+    "listed": 10,
+    "inserted": 10,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "brkommune:0301",
+        "title": "OSLO",
+        "access_path": "https://data.brreg.no/enhetsregisteret/api/kommuner/0301"
+      },
+      {
+        "id": "brkommune:0999",
+        "title": "UTENLANDS",
+        "access_path": "https://data.brreg.no/enhetsregisteret/api/kommuner/0999"
+      },
+      {
+        "id": "brkommune:1101",
+        "title": "EIGERSUND",
+        "access_path": "https://data.brreg.no/enhetsregisteret/api/kommuner/1101"
+      },
+      {
+        "id": "brkommune:1103",
+        "title": "STAVANGER",
+        "access_path": "https://data.brreg.no/enhetsregisteret/api/kommuner/1103"
+      },
+      {
+        "id": "brkommune:1106",
+        "title": "HAUGESUND",
+        "access_path": "https://data.brreg.no/enhetsregisteret/api/kommuner/1106"
+      },
+      {
+        "id": "brkommune:1108",
+        "title": "SANDNES",
+        "access_path": "https://data.brreg.no/enhetsregisteret/api/kommuner/1108"
+      },
+      {
+        "id": "brkommune:1111",
+        "title": "SOKNDAL",
+        "access_path": "https://data.brreg.no/enhetsregisteret/api/kommuner/1111"
+      },
+      {
+        "id": "brkommune:1112",
+        "title": "LUND",
+        "access_path": "https://data.brreg.no/enhetsregisteret/api/kommuner/1112"
+      },
+      {
+        "id": "brkommune:1114",
+        "title": "BJERKREIM",
+        "access_path": "https://data.brreg.no/enhetsregisteret/api/kommuner/1114"
+      },
+      {
+        "id": "brkommune:1119",
+        "title": "HÅ",
+        "access_path": "https://data.brreg.no/enhetsregisteret/api/kommuner/1119"
+      }
+    ]
   },
   "search": {
     "command": "pda search EIGERSUND --db /tmp/pda-brkommune-proof/registry.sqlite --limit 10",
     "query": "EIGERSUND",
-    "returned": null,
-    "hit_id": null
+    "returned": 1,
+    "hit_id": "brkommune:1101",
+    "title": "EIGERSUND",
+    "source_id": "brkommune",
+    "publisher": null,
+    "license": null,
+    "access_path": "https://data.brreg.no/enhetsregisteret/api/kommuner/1101",
+    "original_source": "https://data.brreg.no/enhetsregisteret/api/kommuner",
+    "why_picked": "title matched eigersund"
   },
   "fetch": {
     "command": "pda fetch --dataset brkommune:0301 --db /tmp/pda-brkommune-proof/registry.sqlite",
     "dataset": "brkommune:0301",
-    "http_status": null
+    "table_id": "0301",
+    "fetch_id": 1,
+    "access_path": "https://data.brreg.no/enhetsregisteret/api/kommuner/0301",
+    "request_url": "https://data.brreg.no/enhetsregisteret/api/kommuner/0301",
+    "http_status": 200,
+    "listed": 1,
+    "inserted": 1,
+    "updated": 0,
+    "license": null,
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "navn",
+        "value": "OSLO"
+      }
+    ]
   },
   "methods": {
+    "command": "pda methods --dataset brkommune:0301 --db /tmp/pda-brkommune-proof/registry.sqlite --out /tmp/pda-brkommune-proof/methods",
     "applicable": false,
-    "why": "Enhetsregisteret /kommuner/{nummer} prints nummer and navn strings, not a numeric time series with a year-like period field. methods/ was not edited."
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "Enhetsregisteret /kommuner/0301 prints nummer and navn strings, not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
   },
   "notes": [
-    "Live ingest, search, and fetch are pending the first test pass.",
-    "Ids are copied from printed catalog nummer values. access_path is the printed _links.self.href.",
+    "Ids are copied from printed catalog nummer values. access_path is the printed _links.self.href. No brkommune id was written onto a brreg, kommuneinfo, or brorgform row.",
     "License is null: the kommuner catalog prints no license field. Publisher is null: the catalog prints no publisher field.",
-    "is_brkommune_url matches only /kommuner/{nummer} item paths. The bare collection URL stays on brreg:kommuner."
+    "Live GET of /enhetsregisteret/api/kommuner/0301 is HTTP 200 with no Authorization header. No token is sent.",
+    "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "is_brkommune_url matches only /kommuner/{nummer} item paths. The bare collection URL stays on brreg:kommuner.",
+    "python3 -m pytest: 1361 passed, 1 skipped, 1 deselected.",
+    "Not a numeric time series with two or more periods. Fetch listed 1 printed navn cell (OSLO).",
+    "Open PR check at pickup found nbagency 193. That stayed unused. dataproviderscheme and Fiskeridir/Udir leftovers stayed unused."
   ]
 }
