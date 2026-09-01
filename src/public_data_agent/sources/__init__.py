@@ -13,6 +13,7 @@ from public_data_agent.sources.banegis import BanegisSource
 from public_data_agent.sources.base import CatalogSource, SourceBase
 from public_data_agent.sources.brkommuner import BrkommunerSource
 from public_data_agent.sources.brorgform import BrorgformSource
+from public_data_agent.sources.broppdater import BroppdaterSource
 from public_data_agent.sources.brreg import BrregEnhetsregisterSource
 from public_data_agent.sources.brrollegruppe import BrrollegruppeSource
 from public_data_agent.sources.brrolletype import BrrolletypeSource
@@ -309,6 +310,7 @@ SOURCE_IDS = (
     "mdirgis",
     "ssbcorr",
     "bwgis",
+    "broppdater",
 )
 
 
@@ -619,6 +621,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return SsbcorrSource()
     if source_id == "bwgis":
         return BwgisSource()
+    if source_id == "broppdater":
+        return BroppdaterSource()
     raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
 
 
@@ -633,6 +637,7 @@ __all__ = [
     "BanegisSource",
     "BrkommunerSource",
     "BrorgformSource",
+    "BroppdaterSource",
     "BrregEnhetsregisterSource",
     "BrrollegruppeSource",
     "BrrolletypeSource",

@@ -1,0 +1,153 @@
+{
+  "produced_at": "2026-09-01T17:22:00Z",
+  "bound": {
+    "list_api": "https://data.brreg.no/enhetsregisteret/api/dokumentasjon/no/openapi.json",
+    "walk": "copy leftover untemplated GET paths under /enhetsregisteret/api/oppdateringer/ from the official Enhetsregisteret OpenAPI; skip templated paths and GET operations that print required parameters; native ids are the last printed path segment so enheter stays distinct from underenheter and roller; access_path is printed servers[0].url plus path; license is the printed OpenAPI license URL; publisher stays null; live GET of enheter is HTTP 200 with no token; no token is sent; do not invent organisasjonsnummer, dato, page, or size filters",
+    "cap": 10,
+    "how": "pda ingest --source broppdater --limit 10. The official OpenAPI names leftover untemplated JSON collection GETs under /enhetsregisteret/api/oppdateringer/. The adapter copies those three paths. GET uses the printed /enheter collection with no invented query filters. This is not Enhetsregisteret (--source brreg), not leftover roller OpenAPI collection GETs (--source brroller), not leftover organisasjonsformer (--source brorgform), not leftover rolletyper (--source brrolletype), not leftover kommuner (--source brkommuner), and not leftover rollegruppetyper (--source brrollegruppe)."
+  },
+  "discarded": [
+    {
+      "candidate": "kifylker",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/212",
+      "why": "In-flight leftover Kartverket Kommuneinfo fylker JSON. Do not pick the other lane's source."
+    },
+    {
+      "candidate": "brrepresent",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/213",
+      "why": "In-flight leftover Enhetsregisteret representanter JSON. Do not pick the other lane's source."
+    },
+    {
+      "candidate": "ssbcorr",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/214",
+      "why": "In-flight leftover SSB Klass correspondence tables JSON. Do not pick the other lane's source."
+    },
+    {
+      "candidate": "brrollegruppe",
+      "url": "https://github.com/Solvelangseth/public-data-agent/pull/211",
+      "why": "Just merged on main. Do not re-add."
+    },
+    {
+      "candidate": "Norges Bank SDMX categoryscheme / hierarchicalcodelist",
+      "url": "https://data.norges-bank.no/api/categoryscheme?format=sdmx-json",
+      "why": "Live GET HTTP 404. Do not invent around a failure."
+    },
+    {
+      "candidate": "Norges Bank SDMX organisationscheme / structure",
+      "url": "https://data.norges-bank.no/api/organisationscheme?format=sdmx-json",
+      "why": "Live GET 200 reprints already-on-main agencySchemes / structure catalogs. Unused."
+    },
+    {
+      "candidate": "SSB Klass correspondencetables collection",
+      "url": "https://data.ssb.no/api/klass/v1/correspondencetables",
+      "why": "Live GET HTTP 404. Do not invent around a failure."
+    },
+    {
+      "candidate": "Fiskeridir aqua-operations-public",
+      "url": "https://api.fiskeridir.no/aqua-operations-public/v3/api-docs",
+      "why": "OpenAPI GET 200 but only a templated required path param. Unused."
+    },
+    {
+      "candidate": "Kartverket Adresser /sok",
+      "url": "https://ws.geonorge.no/adresser/v1/openapi.json",
+      "why": "Known skip: live /sok is HTTP 400 without invented query params."
+    },
+    {
+      "candidate": "Kartverket Eiendom /geokoding",
+      "url": "https://api.kartverket.no/eiendom/v1/openapi.json",
+      "why": "Known skip: live /geokoding is HTTP 400 without invented matrikkelnummer."
+    },
+    {
+      "candidate": "MET leftover swagger products",
+      "url": "https://api.met.no/weatherapi/pollenforecast/1.0/swagger",
+      "why": "Known skip: leftover MET swagger documents return HTTP 500. Do not invent around a failure."
+    },
+    {
+      "candidate": "Enhetsregisteret /api/matrikkelenhet",
+      "url": "https://data.brreg.no/enhetsregisteret/api/matrikkelenhet",
+      "why": "Official leftover OpenAPI GET. Live GET is HTTP 400 without a printed matrikkelnummer. Do not invent a cadastral id."
+    },
+    {
+      "candidate": "offentligdata.no",
+      "url": "https://offentligdata.no",
+      "why": "Assigned skip for this lane. Do not use."
+    }
+  ],
+  "ingest": {
+    "command": "pda ingest --source broppdater --db /tmp/pda-broppdater-proof/registry.sqlite --limit 10",
+    "listed": 3,
+    "inserted": 3,
+    "updated": 0,
+    "failed": 0,
+    "tables": [
+      {
+        "id": "broppdater:roller",
+        "title": "Hent alle oppdateringer på roller",
+        "access_path": "https://data.brreg.no/enhetsregisteret/api/oppdateringer/roller"
+      },
+      {
+        "id": "broppdater:enheter",
+        "title": "Hent alle oppdateringer på enheter",
+        "access_path": "https://data.brreg.no/enhetsregisteret/api/oppdateringer/enheter"
+      },
+      {
+        "id": "broppdater:underenheter",
+        "title": "Hent alle oppdateringer på underenheter",
+        "access_path": "https://data.brreg.no/enhetsregisteret/api/oppdateringer/underenheter"
+      }
+    ]
+  },
+  "search": {
+    "command": "pda search \"oppdateringer på enheter\" --db /tmp/pda-broppdater-proof/registry.sqlite --limit 10",
+    "query": "oppdateringer på enheter",
+    "returned": 3,
+    "hit_id": "broppdater:enheter",
+    "title": "Hent alle oppdateringer på enheter",
+    "source_id": "broppdater",
+    "publisher": null,
+    "license": "https://data.norge.no/nlod/no/2.0",
+    "access_path": "https://data.brreg.no/enhetsregisteret/api/oppdateringer/enheter",
+    "original_source": "https://data.brreg.no/enhetsregisteret/api/dokumentasjon/no/openapi.json",
+    "why_picked": "title matched oppdateringer, enheter"
+  },
+  "fetch": {
+    "command": "pda fetch --dataset broppdater:enheter --db /tmp/pda-broppdater-proof/registry.sqlite",
+    "dataset": "broppdater:enheter",
+    "table_id": "enheter",
+    "access_path": "https://data.brreg.no/enhetsregisteret/api/oppdateringer/enheter",
+    "request_url": "https://data.brreg.no/enhetsregisteret/api/oppdateringer/enheter",
+    "method": "GET",
+    "http_status": 200,
+    "listed": 20,
+    "inserted": 20,
+    "updated": 0,
+    "fetch_id": 1,
+    "license": "https://data.norge.no/nlod/no/2.0",
+    "publisher": null,
+    "sample": [
+      {
+        "measure": "endringstype",
+        "value": "Ukjent"
+      }
+    ],
+    "new_numeric_time_series_ge_2_periods": false
+  },
+  "methods": {
+    "command": "pda methods --dataset broppdater:enheter --db /tmp/pda-broppdater-proof/registry.sqlite",
+    "applicable": false,
+    "exit_code": 1,
+    "printed_reason": "no observations matched entity/measure; available=[]",
+    "why": "enheter oppdateringer print change-type labels. Those are not a numeric time series with a year-like period field. methods/ was not edited.",
+    "read_from_store": true,
+    "called_fetch": false,
+    "fetch_runs_after": 1
+  },
+  "notes": [
+    "Native ids are printed last path segments roller, enheter, underenheter. access_path is printed servers[0].url plus path. No broppdater id was written onto a brreg, brroller, brorgform, brrolletype, brkommuner, or brrollegruppe row.",
+    "License is the printed OpenAPI info.license.url https://data.norge.no/nlod/no/2.0. Publisher is null. The catalog prints no publisher field.",
+    "Live GET of /enhetsregisteret/api/oppdateringer/enheter is HTTP 200 with no Authorization header. No token is sent.",
+    "Original harvested catalog metadata stays in harvested_payloads. Fetch writes observations only. enrichments count stayed 0.",
+    "Not a numeric time series with two or more periods. Fetch listed 20 printed endringstype cells (sample Ukjent).",
+    "python3 -m pytest after adding broppdater on origin/main HEAD 2de8746: 1440 passed, 1 skipped, 1 deselected."
+  ]
+}
