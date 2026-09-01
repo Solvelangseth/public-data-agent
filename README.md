@@ -5630,6 +5630,46 @@ HTTP 200, 9 Layer Name cells. Sample printed value: `AR50_2`. `pda methods`
 is not applicable: layer names, not a numeric time series. Proof is
 `data/nibioar50_source_proof.json`.
 
+## NIBIO leftover AR5-forvaltning WMS source
+
+`pda ingest --source nibioar5f` is another replaceable adapter. It lists printed
+leftover OGC:WMS and OGC:WFS Type=service GetCapabilities rows on the official
+Geonorge Kartkatalog search
+`https://kartkatalog.geonorge.no/api/search?text=AR5+forvaltning`,
+capped at 10. Other organizations, downloads, servicelayers, and software
+are skipped. Restricted Norge-digitalt FKB-AR5 WMS is skipped. Leftover
+AR50 already in `--source nibioar50` is skipped. cgi-bin names that are
+not leftover AR5-forvaltning are skipped. GetCapabilities bodies that
+are not WMS or WFS XML, including 401/HTML, are skipped. Dataset ids are
+the printed last cgi-bin path segment so `ar5forvaltning2` stays the
+leftover WMS path. `access_path` is the printed `DistributionUrl`. The
+harvest title prefers the printed WMS Service Title from the live
+GetCapabilities document. License stays null: the catalog search prints
+no license URL. Publisher stays null. This is not leftover NIBIO WMS
+(`--source nibiowms`), not leftover NIBIO WMS past that cap
+(`--source nibiorest`), and not leftover NIBIO AR50 (`--source nibioar50`).
+
+```bash
+pda ingest --source nibioar5f --db data/registry.sqlite --limit 10
+pda search AR5forvaltning --db data/registry.sqlite
+pda fetch --dataset nibioar5f:ar5forvaltning2 --db data/registry.sqlite
+```
+
+`pda fetch` GETs the stored GetCapabilities URL. Observation values are
+copied from printed WMS `Layer`/`Name` text or WFS `FeatureType`/`Name`
+text. A sibling `Title` stays as a dimension. License stays null. Publisher
+stays null.
+
+Live ingest 2026-09-01: 1 leftover GetCapabilities document (AR5 forvaltning
+search prints leftover live WMS XML 200 after skipping restricted FKB-AR5
+WMS, leftover AR50, other organizations, downloads, and servicelayers; cap
+10 copies the leftover live document). Live search `AR5forvaltning` returns
+`nibioar5f:ar5forvaltning2`. Live fetch GETs
+`https://wms.nibio.no/cgi-bin/ar5forvaltning2?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetCapabilities`
+HTTP 200, 27 Layer Name cells. Sample printed value: `AR5FORVALTNING`.
+`pda methods` is not applicable: layer names, not a numeric time series.
+Proof is `data/nibioar5f_source_proof.json`.
+
 ## Norges Bank SDMX Concept Schemes source
 
 `pda ingest --source nbconcept` is another replaceable adapter. It lists

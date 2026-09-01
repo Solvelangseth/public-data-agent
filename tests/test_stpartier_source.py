@@ -136,7 +136,8 @@ def test_stpartier_is_a_registered_source() -> None:
     assert SOURCE_IDS[SOURCE_IDS.index("crproj") + 1] == "ssbgis"
     assert SOURCE_IDS[SOURCE_IDS.index("ssbgis") + 1] == "stpartier"
     assert SOURCE_IDS[SOURCE_IDS.index("stpartier") + 1] == "crbio"
-    assert SOURCE_IDS[-1] == "crbio"
+    assert SOURCE_IDS[SOURCE_IDS.index("crbio") + 1] == "nibioar5f"
+    assert SOURCE_IDS[-1] == "nibioar5f"
     source = build_source("stpartier")
     assert isinstance(source, StpartierSource)
     assert source.source_id == "stpartier"
