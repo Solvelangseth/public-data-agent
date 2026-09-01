@@ -6039,8 +6039,12 @@ from the printed `fylkesnavn` scalar. Other scalars stay as
 dimensions. Nested `avgrensningsboks` and `kommuner` objects are not
 copied. License stays null. Publisher stays null.
 
-Live proof is recorded after ingest. `pda methods` is not applicable.
-Fylke names are not a numeric time series.
+The catalog prints 15 fylker. This walk copies the first ten in
+document order. Live ingest listed 10 and inserted 10. Live search
+`Troms` returns `kifylker:55`. Live fetch GETs
+`https://api.kartverket.no/kommuneinfo/v1/fylker/55`
+HTTP 200, 1 row, `fylkesnavn` = `Troms`. `pda methods` is not
+applicable. Fylke names are not a numeric time series.
 Proof is `data/kifylker_source_proof.json`.
 
 ## Architecture (long term)
