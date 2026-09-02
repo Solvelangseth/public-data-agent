@@ -175,6 +175,33 @@ def test_cli_ask_writes_proof(tmp_path: Path, monkeypatch) -> None:
     assert payload["joins"][1]["right_http_status"] == 200
 
 
+def test_cli_ask_reports_planned_fetch_failure(tmp_path: Path, monkeypatch) -> None:
+    registry = _registry(tmp_path)
+    db = tmp_path / "registry.sqlite"
+    registry.conn.execute(
+        "UPDATE datasets SET access_path = ? WHERE id = ?",
+        (SSB_URL, STRANDSONE_ID),
+    )
+    registry.conn.commit()
+    registry.close()
+
+    def fail_fetch(*args, **kwargs):
+        raise RuntimeError("upstream unavailable")
+
+    monkeypatch.setattr("public_data_agent.ask.fetch_observations", fail_fetch)
+    assert (
+        main(
+            [
+                "ask",
+                "Hvilke strandsone-data finnes?",
+                "--db",
+                str(db),
+            ]
+        )
+        == 1
+    )
+
+
 def test_cli_ask_writes_stable_csv(tmp_path: Path, monkeypatch) -> None:
     registry = _registry(tmp_path)
     db = tmp_path / "registry.sqlite"

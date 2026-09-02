@@ -510,6 +510,10 @@ def _ask(args: argparse.Namespace) -> int:
         text = json.dumps(payload, ensure_ascii=False, indent=2)
         print(text)
         failed = any(item.counts.failed for item in result.joins)
+        # A planned non-demo fetch is part of the command's work too. Surface
+        # connector failures to callers instead of reporting a false success.
+        if result.execution.get("status") == "fetch_failed":
+            failed = True
         return 1 if failed else 0
     except ValueError as exc:
         print(str(exc), file=sys.stderr)
