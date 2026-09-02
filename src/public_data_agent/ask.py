@@ -5,7 +5,7 @@ from typing import Any
 
 from methods.derive import derive_yoy
 from methods.types import Observation, SeriesRow
-from public_data_agent.fetch import JsonHttp
+from public_data_agent.fetch import JsonHttp, fetch_observations
 from public_data_agent.join import (
     DEFAULT_KLASS_DATASET,
     JOIN_KEY,
@@ -18,6 +18,7 @@ from public_data_agent.join import (
 from public_data_agent.registry import Registry, utc_now
 from public_data_agent.search import search_report
 from public_data_agent.ssb_pxweb import DEFAULT_SSB_TABLE
+from public_data_agent.planner import QuestionPlan, build_plan
 
 DEMO_QUESTION = "Hvilke Oslo-bydeler er størst og hvilke vokser mest?"
 WHY_KLASS = (
@@ -42,6 +43,9 @@ class AskResult:
     growing: list[dict[str, Any]] = field(default_factory=list)
     derived: tuple[SeriesRow, ...] = ()
     joined_rows: int = 0
+    plan: QuestionPlan | None = None
+    execution: dict[str, Any] = field(default_factory=dict)
+    answer: dict[str, Any] = field(default_factory=dict)
 
 
 def ask(
@@ -58,6 +62,31 @@ def ask(
     """Search, join two years, then rank size and YoY from the joined cells."""
 
     report = search_report(registry, question, limit=search_limit)
+    plan = build_plan(
+        question,
+        report,
+        klass_dataset_id=klass_dataset_id,
+        ssb_table=ssb_table,
+        latest_year=latest_year,
+        prior_year=prior_year,
+        registry=registry,
+    )
+    if plan.intent != "bydel_population_size_and_growth" or plan.refusal_reason:
+        execution = _execute_catalog_plan(registry, plan, http=http)
+        return AskResult(
+            question=question,
+            latest_year=str(latest_year),
+            prior_year=str(prior_year),
+            join_key="",
+            search=report.to_dict(),
+            plan=plan,
+            execution=execution,
+            answer={
+                "numbers_retrieved": bool(execution.get("numbers_retrieved")),
+                "explanation": execution.get("explanation"),
+                "observations": execution.get("observations", []),
+            },
+        )
     prior = join_bydel_population(
         registry,
         klass_dataset_id=klass_dataset_id,
@@ -91,6 +120,17 @@ def ask(
         growing=growing,
         derived=derived,
         joined_rows=len(rows),
+        plan=plan,
+        execution={
+            "status": "completed",
+            "numbers_retrieved": True,
+            "observation_source": "joined_rows",
+            "explanation": "Values are copied from the two fetched observation periods and the stored bydel_code join.",
+        },
+        answer={
+            "numbers_retrieved": True,
+            "explanation": "Values are copied from observations, joined_rows, and methods.derive_yoy.",
+        },
     )
 
 
@@ -120,13 +160,17 @@ def ask_proof_payload(
                 for hit in (result.search.get("results") or [])[:5]
             ],
         },
-        "why_datasets": {
-            "klass": WHY_KLASS,
-            "ssb_11763": WHY_11763,
-            "not_m7_m8": WHY_NOT_M7_M8,
-            "not_07459": WHY_NOT_07459,
-            "methods": WHY_METHODS,
-        },
+        "why_datasets": (
+            {
+                "klass": WHY_KLASS,
+                "ssb_11763": WHY_11763,
+                "not_m7_m8": WHY_NOT_M7_M8,
+                "not_07459": WHY_NOT_07459,
+                "methods": WHY_METHODS,
+            }
+            if result.plan and result.plan.intent == "bydel_population_size_and_growth"
+            else {}
+        ),
         "joins": [
             {
                 "year": year,
@@ -142,7 +186,96 @@ def ask_proof_payload(
         "largest": result.largest,
         "growing": result.growing,
         "db": db,
+        "plan": result.plan.to_dict() if result.plan else None,
+        "execution": result.execution,
+        "answer": result.answer,
+        "numbers_retrieved": bool(result.answer.get("numbers_retrieved")),
     }
+
+
+def _execute_catalog_plan(
+    registry: Registry,
+    plan: QuestionPlan,
+    *,
+    http: JsonHttp | None,
+) -> dict[str, Any]:
+    """Execute only the first explicitly planned fetch, with no calculations."""
+
+    fetch_step = next((step for step in plan.steps if step.kind == "fetch"), None)
+    if fetch_step is None or fetch_step.dataset_id is None:
+        return {
+            "status": "not_fetched",
+            "numbers_retrieved": False,
+            "observations": [],
+            "explanation": plan.refusal_reason or "The planner found no executable fetch step; no numbers were retrieved.",
+        }
+    try:
+        fetched = fetch_observations(
+            registry,
+            fetch_step.dataset_id,
+            table_id=fetch_step.table_id or "",
+            http=http,
+        )
+    except Exception as exc:
+        return {
+            "status": "fetch_failed",
+            "numbers_retrieved": False,
+            "dataset_id": fetch_step.dataset_id,
+            "request_url": registry.get_dataset(fetch_step.dataset_id).get("access_path")
+            if registry.get_dataset(fetch_step.dataset_id)
+            else None,
+            "observations": [],
+            "reason": str(exc),
+            "explanation": f"The ranked hit was not fetched successfully ({exc}); no numbers were retrieved.",
+        }
+    rows = registry.list_observations(fetch_step.dataset_id)
+    dataset = registry.get_dataset(fetch_step.dataset_id) or {}
+    observations = []
+    numeric = False
+    for row in rows:
+        value = _json_value(row.get("value_json"))
+        numeric = numeric or isinstance(value, (int, float)) and not isinstance(value, bool)
+        observations.append(
+            {
+                "observation_id": row["id"],
+                "dataset_id": row["dataset_id"],
+                "table_id": row["table_id"],
+                "measure": row["measure"],
+                "value": value,
+                "dimensions": _json_value(row["dimensions_json"]),
+                "publisher_name": row.get("publisher_name") or dataset.get("publisher_name"),
+                "license": row.get("license") or dataset.get("license"),
+                "access_path": row.get("access_path") or dataset.get("access_path"),
+                "request_url": row.get("request_url"),
+                "http_status": row.get("http_status"),
+            }
+        )
+    explanation = (
+        "Values are copied from stored observations; no join or derived number was emitted."
+        if numeric
+        else "The connector returned no numeric observation values; no numbers were emitted."
+    )
+    return {
+        "status": "completed",
+        "numbers_retrieved": numeric,
+        "dataset_id": fetch_step.dataset_id,
+        "request_url": fetched.request_url,
+        "http_status": fetched.http_status,
+        "listed": fetched.counts.listed,
+        "observations": observations,
+        "explanation": explanation,
+    }
+
+
+def _json_value(value: Any) -> Any:
+    if not isinstance(value, str):
+        return value
+    import json
+
+    try:
+        return json.loads(value)
+    except json.JSONDecodeError:
+        return value
 
 
 def _observations_from_joined(rows: list[dict[str, Any]], latest: JoinResult) -> tuple[Observation, ...]:

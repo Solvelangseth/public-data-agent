@@ -604,6 +604,31 @@ pda mcp --call search \
   --out data/mcp_proof.json
 ```
 
+## Planner slice
+
+`pda ask` now builds an explicit plan after `search_report`. The first planner
+recognizes the Oslo-bydel size/growth intent and executes the existing Klass →
+SSB 11763 join → `methods.derive_yoy` path. Other Norwegian questions return
+ranked registry hits and fetch a result only when the selected row has a stored
+access path handled by an existing connector. Unsupported or failed fetches
+return `numbers_retrieved: false` and explain that no numbers were retrieved;
+they never turn catalog metadata into facts.
+
+```bash
+# Uses the existing local registry and the sourced demo workflow.
+pda ask "Hvilke Oslo-bydeler er størst og hvilke vokser mest?" \
+  --db data/registry.sqlite --out /tmp/ask.json
+
+# Catalog-only/optional-fetch planning for another Norwegian question.
+pda ask "Hvilke datasett finnes om strandsone?" \
+  --db data/registry.sqlite --out /tmp/ask-strandsone.json
+```
+
+The parser is deterministic in this slice so tests can prove numeric answers
+come only from observations, `joined_rows`, and `methods/`. An LLM may later
+produce the same plan shape, but it must not supply values, table ids, licenses,
+years, or join keys.
+
 ## Third stored-API fetch
 
 `pda fetch` already GETs a stored SSB Klass JSON URL. The unused live

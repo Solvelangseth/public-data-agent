@@ -973,6 +973,25 @@ class FetchResult:
     sample: list[dict[str, Any]] = field(default_factory=list)
 
 
+def can_fetch_access_path(access_path: str | None) -> bool:
+    """Return whether an existing URL connector can attempt a real fetch.
+
+    Connector predicates are the single source of truth used by
+    ``fetch_observations``. This helper is intentionally capability-only: it
+    does not perform network I/O and does not claim the endpoint is healthy.
+    """
+
+    if not access_path:
+        return False
+    if _is_ssb_table_url(access_path) or is_oslo_statbank_url(access_path):
+        return True
+    return any(
+        predicate(access_path)
+        for name, predicate in globals().items()
+        if name.startswith("is_") and name.endswith("_url") and callable(predicate)
+    )
+
+
 def pxweb_api_url(access_path: str, table_id: str) -> str:
     """Derive the PxWeb API URL from a stored access path plus a table path.
 

@@ -90,6 +90,9 @@ def export_proof_payload(
         "csv_columns": list(CSV_COLUMNS),
         "csv_rows": len(result.largest),
         "joined_rows": result.joined_rows,
+        "plan": result.plan.to_dict() if result.plan else None,
+        "execution": result.execution,
+        "numbers_retrieved": bool(result.answer.get("numbers_retrieved")),
         "chart_helper": "methods.emit.emit",
         "charts": {key: str(path) for key, path in chart_paths.items()},
         "joins": [
