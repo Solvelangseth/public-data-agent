@@ -4,8 +4,9 @@ import csv
 import json
 from pathlib import Path
 
-from public_data_agent.ask import DEMO_QUESTION, ask
+from public_data_agent.ask import AskResult, DEMO_QUESTION, ask
 from public_data_agent.cli import main
+from public_data_agent.export import OBSERVATION_COLUMNS, write_ask_csv
 from public_data_agent.harvest import harvest
 from public_data_agent.http_util import JsonResponse
 from public_data_agent.registry import Registry
@@ -261,3 +262,38 @@ def test_cli_ask_writes_stable_csv(tmp_path: Path, monkeypatch) -> None:
     proof = json.loads((tmp_path / "ask_export_proof.json").read_text(encoding="utf-8"))
     assert proof["csv_rows"] == 2
     assert proof["chart_helper"] == "methods.emit.emit"
+
+
+def test_generic_observations_export_with_provenance(tmp_path: Path) -> None:
+    out = tmp_path / "observations.csv"
+    result = AskResult(
+        question="test",
+        latest_year="2025",
+        prior_year="2024",
+        join_key="",
+        search={},
+        execution={
+            "observations": [
+                {
+                    "observation_id": "obs-1",
+                    "dataset_id": "ssb:demo",
+                    "table_id": "demo",
+                    "measure": "Antall",
+                    "value": 42,
+                    "dimensions": {"år": "2025"},
+                    "publisher_name": "Example publisher",
+                    "license": None,
+                    "access_path": "https://example.test/data",
+                    "request_url": "https://example.test/data",
+                    "http_status": 200,
+                }
+            ]
+        },
+    )
+    write_ask_csv(result, out)
+    with out.open(encoding="utf-8", newline="") as handle:
+        rows = list(csv.DictReader(handle))
+    assert list(rows[0]) == list(OBSERVATION_COLUMNS)
+    assert rows[0]["value"] == "42"
+    assert rows[0]["license"] == ""
+    assert rows[0]["lineage"].startswith("copied from stored observation")

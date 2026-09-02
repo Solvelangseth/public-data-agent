@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import csv
+import json
 from pathlib import Path
 from typing import Any
 
@@ -27,6 +28,9 @@ def write_ask_csv(result: AskResult, path: Path) -> Path:
     """Write one Excel-stable row per latest-year bydel. Numbers come from ask."""
 
     path.parent.mkdir(parents=True, exist_ok=True)
+    if not result.largest and result.execution.get("observations"):
+        _write_observation_csv(result, path)
+        return path
     growth = {row["bydel_code"]: row.get("yoy_growth") for row in result.growing}
     with path.open("w", encoding="utf-8", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=list(CSV_COLUMNS))
@@ -52,6 +56,42 @@ def write_ask_csv(result: AskResult, path: Path) -> Path:
                 }
             )
     return path
+
+
+OBSERVATION_COLUMNS = (
+    "observation_id",
+    "dataset_id",
+    "table_id",
+    "measure",
+    "value",
+    "dimensions",
+    "publisher_name",
+    "license",
+    "access_path",
+    "request_url",
+    "http_status",
+    "lineage",
+)
+
+
+def _write_observation_csv(result: AskResult, path: Path) -> None:
+    """Export generic fetched observations without inventing a tabular shape."""
+
+    observations = result.execution.get("observations") or []
+    with path.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=list(OBSERVATION_COLUMNS))
+        writer.writeheader()
+        for observation in observations:
+            dimensions = observation.get("dimensions")
+            writer.writerow(
+                {
+                    **{column: observation.get(column) for column in OBSERVATION_COLUMNS},
+                    "dimensions": json.dumps(dimensions, ensure_ascii=False, sort_keys=True)
+                    if dimensions is not None
+                    else "",
+                    "lineage": "copied from stored observation; no join or derived value",
+                }
+            )
 
 
 def write_ask_charts(result: AskResult, out_dir: Path) -> dict[str, Path]:
@@ -87,8 +127,10 @@ def export_proof_payload(
         "command": command,
         "question": result.question,
         "csv": str(csv_path),
-        "csv_columns": list(CSV_COLUMNS),
-        "csv_rows": len(result.largest),
+        "csv_rows": len(result.largest) or len(result.execution.get("observations") or []),
+        "csv_columns": list(OBSERVATION_COLUMNS)
+        if not result.largest and result.execution.get("observations")
+        else list(CSV_COLUMNS),
         "joined_rows": result.joined_rows,
         "plan": result.plan.to_dict() if result.plan else None,
         "execution": result.execution,
