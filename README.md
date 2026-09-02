@@ -619,6 +619,10 @@ they never turn catalog metadata into facts.
 pda ask "Hvilke Oslo-bydeler er størst og hvilke vokser mest?" \
   --db data/registry.sqlite --out /tmp/ask.json
 
+# Dry-run the planner first. This performs no fetch or calculation.
+pda plan "Hvilke Oslo-bydeler er størst og hvilke vokser mest?" \
+  --db data/registry.sqlite --out /tmp/plan.json
+
 # Catalog-only/optional-fetch planning for another Norwegian question.
 pda ask "Hvilke datasett finnes om strandsone?" \
   --db data/registry.sqlite --out /tmp/ask-strandsone.json

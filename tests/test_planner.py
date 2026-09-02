@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 
 from public_data_agent.ask import DEMO_QUESTION, ask
+from public_data_agent.cli import main
 from public_data_agent.harvest import harvest
 from public_data_agent.registry import Registry
 from public_data_agent.sources.fixture import FixtureSource
@@ -55,3 +56,16 @@ def test_demo_plan_contains_search_fetch_join_and_derived_steps(tmp_path: Path) 
     )
     assert [step.kind for step in plan.steps] == ["search", "fetch", "fetch", "join", "derive"]
     registry.close()
+
+
+def test_plan_command_is_dry_run_and_writes_structured_plan(tmp_path: Path, capsys) -> None:
+    registry = _registry(tmp_path)
+    db = tmp_path / "registry.sqlite"
+    registry.close()
+
+    assert main(["plan", DEMO_QUESTION, "--db", str(db)]) == 0
+    payload = json.loads(capsys.readouterr().out)
+    assert [step["kind"] for step in payload["plan"]["steps"]] == ["search"]
+    assert payload["execution"]["status"] == "not_executed"
+    assert payload["execution"]["numbers_retrieved"] is False
+    assert "no fetch" in payload["execution"]["explanation"]

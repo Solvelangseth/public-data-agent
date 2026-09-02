@@ -10,6 +10,7 @@ from public_data_agent.benchmark import DEFAULT_QUESTIONS, load_questions, run_b
 from public_data_agent.enrich import enrich
 from public_data_agent.fetch import DEFAULT_OSLO_DATASET, DEFAULT_OSLO_TABLE, fetch_observations
 from public_data_agent.ask import DEMO_QUESTION, ask, ask_proof_payload
+from public_data_agent.planner import build_plan
 from public_data_agent.export import export_proof_payload, write_ask_charts, write_ask_csv
 from public_data_agent.join import (
     DEFAULT_KLASS_DATASET,
@@ -149,6 +150,19 @@ def main(argv: list[str] | None = None) -> int:
     ask_cmd.add_argument("--out", type=Path, default=None)
     ask_cmd.add_argument("--limit", type=int, default=10)
 
+    plan_cmd = sub.add_parser(
+        "plan",
+        help="Plan a natural-language question without fetching or calculating",
+    )
+    plan_cmd.add_argument("question", nargs="?", default=DEMO_QUESTION)
+    plan_cmd.add_argument("--dataset", default=DEFAULT_KLASS_DATASET)
+    plan_cmd.add_argument("--table", default=DEFAULT_SSB_TABLE)
+    plan_cmd.add_argument("--year", type=int, default=2025)
+    plan_cmd.add_argument("--prior-year", type=int, default=2024)
+    plan_cmd.add_argument("--db", type=Path, default=DEFAULT_DB)
+    plan_cmd.add_argument("--out", type=Path, default=None)
+    plan_cmd.add_argument("--limit", type=int, default=10)
+
     scan_cmd = sub.add_parser(
         "scan-table-urls",
         help="Copy harvest-printed PxWeb/JSON-stat table URLs into printed_table_urls",
@@ -199,6 +213,8 @@ def main(argv: list[str] | None = None) -> int:
         return _methods(args)
     if args.command == "ask":
         return _ask(args)
+    if args.command == "plan":
+        return _plan(args)
     if args.command == "scan-table-urls":
         return _scan_table_urls(args)
     if args.command == "mcp":
@@ -518,6 +534,43 @@ def _ask(args: argparse.Namespace) -> int:
     except ValueError as exc:
         print(str(exc), file=sys.stderr)
         return 1
+    finally:
+        registry.close()
+
+
+def _plan(args: argparse.Namespace) -> int:
+    """Build and print a plan without executing any network operation."""
+    if not Path(args.db).exists() and str(args.db) != ":memory:":
+        print(f"no registry at {args.db}", file=sys.stderr)
+        return 1
+    registry = Registry(args.db)
+    try:
+        report = search_report(registry, args.question, limit=args.limit)
+        plan = build_plan(
+            args.question,
+            report,
+            klass_dataset_id=args.dataset,
+            ssb_table=args.table,
+            latest_year=args.year,
+            prior_year=args.prior_year,
+            registry=registry,
+        )
+        payload = {
+            "question": args.question,
+            "plan": plan.to_dict(),
+            "discovery": report.to_dict(),
+            "execution": {
+                "status": "not_executed",
+                "numbers_retrieved": False,
+                "explanation": "Plan-only mode performs no fetch, join, calculation, or visualization.",
+            },
+        }
+        text = json.dumps(payload, ensure_ascii=False, indent=2)
+        if args.out:
+            args.out.parent.mkdir(parents=True, exist_ok=True)
+            args.out.write_text(text + "\n", encoding="utf-8")
+        print(text)
+        return 0
     finally:
         registry.close()
 
