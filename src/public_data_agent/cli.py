@@ -163,6 +163,11 @@ def main(argv: list[str] | None = None) -> int:
     plan_cmd.add_argument("--out", type=Path, default=None)
     plan_cmd.add_argument("--limit", type=int, default=10)
 
+    dashboard_cmd = sub.add_parser("dashboard", help="Run the local planner test dashboard")
+    dashboard_cmd.add_argument("--db", type=Path, default=DEFAULT_DB)
+    dashboard_cmd.add_argument("--host", default="127.0.0.1")
+    dashboard_cmd.add_argument("--port", type=int, default=8765)
+
     scan_cmd = sub.add_parser(
         "scan-table-urls",
         help="Copy harvest-printed PxWeb/JSON-stat table URLs into printed_table_urls",
@@ -215,6 +220,14 @@ def main(argv: list[str] | None = None) -> int:
         return _ask(args)
     if args.command == "plan":
         return _plan(args)
+    if args.command == "dashboard":
+        from public_data_agent.dashboard import serve
+
+        if not Path(args.db).exists() and str(args.db) != ":memory:":
+            print(f"no registry at {args.db}", file=sys.stderr)
+            return 1
+        serve(str(args.db), host=args.host, port=args.port)
+        return 0
     if args.command == "scan-table-urls":
         return _scan_table_urls(args)
     if args.command == "mcp":

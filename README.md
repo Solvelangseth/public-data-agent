@@ -633,6 +633,17 @@ come only from observations, `joined_rows`, and `methods/`. An LLM may later
 produce the same plan shape, but it must not supply values, table ids, licenses,
 years, or join keys.
 
+### Local test dashboard
+
+Run the lightweight local dashboard to try plan and execution requests in a
+browser. It uses the same registry and `pda plan` / `pda ask` paths; it does not
+add a hosted UI or require an LLM key.
+
+```bash
+pda dashboard --db data/registry.sqlite
+# open http://127.0.0.1:8765
+```
+
 ## Third stored-API fetch
 
 `pda fetch` already GETs a stored SSB Klass JSON URL. The unused live
