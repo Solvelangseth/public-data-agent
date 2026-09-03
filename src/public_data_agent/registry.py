@@ -384,10 +384,28 @@ class Registry:
         return int(row["n"])
 
     def list_observations(
-        self, dataset_id: str | None = None, *, series: str | None = None
+        self,
+        dataset_id: str | None = None,
+        *,
+        series: str | None = None,
+        ids: list[str] | None = None,
     ) -> list[dict[str, Any]]:
+        if ids is not None and not ids:
+            return []
         clauses: list[str] = []
         params: list[Any] = []
+        if ids is not None:
+            # Chunked to stay under SQLite's variable limit on a wide fetch.
+            out: list[dict[str, Any]] = []
+            for start in range(0, len(ids), 500):
+                chunk = ids[start : start + 500]
+                placeholders = ",".join("?" for _ in chunk)
+                rows = self.conn.execute(
+                    f"SELECT * FROM observations WHERE id IN ({placeholders}) ORDER BY id",
+                    tuple(chunk),
+                ).fetchall()
+                out.extend(dict(row) for row in rows)
+            return out
         if dataset_id:
             clauses.append("dataset_id = ?")
             params.append(dataset_id)

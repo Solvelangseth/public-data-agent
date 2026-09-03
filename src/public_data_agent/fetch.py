@@ -971,6 +971,10 @@ class FetchResult:
     http_status: int
     counts: HarvestCounts = field(default_factory=HarvestCounts)
     sample: list[dict[str, Any]] = field(default_factory=list)
+    # Identity keys of the cells THIS request covered. A row already present is
+    # reported "unchanged" and keeps its original fetch_run_id, so neither the
+    # run id nor the series identifies what a given fetch actually asked for.
+    observation_ids: list[str] = field(default_factory=list)
 
 
 def can_fetch_access_path(access_path: str | None) -> bool:
@@ -1477,6 +1481,7 @@ def fetch_observations(
     status = "failed"
     http_status = 0
     sample: list[dict[str, Any]] = []
+    touched: list[str] = []
     try:
         meta = client.get_json_response(request_url)
         time_code, selected = time_codes(meta.body, from_year=from_year, to_year=to_year)
@@ -1497,6 +1502,7 @@ def fetch_observations(
             request_url=request_url,
             http_status=http_status,
             counts=counts,
+            touched=touched,
         )
         status = "completed"
     except Exception as exc:
@@ -1512,6 +1518,7 @@ def fetch_observations(
         http_status=http_status,
         counts=counts,
         sample=sample,
+        observation_ids=touched,
     )
 
 
@@ -11689,6 +11696,7 @@ def _store_cells(
     http_status: int,
     counts: HarvestCounts,
     series: str | None = None,
+    touched: list[str] | None = None,
 ) -> list[dict[str, Any]]:
     # A raw table fetch and a joined subset of the same table both land under
     # one dataset_id with different dimension names.  Tagging the projection
@@ -11698,7 +11706,7 @@ def _store_cells(
     with registry.deferred_commit():
         return _store_each(
             registry, dataset, run_id, table_id, cells, retrieved_at,
-            request_url, http_status, counts, series, sample,
+            request_url, http_status, counts, series, sample, touched,
         )
 
 
@@ -11714,6 +11722,7 @@ def _store_each(
     counts: HarvestCounts,
     series: str,
     sample: list[dict[str, Any]],
+    touched: list[str] | None,
 ) -> list[dict[str, Any]]:
     for measure, value, dims in cells:
         observation = Observation(
@@ -11757,6 +11766,8 @@ def _store_each(
             counts.unchanged += 1
         if len(sample) < 5:
             sample.append({"measure": measure, "value": value, "dimensions": dims})
+        if touched is not None:
+            touched.append(observation.identity_key())
     return sample
 
 
