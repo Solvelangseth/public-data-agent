@@ -84,6 +84,8 @@ def validate_model_plan(
         if dataset_id is not None and dataset_id not in candidate_dataset_ids:
             return PlanValidation(None, f"model selected dataset outside candidates: {dataset_id}")
         table_id = raw.get("table_id")
+        if raw["kind"] == "fetch" and (not dataset_id or not table_id):
+            return PlanValidation(None, "fetch steps require candidate dataset_id and table_id")
         if table_id is not None and candidate_table_ids and str(table_id) not in candidate_table_ids:
             return PlanValidation(None, f"model selected table outside candidates: {table_id}")
         periods = raw.get("periods", ())

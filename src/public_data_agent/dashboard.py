@@ -8,6 +8,7 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 from public_data_agent.ask import ask
+from public_data_agent.executor import execute_plan
 from public_data_agent.llm_planner import candidate_context, plan_with_provider
 from public_data_agent.openai_planner import OpenAIPlanProvider
 from public_data_agent.planner import build_plan
@@ -27,7 +28,7 @@ pre{white-space:pre-wrap;overflow:auto;background:#111827;color:#d1fae5;border-r
 </style></head><body><main><h1>Public Data Agent</h1>
 <p class="muted">Test the local Norwegian public-data planner. Plan mode never fetches data.</p>
 <textarea id="question">Hvilke Oslo-bydeler er størst og hvilke vokser mest?</textarea><br>
-<button onclick="run('plan')">Inspect plan</button><button onclick="run('llm-plan')">LLM plan</button><button class="secondary" onclick="run('ask')">Run question</button>
+<button onclick="run('plan')">Inspect plan</button><button onclick="run('llm-plan')">LLM plan</button><button class="secondary" onclick="run('llm-run')">Run LLM plan</button><button class="secondary" onclick="run('ask')">Run demo/ask</button>
 <div class="status" id="status"></div><h2>Result</h2><pre id="result">Enter a question and choose an action.</pre>
 <script>
 async function run(mode){const status=document.getElementById('status'), out=document.getElementById('result'); status.textContent='Working…'; out.textContent='';
@@ -46,7 +47,7 @@ def serve(db: str, host: str = "127.0.0.1", port: int = 8765) -> None:
 
         def do_POST(self) -> None:  # noqa: N802
             path = urlparse(self.path).path
-            if path not in {"/api/plan", "/api/llm-plan", "/api/ask"}:
+            if path not in {"/api/plan", "/api/llm-plan", "/api/llm-run", "/api/ask"}:
                 self.send_error(404)
                 return
             try:
@@ -68,7 +69,7 @@ def serve(db: str, host: str = "127.0.0.1", port: int = 8765) -> None:
                     )
                     if path == "/api/plan":
                         payload = {"plan": plan.to_dict(), "discovery": report.to_dict()}
-                    elif path == "/api/llm-plan":
+                    elif path in {"/api/llm-plan", "/api/llm-run"}:
                         provider = OpenAIPlanProvider.from_env(dotenv=Path(".env"))
                         validation = plan_with_provider(
                             provider,
@@ -77,11 +78,12 @@ def serve(db: str, host: str = "127.0.0.1", port: int = 8765) -> None:
                         )
                         if validation.plan is None:
                             raise ValueError(validation.error or "LLM plan failed validation")
-                        payload = {
-                            "plan": validation.plan.to_dict(),
-                            "discovery": report.to_dict(),
-                            "execution": {"status": "not_executed", "numbers_retrieved": False},
-                        }
+                        payload = {"plan": validation.plan.to_dict(), "discovery": report.to_dict()}
+                        if path == "/api/llm-run":
+                            execution = execute_plan(registry, validation.plan)
+                            payload["execution"] = execution.to_dict()
+                        else:
+                            payload["execution"] = {"status": "not_executed", "numbers_retrieved": False}
                     else:
                         result = ask(registry, question)
                         payload = {
