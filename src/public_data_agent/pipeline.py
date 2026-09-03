@@ -16,6 +16,7 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from public_data_agent.fetch import classify_access_path
+from public_data_agent.intake import IntakeProvider, Request, read_question_with_fallback
 from public_data_agent.registry import Registry
 from public_data_agent.search import search_report
 
@@ -93,15 +94,25 @@ class Readiness:
         }
 
 
-def assess_readiness(registry: Registry, question: str, *, limit: int = 5) -> Readiness:
+def assess_readiness(
+    registry: Registry,
+    question: str,
+    *,
+    limit: int = 5,
+    request: Request | None = None,
+) -> Readiness:
     """Decide whether any registered connector could answer this question.
 
     Ready means at least one hit classifies as ``observations``. A code list is
     not enough on its own: a classification supplies join keys, never measures.
     A catalogue record that merely describes data is not enough either.
+
+    When an intake ``request`` is supplied, its extracted terms are searched
+    rather than the raw sentence, so question words do not become requirements.
     """
 
-    report = search_report(registry, question, limit=max(limit * LANE_DEPTH, limit))
+    query = request.search_query() if request is not None and request.search_terms else question
+    report = search_report(registry, query, limit=max(limit * LANE_DEPTH, limit))
     uncovered = list(report.coverage.missing)
     observations: list[SourceRef] = []
     lookups: list[SourceRef] = []
@@ -221,3 +232,45 @@ def stop_message(readiness: Readiness) -> str:
         "connector registreres for en av kildene over."
     )
     return "\n".join(lines)
+
+
+@dataclass(frozen=True)
+class Intake:
+    """Intake and the gate composed: the first two nodes of the pipeline."""
+
+    request: Request
+    readiness: Readiness
+    intake_warning: str | None = None
+
+    @property
+    def proceed(self) -> bool:
+        """Continue only when the question is understood and answerable."""
+
+        return self.readiness.ready and not self.request.needs_clarification
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "proceed": self.proceed,
+            "intake": self.request.to_dict(),
+            "readiness": self.readiness.to_dict(),
+            "intake_warning": self.intake_warning,
+            "numbers_retrieved": False,
+        }
+
+
+def run_intake(
+    registry: Registry,
+    question: str,
+    *,
+    provider: IntakeProvider | None = None,
+    limit: int = 5,
+) -> Intake:
+    """Read the question, then decide whether anything can answer it.
+
+    Clarification is asked before the gate's verdict is acted on: a question we
+    have misread is not evidence that the data is missing.
+    """
+
+    request, warning = read_question_with_fallback(question, provider)
+    readiness = assess_readiness(registry, question, limit=limit, request=request)
+    return Intake(request=request, readiness=readiness, intake_warning=warning)

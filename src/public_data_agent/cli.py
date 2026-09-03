@@ -56,6 +56,11 @@ def main(argv: list[str] | None = None) -> int:
     check.add_argument("question")
     check.add_argument("--db", type=Path, default=DEFAULT_DB)
     check.add_argument("--limit", type=int, default=5)
+    check.add_argument(
+        "--llm",
+        action="store_true",
+        help="Use the model to read the question. Off by default; the deterministic reading needs no key.",
+    )
 
     status = sub.add_parser("status", help="Show registry counts and recent harvest runs")
     status.add_argument("--db", type=Path, default=DEFAULT_DB)
@@ -695,22 +700,27 @@ def _mcp(args: argparse.Namespace) -> int:
 def _check(args: argparse.Namespace) -> int:
     """Run the readiness gate. Exit 0 when a question can be answered, 2 when not."""
 
-    from public_data_agent.pipeline import assess_readiness, stop_message
+    from public_data_agent.pipeline import run_intake, stop_message
 
     if not Path(args.db).exists() and str(args.db) != ":memory:":
         print(f"no registry at {args.db}", file=sys.stderr)
         return 1
+    provider = None
+    if args.llm:
+        from public_data_agent.openai_agent import OpenAIIntakeProvider
+
+        provider = OpenAIIntakeProvider.from_env(dotenv=Path(".env"))
     registry = Registry(args.db)
     try:
-        readiness = assess_readiness(registry, args.question, limit=args.limit)
+        outcome = run_intake(registry, args.question, provider=provider, limit=args.limit)
     finally:
         registry.close()
-    payload = readiness.to_dict()
-    if not readiness.ready:
-        payload["stop_message"] = stop_message(readiness)
+    payload = outcome.to_dict()
+    if not outcome.readiness.ready:
+        payload["stop_message"] = stop_message(outcome.readiness)
     print(json.dumps(payload, ensure_ascii=False, indent=2))
     # A distinct exit code so a caller can branch without parsing the payload.
-    return 0 if readiness.ready else 2
+    return 0 if outcome.proceed else 2
 
 
 def _search(args: argparse.Namespace) -> int:

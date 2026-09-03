@@ -186,3 +186,51 @@ def test_gate_can_be_disabled_without_changing_tool_behaviour(tmp_path: Path) ->
     result = run_agent("kvantekryptografi på Jupiter", Model(), db=db, gate=False)
     assert result.final == "ran anyway"
     assert result.readiness is None
+
+
+def test_intake_and_gate_compose_into_one_verdict(tmp_path: Path) -> None:
+    from public_data_agent.pipeline import run_intake
+
+    registry = _registry(tmp_path)
+    registry.conn.execute(
+        "UPDATE datasets SET access_path = ?, title = ? WHERE id = ?",
+        (SSB_TABLE_URL, "Folkemengde i strandsone", STRANDSONE_ID),
+    )
+    registry.conn.commit()
+    try:
+        out = run_intake(registry, "Hvilken strandsone er størst?")
+    finally:
+        registry.close()
+    # Question words never reach search as requirements.
+    assert "hvilken" not in out.request.search_terms
+    assert out.readiness.ready is True
+    assert out.proceed is True
+    assert out.to_dict()["numbers_retrieved"] is False
+
+
+def test_a_question_needing_clarification_does_not_proceed(tmp_path: Path) -> None:
+    """Misreading a question is not evidence that the data is missing."""
+
+    from public_data_agent.intake import validate_intake
+    from public_data_agent.pipeline import run_intake
+
+    class VagueProvider:
+        def read_question(self, question):
+            return {
+                "search_terms": ["strandsone"],
+                "clarifying_question": "Hvilken strandsone mener du?",
+            }
+
+    registry = _registry(tmp_path)
+    registry.conn.execute(
+        "UPDATE datasets SET access_path = ? WHERE id = ?", (SSB_TABLE_URL, STRANDSONE_ID)
+    )
+    registry.conn.commit()
+    try:
+        out = run_intake(registry, "strandsone", provider=VagueProvider())
+    finally:
+        registry.close()
+    assert out.request.needs_clarification is True
+    # Answerable, but we stop anyway until the question is settled.
+    assert out.readiness.ready is True
+    assert out.proceed is False

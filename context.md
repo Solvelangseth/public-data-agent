@@ -139,9 +139,41 @@ code.
   lineage.
 - `artifacts.py` / `export.py` write CSV, JSON and PNG, preserving provenance.
 
+### Pipeline
+
+The run is a small graph, and most of its nodes are plain functions. A model is
+asked only where language is the problem; every routing decision is computed.
+
+`intake.py` reads the question — terms, geography, period, whether it is a
+lookup or an open investigation, and whether anything is unclear enough to ask
+about. It runs before any search, so it has no datasets and no numbers, and
+`validate_intake` rejects output containing either. `read_question()` is a
+deterministic fallback that needs no model, so the pipeline and the tests work
+without a key.
+
+`pipeline.assess_readiness` then decides whether any registered source could
+answer, before a planner is asked to plan. Three stop outcomes:
+`nothing_found`, `catalogue_only` (records describe data nothing can fetch),
+`lookup_only` (code lists carry join keys, never measures). Models judge their
+own readiness poorly, so this gate is deterministic and uses signals search and
+the capability classifier already compute.
+
+Two rules hold the graph together:
+
+- **State carries handles, not prose.** Nodes pass dataset ids, series tags and
+  tool results. A summary sentence handed between nodes becomes a fact nobody
+  can check.
+- **Uncovered query terms are reported, never used to refuse.** Search indexes
+  titles and keywords, not dimension *values*, so "Trondheim" is uncovered even
+  when a table answers for it via `select=`.
+
+`pda check "<question>"` runs both nodes and exits 2 when a question cannot be
+answered.
+
 ### Agent and interfaces
 
-- `agent_loop.py` — provider-neutral, bounded tool loop. Tool errors come back to the
+- `agent_loop.py` — provider-neutral, bounded tool loop, fronted by the
+  readiness gate (`gate=False` to bypass it for loop-level tests). Tool errors come back to the
   model as retryable results; at the step limit it returns an explicit no-numbers
   answer rather than a blank one.
 - `openai_agent.py` — OpenAI Responses adapter and the `SYSTEM_INSTRUCTIONS` evidence

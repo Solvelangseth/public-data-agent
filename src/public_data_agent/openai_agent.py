@@ -101,3 +101,47 @@ def _extract_text(payload: dict[str, Any]) -> str:
             if content.get("type") in {"output_text", "text"} and content.get("text"):
                 chunks.append(str(content["text"]))
     return "".join(chunks)
+
+
+class OpenAIIntakeProvider:
+    """Reads a Norwegian question into a structured request. Never answers it.
+
+    Shares the credential handling of the agent adapter. The output is validated
+    by `intake.validate_intake` before anything downstream sees it, so a model
+    that ignores the instructions and returns an answer is rejected rather than
+    trusted.
+    """
+
+    def __init__(self, api_key: str, *, model: str = "gpt-4.1-mini", timeout: float = 45.0) -> None:
+        if not api_key.strip():
+            raise ValueError("OpenAI API key is empty")
+        self.api_key, self.model, self.timeout = api_key, model, timeout
+
+    @classmethod
+    def from_env(cls, *, model: str = "gpt-4.1-mini", dotenv: Path | None = None) -> "OpenAIIntakeProvider":
+        agent = OpenAIAgentModel.from_env(model=model, dotenv=dotenv)
+        return cls(agent.api_key, model=model)
+
+    def read_question(self, question: str) -> dict[str, Any]:
+        from public_data_agent.intake import INTAKE_INSTRUCTIONS
+
+        body = {
+            "model": self.model,
+            "instructions": INTAKE_INSTRUCTIONS,
+            # json_object format requires the word "json" in the input itself,
+            # not only in the instructions.
+            "input": [{"role": "user", "content": f"Return JSON for this question:\n{question}"}],
+            "text": {"format": {"type": "json_object"}},
+        }
+        request = Request(
+            "https://api.openai.com/v1/responses",
+            data=json.dumps(body).encode(),
+            headers={"Authorization": f"Bearer {self.api_key}", "Content-Type": "application/json"},
+            method="POST",
+        )
+        with urlopen(request, timeout=self.timeout) as response:
+            payload = json.loads(response.read().decode())
+        text = payload.get("output_text") or _extract_text(payload)
+        if not text:
+            raise ValueError("intake provider returned no text")
+        return json.loads(text)
