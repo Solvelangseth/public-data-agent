@@ -6,6 +6,7 @@ from typing import Any, Callable
 
 from public_data_agent.ask import DEMO_QUESTION, ask, ask_proof_payload
 from public_data_agent.analysis import run_analysis
+from public_data_agent.artifacts import export_csv, export_json, plot_values
 from public_data_agent.fetch import DEFAULT_OSLO_DATASET, DEFAULT_OSLO_TABLE, fetch_observations
 from public_data_agent.fetch import can_fetch_access_path
 from public_data_agent.join import DEFAULT_KLASS_DATASET, join_bydel_population, join_proof_payload
@@ -178,10 +179,54 @@ def tool_run_analysis(
         registry.close()
 
 
+def tool_export_artifact(
+    dataset: str,
+    path: str,
+    db: str = DEFAULT_DB,
+    format: str = "csv",
+    filters: dict[str, str] | None = None,
+    measure: str | None = None,
+    group_by: list[str] | None = None,
+    aggregate: str | None = None,
+) -> dict[str, Any]:
+    """Export stored-observation analysis results to a local CSV or JSON file."""
+    registry = _open_registry(db)
+    try:
+        result = run_analysis(registry, dataset, filters=filters, measure=measure, group_by=group_by, aggregate=aggregate)
+        artifact = export_json(result, Path(path)) if format == "json" else export_csv(result, Path(path)) if format == "csv" else None
+        if artifact is None:
+            raise ValueError("format must be csv or json")
+        return {"tool": "export_artifact", "values_from": "stored_observations", "result": result.to_dict(), "artifact": artifact.to_dict()}
+    finally:
+        registry.close()
+
+
+def tool_create_visualization(
+    dataset: str,
+    path: str,
+    db: str = DEFAULT_DB,
+    label: str = "label",
+    filters: dict[str, str] | None = None,
+    measure: str | None = None,
+    group_by: list[str] | None = None,
+    aggregate: str | None = None,
+) -> dict[str, Any]:
+    """Create a local PNG chart from numeric stored-observation results."""
+    registry = _open_registry(db)
+    try:
+        result = run_analysis(registry, dataset, filters=filters, measure=measure, group_by=group_by, aggregate=aggregate)
+        artifact = plot_values(result, Path(path), label=label)
+        return {"tool": "create_visualization", "values_from": "stored_observations", "artifact": artifact.to_dict(), "result": result.to_dict()}
+    finally:
+        registry.close()
+
+
 TOOLS: dict[str, Callable[..., dict[str, Any]]] = {
     "search": tool_search,
     "inspect": tool_inspect,
     "run_analysis": tool_run_analysis,
+    "export_artifact": tool_export_artifact,
+    "create_visualization": tool_create_visualization,
     "ask": tool_ask,
     "fetch": tool_fetch,
 }
@@ -209,6 +254,8 @@ def build_server():
     server.add_tool(tool_search, name="search")
     server.add_tool(tool_inspect, name="inspect")
     server.add_tool(tool_run_analysis, name="run_analysis")
+    server.add_tool(tool_export_artifact, name="export_artifact")
+    server.add_tool(tool_create_visualization, name="create_visualization")
     server.add_tool(tool_ask, name="ask")
     server.add_tool(tool_fetch, name="fetch")
     return server
