@@ -168,6 +168,11 @@ def main(argv: list[str] | None = None) -> int:
     dashboard_cmd.add_argument("--host", default="127.0.0.1")
     dashboard_cmd.add_argument("--port", type=int, default=8765)
 
+    agent_cmd = sub.add_parser("agent", help="Run the optional OpenAI tool-using agent")
+    agent_cmd.add_argument("question")
+    agent_cmd.add_argument("--model", default="gpt-4.1-mini")
+    agent_cmd.add_argument("--steps", type=int, default=8)
+
     scan_cmd = sub.add_parser(
         "scan-table-urls",
         help="Copy harvest-printed PxWeb/JSON-stat table URLs into printed_table_urls",
@@ -228,6 +233,18 @@ def main(argv: list[str] | None = None) -> int:
             return 1
         serve(str(args.db), host=args.host, port=args.port)
         return 0
+    if args.command == "agent":
+        from public_data_agent.agent_loop import run_agent
+        from public_data_agent.openai_agent import OpenAIAgentModel
+
+        try:
+            model = OpenAIAgentModel.from_env(model=args.model, dotenv=Path(".env"))
+            result = run_agent(args.question, model, max_steps=args.steps)
+        except (RuntimeError, ValueError) as exc:
+            print(str(exc), file=sys.stderr)
+            return 1
+        print(json.dumps({"tool_calls": result.tool_calls, "final": result.final, "error": result.error, "messages": result.messages}, ensure_ascii=False, indent=2))
+        return 1 if result.error else 0
     if args.command == "scan-table-urls":
         return _scan_table_urls(args)
     if args.command == "mcp":

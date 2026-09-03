@@ -23,13 +23,39 @@ def tool_search(query: str, db: str = DEFAULT_DB, limit: int = 10) -> dict[str, 
     registry = _open_registry(db)
     try:
         report = search_report(registry, query, limit=limit)
-        return {
+        payload = {
             "tool": "search",
             "db": db,
             "values_from": "registry",
             "query": query,
             **report.to_dict(),
         }
+        # Search results are catalog records, while these are the small set of
+        # observation connectors already registered by the project.  Keeping
+        # them explicit prevents the model from guessing a table from a
+        # landing-page dataset (the failure mode seen in the dashboard).
+        for hit in payload["results"]:
+            path = (hit.get("access") or {}).get("access_path")
+            hit["connector"] = {
+                "fetch_supported": can_fetch_access_path(path),
+                "reason": "registered URL connector" if can_fetch_access_path(path) else "no registered observation connector for this access_path",
+            }
+        candidates = []
+        for dataset_id, table_id in (("ssb:11763", DEFAULT_SSB_TABLE), (DEFAULT_KLASS_DATASET, "1168")):
+            row = registry.get_dataset(dataset_id)
+            if row and can_fetch_access_path(row.get("access_path")):
+                candidates.append({
+                    "dataset_id": dataset_id,
+                    "table_id": table_id,
+                    "title": row.get("title"),
+                    "publisher_name": row.get("publisher_name"),
+                    "license": row.get("license"),
+                    "access_path": row.get("access_path"),
+                    "fetch_supported": True,
+                    "reason": "registered connector candidate; inspect before fetching",
+                })
+        payload["connector_candidates"] = candidates
+        return payload
     finally:
         registry.close()
 
@@ -101,6 +127,23 @@ def tool_fetch(
             payload["mode"] = "join"
             return payload
         dataset_row = registry.get_dataset(dataset) or {}
+        access_path = dataset_row.get("access_path")
+        if not can_fetch_access_path(access_path):
+            return {
+                "tool": "fetch",
+                "mode": "observations",
+                "values_from": "registry",
+                "dataset": dataset,
+                "table": table,
+                "error": {
+                    "code": "unsupported_access_path",
+                    "retryable": False,
+                    "message": "No registered connector can fetch this dataset access_path; numbers were not retrieved.",
+                    "access_path": access_path,
+                    "suggested_action": "Use connector_candidates from search or inspect a different registered dataset.",
+                },
+                "numbers_retrieved": False,
+            }
         result = fetch_observations(
             registry,
             dataset,

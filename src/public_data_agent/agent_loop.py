@@ -37,4 +37,17 @@ def run_agent(question: str, model: AgentModel, *, max_steps: int = 8) -> AgentR
             result = {"error": str(exc)}
         messages.append({"role": "assistant", "function_call": action})
         messages.append({"role": "tool", "name": name, "call_id": action.get("call_id", ""), "content": result})
-    return AgentRun(messages, len([m for m in messages if m.get("role") == "tool"]), error="agent step limit reached")
+    # A bounded loop must still produce a truthful user-facing result.  In
+    # particular, never leave the UI with a blank answer after a connector
+    # failure: no numeric claim was produced by the trust boundary.
+    return AgentRun(
+        messages,
+        len([m for m in messages if m.get("role") == "tool"]),
+        final=(
+            "Jeg fant ikke en registrert connector som kunne hente dokumenterte "
+            "observasjoner innenfor stegbegrensningen. Ingen tall ble hentet "
+            "eller beregnet; prøv en kilde i connector_candidates eller inspiser "
+            "en annen katalogpost."
+        ),
+        error="agent step limit reached",
+    )

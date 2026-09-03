@@ -166,6 +166,27 @@ def test_search_tool_passes_through_stored_provenance(tmp_path: Path) -> None:
     assert "source_native_uri" in hit["original_link"]
 
 
+def test_search_tool_marks_connector_capability_and_candidates(tmp_path: Path) -> None:
+    registry = _registry(tmp_path)
+    db = str(tmp_path / "registry.sqlite")
+    registry.close()
+    payload = call_tool("search", {"query": "strandsone", "db": db, "limit": 5})
+    assert "connector" in payload["results"][0]
+    assert payload["results"][0]["connector"]["fetch_supported"] is True
+    assert payload["connector_candidates"] == []
+
+
+def test_fetch_rejects_unregistered_access_path(tmp_path: Path) -> None:
+    registry = _registry(tmp_path)
+    db = str(tmp_path / "registry.sqlite")
+    registry.conn.execute("UPDATE datasets SET access_path = ? WHERE id = ?", ("https://example.invalid/landing", STRANDSONE_ID))
+    registry.conn.commit()
+    registry.close()
+    payload = call_tool("fetch", {"dataset": STRANDSONE_ID, "table": "11763", "db": db})
+    assert payload["numbers_retrieved"] is False
+    assert payload["error"]["code"] == "unsupported_access_path"
+
+
 def test_fetch_join_tool_reuses_existing_join(tmp_path: Path, monkeypatch) -> None:
     registry = _registry(tmp_path)
     db = str(tmp_path / "registry.sqlite")

@@ -32,3 +32,18 @@ def test_agent_loop_rejects_unknown_tools() -> None:
     result = run_agent("test", Model())
     assert result.final is None
     assert "unknown tool" in (result.error or "")
+
+
+def test_agent_loop_returns_truthful_fallback_at_step_limit(monkeypatch) -> None:
+    monkeypatch.setattr(
+        "public_data_agent.agent_loop.call_tool",
+        lambda name, arguments: {"error": {"code": "unsupported_access_path"}, "numbers_retrieved": False},
+    )
+
+    class Model:
+        def next_action(self, messages, tools):
+            return {"tool": "fetch", "arguments": {"dataset": "d", "table": "t"}}
+
+    result = run_agent("find data", Model(), max_steps=1)
+    assert result.final and "Ingen tall ble hentet" in result.final
+    assert result.error == "agent step limit reached"
