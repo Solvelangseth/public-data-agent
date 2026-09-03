@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from public_data_agent.llm_planner import plan_with_provider, validate_model_plan
+from public_data_agent.llm_planner import candidate_context, plan_with_provider, validate_model_plan
 
 
 def _payload() -> dict:
@@ -45,3 +45,27 @@ def test_provider_output_is_validated_before_acceptance() -> None:
     )
     assert result.plan is not None
     assert result.plan.question == "strandsonedata"
+
+
+def test_candidate_context_is_bounded_and_contains_registry_facts() -> None:
+    class Hit:
+        dataset_id = "known:1"
+        title = "Known"
+        publisher = {"name": "Publisher"}
+        license = None
+        access_path = "https://example.test/table/123"
+        why = "matched title"
+
+    class Report:
+        hits = [Hit()]
+
+    context = candidate_context(Report(), limit=1)
+    assert context == [{
+        "dataset_id": "known:1",
+        "title": "Known",
+        "publisher": {"name": "Publisher"},
+        "license": None,
+        "access_path": "https://example.test/table/123",
+        "table_id": "123",
+        "why": "matched title",
+    }]

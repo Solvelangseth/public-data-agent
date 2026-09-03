@@ -10,6 +10,7 @@ from dataclasses import dataclass
 from typing import Any, Protocol
 
 from public_data_agent.planner import PlanStep, QuestionPlan
+from public_data_agent.search import SearchReport
 
 
 class PlanProvider(Protocol):
@@ -20,6 +21,28 @@ class PlanProvider(Protocol):
 class PlanValidation:
     plan: QuestionPlan | None
     error: str | None = None
+
+
+def candidate_context(report: SearchReport, *, limit: int = 10) -> list[dict[str, Any]]:
+    """Create the bounded, factual context supplied to a planning provider."""
+    return [
+        {
+            "dataset_id": hit.dataset_id,
+            "title": hit.title,
+            "publisher": hit.publisher,
+            "license": hit.license,
+            "access_path": hit.access_path,
+            "table_id": _table_id(hit.access_path),
+            "why": hit.why,
+        }
+        for hit in report.hits[:limit]
+    ]
+
+
+def _table_id(access_path: str | None) -> str | None:
+    if not access_path:
+        return None
+    return access_path.rstrip("/").rsplit("/", 1)[-1] or None
 
 
 def validate_model_plan(
