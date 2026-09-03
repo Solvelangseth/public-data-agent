@@ -13,8 +13,8 @@ TOOL_SCHEMAS = [
     {"type": "function", "name": "search", "description": "Search the local public-data catalog.", "parameters": {"type": "object", "properties": {"query": {"type": "string"}, "limit": {"type": "integer"}}, "required": ["query"], "additionalProperties": False}},
     {"type": "function", "name": "inspect", "description": "Inspect stored metadata and connector capability.", "parameters": {"type": "object", "properties": {"dataset": {"type": "string"}}, "required": ["dataset"], "additionalProperties": False}},
     {"type": "function", "name": "get_provenance", "description": "Return stored publisher, license, access URL, and observation lineage.", "parameters": {"type": "object", "properties": {"dataset": {"type": "string"}}, "required": ["dataset"], "additionalProperties": False}},
-    {"type": "function", "name": "fetch", "description": "Fetch observations from a supported stored access path. For Oslo bydel population, call with dataset=the Klass dataset id, table=11763, join=true, and year; this runs the registered exact bydel_code join.", "parameters": {"type": "object", "properties": {"dataset": {"type": "string"}, "table": {"type": "string"}, "from_year": {"type": "integer"}, "to_year": {"type": "integer"}, "year": {"type": "integer"}, "join": {"type": "boolean"}}, "required": ["dataset", "table"], "additionalProperties": False}},
-    {"type": "function", "name": "run_analysis", "description": "Filter or aggregate stored observations. Filters may use a scalar or an array of exact stored dimension values; measure=value selects numeric cells.", "parameters": {"type": "object", "properties": {"dataset": {"type": "string"}, "filters": {"type": "object", "additionalProperties": {"type": ["string", "array"]}}, "measure": {"type": "string"}, "group_by": {"type": "array", "items": {"type": "string"}}, "aggregate": {"type": "string", "enum": ["count", "sum", "mean"]}}, "required": ["dataset"], "additionalProperties": False}},
+    {"type": "function", "name": "fetch", "description": "Fetch observations from a supported stored access path. With join=true, dataset=a Klass classification id and table=an SSB table id joins them on codes both sides literally store; pass join_key/series to name the result. For Oslo bydel population use the Klass bydel dataset with table=11763. Large tables must be narrowed: pass select={dimension: [codes]} using codes from the error's dimension list, plus from_year/to_year for time.", "parameters": {"type": "object", "properties": {"dataset": {"type": "string"}, "table": {"type": "string"}, "from_year": {"type": "integer"}, "to_year": {"type": "integer"}, "year": {"type": "integer"}, "join": {"type": "boolean"}, "join_key": {"type": "string"}, "series": {"type": "string"}, "select": {"type": "object", "additionalProperties": {"type": "array", "items": {"type": "string"}}}}, "required": ["dataset", "table"], "additionalProperties": False}},
+    {"type": "function", "name": "run_analysis", "description": "Filter, sort, or aggregate stored observations. Filters may use a scalar or an array of exact stored dimension values; measure=value selects numeric cells. Call inspect first and use only dimension names and values listed in its observation_schema. When observation_schema lists more than one series, pass series= to scope to one: dimension names differ between series and mixing them matches nothing. Use sort_by/descending to rank: never order rows yourself. Always read the returned `warnings`.", "parameters": {"type": "object", "properties": {"dataset": {"type": "string"}, "filters": {"type": "object", "additionalProperties": {"type": ["string", "array"]}}, "measure": {"type": "string"}, "group_by": {"type": "array", "items": {"type": "string"}}, "aggregate": {"type": "string", "enum": ["count", "sum", "mean"]}, "sort_by": {"type": "string"}, "descending": {"type": "boolean"}, "series": {"type": "string"}}, "required": ["dataset"], "additionalProperties": False}},
     {"type": "function", "name": "export_artifact", "description": "Export stored results as a local CSV or JSON artifact.", "parameters": {"type": "object", "properties": {"dataset": {"type": "string"}, "path": {"type": "string"}, "format": {"type": "string", "enum": ["csv", "json"]}}, "required": ["dataset", "path"], "additionalProperties": False}},
     {"type": "function", "name": "create_visualization", "description": "Create a local PNG chart from numeric stored results.", "parameters": {"type": "object", "properties": {"dataset": {"type": "string"}, "path": {"type": "string"}, "label": {"type": "string"}}, "required": ["dataset", "path"], "additionalProperties": False}},
 ]
@@ -29,6 +29,24 @@ For Oslo bydel population, use dataset id `datanorge:0c89041e-ae88-32ef-a765-8e1
 with `table=11763` and `join=true` for the registered Klass + SSB exact bydel_code join.
 Never rewrite ids (for example, `ssb:11763` includes a colon). Explain sources and
 transformations, and mention artifact paths when files are made.
+
+Reading tool results correctly is part of the evidence boundary:
+- Call inspect before run_analysis and use only the dimension names and values listed in
+  its `observation_schema`. A guessed dimension name matches no rows.
+- A field named `sample` is a truncated, unsorted excerpt. Never present it as a ranking
+  or as a complete list. Rank only with run_analysis sort_by, or over a full `rows` list.
+- Never state a ranking, a total, or a growth figure you computed in your head. Ask the
+  tool to sort or aggregate, and report what it returned.
+- A tool result's `warnings` list is binding. If it says an aggregate double counts or
+  that totals are mixed with their parts, do not report that number; re-run with the
+  filter the warning names.
+- An empty result is evidence of absence, not licence to substitute another period.
+  If the requested period is missing, say so and name the periods that do exist.
+- `selection_too_large` is retryable and tells you exactly what to narrow. Re-run fetch
+  with `select` limited to the codes the question needs, using codes from the error's
+  `dimensions` list. Never retry the same unnarrowed request.
+- Fetch only the slice the question needs. Pulling a whole table to read one number
+  wastes the source's quota and usually fails outright.
 """
 
 

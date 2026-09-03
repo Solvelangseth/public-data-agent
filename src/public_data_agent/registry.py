@@ -36,7 +36,21 @@ class Registry:
     def _apply_schema(self) -> None:
         sql = resources.files(SCHEMA_PACKAGE).joinpath("schema.sql").read_text(encoding="utf-8")
         self.conn.executescript(sql)
+        self._migrate()
         self.conn.commit()
+
+    def _migrate(self) -> None:
+        """Add columns that `CREATE TABLE IF NOT EXISTS` cannot add to an old file.
+
+        Existing rows keep series NULL: we do not backfill a provenance claim we
+        cannot verify from what was stored.
+        """
+
+        columns = {
+            row["name"] for row in self.conn.execute("PRAGMA table_info(observations)").fetchall()
+        }
+        if "series" not in columns:
+            self.conn.execute("ALTER TABLE observations ADD COLUMN series TEXT")
 
     def start_run(
         self,
@@ -339,24 +353,32 @@ class Registry:
         row = self.conn.execute("SELECT COUNT(*) AS n FROM observations").fetchone()
         return int(row["n"])
 
-    def list_observations(self, dataset_id: str | None = None) -> list[dict[str, Any]]:
+    def list_observations(
+        self, dataset_id: str | None = None, *, series: str | None = None
+    ) -> list[dict[str, Any]]:
+        clauses: list[str] = []
+        params: list[Any] = []
         if dataset_id:
-            rows = self.conn.execute(
-                "SELECT * FROM observations WHERE dataset_id = ? ORDER BY id",
-                (dataset_id,),
-            ).fetchall()
-        else:
-            rows = self.conn.execute("SELECT * FROM observations ORDER BY id").fetchall()
+            clauses.append("dataset_id = ?")
+            params.append(dataset_id)
+        if series is not None:
+            clauses.append("series = ?")
+            params.append(series)
+        where = f" WHERE {' AND '.join(clauses)}" if clauses else ""
+        rows = self.conn.execute(
+            f"SELECT * FROM observations{where} ORDER BY id", tuple(params)
+        ).fetchall()
         return [dict(row) for row in rows]
 
     def upsert_observation(self, row: dict[str, Any], run_id: int) -> str:
         existing = self.conn.execute(
-            "SELECT id, value_json FROM observations WHERE id = ?",
+            "SELECT id, value_json, series FROM observations WHERE id = ?",
             (row["id"],),
         ).fetchone()
         values = {
             "id": row["id"],
             "dataset_id": row["dataset_id"],
+            "series": row.get("series"),
             "table_id": row["table_id"],
             "measure": row["measure"],
             "value_json": _dumps(row.get("value")),
@@ -381,6 +403,15 @@ class Registry:
             self.conn.commit()
             return "inserted"
         if existing["value_json"] == values["value_json"]:
+            # The value is unchanged, but a row written before the series column
+            # existed carries no tag.  Backfill it from the connector that just
+            # re-produced this exact cell; "unchanged" still describes the value.
+            if values["series"] is not None and existing["series"] != values["series"]:
+                self.conn.execute(
+                    "UPDATE observations SET series = ? WHERE id = ?",
+                    (values["series"], row["id"]),
+                )
+                self.conn.commit()
             return "unchanged"
         assign = ", ".join(f"{col} = ?" for col in _OBSERVATION_UPDATE_COLUMNS)
         self.conn.execute(
@@ -722,6 +753,7 @@ _ENRICHMENT_UPDATE_COLUMNS = tuple(
 _OBSERVATION_COLUMNS = (
     "id",
     "dataset_id",
+    "series",
     "table_id",
     "measure",
     "value_json",

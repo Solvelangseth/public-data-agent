@@ -49,6 +49,14 @@ def main(argv: list[str] | None = None) -> int:
     ingest.add_argument("--batch-size", type=int, default=None, help="Resource Service fetch/upsert batch")
     ingest.add_argument("--quiet", action="store_true", help="Do not print batch progress on stderr")
 
+    check = sub.add_parser(
+        "check",
+        help="Ask whether a question can be answered at all, without calling a model",
+    )
+    check.add_argument("question")
+    check.add_argument("--db", type=Path, default=DEFAULT_DB)
+    check.add_argument("--limit", type=int, default=5)
+
     status = sub.add_parser("status", help="Show registry counts and recent harvest runs")
     status.add_argument("--db", type=Path, default=DEFAULT_DB)
 
@@ -172,6 +180,13 @@ def main(argv: list[str] | None = None) -> int:
     agent_cmd.add_argument("question")
     agent_cmd.add_argument("--model", default="gpt-4.1-mini")
     agent_cmd.add_argument("--steps", type=int, default=8)
+    agent_cmd.add_argument("--db", type=Path, default=DEFAULT_DB)
+    agent_cmd.add_argument(
+        "--gate",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="Stop before any model call when no registered source can answer. Default on.",
+    )
 
     scan_cmd = sub.add_parser(
         "scan-table-urls",
@@ -209,6 +224,8 @@ def main(argv: list[str] | None = None) -> int:
         return _status(args)
     if args.command == "stats":
         return _stats(args)
+    if args.command == "check":
+        return _check(args)
     if args.command == "search":
         return _search(args)
     if args.command == "enrich":
@@ -239,11 +256,17 @@ def main(argv: list[str] | None = None) -> int:
 
         try:
             model = OpenAIAgentModel.from_env(model=args.model, dotenv=Path(".env"))
-            result = run_agent(args.question, model, max_steps=args.steps)
+            result = run_agent(
+                args.question,
+                model,
+                max_steps=args.steps,
+                db=str(args.db),
+                gate=args.gate,
+            )
         except (RuntimeError, ValueError) as exc:
             print(str(exc), file=sys.stderr)
             return 1
-        print(json.dumps({"tool_calls": result.tool_calls, "final": result.final, "error": result.error, "messages": result.messages}, ensure_ascii=False, indent=2))
+        print(json.dumps({"tool_calls": result.tool_calls, "readiness": result.readiness, "final": result.final, "error": result.error, "messages": result.messages}, ensure_ascii=False, indent=2))
         return 1 if result.error else 0
     if args.command == "scan-table-urls":
         return _scan_table_urls(args)
@@ -669,6 +692,27 @@ def _mcp(args: argparse.Namespace) -> int:
     return 0
 
 
+def _check(args: argparse.Namespace) -> int:
+    """Run the readiness gate. Exit 0 when a question can be answered, 2 when not."""
+
+    from public_data_agent.pipeline import assess_readiness, stop_message
+
+    if not Path(args.db).exists() and str(args.db) != ":memory:":
+        print(f"no registry at {args.db}", file=sys.stderr)
+        return 1
+    registry = Registry(args.db)
+    try:
+        readiness = assess_readiness(registry, args.question, limit=args.limit)
+    finally:
+        registry.close()
+    payload = readiness.to_dict()
+    if not readiness.ready:
+        payload["stop_message"] = stop_message(readiness)
+    print(json.dumps(payload, ensure_ascii=False, indent=2))
+    # A distinct exit code so a caller can branch without parsing the payload.
+    return 0 if readiness.ready else 2
+
+
 def _search(args: argparse.Namespace) -> int:
     if args.questions and args.query:
         print("search --questions does not take a query argument", file=sys.stderr)
@@ -746,3 +790,7 @@ def _search(args: argparse.Namespace) -> int:
         registry.close()
     print(json.dumps(payload, ensure_ascii=False, indent=2))
     return 0
+
+
+if __name__ == "__main__":  # pragma: no cover - module entry point
+    raise SystemExit(main())

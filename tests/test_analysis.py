@@ -7,7 +7,7 @@ class RegistryStub:
     def get_dataset(self, dataset_id):
         return {"title": "Demo", "publisher_name": "Publisher", "license": None, "access_path": "https://example.test/data"}
 
-    def list_observations(self, dataset_id):
+    def list_observations(self, dataset_id, *, series=None):
         return [
             {"id": "1", "table_id": "t", "measure": "count", "value_json": "12", "dimensions_json": '{"år":"2025","region":"Oslo"}'},
             {"id": "2", "table_id": "t", "measure": "count", "value_json": "9", "dimensions_json": '{"år":"2024","region":"Bergen"}'},

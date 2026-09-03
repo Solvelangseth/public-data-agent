@@ -71,8 +71,8 @@ def serve(db: str, host: str = "127.0.0.1", port: int = 8765) -> None:
                     )
                     if path == "/api/agent":
                         model = OpenAIAgentModel.from_env(dotenv=Path(".env"))
-                        run = run_agent(question, model, max_steps=8)
-                        payload = {"tool_calls": run.tool_calls, "final": run.final, "error": run.error, "messages": run.messages}
+                        run = run_agent(question, model, max_steps=8, db=db)
+                        payload = {"tool_calls": run.tool_calls, "readiness": run.readiness, "final": run.final, "error": run.error, "messages": run.messages}
                     elif path == "/api/plan":
                         payload = {"plan": plan.to_dict(), "discovery": report.to_dict()}
                     elif path in {"/api/llm-plan", "/api/llm-run"}:

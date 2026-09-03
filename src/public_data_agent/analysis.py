@@ -15,6 +15,7 @@ def run_analysis(
     *,
     filters: dict[str, Any] | None = None,
     measure: str | None = None,
+    series: str | None = None,
     columns: list[str] | None = None,
     group_by: list[str] | None = None,
     aggregate: str | None = None,
@@ -27,7 +28,7 @@ def run_analysis(
         return ToolResult(status="failed", error=f"dataset not found in registry: {dataset_id}")
     filters = filters or {}
     rows: list[dict[str, Any]] = []
-    for row in registry.list_observations(dataset_id):
+    for row in registry.list_observations(dataset_id, series=series):
         dimensions = _decode(row.get("dimensions_json")) or {}
         # Agents commonly use ``measure=value`` to request numeric cells.  The
         # stored measure label is source-defined and must not be guessed.
@@ -41,6 +42,7 @@ def run_analysis(
         item = {
             "observation_id": row["id"],
             "dataset_id": dataset_id,
+            "series": row.get("series"),
             "table_id": row["table_id"],
             "measure": row["measure"],
             "value": _decode(row.get("value_json")),
@@ -52,7 +54,12 @@ def run_analysis(
     if columns:
         rows = [{key: item[key] for key in columns if key in item} for item in rows]
     if sort_by:
-        rows.sort(key=lambda item: (item.get(sort_by) is None, item.get(sort_by)), reverse=descending)
+        # Missing values must never win a ranking.  The previous key put them
+        # first under descending=True, so "largest" led with empty cells.
+        present = [item for item in rows if item.get(sort_by) is not None]
+        missing = [item for item in rows if item.get(sort_by) is None]
+        present.sort(key=lambda item: item.get(sort_by), reverse=descending)
+        rows = present + missing
     provenance = [
         Provenance(
             dataset_id=dataset_id,
@@ -62,7 +69,182 @@ def run_analysis(
             access_path=dataset.get("access_path"),
         )
     ]
-    return ToolResult(status="completed", values=rows, provenance=provenance)
+    result = ToolResult(status="completed", values=rows, provenance=provenance)
+    result.warnings = _analysis_warnings(
+        registry,
+        dataset_id,
+        rows,
+        filters=filters,
+        measure=measure,
+        series=series,
+        group_by=group_by,
+        aggregate=aggregate,
+    )
+    return result
+
+
+MAX_LISTED_VALUES = 40
+# Stored labels that denote an "all categories" cell.  Summing such a row
+# together with its own parts double counts, so callers are warned rather
+# than handed a plausible wrong total.
+TOTAL_LABELS = frozenset({"i alt", "alle", "total", "totalt", "begge kjønn", "alle bydeler i oslo"})
+
+
+def describe_observations(
+    registry: Registry, dataset_id: str, *, series: str | None = None
+) -> dict[str, Any]:
+    """Summarise the stored observation store so a caller can pick real filters.
+
+    Nothing here is inferred: every key, value, and count is read back from
+    rows the connectors actually wrote.  Without this a model has to guess
+    dimension names, and a guessed name silently matches no rows.
+    """
+
+    rows = list(registry.list_observations(dataset_id, series=series))
+    series_counts: dict[str, int] = {}
+    dimensions: dict[str, dict[str, int]] = {}
+    measures: dict[str, int] = {}
+    shapes: dict[tuple[str, ...], int] = {}
+    for row in rows:
+        dims = _decode(row.get("dimensions_json")) or {}
+        if not isinstance(dims, dict):
+            dims = {}
+        shapes[tuple(sorted(dims))] = shapes.get(tuple(sorted(dims)), 0) + 1
+        for key, value in dims.items():
+            dimensions.setdefault(key, {})
+            label = str(value)
+            dimensions[key][label] = dimensions[key].get(label, 0) + 1
+        label = str(row.get("series") or "(untagged)")
+        series_counts[label] = series_counts.get(label, 0) + 1
+        measure = row.get("measure")
+        if measure is not None:
+            measures[str(measure)] = measures.get(str(measure), 0) + 1
+
+    described: dict[str, Any] = {}
+    for key, counts in sorted(dimensions.items()):
+        values = sorted(counts)
+        totals = [value for value in values if value.casefold() in TOTAL_LABELS]
+        described[key] = {
+            "distinct": len(values),
+            "values": values[:MAX_LISTED_VALUES],
+            "truncated": len(values) > MAX_LISTED_VALUES,
+            "row_count": sum(counts.values()),
+            "total_like_values": totals,
+        }
+
+    warnings: list[str] = []
+    if len(shapes) > 1:
+        readable = sorted(", ".join(shape) or "(no dimensions)" for shape in shapes)
+        warnings.append(
+            f"this dataset stores {len(shapes)} incompatible dimension shapes "
+            f"({'; '.join(readable)}); a filter valid for one shape matches no rows in another. "
+            f"Pass series=<one of {sorted(series_counts)}> to scope to a single shape."
+        )
+    for key, info in described.items():
+        if info["total_like_values"]:
+            warnings.append(
+                f"dimension {key} mixes total rows {info['total_like_values']} with their parts; "
+                "filter to one level before summing or ranking"
+            )
+    return {
+        "dataset_id": dataset_id,
+        "series": series,
+        "observation_count": len(rows),
+        "series_counts": dict(sorted(series_counts.items())),
+        "dimensions": described,
+        "measures": sorted(measures),
+        "dimension_shapes": [
+            {"dimensions": list(shape), "row_count": count} for shape, count in sorted(shapes.items())
+        ],
+        "warnings": warnings,
+    }
+
+
+def _analysis_warnings(
+    registry: Registry,
+    dataset_id: str,
+    rows: list[dict[str, Any]],
+    *,
+    filters: dict[str, Any],
+    measure: str | None,
+    series: str | None,
+    group_by: list[str] | None,
+    aggregate: str | None,
+) -> list[str]:
+    """Explain an empty or double-counting result instead of returning it bare."""
+
+    schema = describe_observations(registry, dataset_id, series=series)
+    warnings: list[str] = []
+    if not rows:
+        if schema["observation_count"] == 0 and series is not None:
+            available = describe_observations(registry, dataset_id)
+            if available["observation_count"]:
+                return [
+                    f"no rows matched: series={series!r} holds no observations. "
+                    f"Stored series for this dataset are {sorted(available['series_counts'])}."
+                ]
+        if schema["observation_count"] == 0:
+            # "Nothing stored" is not "no such data exists".  Saying so stopped
+            # the agent after one step and reported absence it had not checked.
+            return [
+                "this dataset has no stored observations yet, so nothing could match. "
+                "This is NOT evidence that the data does not exist: call fetch for this "
+                "dataset first, then re-run the analysis."
+            ]
+        if measure is not None and measure != "value" and measure not in schema["measures"]:
+            warnings.append(
+                f"no rows matched: measure={measure!r} is not a stored measure; "
+                f"stored measures are {schema['measures']}. Use measure='value' for numeric cells."
+            )
+        unknown = sorted(key for key in filters if key not in schema["dimensions"])
+        if unknown:
+            warnings.append(
+                f"no rows matched: filter key(s) {unknown} are not stored dimensions; "
+                f"stored dimensions are {sorted(schema['dimensions'])}"
+            )
+        # Filters drawn from two different shapes can each be individually valid
+        # and still match nothing together, because no single row carries both.
+        shapes = [set(shape["dimensions"]) for shape in schema["dimension_shapes"]]
+        keys = set(filters) - set(unknown)
+        if keys and shapes and not any(keys <= shape for shape in shapes):
+            warnings.append(
+                f"no rows matched: filter keys {sorted(keys)} come from different dimension shapes "
+                f"and no single observation has all of them. Each row uses exactly one of: "
+                f"{[sorted(shape) for shape in shapes]}. Pick one shape and filter only within it."
+            )
+        elif not warnings:
+            for key, value in filters.items():
+                stored = schema["dimensions"].get(key, {})
+                listed = stored.get("values") or []
+                if stored.get("truncated"):
+                    continue
+                wanted = [str(item) for item in value] if isinstance(value, (list, tuple, set)) else [str(value)]
+                missing = [item for item in wanted if item not in listed]
+                if missing:
+                    warnings.append(
+                        f"no rows matched: {key} value(s) {missing} are not stored; stored values are {listed}"
+                    )
+        if not warnings:
+            warnings.append("no stored observation matched these filters; nothing was fetched or inferred")
+        return warnings
+
+    if aggregate in {"sum", "mean"} and group_by:
+        collapsed = [
+            key
+            for key in schema["dimensions"]
+            if key not in group_by and key not in filters and schema["dimensions"][key]["distinct"] > 1
+        ]
+        if collapsed:
+            warnings.append(
+                f"aggregate={aggregate} collapses unconstrained dimension(s) {sorted(collapsed)}; "
+                "each group sums across every stored value of them, which double counts "
+                "overlapping categories. Filter them first."
+            )
+    for key in list(filters) + list(group_by or []):
+        totals = (schema["dimensions"].get(key) or {}).get("total_like_values") or []
+        if totals and str(filters.get(key)) not in {str(item) for item in totals}:
+            warnings.append(f"dimension {key} contains total row(s) {totals} alongside their parts")
+    return warnings
 
 
 def _decode(value: Any) -> Any:

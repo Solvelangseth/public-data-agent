@@ -17,6 +17,9 @@ from public_data_agent.ssb_pxweb import (
 
 DEFAULT_KLASS_DATASET = "datanorge:0c89041e-ae88-32ef-a765-8e1ccbd64fdd"
 JOIN_KEY = "bydel_code"
+# The join stores an "I alt" per-bydel projection whose dimension names differ
+# from a raw 11763 fetch; the tag keeps the two apart in the observation store.
+JOIN_SERIES = "join:bydel_population"
 SSB_PUBLISHER = "Statistisk sentralbyrå"
 
 WHY_NOT_M7_M8 = (
@@ -60,7 +63,41 @@ def join_bydel_population(
     year: int | None = 2025,
     http: JsonHttp | None = None,
 ) -> JoinResult:
-    """Inner-join Klass bydel codes to SSB 11763 population on the exact code."""
+    """Inner-join Klass bydel codes to SSB 11763 population on the exact code.
+
+    This is the Oslo-shaped entry point kept for the demo and the CLI. It is a
+    thin call into :func:`join_classification_to_table`, which does the same
+    thing for any Klass classification and any SSB table.
+    """
+
+    return join_classification_to_table(
+        registry,
+        klass_dataset_id=klass_dataset_id,
+        ssb_table=ssb_table,
+        year=year,
+        http=http,
+        join_key=JOIN_KEY,
+        series=JOIN_SERIES,
+    )
+
+
+def join_classification_to_table(
+    registry: Registry,
+    *,
+    klass_dataset_id: str = DEFAULT_KLASS_DATASET,
+    ssb_table: str = DEFAULT_SSB_TABLE,
+    year: int | None = 2025,
+    http: JsonHttp | None = None,
+    join_key: str = JOIN_KEY,
+    series: str = JOIN_SERIES,
+) -> JoinResult:
+    """Inner-join any SSB Klass code list to any SSB PxWeb table on exact codes.
+
+    The key is discovered, not assumed: the classification's stored codes are
+    matched against the table's stored dimension values, and only exact string
+    equality counts. If no dimension overlaps, the two genuinely do not share a
+    key and the join refuses rather than inventing glue.
+    """
 
     klass_dataset = registry.get_dataset(klass_dataset_id)
     if klass_dataset is None:
@@ -68,7 +105,7 @@ def join_bydel_population(
     right_dataset_id = f"ssb:{ssb_table}"
     started = utc_now()
     run_id = registry.start_join_run(
-        join_key=JOIN_KEY,
+        join_key=join_key,
         left_dataset_id=klass_dataset_id,
         right_dataset_id=right_dataset_id,
         left_request_url=klass_dataset.get("access_path") or "",
@@ -87,16 +124,25 @@ def join_bydel_population(
         klass_fetch = fetch_observations(registry, klass_dataset_id, table_id="klass", http=http)
         left_http = klass_fetch.http_status
         left_url = klass_fetch.request_url
-        ssb = fetch_ssb_table(ssb_table, year=year, http=http)
+        klass_by_code = _klass_by_code(registry.list_observations(klass_dataset_id))
+        if not klass_by_code:
+            raise ValueError(f"{klass_dataset_id} stored no classification codes to join on")
+        ssb = fetch_ssb_table(ssb_table, year=year, http=http, key_codes=set(klass_by_code))
         right_http = ssb.http_status
         right_url = ssb.request_url
         right_title = ssb.label
         right_publisher = ssb.source or SSB_PUBLISHER
-        _persist_ssb_observations(registry, ssb, right_dataset_id)
-        klass_by_code = _klass_by_code(registry.list_observations(klass_dataset_id))
+        _persist_ssb_observations(
+            registry,
+            ssb,
+            right_dataset_id,
+            series=series,
+            join_key=join_key,
+            known_codes=set(klass_by_code),
+        )
         retrieved_left = utc_now()
         for cell in ssb.cells:
-            code = _region_code(cell.codes)
+            code = _region_code(cell.codes, set(klass_by_code))
             if code is None:
                 continue
             klass_row = klass_by_code.get(code)
@@ -104,11 +150,11 @@ def join_bydel_population(
                 continue
             year_label = cell.labels.get("Tid") or cell.codes.get("Tid") or ""
             why = (
-                f"exact {JOIN_KEY} {code} in SSB {ssb_table} Region and "
+                f"exact {join_key} {code} in SSB {ssb_table} Region and "
                 f"Klass classificationItems.code"
             )
             payload = {
-                "bydel_code": code,
+                join_key: code,
                 "year": year_label,
                 "age": cell.labels.get("KOKalder0000") or cell.labels.get("Alder"),
                 "population": cell.value,
@@ -117,8 +163,8 @@ def join_bydel_population(
                 "klass_name": json.loads(klass_row["value_json"]),
             }
             record = {
-                "id": _joined_id(JOIN_KEY, code, year_label, klass_dataset_id, right_dataset_id),
-                "join_key": JOIN_KEY,
+                "id": _joined_id(join_key, code, year_label, klass_dataset_id, right_dataset_id),
+                "join_key": join_key,
                 "join_key_value": code,
                 "why_matched": why,
                 "left_dataset_id": klass_dataset_id,
@@ -146,7 +192,7 @@ def join_bydel_population(
             if len(sample) < 5:
                 sample.append(
                     {
-                        "join_key": JOIN_KEY,
+                        "join_key": join_key,
                         "join_key_value": code,
                         "why_matched": why,
                         **payload,
@@ -167,7 +213,7 @@ def join_bydel_population(
             right_http_status=right_http or None,
         )
     return JoinResult(
-        join_key=JOIN_KEY,
+        join_key=join_key,
         left_dataset_id=klass_dataset_id,
         right_dataset_id=right_dataset_id,
         left_request_url=left_url,
@@ -234,8 +280,20 @@ def join_proof_payload(
     }
 
 
-def _persist_ssb_observations(registry: Registry, ssb: SsbTableResult, dataset_id: str) -> None:
-    """Write the 11763 cells already in hand into the M7 observations store."""
+def _persist_ssb_observations(
+    registry: Registry,
+    ssb: SsbTableResult,
+    dataset_id: str,
+    *,
+    series: str = JOIN_SERIES,
+    join_key: str = JOIN_KEY,
+    known_codes: set[str] | None = None,
+) -> None:
+    """Write the cells already in hand into the observations store.
+
+    The key dimension is named after the join actually performed, so a kommune
+    or fylke join does not store its codes under a column called bydel_code.
+    """
 
     registry.ensure_observation_dataset(
         dataset_id=dataset_id,
@@ -259,7 +317,7 @@ def _persist_ssb_observations(registry: Registry, ssb: SsbTableResult, dataset_i
     cells: list[tuple[str, Any, dict[str, str]]] = []
     try:
         for cell in ssb.cells:
-            code = _region_code(cell.codes)
+            code = _region_code(cell.codes, known_codes)
             if code is None:
                 continue
             year_label = cell.labels.get("Tid") or cell.codes.get("Tid") or ""
@@ -270,7 +328,7 @@ def _persist_ssb_observations(registry: Registry, ssb: SsbTableResult, dataset_i
                 (
                     cell.measure,
                     cell.value,
-                    {"region": region_label, "år": year_label, "bydel_code": code},
+                    {"region": region_label, "år": year_label, join_key: code},
                 )
             )
         counts.listed = len(cells)
@@ -284,6 +342,7 @@ def _persist_ssb_observations(registry: Registry, ssb: SsbTableResult, dataset_i
             request_url=ssb.request_url,
             http_status=ssb.http_status,
             counts=counts,
+            series=series,
         )
         status = "completed"
     except Exception as exc:
@@ -306,7 +365,23 @@ def _klass_by_code(rows: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
     return out
 
 
-def _region_code(codes: dict[str, str]) -> str | None:
+def _region_code(codes: dict[str, str], known: set[str] | None = None) -> str | None:
+    """Pick the cell code that the joined classification also stores.
+
+    When ``known`` is given the match is exact membership, so the key is proved
+    by both payloads rather than inferred from a code's shape. The six-digit
+    fallback preserves the original Oslo bydel behaviour.
+    """
+
+    if known:
+        for key in ("KOKbydelsregion0000", "Region"):
+            value = codes.get(key)
+            if value and value in known:
+                return value
+        for value in codes.values():
+            if value in known:
+                return value
+        return None
     for key in ("KOKbydelsregion0000", "Region"):
         value = codes.get(key)
         if value and len(value) == 6 and value.isdigit():

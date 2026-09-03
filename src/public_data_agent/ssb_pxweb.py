@@ -61,6 +61,33 @@ def bydel_codes_from_meta(meta: dict[str, Any]) -> tuple[str, list[str]]:
     raise ValueError("table metadata has no 6-digit bydel region codes")
 
 
+def codes_matching_classification(
+    meta: dict[str, Any], classification_codes: set[str]
+) -> tuple[str, list[str]] | None:
+    """Find the table variable whose stored codes overlap a Klass code list.
+
+    This is the generic form of ``bydel_codes_from_meta``: instead of assuming
+    a six-digit bydel region, it asks which dimension of this table literally
+    stores the same code strings the classification stores. The join key is
+    therefore discovered from both payloads, never assumed. Returns the
+    variable code and the overlapping values, or None when nothing overlaps.
+    """
+
+    best: tuple[str, list[str]] | None = None
+    for variable in meta.get("variables") or []:
+        code = str(variable.get("code") or "")
+        if not code:
+            continue
+        overlap = [
+            str(item)
+            for item in (variable.get("values") or [])
+            if str(item) in classification_codes
+        ]
+        if overlap and (best is None or len(overlap) > len(best[1])):
+            best = (code, overlap)
+    return best
+
+
 def i_alt_age_selection(meta: dict[str, Any]) -> tuple[str, str] | None:
     for variable in meta.get("variables") or []:
         text = str(variable.get("text") or "").casefold()
@@ -133,6 +160,7 @@ def fetch_ssb_table(
     *,
     year: int | None = None,
     http: JsonHttp | None = None,
+    key_codes: set[str] | None = None,
 ) -> SsbTableResult:
     client = http or HttpClient(timeout=60.0, max_retries=4)
     request_url = ssb_table_url(table_id)
@@ -141,7 +169,16 @@ def fetch_ssb_table(
         raise ValueError(f"SSB table metadata HTTP {meta.status} for {request_url}")
     if not isinstance(meta.body, dict):
         raise ValueError("SSB table metadata is not a JSON object")
-    region_code, region_values = bydel_codes_from_meta(meta.body)
+    if key_codes is None:
+        region_code, region_values = bydel_codes_from_meta(meta.body)
+    else:
+        matched = codes_matching_classification(meta.body, key_codes)
+        if matched is None:
+            raise ValueError(
+                f"table {table_id} stores no dimension whose codes overlap the classification; "
+                "these two do not share a join key"
+            )
+        region_code, region_values = matched
     time_code, time_value = time_year_selection(meta.body, year)
     query = _ssb_query(meta.body, region_code, region_values, time_code, time_value)
     posted = client.post_json_response(request_url, query)

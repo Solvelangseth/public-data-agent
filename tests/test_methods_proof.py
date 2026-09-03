@@ -185,6 +185,7 @@ def test_committed_oslo_proof_artifacts() -> None:
 
 
 SSB_11763 = "ssb:11763"
+JOIN_SERIES = "join:bydel_population"
 SSB_PROOF_DIR = Path(__file__).resolve().parents[1] / "methods" / "proof" / "ssb11763"
 SSB_STORE = SSB_PROOF_DIR / "store.json"
 
@@ -195,7 +196,11 @@ def _ssb11763_stored_rows() -> list[dict]:
 
         registry = Registry(REGISTRY)
         try:
-            stored = registry.list_observations(SSB_11763)
+            # One dataset_id holds several projections: a raw full-table fetch
+            # (every age, every region) and this joined per-bydel "I alt" series.
+            # The formula/lineage proof is about the joined series, so it must be
+            # scoped to it -- an unscoped read blends two incompatible shapes.
+            stored = registry.list_observations(SSB_11763, series=JOIN_SERIES)
         finally:
             registry.close()
         if stored:

@@ -40,17 +40,26 @@ def test_tokenize_is_casefold_and_keeps_norwegian_letters() -> None:
 
 
 def test_tokenize_drops_short_norwegian_function_words() -> None:
+    # Question words are dropped and inflected forms are folded to the stored
+    # base form. AND-decompose makes every surviving token a hard requirement,
+    # so "hvilke" or "bydeler" left standing excludes the rows that store "bydel".
     assert tokenize("Hvilke Oslo-bydeler er størst og hvilke vokser mest?") == [
-        "hvilke",
         "oslo",
-        "bydeler",
+        "bydel",
         "størst",
-        "hvilke",
-        "vokser",
-        "mest",
+        "vekst",
     ]
     assert tokenize("boliger på vei for barn") == ["boliger", "vei", "barn"]
-    assert tokenize("oslo i på for og bydeler") == ["oslo", "bydeler"]
+    assert tokenize("oslo i på for og bydeler") == ["oslo", "bydel"]
+
+
+def test_tokenize_folds_natural_question_phrasing_onto_stored_tokens() -> None:
+    assert tokenize("hvor mange bor det i bydelene i Oslo") == [
+        "befolkning",
+        "bydel",
+        "oslo",
+    ]
+    assert tokenize("folkemengde i kommunene") == ["befolkning", "kommune"]
 
 
 def test_tokenize_maps_folketall_to_stored_befolkning() -> None:

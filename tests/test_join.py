@@ -237,3 +237,28 @@ def test_cli_join_writes_proof(tmp_path: Path, monkeypatch) -> None:
     assert payload["sample"][0]["population"] == 64920
     assert payload["sources"]["left"]["http_status"] == 200
     assert payload["sources"]["right"]["http_status"] == 200
+
+
+def test_classification_join_discovers_the_key_from_both_payloads() -> None:
+    """The key is proved by overlap, not assumed from a code's shape."""
+
+    from public_data_agent.ssb_pxweb import codes_matching_classification
+
+    meta = {
+        "variables": [
+            {"code": "Region", "values": ["030101", "030102", "999999"]},
+            {"code": "Tid", "values": ["2024", "2025"]},
+        ]
+    }
+    dimension, values = codes_matching_classification(meta, {"030101", "030102"})
+    assert dimension == "Region"
+    assert values == ["030101", "030102"]
+    # A value the classification does not store is never carried into the join.
+    assert "999999" not in values
+
+
+def test_classification_join_refuses_when_no_dimension_overlaps() -> None:
+    from public_data_agent.ssb_pxweb import codes_matching_classification
+
+    meta = {"variables": [{"code": "Region", "values": ["030101"]}, {"code": "Tid", "values": ["2025"]}]}
+    assert codes_matching_classification(meta, {"1234567", "7654321"}) is None

@@ -10,7 +10,10 @@ def test_prompt_requires_contract_shape() -> None:
     assert "search|fetch|filter|reshape|join|derive|visualize|export" in SYSTEM_PROMPT
 
 
-def test_provider_reads_key_from_dotenv_without_printing_or_exporting(tmp_path) -> None:
+def test_provider_reads_key_from_dotenv_without_printing_or_exporting(tmp_path, monkeypatch) -> None:
+    # The documented workflow is `set -a; source .env; set +a`, which exports the
+    # real key. Without this the test read the developer's own key and failed.
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
     env = tmp_path / ".env"
     env.write_text("OPENAI_API_KEY=secret-test-key\n", encoding="utf-8")
     provider = OpenAIPlanProvider.from_env(dotenv=env)

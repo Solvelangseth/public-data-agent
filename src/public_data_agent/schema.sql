@@ -126,6 +126,11 @@ CREATE TABLE IF NOT EXISTS fetch_runs (
 CREATE TABLE IF NOT EXISTS observations (
     id TEXT PRIMARY KEY,
     dataset_id TEXT NOT NULL,
+    -- series: which connector projection produced this row. One dataset_id can
+    -- hold several projections of the same upstream table (a raw full fetch and
+    -- a joined subset), and their dimension names differ. Without this column
+    -- they blend into one pool and a filter valid for one silently matches none.
+    series TEXT,
     table_id TEXT NOT NULL,
     measure TEXT NOT NULL,
     value_json TEXT,

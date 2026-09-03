@@ -190,3 +190,82 @@ def test_cli_fetch_uses_scripted_path(tmp_path: Path, monkeypatch) -> None:
     opened = Registry(db)
     assert opened.observation_count() == 2
     opened.close()
+
+
+def test_capability_does_not_promise_numbers_from_pages_that_have_none() -> None:
+    """can_fetch_access_path says yes to all three of these; none returns a cell."""
+
+    from public_data_agent.fetch import classify_access_path
+
+    assert classify_access_path("https://data.ssb.no/api/v0/no/table/11763")["kind"] == "observations"
+    assert classify_access_path("https://data.ssb.no/api/klass/v1/versions/1168.json")["kind"] == "lookup"
+    # A bare host is a landing page, not an endpoint.
+    assert classify_access_path("https://data-nsr.udir.no")["kind"] == "none"
+    # Documentation describes data; it does not return it.
+    assert classify_access_path(
+        "https://data.brreg.no/enhetsregisteret/api/dokumentasjon/no/index.html"
+    )["kind"] == "none"
+    # Map tiles are imagery/geometry, not numeric cells.
+    assert classify_access_path(
+        "https://kart.miljodirektoratet.no/geoserver/villmarksnatur_svalbard/ows"
+    )["kind"] == "none"
+    assert classify_access_path(None)["kind"] == "none"
+
+
+def test_selection_refuses_an_oversized_query_with_the_sizes_to_narrow() -> None:
+    """An over-large request must name what to narrow, not return an opaque error."""
+
+    from public_data_agent.fetch import SelectionTooLarge, _pxweb_query
+
+    meta = {
+        "variables": [
+            {"code": "Region", "text": "region", "values": [str(i) for i in range(1000)]},
+            {"code": "Alder", "text": "alder", "values": [str(i) for i in range(100)]},
+            {"code": "Tid", "text": "år", "values": ["2024", "2025"], "time": True},
+        ]
+    }
+    try:
+        # 1000 x 100 x 2 = 200,000 cells, under the limit; force it over with a
+        # low limit rather than inventing an implausibly large fixture table.
+        _pxweb_query(meta, "Tid", ["2024", "2025"], table_id="T1", cell_limit=1000)
+    except SelectionTooLarge as exc:
+        assert exc.cells == 1000 * 100 * 2
+        assert exc.limit == 1000
+        assert {d["code"] for d in exc.dimensions} == {"Region", "Alder", "Tid"}
+        assert "Region" in str(exc)
+    else:  # pragma: no cover
+        raise AssertionError("an oversized selection must be refused before the request")
+
+
+def test_selection_narrows_the_query_to_the_requested_slice() -> None:
+    from public_data_agent.fetch import _pxweb_query
+
+    meta = {
+        "variables": [
+            {"code": "Region", "text": "region", "values": [str(i) for i in range(1000)]},
+            {"code": "Alder", "text": "alder", "values": [str(i) for i in range(100)]},
+            {"code": "Tid", "text": "år", "values": ["2024", "2025"], "time": True},
+        ]
+    }
+    query = _pxweb_query(meta, "Tid", ["2025"], select={"Region": ["7"], "Alder": ["3"]}, table_id="T1")
+    picked = {item["code"]: item["selection"]["values"] for item in query["query"]}
+    assert picked == {"Region": ["7"], "Alder": ["3"], "Tid": ["2025"]}
+
+
+def test_selection_rejects_values_and_dimensions_the_table_does_not_have() -> None:
+    """Silently dropping an unknown key would widen the query to every value."""
+
+    from public_data_agent.fetch import _pxweb_query
+
+    meta = {"variables": [{"code": "Region", "text": "region", "values": ["1", "2"]},
+                          {"code": "Tid", "text": "år", "values": ["2025"], "time": True}]}
+    for bad, needle in (
+        ({"Kjonn": ["1"]}, "does not have"),
+        ({"Region": ["999"]}, "not stored"),
+    ):
+        try:
+            _pxweb_query(meta, "Tid", ["2025"], select=bad, table_id="T1")
+        except ValueError as exc:
+            assert needle in str(exc)
+        else:  # pragma: no cover
+            raise AssertionError(f"{bad} must be refused")

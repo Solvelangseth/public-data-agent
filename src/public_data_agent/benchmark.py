@@ -15,6 +15,8 @@ from public_data_agent.search import (
 )
 
 DATANORGE_SEARCH = "https://search.api.fellesdatakatalog.digdir.no/search/datasets"
+# Rank deeper than the scored window so the catalogue lane can fill its own top-10.
+LANE_DEPTH = 6
 DATANORGE_RATE = 10 / 60
 DEFAULT_QUESTIONS = Path("data/benchmark_questions.json")
 
@@ -57,8 +59,19 @@ def run_benchmark(
     log = progress or (lambda _message: None)
     our_rows: list[dict[str, Any]] = []
     for question in payload["questions"]:
-        report = search_report(registry, question["query"], limit=10)
-        ranked = [hit.dataset_id for hit in report.hits]
+        # Every gold answer in this set is a Data.norge catalogue record, so this
+        # benchmark measures the catalogue lane. Scoring it against a list that
+        # also holds fetchable observation sources marks a better, retrievable
+        # answer as a miss. Reach of the fetch layer is measured by
+        # `run_answerable`, not here; check both before calling a change safe.
+        from public_data_agent.fetch import classify_access_path
+
+        report = search_report(registry, question["query"], limit=10 * LANE_DEPTH)
+        ranked = [
+            hit.dataset_id
+            for hit in report.hits
+            if classify_access_path(hit.access_path)["kind"] != "observations"
+        ][:10]
         row = _score_question(question, ranked, registry)
         row["coverage"] = _coverage_against_gold(
             report.coverage.to_dict(), ranked, [item["dataset_id"] for item in question["expected"]]
@@ -282,3 +295,65 @@ def _reason_holds(row: dict[str, Any], payload: dict[str, Any], reason: dict[str
     return False
 
 
+
+
+ANSWERABLE_QUESTIONS = Path("data/answerable_questions.json")
+
+
+def run_answerable(
+    registry: Registry,
+    questions: list[dict[str, Any]],
+    *,
+    limit: int = 5,
+) -> dict[str, Any]:
+    """Measure how often a question reaches data we can actually retrieve.
+
+    The gold benchmark scores ranking against expected Data.norge ids. It says
+    nothing about whether the top hits can return a single number, which is the
+    thing a user actually needs. This asks only: does the top-`limit` contain a
+    dataset whose access_path a registered connector can pull observations from?
+    No expected id is asserted, so a wrong-but-fetchable hit is not scored as a
+    success beyond the reach it genuinely represents.
+    """
+
+    from public_data_agent.fetch import classify_access_path
+    from public_data_agent.search import search_report
+
+    rows: list[dict[str, Any]] = []
+    for question in questions:
+        report = search_report(registry, question["query"], limit=limit)
+        kinds = [
+            classify_access_path(hit.access_path)["kind"] for hit in report.hits
+        ]
+        rows.append(
+            {
+                "id": question["id"],
+                "query": question["query"],
+                "topic": question.get("topic"),
+                "returned": len(report.hits),
+                "observations_in_top": kinds.count("observations"),
+                "answerable": "observations" in kinds,
+                "first_observation_rank": (
+                    kinds.index("observations") + 1 if "observations" in kinds else None
+                ),
+            }
+        )
+    answerable = [row for row in rows if row["answerable"]]
+    by_topic: dict[str, dict[str, Any]] = {}
+    for row in rows:
+        bucket = by_topic.setdefault(row["topic"] or "unknown", {"n": 0, "answerable": 0})
+        bucket["n"] += 1
+        bucket["answerable"] += 1 if row["answerable"] else 0
+    for bucket in by_topic.values():
+        bucket["rate"] = bucket["answerable"] / bucket["n"] if bucket["n"] else 0.0
+    ranks = [row["first_observation_rank"] for row in answerable]
+    return {
+        "questions": rows,
+        "scores": {
+            "questions": len(rows),
+            "answerable": len(answerable),
+            "answerable_rate": len(answerable) / len(rows) if rows else 0.0,
+            "mean_first_observation_rank": (sum(ranks) / len(ranks)) if ranks else None,
+            "by_topic": by_topic,
+        },
+    }

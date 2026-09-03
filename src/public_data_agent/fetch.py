@@ -1079,6 +1079,7 @@ def fetch_observations(
     from_year: int | None = None,
     to_year: int | None = None,
     http: JsonHttp | None = None,
+    select: dict[str, list[str]] | None = None,
 ) -> FetchResult:
     dataset = registry.get_dataset(dataset_id)
     if dataset is None:
@@ -1479,7 +1480,7 @@ def fetch_observations(
     try:
         meta = client.get_json_response(request_url)
         time_code, selected = time_codes(meta.body, from_year=from_year, to_year=to_year)
-        query = _pxweb_query(meta.body, time_code, selected)
+        query = _pxweb_query(meta.body, time_code, selected, select=select, table_id=table_id)
         registry.set_fetch_request(run_id, request_url=request_url, request_body=query)
         posted = client.post_json_response(request_url, query)
         http_status = posted.status
@@ -11687,7 +11688,12 @@ def _store_cells(
     request_url: str,
     http_status: int,
     counts: HarvestCounts,
+    series: str | None = None,
 ) -> list[dict[str, Any]]:
+    # A raw table fetch and a joined subset of the same table both land under
+    # one dataset_id with different dimension names.  Tagging the projection
+    # keeps them separable instead of blending into one unusable pool.
+    series = series or f"fetch:{table_id}"
     sample: list[dict[str, Any]] = []
     for measure, value, dims in cells:
         observation = Observation(
@@ -11708,6 +11714,7 @@ def _store_cells(
             {
                 "id": observation.identity_key(),
                 "dataset_id": observation.dataset_id,
+                "series": series,
                 "table_id": observation.table_id,
                 "measure": observation.measure,
                 "value": observation.value,
@@ -11733,14 +11740,101 @@ def _store_cells(
     return sample
 
 
-def _pxweb_query(meta: dict[str, Any], time_code: str, time_values: list[str]) -> dict[str, Any]:
-    query: list[dict[str, Any]] = []
+class SelectionTooLarge(ValueError):
+    """A query would ask for more cells than the source will return.
+
+    Carries the per-dimension sizes so a caller can narrow instead of guessing.
+    """
+
+    def __init__(self, table_id: str, cells: int, limit: int, dimensions: list[dict[str, Any]]) -> None:
+        self.table_id, self.cells, self.limit, self.dimensions = table_id, cells, limit, dimensions
+        super().__init__(
+            f"selection is {cells:,} cells, over the {limit:,} limit for table {table_id}. "
+            f"Narrow it with select={{dimension: [values]}}. Dimensions: "
+            + "; ".join(
+                f"{d['code']} ({d['text']}) {d['selected']} of {d['available']}"
+                for d in dimensions
+            )
+        )
+
+
+# SSB PxWeb refuses a query above roughly this many cells. Checking before the
+# POST turns an opaque HTTP 403 into a message naming what to narrow.
+PXWEB_CELL_LIMIT = 800_000
+
+
+def _pxweb_selection(
+    meta: dict[str, Any],
+    time_code: str,
+    time_values: list[str],
+    select: dict[str, list[str]] | None,
+) -> list[dict[str, Any]]:
+    """Resolve, per dimension, which stored values this query will ask for.
+
+    Selected values must exist in the table metadata: an unknown value is an
+    error, never silently dropped, because dropping it would quietly widen the
+    query to every value of that dimension.
+    """
+
+    select = {str(k): v for k, v in (select or {}).items()}
+    known = {str(v.get("code")) for v in meta.get("variables") or []}
+    unknown = sorted(key for key in select if key not in known)
+    if unknown:
+        raise ValueError(
+            f"select names dimension(s) {unknown} that this table does not have; "
+            f"available dimensions are {sorted(known)}"
+        )
+    resolved: list[dict[str, Any]] = []
     for variable in meta.get("variables") or []:
         code = str(variable["code"])
-        if code == time_code:
-            query.append({"code": code, "selection": {"filter": "item", "values": time_values}})
+        available = [str(item) for item in (variable.get("values") or [])]
+        if code in select:
+            wanted = select[code]
+            wanted = [wanted] if isinstance(wanted, str) else [str(item) for item in wanted]
+            missing = [item for item in wanted if item not in available]
+            if missing:
+                raise ValueError(
+                    f"select[{code}] names value(s) {missing} that are not stored; "
+                    f"stored values are {available[:20]}"
+                    + (" (truncated)" if len(available) > 20 else "")
+                )
+            chosen = wanted
+        elif code == time_code:
+            chosen = time_values
         else:
-            query.append({"code": code, "selection": {"filter": "all", "values": ["*"]}})
+            chosen = available
+        resolved.append(
+            {
+                "code": code,
+                "text": str(variable.get("text") or code),
+                "values": chosen,
+                "selected": len(chosen),
+                "available": len(available),
+                "explicit": code in select or code == time_code,
+            }
+        )
+    return resolved
+
+
+def _pxweb_query(
+    meta: dict[str, Any],
+    time_code: str,
+    time_values: list[str],
+    *,
+    select: dict[str, list[str]] | None = None,
+    table_id: str = "",
+    cell_limit: int = PXWEB_CELL_LIMIT,
+) -> dict[str, Any]:
+    resolved = _pxweb_selection(meta, time_code, time_values, select)
+    cells = 1
+    for item in resolved:
+        cells *= max(1, item["selected"])
+    if cells > cell_limit:
+        raise SelectionTooLarge(table_id or "?", cells, cell_limit, resolved)
+    query = [
+        {"code": item["code"], "selection": {"filter": "item", "values": item["values"]}}
+        for item in resolved
+    ]
     return {"query": query, "response": {"format": "json-stat2"}}
 
 
@@ -11779,3 +11873,68 @@ def _year_from_label(label: str) -> int | None:
         return int(digits[:4])
     except ValueError:
         return None
+
+
+# Capability kinds returned by ``classify_access_path``.
+CAPABILITY_OBSERVATIONS = "observations"
+CAPABILITY_LOOKUP = "lookup"
+CAPABILITY_UNVERIFIED = "unverified"
+CAPABILITY_NONE = "none"
+
+_MAP_SERVICE_MARKS = ("/geoserver/", "/ows", "/wms", "/wfs", "service=wms", "service=wfs")
+_DOC_MARKS = ("/dokumentasjon/", ".html", "/swagger", "/openapi", "/docs/")
+
+
+def classify_access_path(access_path: str | None) -> dict[str, Any]:
+    """Say what a stored access_path can actually yield, and why.
+
+    ``can_fetch_access_path`` answers only "does some predicate match", which is
+    true for a bare hostname, an HTML documentation page, and a map-tile
+    endpoint alike. Reporting those as fetchable told the agent it could get
+    numbers from things that never return a numeric cell. The kinds are:
+
+    ``observations`` a connector verified to return numeric cells;
+    ``lookup``       a code list / classification: join keys, not facts;
+    ``unverified``   a connector predicate matches but the payload shape has not
+                     been confirmed to hold numeric cells. Not a promise;
+    ``none``         nothing here can be fetched.
+    """
+
+    if not access_path:
+        return {"kind": CAPABILITY_NONE, "reason": "no access_path is stored"}
+    lowered = access_path.casefold()
+
+    if _is_ssb_table_url(access_path) or is_oslo_statbank_url(access_path):
+        return {
+            "kind": CAPABILITY_OBSERVATIONS,
+            "reason": "PxWeb table endpoint; returns numeric observation cells",
+        }
+    if is_klass_url(access_path):
+        return {
+            "kind": CAPABILITY_LOOKUP,
+            "reason": "SSB Klass classification; code-to-name rows usable as join keys, not measures",
+        }
+    # A bare host is a landing page, not an endpoint, whatever the predicate says.
+    without_scheme = lowered.split("://", 1)[-1]
+    if "/" not in without_scheme.rstrip("/"):
+        return {
+            "kind": CAPABILITY_NONE,
+            "reason": "bare hostname with no endpoint path; not a fetchable resource",
+        }
+    if any(mark in lowered for mark in _DOC_MARKS):
+        return {
+            "kind": CAPABILITY_NONE,
+            "reason": "documentation or API-description page; describes data but returns none",
+        }
+    if any(mark in lowered for mark in _MAP_SERVICE_MARKS):
+        return {
+            "kind": CAPABILITY_NONE,
+            "reason": "map/tile service (WMS/WFS/OGC); returns imagery or geometry, not numeric cells",
+        }
+    if can_fetch_access_path(access_path):
+        return {
+            "kind": CAPABILITY_UNVERIFIED,
+            "reason": "a connector predicate matches, but this payload shape is not confirmed "
+                      "to yield numeric cells; inspect the result before relying on it",
+        }
+    return {"kind": CAPABILITY_NONE, "reason": "no registered connector matches this access_path"}

@@ -269,3 +269,138 @@ def test_unknown_tool_raises() -> None:
         assert "unknown tool" in str(exc)
     else:
         raise AssertionError("expected ValueError")
+
+
+def test_call_tool_refuses_unknown_arguments_instead_of_dropping_them(tmp_path: Path) -> None:
+    """A dropped filter turns "in 2025" into "in every year" and still says completed."""
+
+    registry = _registry(tmp_path)
+    db = str(tmp_path / "registry.sqlite")
+    registry.close()
+    try:
+        call_tool("run_analysis", {"dataset": STRANDSONE_ID, "db": db, "year": 2025})
+    except ValueError as exc:
+        assert "year" in str(exc)
+        assert "filters" in str(exc)
+    else:  # pragma: no cover - the silent-drop regression
+        raise AssertionError("run_analysis accepted an unknown argument")
+
+
+def test_inspect_reports_stored_dimensions_so_filters_are_not_guessed(tmp_path: Path, monkeypatch) -> None:
+    registry = _registry(tmp_path)
+    db = str(tmp_path / "registry.sqlite")
+    registry.close()
+    from public_data_agent import fetch as fetch_mod
+    from public_data_agent import ssb_pxweb as ssb_mod
+
+    monkeypatch.setattr(fetch_mod, "HttpClient", lambda **kwargs: ScriptedHttp())
+    monkeypatch.setattr(ssb_mod, "HttpClient", lambda **kwargs: ScriptedHttp())
+    call_tool("fetch", {"dataset": STRANDSONE_ID, "table": "11763", "db": db, "year": 2025, "join": True})
+
+    payload = call_tool("inspect", {"dataset": "ssb:11763", "db": db})
+    schema = payload["observation_schema"]
+    assert schema["observation_count"] > 0
+    assert "bydel_code" in schema["dimensions"]
+    stored_years = schema["dimensions"]["år"]["values"]
+    assert stored_years, "the stored period values must be listed, not inferred"
+    # Every listed value must be one a connector actually wrote.
+    assert all(isinstance(value, str) for value in stored_years)
+
+
+def test_run_analysis_explains_an_empty_result_instead_of_returning_it_bare(tmp_path: Path, monkeypatch) -> None:
+    registry = _registry(tmp_path)
+    db = str(tmp_path / "registry.sqlite")
+    registry.close()
+    from public_data_agent import fetch as fetch_mod
+    from public_data_agent import ssb_pxweb as ssb_mod
+
+    monkeypatch.setattr(fetch_mod, "HttpClient", lambda **kwargs: ScriptedHttp())
+    monkeypatch.setattr(ssb_mod, "HttpClient", lambda **kwargs: ScriptedHttp())
+    call_tool("fetch", {"dataset": STRANDSONE_ID, "table": "11763", "db": db, "year": 2025, "join": True})
+
+    payload = call_tool("run_analysis", {"dataset": "ssb:11763", "db": db, "filters": {"Tid": "2025"}})
+    assert payload["values"] == []
+    assert payload["warnings"], "an empty result must carry a reason"
+    assert "Tid" in " ".join(payload["warnings"])
+
+
+def test_run_analysis_warns_when_an_aggregate_would_double_count(tmp_path: Path, monkeypatch) -> None:
+    registry = _registry(tmp_path)
+    db = str(tmp_path / "registry.sqlite")
+    registry.close()
+    from public_data_agent import fetch as fetch_mod
+    from public_data_agent import ssb_pxweb as ssb_mod
+
+    monkeypatch.setattr(fetch_mod, "HttpClient", lambda **kwargs: ScriptedHttp())
+    monkeypatch.setattr(ssb_mod, "HttpClient", lambda **kwargs: ScriptedHttp())
+    call_tool("fetch", {"dataset": STRANDSONE_ID, "table": "11763", "db": db, "year": 2025, "join": True})
+
+    payload = call_tool(
+        "run_analysis",
+        {"dataset": "ssb:11763", "db": db, "group_by": ["region"], "aggregate": "sum", "measure": "value"},
+    )
+    joined = " ".join(payload["warnings"])
+    assert "double counts" in joined or "total" in joined
+
+
+def test_join_payload_states_that_sample_is_not_a_ranking(tmp_path: Path, monkeypatch) -> None:
+    registry = _registry(tmp_path)
+    db = str(tmp_path / "registry.sqlite")
+    registry.close()
+    from public_data_agent import fetch as fetch_mod
+    from public_data_agent import ssb_pxweb as ssb_mod
+
+    monkeypatch.setattr(fetch_mod, "HttpClient", lambda **kwargs: ScriptedHttp())
+    monkeypatch.setattr(ssb_mod, "HttpClient", lambda **kwargs: ScriptedHttp())
+    payload = call_tool(
+        "fetch", {"dataset": STRANDSONE_ID, "table": "11763", "db": db, "year": 2025, "join": True}
+    )
+    assert payload["row_count"] == len(payload["rows"])
+    assert "not a ranking" in payload["sample_note"].lower()
+
+
+def test_connector_candidates_are_not_offered_for_unrelated_questions(tmp_path: Path) -> None:
+    registry = _registry(tmp_path)
+    db = str(tmp_path / "registry.sqlite")
+    registry.close()
+    payload = call_tool("search", {"query": "fiskeoppdrett", "db": db, "limit": 5})
+    assert payload["connector_candidates"] == []
+    assert "not fetchable" in payload["connector_candidates_note"]
+
+
+def test_search_separates_fetchable_sources_from_catalogue_records(tmp_path: Path) -> None:
+    """Two questions share one ranked list; neither may crowd the other out."""
+
+    registry = _registry(tmp_path)
+    db = str(tmp_path / "registry.sqlite")
+    registry.close()
+    payload = call_tool("search", {"query": "strandsone", "db": db, "limit": 5})
+
+    assert "observation_sources" in payload
+    assert "catalogue_records" in payload
+    # A dataset appears in exactly one lane, decided by what it can actually return.
+    obs = {hit["id"] for hit in payload["observation_sources"]}
+    cat = {hit["id"] for hit in payload["catalogue_records"]}
+    assert not (obs & cat)
+    for hit in payload["observation_sources"]:
+        assert hit["connector"]["capability"] == "observations"
+    for hit in payload["catalogue_records"]:
+        assert hit["connector"]["capability"] != "observations"
+    assert "observation_sources" in payload["lanes_note"]
+
+
+def test_lanes_are_filled_from_a_deeper_ranking_than_the_returned_page(tmp_path: Path) -> None:
+    """A lane cannot be filled from a list already truncated to the other's winners."""
+
+    registry = _registry(tmp_path)
+    db = str(tmp_path / "registry.sqlite")
+    registry.close()
+    payload = call_tool("search", {"query": "strandsone", "db": db, "limit": 1})
+
+    assert len(payload["results"]) <= 1
+    # Each lane still gets its own top-N even though `results` holds one row.
+    assert len(payload["observation_sources"]) <= 1
+    assert len(payload["catalogue_records"]) <= 1
+    lane_ids = {hit["id"] for hit in payload["observation_sources"]}
+    lane_ids |= {hit["id"] for hit in payload["catalogue_records"]}
+    assert lane_ids, "lanes must not be empty just because the page is small"

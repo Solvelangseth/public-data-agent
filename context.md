@@ -1,298 +1,213 @@
-# Public Data Agent — handover context
+# Public Data Agent — working context
 
-This document is the working context for Sølve and any future contributor or coding
-agent. Read it before changing the planner, connectors, registry, dashboard, or MCP
-surface. It describes the intended product and the current implementation as of
-September 2026.
+Read this before changing search, connectors, the registry, the agent, or the MCP
+surface. It describes what the product is for and how the pieces serve that. It is
+not a changelog; specific past defects live in git history and `GAPS.md`.
 
-## 1. Product vision
+## 1. What we are building
 
-Public Data Agent is an AI-native data layer for Norwegian public data. A person (or a
-coding agent connected through MCP/API) should be able to ask a natural-language question
-in Norwegian and receive a reproducible plan, fetched data, deterministic transformations,
-charts/files, and an explanation with provenance.
+An AI-native data layer over Norwegian public data. Someone asks a question in plain
+Norwegian — through the CLI, the dashboard, or an agent over MCP — and gets back real
+numbers, with the lineage that proves where they came from.
 
-The long-term product is a better, agent-friendly version of the public-data catalogue:
+The bar is **generality**. Any reasonable question about Norwegian public statistics
+should work, not a curated list of them. A question about unemployment, rents,
+emissions, or fishing quotas should travel the same path as a question about
+population. If a question only works because someone special-cased it, that is a bug,
+not a feature.
 
-1. Understand the user's question using an LLM and/or embeddings.
-2. Find the best matching datasets in our local catalogue.
-3. Select only sources that have a registered, usable connector.
-4. Fetch the exact observations needed.
-5. Filter, reshape, join, aggregate, calculate, and visualize deterministically.
-6. Return values, files, charts, and a human-readable explanation with lineage.
-7. Expose the same capabilities as a local CLI, browser dashboard, MCP server, and later
-   a stable API.
+The end state is a system that can:
 
-The model is a planner and interface, not a source of facts. The data/tool layer is the
-trust boundary.
+1. understand a Norwegian question,
+2. find the datasets that can actually answer it,
+3. retrieve exactly the observations needed,
+4. join across sources on real shared keys,
+5. derive the figures asked for — growth, shares, indices, rankings,
+6. return values, files and charts with a truthful explanation.
+
+The model plans and explains. It never supplies facts. Tools are the trust boundary.
 
 ## 2. Non-negotiable rules
 
-These rules apply to code, prompts, tests, dashboard behavior, and MCP/API responses:
+These bind code, prompts, tests, and every interface:
 
-- Never invent observation values, table IDs, periods/years, licenses, dimensions, or
-  join keys.
-- Every numeric answer must be traceable to fetched observations, stored observations,
-  `joined_rows`, or a deterministic method output.
-- Missing evidence is `null` plus a reason, or an explicit statement that numbers were not
+- Never invent observation values, table ids, periods, licences, dimensions, or join
+  keys.
+- Every number must trace to fetched observations, stored observations, joined rows,
+  or a deterministic method output.
+- Missing evidence is `null` plus a reason, or a plain statement that numbers were not
   retrieved. A plausible guess is never acceptable.
-- Fetch only through a connector already implemented and registered in the project.
-  A catalogue landing page is not automatically a fetchable API.
-- Do not silently turn a failed fetch into an answer. Report the failure and continue with
-  safe alternatives, or stop truthfully.
-- Licenses remain `null` when unknown. In particular, SSB table 11763 intentionally has a
-  null license in the local registry.
-- Joins require a stored/documented key. The Oslo demo joins only on exact `bydel_code`.
-- Methods may calculate only from observations that actually exist and have the required
-  periods. Division by missing/zero bases yields null plus a reason.
-- No `offentligdata.no` work: do not fetch, scrape, compare, or build competitor features.
-- Do not ingest new `source_id`s unless Sølve explicitly names one substantial numeric
-  table. Small WMS, lookup, JSON, GIS, and publisher catalogue additions are out of scope.
-- Do not build a hosted BI/Power BI clone. The first UI is a local test dashboard.
-- Keep CSV lineage columns and provenance in all exports.
+- Fetch only through a registered connector. A catalogue landing page is not an API.
+- Never turn a failed fetch into an answer. Report the failure, then continue with a
+  real alternative or stop truthfully.
+- Licences stay `null` when unknown.
+- Joins require a key both sides actually store. Discover it by matching stored values;
+  never assume one from a code's shape or a column's name.
+- Methods calculate only from observations that exist with the periods required.
+  Division by a missing or zero base yields null plus a reason.
+- Aggregation must not silently double count. Overlapping categories and "total" rows
+  mixed with their parts are a warning, not a number.
+- Adding a data source must not silently re-weight the ranker.
+- No `offentligdata.no` work.
+- Keep lineage columns and provenance in every export.
 
-## 3. Current repository and branch
+## 3. Architecture
 
-Repository: `Solvelangseth/public-data-agent`.
+### Registry
 
-Work from the latest `main` snapshot and use the current feature branch
-`codex/ai-planner`. Do not use a remote named `Origin`; push with the repository URL or
-the configured non-Origin remote. Do not clone another repository or mint a new one.
+`registry.py` over SQLite (`data/registry.sqlite`, gitignored and rebuildable).
+`schema.sql` defines datasets, harvest runs, raw payloads, enrichments, fetch runs,
+observations, joins and joined rows.
 
-The open PR is the AI planner/agent work. Recent relevant commits include:
+Observations carry a **`series`** tag naming the connector projection that wrote them.
+One dataset can hold several projections of the same upstream table — a raw full fetch
+and a joined subset — whose dimension names differ. Without the tag they blend into one
+pool and a filter valid for one silently matches none. Scope analysis by `series`.
 
-- `cd98ba1` provider-neutral agent loop
-- `b9274a7` OpenAI Responses agent adapter and tool-call history
-- `6d1253f` dashboard Run agent action
-- `94d7b43` connector-aware search and honest fetch failures
-- `ee744ce` expose the registered Oslo join to the model
-- `7103e06` fixed evidence-boundary system instructions
+### Catalogue sources
 
-`.env` and `.env.*` are ignored. Never print or commit `OPENAI_API_KEY`.
+- `sources/datanorge.py` — Data.norge / Felles datakatalog (~9,100 records). Broad
+  descriptive coverage; most rows are not fetchable.
+- `sources/ssbtable.py` — SSB PxWeb table catalogue (~3,800 numeric tables). These are
+  the rows that can actually return observations, and they carry dimension names and
+  period coverage that the Data.norge records lack.
 
-## 4. Architecture
-
-### Catalogue and registry
-
-- `src/public_data_agent/harvest.py` runs catalogue ingestion.
-- `src/public_data_agent/sources/datanorge.py` harvests Data.norge/Felles datakatalog.
-- Membership comes from SPARQL (`https://sparql.fellesdatakatalog.digdir.no`).
-- Full metadata comes from Resource Service
-  (`https://resource.api.fellesdatakatalog.digdir.no`).
-- The Data.norge Search API is not the harvest system of record.
-- `src/public_data_agent/registry.py` stores normalized metadata in SQLite.
-- `src/public_data_agent/schema.sql` defines `datasets`, `harvest_runs`, raw harvested
-  payloads, enrichments, fetch runs, observations, joins, and joined rows.
-- Default DB: `data/registry.sqlite` (large, local, gitignored).
-
-The live registry currently contains roughly 9,100 Data.norge datasets plus observation
-identity rows. It is disposable/rebuildable; do not commit it.
+Harvest with `pda ingest --source <id>`.
 
 ### Discovery
 
-- `search.py` performs deterministic token-overlap ranking over stored fields.
-- Ranking weights: title 10, keyword 5, theme 5, description 2.
-- It supports token decomposition, synonyms/compound splits, and coverage reporting.
-- Search quality must not regress: the 65-question harness previously measured R@5 about
-  0.892 and R@10 about 0.939.
-- `mcp_server.tool_search` adds connector capability metadata and explicit registered
-  connector candidates. This is intentionally separate from catalogue ranking so a model
-  can distinguish “relevant description” from “fetchable observations”.
+`search.py` ranks by token overlap: title 10, keyword 5, theme 5, description 2, with
+AND-decomposition, Norwegian stopwords and inflection folding.
 
-Embeddings and LLM ranking may improve discovery later. They must remain candidates/ranking
-helpers; they cannot authorize an unregistered fetch or provide factual values.
+Results come back in **two lanes**, ranked by the same score but not competing for the
+same slots: `observation_sources` (a registered connector can return numbers) and
+`catalogue_records` (describes data we cannot retrieve). They answer different
+questions — "what can answer me" and "what exists" — and a single mixed list makes
+every ranking change rob one to pay the other. Lanes are filled from a deeper ranking,
+because a lane cannot be filled from a list already truncated to the other's winners.
+
+Two measurements, and both matter:
+
+- `pda benchmark` — ranking against 65 gold Data.norge questions, scored on the
+  **catalogue lane**, since every gold answer is a catalogue record. R@5 ≈ 0.892,
+  R@10 ≈ 0.938. **Must not regress.**
+- `run_answerable` over `data/answerable_questions.json` — how often a question reaches
+  a dataset we can actually pull numbers from. ≈ 0.87 across 30 topic-spread questions.
+
+The first measures ranking; only the second measures whether the product works. A
+change that improves one and breaks the other has not been validated. Check both — a
+single green metric has already hidden a broken product once.
 
 ### Connectors and fetch
 
-- `fetch.py` is the connector dispatch boundary. `can_fetch_access_path()` is the cheap,
-  no-network capability check.
-- Existing important connectors include:
-  - `ssb_pxweb.py`: SSB PxWeb, especially table `11763`.
-  - `ssb_klass.py`: SSB Klass, Oslo bydelsinndeling version `1168`.
-  - `fetch.py` dispatch for the other already-present source adapters.
-- `fetch_observations()` performs real HTTP fetches and records lineage in observations.
-- `mcp_server.tool_fetch` rejects unsupported access paths before network I/O and returns
-  `error.code = unsupported_access_path` with `numbers_retrieved = false`.
-- Do not derive a table endpoint from a catalogue title or landing-page URL by guesswork.
+`fetch.py` is the dispatch boundary.
 
-### Oslo reference workflow
+- `classify_access_path()` reports what a stored URL can actually yield:
+  `observations`, `lookup` (code lists — join keys, not facts), `unverified` (a
+  connector matches but the payload shape is unconfirmed), or `none`. Prefer it over
+  the older boolean `can_fetch_access_path()`, which says yes to bare hostnames,
+  documentation pages and map endpoints.
+- `fetch_observations()` performs real HTTP and records lineage. Pass
+  `select={dimension: [codes]}` to fetch a slice; an unknown dimension or value is an
+  error, never a silent widening. A query above the source's cell limit is refused
+  before the request with the per-dimension sizes, so a caller can narrow instead of
+  retrying. Fetch the slice the question needs, not the whole table.
+- Tools reject unsupported access paths before any network call.
 
-The default demo question is:
+Never derive an endpoint from a catalogue title or landing page by guesswork.
 
-`Hvilke Oslo-bydeler er størst og hvilke vokser mest?`
+### Joins
 
-The supported path is:
+`join.py`. `join_classification_to_table()` joins any SSB Klass classification to any
+SSB PxWeb table. The key is **discovered**: the classification's stored codes are
+matched against the table's stored dimension values, exact string equality only. No
+overlap means the two do not share a key, and the join refuses rather than inventing
+glue. `join_bydel_population()` is a thin Oslo-shaped wrapper over it.
 
-1. SSB Klass dataset `datanorge:0c89041e-ae88-32ef-a765-8e1ccbd64fdd`, version `1168`,
-   supplies code-to-name mappings.
-2. SSB table `ssb:11763` supplies population observations for 2024 and 2025 (or the two
-   periods actually requested and present).
-3. `join.py` performs an inner join on exact `bydel_code`.
-4. `methods/derive.py` computes YoY only from the two joined cells.
-5. `ask.py` ranks largest population and highest growth.
-6. `export.py`/artifact tools produce CSV and charts with lineage.
+Klass code lists (bydel, kommune, fylke, land, yrke) are the shared key vocabulary for
+most of SSB. Widening join coverage usually means adding a classification, not new join
+code.
 
-Do not hardcode which bydel is largest. Recompute it from cells. The observed August proof
-had Grünerløkka largest in 2025, but that is not a constant.
+### Analysis, methods, artifacts
 
-### Planning and agent execution
+- `analysis.py` filters, sorts and aggregates stored observations. `describe_observations()`
+  reports the stored dimensions, their values, measures and series so a caller can build
+  a filter that matches rows instead of guessing a name that matches none. Results carry
+  `warnings` explaining an empty result or an aggregate that would double count.
+  **Warnings are binding** — do not report a number the tool warned about.
+- `methods/` holds deterministic derivations (YoY, period change, index, rank) with
+  lineage.
+- `artifacts.py` / `export.py` write CSV, JSON and PNG, preserving provenance.
 
-- `planner.py` contains the deterministic validated plan model and demo fallback.
-- `llm_planner.py` defines provider-neutral plan validation. Model output is limited to
-  operation steps and candidate IDs; factual values are forbidden.
-- `openai_planner.py` optionally calls the OpenAI Responses API for structured plans.
-- `openai_agent.py` calls the OpenAI Responses API with function tools and a fixed
-  `SYSTEM_INSTRUCTIONS` evidence boundary.
-- `agent_loop.py` is provider-neutral and bounded. It records user, assistant function-call,
-  and tool messages. At a step limit it returns an explicit no-numbers fallback rather than
-  a blank answer.
-- Available tool capabilities are search, inspect, fetch, run_analysis,
-  create_visualization, export_artifact, and get_provenance (plus legacy ask/fetch MCP
-  operations). Tools are the enforcement layer.
+### Agent and interfaces
 
-The LLM may parse Norwegian intent and choose tools. It may not claim facts that no tool
-returned. Structured output helps shape but does not prove semantics; validators and tool
-checks remain mandatory.
+- `agent_loop.py` — provider-neutral, bounded tool loop. Tool errors come back to the
+  model as retryable results; at the step limit it returns an explicit no-numbers
+  answer rather than a blank one.
+- `openai_agent.py` — OpenAI Responses adapter and the `SYSTEM_INSTRUCTIONS` evidence
+  boundary. Keep those instructions general: they teach how to read tool results
+  honestly, not how to answer one particular question.
+- Tools: search, inspect, fetch, run_analysis, create_visualization, export_artifact,
+  get_provenance.
+- CLI `pda`, local dashboard `pda dashboard`, MCP via `mcp_server.py` (see `MCP.md`).
 
-### Analysis, methods, and artifacts
+The expected shape is: **search → inspect → fetch → run_analysis/method →
+visualize/export → explain**. If a source is not fetchable, say so and list what was
+found. Never retry a guessed path.
 
-- `analysis.py` filters and aggregates stored observation rows (`count`, `sum`, `mean`),
-  with optional grouping and sorting.
-- `join.py` contains the documented Oslo join.
-- `methods/` contains deterministic derivations such as YoY and index. Preserve lineage.
-- `artifacts.py` writes CSV/JSON/PNG locally. Paths must be returned to the caller.
-- `export.py` preserves provenance/lineage columns for `pda ask --out file.csv`.
+## 4. Working rules for changes
 
-### Interfaces
+- Prefer generalising an existing path over adding a special case. A demo-specific
+  branch is a signal that the general path is missing.
+- Tool results are the model's only view of the data. When the model behaves badly,
+  first ask whether the tool told it the truth clearly enough — an unlabelled excerpt
+  or an unexplained empty result is a tool bug, not a prompt bug.
+- Never widen a tool's contract silently. Unknown arguments are an error, not a no-op.
+- Run both measurements before claiming a search change is safe.
 
-- CLI entry point: `public_data_agent.cli:main` (console command is normally `pda` after
-  editable installation).
-- Dashboard: `pda dashboard` or `python -m public_data_agent.cli dashboard`; local only,
-  usually `http://127.0.0.1:8765`.
-- MCP implementation: `mcp_server.py`; inspect `MCP.md` for stdio details.
-- Future API/MCP work should reuse the same tool contracts and provenance, not create a
-  second data-processing implementation.
-
-## 5. Agent system prompt and behavior
-
-`openai_agent.SYSTEM_INSTRUCTIONS` is an invariant. It tells the model to use only
-registered datasets/connectors, never invent factual fields, require fetch/observation
-evidence for every number, use the Oslo exact join, and explain sources/transformations.
-Keep this instruction provider-independent in meaning if another model adapter is added.
-
-The model should normally do:
-
-`search → inspect connector candidates → fetch (possibly join=true) → run_analysis/method →
-create_visualization/export_artifact → get_provenance → final explanation`.
-
-If a source is not fetchable, the final response must say that no numbers were retrieved and
-list ranked catalogue hits or the reason for refusal. It must not retry guessed paths.
-
-## 6. Local setup and commands
+## 5. Local setup
 
 ```bash
-python -m venv .venv
-source .venv/bin/activate
+python -m venv .venv && source .venv/bin/activate
 python -m pip install -e ".[dev]"
 ```
 
-Create `.env` locally (never commit it):
-
-```text
-OPENAI_API_KEY=your-key-here
-```
-
-Load it for shell commands when needed:
+`.env` holds `OPENAI_API_KEY` locally and is never committed. Load with
+`set -a; source .env; set +a`.
 
 ```bash
-set -a; source .env; set +a
-```
-
-Useful commands:
-
-```bash
-pda status --db data/registry.sqlite
-pda stats --db data/registry.sqlite
-pda search "befolkning Oslo bydel" --db data/registry.sqlite
-pda ask "Hvilke Oslo-bydeler er størst og hvilke vokser mest?" --db data/registry.sqlite
-pda ask "Hvilke Oslo-bydeler er størst og hvilke vokser mest?" --out oslo.csv
+pda status  --db data/registry.sqlite
+pda search  "arbeidsledighet" --db data/registry.sqlite
+pda ingest  --source ssbtable --db data/registry.sqlite
+pda ask     "..." --db data/registry.sqlite --out out.csv
+pda agent   "..." --steps 8
 pda dashboard --db data/registry.sqlite
-pda agent "Finn dokumentert befolkning i Oslo-bydeler ..." --steps 8
-pytest
-```
-
-If the `pda` console script is unavailable, use `PYTHONPATH=src:. python` and call
-`public_data_agent.cli.main(...)` or install the package editable.
-
-## 7. Test contract
-
-Run the full suite before handing off:
-
-```bash
 PYTHONPATH=src:. pytest -q
 ```
 
-Tests must cover:
+The deterministic paths and the whole test suite work without an LLM key.
 
-- registry/harvest normalization and null/missing-field reasons;
-- search ranking and benchmark recall;
-- connector capability checks and unsupported fetch refusal;
-- observation lineage and HTTP provenance;
-- exact joins and deterministic methods;
-- rejection of model plans containing factual values or unapproved IDs;
-- agent function-call history, step bounds, and truthful fallback;
-- MCP tools, CSV/JSON/PNG artifacts, and dashboard endpoints.
+## 6. Test contract
 
-Numeric-answer tests must fail if a value does not originate in observations, joined rows,
-or a method output. Do not weaken those tests to make an LLM demo pass.
+Tests must cover registry/harvest normalisation, search ranking and recall, connector
+capability and honest refusal, observation lineage, discovered-key joins, deterministic
+methods, rejection of model plans containing facts, agent step bounds and truthful
+fallback, MCP tools, artifacts, and dashboard endpoints.
 
-The full suite has recently passed 1770 tests (one expected skip and one deselection); a
-matplotlib `tight_layout` warning in `methods/emit.py` is known and non-fatal.
+A numeric-answer test must fail if a value did not originate in observations, joined
+rows, or a method output. Do not weaken those tests to make a demo pass. If a proof
+test fails, first ask whether it is reporting a real defect.
 
-## 8. Current known gaps
+## 7. Where the ceiling currently is
 
-- Token-overlap search can rank images, landing pages, and unrelated catalogue records too
-  highly for broad Norwegian queries. Connector candidates now mitigate this for the agent;
-  improve ranking carefully and re-run the 65-question benchmark.
-- Most Data.norge records have no variable/column list and spatial metadata is frequently
-  absent. Do not infer either field.
-- Oslo municipality's statbank is catalogued but currently not a registered working
-  observation connector in this project; it must be reported as unavailable rather than
-  guessed into a PxWeb path.
-- The general agent still needs stronger operation planning for arbitrary datasets,
-  especially choosing dimensions/periods from fetched metadata and chaining artifacts.
-- OpenAI API calls require the user's local key. The deterministic demo and all tests work
-  without an LLM key.
-- The dashboard is a development harness, not production hosting or authentication.
-- No new small official endpoint ingestion is needed for the first planner slice.
-
-## 9. Recommended next development sequence
-
-1. Re-run the challenging dashboard prompt and verify the model chooses the registered
-   Klass + SSB join, not a landing page.
-2. Add an end-to-end mocked agent test asserting search → inspect → join/fetch → analysis →
-   export/visualization and provenance, with no numeric hallucination path.
-3. Improve tool result contracts so the model can see available periods/dimensions after a
-   fetch and select the two latest periods from returned metadata rather than guessing.
-4. Add a bounded retry/recovery policy for connector errors (retry only when `retryable` is
-   true; never retry unsupported paths).
-5. Make dashboard artifact paths clickable/downloadable and show a compact provenance panel.
-6. Add provider-neutral embedding retrieval/reranking behind an optional dependency and
-   benchmark it against the existing search; retain deterministic fallback.
-7. Expand methods only when a new stored numeric series with at least two periods is found.
-8. Stabilize MCP schemas and document connection examples for Claude Code and other agents.
-9. Add an HTTP API only after the MCP/tool contracts and provenance behavior are stable.
-
-## 10. Definition of done for the first planner slice
-
-- A Norwegian question produces a validated plan and tool trace.
-- The demo question still returns recomputed 2024/2025 Oslo bydel size and YoY ranks.
-- The planner selects tools rather than always hardcoding the demo path.
-- Unsupported sources produce ranked hits plus an explicit “numbers not retrieved” message.
-- No number can appear unless it came from observations/joined rows/methods.
-- CSV export retains lineage/provenance columns; visualization is reproducible locally.
-- Full tests pass and README/context instructions explain local operation.
-
-When uncertain, preserve evidence and provenance first, ask for clarification only when a
-missing choice changes the source or operation materially, and prefer a truthful refusal to
-an impressive but unsupported answer.
+- **Methods are not reachable from the agent.** `methods/derive.py` computes YoY, index
+  and rank deterministically, but no tool exposes it, so growth questions are answered
+  by arithmetic done in the model's head.
+- **Norwegian compounds miss.** Queries like `byggekostnader` or `kraftproduksjon` do
+  not match stored `bygge`/`kostnader` tokens. A vocabulary-driven split (only split
+  when both halves exist in the index) generalises better than a hand-written list.
+- **Retrieval is lexical only.** `embeddings.py` has a provider-neutral scaffold.
+  Embeddings must stay a ranking aid: they can never authorise a fetch or supply a value.
+- **Most Data.norge records carry no variable list or spatial metadata.** Do not infer
+  either.
+- The dashboard is a development harness, not hosting or auth.
