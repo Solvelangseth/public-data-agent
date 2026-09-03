@@ -164,11 +164,15 @@ def tool_run_analysis(
     filters: dict[str, str] | None = None,
     measure: str | None = None,
     columns: list[str] | None = None,
+    group_by: list[str] | None = None,
+    aggregate: str | None = None,
+    sort_by: str | None = None,
+    descending: bool = False,
 ) -> dict[str, Any]:
     """Filter/select stored observations without fetching or deriving values."""
     registry = _open_registry(db)
     try:
-        result = run_analysis(registry, dataset, filters=filters, measure=measure, columns=columns)
+        result = run_analysis(registry, dataset, filters=filters, measure=measure, columns=columns, group_by=group_by, aggregate=aggregate, sort_by=sort_by, descending=descending)
         return {"tool": "run_analysis", "values_from": "stored_observations", **result.to_dict()}
     finally:
         registry.close()

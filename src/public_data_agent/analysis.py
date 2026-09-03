@@ -16,6 +16,10 @@ def run_analysis(
     filters: dict[str, str] | None = None,
     measure: str | None = None,
     columns: list[str] | None = None,
+    group_by: list[str] | None = None,
+    aggregate: str | None = None,
+    sort_by: str | None = None,
+    descending: bool = False,
 ) -> ToolResult:
     """Filter/select stored cells; never fetches or invents missing values."""
     dataset = registry.get_dataset(dataset_id)
@@ -37,9 +41,13 @@ def run_analysis(
             "value": _decode(row.get("value_json")),
             "dimensions": dimensions,
         }
-        if columns:
-            item = {key: item[key] for key in columns if key in item}
         rows.append(item)
+    if group_by:
+        rows = _aggregate(rows, group_by, aggregate or "count")
+    if columns:
+        rows = [{key: item[key] for key in columns if key in item} for item in rows]
+    if sort_by:
+        rows.sort(key=lambda item: (item.get(sort_by) is None, item.get(sort_by)), reverse=descending)
     provenance = [
         Provenance(
             dataset_id=dataset_id,
@@ -59,3 +67,24 @@ def _decode(value: Any) -> Any:
         return json.loads(value)
     except json.JSONDecodeError:
         return value
+
+
+def _aggregate(rows: list[dict[str, Any]], group_by: list[str], aggregate: str) -> list[dict[str, Any]]:
+    if aggregate not in {"count", "sum", "mean"}:
+        raise ValueError("aggregate must be count, sum, or mean")
+    groups: dict[tuple[Any, ...], list[dict[str, Any]]] = {}
+    for row in rows:
+        dimensions = row.get("dimensions") or {}
+        key = tuple(row.get(field, dimensions.get(field)) for field in group_by)
+        groups.setdefault(key, []).append(row)
+    out: list[dict[str, Any]] = []
+    for key, members in groups.items():
+        item = {field: value for field, value in zip(group_by, key)}
+        if aggregate == "count":
+            value: Any = len(members)
+        else:
+            numeric = [member.get("value") for member in members if isinstance(member.get("value"), (int, float)) and not isinstance(member.get("value"), bool)]
+            value = (sum(numeric) / len(numeric)) if aggregate == "mean" and numeric else (sum(numeric) if numeric else None)
+        item.update({"value": value, "aggregate": aggregate, "count": len(members)})
+        out.append(item)
+    return out

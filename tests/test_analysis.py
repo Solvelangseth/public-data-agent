@@ -20,3 +20,10 @@ def test_run_analysis_filters_stored_cells_and_preserves_provenance() -> None:
     assert result.values == [{"observation_id": "1", "value": 12, "dimensions": {"år": "2025", "region": "Oslo"}}]
     assert result.provenance[0].license is None
     assert result.numbers_retrieved is True
+
+
+def test_run_analysis_groups_and_sorts_stored_cells() -> None:
+    result = run_analysis(RegistryStub(), "demo", group_by=["region"], aggregate="sum", sort_by="value", descending=True)
+    assert [row["value"] for row in result.values] == [12, 9]
+    assert result.values[0]["region"] == "Oslo"
+    assert result.values[0]["aggregate"] == "sum"
