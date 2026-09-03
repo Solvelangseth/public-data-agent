@@ -58,6 +58,30 @@ def test_demo_plan_contains_search_fetch_join_and_derived_steps(tmp_path: Path) 
     registry.close()
 
 
+def test_plain_norwegian_population_prompt_selects_registered_sources(tmp_path: Path) -> None:
+    registry = _registry(tmp_path)
+    registry.conn.execute(
+        "UPDATE datasets SET access_path = ? WHERE id = ?",
+        ("https://data.ssb.no/api/klass/v1/versions/1168.json", "fixture:b2864e84-b474-31ae-97b1-8b94a71f5b0f"),
+    )
+    registry.conn.commit()
+    question = "Finn folkemengde i Oslo-bydeler, sammenlign de to siste årene og ranger de som vokser mest"
+    plan = build_plan(
+        question,
+        search_report(registry, question, limit=5),
+        klass_dataset_id="fixture:b2864e84-b474-31ae-97b1-8b94a71f5b0f",
+        ssb_table="11763",
+        latest_year=2025,
+        prior_year=2024,
+        registry=registry,
+    )
+    assert plan.intent == "bydel_population_size_and_growth"
+    assert plan.steps[1].dataset_id == "fixture:b2864e84-b474-31ae-97b1-8b94a71f5b0f"
+    assert plan.steps[2].dataset_id == "ssb:11763"
+    assert plan.refusal_reason is None
+    registry.close()
+
+
 def test_plan_command_is_dry_run_and_writes_structured_plan(tmp_path: Path, capsys) -> None:
     registry = _registry(tmp_path)
     db = tmp_path / "registry.sqlite"

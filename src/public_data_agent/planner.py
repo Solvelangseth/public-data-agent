@@ -156,8 +156,13 @@ def build_plan(
 
 def _is_bydel_growth(question: str) -> bool:
     text = question.casefold()
-    return "oslo" in text and "bydel" in text and (
-        "størst" in text or "stor" in text or "vok" in text or "vekst" in text
+    population_language = ("befolkning", "folkemengde", "innbygger", "folketall")
+    ranking_language = ("størst", "stor", "vok", "vekst", "sammenlign", "ranger")
+    return (
+        "oslo" in text
+        and ("bydel" in text or "bydeler" in text)
+        and any(token in text for token in ranking_language)
+        and (any(token in text for token in population_language) or "størst" in text or "vok" in text)
     )
 
 
