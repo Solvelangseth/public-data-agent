@@ -14,7 +14,7 @@ TOOL_SCHEMAS = [
     {"type": "function", "name": "inspect", "description": "Inspect stored metadata and connector capability.", "parameters": {"type": "object", "properties": {"dataset": {"type": "string"}}, "required": ["dataset"], "additionalProperties": False}},
     {"type": "function", "name": "get_provenance", "description": "Return stored publisher, license, access URL, and observation lineage.", "parameters": {"type": "object", "properties": {"dataset": {"type": "string"}}, "required": ["dataset"], "additionalProperties": False}},
     {"type": "function", "name": "fetch", "description": "Fetch observations from a supported stored access path. For Oslo bydel population, call with dataset=the Klass dataset id, table=11763, join=true, and year; this runs the registered exact bydel_code join.", "parameters": {"type": "object", "properties": {"dataset": {"type": "string"}, "table": {"type": "string"}, "from_year": {"type": "integer"}, "to_year": {"type": "integer"}, "year": {"type": "integer"}, "join": {"type": "boolean"}}, "required": ["dataset", "table"], "additionalProperties": False}},
-    {"type": "function", "name": "run_analysis", "description": "Filter or aggregate stored observations.", "parameters": {"type": "object", "properties": {"dataset": {"type": "string"}, "filters": {"type": "object", "additionalProperties": {"type": "string"}}, "measure": {"type": "string"}, "group_by": {"type": "array", "items": {"type": "string"}}, "aggregate": {"type": "string", "enum": ["count", "sum", "mean"]}}, "required": ["dataset"], "additionalProperties": False}},
+    {"type": "function", "name": "run_analysis", "description": "Filter or aggregate stored observations. Filters may use a scalar or an array of exact stored dimension values; measure=value selects numeric cells.", "parameters": {"type": "object", "properties": {"dataset": {"type": "string"}, "filters": {"type": "object", "additionalProperties": {"type": ["string", "array"]}}, "measure": {"type": "string"}, "group_by": {"type": "array", "items": {"type": "string"}}, "aggregate": {"type": "string", "enum": ["count", "sum", "mean"]}}, "required": ["dataset"], "additionalProperties": False}},
     {"type": "function", "name": "export_artifact", "description": "Export stored results as a local CSV or JSON artifact.", "parameters": {"type": "object", "properties": {"dataset": {"type": "string"}, "path": {"type": "string"}, "format": {"type": "string", "enum": ["csv", "json"]}}, "required": ["dataset", "path"], "additionalProperties": False}},
     {"type": "function", "name": "create_visualization", "description": "Create a local PNG chart from numeric stored results.", "parameters": {"type": "object", "properties": {"dataset": {"type": "string"}, "path": {"type": "string"}, "label": {"type": "string"}}, "required": ["dataset", "path"], "additionalProperties": False}},
 ]
@@ -25,8 +25,10 @@ Never invent or infer numeric values, table ids, periods, licenses, dimensions, 
 Every number in the final answer must come directly from fetch results, stored observations,
 joined rows, or a deterministic analysis tool result. Missing evidence means null or a clear
 explanation that numbers were not retrieved. Do not fetch landing pages or guess API paths.
-For Oslo bydel population, use the registered Klass + SSB 11763 exact bydel_code join when
-available. Explain sources and transformations, and mention artifact paths when files are made.
+For Oslo bydel population, use dataset id `datanorge:0c89041e-ae88-32ef-a765-8e1ccbd64fdd`
+with `table=11763` and `join=true` for the registered Klass + SSB exact bydel_code join.
+Never rewrite ids (for example, `ssb:11763` includes a colon). Explain sources and
+transformations, and mention artifact paths when files are made.
 """
 
 

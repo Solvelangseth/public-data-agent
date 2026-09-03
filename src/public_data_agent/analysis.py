@@ -13,7 +13,7 @@ def run_analysis(
     registry: Registry,
     dataset_id: str,
     *,
-    filters: dict[str, str] | None = None,
+    filters: dict[str, Any] | None = None,
     measure: str | None = None,
     columns: list[str] | None = None,
     group_by: list[str] | None = None,
@@ -29,9 +29,14 @@ def run_analysis(
     rows: list[dict[str, Any]] = []
     for row in registry.list_observations(dataset_id):
         dimensions = _decode(row.get("dimensions_json")) or {}
-        if measure is not None and row.get("measure") != measure:
+        # Agents commonly use ``measure=value`` to request numeric cells.  The
+        # stored measure label is source-defined and must not be guessed.
+        if measure is not None and measure != "value" and row.get("measure") != measure:
             continue
-        if any(str(dimensions.get(key)) != str(value) for key, value in filters.items()):
+        if any(
+            (str(dimensions.get(key)) not in {str(item) for item in value} if isinstance(value, (list, tuple, set)) else str(dimensions.get(key)) != str(value))
+            for key, value in filters.items()
+        ):
             continue
         item = {
             "observation_id": row["id"],
