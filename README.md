@@ -633,6 +633,11 @@ come only from observations, `joined_rows`, and `methods/`. An LLM may later
 produce the same plan shape, but it must not supply values, table ids, licenses,
 years, or join keys.
 
+The `public_data_agent.llm_planner` module defines that provider boundary:
+model JSON is rejected unless its operations reference supplied catalog
+candidates and contain no factual answer fields. The CLI remains deterministic
+until a provider is configured.
+
 ### Local test dashboard
 
 Run the lightweight local dashboard to try plan and execution requests in a
