@@ -21,6 +21,7 @@ class PlanStep:
     dataset_id: str | None = None
     table_id: str | None = None
     periods: tuple[int, ...] = ()
+    parameters: dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         out: dict[str, Any] = {"kind": self.kind, "reason": self.reason}
@@ -30,6 +31,8 @@ class PlanStep:
             out["table_id"] = self.table_id
         if self.periods:
             out["periods"] = list(self.periods)
+        if self.parameters:
+            out["parameters"] = self.parameters
         return out
 
 

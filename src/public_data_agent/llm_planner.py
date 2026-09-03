@@ -88,6 +88,9 @@ def validate_model_plan(
             return PlanValidation(None, "fetch steps require candidate dataset_id and table_id")
         if table_id is not None and candidate_table_ids and str(table_id) not in candidate_table_ids:
             return PlanValidation(None, f"model selected table outside candidates: {table_id}")
+        parameters = raw.get("parameters", {})
+        if not isinstance(parameters, dict):
+            return PlanValidation(None, "plan parameters must be an object")
         periods = raw.get("periods", ())
         if not isinstance(periods, (list, tuple)) or any(not isinstance(p, int) for p in periods):
             return PlanValidation(None, "plan periods must be integers")
@@ -98,6 +101,7 @@ def validate_model_plan(
                 dataset_id=dataset_id,
                 table_id=table_id,
                 periods=tuple(periods),
+                parameters=parameters,
             )
         )
     requirements = payload.get("requirements", [])

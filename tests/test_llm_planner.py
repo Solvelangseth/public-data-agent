@@ -14,11 +14,12 @@ def _payload() -> dict:
 
 def test_model_plan_accepts_only_candidate_datasets() -> None:
     payload = _payload()
-    payload["steps"] = [{"kind": "fetch", "dataset_id": "known:1", "table_id": "123", "periods": [2024, 2025]}]
+    payload["steps"] = [{"kind": "fetch", "dataset_id": "known:1", "table_id": "123", "periods": [2024, 2025], "parameters": {"measure": "count"}}]
     result = validate_model_plan(payload, question="test", candidate_dataset_ids={"known:1"}, candidate_table_ids={"123"})
     assert result.error is None
     assert result.plan is not None
     assert result.plan.parser == "llm_structured_plan"
+    assert result.plan.steps[0].parameters == {"measure": "count"}
 
 
 def test_model_plan_rejects_unknown_ids_and_factual_fields() -> None:

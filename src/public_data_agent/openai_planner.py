@@ -20,7 +20,8 @@ JSON object with this shape:
 {"intent":"...","search_query":"...","requirements":["..."],
 "steps":[{"kind":"search|fetch|filter|reshape|join|derive|visualize|export",
 "reason":"...","dataset_id":"candidate id or omit",
-"table_id":"candidate table id or omit","periods":[2024,2025]}],
+"table_id":"candidate table id or omit","periods":[2024,2025],
+"parameters":{}}],
 "refusal_reason":null}
 Requirements must be an array of strings. Use only the listed step kinds.
 Do not answer the question; describe operations for a deterministic executor.
