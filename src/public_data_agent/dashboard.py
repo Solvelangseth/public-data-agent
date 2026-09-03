@@ -9,6 +9,8 @@ from urllib.parse import urlparse
 
 from public_data_agent.ask import ask
 from public_data_agent.executor import execute_plan
+from public_data_agent.agent_loop import run_agent
+from public_data_agent.openai_agent import OpenAIAgentModel
 from public_data_agent.llm_planner import candidate_context, plan_with_provider
 from public_data_agent.openai_planner import OpenAIPlanProvider
 from public_data_agent.planner import build_plan
@@ -28,7 +30,7 @@ pre{white-space:pre-wrap;overflow:auto;background:#111827;color:#d1fae5;border-r
 </style></head><body><main><h1>Public Data Agent</h1>
 <p class="muted">Test the local Norwegian public-data planner. Plan mode never fetches data.</p>
 <textarea id="question">Hvilke Oslo-bydeler er størst og hvilke vokser mest?</textarea><br>
-<button onclick="run('plan')">Inspect plan</button><button onclick="run('llm-plan')">LLM plan</button><button class="secondary" onclick="run('llm-run')">Run LLM plan</button><button class="secondary" onclick="run('ask')">Run demo/ask</button>
+<button onclick="run('plan')">Inspect plan</button><button onclick="run('llm-plan')">LLM plan</button><button class="secondary" onclick="run('llm-run')">Run LLM plan</button><button class="secondary" onclick="run('agent')">Run agent</button><button class="secondary" onclick="run('ask')">Run demo/ask</button>
 <div class="status" id="status"></div><h2>Summary</h2><p id="summary" class="muted">Enter a question and choose an action.</p><h2>Technical result</h2><pre id="result"></pre>
 <script>
 async function run(mode){const status=document.getElementById('status'), out=document.getElementById('result'); status.textContent='Working…'; out.textContent='';
@@ -47,7 +49,7 @@ def serve(db: str, host: str = "127.0.0.1", port: int = 8765) -> None:
 
         def do_POST(self) -> None:  # noqa: N802
             path = urlparse(self.path).path
-            if path not in {"/api/plan", "/api/llm-plan", "/api/llm-run", "/api/ask"}:
+            if path not in {"/api/plan", "/api/llm-plan", "/api/llm-run", "/api/agent", "/api/ask"}:
                 self.send_error(404)
                 return
             try:
@@ -67,7 +69,11 @@ def serve(db: str, host: str = "127.0.0.1", port: int = 8765) -> None:
                         prior_year=2024,
                         registry=registry,
                     )
-                    if path == "/api/plan":
+                    if path == "/api/agent":
+                        model = OpenAIAgentModel.from_env(dotenv=Path(".env"))
+                        run = run_agent(question, model, max_steps=8)
+                        payload = {"tool_calls": run.tool_calls, "final": run.final, "error": run.error, "messages": run.messages}
+                    elif path == "/api/plan":
                         payload = {"plan": plan.to_dict(), "discovery": report.to_dict()}
                     elif path in {"/api/llm-plan", "/api/llm-run"}:
                         provider = OpenAIPlanProvider.from_env(dotenv=Path(".env"))
