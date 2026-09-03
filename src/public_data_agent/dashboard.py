@@ -29,10 +29,10 @@ pre{white-space:pre-wrap;overflow:auto;background:#111827;color:#d1fae5;border-r
 <p class="muted">Test the local Norwegian public-data planner. Plan mode never fetches data.</p>
 <textarea id="question">Hvilke Oslo-bydeler er størst og hvilke vokser mest?</textarea><br>
 <button onclick="run('plan')">Inspect plan</button><button onclick="run('llm-plan')">LLM plan</button><button class="secondary" onclick="run('llm-run')">Run LLM plan</button><button class="secondary" onclick="run('ask')">Run demo/ask</button>
-<div class="status" id="status"></div><h2>Result</h2><pre id="result">Enter a question and choose an action.</pre>
+<div class="status" id="status"></div><h2>Summary</h2><p id="summary" class="muted">Enter a question and choose an action.</p><h2>Technical result</h2><pre id="result"></pre>
 <script>
 async function run(mode){const status=document.getElementById('status'), out=document.getElementById('result'); status.textContent='Working…'; out.textContent='';
- try{const r=await fetch('/api/'+mode,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({question:document.getElementById('question').value})}); const body=await r.json(); out.textContent=JSON.stringify(body,null,2); status.textContent=r.ok?'Done':'Request failed';}
+ try{const r=await fetch('/api/'+mode,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({question:document.getElementById('question').value})}); const body=await r.json(); out.textContent=JSON.stringify(body,null,2); const a=body.answer||{}; const largest=body.largest||[]; const growing=body.growing||[]; document.getElementById('summary').textContent=largest.length?`Largest: ${largest[0].name||largest[0].bydel_code} (${largest[0].population}). Fastest growth: ${(growing[0]||{}).name||'see technical result'}.`:a.explanation||body.execution?.explanation||'No numeric answer was retrieved.'; status.textContent=r.ok?'Done':'Request failed';}
  catch(e){status.textContent='Error';out.textContent=String(e)}}
 </script></main></body></html>"""
 

@@ -221,12 +221,38 @@ def tool_create_visualization(
         registry.close()
 
 
+def tool_get_provenance(dataset: str, db: str = DEFAULT_DB) -> dict[str, Any]:
+    """Return stored dataset metadata and observation lineage without fetching."""
+    registry = _open_registry(db)
+    try:
+        row = registry.get_dataset(dataset)
+        if row is None:
+            raise ValueError(f"dataset not found in registry: {dataset}")
+        observations = registry.list_observations(dataset)
+        return {
+            "tool": "get_provenance",
+            "values_from": "registry",
+            "dataset": dataset,
+            "metadata": {
+                "title": row.get("title"),
+                "publisher_name": row.get("publisher_name"),
+                "license": row.get("license"),
+                "access_path": row.get("access_path"),
+            },
+            "observation_count": len(observations),
+            "request_urls": sorted({item.get("request_url") for item in observations if item.get("request_url")}),
+        }
+    finally:
+        registry.close()
+
+
 TOOLS: dict[str, Callable[..., dict[str, Any]]] = {
     "search": tool_search,
     "inspect": tool_inspect,
     "run_analysis": tool_run_analysis,
     "export_artifact": tool_export_artifact,
     "create_visualization": tool_create_visualization,
+    "get_provenance": tool_get_provenance,
     "ask": tool_ask,
     "fetch": tool_fetch,
 }
@@ -256,6 +282,7 @@ def build_server():
     server.add_tool(tool_run_analysis, name="run_analysis")
     server.add_tool(tool_export_artifact, name="export_artifact")
     server.add_tool(tool_create_visualization, name="create_visualization")
+    server.add_tool(tool_get_provenance, name="get_provenance")
     server.add_tool(tool_ask, name="ask")
     server.add_tool(tool_fetch, name="fetch")
     return server

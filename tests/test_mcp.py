@@ -126,7 +126,7 @@ def _registry(tmp_path: Path) -> Registry:
 
 def test_tools_are_search_ask_fetch() -> None:
     assert set(TOOLS) == {
-        "search", "inspect", "run_analysis", "export_artifact", "create_visualization", "ask", "fetch"
+        "search", "inspect", "run_analysis", "export_artifact", "create_visualization", "get_provenance", "ask", "fetch"
     }
 
 
@@ -138,6 +138,16 @@ def test_inspect_tool_returns_capability_and_null_license(tmp_path: Path) -> Non
     assert payload["values_from"] == "registry"
     assert payload["metadata"]["fetch_supported"] is True
     assert "license" in payload["metadata"]
+
+
+def test_provenance_tool_returns_stored_metadata(tmp_path: Path) -> None:
+    registry = _registry(tmp_path)
+    db = str(tmp_path / "registry.sqlite")
+    registry.close()
+    payload = call_tool("get_provenance", {"dataset": STRANDSONE_ID, "db": db})
+    assert payload["values_from"] == "registry"
+    assert payload["observation_count"] == 0
+    assert payload["metadata"]["access_path"] == KLASS_URL
 
 
 def test_search_tool_passes_through_stored_provenance(tmp_path: Path) -> None:
