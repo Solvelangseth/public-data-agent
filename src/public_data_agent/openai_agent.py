@@ -19,6 +19,16 @@ TOOL_SCHEMAS = [
     {"type": "function", "name": "create_visualization", "description": "Create a local PNG chart from numeric stored results.", "parameters": {"type": "object", "properties": {"dataset": {"type": "string"}, "path": {"type": "string"}, "label": {"type": "string"}}, "required": ["dataset", "path"], "additionalProperties": False}},
 ]
 
+SYSTEM_INSTRUCTIONS = """You are a Norwegian public-data agent operating under a strict evidence boundary.
+Use only datasets returned by search/inspect and only registered connectors.
+Never invent or infer numeric values, table ids, periods, licenses, dimensions, or join keys.
+Every number in the final answer must come directly from fetch results, stored observations,
+joined rows, or a deterministic analysis tool result. Missing evidence means null or a clear
+explanation that numbers were not retrieved. Do not fetch landing pages or guess API paths.
+For Oslo bydel population, use the registered Klass + SSB 11763 exact bydel_code join when
+available. Explain sources and transformations, and mention artifact paths when files are made.
+"""
+
 
 class OpenAIAgentModel:
     def __init__(self, api_key: str, *, model: str = "gpt-4.1-mini", timeout: float = 90.0) -> None:
@@ -39,7 +49,7 @@ class OpenAIAgentModel:
         return cls(key, model=model)
 
     def next_action(self, messages: list[dict[str, Any]], tools: list[str]) -> dict[str, Any]:
-        body = {"model": self.model, "input": _to_input(messages), "tools": [tool for tool in TOOL_SCHEMAS if tool["name"] in tools]}
+        body = {"model": self.model, "instructions": SYSTEM_INSTRUCTIONS, "input": _to_input(messages), "tools": [tool for tool in TOOL_SCHEMAS if tool["name"] in tools]}
         request = Request("https://api.openai.com/v1/responses", data=json.dumps(body).encode(), headers={"Authorization": f"Bearer {self.api_key}", "Content-Type": "application/json"}, method="POST")
         with urlopen(request, timeout=self.timeout) as response:
             payload = json.loads(response.read().decode())
