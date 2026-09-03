@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 
-from public_data_agent.openai_agent import OpenAIAgentModel, _to_input
+from public_data_agent.openai_agent import OpenAIAgentModel, TOOL_SCHEMAS, _to_input
 
 
 def test_tool_result_messages_use_responses_function_call_output() -> None:
@@ -20,3 +20,9 @@ def test_openai_agent_parses_function_call(monkeypatch) -> None:
     monkeypatch.setattr("public_data_agent.openai_agent.urlopen", lambda request, timeout: Response())
     action = OpenAIAgentModel("secret").next_action([{"role": "user", "content": "find Oslo"}], ["search"])
     assert action == {"tool": "search", "arguments": {"query": "Oslo"}, "call_id": "c1"}
+
+
+def test_fetch_schema_exposes_registered_join() -> None:
+    fetch = next(tool for tool in TOOL_SCHEMAS if tool["name"] == "fetch")
+    assert "join" in fetch["parameters"]["properties"]
+    assert "year" in fetch["parameters"]["properties"]
