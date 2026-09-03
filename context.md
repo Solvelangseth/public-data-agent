@@ -136,7 +136,10 @@ code.
   `warnings` explaining an empty result or an aggregate that would double count.
   **Warnings are binding** — do not report a number the tool warned about.
 - `methods/` holds deterministic derivations (YoY, period change, index, rank) with
-  lineage.
+  lineage. `executor.execute_plan` runs them: a `join` step joins a Klass
+  classification to a table on a discovered key, and a `derive` step computes
+  growth and rank over whatever earlier steps produced. Ranking and growth are
+  therefore method output, never arithmetic done while writing an answer.
 - `artifacts.py` / `export.py` write CSV, JSON and PNG, preserving provenance.
 
 ### Pipeline

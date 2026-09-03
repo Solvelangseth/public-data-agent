@@ -6,11 +6,6 @@ removed, not archived — git history is the archive.
 
 ## What blocks "any question works"
 
-- **Deterministic methods are unreachable from the agent.** `methods/derive.py`
-  computes YoY, period change, index and rank with lineage, and is covered by tests,
-  but no tool exposes it. Growth questions are therefore answered by arithmetic the
-  model does in its head, which the evidence boundary cannot check.
-
 - **Norwegian compounds miss.** `byggekostnader`, `energibruk`, `kraftproduksjon` and
   `kollektivtransport` return no fetchable hit, because the stored tokens are the parts
   (`bygge`, `kostnader`, …) and the query token is the compound. `QUERY_COMPOUND_SPLITS`
