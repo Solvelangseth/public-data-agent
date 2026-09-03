@@ -2,7 +2,12 @@ from __future__ import annotations
 
 import json
 
-from public_data_agent.openai_planner import OpenAIPlanProvider
+from public_data_agent.openai_planner import OpenAIPlanProvider, SYSTEM_PROMPT
+
+
+def test_prompt_requires_contract_shape() -> None:
+    assert '"requirements":["..."]' in SYSTEM_PROMPT
+    assert "search|fetch|filter|reshape|join|derive|visualize|export" in SYSTEM_PROMPT
 
 
 def test_provider_reads_key_from_dotenv_without_printing_or_exporting(tmp_path) -> None:

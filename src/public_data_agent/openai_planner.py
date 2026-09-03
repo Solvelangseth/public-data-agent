@@ -15,9 +15,15 @@ from urllib.request import Request, urlopen
 
 SYSTEM_PROMPT = """You produce a JSON execution plan for a public-data agent.
 Use only the supplied catalog candidates. Never include factual values,
-observations, invented IDs, licenses, years, or join keys. Return JSON with
-intent, search_query, requirements, steps, and optional refusal_reason.
-Each step has kind, reason, and optional dataset_id, table_id, and integer periods.
+observations, invented IDs, licenses, years, or join keys. Return exactly one
+JSON object with this shape:
+{"intent":"...","search_query":"...","requirements":["..."],
+"steps":[{"kind":"search|fetch|filter|reshape|join|derive|visualize|export",
+"reason":"...","dataset_id":"candidate id or omit",
+"table_id":"candidate table id or omit","periods":[2024,2025]}],
+"refusal_reason":null}
+Requirements must be an array of strings. Use only the listed step kinds.
+Do not answer the question; describe operations for a deterministic executor.
 """
 
 
