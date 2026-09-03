@@ -3,6 +3,8 @@ from __future__ import annotations
 import hashlib
 import json
 import sqlite3
+from collections.abc import Iterator
+from contextlib import contextmanager
 from datetime import datetime, timezone
 from importlib import resources
 from pathlib import Path
@@ -28,10 +30,38 @@ class Registry:
         self.conn.execute("PRAGMA foreign_keys = ON")
         self.conn.execute("PRAGMA journal_mode = WAL")
         self.conn.execute("PRAGMA busy_timeout = 5000")
+        self._defer_commit = False
         self._apply_schema()
 
     def close(self) -> None:
         self.conn.close()
+
+    @contextmanager
+    def deferred_commit(self) -> Iterator[None]:
+        """Commit once at the end of a bulk write instead of once per row.
+
+        Storing a table's cells one commit at a time is one fsync per cell,
+        which is fine for a 36-row join and not fine for a table with tens of
+        thousands. Durability is unchanged for a completed block; an exception
+        rolls the whole block back, which is the behaviour a partial table
+        should have anyway.
+        """
+
+        previous = self._defer_commit
+        self._defer_commit = True
+        try:
+            yield
+        except Exception:
+            self.conn.rollback()
+            raise
+        else:
+            self.conn.commit()
+        finally:
+            self._defer_commit = previous
+
+    def _commit(self) -> None:
+        if not self._defer_commit:
+            self.conn.commit()
 
     def _apply_schema(self) -> None:
         sql = resources.files(SCHEMA_PACKAGE).joinpath("schema.sql").read_text(encoding="utf-8")
@@ -400,7 +430,7 @@ class Registry:
                 f"VALUES ({_placeholders(_OBSERVATION_COLUMNS)})",
                 tuple(values[col] for col in _OBSERVATION_COLUMNS),
             )
-            self.conn.commit()
+            self._commit()
             return "inserted"
         if existing["value_json"] == values["value_json"]:
             # The value is unchanged, but a row written before the series column
@@ -411,14 +441,14 @@ class Registry:
                     "UPDATE observations SET series = ? WHERE id = ?",
                     (values["series"], row["id"]),
                 )
-                self.conn.commit()
+                self._commit()
             return "unchanged"
         assign = ", ".join(f"{col} = ?" for col in _OBSERVATION_UPDATE_COLUMNS)
         self.conn.execute(
             f"UPDATE observations SET {assign} WHERE id = ?",
             (*(values[col] for col in _OBSERVATION_UPDATE_COLUMNS), row["id"]),
         )
-        self.conn.commit()
+        self._commit()
         return "updated"
 
     def upsert_printed_table_url(

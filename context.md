@@ -167,8 +167,24 @@ Two rules hold the graph together:
   titles and keywords, not dimension *values*, so "Trondheim" is uncovered even
   when a table answers for it via `select=`.
 
-`pda check "<question>"` runs both nodes and exits 2 when a question cannot be
-answered.
+`route()` then picks the next node by rule:
+
+- **clarify** — intake asked something; stop and ask. Checked first, because a
+  question we have misread is not evidence that data is missing.
+- **stop** — the gate found nothing that can answer.
+- **specific** — a lookup, a ranking, a comparison. `run_specific` plans over
+  the gate's observation sources only, validates the plan, then executes it
+  deterministically.
+- **exploratory** — answering means deciding which variables to relate. Driven
+  by the bounded tool loop, since which datasets matter is part of the question
+  and cannot be planned up front. Same tools, same trust boundary.
+
+A route that cannot run for want of a provider says so; it never falls through
+to another path, because silently answering a different way makes a run
+irreproducible.
+
+`pda check "<question>"` runs intake and the gate. `pda run "<question>"` runs
+the whole graph. Both exit 2 when a question is not answered.
 
 ### Agent and interfaces
 

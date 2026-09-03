@@ -16,12 +16,25 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from public_data_agent.fetch import classify_access_path
-from public_data_agent.intake import IntakeProvider, Request, read_question_with_fallback
+from public_data_agent.intake import (
+    EXPLORATORY,
+    IntakeProvider,
+    Request,
+    read_question_with_fallback,
+)
 from public_data_agent.registry import Registry
 from public_data_agent.search import search_report
 
 # Rank deeper than the caller wants so each lane can fill its own top-N.
 LANE_DEPTH = 6
+
+# Routes out of the first stage. Chosen by rule, never by a model: a model
+# judging its own readiness or its own task shape is systematically
+# overconfident, and every signal these need is already computed.
+ROUTE_STOP = "stop"
+ROUTE_CLARIFY = "clarify"
+ROUTE_SPECIFIC = "specific"
+ROUTE_EXPLORATORY = "exploratory"
 
 NOTHING_FOUND = "nothing_found"
 CATALOGUE_ONLY = "catalogue_only"
@@ -274,3 +287,201 @@ def run_intake(
     request, warning = read_question_with_fallback(question, provider)
     readiness = assess_readiness(registry, question, limit=limit, request=request)
     return Intake(request=request, readiness=readiness, intake_warning=warning)
+
+
+def route(intake: "Intake") -> str:
+    """Pick the next node. Order matters.
+
+    Clarification comes before the gate's verdict: a question we have misread
+    is not evidence that the data is missing. The gate comes before the split,
+    because there is nothing to plan or explore over when nothing can answer.
+    """
+
+    if intake.request.needs_clarification:
+        return ROUTE_CLARIFY
+    if not intake.readiness.ready:
+        return ROUTE_STOP
+    return ROUTE_EXPLORATORY if intake.request.shape == EXPLORATORY else ROUTE_SPECIFIC
+
+
+def plan_candidates(readiness: Readiness, *, limit: int = 10) -> list[dict[str, Any]]:
+    """The bounded, factual context a planner may choose from.
+
+    Only sources that can actually return observations are offered. A planner
+    given a landing page will eventually try to fetch it.
+    """
+
+    return [
+        {
+            "dataset_id": ref.dataset_id,
+            "title": ref.title,
+            "publisher": ref.publisher,
+            "access_path": ref.access_path,
+            "table_id": _table_id_from(ref.access_path),
+            "capability": ref.capability,
+        }
+        for ref in readiness.observation_sources[:limit]
+    ]
+
+
+def _table_id_from(access_path: str | None) -> str | None:
+    """The trailing path segment of a PxWeb table URL, or nothing.
+
+    Never guessed from a title: an id we cannot read off the stored path is an
+    id we do not have.
+    """
+
+    if not access_path:
+        return None
+    tail = access_path.rstrip("/").rsplit("/", 1)[-1]
+    return tail if tail.isdigit() else None
+
+
+@dataclass(frozen=True)
+class PipelineRun:
+    """One trip through the graph, with the trace that produced it."""
+
+    question: str
+    route: str
+    intake: Intake
+    plan: dict[str, Any] | None = None
+    execution: dict[str, Any] | None = None
+    agent: dict[str, Any] | None = None
+    final: str | None = None
+    error: str | None = None
+
+    @property
+    def numbers_retrieved(self) -> bool:
+        """True only when a tool returned a numeric cell on this run."""
+
+        for payload in (self.execution, self.agent):
+            if payload and payload.get("numbers_retrieved"):
+                return True
+        return False
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "question": self.question,
+            "route": self.route,
+            "intake": self.intake.to_dict(),
+            "plan": self.plan,
+            "execution": self.execution,
+            "agent": self.agent,
+            "final": self.final,
+            "error": self.error,
+            "numbers_retrieved": self.numbers_retrieved,
+        }
+
+
+def run_specific(
+    registry: Registry,
+    intake: Intake,
+    *,
+    plan_provider: Any,
+    http: Any | None = None,
+) -> tuple[dict[str, Any] | None, dict[str, Any] | None, str | None]:
+    """Plan over the found sources, then execute the plan deterministically.
+
+    The planner may only choose from sources the gate proved can return
+    observations, and its output is validated before anything runs. Returns
+    (plan, execution, error); a rejected plan executes nothing.
+    """
+
+    from public_data_agent.executor import execute_plan
+    from public_data_agent.llm_planner import plan_with_provider
+
+    candidates = plan_candidates(intake.readiness)
+    if not candidates:
+        return None, None, "no observation source survived the gate to plan over"
+    validation = plan_with_provider(
+        plan_provider, question=intake.request.question, candidates=candidates
+    )
+    if validation.plan is None:
+        return None, None, validation.error or "plan failed validation"
+    plan = validation.plan.to_dict()
+    result = execute_plan(registry, validation.plan, http=http)
+    return plan, result.to_dict(), None
+
+
+def run_pipeline(
+    registry: Registry,
+    question: str,
+    *,
+    db: str,
+    intake_provider: IntakeProvider | None = None,
+    plan_provider: Any | None = None,
+    agent_model: Any | None = None,
+    limit: int = 5,
+    max_steps: int = 10,
+) -> PipelineRun:
+    """Run the graph: intake, gate, route, then the path the route names.
+
+    Every branch returns something truthful. A route that cannot run for want
+    of a provider says so rather than falling through to a different path,
+    because silently answering a different way is how a run stops being
+    reproducible.
+    """
+
+    intake = run_intake(registry, question, provider=intake_provider, limit=limit)
+    chosen = route(intake)
+
+    if chosen == ROUTE_CLARIFY:
+        return PipelineRun(
+            question=question,
+            route=chosen,
+            intake=intake,
+            final=intake.request.clarifying_question,
+        )
+    if chosen == ROUTE_STOP:
+        return PipelineRun(
+            question=question,
+            route=chosen,
+            intake=intake,
+            final=stop_message(intake.readiness),
+        )
+    if chosen == ROUTE_SPECIFIC:
+        if plan_provider is None:
+            return PipelineRun(
+                question=question,
+                route=chosen,
+                intake=intake,
+                error="specific route needs a plan provider",
+            )
+        plan, execution, error = run_specific(registry, intake, plan_provider=plan_provider)
+        return PipelineRun(
+            question=question, route=chosen, intake=intake,
+            plan=plan, execution=execution, error=error,
+        )
+
+    if agent_model is None:
+        return PipelineRun(
+            question=question,
+            route=chosen,
+            intake=intake,
+            error="exploratory route needs an agent model",
+        )
+    # Exploratory questions cannot be planned up front: which datasets matter
+    # is part of what is being asked. So the bounded tool loop drives, with the
+    # same tools and the same trust boundary, and the gate has already proved
+    # something can answer. The gate is not re-run inside the loop.
+    from public_data_agent.agent_loop import run_agent
+
+    run = run_agent(
+        intake.request.question, agent_model, max_steps=max_steps, db=db, gate=False
+    )
+    return PipelineRun(
+        question=question,
+        route=chosen,
+        intake=intake,
+        agent={
+            "tool_calls": run.tool_calls,
+            "error": run.error,
+            "numbers_retrieved": any(
+                isinstance(m.get("content"), dict) and m["content"].get("numbers_retrieved")
+                for m in run.messages
+                if m.get("role") == "tool"
+            ),
+        },
+        final=run.final,
+        error=run.error,
+    )

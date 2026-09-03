@@ -11695,6 +11695,26 @@ def _store_cells(
     # keeps them separable instead of blending into one unusable pool.
     series = series or f"fetch:{table_id}"
     sample: list[dict[str, Any]] = []
+    with registry.deferred_commit():
+        return _store_each(
+            registry, dataset, run_id, table_id, cells, retrieved_at,
+            request_url, http_status, counts, series, sample,
+        )
+
+
+def _store_each(
+    registry: Registry,
+    dataset: dict[str, Any],
+    run_id: int,
+    table_id: str,
+    cells: list[tuple[str, Any, dict[str, str]]],
+    retrieved_at: str,
+    request_url: str,
+    http_status: int,
+    counts: HarvestCounts,
+    series: str,
+    sample: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
     for measure, value, dims in cells:
         observation = Observation(
             dataset_id=dataset["id"],

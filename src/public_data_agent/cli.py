@@ -62,6 +62,13 @@ def main(argv: list[str] | None = None) -> int:
         help="Use the model to read the question. Off by default; the deterministic reading needs no key.",
     )
 
+    run_cmd = sub.add_parser("run", help="Run the full pipeline: intake, gate, route, answer")
+    run_cmd.add_argument("question")
+    run_cmd.add_argument("--db", type=Path, default=DEFAULT_DB)
+    run_cmd.add_argument("--model", default="gpt-4.1-mini")
+    run_cmd.add_argument("--steps", type=int, default=10)
+    run_cmd.add_argument("--limit", type=int, default=5)
+
     status = sub.add_parser("status", help="Show registry counts and recent harvest runs")
     status.add_argument("--db", type=Path, default=DEFAULT_DB)
 
@@ -231,6 +238,8 @@ def main(argv: list[str] | None = None) -> int:
         return _stats(args)
     if args.command == "check":
         return _check(args)
+    if args.command == "run":
+        return _run_pipeline(args)
     if args.command == "search":
         return _search(args)
     if args.command == "enrich":
@@ -695,6 +704,50 @@ def _mcp(args: argparse.Namespace) -> int:
         args.out.write_text(text + "\n", encoding="utf-8")
     print(text)
     return 0
+
+
+def _run_pipeline(args: argparse.Namespace) -> int:
+    """Run the graph. Providers are built lazily so the early routes need no key."""
+
+    from public_data_agent.pipeline import ROUTE_CLARIFY, ROUTE_STOP, run_intake, route
+    from public_data_agent.pipeline import run_pipeline
+
+    if not Path(args.db).exists() and str(args.db) != ":memory:":
+        print(f"no registry at {args.db}", file=sys.stderr)
+        return 1
+
+    intake_provider = plan_provider = agent_model = None
+    try:
+        from public_data_agent.openai_agent import OpenAIAgentModel, OpenAIIntakeProvider
+        from public_data_agent.openai_planner import OpenAIPlanProvider
+
+        intake_provider = OpenAIIntakeProvider.from_env(model=args.model, dotenv=Path(".env"))
+        plan_provider = OpenAIPlanProvider.from_env(dotenv=Path(".env"))
+        agent_model = OpenAIAgentModel.from_env(model=args.model, dotenv=Path(".env"))
+    except (RuntimeError, ValueError):
+        # No key: intake falls back to the deterministic reading, and the stop
+        # and clarify routes still work. The answering routes will say what is
+        # missing rather than pretending to run.
+        pass
+
+    registry = Registry(args.db)
+    try:
+        result = run_pipeline(
+            registry,
+            args.question,
+            db=str(args.db),
+            intake_provider=intake_provider,
+            plan_provider=plan_provider,
+            agent_model=agent_model,
+            limit=args.limit,
+            max_steps=args.steps,
+        )
+    finally:
+        registry.close()
+    print(json.dumps(result.to_dict(), ensure_ascii=False, indent=2))
+    if result.error:
+        return 1
+    return 0 if result.route not in {ROUTE_STOP, ROUTE_CLARIFY} else 2
 
 
 def _check(args: argparse.Namespace) -> int:

@@ -234,3 +234,117 @@ def test_a_question_needing_clarification_does_not_proceed(tmp_path: Path) -> No
     # Answerable, but we stop anyway until the question is settled.
     assert out.readiness.ready is True
     assert out.proceed is False
+
+
+def _ready_registry(tmp_path: Path) -> tuple[Registry, str]:
+    registry = _registry(tmp_path)
+    registry.conn.execute(
+        "UPDATE datasets SET access_path = ?, title = ? WHERE id = ?",
+        (SSB_TABLE_URL, "Folkemengde i strandsone", STRANDSONE_ID),
+    )
+    registry.conn.commit()
+    return registry, str(tmp_path / "registry.sqlite")
+
+
+def test_router_puts_clarification_before_the_gate_verdict(tmp_path: Path) -> None:
+    """A misread question is not evidence that data is missing."""
+
+    from public_data_agent.pipeline import ROUTE_CLARIFY, ROUTE_SPECIFIC, route, run_intake
+
+    class Vague:
+        def read_question(self, question):
+            return {"search_terms": ["strandsone"], "clarifying_question": "Hvilken?"}
+
+    registry, _ = _ready_registry(tmp_path)
+    try:
+        assert route(run_intake(registry, "strandsone", provider=Vague())) == ROUTE_CLARIFY
+        assert route(run_intake(registry, "strandsone")) == ROUTE_SPECIFIC
+    finally:
+        registry.close()
+
+
+def test_router_sends_open_investigation_to_the_exploratory_path(tmp_path: Path) -> None:
+    from public_data_agent.pipeline import ROUTE_EXPLORATORY, route, run_intake
+
+    class Open:
+        def read_question(self, question):
+            return {"search_terms": ["strandsone"], "shape": "exploratory"}
+
+    registry, _ = _ready_registry(tmp_path)
+    try:
+        assert route(run_intake(registry, "strandsone", provider=Open())) == ROUTE_EXPLORATORY
+    finally:
+        registry.close()
+
+
+def test_router_stops_before_either_answering_path_when_nothing_can_answer(tmp_path: Path) -> None:
+    from public_data_agent.pipeline import ROUTE_STOP, route, run_intake
+
+    registry = _registry(tmp_path)
+    try:
+        assert route(run_intake(registry, "kvantekryptografi på Jupiter")) == ROUTE_STOP
+    finally:
+        registry.close()
+
+
+def test_planner_may_only_choose_sources_that_can_return_observations(tmp_path: Path) -> None:
+    """A planner handed a landing page will eventually try to fetch it."""
+
+    from public_data_agent.pipeline import plan_candidates, run_intake
+
+    registry, _ = _ready_registry(tmp_path)
+    try:
+        candidates = plan_candidates(run_intake(registry, "strandsone").readiness)
+    finally:
+        registry.close()
+    assert candidates
+    assert all(item["capability"] == "observations" for item in candidates)
+    # The table id is read off the stored path, never guessed from a title.
+    assert candidates[0]["table_id"] == "11763"
+
+
+def test_specific_route_refuses_to_run_without_a_plan_provider(tmp_path: Path) -> None:
+    from public_data_agent.pipeline import ROUTE_SPECIFIC, run_pipeline
+
+    registry, db = _ready_registry(tmp_path)
+    try:
+        result = run_pipeline(registry, "strandsone", db=db)
+    finally:
+        registry.close()
+    assert result.route == ROUTE_SPECIFIC
+    assert "plan provider" in (result.error or "")
+    # Never fall through to a different path to produce something.
+    assert result.final is None
+    assert result.numbers_retrieved is False
+
+
+def test_pipeline_stop_route_answers_without_any_provider(tmp_path: Path) -> None:
+    from public_data_agent.pipeline import ROUTE_STOP, run_pipeline
+
+    registry = _registry(tmp_path)
+    db = str(tmp_path / "registry.sqlite")
+    try:
+        result = run_pipeline(registry, "kvantekryptografi på Jupiter", db=db)
+    finally:
+        registry.close()
+    assert result.route == ROUTE_STOP
+    assert "Ingen tall ble hentet" in (result.final or "")
+    assert result.numbers_retrieved is False
+
+
+def test_pipeline_reports_a_rejected_plan_without_executing_it(tmp_path: Path) -> None:
+    from public_data_agent.pipeline import run_pipeline
+
+    class AnsweringPlanner:
+        def make_plan(self, question, candidates):
+            # A plan carrying a factual field must never reach the executor.
+            return {"steps": [{"kind": "fetch"}], "answer": "64 920"}
+
+    registry, db = _ready_registry(tmp_path)
+    try:
+        result = run_pipeline(registry, "strandsone", db=db, plan_provider=AnsweringPlanner())
+    finally:
+        registry.close()
+    assert result.execution is None
+    assert result.error
+    assert result.numbers_retrieved is False
