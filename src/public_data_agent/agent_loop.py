@@ -35,5 +35,6 @@ def run_agent(question: str, model: AgentModel, *, max_steps: int = 8) -> AgentR
             result = call_tool(name, action.get("arguments", {}))
         except Exception as exc:
             result = {"error": str(exc)}
-        messages.append({"role": "tool", "name": name, "content": result})
+        messages.append({"role": "assistant", "function_call": action})
+        messages.append({"role": "tool", "name": name, "call_id": action.get("call_id", ""), "content": result})
     return AgentRun(messages, len([m for m in messages if m.get("role") == "tool"]), error="agent step limit reached")
