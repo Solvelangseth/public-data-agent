@@ -6,6 +6,7 @@ from typing import Any, Callable
 
 from public_data_agent.ask import DEMO_QUESTION, ask, ask_proof_payload
 from public_data_agent.fetch import DEFAULT_OSLO_DATASET, DEFAULT_OSLO_TABLE, fetch_observations
+from public_data_agent.fetch import can_fetch_access_path
 from public_data_agent.join import DEFAULT_KLASS_DATASET, join_bydel_population, join_proof_payload
 from public_data_agent.registry import Registry
 from public_data_agent.search import search_report
@@ -130,8 +131,35 @@ def tool_fetch(
         registry.close()
 
 
+def tool_inspect(dataset: str, db: str = DEFAULT_DB) -> dict[str, Any]:
+    """Return stored metadata and connector capability for one dataset."""
+    registry = _open_registry(db)
+    try:
+        row = registry.get_dataset(dataset)
+        if row is None:
+            raise ValueError(f"dataset not found in registry: {dataset}")
+        return {
+            "tool": "inspect",
+            "dataset": dataset,
+            "values_from": "registry",
+            "metadata": {
+                "title": row.get("title"),
+                "description": row.get("description"),
+                "publisher_name": row.get("publisher_name"),
+                "license": row.get("license"),
+                "access_path": row.get("access_path"),
+                "fetch_supported": can_fetch_access_path(row.get("access_path")),
+                "source_native_uri": row.get("source_native_uri"),
+                "temporal": row.get("temporal_json"),
+            },
+        }
+    finally:
+        registry.close()
+
+
 TOOLS: dict[str, Callable[..., dict[str, Any]]] = {
     "search": tool_search,
+    "inspect": tool_inspect,
     "ask": tool_ask,
     "fetch": tool_fetch,
 }
@@ -152,11 +180,12 @@ def build_server():
     server = MCPServer(
         name="public-data-agent",
         instructions=(
-            "Search, ask, and fetch Norwegian open data from the local registry. "
+            "Search, inspect, ask, and fetch Norwegian open data from the local registry. "
             "Pass through stored or fetched cells. Do not invent observation values."
         ),
     )
     server.add_tool(tool_search, name="search")
+    server.add_tool(tool_inspect, name="inspect")
     server.add_tool(tool_ask, name="ask")
     server.add_tool(tool_fetch, name="fetch")
     return server

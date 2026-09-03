@@ -125,7 +125,17 @@ def _registry(tmp_path: Path) -> Registry:
 
 
 def test_tools_are_search_ask_fetch() -> None:
-    assert set(TOOLS) == {"search", "ask", "fetch"}
+    assert set(TOOLS) == {"search", "inspect", "ask", "fetch"}
+
+
+def test_inspect_tool_returns_capability_and_null_license(tmp_path: Path) -> None:
+    registry = _registry(tmp_path)
+    db = str(tmp_path / "registry.sqlite")
+    registry.close()
+    payload = call_tool("inspect", {"dataset": STRANDSONE_ID, "db": db})
+    assert payload["values_from"] == "registry"
+    assert payload["metadata"]["fetch_supported"] is True
+    assert "license" in payload["metadata"]
 
 
 def test_search_tool_passes_through_stored_provenance(tmp_path: Path) -> None:
