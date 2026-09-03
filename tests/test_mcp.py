@@ -125,7 +125,7 @@ def _registry(tmp_path: Path) -> Registry:
 
 
 def test_tools_are_search_ask_fetch() -> None:
-    assert set(TOOLS) == {"search", "inspect", "ask", "fetch"}
+    assert set(TOOLS) == {"search", "inspect", "run_analysis", "ask", "fetch"}
 
 
 def test_inspect_tool_returns_capability_and_null_license(tmp_path: Path) -> None:

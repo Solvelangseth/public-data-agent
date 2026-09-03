@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Any, Callable
 
 from public_data_agent.ask import DEMO_QUESTION, ask, ask_proof_payload
+from public_data_agent.analysis import run_analysis
 from public_data_agent.fetch import DEFAULT_OSLO_DATASET, DEFAULT_OSLO_TABLE, fetch_observations
 from public_data_agent.fetch import can_fetch_access_path
 from public_data_agent.join import DEFAULT_KLASS_DATASET, join_bydel_population, join_proof_payload
@@ -157,9 +158,26 @@ def tool_inspect(dataset: str, db: str = DEFAULT_DB) -> dict[str, Any]:
         registry.close()
 
 
+def tool_run_analysis(
+    dataset: str,
+    db: str = DEFAULT_DB,
+    filters: dict[str, str] | None = None,
+    measure: str | None = None,
+    columns: list[str] | None = None,
+) -> dict[str, Any]:
+    """Filter/select stored observations without fetching or deriving values."""
+    registry = _open_registry(db)
+    try:
+        result = run_analysis(registry, dataset, filters=filters, measure=measure, columns=columns)
+        return {"tool": "run_analysis", "values_from": "stored_observations", **result.to_dict()}
+    finally:
+        registry.close()
+
+
 TOOLS: dict[str, Callable[..., dict[str, Any]]] = {
     "search": tool_search,
     "inspect": tool_inspect,
+    "run_analysis": tool_run_analysis,
     "ask": tool_ask,
     "fetch": tool_fetch,
 }
@@ -186,6 +204,7 @@ def build_server():
     )
     server.add_tool(tool_search, name="search")
     server.add_tool(tool_inspect, name="inspect")
+    server.add_tool(tool_run_analysis, name="run_analysis")
     server.add_tool(tool_ask, name="ask")
     server.add_tool(tool_fetch, name="fetch")
     return server
