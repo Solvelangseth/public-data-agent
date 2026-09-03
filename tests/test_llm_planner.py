@@ -34,6 +34,12 @@ def test_model_plan_rejects_unknown_ids_and_factual_fields() -> None:
     assert result.plan is None
     assert "factual" in (result.error or "")
 
+    payload = _payload()
+    payload["steps"] = [{"kind": "query_data"}]
+    result = validate_model_plan(payload, question="test", candidate_dataset_ids=set())
+    assert result.plan is None
+    assert "unsupported" in (result.error or "")
+
 
 def test_provider_output_is_validated_before_acceptance() -> None:
     class Provider:

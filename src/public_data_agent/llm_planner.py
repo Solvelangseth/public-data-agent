@@ -23,6 +23,18 @@ class PlanValidation:
     error: str | None = None
 
 
+SUPPORTED_STEP_KINDS = {
+    "search",
+    "fetch",
+    "filter",
+    "reshape",
+    "join",
+    "derive",
+    "visualize",
+    "export",
+}
+
+
 def candidate_context(report: SearchReport, *, limit: int = 10) -> list[dict[str, Any]]:
     """Create the bounded, factual context supplied to a planning provider."""
     return [
@@ -66,6 +78,8 @@ def validate_model_plan(
     for raw in raw_steps:
         if not isinstance(raw, dict) or not isinstance(raw.get("kind"), str):
             return PlanValidation(None, "each plan step needs a kind")
+        if raw["kind"] not in SUPPORTED_STEP_KINDS:
+            return PlanValidation(None, f"unsupported plan step kind: {raw['kind']}")
         dataset_id = raw.get("dataset_id")
         if dataset_id is not None and dataset_id not in candidate_dataset_ids:
             return PlanValidation(None, f"model selected dataset outside candidates: {dataset_id}")
