@@ -181,13 +181,25 @@ def _run_join(registry: Registry, step: PlanStep, *, http: JsonHttp | None) -> _
                 f"join produced no rows for period {period}; the classification and the "
                 "table share a key but no cell matched"
             )
+        withheld = 0
         for row in result.rows:
+            if row.get("suppressed") is not None:
+                # A withheld cell is not a zero and not a value. Passing it on
+                # would let a later rank or mean count a censored cell.
+                withheld += 1
+                continue
+            breakdown = row.get("dimensions") or {}
+            measure = row.get("population_measure") or "joined"
             values.append(
                 {
-                    "id": f"join:{join_key}:{row.get(join_key)}:{row.get('year')}",
-                    "dataset_id": f"ssb:{step.table_id}",
+                    # Two cells for one region in one year still differ by what
+                    # they measure and how the table splits them. Without both
+                    # in the id they collapse into one row and the survivor is
+                    # whichever came last.
+                    "id": _join_value_id(join_key, row, measure, breakdown),
+                    "dataset_id": result.right_dataset_id,
                     "table_id": step.table_id,
-                    "measure": row.get("population_measure") or "joined",
+                    "measure": measure,
                     "value": row.get("population"),
                     # "region" is an entity alias the methods layer recognises,
                     # so the derived rows are keyed by the readable name while
@@ -196,9 +208,15 @@ def _run_join(registry: Registry, step: PlanStep, *, http: JsonHttp | None) -> _
                         "region": row.get("klass_name"),
                         join_key: row.get(join_key),
                         "year": row.get("year"),
+                        **breakdown,
                     },
                     "why_matched": row.get("why_matched"),
                 }
+            )
+        if withheld:
+            warnings.append(
+                f"{withheld} joined cell(s) for period {period} were withheld by the "
+                "publisher and carry no value"
             )
         provenance.append(
             Provenance(
@@ -211,6 +229,14 @@ def _run_join(registry: Registry, step: PlanStep, *, http: JsonHttp | None) -> _
             )
         )
     return _StepOutcome(values=values, provenance=provenance, warnings=warnings)
+
+
+def _join_value_id(
+    join_key: str, row: dict[str, Any], measure: str, breakdown: dict[str, Any]
+) -> str:
+    parts = [f"join:{join_key}:{row.get(join_key)}:{row.get('year')}", measure]
+    parts += [f"{name}={breakdown[name]}" for name in sorted(breakdown)]
+    return "|".join(str(part) for part in parts)
 
 
 def _run_derive(values: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], list[str], str | None]:
