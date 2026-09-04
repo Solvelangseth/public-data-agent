@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 from typing import Any
 from urllib.parse import urlparse
 
-from public_data_agent.fetch import JsonHttp, _jsonstat_index
+from public_data_agent.fetch import JsonHttp, _jsonstat_index, _metric_dimension
 from public_data_agent.http_util import HttpClient
 from public_data_agent.registry import utc_now
 
@@ -136,6 +136,10 @@ def cells_from_jsonstat_coded(payload: dict[str, Any]) -> list[CodedCell]:
         if any(item is None for item in by_pos):
             raise ValueError(f"json-stat dimension {dim_id} is missing an index position")
         axes.append([(code, label) for code, label in by_pos if code is not None])
+    # SSB names its metric dimension ContentsCode; FHI declares its own through
+    # role.metric. Recognising only the first left every FHI cell measured by
+    # the table's name instead of by what it counts.
+    metric_id = _metric_dimension(payload, ids)
     cells: list[CodedCell] = []
     for i, value in enumerate(values):
         coords = _unravel(i, sizes)
@@ -145,7 +149,7 @@ def cells_from_jsonstat_coded(payload: dict[str, Any]) -> list[CodedCell]:
         for dim_id, pos, axis in zip(ids, coords, axes):
             code, label = axis[pos]
             codes[dim_id] = code
-            if dim_id == "ContentsCode":
+            if dim_id == "ContentsCode" or dim_id == metric_id:
                 measure = label
                 continue
             labels[dim_id] = label

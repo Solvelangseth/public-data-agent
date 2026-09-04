@@ -262,3 +262,134 @@ def test_classification_join_refuses_when_no_dimension_overlaps() -> None:
 
     meta = {"variables": [{"code": "Region", "values": ["030101"]}, {"code": "Tid", "values": ["2025"]}]}
     assert codes_matching_classification(meta, {"1234567", "7654321"}) is None
+
+
+# A health table splits one region across several breakdowns and measures.
+# Keyed on (code, year) alone, all of them collapse onto one joined id.
+FHI_T = "fhi:nokkel:670"
+FHI_BASE = "https://statistikk-data.fhi.no/api/open/v1/nokkel/Table/670"
+FHI_DIMENSIONS = {
+    "dimensions": [
+        {
+            "code": "GEO",
+            "label": "Geografi",
+            "categories": [
+                {"value": "030101", "label": "Bydel Gamle Oslo", "children": []},
+                {"value": "030102", "label": "Bydel Grünerløkka", "children": []},
+            ],
+        },
+        {"code": "AAR", "label": "År", "categories": [{"value": "2025", "label": "2025"}]},
+        {
+            "code": "TRINN",
+            "label": "Klassetrinn",
+            "categories": [{"value": "5", "label": "5. trinn"}, {"value": "8", "label": "8. trinn"}],
+        },
+        {
+            "code": "MEASURE_TYPE",
+            "label": "Måltall",
+            "categories": [
+                {"value": "TELLER", "label": "årlig antall"},
+                {"value": "RATE", "label": "andel (prosent)"},
+            ],
+        },
+    ]
+}
+FHI_JSONSTAT = {
+    "class": "dataset",
+    "label": "Leseferdighet",
+    "id": ["GEO", "AAR", "TRINN", "MEASURE_TYPE"],
+    "size": [2, 1, 2, 2],
+    # Two regions x two school years x two measures; ":" is a withheld cell.
+    "value": [103.3, 25.4, 90.1, 22.2, 88.0, 19.5, ":", 18.0],
+    "role": {"metric": ["MEASURE_TYPE"]},
+    "dimension": {
+        "GEO": {"category": {"index": ["030101", "030102"],
+                             "label": {"030101": "Bydel Gamle Oslo",
+                                       "030102": "Bydel Grünerløkka"}}},
+        "AAR": {"category": {"index": ["2025"], "label": {"2025": "2025"}}},
+        "TRINN": {"category": {"index": ["5", "8"],
+                               "label": {"5": "5. trinn", "8": "8. trinn"}}},
+        "MEASURE_TYPE": {"category": {"index": ["TELLER", "RATE"],
+                                      "label": {"TELLER": "årlig antall",
+                                                "RATE": "andel (prosent)"}}},
+    },
+}
+
+
+class FhiJoinHttp:
+    def get_json_response(self, url: str, *, headers=None) -> JsonResponse:
+        if url == KLASS_URL:
+            return JsonResponse(status=200, url=url, body=KLASS_PAYLOAD)
+        if url == f"{FHI_BASE}/dimension?includeValues=true":
+            return JsonResponse(status=200, url=url, body=FHI_DIMENSIONS)
+        raise AssertionError(f"unexpected GET {url}")
+
+    def post_json_response(self, url: str, body, *, headers=None) -> JsonResponse:
+        assert url == f"{FHI_BASE}/data"
+        geo = next(d for d in body["dimensions"] if d["code"] == "GEO")
+        # Only codes the classification also stores may be asked for.
+        assert set(geo["values"]) == {"030101", "030102"}
+        return JsonResponse(status=200, url=url, body=FHI_JSONSTAT)
+
+
+def _fhi_join(tmp_path: Path):
+    from public_data_agent.join import join_classification_to_table
+
+    registry = _registry(tmp_path)
+    result = join_classification_to_table(
+        registry, klass_dataset_id=STRANDSONE_ID, ssb_table=FHI_T,
+        year=2025, http=FhiJoinHttp(),
+    )
+    return registry, result
+
+
+def test_fhi_table_joins_to_a_klass_classification(tmp_path: Path) -> None:
+    registry, result = _fhi_join(tmp_path)
+    assert result.right_dataset_id == "fhi:nokkel:670"
+    assert result.right_publisher == "Folkehelseinstituttet"
+    assert {row["bydel_code"] for row in result.rows} == {"030101", "030102"}
+    # 999999 is in the classification but not the table, and must not appear.
+    assert "999999" not in {row["bydel_code"] for row in result.rows}
+    registry.close()
+
+
+def test_every_joined_row_is_stored_not_just_the_last(tmp_path: Path) -> None:
+    """Rows differing by breakdown or measure must not share an id."""
+
+    registry, result = _fhi_join(tmp_path)
+    stored = registry.conn.execute(
+        "SELECT COUNT(*) FROM joined_rows WHERE right_dataset_id = ?", (FHI_T,)
+    ).fetchone()[0]
+    assert len(result.rows) == 8
+    assert stored == 8
+    registry.close()
+
+
+def test_measure_alone_distinguishes_two_joined_rows(tmp_path: Path) -> None:
+    from public_data_agent.join import _joined_id
+
+    common = ("bydel_code", "030101", "2025", "left", "right", {"TRINN": "5. trinn"})
+    assert _joined_id(*common, "årlig antall") != _joined_id(*common, "andel (prosent)")
+
+
+def test_a_withheld_cell_is_not_stored_as_a_value(tmp_path: Path) -> None:
+    """":" means the cell was suppressed; kept as-is it reads as data."""
+
+    registry, result = _fhi_join(tmp_path)
+    withheld = [row for row in result.rows if row.get("suppressed")]
+    assert len(withheld) == 1
+    assert withheld[0]["population"] is None
+    assert withheld[0]["suppressed"] == ":"
+    assert all(
+        isinstance(row["population"], (int, float))
+        for row in result.rows
+        if not row.get("suppressed")
+    )
+    registry.close()
+
+
+def test_joined_rows_carry_the_breakdown_that_distinguishes_them(tmp_path: Path) -> None:
+    registry, result = _fhi_join(tmp_path)
+    trinn = {row["dimensions"].get("TRINN") for row in result.rows}
+    assert trinn == {"5. trinn", "8. trinn"}
+    registry.close()

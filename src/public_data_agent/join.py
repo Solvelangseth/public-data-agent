@@ -8,6 +8,7 @@ from typing import Any
 from public_data_agent.fetch import JsonHttp, _store_cells, fetch_observations
 from public_data_agent.models import HarvestCounts
 from public_data_agent.registry import Registry, utc_now
+from public_data_agent.fhi_stat import fetch_fhi_table_coded, parse_fhi_table_ref
 from public_data_agent.ssb_pxweb import (
     DEFAULT_SSB_TABLE,
     DEFAULT_SSB_TABLE_URL,
@@ -21,6 +22,7 @@ JOIN_KEY = "bydel_code"
 # from a raw 11763 fetch; the tag keeps the two apart in the observation store.
 JOIN_SERIES = "join:bydel_population"
 SSB_PUBLISHER = "Statistisk sentralbyrå"
+FHI_API_ROOT = "https://statistikk-data.fhi.no/api/open/v1"
 
 WHY_NOT_M7_M8 = (
     "OK-BEF008 is Oslo city totals with no bydel or kommune code. "
@@ -102,14 +104,21 @@ def join_classification_to_table(
     klass_dataset = registry.get_dataset(klass_dataset_id)
     if klass_dataset is None:
         raise ValueError(f"unknown dataset {klass_dataset_id}")
-    right_dataset_id = f"ssb:{ssb_table}"
+    fhi_ref = parse_fhi_table_ref(ssb_table)
+    right_dataset_id = f"fhi:{ssb_table.split(':', 1)[1]}" if fhi_ref else f"ssb:{ssb_table}"
     started = utc_now()
     run_id = registry.start_join_run(
         join_key=join_key,
         left_dataset_id=klass_dataset_id,
         right_dataset_id=right_dataset_id,
         left_request_url=klass_dataset.get("access_path") or "",
-        right_request_url=DEFAULT_SSB_TABLE_URL if ssb_table == DEFAULT_SSB_TABLE else f"https://data.ssb.no/api/v0/no/table/{ssb_table}",
+        right_request_url=(
+            f"{FHI_API_ROOT}/{fhi_ref[0]}/Table/{fhi_ref[1]}/data"
+            if fhi_ref
+            else DEFAULT_SSB_TABLE_URL
+            if ssb_table == DEFAULT_SSB_TABLE
+            else f"https://data.ssb.no/api/v0/no/table/{ssb_table}"
+        ),
         started_at=started,
     )
     counts = HarvestCounts()
@@ -127,7 +136,12 @@ def join_classification_to_table(
         klass_by_code = _klass_by_code(registry.list_observations(klass_dataset_id))
         if not klass_by_code:
             raise ValueError(f"{klass_dataset_id} stored no classification codes to join on")
-        ssb = fetch_ssb_table(ssb_table, year=year, http=http, key_codes=set(klass_by_code))
+        if fhi_ref:
+            ssb = fetch_fhi_table_coded(
+                fhi_ref[0], fhi_ref[1], year=year, http=http, key_codes=set(klass_by_code)
+            )
+        else:
+            ssb = fetch_ssb_table(ssb_table, year=year, http=http, key_codes=set(klass_by_code))
         right_http = ssb.http_status
         right_url = ssb.request_url
         right_title = ssb.label
@@ -148,22 +162,46 @@ def join_classification_to_table(
             klass_row = klass_by_code.get(code)
             if klass_row is None:
                 continue
-            year_label = cell.labels.get("Tid") or cell.codes.get("Tid") or ""
+            year_label = (
+                cell.labels.get("Tid")
+                or cell.labels.get("AAR")
+                or cell.codes.get("Tid")
+                or cell.codes.get("AAR")
+                or ""
+            )
             why = (
-                f"exact {join_key} {code} in SSB {ssb_table} Region and "
+                f"exact {join_key} {code} in "
+                f"{'FHI ' + ssb_table if fhi_ref else 'SSB ' + ssb_table} and "
                 f"Klass classificationItems.code"
             )
+            value, suppressed = _numeric_or_suppressed(cell.value)
+            # The dimensions that are not the key or the period are what make
+            # two cells for one region different rows rather than duplicates.
+            breakdown = {
+                name: label
+                for name, label in cell.labels.items()
+                if name not in {"Tid", "AAR"} and label != code
+            }
             payload = {
                 join_key: code,
                 "year": year_label,
+                "dimensions": breakdown,
                 "age": cell.labels.get("KOKalder0000") or cell.labels.get("Alder"),
-                "population": cell.value,
+                "population": value,
                 "population_measure": cell.measure,
-                "ssb_region_label": cell.labels.get("KOKbydelsregion0000") or cell.labels.get("Region"),
+                "suppressed": suppressed,
+                "ssb_region_label": (
+                    cell.labels.get("KOKbydelsregion0000")
+                    or cell.labels.get("Region")
+                    or cell.labels.get("GEO")
+                ),
                 "klass_name": json.loads(klass_row["value_json"]),
             }
             record = {
-                "id": _joined_id(join_key, code, year_label, klass_dataset_id, right_dataset_id),
+                "id": _joined_id(
+                    join_key, code, year_label, klass_dataset_id, right_dataset_id,
+                    breakdown, cell.measure,
+                ),
                 "join_key": join_key,
                 "join_key_value": code,
                 "why_matched": why,
@@ -365,6 +403,24 @@ def _klass_by_code(rows: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
     return out
 
 
+def _numeric_or_suppressed(value: Any) -> tuple[Any, str | None]:
+    """Separate a number from a marker standing in for one.
+
+    FHI prints ":" where a cell is withheld. Stored unchanged it reads as data,
+    and a later mean over the column silently treats a censored cell as a value.
+    """
+
+    if isinstance(value, (int, float)) and not isinstance(value, bool):
+        return value, None
+    if isinstance(value, str):
+        text = value.strip()
+        try:
+            return float(text), None
+        except ValueError:
+            return None, text or None
+    return (value, None) if value is not None else (None, None)
+
+
 def _region_code(codes: dict[str, str], known: set[str] | None = None) -> str | None:
     """Pick the cell code that the joined classification also stores.
 
@@ -398,6 +454,21 @@ def _joined_id(
     year: str,
     left_dataset_id: str,
     right_dataset_id: str,
+    dimensions: dict[str, str] | None = None,
+    measure: str = "",
 ) -> str:
-    raw = "\0".join([join_key, key_value, year, left_dataset_id, right_dataset_id])
+    """Identify a joined row by everything that distinguishes it.
+
+    Keyed on (key, year) alone, every breakdown of one region collapsed onto a
+    single id and overwrote the last: a table split by school year, mastery
+    level and parents' education stored one arbitrary survivor per region while
+    reporting the full row count as joined.
+    """
+
+    # Two cells for one region that count different things are different rows,
+    # so what is measured belongs in the identity alongside the breakdown.
+    parts = [join_key, key_value, year, left_dataset_id, right_dataset_id, measure]
+    for name in sorted(dimensions or {}):
+        parts.append(f"{name}={dimensions[name]}")
+    raw = "\0".join(parts)
     return hashlib.sha256(raw.encode("utf-8")).hexdigest()[:40]
