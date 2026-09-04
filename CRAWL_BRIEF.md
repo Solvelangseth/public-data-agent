@@ -160,6 +160,40 @@ anything non-numeric, so a later average cannot count a censored record as data.
 observations migrate later as a separate, deliberate change — do not migrate them as a
 side effect of your work.
 
+## Work already started on branches — check before you begin
+
+Nineteen remote branches carry commits not in the trunk. Several are in the domains you
+are about to work, so **check whether a branch already exists for a connector before
+starting it**, or you will redo someone's work and then have to reconcile two versions.
+
+```
+company registry   cursor/brkommune-enhetsregisteret-7a9c      (2 commits)
+                   cursor/brkommune-enhetsregisteret-c338      (2)
+                   cursor/brunder-underenheter-914d            (3)
+                   cursor/brunder-enhetsregisteret-underenheter-5354  (1)
+government/docs    cursor/stinterp-stortinget-interpellasjoner-0035  (11)
+                   cursor/sthoring-stortinget-horinger-2e24    (7)
+                   cursor/stpartier-stortinget-partier-a6e7    (4)
+                   cursor/stinterp-stortinget-interpellasjoner-6730  (1)
+                   cursor/leftover-national-json-bd7b          (3)
+research           cursor/crpers-cristin-persons-9d1f          (4)
+statistics/geo     cursor/ssbtett-leftover-wms-6d96            (8)
+                   cursor/ssbens-leftover-english-subjects-bd7b (1)
+                   cursor/ssbkart-ssb-source-7ae6              (1)
+                   cursor/nibiomark-leftover-wms-58b2          (4)
+other              cursor/aviationforecast-met-source-fdd7     (1)
+                   cursor/vegogc-comment-kill-b537             (2)
+                   cursor/forsvaret-publisher-57bd             (1)
+                   cursor/pack-miss-discovery-f640             (1)
+                   cursor/milestone-connector4-pxweb-4a96      (2)
+```
+
+`git log origin/codex/ai-planner..origin/<branch>` shows what a branch has that the trunk
+does not. These predate the resource index and the record store, so none of them fill
+either — treat them as a starting point for the fetch adapter, not as finished work.
+
+Every other `cursor/*` branch is fully contained in the trunk and carries nothing.
+
 ## How we talk to each other
 
 This repository is the channel. There is no other one, so anything not written here did
