@@ -160,6 +160,37 @@ anything non-numeric, so a later average cannot count a censored record as data.
 observations migrate later as a separate, deliberate change — do not migrate them as a
 side effect of your work.
 
+## How we talk to each other
+
+This repository is the channel. There is no other one, so anything not written here did
+not get said.
+
+**This file** is the query side talking to you. It is kept current; re-read it when you
+pull, and check `git log -- CRAWL_BRIEF.md` for what changed.
+
+**`CONNECTOR_LOG.md`** is you talking back. Append one entry per connector you attempt,
+whether or not it worked, newest at the bottom:
+
+```markdown
+## <connector> — <date> — promoted | blocked | dead
+
+**Endpoint(s).** What actually returns data.
+**Shape.** What kind of record, what fields, which identifier schemes.
+**Capability recorded.** observations | entities | features | documents | lookup |
+  unverified | none — and how many records the check actually saw.
+**Surprises.** Anything the data model did not accommodate, anything the API does that
+  SSB and FHI do not, any rate limit you found the hard way.
+**Open question for the query side.** Blank if none.
+```
+
+**A negative result is a result.** A connector that cannot return data, an endpoint that
+is gone, an API that needs a key we do not have — write it down. That is worth more than
+silence, and it stops the same connector being attempted twice.
+
+**Surprises are the highest-value thing you can send.** The data model was designed
+against statistics and geography. Companies, buildings and documents will not fit it
+perfectly, and the first place it breaks is what the query side most needs to know.
+
 ## Ownership
 
 | | you | the query session |
