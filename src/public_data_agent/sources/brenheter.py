@@ -20,6 +20,12 @@ BRENHETER_RPS = 2.0
 BRENHETER_BURST = 4
 HOST = "data.brreg.no"
 NAME_FIELDS = ("navn", "organisasjonsnummer")
+ORGNR_SCHEME = "brreg:orgnr"
+# One enhet GET is one record. A bulk lastned or an unscoped collection pull is
+# refused before it is sent -- the registry holds millions of companies.
+BRENHETER_ORGNR_LIMIT = 1
+# Weights for the Norwegian organisation-number mod-11 check digit.
+_ORGNR_WEIGHTS = (3, 2, 7, 6, 5, 4, 3, 2)
 
 
 class BrenheterSource(SourceBase):
@@ -37,6 +43,11 @@ class BrenheterSource(SourceBase):
     (`--source brkommuner`), not leftover roller lists
     (`--source brroller`), and not Frivillighetsregisteret
     (`--source frivillig`).
+
+    Fetching a harvested access_path GETs `/enheter/{orgnr}` and stores an
+    `entity` record keyed by `brreg:orgnr`. The orgnr key is claimed only
+    after a mod-11 check digit passes and Enhetsregisteret returns the
+    enhet -- never from nine digits alone.
     """
 
     source_id = SOURCE_ID
@@ -50,6 +61,7 @@ class BrenheterSource(SourceBase):
         list_url: str = LIST_URL,
         max_items: int = DEFAULT_MAX_ITEMS,
         http: HttpClient | None = None,
+        orgnrs: list[str] | None = None,
     ) -> None:
         self.list_url = list_url
         self.max_items = max_items
@@ -57,6 +69,10 @@ class BrenheterSource(SourceBase):
             limiter=RateLimiter(BRENHETER_RPS, BRENHETER_BURST),
             timeout=60.0,
         )
+        # Optional smoke list of known orgnrs. Every entry must pass mod-11;
+        # nothing is invented here -- the caller supplies numbers they already
+        # hold, and listing only builds the printed self href for each.
+        self.orgnrs = list(orgnrs) if orgnrs is not None else None
         self._listed: list[dict[str, Any]] | None = None
 
     def list_dataset_refs(self, *, limit: int | None = None, offset: int = 0) -> list[DatasetRef]:
@@ -76,8 +92,30 @@ class BrenheterSource(SourceBase):
 
     def fetch_dataset(self, ref: DatasetRef) -> HarvestedRecord:
         ident = ref.source_native_id or brenheter_table_id(ref.source_native_uri or "")
-        item = self._catalog_item(ident)
-        endpoint = printed_item_url(item, self.list_url)
+        if not valid_orgnr(ident):
+            raise SourceError(
+                f"Enhetsregisteret enhet organisasjonsnummer {ident!r} fails "
+                "the mod-11 check digit; refusing to fetch"
+            )
+        endpoint = ref.source_native_uri or enhet_url(ident, self.list_url)
+        # Prefer a live GET of the printed self href. The catalog page holds
+        # real enhet members, but the item endpoint is the data-bearing path
+        # a question would fetch, and it is what we verify before claiming
+        # capability entities.
+        try:
+            item = self.http.get_json(endpoint)
+        except Exception as exc:
+            raise SourceError(
+                f"Enhetsregisteret enhet GET failed for {endpoint}: {exc}"
+            ) from exc
+        if not isinstance(item, dict):
+            raise SourceError(f"Enhetsregisteret enhet response is not a JSON object: {endpoint}")
+        printed = printed_organisasjonsnummer(item)
+        if printed != ident:
+            raise SourceError(
+                f"Enhetsregisteret enhet at {endpoint} printed organisasjonsnummer "
+                f"{printed!r}, not the requested {ident!r}"
+            )
         title = printed_title(item, ident)
         payload = {
             "id": ident,
@@ -107,13 +145,30 @@ class BrenheterSource(SourceBase):
             ingest_reason=self.ingest_reason,
             source_native_id=ident,
             source_native_uri=endpoint,
-            fetched_from=self.list_url,
+            fetched_from=endpoint,
             payload=payload,
         )
 
     def _catalog(self) -> list[dict[str, Any]]:
         if self._listed is not None:
             return self._listed
+        if self.orgnrs is not None:
+            listed: list[dict[str, Any]] = []
+            for raw in self.orgnrs:
+                nummer = str(raw).strip()
+                if not valid_orgnr(nummer):
+                    raise SourceError(
+                        f"known organisasjonsnummer {nummer!r} fails the mod-11 "
+                        "check digit; refusing to list it"
+                    )
+                listed.append(
+                    {
+                        "organisasjonsnummer": nummer,
+                        "_links": {"self": {"href": enhet_url(nummer, self.list_url)}},
+                    }
+                )
+            self._listed = listed
+            return listed
         try:
             body = self.http.get_json(self.list_url)
         except Exception as exc:
@@ -133,6 +188,32 @@ class BrenheterSource(SourceBase):
         raise SourceError(
             f"Enhetsregisteret enheter catalog has no printed organisasjonsnummer {ident}"
         )
+
+
+def valid_orgnr(nummer: str) -> bool:
+    """Whether a string is a Norwegian organisation number with a valid check digit.
+
+    Nine digits alone are not enough -- employer associations, fake ids and
+    typos all look the same. The mod-11 check digit is the cheap test that the
+    string is an org number at all; membership in Enhetsregisteret (a 200 from
+    `/enheter/{orgnr}`) is the stronger one used when claiming `brreg:orgnr`.
+    """
+
+    if not isinstance(nummer, str) or len(nummer) != 9 or not nummer.isdigit():
+        return False
+    total = sum(int(digit) * weight for digit, weight in zip(nummer[:8], _ORGNR_WEIGHTS))
+    remainder = total % 11
+    check = 0 if remainder == 0 else 11 - remainder
+    if check == 10:
+        return False
+    return check == int(nummer[8])
+
+
+def enhet_url(orgnr: str, list_url: str = LIST_URL) -> str:
+    parts = urlsplit(list_url)
+    if not parts.scheme or not parts.netloc:
+        raise SourceError("Enhetsregisteret enheter catalog URL has no printed origin")
+    return f"{parts.scheme}://{parts.netloc}{PATH_PREFIX}/{orgnr}"
 
 
 def printed_enheter(body: Any) -> list[dict[str, Any]]:
@@ -175,11 +256,7 @@ def printed_item_url(item: dict[str, Any], list_url: str) -> str:
             href = self_link.get("href")
             if isinstance(href, str) and href.strip():
                 return href.strip()
-    parts = urlsplit(list_url)
-    if not parts.scheme or not parts.netloc:
-        raise SourceError("Enhetsregisteret enheter catalog URL has no printed origin")
-    nummer = printed_organisasjonsnummer(item)
-    return f"{parts.scheme}://{parts.netloc}{PATH_PREFIX}/{nummer}"
+    return enhet_url(printed_organisasjonsnummer(item), list_url)
 
 
 def printed_title(item: dict[str, Any], ident: str) -> dict[str, str]:
@@ -203,12 +280,26 @@ def is_brenheter_url(access_path: str | None) -> bool:
     return bool(rest) and "/" not in rest and rest.isdigit()
 
 
+def is_brenheter_collection_url(access_path: str | None) -> bool:
+    """The enheter collection or lastned dump -- not a single-enhet fetch."""
+
+    if not access_path:
+        return False
+    parsed = urlsplit(access_path)
+    if parsed.netloc.lower() != HOST:
+        return False
+    path = parsed.path.rstrip("/")
+    return path in {PATH_PREFIX, PATH_PREFIX + "/lastned"}
+
+
 def brenheter_table_id(access_path: str) -> str:
     segment = urlsplit(access_path).path.rstrip("/").split("/")[-1]
     return segment or "brenheter"
 
 
 def cells_from_brenheter(payload: Any) -> list[tuple[str, Any, dict[str, str]]]:
+    """Legacy observation-shaped view of one enhet. Prefer entity_from_enhet."""
+
     if not isinstance(payload, dict):
         raise ValueError("brenheter payload is not a JSON object")
     cells = _cells_from_record(
@@ -217,6 +308,127 @@ def cells_from_brenheter(payload: Any) -> list[tuple[str, Any, dict[str, str]]]:
     if not cells:
         raise ValueError("brenheter payload printed no enhet members")
     return cells
+
+
+def entity_from_enhet(payload: Any) -> dict[str, Any]:
+    """One company entity from a printed `/enheter/{orgnr}` JSON object.
+
+    `measure`/`value` stay null -- a company is not a measurement of anything.
+    Subject scheme is `brreg:orgnr` only when the printed organisasjonsnummer
+    passes the mod-11 check; otherwise this raises rather than invent a key.
+    """
+
+    if not isinstance(payload, dict):
+        raise ValueError("brenheter payload is not a JSON object")
+    body = {key: value for key, value in payload.items() if key != "_links"}
+    orgnr = printed_organisasjonsnummer(body)
+    if not valid_orgnr(orgnr):
+        raise ValueError(
+            f"printed organisasjonsnummer {orgnr!r} fails the mod-11 check digit; "
+            "refusing to claim brreg:orgnr"
+        )
+    label = body.get("navn")
+    subject_label = label.strip() if isinstance(label, str) and label.strip() else None
+    return {
+        "kind": "entity",
+        "subject_scheme": ORGNR_SCHEME,
+        "subject_code": orgnr,
+        "subject_label": subject_label,
+        "period": None,
+        "measure": None,
+        "value": None,
+        "attributes": entity_attributes(body),
+    }
+
+
+def entity_attributes(item: dict[str, Any]) -> dict[str, Any]:
+    """Scalar and nested-code attributes copied from the printed enhet.
+
+    Nested objects that print a `kode` keep that code (and optional beskrivelse
+    under `{field}_beskrivelse`). Nothing is invented; keys not printed are
+    omitted. `_links` never becomes an attribute.
+    """
+
+    attributes: dict[str, Any] = {}
+    for key, value in item.items():
+        if key in {"_links", "organisasjonsnummer", "navn"}:
+            continue
+        if _is_scalar(value):
+            attributes[key] = value
+            continue
+        if isinstance(value, dict):
+            kode = value.get("kode")
+            if isinstance(kode, (str, int)) and not isinstance(kode, bool):
+                attributes[key] = str(kode).strip()
+                beskrivelse = value.get("beskrivelse")
+                if isinstance(beskrivelse, str) and beskrivelse.strip():
+                    attributes[f"{key}_beskrivelse"] = beskrivelse.strip()
+            continue
+    return attributes
+
+
+def shape_from_brenheter(
+    payload: Any,
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    """Fields and key schemes for one verified enhet payload.
+
+    `brreg:orgnr` is claimed only when the printed organisasjonsnummer passes
+    mod-11. Coverage is 1 -- this shape is read from one returned enhet, not
+    from a guessed code pattern. Callers that have not fetched the enhet must
+    not call this.
+    """
+
+    if not isinstance(payload, dict):
+        raise ValueError("brenheter payload is not a JSON object")
+    body = {key: value for key, value in payload.items() if key != "_links"}
+    orgnr = printed_organisasjonsnummer(body)
+    if not valid_orgnr(orgnr):
+        raise ValueError(
+            f"printed organisasjonsnummer {orgnr!r} fails the mod-11 check digit; "
+            "refusing to claim brreg:orgnr"
+        )
+    label = body.get("navn")
+    navn = label.strip() if isinstance(label, str) and label.strip() else None
+    fields: list[dict[str, Any]] = [
+        {
+            "field_code": "organisasjonsnummer",
+            "field_label": "organisasjonsnummer",
+            "field_role": "key",
+            "value_count": 1,
+            "values": [{"value_code": orgnr, "value_label": navn}],
+        }
+    ]
+    if navn is not None:
+        fields.append(
+            {
+                "field_code": "navn",
+                "field_label": "navn",
+                "field_role": "attribute",
+                "value_count": 1,
+                "values": [{"value_code": navn, "value_label": navn}],
+            }
+        )
+    for key, value in entity_attributes(body).items():
+        if not _is_scalar(value):
+            continue
+        code = str(value)
+        fields.append(
+            {
+                "field_code": key,
+                "field_label": key,
+                "field_role": "attribute",
+                "value_count": 1,
+                "values": [{"value_code": code, "value_label": code}],
+            }
+        )
+    keys = [
+        {
+            "scheme": ORGNR_SCHEME,
+            "field_code": "organisasjonsnummer",
+            "coverage_count": 1,
+        }
+    ]
+    return fields, keys
 
 
 def _cells_from_record(item: dict[str, Any]) -> list[tuple[str, Any, dict[str, str]]]:

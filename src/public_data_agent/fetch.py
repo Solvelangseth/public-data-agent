@@ -14,7 +14,7 @@ from public_data_agent.geonorge_rest import (
     is_geonorge_rest_url,
     openapi_url,
 )
-from public_data_agent.http_util import HttpClient, JsonResponse
+from public_data_agent.http_util import HttpClient, JsonResponse, RateLimiter
 from public_data_agent.models import HarvestCounts
 from public_data_agent.registry import Registry, utc_now
 from public_data_agent.sources.nve import (
@@ -492,9 +492,17 @@ from public_data_agent.sources.ssclass import (
     ssclass_table_id,
 )
 from public_data_agent.sources.brenheter import (
+    BRENHETER_ORGNR_LIMIT,
+    BRENHETER_RPS,
+    BRENHETER_BURST,
+    ORGNR_SCHEME,
     brenheter_table_id,
     cells_from_brenheter,
+    entity_from_enhet,
+    is_brenheter_collection_url,
     is_brenheter_url,
+    shape_from_brenheter,
+    valid_orgnr,
 )
 from public_data_agent.sources.brkommuner import (
     brkommuner_table_id,
@@ -1142,7 +1150,13 @@ def fetch_observations(
     if is_brkommuner_url(access_path):
         return _fetch_brkommuner(registry, dataset, http=http)
     if is_brenheter_url(access_path):
-        return _fetch_brenheter(registry, dataset, http=http)
+        return _fetch_brenheter(registry, dataset, http=http, select=select)
+    if is_brenheter_collection_url(access_path):
+        raise ValueError(
+            "Enhetsregisteret enheter collection/lastned is too large to fetch as one "
+            "request; narrow to a single organisasjonsnummer via "
+            f"{access_path.rstrip('/')}/{{orgnr}}"
+        )
     if is_brorgformen_url(access_path):
         return _fetch_brorgformen(registry, dataset, http=http)
     if is_brorgform_url(access_path):
@@ -1718,12 +1732,64 @@ def _fetch_brenheter(
     dataset: dict[str, Any],
     *,
     http: JsonHttp | None = None,
+    select: dict[str, list[str]] | None = None,
 ) -> FetchResult:
+    """Fetch one Enhetsregisteret company entity by organisasjonsnummer.
+
+    A company is not a measure of anything: the row lands in `records` with
+    kind `entity` and subject scheme `brreg:orgnr`. The orgnr is checked with
+    mod-11 before the request is sent, and claimed as a key only after the
+    enhet returns. Collection and lastned URLs are refused before send.
+    """
+
     if dataset.get("source_id") != "brenheter":
         return _fetch_brreg(registry, dataset, http=http)
     access_path = dataset.get("access_path") or ""
-    client = http or HttpClient(timeout=60.0, max_retries=4)
+    if is_brenheter_collection_url(access_path):
+        raise ValueError(
+            "Enhetsregisteret enheter collection/lastned is too large to fetch as one "
+            "request; narrow to a single organisasjonsnummer via /enheter/{orgnr}"
+        )
     table_id = brenheter_table_id(access_path)
+    if not valid_orgnr(table_id):
+        raise ValueError(
+            f"organisasjonsnummer {table_id!r} fails the mod-11 check digit; "
+            "refusing to fetch an unsatisfiable enhet request"
+        )
+    select = {str(k): v for k, v in (select or {}).items()}
+    if select:
+        unknown = sorted(key for key in select if key != "organisasjonsnummer")
+        if unknown:
+            raise ValueError(
+                f"select names field(s) {unknown} that a brenheter enhet fetch does not "
+                "filter on; only organisasjonsnummer is accepted"
+            )
+        wanted = select.get("organisasjonsnummer") or []
+        wanted = [wanted] if isinstance(wanted, str) else [str(item) for item in wanted]
+        if len(wanted) > BRENHETER_ORGNR_LIMIT:
+            raise SelectionTooLarge(
+                table_id,
+                len(wanted),
+                BRENHETER_ORGNR_LIMIT,
+                [
+                    {
+                        "code": "organisasjonsnummer",
+                        "text": "organisasjonsnummer",
+                        "selected": len(wanted),
+                        "available": 1,
+                    }
+                ],
+            )
+        if wanted and wanted != [table_id]:
+            raise ValueError(
+                f"select[organisasjonsnummer]={wanted!r} does not match this enhet "
+                f"{table_id!r}; refusing to silently widen or redirect the request"
+            )
+    client = http or HttpClient(
+        limiter=RateLimiter(BRENHETER_RPS, BRENHETER_BURST),
+        timeout=60.0,
+        max_retries=4,
+    )
     started = utc_now()
     run_id = registry.start_fetch_run(
         dataset_id=dataset["id"],
@@ -1736,22 +1802,72 @@ def _fetch_brenheter(
     status = "failed"
     http_status = 0
     sample: list[dict[str, Any]] = []
+    touched: list[str] = []
     try:
         got = client.get_json_response(access_path)
         http_status = got.status
         registry.set_fetch_request(run_id, request_url=access_path, request_body={"method": "GET"})
-        cells = cells_from_brenheter(got.body)
-        counts.listed = len(cells)
-        sample = _store_cells(
-            registry,
-            dataset,
+        if http_status == 404:
+            raise ValueError(
+                f"Enhetsregisteret has no enhet {table_id}; unsatisfiable request"
+            )
+        if http_status >= 400:
+            raise ValueError(
+                f"Enhetsregisteret enhet GET returned HTTP {http_status} for {access_path}"
+            )
+        entity = entity_from_enhet(got.body)
+        retrieved_at = utc_now()
+        record_id = f"entity:{dataset['id']}:{entity['subject_code']}"
+        action = registry.upsert_record(
+            {
+                "id": record_id,
+                "dataset_id": dataset["id"],
+                "kind": "entity",
+                "series": f"brenheter:{entity['subject_code']}",
+                "subject_scheme": entity["subject_scheme"],
+                "subject_code": entity["subject_code"],
+                "subject_label": entity["subject_label"],
+                "period": None,
+                "measure": None,
+                "value": None,
+                "attributes": entity["attributes"],
+                "retrieved_at": retrieved_at,
+                "request_url": access_path,
+                "http_status": http_status,
+                "publisher_name": dataset.get("publisher_name"),
+                "license": dataset.get("license"),
+            },
             run_id,
-            table_id=table_id,
-            cells=cells,
-            retrieved_at=utc_now(),
-            request_url=access_path,
-            http_status=http_status,
-            counts=counts,
+        )
+        counts.listed = 1
+        if action == "inserted":
+            counts.inserted += 1
+        elif action == "updated":
+            counts.updated += 1
+        else:
+            counts.unchanged += 1
+        sample.append(
+            {
+                "kind": "entity",
+                "subject_scheme": ORGNR_SCHEME,
+                "subject_code": entity["subject_code"],
+                "subject_label": entity["subject_label"],
+                "attributes": entity["attributes"],
+            }
+        )
+        touched.append(record_id)
+        fields, keys = shape_from_brenheter(got.body)
+        registry.set_resource_shape(dataset["id"], fields, keys=keys)
+        registry.set_capability(
+            dataset["id"],
+            {
+                "capability": CAPABILITY_ENTITIES,
+                "record_kind": "entity",
+                "endpoint": access_path,
+                "request_method": "GET",
+                "verified_at": retrieved_at,
+                "verified_sample_count": 1,
+            },
         )
         status = "completed"
     except Exception as exc:
@@ -1767,6 +1883,7 @@ def _fetch_brenheter(
         http_status=http_status,
         counts=counts,
         sample=sample,
+        observation_ids=touched,
     )
 
 
@@ -12099,6 +12216,9 @@ def _year_from_label(label: str) -> int | None:
 
 # Capability kinds returned by ``classify_access_path``.
 CAPABILITY_OBSERVATIONS = "observations"
+CAPABILITY_ENTITIES = "entities"
+CAPABILITY_FEATURES = "features"
+CAPABILITY_DOCUMENTS = "documents"
 CAPABILITY_LOOKUP = "lookup"
 CAPABILITY_UNVERIFIED = "unverified"
 CAPABILITY_NONE = "none"
@@ -12116,6 +12236,9 @@ def classify_access_path(access_path: str | None) -> dict[str, Any]:
     numbers from things that never return a numeric cell. The kinds are:
 
     ``observations`` a connector verified to return numeric cells;
+    ``entities``     a connector verified to return company/person/thing records;
+    ``features``     geospatial features;
+    ``documents``    document records;
     ``lookup``       a code list / classification: join keys, not facts;
     ``unverified``   a connector predicate matches but the payload shape has not
                      been confirmed to hold numeric cells. Not a promise;
@@ -12135,6 +12258,16 @@ def classify_access_path(access_path: str | None) -> dict[str, Any]:
         return {
             "kind": CAPABILITY_OBSERVATIONS,
             "reason": "FHI Statistikk table endpoint; returns numeric observation cells",
+        }
+    if is_brenheter_url(access_path):
+        return {
+            "kind": CAPABILITY_ENTITIES,
+            "reason": "Enhetsregisteret enhet endpoint; returns one company entity by orgnr",
+        }
+    if is_brenheter_collection_url(access_path):
+        return {
+            "kind": CAPABILITY_NONE,
+            "reason": "Enhetsregisteret enheter collection/lastned; too large and not a single entity",
         }
     if is_klass_url(access_path):
         return {

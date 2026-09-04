@@ -264,6 +264,7 @@ def index_dataset(
     """
 
     from public_data_agent.fetch import _is_ssb_table_url, classify_access_path
+    from public_data_agent.sources.brenheter import is_brenheter_url, shape_from_brenheter
     from public_data_agent.sources.fhi import is_fhi_table_url, printed_table_data_url, split_table_url
 
     dataset = registry.get_dataset(dataset_id)
@@ -280,21 +281,31 @@ def index_dataset(
         meta = client.get_json_response(f"{base}/dimension?includeValues=true")
         fields, keys = shape_from_fhi((meta.body or {}).get("dimensions") or [], catalogues)
         endpoint, method = f"{base}/data", "POST"
+        record_kind = "observation"
     elif _is_ssb_table_url(access_path):
         meta = client.get_json_response(access_path.rstrip("/"))
         fields, keys = shape_from_pxweb(meta.body or {}, catalogues)
         endpoint, method = access_path.rstrip("/"), "POST"
+        record_kind = "observation"
+    elif is_brenheter_url(access_path):
+        # Shape comes from the printed enhet itself. Capability stays whatever
+        # classify says unless a fetch already verified a sample.
+        meta = client.get_json_response(access_path)
+        fields, keys = shape_from_brenheter(meta.body or {})
+        endpoint, method = access_path, "GET"
+        record_kind = "entity"
     else:
         raise ValueError(f"no metadata reader for {dataset_id} ({access_path or 'no access_path'})")
 
     written = registry.set_resource_shape(dataset_id, fields, keys=keys)
     start, end = period_span(fields)
     existing = registry.get_capability(dataset_id) or {}
+    capability = classify_access_path(access_path)["kind"]
     registry.set_capability(
         dataset_id,
         {
-            "capability": classify_access_path(access_path)["kind"],
-            "record_kind": "observation",
+            "capability": capability,
+            "record_kind": record_kind,
             "endpoint": endpoint,
             "request_method": method,
             "period_start": start,
