@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from typing import Any
 from urllib.parse import urlparse
 
@@ -11,10 +12,10 @@ SOURCE_ID = "fhi"
 SOURCE_NAME = "Folkehelseinstituttet Statistikk"
 LIST_URL = "https://statistikk-data.fhi.no/api/open/v1/Common/source"
 API_ROOT = "https://statistikk-data.fhi.no/api/open/v1"
-DEFAULT_MAX_ITEMS = 10
+DEFAULT_MAX_ITEMS = 500
 INGEST_REASON = (
-    "listed as a printed source id on the official FHI Statistikk Open API "
-    f"Common/source list, capped at {DEFAULT_MAX_ITEMS}"
+    "listed as a printed table on the official FHI Statistikk Open API "
+    "Common/source registers, walked one register at a time"
 )
 FHI_RPS = 2.0
 FHI_BURST = 4
@@ -49,27 +50,51 @@ class FhiStatistikkSource(SourceBase):
             timeout=60.0,
         )
         self._listed: list[dict[str, Any]] | None = None
+        self._tables: dict[str, list[dict[str, Any]]] = {}
 
     def list_dataset_refs(self, *, limit: int | None = None, offset: int = 0) -> list[DatasetRef]:
         cap = self.max_items if limit is None else limit
-        listed = self._source_items()
-        sliced = listed[offset : offset + cap]
         refs: list[DatasetRef] = []
-        for item in sliced:
-            ident = printed_source_id(item)
-            refs.append(
-                DatasetRef(
-                    source_native_uri=printed_table_url(ident),
-                    source_native_id=ident,
+        for item in self._source_items():
+            source_id = printed_source_id(item)
+            for table in self._register_tables(source_id):
+                table_id = table.get("tableId")
+                if table_id is None:
+                    continue
+                refs.append(
+                    DatasetRef(
+                        source_native_uri=printed_table_data_url(source_id, str(table_id)),
+                        source_native_id=f"{source_id}:{table_id}",
+                    )
                 )
-            )
-        return refs
+        return refs[offset : offset + cap]
+
+    def _register_tables(self, source_id: str) -> list[dict[str, Any]]:
+        if source_id in self._tables:
+            return self._tables[source_id]
+        try:
+            body = self.http.get_json(printed_table_url(source_id))
+        except Exception as exc:
+            raise SourceError(
+                f"FHI Statistikk table list failed for register {source_id}: {exc}"
+            ) from exc
+        listed = body if isinstance(body, list) else (body or {}).get("items") or []
+        tables = [t for t in listed if isinstance(t, dict)]
+        self._tables[source_id] = tables
+        return tables
 
     def fetch_dataset(self, ref: DatasetRef) -> HarvestedRecord:
-        ident = ref.source_native_id or printed_native_id(ref.source_native_uri)
-        item = self._source_item(ident)
-        href = printed_table_url(ident)
-        title = item.get("title")
+        href = ref.source_native_uri
+        source_id, table_id = split_table_url(href)
+        ident = ref.source_native_id or f"{source_id}:{table_id}"
+        item = self._source_item(source_id)
+        table = next(
+            (t for t in self._register_tables(source_id) if str(t.get("tableId")) == table_id),
+            {},
+        )
+        # The register title describes a whole register; the table title is what
+        # a search for this data would actually match on.
+        title = table.get("title") or item.get("title")
         description = item.get("description")
         publisher_name = item.get("publishedBy")
         about = item.get("aboutUrl")
@@ -139,6 +164,67 @@ def printed_source_id(item: dict[str, Any]) -> str:
 
 def printed_table_url(source_id: str) -> str:
     return f"{API_ROOT}/{source_id}/Table"
+
+
+def printed_table_data_url(source_id: str, table_id: str) -> str:
+    """Address one table. The list URL names a register; this names data."""
+
+    return f"{API_ROOT}/{source_id}/Table/{table_id}"
+
+
+def split_table_url(access_path: str) -> tuple[str, str]:
+    """Return (source_id, table_id) printed in a table URL.
+
+    Raises for a register list URL, which carries no table id and so cannot
+    name a numeric cell.
+    """
+
+    path = urlparse(access_path).path
+    rest = path[len(FHI_PATH):] if path.startswith(FHI_PATH) else path
+    parts = [p for p in rest.strip("/").split("/") if p]
+    if len(parts) < 3 or parts[1].casefold() != "table":
+        raise SourceError(f"FHI URL names no table: {access_path}")
+    return parts[0], parts[2]
+
+
+def is_fhi_table_url(access_path: str | None) -> bool:
+    """True only for a URL that addresses one table's data."""
+
+    if not is_fhi_url(access_path):
+        return False
+    try:
+        split_table_url(access_path or "")
+    except SourceError:
+        return False
+    return True
+
+
+def flatten_categories(categories: Any) -> list[tuple[str, str]]:
+    """Flatten FHI's nested category tree into printed (value, label) pairs.
+
+    GEO nests bydel under kommune under fylke under country. A query has to
+    name every level it wants, so the tree is walked rather than topped.
+    """
+
+    out: list[tuple[str, str]] = []
+    for cat in categories or []:
+        if not isinstance(cat, dict):
+            continue
+        value = cat.get("value")
+        if isinstance(value, (str, int)) and not isinstance(value, bool):
+            out.append((str(value), str(cat.get("label") or value)))
+        out.extend(flatten_categories(cat.get("children")))
+    return out
+
+
+def years_in(code: str) -> list[int]:
+    """Years printed in a period code.
+
+    FHI prints both plain years and spans such as "2023_2025" for a school
+    year, so a code can carry more than one and a range test needs all of them.
+    """
+
+    return [int(m) for m in re.findall(r"(?<!\d)(\d{4})(?!\d)", code)]
 
 
 def printed_native_id(access_path: str) -> str:

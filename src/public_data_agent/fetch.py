@@ -26,6 +26,7 @@ from public_data_agent.sources.nve import (
 from public_data_agent.sources.fhi import (
     cells_from_fhi,
     fhi_table_id,
+    is_fhi_table_url,
     is_fhi_url,
 )
 from public_data_agent.sources.mattilsynet import (
@@ -1162,6 +1163,15 @@ def fetch_observations(
         return _fetch_brreg(registry, dataset, http=http)
     if is_valg_url(access_path):
         return _fetch_valg(registry, dataset, http=http)
+    if is_fhi_table_url(access_path):
+        return _fetch_fhi_table(
+            registry,
+            dataset,
+            from_year=from_year,
+            to_year=to_year,
+            select=select,
+            http=http,
+        )
     if is_fhi_url(access_path):
         return _fetch_fhi(registry, dataset, http=http)
     if is_mattilsynet_url(access_path):
@@ -1532,6 +1542,170 @@ def fetch_observations(
         dataset_id=dataset_id,
         table_id=table_id,
         request_url=request_url,
+        http_status=http_status,
+        counts=counts,
+        sample=sample,
+        observation_ids=touched,
+    )
+
+
+# FHI refuses a query that leaves any dimension unfiltered, so a selection is
+# always fully specified and can always be counted before it is sent.
+FHI_CELL_LIMIT = 800_000
+
+
+def _fhi_selection(
+    dimensions: list[dict[str, Any]],
+    *,
+    from_year: int | None,
+    to_year: int | None,
+    select: dict[str, list[str]] | None,
+    table_id: str,
+    cell_limit: int = FHI_CELL_LIMIT,
+) -> list[dict[str, Any]]:
+    """Name every value this query wants, for every dimension the table has.
+
+    FHI 400s on a missing dimension rather than defaulting to all of it, which
+    makes an accidental whole-table pull impossible but means the selection has
+    to be built from the printed values rather than left implicit.
+    """
+
+    from public_data_agent.sources.fhi import flatten_categories, years_in
+
+    chosen: list[dict[str, Any]] = []
+    report: list[dict[str, Any]] = []
+    cells = 1
+    for dim in dimensions:
+        code = str(dim.get("code") or "")
+        values = flatten_categories(dim.get("categories"))
+        available = len(values)
+        codes = [value for value, _ in values]
+        if select and code in select:
+            wanted = {str(v) for v in select[code]}
+            # An asked-for value the table does not print is a failed request,
+            # not an empty one: silently dropping it answers a question nobody
+            # asked and reports success.
+            missing = sorted(wanted - set(codes))
+            if missing:
+                raise ValueError(
+                    f"table {table_id} dimension {code} does not print "
+                    f"value(s) {', '.join(missing)}"
+                )
+            codes = [value for value in codes if value in wanted]
+        elif code == "AAR" and (from_year is not None or to_year is not None):
+            kept = []
+            for value in codes:
+                years = years_in(value)
+                if not years:
+                    continue
+                if from_year is not None and max(years) < from_year:
+                    continue
+                if to_year is not None and min(years) > to_year:
+                    continue
+                kept.append(value)
+            # An empty period selection would fetch the whole table instead of
+            # nothing, so an unsatisfiable range fails here.
+            if not kept:
+                raise ValueError(
+                    f"table {table_id} prints no period between {from_year} and {to_year}"
+                )
+            codes = kept
+        if not codes:
+            raise ValueError(f"table {table_id} dimension {code} prints no values")
+        cells *= len(codes)
+        chosen.append({"code": code, "filter": "item", "values": codes})
+        report.append(
+            {
+                "code": code,
+                "text": str(dim.get("label") or code),
+                "selected": len(codes),
+                "available": available,
+            }
+        )
+    if cells > cell_limit:
+        raise SelectionTooLarge(table_id, cells, cell_limit, report)
+    return chosen
+
+
+def _fetch_fhi_table(
+    registry: Registry,
+    dataset: dict[str, Any],
+    *,
+    from_year: int | None = None,
+    to_year: int | None = None,
+    select: dict[str, list[str]] | None = None,
+    http: JsonHttp | None = None,
+) -> FetchResult:
+    """Fetch numeric cells from one FHI Statistikk table.
+
+    FHI speaks json-stat2, the same format as SSB PxWeb, and prints geography
+    as Klass codes, so the stored cells join to SSB rows without translation.
+    """
+
+    from public_data_agent.sources.fhi import split_table_url
+
+    access_path = dataset.get("access_path") or ""
+    source_id, table_id = split_table_url(access_path)
+    client = http or HttpClient(timeout=60.0, max_retries=4)
+    dim_url = f"{access_path.rstrip('/')}/dimension?includeValues=true"
+    data_url = f"{access_path.rstrip('/')}/data"
+    started = utc_now()
+    run_id = registry.start_fetch_run(
+        dataset_id=dataset["id"],
+        table_id=table_id,
+        request_url=data_url,
+        request_method="POST",
+        started_at=started,
+    )
+    counts = HarvestCounts()
+    status = "failed"
+    http_status = 0
+    sample: list[dict[str, Any]] = []
+    touched: list[str] = []
+    try:
+        meta = client.get_json_response(dim_url)
+        dimensions = (meta.body or {}).get("dimensions") or []
+        if not dimensions:
+            raise ValueError(f"FHI table {table_id} prints no dimensions")
+        query = {
+            "dimensions": _fhi_selection(
+                dimensions,
+                from_year=from_year,
+                to_year=to_year,
+                select=select,
+                table_id=table_id,
+            ),
+            "response": {"format": "json-stat2"},
+        }
+        registry.set_fetch_request(run_id, request_url=data_url, request_body=query)
+        posted = client.post_json_response(data_url, query)
+        http_status = posted.status
+        cells = cells_from_jsonstat(posted.body)
+        counts.listed = len(cells)
+        sample = _store_cells(
+            registry,
+            dataset,
+            run_id,
+            table_id=table_id,
+            cells=cells,
+            retrieved_at=utc_now(),
+            request_url=data_url,
+            http_status=http_status,
+            counts=counts,
+            series=f"fhi:{source_id}:{table_id}",
+            touched=touched,
+        )
+        status = "completed"
+    except Exception as exc:
+        counts.failed += 1
+        counts.errors.append({"error": str(exc), "url": data_url})
+        raise
+    finally:
+        registry.finish_fetch_run(run_id, counts, status=status, http_status=http_status)
+    return FetchResult(
+        dataset_id=dataset["id"],
+        table_id=table_id,
+        request_url=data_url,
         http_status=http_status,
         counts=counts,
         sample=sample,
@@ -11956,6 +12130,11 @@ def classify_access_path(access_path: str | None) -> dict[str, Any]:
         return {
             "kind": CAPABILITY_OBSERVATIONS,
             "reason": "PxWeb table endpoint; returns numeric observation cells",
+        }
+    if is_fhi_table_url(access_path):
+        return {
+            "kind": CAPABILITY_OBSERVATIONS,
+            "reason": "FHI Statistikk table endpoint; returns numeric observation cells",
         }
     if is_klass_url(access_path):
         return {
