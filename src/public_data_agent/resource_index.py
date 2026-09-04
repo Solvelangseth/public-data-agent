@@ -317,6 +317,25 @@ VALUE_LABEL_WEIGHT = 6
 VALUE_CODE_WEIGHT = 8
 FIELD_LABEL_WEIGHT = 2
 
+# A value carried by most resources says nothing about any of them. Every table
+# with geography lists all 892 municipalities, so "strøm" matching Lillestrøm
+# made election statistics an answer about electricity. A term appearing in more
+# than this share of indexed resources is treated as a stopword of the index.
+MAX_TERM_SHARE = 0.15
+# A share only means something once there is a population to take a share of.
+# In an index of three resources, a term in one of them is 33% and obviously
+# informative; discarding it would make a small index answer nothing.
+MIN_TOTAL_FOR_SHARE = 20
+# Matching one value of a field that lists eight hundred industries says the
+# resource *covers* that industry, not that it is *about* it. A table whose
+# measure field has three values and one of them matches is about the thing.
+# Coverage is a filter and belongs in `datasets_containing_value`; this is
+# relevance, so a match in a narrow field counts for much more than in a wide
+# one.
+FIELD_BREADTH_FLOOR = 0.05
+# And among the rest, a rarer term is stronger evidence than a common one.
+import math as _math
+
 
 class ResourceHit:
     __slots__ = ("dataset_id", "title", "capability", "score", "why", "matched")
@@ -354,6 +373,11 @@ def search_resources(
 
     from public_data_agent.search import tokenize
 
+    total = registry.conn.execute(
+        "SELECT COUNT(DISTINCT dataset_id) FROM resource_fields"
+    ).fetchone()[0]
+    if not total:
+        return []
     tokens = set(tokenize(query))
     # Codes are not words. "030102" survives tokenisation as a token, but so
     # would a year, so raw whitespace splitting is what finds an exact code.
@@ -372,25 +396,44 @@ def search_resources(
         matched.setdefault(dataset_id, set()).add(token)
 
     for code in raw:
-        for row in registry.datasets_containing_value(code, limit=200):
-            credit(row["dataset_id"], VALUE_CODE_WEIGHT,
+        rows = registry.datasets_containing_value(code, limit=400)
+        weight = _selectivity(len({r["dataset_id"] for r in rows}), total)
+        if weight is None:
+            continue
+        for row in rows:
+            credit(row["dataset_id"], int(VALUE_CODE_WEIGHT * weight),
                    f"publishes code {code} in {row['field_code']}", code)
 
     for token in tokens:
-        for row in registry.conn.execute(
-            "SELECT dataset_id, field_code, value_label FROM resource_field_values "
-            "WHERE value_label IS NOT NULL AND lower(value_label) LIKE ? LIMIT 400",
-            (f"%{token}%",),
-        ):
-            credit(row["dataset_id"], VALUE_LABEL_WEIGHT,
-                   f"publishes a value named {row['value_label']}", token)
+        matches = [
+            row
+            for row in registry.conn.execute(
+                "SELECT dataset_id, field_code, value_label FROM resource_field_values "
+                "WHERE value_label IS NOT NULL AND lower(value_label) LIKE ? LIMIT 3000",
+                (f"%{token}%",),
+            )
+            # A token must be a word in the label, not a fragment of one:
+            # "strøm" inside "Lillestrøm" is a different subject entirely.
+            if _word_in(token, row["value_label"])
+        ]
+        weight = _selectivity(len({r["dataset_id"] for r in matches}), total)
+        if weight is not None:
+            breadth = _field_breadth(registry, matches)
+            for row in matches:
+                narrowness = breadth.get((row["dataset_id"], row["field_code"]), 1.0)
+                points = int(round(VALUE_LABEL_WEIGHT * weight * narrowness))
+                if points <= 0:
+                    continue
+                credit(row["dataset_id"], points,
+                       f"publishes a value named {row['value_label']}", token)
         for row in registry.conn.execute(
             "SELECT dataset_id, field_code, field_label FROM resource_fields "
             "WHERE field_label IS NOT NULL AND lower(field_label) LIKE ? LIMIT 400",
             (f"%{token}%",),
         ):
-            credit(row["dataset_id"], FIELD_LABEL_WEIGHT,
-                   f"has a field named {row['field_label']}", token)
+            if _word_in(token, row["field_label"]):
+                credit(row["dataset_id"], FIELD_LABEL_WEIGHT,
+                       f"has a field named {row['field_label']}", token)
 
     if not scores:
         return []
@@ -430,6 +473,56 @@ def search_resources(
     # a single word many times.
     hits.sort(key=lambda hit: (-len(hit.matched), -hit.score, hit.dataset_id))
     return hits[:limit]
+
+
+def _field_breadth(registry: Registry, matches: list[Any]) -> dict[tuple[str, str], float]:
+    """How much a match in each field is worth, given how many values it holds.
+
+    One of three values is a statement about the resource; one of eight hundred
+    is a line item. The floor keeps a wide field from counting for nothing,
+    since covering the thing asked about is still weak evidence.
+    """
+
+    pairs = {(row["dataset_id"], row["field_code"]) for row in matches}
+    if not pairs:
+        return {}
+    out: dict[tuple[str, str], float] = {}
+    for dataset_id, field_code in pairs:
+        row = registry.conn.execute(
+            "SELECT value_count FROM resource_fields WHERE dataset_id = ? AND field_code = ?",
+            (dataset_id, field_code),
+        ).fetchone()
+        count = (row["value_count"] if row else None) or 1
+        out[(dataset_id, field_code)] = max(FIELD_BREADTH_FLOOR, min(1.0, 8.0 / count))
+    return out
+
+
+_WORD = re.compile(r"[0-9a-zæøåäöéèü]+", re.IGNORECASE)
+
+
+def _word_in(token: str, label: str | None) -> bool:
+    """Whether a token is a whole word of a label, not a fragment inside one."""
+
+    if not label:
+        return False
+    return token.casefold() in {w.casefold() for w in _WORD.findall(label)}
+
+
+def _selectivity(carrying: int, total: int) -> float | None:
+    """How much a term's presence is worth, or None if it is worth nothing.
+
+    A term most resources carry cannot distinguish between them. Among the rest,
+    rarer is stronger, which is what stops a table that lists every industry
+    from answering every question that names one.
+    """
+
+    if carrying <= 0 or total <= 0:
+        return None
+    if total < MIN_TOTAL_FOR_SHARE:
+        return 1.0
+    if carrying > total * MAX_TERM_SHARE:
+        return None
+    return _math.log(total / carrying) / _math.log(total) + 0.2
 
 
 def _covers(row: Any, period: str) -> bool:
