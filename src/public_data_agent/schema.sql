@@ -205,9 +205,165 @@ CREATE TABLE IF NOT EXISTS printed_table_urls (
     FOREIGN KEY (dataset_id) REFERENCES datasets(id)
 );
 
+-- embeddings: a vector per dataset, for ranking only. An embedding can
+-- reorder candidates and add ones lexical overlap missed. It can never
+-- authorise a fetch or supply a value: those still come from connectors.
+-- text_hash records what was embedded, so a re-harvest can re-embed only
+-- the rows whose text actually changed.
+CREATE TABLE IF NOT EXISTS embeddings (
+    dataset_id TEXT PRIMARY KEY,
+    model TEXT NOT NULL,
+    dim INTEGER NOT NULL,
+    vector BLOB NOT NULL,
+    text_hash TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    FOREIGN KEY (dataset_id) REFERENCES datasets(id)
+);
+
 CREATE INDEX IF NOT EXISTS idx_datasets_source ON datasets(source_id);
 CREATE INDEX IF NOT EXISTS idx_datasets_publisher ON datasets(publisher_id);
 CREATE INDEX IF NOT EXISTS idx_harvest_runs_source ON harvest_runs(source_id, started_at);
 CREATE INDEX IF NOT EXISTS idx_observations_dataset ON observations(dataset_id, table_id);
 CREATE INDEX IF NOT EXISTS idx_joined_rows_key ON joined_rows(join_key, join_key_value);
 CREATE INDEX IF NOT EXISTS idx_printed_table_urls_dataset ON printed_table_urls(dataset_id);
+
+-- ---------------------------------------------------------------------------
+-- Resource index and widened record store.
+--
+-- The goal these serve is finding the correct data, across every domain rather
+-- than statistics alone. Two things were missing for that.
+--
+-- First, nothing recorded what a dataset can actually return. `datasets` holds
+-- what a catalogue said about it -- title, publisher, a link -- and a title is
+-- a poor way to find a table. A question about building costs missed twelve
+-- fetchable building-cost tables because search could only read their names.
+-- The resource_* tables record the shape: which fields a resource exposes,
+-- which values those fields carry, which identifier schemes it uses, and what
+-- it has been verified to return.
+--
+-- Second, every stored row was an observation -- (measure, value, dimensions).
+-- That fits a statistical cell and nothing else. A company from Brønnøysund, a
+-- building from Kartverket and a parliamentary decision are not measures of
+-- anything. Forcing them into that shape is what made an early connector store
+-- table ids as observation values. `records` widens the store to hold them
+-- while keeping one provenance spine across every kind.
+--
+-- `datasets` and `observations` are unchanged and still in use. New connectors
+-- write `records`; the statistics already stored migrate later, deliberately,
+-- rather than in the same change that introduces the target.
+
+-- What a dataset can actually return, and how to ask for it. A row here is a
+-- claim we have verified, not a guess from a URL pattern.
+CREATE TABLE IF NOT EXISTS resource_capability (
+    dataset_id TEXT PRIMARY KEY,
+    -- observations | entities | features | documents | lookup | unverified | none
+    capability TEXT NOT NULL,
+    record_kind TEXT,                          -- what `records.kind` it produces
+    endpoint TEXT,                             -- URL that returns data, not a landing page
+    request_method TEXT,                       -- GET or POST
+    period_start TEXT,                         -- earliest period the resource covers
+    period_end TEXT,
+    source_modified_at TEXT,                   -- publisher's own timestamp, for refresh
+    verified_at TEXT,                          -- when it was last seen to return real data
+    verified_sample_count INTEGER,             -- how many records that check actually saw
+    notes TEXT,
+    FOREIGN KEY (dataset_id) REFERENCES datasets(id)
+);
+
+-- The fields a resource exposes: dimensions of a table, columns of a register,
+-- properties of a feature collection.
+CREATE TABLE IF NOT EXISTS resource_fields (
+    dataset_id TEXT NOT NULL,
+    field_code TEXT NOT NULL,
+    field_label TEXT,
+    -- key | period | measure | attribute | geometry -- says how the field may be
+    -- used, so a caller can find the period field without guessing at its name.
+    field_role TEXT,
+    value_count INTEGER,                       -- distinct values, where bounded
+    PRIMARY KEY (dataset_id, field_code),
+    FOREIGN KEY (dataset_id) REFERENCES datasets(id)
+);
+
+-- The values a field carries. This is what lets search match on what is *in* a
+-- resource rather than only on how someone titled it, and it is why a question
+-- naming a municipality can find a table that never mentions one in its name.
+CREATE TABLE IF NOT EXISTS resource_field_values (
+    dataset_id TEXT NOT NULL,
+    field_code TEXT NOT NULL,
+    value_code TEXT NOT NULL,
+    value_label TEXT,
+    PRIMARY KEY (dataset_id, field_code, value_code),
+    FOREIGN KEY (dataset_id) REFERENCES datasets(id)
+);
+
+-- Which published identifier schemes a resource speaks. Two resources naming
+-- the same scheme can be related to each other; one that names none cannot be,
+-- and saying so is more useful than discovering it during a failed join.
+CREATE TABLE IF NOT EXISTS resource_keys (
+    dataset_id TEXT NOT NULL,
+    -- klass:1168 | klass:131 | brreg:orgnr | matrikkel:bygningsnummer | ...
+    scheme TEXT NOT NULL,
+    field_code TEXT,                           -- which field carries it
+    coverage_count INTEGER,                    -- how many of the scheme's codes appear
+    PRIMARY KEY (dataset_id, scheme),
+    FOREIGN KEY (dataset_id) REFERENCES datasets(id)
+);
+
+-- One row per retrieved record, whatever its shape.
+--
+-- The identity constraint is deliberately wide. Keyed on less, rows that differ
+-- by a breakdown or by what they measure collapse onto one id and overwrite each
+-- other: a join once reported 7,200 rows and stored 36 that way, reporting
+-- success throughout. Everything that can make two records different is in the
+-- key.
+CREATE TABLE IF NOT EXISTS records (
+    id TEXT PRIMARY KEY,
+    dataset_id TEXT NOT NULL,
+    kind TEXT NOT NULL,                        -- observation | entity | feature | document
+    -- Which connector projection wrote this, for the same reason
+    -- observations.series exists: one dataset can hold several projections whose
+    -- field names differ, and unseparated they blend into one unusable pool.
+    series TEXT,
+
+    -- What the record is about. The scheme generalises the geography codes that
+    -- statistics share to any published identifier, so an org number and a
+    -- municipality code are the same kind of handle.
+    subject_scheme TEXT,
+    subject_code TEXT,
+    subject_label TEXT,
+    period TEXT,
+
+    -- Quantitative payload. Null for kinds that do not measure anything.
+    measure TEXT,
+    value_num REAL,                            -- indexed numeric access
+    value_json TEXT,                           -- the value exactly as published
+    -- A publisher's marker where a value is withheld. Kept apart from the value
+    -- because ":" stored as data lets a later mean count a censored cell.
+    suppressed TEXT,
+
+    attributes_json TEXT NOT NULL,             -- dimensions, columns or properties
+    geometry_json TEXT,                        -- features only
+
+    -- Provenance. Identical across every kind; this is the trust boundary.
+    retrieved_at TEXT NOT NULL,
+    request_url TEXT NOT NULL,
+    http_status INTEGER NOT NULL,
+    publisher_name TEXT,
+    license TEXT,
+    fetch_run_id INTEGER NOT NULL,
+
+    UNIQUE (dataset_id, kind, series, subject_code, period, measure, attributes_json),
+    FOREIGN KEY (dataset_id) REFERENCES datasets(id),
+    FOREIGN KEY (fetch_run_id) REFERENCES fetch_runs(id)
+);
+
+CREATE INDEX IF NOT EXISTS records_dataset_kind ON records (dataset_id, kind);
+-- "everything known about this municipality / this company", across domains.
+CREATE INDEX IF NOT EXISTS records_subject ON records (subject_scheme, subject_code);
+CREATE INDEX IF NOT EXISTS records_series ON records (dataset_id, series);
+-- "which resources carry organisation numbers", answered without a crawl.
+CREATE INDEX IF NOT EXISTS resource_keys_scheme ON resource_keys (scheme);
+-- "which resources contain this code", which is how a question reaches a table
+-- whose title never mentions the thing being asked about.
+CREATE INDEX IF NOT EXISTS resource_field_values_code ON resource_field_values (value_code);
+CREATE INDEX IF NOT EXISTS resource_capability_kind ON resource_capability (capability);

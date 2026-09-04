@@ -418,6 +418,286 @@ class Registry:
         ).fetchall()
         return [dict(row) for row in rows]
 
+    # ---- resource index -------------------------------------------------
+    # What a dataset can return and what is inside it. A question reaches a
+    # resource through these, not through its title alone.
+
+    def set_capability(self, dataset_id: str, capability: dict[str, Any]) -> str:
+        """Record what a dataset has been verified to return.
+
+        `verified_at` is only meaningful alongside a sample count: a capability
+        claimed without having seen a record is exactly the overreach the
+        `unverified` kind exists to express.
+        """
+
+        if capability.get("verified_at") and not capability.get("verified_sample_count"):
+            raise ValueError(
+                "verified_at requires verified_sample_count; a capability is "
+                "claimed from records actually seen, not from a URL pattern"
+            )
+        columns = (
+            "dataset_id", "capability", "record_kind", "endpoint", "request_method",
+            "period_start", "period_end", "source_modified_at", "verified_at",
+            "verified_sample_count", "notes",
+        )
+        values = {"dataset_id": dataset_id, **{c: capability.get(c) for c in columns[1:]}}
+        if values["capability"] is None:
+            raise ValueError("capability is required")
+        existing = self.conn.execute(
+            "SELECT dataset_id FROM resource_capability WHERE dataset_id = ?", (dataset_id,)
+        ).fetchone()
+        if existing is None:
+            self.conn.execute(
+                f"INSERT INTO resource_capability ({', '.join(columns)}) "
+                f"VALUES ({_placeholders(columns)})",
+                tuple(values[c] for c in columns),
+            )
+            action = "inserted"
+        else:
+            assign = ", ".join(f"{c} = ?" for c in columns[1:])
+            self.conn.execute(
+                f"UPDATE resource_capability SET {assign} WHERE dataset_id = ?",
+                (*(values[c] for c in columns[1:]), dataset_id),
+            )
+            action = "updated"
+        self._commit()
+        return action
+
+    def get_capability(self, dataset_id: str) -> dict[str, Any] | None:
+        row = self.conn.execute(
+            "SELECT * FROM resource_capability WHERE dataset_id = ?", (dataset_id,)
+        ).fetchone()
+        return dict(row) if row else None
+
+    def set_resource_shape(
+        self,
+        dataset_id: str,
+        fields: list[dict[str, Any]],
+        *,
+        keys: list[dict[str, Any]] | None = None,
+    ) -> dict[str, int]:
+        """Replace a resource's recorded shape.
+
+        A shape is replaced rather than merged: a field the source has dropped
+        must disappear, or a later query offers a selection the resource will
+        refuse.
+        """
+
+        with self.deferred_commit():
+            self.conn.execute("DELETE FROM resource_fields WHERE dataset_id = ?", (dataset_id,))
+            self.conn.execute(
+                "DELETE FROM resource_field_values WHERE dataset_id = ?", (dataset_id,)
+            )
+            self.conn.execute("DELETE FROM resource_keys WHERE dataset_id = ?", (dataset_id,))
+            n_values = 0
+            for field in fields:
+                code = field.get("field_code")
+                if not code:
+                    raise ValueError("every field needs a field_code")
+                values = field.get("values") or []
+                self.conn.execute(
+                    "INSERT INTO resource_fields "
+                    "(dataset_id, field_code, field_label, field_role, value_count) "
+                    "VALUES (?, ?, ?, ?, ?)",
+                    (
+                        dataset_id, code, field.get("field_label"), field.get("field_role"),
+                        field.get("value_count", len(values)) or None,
+                    ),
+                )
+                seen: set[str] = set()
+                for value in values:
+                    value_code = str(value["value_code"] if isinstance(value, dict) else value)
+                    if value_code in seen:
+                        continue
+                    seen.add(value_code)
+                    self.conn.execute(
+                        "INSERT INTO resource_field_values "
+                        "(dataset_id, field_code, value_code, value_label) VALUES (?, ?, ?, ?)",
+                        (
+                            dataset_id, code, value_code,
+                            value.get("value_label") if isinstance(value, dict) else None,
+                        ),
+                    )
+                    n_values += 1
+            for key in keys or []:
+                self.conn.execute(
+                    "INSERT INTO resource_keys "
+                    "(dataset_id, scheme, field_code, coverage_count) VALUES (?, ?, ?, ?)",
+                    (
+                        dataset_id, key["scheme"], key.get("field_code"),
+                        key.get("coverage_count"),
+                    ),
+                )
+        return {"fields": len(fields), "values": n_values, "keys": len(keys or [])}
+
+    def resource_fields(self, dataset_id: str) -> list[dict[str, Any]]:
+        return [
+            dict(row)
+            for row in self.conn.execute(
+                "SELECT * FROM resource_fields WHERE dataset_id = ? ORDER BY field_code",
+                (dataset_id,),
+            )
+        ]
+
+    def datasets_with_key(self, scheme: str, *, limit: int = 100) -> list[dict[str, Any]]:
+        """Which resources speak a published identifier scheme.
+
+        Answering this from the index is the difference between knowing what can
+        be related to what and finding out during a failed request.
+        """
+
+        return [
+            dict(row)
+            for row in self.conn.execute(
+                "SELECT rk.dataset_id, rk.field_code, rk.coverage_count, d.title, "
+                "       rc.capability "
+                "FROM resource_keys rk "
+                "JOIN datasets d ON d.id = rk.dataset_id "
+                "LEFT JOIN resource_capability rc ON rc.dataset_id = rk.dataset_id "
+                "WHERE rk.scheme = ? ORDER BY rk.coverage_count DESC LIMIT ?",
+                (scheme, limit),
+            )
+        ]
+
+    def datasets_containing_value(
+        self, value_code: str, *, field_code: str | None = None, limit: int = 100
+    ) -> list[dict[str, Any]]:
+        """Which resources actually contain a code.
+
+        This is how a question reaches a table whose title never mentions the
+        thing being asked about.
+        """
+
+        sql = (
+            "SELECT rfv.dataset_id, rfv.field_code, rfv.value_label, d.title, rc.capability "
+            "FROM resource_field_values rfv "
+            "JOIN datasets d ON d.id = rfv.dataset_id "
+            "LEFT JOIN resource_capability rc ON rc.dataset_id = rfv.dataset_id "
+            "WHERE rfv.value_code = ?"
+        )
+        params: list[Any] = [value_code]
+        if field_code is not None:
+            sql += " AND rfv.field_code = ?"
+            params.append(field_code)
+        sql += " LIMIT ?"
+        params.append(limit)
+        return [dict(row) for row in self.conn.execute(sql, params)]
+
+    # ---- records --------------------------------------------------------
+
+    def upsert_record(self, row: dict[str, Any], run_id: int) -> str:
+        """Store one retrieved record of any kind.
+
+        Identity comes from everything that can make two records different --
+        subject, period, measure and attributes. Keyed on less, a resource that
+        splits a subject several ways overwrites itself and reports success.
+        """
+
+        kind = row.get("kind")
+        if kind not in _RECORD_KINDS:
+            raise ValueError(f"unknown record kind {kind!r}; known={sorted(_RECORD_KINDS)}")
+        attributes = row.get("attributes") or {}
+        values = {
+            "id": row["id"],
+            "dataset_id": row["dataset_id"],
+            "kind": kind,
+            "series": row.get("series"),
+            "subject_scheme": row.get("subject_scheme"),
+            "subject_code": row.get("subject_code"),
+            "subject_label": row.get("subject_label"),
+            "period": row.get("period"),
+            "measure": row.get("measure"),
+            "value_num": _numeric(row.get("value")),
+            "value_json": _dumps(row.get("value")),
+            "suppressed": row.get("suppressed"),
+            "attributes_json": json.dumps(
+                attributes, ensure_ascii=False, sort_keys=True, separators=(",", ":")
+            ),
+            "geometry_json": _dumps(row.get("geometry")) if row.get("geometry") else None,
+            "retrieved_at": row["retrieved_at"],
+            "request_url": row["request_url"],
+            "http_status": row["http_status"],
+            "publisher_name": row.get("publisher_name"),
+            "license": row.get("license"),
+            "fetch_run_id": run_id,
+        }
+        existing = self.conn.execute(
+            "SELECT id, value_json, attributes_json FROM records WHERE id = ?", (row["id"],)
+        ).fetchone()
+        if existing is None:
+            self.conn.execute(
+                f"INSERT INTO records ({', '.join(_RECORD_COLUMNS)}) "
+                f"VALUES ({_placeholders(_RECORD_COLUMNS)})",
+                tuple(values[col] for col in _RECORD_COLUMNS),
+            )
+            self._commit()
+            return "inserted"
+        if (
+            existing["value_json"] == values["value_json"]
+            and existing["attributes_json"] == values["attributes_json"]
+        ):
+            return "unchanged"
+        assign = ", ".join(f"{col} = ?" for col in _RECORD_UPDATE_COLUMNS)
+        self.conn.execute(
+            f"UPDATE records SET {assign} WHERE id = ?",
+            (*(values[col] for col in _RECORD_UPDATE_COLUMNS), row["id"]),
+        )
+        self._commit()
+        return "updated"
+
+    def list_records(
+        self,
+        dataset_id: str | None = None,
+        *,
+        kind: str | None = None,
+        subject_scheme: str | None = None,
+        subject_code: str | None = None,
+        series: str | None = None,
+        ids: list[str] | None = None,
+        limit: int | None = None,
+    ) -> list[dict[str, Any]]:
+        """Read records, scoped. An unscoped read blends incompatible shapes."""
+
+        if ids is not None:
+            if not ids:
+                return []
+            out: list[dict[str, Any]] = []
+            for start in range(0, len(ids), 500):
+                chunk = ids[start : start + 500]
+                out.extend(
+                    dict(r)
+                    for r in self.conn.execute(
+                        f"SELECT * FROM records WHERE id IN ({','.join('?' * len(chunk))})",
+                        chunk,
+                    )
+                )
+            return out
+        clauses: list[str] = []
+        params: list[Any] = []
+        for column, value in (
+            ("dataset_id", dataset_id), ("kind", kind), ("subject_scheme", subject_scheme),
+            ("subject_code", subject_code), ("series", series),
+        ):
+            if value is not None:
+                clauses.append(f"{column} = ?")
+                params.append(value)
+        sql = "SELECT * FROM records"
+        if clauses:
+            sql += " WHERE " + " AND ".join(clauses)
+        if limit is not None:
+            sql += " LIMIT ?"
+            params.append(limit)
+        return [dict(row) for row in self.conn.execute(sql, params)]
+
+    def record_count(self, dataset_id: str | None = None) -> int:
+        if dataset_id is None:
+            return int(self.conn.execute("SELECT COUNT(*) FROM records").fetchone()[0])
+        return int(
+            self.conn.execute(
+                "SELECT COUNT(*) FROM records WHERE dataset_id = ?", (dataset_id,)
+            ).fetchone()[0]
+        )
+
     def upsert_observation(self, row: dict[str, Any], run_id: int) -> str:
         existing = self.conn.execute(
             "SELECT id, value_json, series FROM observations WHERE id = ?",
@@ -468,6 +748,48 @@ class Registry:
         )
         self._commit()
         return "updated"
+
+    def upsert_embedding(
+        self,
+        *,
+        dataset_id: str,
+        model: str,
+        vector: bytes,
+        dim: int,
+        text_hash: str,
+    ) -> None:
+        self.conn.execute(
+            """
+            INSERT INTO embeddings (dataset_id, model, dim, vector, text_hash, created_at)
+            VALUES (?, ?, ?, ?, ?, ?)
+            ON CONFLICT(dataset_id) DO UPDATE SET
+                model = excluded.model, dim = excluded.dim, vector = excluded.vector,
+                text_hash = excluded.text_hash, created_at = excluded.created_at
+            """,
+            (dataset_id, model, dim, vector, text_hash, utc_now()),
+        )
+        self._commit()
+
+    def embedding_count(self) -> int:
+        row = self.conn.execute("SELECT COUNT(*) AS n FROM embeddings").fetchone()
+        return int(row["n"])
+
+    def embedded_hashes(self) -> dict[str, str]:
+        """dataset_id -> text_hash already embedded, so re-embedding is incremental."""
+
+        return {
+            row["dataset_id"]: row["text_hash"]
+            for row in self.conn.execute("SELECT dataset_id, text_hash FROM embeddings")
+        }
+
+    def iter_embeddings(self, model: str | None = None):
+        sql = "SELECT dataset_id, dim, vector FROM embeddings"
+        params: tuple[Any, ...] = ()
+        if model is not None:
+            sql += " WHERE model = ?"
+            params = (model,)
+        for row in self.conn.execute(sql, params):
+            yield row["dataset_id"], row["dim"], row["vector"]
 
     def upsert_printed_table_url(
         self,
@@ -843,6 +1165,36 @@ _JOINED_ROW_COLUMNS = (
 
 _JOINED_ROW_UPDATE_COLUMNS = tuple(col for col in _JOINED_ROW_COLUMNS if col not in {"id"})
 
+
+_RECORD_KINDS = frozenset({"observation", "entity", "feature", "document"})
+
+_RECORD_COLUMNS = (
+    "id", "dataset_id", "kind", "series", "subject_scheme", "subject_code",
+    "subject_label", "period", "measure", "value_num", "value_json", "suppressed",
+    "attributes_json", "geometry_json", "retrieved_at", "request_url", "http_status",
+    "publisher_name", "license", "fetch_run_id",
+)
+# id never changes; everything else may be re-reported by a later fetch.
+_RECORD_UPDATE_COLUMNS = tuple(c for c in _RECORD_COLUMNS if c != "id")
+
+
+def _numeric(value: Any) -> float | None:
+    """The value as a number, or None where it is not one.
+
+    A publisher's suppression marker and a free-text code are both non-numeric,
+    and neither should become a zero that a later average silently counts.
+    """
+
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, (int, float)):
+        return float(value)
+    if isinstance(value, str):
+        try:
+            return float(value.strip())
+        except ValueError:
+            return None
+    return None
 
 def _placeholders(columns: tuple[str, ...]) -> str:
     return ", ".join("?" for _ in columns)
