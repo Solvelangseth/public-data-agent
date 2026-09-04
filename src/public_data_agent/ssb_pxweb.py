@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 from typing import Any
 from urllib.parse import urlparse
 
-from public_data_agent.fetch import JsonHttp
+from public_data_agent.fetch import JsonHttp, _jsonstat_index
 from public_data_agent.http_util import HttpClient
 from public_data_agent.registry import utc_now
 
@@ -128,7 +128,7 @@ def cells_from_jsonstat_coded(payload: dict[str, Any]) -> list[CodedCell]:
     axes: list[list[tuple[str, str]]] = []
     for dim_id, size in zip(ids, sizes):
         category = (dimension.get(dim_id) or {}).get("category") or {}
-        index = category.get("index") or {}
+        index = _jsonstat_index(category)
         labels = category.get("label") or {}
         by_pos: list[tuple[str, str] | None] = [None] * size
         for code, pos in index.items():

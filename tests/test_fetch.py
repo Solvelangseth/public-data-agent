@@ -269,3 +269,62 @@ def test_selection_rejects_values_and_dimensions_the_table_does_not_have() -> No
             assert needle in str(exc)
         else:  # pragma: no cover
             raise AssertionError(f"{bad} must be refused")
+
+
+# json-stat2 permits `category.index` as an object or as a positional array.
+# SSB emits the object, FHI the array; a decoder that reads only one of them
+# rejects a conforming payload from a source it otherwise fully supports.
+FHI_JSONSTAT = {
+    "class": "dataset",
+    "label": "Leseferdighet_utdann_3",
+    "id": ["GEO", "MEASURE_TYPE"],
+    "size": [3, 1],
+    "value": [19.7019607843137, 25.4934210526316, 20.136186770428],
+    "role": {"metric": ["MEASURE_TYPE"]},
+    "dimension": {
+        "GEO": {
+            "category": {
+                "index": ["0301", "030101", "030102"],
+                "label": {
+                    "0301": "Oslo",
+                    "030101": "Bydel Gamle Oslo",
+                    "030102": "Bydel Grünerløkka",
+                },
+            }
+        },
+        "MEASURE_TYPE": {
+            "category": {"index": ["RATE"], "label": {"RATE": "andel (prosent)"}}
+        },
+    },
+}
+
+
+def test_jsonstat_index_accepts_both_conforming_forms() -> None:
+    from public_data_agent.fetch import _jsonstat_index
+
+    assert _jsonstat_index({"index": {"a": 0, "b": 1}}) == {"a": 0, "b": 1}
+    assert _jsonstat_index({"index": ["a", "b"]}) == {"a": 0, "b": 1}
+    assert _jsonstat_index({}) == {}
+
+
+def test_cells_from_jsonstat_reads_array_index() -> None:
+    cells = cells_from_jsonstat(FHI_JSONSTAT)
+    assert cells == [
+        ("andel (prosent)", 19.7019607843137, {"GEO": "Oslo"}),
+        ("andel (prosent)", 25.4934210526316, {"GEO": "Bydel Gamle Oslo"}),
+        ("andel (prosent)", 20.136186770428, {"GEO": "Bydel Grünerløkka"}),
+    ]
+
+
+def test_cells_from_jsonstat_coded_keeps_array_index_codes() -> None:
+    """The codes are the join key, so an array index must still yield them."""
+
+    from public_data_agent.ssb_pxweb import cells_from_jsonstat_coded
+
+    cells = cells_from_jsonstat_coded(FHI_JSONSTAT)
+    assert [cell.codes["GEO"] for cell in cells] == ["0301", "030101", "030102"]
+    assert [cell.labels["GEO"] for cell in cells] == [
+        "Oslo",
+        "Bydel Gamle Oslo",
+        "Bydel Grünerløkka",
+    ]

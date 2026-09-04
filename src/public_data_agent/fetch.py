@@ -1037,6 +1037,23 @@ def time_codes(meta: dict[str, Any], *, from_year: int | None, to_year: int | No
     raise ValueError("table metadata has no time variable")
 
 
+def _jsonstat_index(category: dict[str, Any]) -> dict[str, int]:
+    """Return ``category.index`` as {code: position}, whichever form it arrived in.
+
+    json-stat2 permits an object mapping code to position *and* an array in
+    positional order. SSB emits the object, FHI the array, and both conform.
+    Reading only the object shape raised AttributeError on any source that
+    chose the other one, so the format we already support looked unsupported.
+    """
+
+    index = category.get("index")
+    if isinstance(index, dict):
+        return {str(code): int(pos) for code, pos in index.items()}
+    if isinstance(index, list):
+        return {str(code): pos for pos, code in enumerate(index)}
+    return {}
+
+
 def cells_from_jsonstat(payload: dict[str, Any]) -> list[tuple[str, Any, dict[str, str]]]:
     ids = list(payload.get("id") or [])
     sizes = list(payload.get("size") or [])
@@ -1047,7 +1064,7 @@ def cells_from_jsonstat(payload: dict[str, Any]) -> list[tuple[str, Any, dict[st
     axes: list[list[tuple[str, str]]] = []
     for dim_id, size in zip(ids, sizes):
         category = (dimension.get(dim_id) or {}).get("category") or {}
-        index = category.get("index") or {}
+        index = _jsonstat_index(category)
         labels = category.get("label") or {}
         by_pos: list[tuple[str, str] | None] = [None] * size
         for code, pos in index.items():
