@@ -71,3 +71,26 @@ Kept because each one cost a live check and should not be repeated blindly.
 - Trafikkdata is GraphQL; the swagger URL serves HTML and the old API host returns 410.
   The working Vegvesen catalogue is CKAN `dataut.vegvesen.no/api/3/action/package_list`.
 - NVDB rejects requests without a User-Agent.
+
+## Answerable set under-represents what the registry now holds
+
+`data/answerable_questions.json` is 30 questions with one health topic among them. It
+was written when the fetchable corpus was SSB-only, so it cannot register the reach
+that the FHI registers added: 369 tables, 119 of them geographic. Health and education
+questions now route `ready` with FHI observation sources, and the benchmark scores the
+same 0.8667 either way.
+
+Expanding the set is a change to the measuring instrument, so it should be done
+deliberately and before the next source is promoted, not after a change whose effect it
+would then appear to show.
+
+## FHI rows are not yet reachable from `join.py`
+
+FHI geography is printed as Klass codes — 36 of the 42 codes in Klass 1168 appear
+verbatim in a `nokkel` table's `GEO` dimension — so the vocabulary composes with SSB.
+The wiring does not. `join_classification_to_table` pairs a Klass classification with an
+SSB PxWeb table through `ssb_pxweb.py`, and there is no FHI equivalent, so an SSB × FHI
+question can retrieve both sides but cannot join them.
+
+The labels differ where the codes agree (`Bydel Grünerløkka` against `Grünerløkka`), so
+the join has to run on codes. Joining on names would silently match nothing.

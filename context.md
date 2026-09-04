@@ -71,8 +71,20 @@ pool and a filter valid for one silently matches none. Scope analysis by `series
 - `sources/ssbtable.py` — SSB PxWeb table catalogue (~3,800 numeric tables). These are
   the rows that can actually return observations, and they carry dimension names and
   period coverage that the Data.norge records lack.
+- `sources/fhi.py` — FHI Statistikk (369 tables across 13 health registers). The 119
+  tables in the `nokkel` register carry a `GEO` dimension printed as Klass codes, so
+  their rows join to SSB rows on the vocabulary `join.py` already matches.
 
 Harvest with `pda ingest --source <id>`.
+
+**Where fetchable coverage comes from.** Every numeric row in the registry arrives
+through a statistics bank with a uniform table API, not through the long tail of the
+catalogue. Of the ~9,100 Data.norge records, none are fetchable: the format census is
+dominated by geospatial imagery, ~1,000 have any tabular format, and the ~240 with an
+API-shaped URL are one-off municipal endpoints sharing no join keys. One statistics
+bank yields hundreds of tables through one protocol whose rows compose with what is
+already stored; one catalogue-tail dataset yields one bespoke adapter that joins to
+nothing. Prefer promoting another statistics bank over mining the tail.
 
 ### Discovery
 
