@@ -266,6 +266,153 @@ def join_classification_to_table(
     )
 
 
+# A merged row pairs one cell from each side. Two tables that each split a
+# region several ways multiply, so the pairing is counted before it is built
+# and refuses rather than returning a cross product nobody asked for.
+MAX_PAIRS = 200_000
+
+
+class TableJoinTooLarge(ValueError):
+    """Pairing two tables would produce more rows than the limit allows."""
+
+    def __init__(self, pairs: int, limit: int, worst: list[dict[str, Any]]) -> None:
+        self.pairs, self.limit, self.worst = pairs, limit, worst
+        detail = "; ".join(
+            f"{item['key']}: {item['left']} x {item['right']}" for item in worst
+        )
+        super().__init__(
+            f"pairing would produce {pairs:,} rows, over the {limit:,} limit. "
+            f"Narrow a breakdown or a measure on either table. Widest keys: {detail}"
+        )
+
+
+@dataclass
+class TableJoinResult:
+    join_key: str
+    classification_id: str
+    left_table: str
+    right_table: str
+    left: JoinResult
+    right: JoinResult
+    rows: list[dict[str, Any]] = field(default_factory=list)
+    left_only: list[str] = field(default_factory=list)
+    right_only: list[str] = field(default_factory=list)
+    withheld: int = 0
+
+
+def join_table_to_table(
+    registry: Registry,
+    *,
+    left_table: str,
+    right_table: str,
+    klass_dataset_id: str = DEFAULT_KLASS_DATASET,
+    year: int | None = 2025,
+    http: JsonHttp | None = None,
+    join_key: str = JOIN_KEY,
+    max_pairs: int = MAX_PAIRS,
+) -> TableJoinResult:
+    """Join two statistical tables to each other through a shared classification.
+
+    Each table is first joined to the classification on its own, so both sides'
+    keys are proved against the same published code list rather than against
+    each other. A code neither table prints cannot appear, and a code only one
+    side prints is reported rather than dropped in silence.
+
+    Tables may be named as an SSB table id or as "fhi:<register>:<table>", so a
+    population table and a health table join on the kommune or bydel code that
+    both publishers happen to print.
+    """
+
+    # Both sides keep the default series. The tag separates incompatible
+    # dimension shapes within one dataset_id, and the two tables already differ
+    # by dataset_id; a per-table suffix instead relabels rows an earlier join
+    # wrote, because the observation id does not include the series.
+    left = join_classification_to_table(
+        registry, klass_dataset_id=klass_dataset_id, ssb_table=left_table,
+        year=year, http=http, join_key=join_key,
+    )
+    right = join_classification_to_table(
+        registry, klass_dataset_id=klass_dataset_id, ssb_table=right_table,
+        year=year, http=http, join_key=join_key,
+    )
+
+    withheld = sum(
+        1 for row in (*left.rows, *right.rows) if row.get("suppressed") is not None
+    )
+    left_by_key = _rows_by_key(left.rows, join_key)
+    right_by_key = _rows_by_key(right.rows, join_key)
+    shared = sorted(set(left_by_key) & set(right_by_key))
+
+    pairs = sum(len(left_by_key[key]) * len(right_by_key[key]) for key in shared)
+    if pairs > max_pairs:
+        worst = sorted(
+            (
+                {
+                    "key": key,
+                    "left": len(left_by_key[key]),
+                    "right": len(right_by_key[key]),
+                }
+                for key in shared
+            ),
+            key=lambda item: -(item["left"] * item["right"]),
+        )[:3]
+        raise TableJoinTooLarge(pairs, max_pairs, worst)
+
+    rows: list[dict[str, Any]] = []
+    for key in shared:
+        for left_row in left_by_key[key]:
+            for right_row in right_by_key[key]:
+                rows.append(
+                    {
+                        join_key: key,
+                        "name": left_row.get("klass_name") or right_row.get("klass_name"),
+                        "year": left_row.get("year") or right_row.get("year"),
+                        "left_table": left_table,
+                        "left_value": left_row.get("population"),
+                        "left_measure": left_row.get("population_measure"),
+                        "left_dimensions": left_row.get("dimensions") or {},
+                        "right_table": right_table,
+                        "right_value": right_row.get("population"),
+                        "right_measure": right_row.get("population_measure"),
+                        "right_dimensions": right_row.get("dimensions") or {},
+                        "why_matched": (
+                            f"exact {join_key} {key} printed by {left_table}, "
+                            f"{right_table} and {klass_dataset_id}"
+                        ),
+                    }
+                )
+    return TableJoinResult(
+        join_key=join_key,
+        classification_id=klass_dataset_id,
+        left_table=left_table,
+        right_table=right_table,
+        left=left,
+        right=right,
+        rows=rows,
+        left_only=sorted(set(left_by_key) - set(right_by_key)),
+        right_only=sorted(set(right_by_key) - set(left_by_key)),
+        withheld=withheld,
+    )
+
+
+def _rows_by_key(rows: list[dict[str, Any]], join_key: str) -> dict[str, list[dict[str, Any]]]:
+    """Group joined rows by key, keeping only cells that carry a value.
+
+    A withheld cell has no number to pair with, so pairing it would invent a
+    relationship between one real value and a censored one.
+    """
+
+    grouped: dict[str, list[dict[str, Any]]] = {}
+    for row in rows:
+        if row.get("suppressed") is not None or row.get("population") is None:
+            continue
+        key = row.get(join_key)
+        if key is None:
+            continue
+        grouped.setdefault(str(key), []).append(row)
+    return grouped
+
+
 def join_proof_payload(
     result: JoinResult,
     *,

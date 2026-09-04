@@ -393,3 +393,126 @@ def test_joined_rows_carry_the_breakdown_that_distinguishes_them(tmp_path: Path)
     trinn = {row["dimensions"].get("TRINN") for row in result.rows}
     assert trinn == {"5. trinn", "8. trinn"}
     registry.close()
+
+
+class BothTablesHttp:
+    """Serves the classification and both tables, for a table-to-table join."""
+
+    def get_json_response(self, url: str, *, headers=None) -> JsonResponse:
+        if url == KLASS_URL:
+            return JsonResponse(status=200, url=url, body=KLASS_PAYLOAD)
+        if url == SSB_URL:
+            return JsonResponse(status=200, url=url, body=SSB_META)
+        if url == f"{FHI_BASE}/dimension?includeValues=true":
+            return JsonResponse(status=200, url=url, body=FHI_DIMENSIONS)
+        raise AssertionError(f"unexpected GET {url}")
+
+    def post_json_response(self, url: str, body, *, headers=None) -> JsonResponse:
+        if url == SSB_URL:
+            return JsonResponse(status=200, url=url, body=SSB_JSONSTAT)
+        if url == f"{FHI_BASE}/data":
+            return JsonResponse(status=200, url=url, body=FHI_JSONSTAT)
+        raise AssertionError(f"unexpected POST {url}")
+
+
+def _table_join(tmp_path: Path, **kwargs):
+    from public_data_agent.join import join_table_to_table
+
+    registry = _registry(tmp_path)
+    result = join_table_to_table(
+        registry, left_table="11763", right_table=FHI_T,
+        klass_dataset_id=STRANDSONE_ID, year=2025, http=BothTablesHttp(), **kwargs
+    )
+    return registry, result
+
+
+def test_two_tables_join_through_a_shared_classification(tmp_path: Path) -> None:
+    registry, result = _table_join(tmp_path)
+    assert result.left_table == "11763"
+    assert result.right_table == FHI_T
+    # Both sides carry a value for every merged row.
+    assert result.rows
+    assert all(row["left_value"] is not None for row in result.rows)
+    assert all(row["right_value"] is not None for row in result.rows)
+    # Each row names where each half came from.
+    assert {row["left_table"] for row in result.rows} == {"11763"}
+    assert {row["right_table"] for row in result.rows} == {FHI_T}
+    registry.close()
+
+
+def test_a_merged_row_pairs_one_cell_from_each_side(tmp_path: Path) -> None:
+    registry, result = _table_join(tmp_path)
+    per_key: dict[str, int] = {}
+    for row in result.rows:
+        per_key[row["bydel_code"]] = per_key.get(row["bydel_code"], 0) + 1
+    # Each region has one population cell. 030101 has four usable health cells
+    # (two school years x two measures); 030102 has three, its fourth withheld.
+    assert per_key["030101"] == 4
+    assert per_key["030102"] == 3
+    registry.close()
+
+
+def test_a_withheld_cell_is_never_paired(tmp_path: Path) -> None:
+    """Pairing a real value with a censored one invents a relationship."""
+
+    registry, result = _table_join(tmp_path)
+    assert result.withheld == 1
+    assert all(row["right_value"] is not None for row in result.rows)
+    registry.close()
+
+
+def test_codes_on_only_one_side_are_reported_not_dropped(tmp_path: Path) -> None:
+    registry, result = _table_join(tmp_path)
+    # 999999 is in the classification but in neither table, so it is in neither
+    # list; a code both tables print appears in neither either.
+    assert "999999" not in result.left_only
+    assert "999999" not in result.right_only
+    assert isinstance(result.left_only, list)
+    assert isinstance(result.right_only, list)
+    registry.close()
+
+
+def test_pairing_over_the_limit_refuses_and_says_what_to_narrow(tmp_path: Path) -> None:
+    from public_data_agent.join import TableJoinTooLarge
+
+    import pytest as _pytest
+
+    with _pytest.raises(TableJoinTooLarge) as excinfo:
+        _table_join(tmp_path, max_pairs=2)
+    message = str(excinfo.value)
+    assert "Narrow a breakdown or a measure" in message
+    assert excinfo.value.worst
+    assert excinfo.value.worst[0]["left"] * excinfo.value.worst[0]["right"] >= 1
+
+
+def test_a_table_join_does_not_relabel_rows_an_earlier_join_wrote(tmp_path: Path) -> None:
+    """The series tag separates dimension shapes, not callers.
+
+    An observation id does not include the series, so writing the same cells
+    under a different tag moves the existing rows rather than adding new ones,
+    and a later read scoped to the original tag silently loses them.
+    """
+
+    from public_data_agent.join import JOIN_SERIES, join_classification_to_table
+
+    registry = _registry(tmp_path)
+    join_classification_to_table(
+        registry, klass_dataset_id=STRANDSONE_ID, ssb_table="11763",
+        year=2025, http=BothTablesHttp(),
+    )
+    before = len(registry.list_observations("ssb:11763", series=JOIN_SERIES))
+    assert before > 0
+
+    _table_join_on(registry)
+    after = len(registry.list_observations("ssb:11763", series=JOIN_SERIES))
+    assert after == before
+    registry.close()
+
+
+def _table_join_on(registry):
+    from public_data_agent.join import join_table_to_table
+
+    return join_table_to_table(
+        registry, left_table="11763", right_table=FHI_T,
+        klass_dataset_id=STRANDSONE_ID, year=2025, http=BothTablesHttp(),
+    )
