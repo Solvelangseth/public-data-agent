@@ -1,35 +1,533 @@
 {
-  "note": "Ungolded. Each question asks whether search surfaces at least one dataset a registered connector can actually return numeric observations from. This measures reach of the fetch layer, not ranking against a gold id. No expected dataset is asserted, so nothing here can be satisfied by inventing one.",
+  "note": "Questions used to measure whether a question reaches data the system can actually retrieve. No expected dataset id is asserted -- this measures reach, not ranking; the gold benchmark measures ranking. Written without consulting the registry, so the set does not simply encode what the system already covers, and deliberately spans domains the product claims rather than the statistics it started with. `style` separates bare keywords from the natural phrasing that actually arrives from a person, because the two fail differently and averaging them hides which. Limitation: these are author-written, not sampled from real usage, so they reflect a guess at what gets asked.",
   "questions": [
-    {"id": "a01", "query": "arbeidsledighet", "topic": "labour"},
-    {"id": "a02", "query": "sysselsetting etter næring", "topic": "labour"},
-    {"id": "a03", "query": "sykefravær", "topic": "labour"},
-    {"id": "a04", "query": "lønn etter yrke", "topic": "labour"},
-    {"id": "a05", "query": "boligpriser", "topic": "housing"},
-    {"id": "a06", "query": "byggekostnader", "topic": "housing"},
-    {"id": "a07", "query": "husholdninger størrelse", "topic": "housing"},
-    {"id": "a08", "query": "befolkning kommune", "topic": "population"},
-    {"id": "a09", "query": "innvandring og utvandring", "topic": "population"},
-    {"id": "a10", "query": "fruktbarhet fødsler", "topic": "population"},
-    {"id": "a11", "query": "dødelighet forventet levealder", "topic": "population"},
-    {"id": "a12", "query": "utslipp klimagasser", "topic": "environment"},
-    {"id": "a13", "query": "avfall og gjenvinning", "topic": "environment"},
-    {"id": "a14", "query": "energibruk strøm", "topic": "energy"},
-    {"id": "a15", "query": "kraftproduksjon", "topic": "energy"},
-    {"id": "a16", "query": "studenter høyere utdanning", "topic": "education"},
-    {"id": "a17", "query": "grunnskole elever", "topic": "education"},
-    {"id": "a18", "query": "anmeldte lovbrudd", "topic": "justice"},
-    {"id": "a19", "query": "straffereaksjoner", "topic": "justice"},
-    {"id": "a20", "query": "konsumprisindeks", "topic": "economy"},
-    {"id": "a21", "query": "bruttonasjonalprodukt", "topic": "economy"},
-    {"id": "a22", "query": "utenrikshandel eksport import", "topic": "economy"},
-    {"id": "a23", "query": "konkurser", "topic": "economy"},
-    {"id": "a24", "query": "jordbruk areal", "topic": "primary"},
-    {"id": "a25", "query": "fiskeri fangst", "topic": "primary"},
-    {"id": "a26", "query": "skogbruk avvirkning", "topic": "primary"},
-    {"id": "a27", "query": "overnatting hotell", "topic": "services"},
-    {"id": "a28", "query": "kollektivtransport reiser", "topic": "transport"},
-    {"id": "a29", "query": "veitrafikkulykker", "topic": "transport"},
-    {"id": "a30", "query": "helseutgifter", "topic": "health"}
+    {
+      "id": "a001",
+      "query": "arbeidsledighet",
+      "topic": "labour",
+      "style": "keyword"
+    },
+    {
+      "id": "a002",
+      "query": "sysselsetting etter næring",
+      "topic": "labour",
+      "style": "keyword"
+    },
+    {
+      "id": "a003",
+      "query": "sykefravær",
+      "topic": "labour",
+      "style": "keyword"
+    },
+    {
+      "id": "a004",
+      "query": "lønn etter yrke",
+      "topic": "labour",
+      "style": "keyword"
+    },
+    {
+      "id": "a005",
+      "query": "befolkning kommune",
+      "topic": "population",
+      "style": "keyword"
+    },
+    {
+      "id": "a006",
+      "query": "innvandring og utvandring",
+      "topic": "population",
+      "style": "keyword"
+    },
+    {
+      "id": "a007",
+      "query": "fruktbarhet fødsler",
+      "topic": "population",
+      "style": "keyword"
+    },
+    {
+      "id": "a008",
+      "query": "dødelighet forventet levealder",
+      "topic": "population",
+      "style": "keyword"
+    },
+    {
+      "id": "a009",
+      "query": "konsumprisindeks",
+      "topic": "economy",
+      "style": "keyword"
+    },
+    {
+      "id": "a010",
+      "query": "bruttonasjonalprodukt",
+      "topic": "economy",
+      "style": "keyword"
+    },
+    {
+      "id": "a011",
+      "query": "utenrikshandel eksport import",
+      "topic": "economy",
+      "style": "keyword"
+    },
+    {
+      "id": "a012",
+      "query": "konkurser",
+      "topic": "economy",
+      "style": "keyword"
+    },
+    {
+      "id": "a013",
+      "query": "boligpriser",
+      "topic": "housing",
+      "style": "keyword"
+    },
+    {
+      "id": "a014",
+      "query": "byggekostnader",
+      "topic": "housing",
+      "style": "keyword"
+    },
+    {
+      "id": "a015",
+      "query": "husholdninger størrelse",
+      "topic": "housing",
+      "style": "keyword"
+    },
+    {
+      "id": "a016",
+      "query": "vaksinasjonsdekning",
+      "topic": "health",
+      "style": "keyword"
+    },
+    {
+      "id": "a017",
+      "query": "dødsårsaker",
+      "topic": "health",
+      "style": "keyword"
+    },
+    {
+      "id": "a018",
+      "query": "psykisk helse",
+      "topic": "health",
+      "style": "keyword"
+    },
+    {
+      "id": "a019",
+      "query": "legemiddelbruk",
+      "topic": "health",
+      "style": "keyword"
+    },
+    {
+      "id": "a020",
+      "query": "fødsler medisinsk fødselsregister",
+      "topic": "health",
+      "style": "keyword"
+    },
+    {
+      "id": "a021",
+      "query": "grunnskole elever",
+      "topic": "education",
+      "style": "keyword"
+    },
+    {
+      "id": "a022",
+      "query": "studenter høyere utdanning",
+      "topic": "education",
+      "style": "keyword"
+    },
+    {
+      "id": "a023",
+      "query": "leseferdighet nasjonale prøver",
+      "topic": "education",
+      "style": "keyword"
+    },
+    {
+      "id": "a024",
+      "query": "frafall videregående",
+      "topic": "education",
+      "style": "keyword"
+    },
+    {
+      "id": "a025",
+      "query": "foretak etter organisasjonsform",
+      "topic": "company",
+      "style": "keyword"
+    },
+    {
+      "id": "a026",
+      "query": "nyetablerte foretak",
+      "topic": "company",
+      "style": "keyword"
+    },
+    {
+      "id": "a027",
+      "query": "regnskapstall aksjeselskap",
+      "topic": "company",
+      "style": "keyword"
+    },
+    {
+      "id": "a028",
+      "query": "kollektivtransport reiser",
+      "topic": "transport",
+      "style": "keyword"
+    },
+    {
+      "id": "a029",
+      "query": "veitrafikkulykker",
+      "topic": "transport",
+      "style": "keyword"
+    },
+    {
+      "id": "a030",
+      "query": "registrerte kjøretøy",
+      "topic": "transport",
+      "style": "keyword"
+    },
+    {
+      "id": "a031",
+      "query": "kraftproduksjon",
+      "topic": "energy",
+      "style": "keyword"
+    },
+    {
+      "id": "a032",
+      "query": "energibruk strøm",
+      "topic": "energy",
+      "style": "keyword"
+    },
+    {
+      "id": "a033",
+      "query": "strømpriser",
+      "topic": "energy",
+      "style": "keyword"
+    },
+    {
+      "id": "a034",
+      "query": "utslipp klimagasser",
+      "topic": "environment",
+      "style": "keyword"
+    },
+    {
+      "id": "a035",
+      "query": "avfall og gjenvinning",
+      "topic": "environment",
+      "style": "keyword"
+    },
+    {
+      "id": "a036",
+      "query": "luftkvalitet",
+      "topic": "environment",
+      "style": "keyword"
+    },
+    {
+      "id": "a037",
+      "query": "anmeldte lovbrudd",
+      "topic": "justice",
+      "style": "keyword"
+    },
+    {
+      "id": "a038",
+      "query": "straffereaksjoner",
+      "topic": "justice",
+      "style": "keyword"
+    },
+    {
+      "id": "a039",
+      "query": "jordbruk areal",
+      "topic": "primary",
+      "style": "keyword"
+    },
+    {
+      "id": "a040",
+      "query": "fiskeri fangst",
+      "topic": "primary",
+      "style": "keyword"
+    },
+    {
+      "id": "a041",
+      "query": "skogbruk avvirkning",
+      "topic": "primary",
+      "style": "keyword"
+    },
+    {
+      "id": "a042",
+      "query": "overnatting hotell",
+      "topic": "services",
+      "style": "keyword"
+    },
+    {
+      "id": "a043",
+      "query": "helseutgifter",
+      "topic": "services",
+      "style": "keyword"
+    },
+    {
+      "id": "a044",
+      "query": "hvor mange bor det i Bergen",
+      "topic": "population",
+      "style": "natural"
+    },
+    {
+      "id": "a045",
+      "query": "hvilken bydel i Oslo har flest innbyggere",
+      "topic": "population",
+      "style": "natural"
+    },
+    {
+      "id": "a046",
+      "query": "hvor mange flyttet til Norge i fjor",
+      "topic": "population",
+      "style": "natural"
+    },
+    {
+      "id": "a047",
+      "query": "hva er gjennomsnittsalderen i Tromsø",
+      "topic": "population",
+      "style": "natural"
+    },
+    {
+      "id": "a048",
+      "query": "hva er arbeidsledigheten i Norge nå",
+      "topic": "labour",
+      "style": "natural"
+    },
+    {
+      "id": "a049",
+      "query": "hvor mye tjener en sykepleier i gjennomsnitt",
+      "topic": "labour",
+      "style": "natural"
+    },
+    {
+      "id": "a050",
+      "query": "hvor mange jobber i helsevesenet",
+      "topic": "labour",
+      "style": "natural"
+    },
+    {
+      "id": "a051",
+      "query": "hvor høyt er sykefraværet i kommunene",
+      "topic": "labour",
+      "style": "natural"
+    },
+    {
+      "id": "a052",
+      "query": "hvor mange barn er vaksinert mot meslinger",
+      "topic": "health",
+      "style": "natural"
+    },
+    {
+      "id": "a053",
+      "query": "hva er de vanligste dødsårsakene i Norge",
+      "topic": "health",
+      "style": "natural"
+    },
+    {
+      "id": "a054",
+      "query": "hvor mange røyker daglig",
+      "topic": "health",
+      "style": "natural"
+    },
+    {
+      "id": "a055",
+      "query": "hvor mange har diabetes",
+      "topic": "health",
+      "style": "natural"
+    },
+    {
+      "id": "a056",
+      "query": "hvor mange elever går på videregående",
+      "topic": "education",
+      "style": "natural"
+    },
+    {
+      "id": "a057",
+      "query": "hvor gode er norske elever i lesing",
+      "topic": "education",
+      "style": "natural"
+    },
+    {
+      "id": "a058",
+      "query": "hvor mange studenter er det i Norge",
+      "topic": "education",
+      "style": "natural"
+    },
+    {
+      "id": "a059",
+      "query": "hvor mange fullfører ikke videregående skole",
+      "topic": "education",
+      "style": "natural"
+    },
+    {
+      "id": "a060",
+      "query": "hvor mange aksjeselskaper finnes i Norge",
+      "topic": "company",
+      "style": "natural"
+    },
+    {
+      "id": "a061",
+      "query": "hvem eier Equinor",
+      "topic": "company",
+      "style": "natural"
+    },
+    {
+      "id": "a062",
+      "query": "hvor mange bedrifter gikk konkurs i fjor",
+      "topic": "company",
+      "style": "natural"
+    },
+    {
+      "id": "a063",
+      "query": "hvor mange ansatte har Norges største selskaper",
+      "topic": "company",
+      "style": "natural"
+    },
+    {
+      "id": "a064",
+      "query": "hva koster en bolig i Oslo",
+      "topic": "housing",
+      "style": "natural"
+    },
+    {
+      "id": "a065",
+      "query": "hvor mange boliger ble bygget i fjor",
+      "topic": "housing",
+      "style": "natural"
+    },
+    {
+      "id": "a066",
+      "query": "hvor mange bor alene",
+      "topic": "housing",
+      "style": "natural"
+    },
+    {
+      "id": "a067",
+      "query": "hvor mye har prisene steget det siste året",
+      "topic": "economy",
+      "style": "natural"
+    },
+    {
+      "id": "a068",
+      "query": "hva eksporterer Norge mest av",
+      "topic": "economy",
+      "style": "natural"
+    },
+    {
+      "id": "a069",
+      "query": "hvor stor er oljefondet",
+      "topic": "economy",
+      "style": "natural"
+    },
+    {
+      "id": "a070",
+      "query": "hvor mange elbiler er det i Norge",
+      "topic": "transport",
+      "style": "natural"
+    },
+    {
+      "id": "a071",
+      "query": "hvor mange omkom i trafikken i fjor",
+      "topic": "transport",
+      "style": "natural"
+    },
+    {
+      "id": "a072",
+      "query": "hvor mange reiser kollektivt i Oslo",
+      "topic": "transport",
+      "style": "natural"
+    },
+    {
+      "id": "a073",
+      "query": "hvor mye strøm produserer Norge",
+      "topic": "energy",
+      "style": "natural"
+    },
+    {
+      "id": "a074",
+      "query": "hva er strømprisen i Sør-Norge",
+      "topic": "energy",
+      "style": "natural"
+    },
+    {
+      "id": "a075",
+      "query": "hvor mye vindkraft har vi",
+      "topic": "energy",
+      "style": "natural"
+    },
+    {
+      "id": "a076",
+      "query": "hvor mye CO2 slipper Norge ut",
+      "topic": "environment",
+      "style": "natural"
+    },
+    {
+      "id": "a077",
+      "query": "hvor mye avfall kastes per innbygger",
+      "topic": "environment",
+      "style": "natural"
+    },
+    {
+      "id": "a078",
+      "query": "hvordan er luftkvaliteten i Bergen",
+      "topic": "environment",
+      "style": "natural"
+    },
+    {
+      "id": "a079",
+      "query": "hvor mange kommuner er det i Norge",
+      "topic": "geography",
+      "style": "natural"
+    },
+    {
+      "id": "a080",
+      "query": "hvor stor er Norge i kvadratkilometer",
+      "topic": "geography",
+      "style": "natural"
+    },
+    {
+      "id": "a081",
+      "query": "hvilke kommuner ligger i Vestland",
+      "topic": "geography",
+      "style": "natural"
+    },
+    {
+      "id": "a082",
+      "query": "hvor mye laks eksporterer Norge",
+      "topic": "primary",
+      "style": "natural"
+    },
+    {
+      "id": "a083",
+      "query": "hvor mange gårdsbruk er det igjen",
+      "topic": "primary",
+      "style": "natural"
+    },
+    {
+      "id": "a084",
+      "query": "hvor mye tømmer hogges i året",
+      "topic": "primary",
+      "style": "natural"
+    },
+    {
+      "id": "a085",
+      "query": "hvor mange innbrudd anmeldes i året",
+      "topic": "justice",
+      "style": "natural"
+    },
+    {
+      "id": "a086",
+      "query": "hvor mange sitter i fengsel",
+      "topic": "justice",
+      "style": "natural"
+    },
+    {
+      "id": "a087",
+      "query": "hvor mange stemte ved siste kommunevalg",
+      "topic": "government",
+      "style": "natural"
+    },
+    {
+      "id": "a088",
+      "query": "hvor mange representanter har hvert parti på Stortinget",
+      "topic": "government",
+      "style": "natural"
+    }
   ]
 }
