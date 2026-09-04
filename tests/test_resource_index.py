@@ -21,9 +21,20 @@ from public_data_agent.resource_index import (
 # The published code lists a key is verified against. Real classifications, cut
 # down: the point is that a code must be *in* the list, not shaped like it.
 CATALOGUES = {
-    "klass:131:kommune": frozenset({"0301", "1103", "4601", "5001", "3401"}),
-    "klass:104:fylke": frozenset({"03", "11", "46", "50", "15"}),
-    "klass:103:bydel": frozenset({"030101", "030102", "030103", "030104"}),
+    "klass:131:kommune": {
+        "0301": {"Oslo"}, "1103": {"Stavanger"}, "4601": {"Bergen"},
+        "5001": {"Trondheim"}, "3401": {"Kongsvinger"},
+    },
+    "klass:104:fylke": {
+        "01": {"Østfold"}, "02": {"Akershus"}, "03": {"Oslo"}, "04": {"Hedmark"},
+        "11": {"Rogaland"}, "46": {"Vestland"}, "50": {"Trøndelag"},
+    },
+    # 030101 has been both, which is why a code keeps every name it was given.
+    "klass:103:bydel": {
+        "030101": {"Gamle Oslo", "Bygdøy-Frogner"},
+        "030102": {"Grünerløkka", "Uranienborg-Majorstuen"},
+        "030103": {"Sagene"}, "030104": {"St. Hanshaugen"},
+    },
 }
 
 PXWEB_META = {
@@ -120,19 +131,49 @@ def test_a_scheme_is_not_claimed_from_one_coincidence() -> None:
 
 def test_codes_shaped_like_counties_but_not_counties_are_not_a_key() -> None:
     """Employer associations, transport types and livestock species all number
-    themselves 01, 02, 03. Matching on shape tagged all three as counties, and a
-    join on that key would match "01" to "01" and produce nonsense."""
+    themselves 01, 02, 03, and historical county codes do too, so the codes
+    genuinely collide. The names do not: 01 is Østfold in one and Storfe in the
+    other. A join on the wrong one would match "01" to "01" and produce
+    nonsense carrying perfect provenance."""
 
-    for label, values in (
-        ("landsforening", ["00", "01", "02", "03", "04"]),
-        ("type transport", ["01", "02", "03", "04", "05"]),
-        ("husdyrslag", ["00", "01", "02", "03"]),
+    for label, values, texts in (
+        ("landsforening", ["00", "01", "02", "03"],
+         ["Alle", "Byggenæringen", "Norsk Industri", "Handel"]),
+        ("type transport", ["01", "02", "03", "04"],
+         ["Jernbane", "Sporveg", "Rutebil", "Drosje"]),
+        ("husdyrslag", ["00", "01", "02", "03"],
+         ["Alle husdyr", "Storfe", "Sau", "Gris"]),
     ):
         _, keys = shape_from_pxweb({
             "variables": [{"code": "X", "text": label, "values": values,
-                           "valueTexts": values}]
+                           "valueTexts": texts}]
         }, CATALOGUES)
         assert keys == [], f"{label} was claimed as a key"
+
+
+def test_the_same_codes_with_the_published_names_are_a_key() -> None:
+    """The counterpart: identical codes, county names, and it is a key."""
+
+    _, keys = shape_from_pxweb({
+        "variables": [{"code": "Region", "text": "region",
+                       "values": ["01", "02", "03", "04"],
+                       "valueTexts": ["Østfold", "Akershus", "Oslo", "Hedmark"]}]
+    }, CATALOGUES)
+    assert [k["scheme"] for k in keys] == ["klass:104:fylke"]
+
+
+def test_a_code_matches_any_name_it_has_carried(tmp_path: Path) -> None:
+    """Codes are reused across reforms; a table may use either era's name."""
+
+    for texts in (["Gamle Oslo", "Grünerløkka", "Sagene"],
+                  ["Bygdøy-Frogner", "Uranienborg-Majorstuen", "Sagene"],
+                  ["Bydel Gamle Oslo", "Bydel Grünerløkka", "Bydel Sagene"]):
+        _, keys = shape_from_pxweb({
+            "variables": [{"code": "GEO", "text": "bydel",
+                           "values": ["030101", "030102", "030103"],
+                           "valueTexts": texts}]
+        }, CATALOGUES)
+        assert [k["scheme"] for k in keys] == ["klass:103:bydel"], texts
 
 
 def test_no_code_list_means_no_key_is_claimed() -> None:

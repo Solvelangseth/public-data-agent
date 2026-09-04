@@ -44,37 +44,54 @@ MIN_SCHEME_MATCHES = 3
 # dominate the index: a table of monthly periods since 1978 carries 583 of them.
 MAX_VALUES_PER_FIELD = 400
 
-_CODE_CACHE: dict[str, frozenset[str]] = {}
+# Statistical tables carry decades of history, so a key must be checked against
+# codes that were valid then as well as now: "01" was Østfold until the 2020
+# county reform and still appears in thousands of tables.
+KLASS_HISTORY_FROM = "1970-01-01"
+KLASS_HISTORY_TO = "2030-01-01"
+
+_CODE_CACHE: dict[str, dict[str, set[str]]] = {}
 
 
-def klass_codes(scheme: str, *, http: JsonHttp | None = None) -> frozenset[str]:
-    """The codes a published classification actually contains.
+def klass_codes(scheme: str, *, http: JsonHttp | None = None) -> dict[str, set[str]]:
+    """A published classification's codes and the names it gives them.
 
-    Cached per process. A failure returns empty rather than raising, and an
-    empty list claims no scheme -- an unverifiable key is not a key.
+    The names matter as much as the codes. Historical county codes run 01-20,
+    and so does every small category a statistician ever numbered, so code
+    membership alone cannot tell a county from a livestock species. The name
+    can: "01" is Østfold in one and Storfe in the other.
+
+    Cached per process. A failure returns empty, and an empty list claims no
+    scheme -- an unverifiable key is not a key.
     """
 
     if scheme in _CODE_CACHE:
         return _CODE_CACHE[scheme]
     classification = KLASS_CLASSIFICATIONS.get(scheme)
     if classification is None:
-        return frozenset()
+        return {}
     client = http or HttpClient(timeout=30.0, max_retries=2)
     try:
         body = client.get_json_response(
             f"https://data.ssb.no/api/klass/v1/classifications/{classification}/codes"
-            "?from=2020-01-01"
+            f"?from={KLASS_HISTORY_FROM}&to={KLASS_HISTORY_TO}"
         ).body
-        codes = frozenset(
-            str(item["code"]) for item in (body or {}).get("codes") or [] if item.get("code")
-        )
+        # A code carries several names across reforms -- 030101 is Gamle Oslo
+        # now and was Bygdøy-Frogner before 2004 -- so every published name is
+        # kept. Keeping one would reject a table that uses any of the others.
+        codes: dict[str, set[str]] = {}
+        for item in (body or {}).get("codes") or []:
+            code = item.get("code")
+            if not code:
+                continue
+            codes.setdefault(str(code), set()).add(str(item.get("name") or ""))
     except Exception:
-        codes = frozenset()
+        codes = {}
     _CODE_CACHE[scheme] = codes
     return codes
 
 
-def load_classifications(*, http: JsonHttp | None = None) -> dict[str, frozenset[str]]:
+def load_classifications(*, http: JsonHttp | None = None) -> dict[str, dict[str, set[str]]]:
     """Every published code list the indexer can verify a key against."""
 
     return {
@@ -84,8 +101,28 @@ def load_classifications(*, http: JsonHttp | None = None) -> dict[str, frozenset
     }
 
 
+def _names_agree(label: str, published: set[str] | str) -> bool:
+    """Whether a field's label for a code is a name the classification gives it.
+
+    Publishers decorate names -- "Oslo (fylke)", "Østfold (-2019)", "Bydel
+    Grünerløkka" -- so containment either way counts, but an empty label never
+    does. Any of a code's published names is enough, since a table may use the
+    name from whichever era its data covers.
+    """
+
+    a = (label or "").casefold().strip()
+    if not a:
+        return False
+    names = {published} if isinstance(published, str) else published
+    for name in names:
+        b = (name or "").casefold().strip()
+        if b and (a == b or b in a or a in b):
+            return True
+    return False
+
+
 def field_role(code: str, values: list[tuple[str, str]],
-               catalogues: dict[str, frozenset[str]] | None = None) -> str:
+               catalogues: dict[str, dict[str, set[str]]] | None = None) -> str:
     """Say how a field may be used: key, period, measure, attribute."""
 
     lowered = code.casefold()
@@ -95,38 +132,48 @@ def field_role(code: str, values: list[tuple[str, str]],
         return "period"
     if lowered in {"contentscode", "measure_type", "statistikkvariabel"}:
         return "measure"
-    if _schemes_for([value for value, _ in values], catalogues):
+    if _schemes_for(values, catalogues):
         return "key"
     return "attribute"
 
 
 def _schemes_for(
-    codes: list[str], catalogues: dict[str, frozenset[str]] | None = None
+    values: list[tuple[str, str]],
+    catalogues: dict[str, dict[str, set[str]]] | None = None,
 ) -> list[dict[str, Any]]:
-    """Which published classifications a field's codes are actually in.
+    """Which published classifications a field's values actually belong to.
 
-    With no code lists to check against, nothing is claimed. That is the honest
-    answer: a key that cannot be verified against what the publisher published
-    is a guess, and a guessed join key is worse than none.
+    A value counts only when its code is in the classification *and* the field's
+    label for that code is the name the classification gives it. Codes alone are
+    not enough: historical county codes and the numbering of any small category
+    are both 01, 02, 03.
+
+    With no code lists to check against, nothing is claimed. A key that cannot
+    be verified against what the publisher published is a guess, and a guessed
+    join key is worse than none.
     """
 
-    if not catalogues or not codes:
+    if not catalogues or not values:
         return []
-    distinct = {c for c in codes if c}
+    distinct = {code: label for code, label in values if code}
     if not distinct:
         return []
     found: list[dict[str, Any]] = []
     for scheme, known in catalogues.items():
         if not known:
             continue
-        matches = distinct & known
-        if len(matches) >= MIN_SCHEME_MATCHES and len(matches) >= len(distinct) * MIN_SCHEME_SHARE:
-            found.append({"scheme": scheme, "coverage_count": len(matches)})
+        agreed = [
+            code
+            for code, label in distinct.items()
+            if code in known and _names_agree(label, known[code])
+        ]
+        if len(agreed) >= MIN_SCHEME_MATCHES and len(agreed) >= len(distinct) * MIN_SCHEME_SHARE:
+            found.append({"scheme": scheme, "coverage_count": len(agreed)})
     return found
 
 
 def shape_from_pxweb(
-    meta: dict[str, Any], catalogues: dict[str, frozenset[str]] | None = None
+    meta: dict[str, Any], catalogues: dict[str, dict[str, set[str]]] | None = None
 ) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
     """Read an SSB PxWeb table's published metadata into fields and key schemes."""
 
@@ -155,13 +202,13 @@ def shape_from_pxweb(
                 "values": [{"value_code": c, "value_label": t} for c, t in kept],
             }
         )
-        for found in _schemes_for([c for c, _ in values], catalogues):
+        for found in _schemes_for(values, catalogues):
             keys.append({**found, "field_code": code})
     return fields, keys
 
 
 def shape_from_fhi(
-    dimensions: list[dict[str, Any]], catalogues: dict[str, frozenset[str]] | None = None
+    dimensions: list[dict[str, Any]], catalogues: dict[str, dict[str, set[str]]] | None = None
 ) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
     """Read an FHI table's dimension metadata into fields and key schemes."""
 
@@ -185,7 +232,7 @@ def shape_from_fhi(
                 "values": [{"value_code": c, "value_label": t} for c, t in kept],
             }
         )
-        for found in _schemes_for([c for c, _ in values], catalogues):
+        for found in _schemes_for(values, catalogues):
             keys.append({**found, "field_code": code})
     return fields, keys
 
@@ -207,7 +254,7 @@ def index_dataset(
     dataset_id: str,
     *,
     http: JsonHttp | None = None,
-    catalogues: dict[str, frozenset[str]] | None = None,
+    catalogues: dict[str, dict[str, set[str]]] | None = None,
 ) -> dict[str, Any]:
     """Record what one dataset contains, from the metadata its source publishes.
 
