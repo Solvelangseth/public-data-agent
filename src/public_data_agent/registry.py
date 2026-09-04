@@ -519,16 +519,25 @@ class Registry:
                         ),
                     )
                     n_values += 1
+            # A resource can carry one scheme on more than one field -- two
+            # region dimensions, or a code that appears in both a key and a
+            # label field. The scheme is recorded once, against the field that
+            # carries most of it, because that is the field a join would use.
+            best: dict[str, dict[str, Any]] = {}
             for key in keys or []:
+                scheme = key["scheme"]
+                current = best.get(scheme)
+                if current is None or (key.get("coverage_count") or 0) > (
+                    current.get("coverage_count") or 0
+                ):
+                    best[scheme] = key
+            for scheme, key in best.items():
                 self.conn.execute(
                     "INSERT INTO resource_keys "
                     "(dataset_id, scheme, field_code, coverage_count) VALUES (?, ?, ?, ?)",
-                    (
-                        dataset_id, key["scheme"], key.get("field_code"),
-                        key.get("coverage_count"),
-                    ),
+                    (dataset_id, scheme, key.get("field_code"), key.get("coverage_count")),
                 )
-        return {"fields": len(fields), "values": n_values, "keys": len(keys or [])}
+        return {"fields": len(fields), "values": n_values, "keys": len(best)}
 
     def resource_fields(self, dataset_id: str) -> list[dict[str, Any]]:
         return [

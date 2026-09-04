@@ -229,3 +229,24 @@ def test_resources_are_listable_by_identifier_scheme(tmp_path: Path) -> None:
     assert hits[0]["coverage_count"] == 4200
     assert registry.datasets_with_key("klass:1168") == []
     registry.close()
+
+
+def test_one_scheme_on_two_fields_is_recorded_once(tmp_path: Path) -> None:
+    """A resource can carry the same scheme on more than one field; the scheme
+    belongs to the field that carries most of it, which is what a join uses."""
+
+    registry = _registry(tmp_path)
+    written = registry.set_resource_shape(
+        "src:1",
+        [{"field_code": "Region"}, {"field_code": "Bosted"}],
+        keys=[
+            {"scheme": "klass:131", "field_code": "Region", "coverage_count": 356},
+            {"scheme": "klass:131", "field_code": "Bosted", "coverage_count": 12},
+        ],
+    )
+    assert written["keys"] == 1
+    hits = registry.datasets_with_key("klass:131")
+    assert len(hits) == 1
+    assert hits[0]["field_code"] == "Region"
+    assert hits[0]["coverage_count"] == 356
+    registry.close()
