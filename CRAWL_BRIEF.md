@@ -120,6 +120,33 @@ now.
 `verified_at` is refused without `verified_sample_count`. A capability is a claim from
 records actually seen, never from a URL pattern — that is what `unverified` is for.
 
+For a PxWeb or FHI-shaped source, `resource_index.index_dataset(registry,
+dataset_id, http=..., catalogues=...)` reads the published metadata and writes all
+of the above for you. For any other shape, write a reader that produces the same
+`fields` and `keys` lists and call `set_resource_shape` directly -- the two existing
+readers, `shape_from_pxweb` and `shape_from_fhi`, are the worked examples.
+
+**Never claim a key from the shape of a code.** This took three attempts and is the
+most expensive mistake available to you. A two-digit regex tagged employer
+associations, transport types and livestock species as counties -- all three number
+themselves 01, 02, 03 -- and a join on that key would match "01" to "01" and produce
+nonsense carrying perfect provenance. Checking against *current* codes then found no
+geography at all, because "01" was Østfold until the 2020 county reform and still
+appears in thousands of tables. Widening to historical codes brought the collision
+straight back.
+
+What works is checking the code **and** the name published for it: 01 is Østfold in
+one classification and Storfe in the other. `load_classifications()` fetches the SSB
+lists (104 fylke, 131 kommune, 103 bydel) with every name each code has carried
+across reforms, and `_schemes_for` requires agreement on both. Given no list to check
+against, nothing is claimed -- an unverifiable key is a guess.
+
+**Organisation numbers have no Klass list**, so `brreg:orgnr` cannot be verified this
+way. Decide how you will verify one before you claim it as a key, and write down what
+you chose in `CONNECTOR_LOG.md`. A Norwegian organisation number has a mod-11 check
+digit, which is a real test that a nine-digit string is an org number at all;
+membership in the Enhetsregisteret is a stronger one. Do not simply match `\d{9}`.
+
 Two queries fall out that used to need a crawl:
 
 ```python
