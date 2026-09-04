@@ -69,6 +69,12 @@ def main(argv: list[str] | None = None) -> int:
     run_cmd.add_argument("--steps", type=int, default=10)
     run_cmd.add_argument("--limit", type=int, default=5)
 
+    embed_cmd = sub.add_parser("embed", help="Build or refresh the embedding index used for ranking")
+    embed_cmd.add_argument("--db", type=Path, default=DEFAULT_DB)
+    embed_cmd.add_argument("--model", default="text-embedding-3-small")
+    embed_cmd.add_argument("--limit", type=int, default=None, help="Max rows this run")
+    embed_cmd.add_argument("--quiet", action="store_true")
+
     status = sub.add_parser("status", help="Show registry counts and recent harvest runs")
     status.add_argument("--db", type=Path, default=DEFAULT_DB)
 
@@ -236,6 +242,8 @@ def main(argv: list[str] | None = None) -> int:
         return _status(args)
     if args.command == "stats":
         return _stats(args)
+    if args.command == "embed":
+        return _embed(args)
     if args.command == "check":
         return _check(args)
     if args.command == "run":
@@ -748,6 +756,36 @@ def _run_pipeline(args: argparse.Namespace) -> int:
     if result.error:
         return 1
     return 0 if result.route not in {ROUTE_STOP, ROUTE_CLARIFY} else 2
+
+
+def _embed(args: argparse.Namespace) -> int:
+    """Embed dataset text for ranking. Incremental: unchanged rows are skipped."""
+
+    from public_data_agent.embeddings import build_index
+    from public_data_agent.openai_agent import OpenAIEmbeddingProvider
+
+    if not Path(args.db).exists() and str(args.db) != ":memory:":
+        print(f"no registry at {args.db}", file=sys.stderr)
+        return 1
+    try:
+        provider = OpenAIEmbeddingProvider.from_env(model=args.model, dotenv=Path(".env"))
+    except (RuntimeError, ValueError) as exc:
+        print(str(exc), file=sys.stderr)
+        return 1
+    registry = Registry(args.db)
+    try:
+        counts = build_index(
+            registry,
+            provider,
+            model=args.model,
+            limit=args.limit,
+            progress=None if args.quiet else (lambda line: print(line, file=sys.stderr)),
+        )
+        counts["stored"] = registry.embedding_count()
+    finally:
+        registry.close()
+    print(json.dumps({"db": str(args.db), "model": args.model, **counts}, ensure_ascii=False, indent=2))
+    return 0
 
 
 def _check(args: argparse.Namespace) -> int:

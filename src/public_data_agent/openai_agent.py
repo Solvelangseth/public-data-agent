@@ -145,3 +145,44 @@ class OpenAIIntakeProvider:
         if not text:
             raise ValueError("intake provider returned no text")
         return json.loads(text)
+
+
+class OpenAIEmbeddingProvider:
+    """Embeds text for ranking only.
+
+    A vector reorders candidates and surfaces ones lexical overlap missed. It
+    never authorises a fetch and never supplies a value: those still come from
+    a registered connector through the tool boundary.
+    """
+
+    DEFAULT_MODEL = "text-embedding-3-small"
+
+    def __init__(self, api_key: str, *, model: str = DEFAULT_MODEL, timeout: float = 120.0) -> None:
+        if not api_key.strip():
+            raise ValueError("OpenAI API key is empty")
+        self.api_key, self.model, self.timeout = api_key, model, timeout
+
+    @classmethod
+    def from_env(cls, *, model: str = DEFAULT_MODEL, dotenv: Path | None = None) -> "OpenAIEmbeddingProvider":
+        agent = OpenAIAgentModel.from_env(dotenv=dotenv)
+        return cls(agent.api_key, model=model)
+
+    def embed(self, texts: Any) -> list[list[float]]:
+        items = [str(text) for text in texts]
+        if not items:
+            return []
+        body = {"model": self.model, "input": items}
+        request = Request(
+            "https://api.openai.com/v1/embeddings",
+            data=json.dumps(body).encode(),
+            headers={"Authorization": f"Bearer {self.api_key}", "Content-Type": "application/json"},
+            method="POST",
+        )
+        with urlopen(request, timeout=self.timeout) as response:
+            payload = json.loads(response.read().decode())
+        data = payload.get("data")
+        if not isinstance(data, list) or len(data) != len(items):
+            raise ValueError("embedding response did not cover every input")
+        # The API may return items out of order; index is authoritative.
+        ordered = sorted(data, key=lambda item: item.get("index", 0))
+        return [item["embedding"] for item in ordered]
