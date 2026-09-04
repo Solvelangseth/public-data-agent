@@ -24,21 +24,68 @@ from public_data_agent.registry import Registry, utc_now
 PERIOD_FIELD_CODES = frozenset({"tid", "aar", "år", "year", "periode", "time"})
 PERIOD_VALUE = re.compile(r"^(1[6-9]|20)\d{2}([MKQUH]\d{1,2}|-\d{2})?$")
 
-# Published identifier systems, recognised by the shape of the codes a field
-# carries. A scheme is only claimed when enough values match that a coincidence
-# is implausible; a guess here would invent a join key.
+# Published identifier systems. A scheme is claimed only when a field's values
+# are actually in the published code list -- never from the shape of the codes.
+# Matching on shape alone tagged employer associations, transport types and
+# livestock species as counties, because all three number themselves 01, 02, 03.
+# A join on that key would match "01" to "01" and produce nonsense carrying
+# perfect provenance.
+KLASS_CLASSIFICATIONS = {
+    "klass:104:fylke": 104,
+    "klass:131:kommune": 131,
+    "klass:103:bydel": 103,
+}
+# Below this share of a field's values, an overlap is coincidence. Small code
+# lists overlap by accident more easily, so the floor is a share, not a count.
+MIN_SCHEME_SHARE = 0.6
 MIN_SCHEME_MATCHES = 3
-KOMMUNE = re.compile(r"^\d{4}$")
-BYDEL = re.compile(r"^\d{6}$")
-FYLKE = re.compile(r"^\d{2}$")
-ORGNR = re.compile(r"^\d{9}$")
 
 # Values a caller could never usefully search for, and which would otherwise
 # dominate the index: a table of monthly periods since 1978 carries 583 of them.
 MAX_VALUES_PER_FIELD = 400
 
+_CODE_CACHE: dict[str, frozenset[str]] = {}
 
-def field_role(code: str, values: list[tuple[str, str]]) -> str:
+
+def klass_codes(scheme: str, *, http: JsonHttp | None = None) -> frozenset[str]:
+    """The codes a published classification actually contains.
+
+    Cached per process. A failure returns empty rather than raising, and an
+    empty list claims no scheme -- an unverifiable key is not a key.
+    """
+
+    if scheme in _CODE_CACHE:
+        return _CODE_CACHE[scheme]
+    classification = KLASS_CLASSIFICATIONS.get(scheme)
+    if classification is None:
+        return frozenset()
+    client = http or HttpClient(timeout=30.0, max_retries=2)
+    try:
+        body = client.get_json_response(
+            f"https://data.ssb.no/api/klass/v1/classifications/{classification}/codes"
+            "?from=2020-01-01"
+        ).body
+        codes = frozenset(
+            str(item["code"]) for item in (body or {}).get("codes") or [] if item.get("code")
+        )
+    except Exception:
+        codes = frozenset()
+    _CODE_CACHE[scheme] = codes
+    return codes
+
+
+def load_classifications(*, http: JsonHttp | None = None) -> dict[str, frozenset[str]]:
+    """Every published code list the indexer can verify a key against."""
+
+    return {
+        scheme: klass_codes(scheme, http=http)
+        for scheme in KLASS_CLASSIFICATIONS
+        if klass_codes(scheme, http=http)
+    }
+
+
+def field_role(code: str, values: list[tuple[str, str]],
+               catalogues: dict[str, frozenset[str]] | None = None) -> str:
     """Say how a field may be used: key, period, measure, attribute."""
 
     lowered = code.casefold()
@@ -48,33 +95,39 @@ def field_role(code: str, values: list[tuple[str, str]]) -> str:
         return "period"
     if lowered in {"contentscode", "measure_type", "statistikkvariabel"}:
         return "measure"
-    if _schemes_for([value for value, _ in values]):
+    if _schemes_for([value for value, _ in values], catalogues):
         return "key"
     return "attribute"
 
 
-def _schemes_for(codes: list[str]) -> list[str]:
-    """Which published identifier systems a field's codes belong to."""
+def _schemes_for(
+    codes: list[str], catalogues: dict[str, frozenset[str]] | None = None
+) -> list[dict[str, Any]]:
+    """Which published classifications a field's codes are actually in.
 
-    found: list[str] = []
-    for scheme, pattern in (
-        ("klass:131:kommune", KOMMUNE),
-        ("klass:1168:bydel", BYDEL),
-        ("klass:104:fylke", FYLKE),
-        ("brreg:orgnr", ORGNR),
-    ):
-        matches = sum(1 for code in codes if pattern.match(code))
-        # A four-digit kommune code and a year are the same shape. A field whose
-        # values are years is a period, and claiming it as geography would offer
-        # a join key that matches nothing.
-        if scheme == "klass:131:kommune" and any(PERIOD_VALUE.match(c) for c in codes[:12]):
+    With no code lists to check against, nothing is claimed. That is the honest
+    answer: a key that cannot be verified against what the publisher published
+    is a guess, and a guessed join key is worse than none.
+    """
+
+    if not catalogues or not codes:
+        return []
+    distinct = {c for c in codes if c}
+    if not distinct:
+        return []
+    found: list[dict[str, Any]] = []
+    for scheme, known in catalogues.items():
+        if not known:
             continue
-        if matches >= MIN_SCHEME_MATCHES and matches >= len(codes) * 0.5:
-            found.append(scheme)
+        matches = distinct & known
+        if len(matches) >= MIN_SCHEME_MATCHES and len(matches) >= len(distinct) * MIN_SCHEME_SHARE:
+            found.append({"scheme": scheme, "coverage_count": len(matches)})
     return found
 
 
-def shape_from_pxweb(meta: dict[str, Any]) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+def shape_from_pxweb(
+    meta: dict[str, Any], catalogues: dict[str, frozenset[str]] | None = None
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
     """Read an SSB PxWeb table's published metadata into fields and key schemes."""
 
     fields: list[dict[str, Any]] = []
@@ -89,7 +142,7 @@ def shape_from_pxweb(meta: dict[str, Any]) -> tuple[list[dict[str, Any]], list[d
                 [str(t) for t in variable.get("valueTexts") or []],
             )
         )
-        role = field_role(code, values)
+        role = field_role(code, values, catalogues)
         kept = values if len(values) <= MAX_VALUES_PER_FIELD else values[:MAX_VALUES_PER_FIELD]
         fields.append(
             {
@@ -102,20 +155,14 @@ def shape_from_pxweb(meta: dict[str, Any]) -> tuple[list[dict[str, Any]], list[d
                 "values": [{"value_code": c, "value_label": t} for c, t in kept],
             }
         )
-        for scheme in _schemes_for([c for c, _ in values]):
-            keys.append(
-                {
-                    "scheme": scheme,
-                    "field_code": code,
-                    "coverage_count": sum(
-                        1 for c, _ in values if _schemes_for([c]) and scheme in _schemes_for([c])
-                    ),
-                }
-            )
+        for found in _schemes_for([c for c, _ in values], catalogues):
+            keys.append({**found, "field_code": code})
     return fields, keys
 
 
-def shape_from_fhi(dimensions: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+def shape_from_fhi(
+    dimensions: list[dict[str, Any]], catalogues: dict[str, frozenset[str]] | None = None
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
     """Read an FHI table's dimension metadata into fields and key schemes."""
 
     from public_data_agent.sources.fhi import flatten_categories
@@ -127,7 +174,7 @@ def shape_from_fhi(dimensions: list[dict[str, Any]]) -> tuple[list[dict[str, Any
         if not code:
             continue
         values = flatten_categories(dim.get("categories"))
-        role = field_role(code, values)
+        role = field_role(code, values, catalogues)
         kept = values[:MAX_VALUES_PER_FIELD]
         fields.append(
             {
@@ -138,8 +185,8 @@ def shape_from_fhi(dimensions: list[dict[str, Any]]) -> tuple[list[dict[str, Any
                 "values": [{"value_code": c, "value_label": t} for c, t in kept],
             }
         )
-        for scheme in _schemes_for([c for c, _ in values]):
-            keys.append({"scheme": scheme, "field_code": code, "coverage_count": len(values)})
+        for found in _schemes_for([c for c, _ in values], catalogues):
+            keys.append({**found, "field_code": code})
     return fields, keys
 
 
@@ -160,6 +207,7 @@ def index_dataset(
     dataset_id: str,
     *,
     http: JsonHttp | None = None,
+    catalogues: dict[str, frozenset[str]] | None = None,
 ) -> dict[str, Any]:
     """Record what one dataset contains, from the metadata its source publishes.
 
@@ -176,16 +224,18 @@ def index_dataset(
         raise ValueError(f"unknown dataset {dataset_id}")
     access_path = dataset.get("access_path") or ""
     client = http or HttpClient(timeout=60.0, max_retries=3)
+    if catalogues is None:
+        catalogues = load_classifications()
 
     if is_fhi_table_url(access_path):
         source_id, table_id = split_table_url(access_path)
         base = printed_table_data_url(source_id, table_id)
         meta = client.get_json_response(f"{base}/dimension?includeValues=true")
-        fields, keys = shape_from_fhi((meta.body or {}).get("dimensions") or [])
+        fields, keys = shape_from_fhi((meta.body or {}).get("dimensions") or [], catalogues)
         endpoint, method = f"{base}/data", "POST"
     elif _is_ssb_table_url(access_path):
         meta = client.get_json_response(access_path.rstrip("/"))
-        fields, keys = shape_from_pxweb(meta.body or {})
+        fields, keys = shape_from_pxweb(meta.body or {}, catalogues)
         endpoint, method = access_path.rstrip("/"), "POST"
     else:
         raise ValueError(f"no metadata reader for {dataset_id} ({access_path or 'no access_path'})")

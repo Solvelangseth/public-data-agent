@@ -18,6 +18,14 @@ from public_data_agent.resource_index import (
     shape_from_pxweb,
 )
 
+# The published code lists a key is verified against. Real classifications, cut
+# down: the point is that a code must be *in* the list, not shaped like it.
+CATALOGUES = {
+    "klass:131:kommune": frozenset({"0301", "1103", "4601", "5001", "3401"}),
+    "klass:104:fylke": frozenset({"03", "11", "46", "50", "15"}),
+    "klass:103:bydel": frozenset({"030101", "030102", "030103", "030104"}),
+}
+
 PXWEB_META = {
     "title": "08651: Byggekostnadsindeks for bustader",
     "variables": [
@@ -62,7 +70,7 @@ def _registry(tmp_path: Path) -> Registry:
 
 def _indexed(tmp_path: Path) -> Registry:
     registry = _registry(tmp_path)
-    fields, keys = shape_from_pxweb(PXWEB_META)
+    fields, keys = shape_from_pxweb(PXWEB_META, CATALOGUES)
     registry.set_resource_shape("ssbtable:08651", fields, keys=keys)
     registry.set_capability("ssbtable:08651", {
         "capability": "observations", "period_start": "2019M01", "period_end": "2024M12",
@@ -74,7 +82,7 @@ def _indexed(tmp_path: Path) -> Registry:
 
 
 def test_pxweb_metadata_becomes_fields_values_and_keys() -> None:
-    fields, keys = shape_from_pxweb(PXWEB_META)
+    fields, keys = shape_from_pxweb(PXWEB_META, CATALOGUES)
     by_code = {f["field_code"]: f for f in fields}
     assert by_code["Region"]["field_role"] == "key"
     assert by_code["Tid"]["field_role"] == "period"
@@ -83,6 +91,8 @@ def test_pxweb_metadata_becomes_fields_values_and_keys() -> None:
         "Oslo", "Stavanger", "Bergen", "Trondheim",
     }
     assert [k["scheme"] for k in keys] == ["klass:131:kommune"]
+    assert keys[0]["field_code"] == "Region"
+    assert keys[0]["coverage_count"] == 4
 
 
 def test_four_digit_years_are_a_period_not_a_geography_key() -> None:
@@ -93,7 +103,7 @@ def test_four_digit_years_are_a_period_not_a_geography_key() -> None:
         "variables": [{"code": "Tid", "text": "år",
                        "values": ["2019", "2020", "2021", "2022"],
                        "valueTexts": ["2019", "2020", "2021", "2022"]}]
-    })
+    }, CATALOGUES)
     assert fields[0]["field_role"] == "period"
     assert keys == []
 
@@ -103,9 +113,34 @@ def test_a_scheme_is_not_claimed_from_one_coincidence() -> None:
         "variables": [{"code": "Kode", "text": "kode",
                        "values": ["0301", "abc", "def", "ghi", "jkl"],
                        "valueTexts": ["Oslo", "a", "b", "c", "d"]}]
-    })
+    }, CATALOGUES)
     assert keys == []
     assert fields[0]["field_role"] == "attribute"
+
+
+def test_codes_shaped_like_counties_but_not_counties_are_not_a_key() -> None:
+    """Employer associations, transport types and livestock species all number
+    themselves 01, 02, 03. Matching on shape tagged all three as counties, and a
+    join on that key would match "01" to "01" and produce nonsense."""
+
+    for label, values in (
+        ("landsforening", ["00", "01", "02", "03", "04"]),
+        ("type transport", ["01", "02", "03", "04", "05"]),
+        ("husdyrslag", ["00", "01", "02", "03"]),
+    ):
+        _, keys = shape_from_pxweb({
+            "variables": [{"code": "X", "text": label, "values": values,
+                           "valueTexts": values}]
+        }, CATALOGUES)
+        assert keys == [], f"{label} was claimed as a key"
+
+
+def test_no_code_list_means_no_key_is_claimed() -> None:
+    """A key that cannot be checked against what the publisher published is a
+    guess, and a guessed join key is worse than none."""
+
+    _, keys = shape_from_pxweb(PXWEB_META, None)
+    assert keys == []
 
 
 def test_fhi_dimensions_become_the_same_shape() -> None:
@@ -116,11 +151,11 @@ def test_fhi_dimensions_become_the_same_shape() -> None:
             {"value": "030103", "label": "Bydel Sagene", "children": []},
         ]},
         {"code": "AAR", "label": "År", "categories": [{"value": "2025", "label": "2025"}]},
-    ])
+    ], CATALOGUES)
     by_code = {f["field_code"]: f for f in fields}
     assert by_code["GEO"]["field_role"] == "key"
     assert by_code["AAR"]["field_role"] == "period"
-    assert [k["scheme"] for k in keys] == ["klass:1168:bydel"]
+    assert [k["scheme"] for k in keys] == ["klass:103:bydel"]
 
 
 def test_a_truncated_field_still_reports_its_real_size() -> None:
@@ -129,7 +164,7 @@ def test_a_truncated_field_still_reports_its_real_size() -> None:
     values = [str(10000 + i) for i in range(500)]
     fields, _ = shape_from_pxweb({
         "variables": [{"code": "X", "text": "x", "values": values, "valueTexts": values}]
-    })
+    }, CATALOGUES)
     assert fields[0]["value_count"] == 500
     assert len(fields[0]["values"]) == 400
 
