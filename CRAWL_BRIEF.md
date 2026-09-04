@@ -72,20 +72,92 @@ These are the trust boundary. Everything else is negotiable; these are not.
   under load — a naive 4-worker crawl looked like 123 broken tables and was not. Use
   `HttpClient(limiter=RateLimiter(...))`, never raw `urllib` in a loop.
 
-## The data model is being rewritten — do not design around the current one
+## The data model — ready, use it
 
-Today every stored record is an **observation**: `(measure, value, dimensions)`. That
-fits statistics and nothing else. It does not fit a company record, a building
-footprint, or a parliamentary decision.
+Landed in commit `5dcc24d`. Every stored row used to be an **observation**:
+`(measure, value, dimensions)`. That fits a statistical cell and nothing else, which is
+why the original FHI connector stored *table ids* as observation values — there was no
+other shape on offer. A company, a building and a parliamentary decision are not
+measures of anything.
 
-There is already damage from this: the original FHI connector stored *table ids* as
-observation values, because observation was the only shape on offer.
+There are now two halves. Write both for every connector you promote.
 
-The query-side session is designing a wider model — roughly observations, entities and
-features over one shared provenance spine (id, source, retrieved_at, request_url,
-licence). **Wait for that schema before mass-promoting connectors.** In the meantime,
-work on connectors whose data genuinely is statistical, or on mapping endpoints without
-storing yet.
+### 1. The resource index — what a source can return and what is inside it
+
+This is the v1 priority. A question reaches a resource through this index, not through
+its title. A question about building costs missed twelve fetchable building-cost tables
+because search could only read their names.
+
+```python
+registry.set_capability(dataset_id, {
+    "capability": "observations",       # entities | features | documents
+                                        # lookup | unverified | none
+    "record_kind": "observation",
+    "endpoint": "https://.../data",     # what returns data, not a landing page
+    "request_method": "POST",
+    "period_start": "2000", "period_end": "2025",
+    "source_modified_at": "...",        # publisher's timestamp, for refresh crawls
+    "verified_at": "...",               # requires verified_sample_count
+    "verified_sample_count": 12,
+})
+
+registry.set_resource_shape(dataset_id, fields=[
+    {"field_code": "Region", "field_label": "region", "field_role": "key",
+     "values": [{"value_code": "0301", "value_label": "Oslo"}, ...]},
+    {"field_code": "Tid", "field_role": "period", "values": [...]},
+], keys=[
+    {"scheme": "klass:131", "field_code": "Region", "coverage_count": 356},
+])
+```
+
+`field_role` is `key | period | measure | attribute | geometry`, so a caller can find the
+period field without guessing at its name. `scheme` is a published identifier system —
+`klass:1168`, `klass:131`, `brreg:orgnr`, `matrikkel:bygningsnummer`. Record every scheme
+a resource speaks; that is what makes two resources relatable later, and it costs nothing
+now.
+
+`verified_at` is refused without `verified_sample_count`. A capability is a claim from
+records actually seen, never from a URL pattern — that is what `unverified` is for.
+
+Two queries fall out that used to need a crawl:
+
+```python
+registry.datasets_containing_value("0301")     # which resources contain this code
+registry.datasets_with_key("brreg:orgnr")      # which resources speak this scheme
+```
+
+### 2. The record store — one spine, four kinds
+
+```python
+registry.upsert_record({
+    "id": ...,
+    "dataset_id": ...,
+    "kind": "observation",              # entity | feature | document
+    "series": "fetch:<table>",          # which projection wrote this
+    "subject_scheme": "brreg:orgnr",    # what the record is about
+    "subject_code": "923609016",
+    "subject_label": "EQUINOR ASA",
+    "period": "2025",
+    "measure": ..., "value": ...,       # observations only; null otherwise
+    "suppressed": ":",                  # publisher's withheld marker, if any
+    "attributes": {...},                # dimensions, columns or properties
+    "geometry": {...},                  # features only
+    "retrieved_at": ..., "request_url": ..., "http_status": ...,
+    "publisher_name": ..., "license": None,
+}, run_id)
+```
+
+**Identity is deliberately wide** — subject, period, measure and attributes all
+participate. Keyed on less, a resource that splits a subject several ways overwrites
+itself and reports success; that is how a join once reported 7,200 rows and stored 36.
+When you build an `id`, include everything that makes two records different.
+
+A suppression marker goes in `suppressed`, never in the value. `value_num` stays null for
+anything non-numeric, so a later average cannot count a censored record as data.
+
+`datasets` and `observations` are untouched and still in use. The 596,543 stored
+observations migrate later as a separate, deliberate change — do not migrate them as a
+side effect of your work.
 
 ## Ownership
 
@@ -113,9 +185,11 @@ A connector is done when all of these hold:
 4. **A too-large request is refused before it is sent**, naming what to narrow.
 5. **An unsatisfiable request fails** rather than silently widening. A year range that
    matches nothing must error, never fall back to fetching everything.
-6. **Tests exist and pass**, using a fake HTTP client, with no network in the test suite.
-7. **A live run is verified by eye.** Look at actual returned values before declaring it
-   works.
+6. **The resource index is filled** — capability, fields, field values and key schemes.
+   A promoted connector whose shape is not recorded cannot be found by a question.
+7. **Tests exist and pass**, using a fake HTTP client, with no network in the test suite.
+8. **A live run is verified by eye.** Look at actual returned values before declaring it
+   works. `tests/test_records.py` shows the store's contract.
 
 ## Three failures that have already cost us — do not repeat them
 
@@ -139,18 +213,21 @@ check whether the identity you are writing under already exists under a differen
 ## What not to do
 
 - Do not add Data.norge-style metadata records.
-- Do not bulk-mine cells. Storage is cheap but the value is not there yet; map endpoints
-  and shapes first. Cell mining is a later decision.
+- Do not bulk-mine records. Storage is cheap but the value is not there yet. Fill the
+  resource index exhaustively and store enough records to verify a connector works; mass
+  ingestion is a later decision.
+- Do not migrate the existing observations into `records`. That is a separate change.
 - Do not do any work involving `offentligdata.no`.
 - Do not print or commit `OPENAI_API_KEY`; `.env` and `.env.*` are gitignored.
 
 ## Where to start
 
-Pick a domain with many unpromoted connectors and a real API — company registry
-(`brreg*`, 15 files) is the strongest candidate, since Brønnøysund has a documented open
-API and org numbers are a join key as clean as the Klass codes are for geography. Map
-what each connector can actually reach, and report back what shape the data comes in, so
-the model being designed on the query side accommodates it.
+Company registry (`brreg*`, 15 files) is the strongest first domain: Brønnøysund has a
+documented open API, org numbers are as clean an identifier scheme as Klass codes are for
+geography, and companies exercise the `entity` kind that statistics never did. Promote
+one connector end to end against the definition of done above, then report back before
+doing the other fourteen — the first one will surface whatever the model did not
+anticipate, and it is cheaper to fix then than after fifteen.
 
 Report findings honestly, including negative ones. A connector that cannot return data is
 a useful result, and saying so early is worth more than a promoted source that turns out
