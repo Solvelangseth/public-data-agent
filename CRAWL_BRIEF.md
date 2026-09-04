@@ -25,9 +25,10 @@ Measured, not estimated:
 | datasets in registry | 13,281 |
 | of those, able to return a number | 4,160 |
 | observations stored | 596,543 |
+| records stored (new store) | 0 — you fill this |
 | connector files in `sources/` | **186** |
 | sources actually harvested | **3** (datanorge, ssbtable, fhi) |
-| tests | 1,836 passing |
+| tests | 1,849 passing |
 
 The gap between 186 and 3 is the entire job. Connectors for company registry, geospatial,
 transport, environment, marine, research and government data were all written and never
