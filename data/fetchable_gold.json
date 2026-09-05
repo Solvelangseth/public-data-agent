@@ -1,0 +1,803 @@
+{
+  "note": "Gold answers for the fetchable lane: for each question, table(s) that genuinely answer it. Unlike data/benchmark_questions.json, which scores ranking against Data.norge catalogue records, this scores whether the right *retrievable* resource is found -- the v1 goal. Candidates were pooled from every retrieval method (search_report, semantic, resource index) and then checked against the registry directly, so the labels are not bounded by what any one retriever surfaced; several answers here were found by searching titles after every retriever missed them. `expected` lists ids judged to answer the question; any one of them counts as a hit. `expected: []` means the registry holds no table that answers it -- a coverage finding, not a retrieval failure, and those questions are excluded from recall. Labels are author-judged from table titles, which is the main limitation: a title can mislead, and no cell was fetched to confirm.",
+  "questions": [
+    {
+      "id": "a001",
+      "query": "arbeidsledighet",
+      "expected": [
+        "ssbtable:03777",
+        "ssbtable:03780",
+        "ssbtable:04553",
+        "ssbtable:13892"
+      ]
+    },
+    {
+      "id": "a002",
+      "query": "sysselsetting etter næring",
+      "expected": [
+        "ssbtable:09174",
+        "ssbtable:09175",
+        "ssbtable:10585",
+        "ssbtable:11654"
+      ]
+    },
+    {
+      "id": "a003",
+      "query": "sykefravær",
+      "expected": [
+        "ssbtable:12439",
+        "ssbtable:12440",
+        "ssbtable:12441",
+        "ssbtable:12946"
+      ]
+    },
+    {
+      "id": "a004",
+      "query": "lønn etter yrke",
+      "expected": [
+        "ssbtable:11418",
+        "ssbtable:12851"
+      ]
+    },
+    {
+      "id": "a005",
+      "query": "befolkning kommune",
+      "expected": [
+        "ssbtable:07459",
+        "ssbtable:11342",
+        "ssbtable:06913"
+      ]
+    },
+    {
+      "id": "a006",
+      "query": "innvandring og utvandring",
+      "expected": [
+        "ssbtable:05394",
+        "ssbtable:05426",
+        "ssbtable:05476",
+        "ssbtable:05756",
+        "ssbtable:05869"
+      ]
+    },
+    {
+      "id": "a007",
+      "query": "fruktbarhet fødsler",
+      "expected": [
+        "ssbtable:04232",
+        "ssbtable:14743",
+        "fhi:mfr:411"
+      ]
+    },
+    {
+      "id": "a008",
+      "query": "dødelighet forventet levealder",
+      "expected": [
+        "ssbtable:05375",
+        "ssbtable:05797",
+        "ssbtable:07902",
+        "ssbtable:08393"
+      ]
+    },
+    {
+      "id": "a009",
+      "query": "konsumprisindeks",
+      "expected": [
+        "ssbtable:14700",
+        "ssbtable:14702",
+        "ssbtable:14706",
+        "ssbtable:14708"
+      ]
+    },
+    {
+      "id": "a010",
+      "query": "bruttonasjonalprodukt",
+      "expected": [
+        "ssbtable:09189",
+        "ssbtable:09190",
+        "ssbtable:11721",
+        "ssbtable:11722"
+      ]
+    },
+    {
+      "id": "a011",
+      "query": "utenrikshandel eksport import",
+      "expected": [
+        "ssbtable:08792",
+        "ssbtable:08800",
+        "ssbtable:08864"
+      ]
+    },
+    {
+      "id": "a012",
+      "query": "konkurser",
+      "expected": [
+        "ssbtable:07218",
+        "ssbtable:07164",
+        "ssbtable:07165"
+      ]
+    },
+    {
+      "id": "a013",
+      "query": "boligpriser",
+      "expected": [
+        "ssbtable:07221",
+        "ssbtable:07230",
+        "ssbtable:06230",
+        "ssbtable:09895"
+      ]
+    },
+    {
+      "id": "a014",
+      "query": "byggekostnader",
+      "expected": [
+        "ssbtable:08650",
+        "ssbtable:08651",
+        "ssbtable:08652",
+        "ssbtable:08653",
+        "ssbtable:08654"
+      ]
+    },
+    {
+      "id": "a015",
+      "query": "husholdninger størrelse",
+      "expected": [
+        "ssbtable:06070",
+        "ssbtable:06079",
+        "ssbtable:06081"
+      ]
+    },
+    {
+      "id": "a016",
+      "query": "vaksinasjonsdekning",
+      "expected": [
+        "fhi:nokkel:394",
+        "fhi:nokkel:395",
+        "fhi:sysvak:716",
+        "fhi:sysvak:750"
+      ]
+    },
+    {
+      "id": "a017",
+      "query": "dødsårsaker",
+      "expected": [
+        "fhi:nokkel:342",
+        "fhi:nokkel:343",
+        "fhi:daar:742"
+      ]
+    },
+    {
+      "id": "a018",
+      "query": "psykisk helse",
+      "expected": [
+        "ssbtable:14275",
+        "ssbtable:14276",
+        "ssbtable:14820",
+        "ssbtable:14821",
+        "ssbtable:14822"
+      ]
+    },
+    {
+      "id": "a019",
+      "query": "legemiddelbruk",
+      "expected": [
+        "fhi:lmr:819",
+        "fhi:lmr:822",
+        "fhi:lmr:823",
+        "fhi:lmr:824"
+      ]
+    },
+    {
+      "id": "a020",
+      "query": "fødsler medisinsk fødselsregister",
+      "expected": [
+        "fhi:mfr:411",
+        "fhi:mfr:424",
+        "fhi:mfr:425",
+        "fhi:mfr:451"
+      ]
+    },
+    {
+      "id": "a021",
+      "query": "grunnskole elever",
+      "expected": [
+        "ssbtable:11977",
+        "ssbtable:12255",
+        "ssbtable:09537"
+      ]
+    },
+    {
+      "id": "a022",
+      "query": "studenter høyere utdanning",
+      "expected": [
+        "ssbtable:03814",
+        "ssbtable:04478",
+        "ssbtable:14262",
+        "ssbtable:11621"
+      ]
+    },
+    {
+      "id": "a023",
+      "query": "leseferdighet nasjonale prøver",
+      "expected": [
+        "fhi:nokkel:670",
+        "fhi:nokkel:671",
+        "fhi:nokkel:371",
+        "fhi:nokkel:372"
+      ]
+    },
+    {
+      "id": "a024",
+      "query": "frafall videregående",
+      "expected": [
+        "ssbtable:09336",
+        "ssbtable:14865",
+        "ssbtable:14881"
+      ]
+    },
+    {
+      "id": "a025",
+      "query": "foretak etter organisasjonsform",
+      "expected": [
+        "ssbtable:13702",
+        "ssbtable:08076",
+        "ssbtable:09028",
+        "ssbtable:14623"
+      ]
+    },
+    {
+      "id": "a026",
+      "query": "nyetablerte foretak",
+      "expected": [
+        "ssbtable:13701",
+        "ssbtable:13702",
+        "ssbtable:13735",
+        "ssbtable:13756",
+        "ssbtable:13759"
+      ]
+    },
+    {
+      "id": "a027",
+      "query": "regnskapstall aksjeselskap",
+      "expected": [
+        "ssbtable:07371",
+        "ssbtable:08142",
+        "ssbtable:10334"
+      ]
+    },
+    {
+      "id": "a028",
+      "query": "kollektivtransport reiser",
+      "expected": [
+        "ssbtable:11570",
+        "ssbtable:06669",
+        "ssbtable:06670",
+        "ssbtable:06673"
+      ]
+    },
+    {
+      "id": "a029",
+      "query": "veitrafikkulykker",
+      "expected": [
+        "ssbtable:06752",
+        "ssbtable:09000",
+        "ssbtable:09006"
+      ]
+    },
+    {
+      "id": "a030",
+      "query": "registrerte kjøretøy",
+      "expected": [
+        "ssbtable:12906",
+        "ssbtable:14020",
+        "ssbtable:14006"
+      ]
+    },
+    {
+      "id": "a031",
+      "query": "kraftproduksjon",
+      "expected": [
+        "ssbtable:08308",
+        "ssbtable:14093",
+        "ssbtable:08307"
+      ]
+    },
+    {
+      "id": "a032",
+      "query": "energibruk strøm",
+      "expected": [
+        "ssbtable:14092",
+        "ssbtable:14489",
+        "ssbtable:14490",
+        "ssbtable:08313",
+        "ssbtable:13231"
+      ]
+    },
+    {
+      "id": "a033",
+      "query": "strømpriser",
+      "expected": [
+        "ssbtable:14493",
+        "ssbtable:14492",
+        "ssbtable:08358",
+        "ssbtable:08360",
+        "ssbtable:09363"
+      ]
+    },
+    {
+      "id": "a034",
+      "query": "utslipp klimagasser",
+      "expected": [
+        "ssbtable:13931",
+        "ssbtable:13932",
+        "ssbtable:09298"
+      ]
+    },
+    {
+      "id": "a035",
+      "query": "avfall og gjenvinning",
+      "expected": [
+        "ssbtable:13136",
+        "ssbtable:07355"
+      ]
+    },
+    {
+      "id": "a036",
+      "query": "luftkvalitet",
+      "expected": [
+        "fhi:nokkel:800",
+        "fhi:nokkel:803",
+        "ssbtable:08942",
+        "ssbtable:09300"
+      ]
+    },
+    {
+      "id": "a037",
+      "query": "anmeldte lovbrudd",
+      "expected": [
+        "ssbtable:08484",
+        "ssbtable:08485",
+        "ssbtable:08487"
+      ]
+    },
+    {
+      "id": "a038",
+      "query": "straffereaksjoner",
+      "expected": [
+        "ssbtable:10622",
+        "ssbtable:10623",
+        "ssbtable:10651",
+        "ssbtable:13581",
+        "ssbtable:14357"
+      ]
+    },
+    {
+      "id": "a039",
+      "query": "jordbruk areal",
+      "expected": [
+        "ssbtable:12662",
+        "ssbtable:07646"
+      ]
+    },
+    {
+      "id": "a040",
+      "query": "fiskeri fangst",
+      "expected": [
+        "ssbtable:03024",
+        "ssbtable:06743"
+      ]
+    },
+    {
+      "id": "a041",
+      "query": "skogbruk avvirkning",
+      "expected": [
+        "ssbtable:06310",
+        "ssbtable:06387",
+        "ssbtable:06506",
+        "ssbtable:14590"
+      ]
+    },
+    {
+      "id": "a042",
+      "query": "overnatting hotell",
+      "expected": [
+        "ssbtable:14166",
+        "ssbtable:14167",
+        "ssbtable:14168",
+        "ssbtable:14169"
+      ]
+    },
+    {
+      "id": "a043",
+      "query": "helseutgifter",
+      "expected": [
+        "ssbtable:10811",
+        "ssbtable:10812",
+        "ssbtable:10813",
+        "ssbtable:10814"
+      ]
+    },
+    {
+      "id": "a044",
+      "query": "hvor mange bor det i Bergen",
+      "expected": [
+        "ssbtable:07459",
+        "ssbtable:11342",
+        "ssbtable:11763",
+        "ssbtable:11819"
+      ]
+    },
+    {
+      "id": "a045",
+      "query": "hvilken bydel i Oslo har flest innbyggere",
+      "expected": [
+        "ssbtable:10826",
+        "ssbtable:11763"
+      ]
+    },
+    {
+      "id": "a046",
+      "query": "hvor mange flyttet til Norge i fjor",
+      "expected": [
+        "ssbtable:05869",
+        "ssbtable:05394",
+        "ssbtable:05426",
+        "ssbtable:05539"
+      ]
+    },
+    {
+      "id": "a047",
+      "query": "hva er gjennomsnittsalderen i Tromsø",
+      "expected": [
+        "ssbtable:07459",
+        "ssbtable:11342"
+      ]
+    },
+    {
+      "id": "a048",
+      "query": "hva er arbeidsledigheten i Norge nå",
+      "expected": [
+        "ssbtable:04553",
+        "ssbtable:13892",
+        "ssbtable:03777"
+      ]
+    },
+    {
+      "id": "a049",
+      "query": "hvor mye tjener en sykepleier i gjennomsnitt",
+      "expected": [
+        "ssbtable:11418",
+        "ssbtable:14378"
+      ]
+    },
+    {
+      "id": "a050",
+      "query": "hvor mange jobber i helsevesenet",
+      "expected": [
+        "ssbtable:11654",
+        "ssbtable:11655",
+        "ssbtable:07944"
+      ]
+    },
+    {
+      "id": "a051",
+      "query": "hvor høyt er sykefraværet i kommunene",
+      "expected": [
+        "ssbtable:12451",
+        "ssbtable:12946"
+      ]
+    },
+    {
+      "id": "a052",
+      "query": "hvor mange barn er vaksinert mot meslinger",
+      "expected": [
+        "fhi:nokkel:394",
+        "fhi:nokkel:395"
+      ]
+    },
+    {
+      "id": "a053",
+      "query": "hva er de vanligste dødsårsakene i Norge",
+      "expected": [
+        "fhi:nokkel:342",
+        "fhi:nokkel:343",
+        "fhi:daar:742"
+      ]
+    },
+    {
+      "id": "a054",
+      "query": "hvor mange røyker daglig",
+      "expected": [
+        "fhi:nokkel:393"
+      ]
+    },
+    {
+      "id": "a055",
+      "query": "hvor mange har diabetes",
+      "expected": [
+        "fhi:nokkel:385",
+        "fhi:hkr:410",
+        "fhi:hkr:668"
+      ]
+    },
+    {
+      "id": "a056",
+      "query": "hvor mange elever går på videregående",
+      "expected": [
+        "ssbtable:05326",
+        "ssbtable:05363",
+        "ssbtable:05430",
+        "ssbtable:05958",
+        "ssbtable:08947"
+      ]
+    },
+    {
+      "id": "a057",
+      "query": "hvor gode er norske elever i lesing",
+      "expected": [
+        "fhi:nokkel:670",
+        "fhi:nokkel:671",
+        "fhi:nokkel:371",
+        "fhi:nokkel:372",
+        "ssbtable:08533"
+      ]
+    },
+    {
+      "id": "a058",
+      "query": "hvor mange studenter er det i Norge",
+      "expected": [
+        "ssbtable:03814",
+        "ssbtable:04478",
+        "ssbtable:04473"
+      ]
+    },
+    {
+      "id": "a059",
+      "query": "hvor mange fullfører ikke videregående skole",
+      "expected": [
+        "ssbtable:09336",
+        "ssbtable:14865",
+        "ssbtable:14881"
+      ]
+    },
+    {
+      "id": "a060",
+      "query": "hvor mange aksjeselskaper finnes i Norge",
+      "expected": [
+        "ssbtable:07371",
+        "ssbtable:08142",
+        "ssbtable:08671"
+      ]
+    },
+    {
+      "id": "a061",
+      "query": "hvem eier Equinor",
+      "expected": []
+    },
+    {
+      "id": "a062",
+      "query": "hvor mange bedrifter gikk konkurs i fjor",
+      "expected": [
+        "ssbtable:07218",
+        "ssbtable:07164",
+        "ssbtable:07165"
+      ]
+    },
+    {
+      "id": "a063",
+      "query": "hvor mange ansatte har Norges største selskaper",
+      "expected": [
+        "ssbtable:07091",
+        "ssbtable:10308",
+        "ssbtable:10309"
+      ]
+    },
+    {
+      "id": "a064",
+      "query": "hva koster en bolig i Oslo",
+      "expected": [
+        "ssbtable:07221",
+        "ssbtable:07230",
+        "ssbtable:13500"
+      ]
+    },
+    {
+      "id": "a065",
+      "query": "hvor mange boliger ble bygget i fjor",
+      "expected": [
+        "ssbtable:03723",
+        "ssbtable:05808",
+        "ssbtable:06265"
+      ]
+    },
+    {
+      "id": "a066",
+      "query": "hvor mange bor alene",
+      "expected": [
+        "fhi:nokkel:187",
+        "ssbtable:06070",
+        "ssbtable:06079"
+      ]
+    },
+    {
+      "id": "a067",
+      "query": "hvor mye har prisene steget det siste året",
+      "expected": [
+        "ssbtable:14700",
+        "ssbtable:14702",
+        "ssbtable:14706",
+        "ssbtable:14708"
+      ]
+    },
+    {
+      "id": "a068",
+      "query": "hva eksporterer Norge mest av",
+      "expected": [
+        "ssbtable:08792",
+        "ssbtable:08800",
+        "ssbtable:08864"
+      ]
+    },
+    {
+      "id": "a069",
+      "query": "hvor stor er oljefondet",
+      "expected": [
+        "ssbtable:14722"
+      ]
+    },
+    {
+      "id": "a070",
+      "query": "hvor mange elbiler er det i Norge",
+      "expected": [
+        "ssbtable:07849",
+        "ssbtable:14006",
+        "ssbtable:14020"
+      ]
+    },
+    {
+      "id": "a071",
+      "query": "hvor mange omkom i trafikken i fjor",
+      "expected": [
+        "ssbtable:06752",
+        "ssbtable:09000",
+        "ssbtable:09006"
+      ]
+    },
+    {
+      "id": "a072",
+      "query": "hvor mange reiser kollektivt i Oslo",
+      "expected": [
+        "ssbtable:06670",
+        "ssbtable:06673",
+        "ssbtable:11570"
+      ]
+    },
+    {
+      "id": "a073",
+      "query": "hvor mye strøm produserer Norge",
+      "expected": [
+        "ssbtable:08308",
+        "ssbtable:14093",
+        "ssbtable:08307",
+        "ssbtable:14091"
+      ]
+    },
+    {
+      "id": "a074",
+      "query": "hva er strømprisen i Sør-Norge",
+      "expected": [
+        "ssbtable:14492",
+        "ssbtable:14493",
+        "ssbtable:09363",
+        "ssbtable:08358"
+      ]
+    },
+    {
+      "id": "a075",
+      "query": "hvor mye vindkraft har vi",
+      "expected": [
+        "ssbtable:08308",
+        "ssbtable:14093"
+      ]
+    },
+    {
+      "id": "a076",
+      "query": "hvor mye CO2 slipper Norge ut",
+      "expected": [
+        "ssbtable:13931",
+        "ssbtable:13932"
+      ]
+    },
+    {
+      "id": "a077",
+      "query": "hvor mye avfall kastes per innbygger",
+      "expected": [
+        "ssbtable:13136"
+      ]
+    },
+    {
+      "id": "a078",
+      "query": "hvordan er luftkvaliteten i Bergen",
+      "expected": [
+        "fhi:nokkel:800",
+        "fhi:nokkel:803"
+      ]
+    },
+    {
+      "id": "a079",
+      "query": "hvor mange kommuner er det i Norge",
+      "expected": [
+        "ssbtable:14453"
+      ]
+    },
+    {
+      "id": "a080",
+      "query": "hvor stor er Norge i kvadratkilometer",
+      "expected": [
+        "ssbtable:11342"
+      ]
+    },
+    {
+      "id": "a081",
+      "query": "hvilke kommuner ligger i Vestland",
+      "expected": []
+    },
+    {
+      "id": "a082",
+      "query": "hvor mye laks eksporterer Norge",
+      "expected": [
+        "ssbtable:03024"
+      ]
+    },
+    {
+      "id": "a083",
+      "query": "hvor mange gårdsbruk er det igjen",
+      "expected": [
+        "ssbtable:12662"
+      ]
+    },
+    {
+      "id": "a084",
+      "query": "hvor mye tømmer hogges i året",
+      "expected": [
+        "ssbtable:06310",
+        "ssbtable:06506",
+        "ssbtable:14590"
+      ]
+    },
+    {
+      "id": "a085",
+      "query": "hvor mange innbrudd anmeldes i året",
+      "expected": [
+        "ssbtable:08484",
+        "ssbtable:08485",
+        "ssbtable:08487"
+      ]
+    },
+    {
+      "id": "a086",
+      "query": "hvor mange sitter i fengsel",
+      "expected": [
+        "ssbtable:10530",
+        "ssbtable:10531",
+        "ssbtable:10532"
+      ]
+    },
+    {
+      "id": "a087",
+      "query": "hvor mange stemte ved siste kommunevalg",
+      "expected": [
+        "ssbtable:12633",
+        "ssbtable:14525",
+        "ssbtable:01180"
+      ]
+    },
+    {
+      "id": "a088",
+      "query": "hvor mange representanter har hvert parti på Stortinget",
+      "expected": [
+        "ssbtable:01182",
+        "ssbtable:09494"
+      ]
+    }
+  ]
+}
