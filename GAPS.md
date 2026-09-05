@@ -94,3 +94,42 @@ question can retrieve both sides but cannot join them.
 
 The labels differ where the codes agree (`Bydel Grünerløkka` against `Grünerløkka`), so
 the join has to run on codes. Joining on names would silently match nothing.
+
+
+## The answerability metric is barely above chance
+
+`run_answerable` asks whether *a* fetchable dataset appears in the top hits. 4,160 of
+13,281 datasets are fetchable, so five random picks satisfy it **79.7% of the time**
+(measured over 400 draws; the closed form gives 0.847). Every score this metric has
+produced must be read against that floor, not against zero:
+
+```
+random guessing      0.797
+lexical              0.330
+semantic / fused     0.920
+```
+
+Semantic beats chance by twelve points, not by the fifty-nine the raw comparison
+suggests. Scores of 0.867 and 0.716 quoted earlier are not quality measures.
+
+Worse, lexical scores *below* chance, and that is not a fault in lexical. It returns
+well-matched Data.norge records, which are descriptive and unfetchable, while random
+draws from a corpus that is a third fetchable. The metric rewards returning fetchable
+junk over returning a relevant thing that cannot be fetched.
+
+It still measures one real thing -- reach, the question "could this question have got
+to any data at all" -- and the gap between keyword and natural phrasing is probably
+real, since both slices carry the same bias. It does not measure whether the right
+data was found, which is the v1 goal.
+
+The replacement is a gold set for the fetchable lane: for each question, the table that
+actually answers it. Candidates are pooled from every retrieval method so the labels
+are not biased toward whichever method the set will later judge.
+
+## A control must be the path production uses
+
+Twice now a measurement has compared against `search()` when every production caller
+uses `search_report()`, which recovers from an empty result with a follow-up search per
+missing requirement. The first time it understated the control at 0.700 against 0.867;
+the second time it produced a lexical figure of 0.330 that no user would ever
+experience. Both made a change look better than it was.
