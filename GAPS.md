@@ -175,3 +175,31 @@ arguably wrong to expect it to.
 **Plain vocabulary failure.** "Hvor mange barn er vaksinert mot meslinger" does not
 reach `Vaksinasjonsdekning`, and "hvor gode er norske elever i lesing" does not reach
 `Leseferdighet`, though both are indexed and embedded.
+
+
+## Compound-word matching is worth six questions; the index is worth thirty-five
+
+Norwegian compounds looked like the obvious next fix -- `Privathusholdninger` does not
+tokenize to `husholdninger`, `Vaksinasjonsdekning` not to `vaksinasjon`. Measuring the
+ceiling before building it showed otherwise:
+
+```
+gold questions                86
+correct table matched by title exactly   45
+would gain from prefix matching           4
+would gain from suffix matching           2
+correct table shares no word with query  35
+```
+
+Every title-based rule, compound-aware or not, tops out at 51 of 86 (0.593). Semantic
+retrieval already scores 0.709, above that ceiling, so work on lexical matching is
+capped below where retrieval already is.
+
+The thirty-five are reachable only by what is *inside* a table. "Hvor mange bor det i
+Bergen" is answered by 07459, whose title never mentions Bergen and whose Region
+dimension lists it. That is what `resource_field_values` exists for, and it held 540 of
+4,160 fetchable resources.
+
+Suffix matching also carries a risk worth remembering: "strøm" is the suffix of
+"Lillestrøm", which is a municipality, not electricity. The same collision already made
+election statistics an answer about power production once.
