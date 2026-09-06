@@ -133,3 +133,45 @@ uses `search_report()`, which recovers from an empty result with a follow-up sea
 missing requirement. The first time it understated the control at 0.700 against 0.867;
 the second time it produced a lexical figure of 0.330 that no user would ever
 experience. Both made a change look better than it was.
+
+
+## The routing result is partly circular, and the caveat matters
+
+Measured on `data/fetchable_gold.json`:
+
+```
+method      recall@5     MRR   keyword   natural
+lexical        0.442   0.327     0.651     0.233
+semantic       0.709   0.577     0.744     0.674
+fused          0.756   0.499     0.884     0.628
+routed         0.779   0.622     0.884     0.674
+```
+
+The routing rule -- fuse for a subject, semantic alone for a question -- was derived
+from this table and then scored on the same 88 questions, so `routed` is by
+construction the better of the two columns and its 0.779 is optimistic. What is not
+circular is the reason behind it: lexical ranking helps when a query names a subject
+in the vocabulary the publisher used, and contributes function-word noise when the
+query is a sentence. That is an explicable mechanism, not a fitted constant, which is
+why it is worth keeping. A fresh question set would give the honest number.
+
+The router classifies all 88 correctly, which is also weak evidence -- one author wrote
+both phrasings and the split is unusually clean.
+
+## What retrieval still cannot do
+
+Nineteen of 86 questions still miss. They fall into three kinds.
+
+**A word appears as a breakdown, not as the subject.** "Sysselsetting etter næring"
+returns e-commerce tables broken down *by* employment size; "bruttonasjonalprodukt"
+returns R&D as a share of GDP and never finds GDP. The index cannot tell a table about
+X from a table split by X.
+
+**The question needs a derivation, not a lookup.** "Hvilken bydel har flest innbyggere"
+is a max over a table; "hvor mye har prisene steget" is a change between periods. No
+single table is the answer, so retrieval alone cannot succeed and the gold label is
+arguably wrong to expect it to.
+
+**Plain vocabulary failure.** "Hvor mange barn er vaksinert mot meslinger" does not
+reach `Vaksinasjonsdekning`, and "hvor gode er norske elever i lesing" does not reach
+`Leseferdighet`, though both are indexed and embedded.
