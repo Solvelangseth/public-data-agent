@@ -350,3 +350,72 @@ def test_reordering_never_reaches_past_the_head(tmp_path: Path) -> None:
     ranked = ["x", "y", "ssbtable:08651"]
     assert demote_breakdown_only(registry, ranked, "sysselsetting", depth=2) == ranked
     registry.close()
+
+
+# ---- coverage as a filter, not a ranking --------------------------------
+
+
+def _covering_registry(tmp_path: Path) -> Registry:
+    registry = _registry(tmp_path)
+    # Two resources cover Bergen; one covers only Oslo.
+    registry.set_resource_shape("ssbtable:08651", [
+        {"field_code": "Region", "field_role": "key", "values": [
+            {"value_code": "4601", "value_label": "Bergen"},
+            {"value_code": "0301", "value_label": "Oslo"},
+        ]},
+    ])
+    registry.set_resource_shape("ssbtable:99999", [
+        {"field_code": "Region", "field_role": "key", "values": [
+            {"value_code": "0301", "value_label": "Oslo"},
+        ]},
+    ])
+    for did in ("ssbtable:08651", "ssbtable:99999"):
+        registry.set_capability(did, {"capability": "observations"})
+    return registry
+
+
+def test_coverage_narrows_to_resources_holding_the_named_value(tmp_path: Path) -> None:
+    from public_data_agent.resource_index import covering
+
+    registry = _covering_registry(tmp_path)
+    eligible, used = covering(registry, "hvor mange bor det i Bergen")
+    assert eligible == {"ssbtable:08651"}
+    assert used == ["bergen"]
+    registry.close()
+
+
+def test_two_named_places_narrow_to_what_covers_both(tmp_path: Path) -> None:
+    from public_data_agent.resource_index import covering
+
+    registry = _covering_registry(tmp_path)
+    eligible, used = covering(registry, "Bergen og Oslo")
+    assert eligible == {"ssbtable:08651"}
+    assert set(used) == {"bergen", "oslo"}
+    registry.close()
+
+
+def test_a_query_naming_no_stored_value_is_not_a_constraint(tmp_path: Path) -> None:
+    """A subject is not a value. "byggekostnader" names what a table is about,
+    and constraining on it would filter to nothing rather than to everything."""
+
+    from public_data_agent.resource_index import covering
+
+    registry = _covering_registry(tmp_path)
+    assert covering(registry, "byggekostnader") is None
+    registry.close()
+
+
+def test_coverage_lifts_without_demoting_below_the_ranking(tmp_path: Path) -> None:
+    """The index is incomplete, so a resource missing a value there may simply
+    not have been crawled yet; absence is not evidence of absence."""
+
+    from public_data_agent.resource_index import rank_within_coverage
+
+    registry = _covering_registry(tmp_path)
+    ranked = ["ssbtable:99999", "ssbtable:08651"]
+    assert rank_within_coverage(registry, ranked, "hvor mange bor det i Bergen") == [
+        "ssbtable:08651", "ssbtable:99999",
+    ]
+    # Nothing recognised means the ranking is returned untouched.
+    assert rank_within_coverage(registry, ranked, "byggekostnader") == ranked
+    registry.close()

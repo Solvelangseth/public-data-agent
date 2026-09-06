@@ -619,3 +619,67 @@ def demote_breakdown_only(
         else:
             kept.append(dataset_id)
     return [*kept, *breakdown_only, *tail]
+
+
+def covering(
+    registry: Registry, query: str, *, limit: int = 4000
+) -> tuple[set[str], list[str]] | None:
+    """Resources that contain a value the query names.
+
+    This is a filter, not a ranking. "Hvor mange bor det i Bergen" is answered
+    by a population table that covers Bergen; the Bergen half says *which*
+    resources are eligible and the rest of the question says which is relevant.
+    Scoring them together fails both ways -- a term that most resources carry
+    cannot rank them, and dropping it as a stopword discards the constraint.
+
+    Returns the eligible ids and the terms that constrained them, or None when
+    the query names nothing the index recognises, which is not a constraint of
+    "nothing".
+    """
+
+    from public_data_agent.search import STOP_TOKENS, tokenize
+
+    words = [w for w in tokenize(query) if len(w) >= 4 and w not in STOP_TOKENS]
+    if not words:
+        return None
+    eligible: set[str] | None = None
+    used: list[str] = []
+    for word in words:
+        rows = registry.conn.execute(
+            "SELECT DISTINCT dataset_id FROM resource_field_values "
+            "WHERE lower(value_label) = ? LIMIT ?",
+            (word, limit),
+        ).fetchall()
+        found = {r["dataset_id"] for r in rows}
+        if not found:
+            continue
+        used.append(word)
+        # Each recognised term narrows further: a question naming two places
+        # wants what covers both.
+        eligible = found if eligible is None else (eligible & found)
+        if not eligible:
+            return None
+    if eligible is None:
+        return None
+    return eligible, used
+
+
+def rank_within_coverage(
+    registry: Registry, ranked: list[str], query: str, *, keep: int = 200
+) -> list[str]:
+    """Lift the candidates that cover what the query names, keeping their order.
+
+    Only reorders. A resource the ranking already placed well is not demoted
+    for lacking a value the index may simply not have recorded yet, since the
+    index is incomplete and absence there is not evidence of absence.
+    """
+
+    result = covering(registry, query)
+    if result is None:
+        return ranked
+    eligible, _ = result
+    if not eligible:
+        return ranked
+    head = [d for d in ranked[:keep] if d in eligible]
+    rest = [d for d in ranked[:keep] if d not in eligible]
+    return [*head, *rest, *ranked[keep:]]
