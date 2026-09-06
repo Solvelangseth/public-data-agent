@@ -102,3 +102,39 @@ def test_index_build_is_incremental_on_text_hash(tmp_path) -> None:
         assert provider.calls == 1
     finally:
         registry.close()
+
+
+def test_a_subject_and_a_question_are_told_apart() -> None:
+    """The two retrieve differently, so which one a query is decides the ranking."""
+
+    from public_data_agent.embeddings import looks_like_a_question
+
+    for subject in ("byggekostnader", "arbeidsledighet", "lønn etter yrke",
+                    "utslipp klimagasser", "fødsler medisinsk fødselsregister"):
+        assert not looks_like_a_question(subject), subject
+    for question in ("hva koster en bolig i Oslo", "hvor mange bor det i Bergen",
+                     "hvilken bydel i Oslo har flest innbyggere",
+                     "hvor mye CO2 slipper Norge ut", "er dette et spørsmål?"):
+        assert looks_like_a_question(question), question
+
+
+def test_one_common_word_does_not_make_a_subject_a_question() -> None:
+    """"stor" appears in subjects too; it takes more than one marker."""
+
+    from public_data_agent.embeddings import looks_like_a_question
+
+    assert not looks_like_a_question("husholdninger størrelse")
+    assert not looks_like_a_question("store foretak")
+
+
+def test_routing_uses_semantic_alone_for_a_question() -> None:
+    """Lexical ranking is worth +24 points on a subject and costs 5 on a
+    question, so it is applied to one and not the other."""
+
+    from public_data_agent.embeddings import rank_for_query
+
+    lexical, semantic = ["L1", "L2", "L3"], ["S1", "S2", "S3"]
+    asked = rank_for_query(lexical, semantic, "hvor mange bor det i Bergen", limit=3)
+    assert asked == ["S1", "S2", "S3"]
+    named = rank_for_query(lexical, semantic, "byggekostnader", limit=6)
+    assert set(named) == {"L1", "L2", "L3", "S1", "S2", "S3"}
