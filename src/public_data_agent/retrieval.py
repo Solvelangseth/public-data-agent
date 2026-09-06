@@ -10,6 +10,8 @@ recall@5 then MRR:
     + subject over breakdown 0.791   0.627
     + observations lane      0.860   0.763
 
+A coverage lift on top of that measured 0.802/0.676 and was removed.
+
 The steps are kept separate so each can be re-measured, and so a caller without
 an embedding provider still gets the lexical half rather than nothing.
 """
@@ -22,7 +24,7 @@ from typing import Any, Protocol
 from public_data_agent.embeddings import rank_for_query, semantic_ranking
 from public_data_agent.fetch import classify_access_path
 from public_data_agent.registry import Registry
-from public_data_agent.resource_index import demote_breakdown_only, rank_within_coverage
+from public_data_agent.resource_index import demote_breakdown_only
 from public_data_agent.search import search_report
 
 DEPTH = 50
@@ -93,10 +95,12 @@ def find(
         steps.append("demoted tables split by a query word below tables about it")
     ranked = reordered
 
-    covered = rank_within_coverage(registry, ranked, query)
-    if covered != ranked:
-        steps.append("lifted resources recorded as covering a value the query names")
-    ranked = covered
+    # A coverage lift was tried here and measured worse: recall@5 0.802 against
+    # 0.860, MRR 0.676 against 0.763, engaging on 28 of 86 questions and adding
+    # six misses. With a complete index a common word like "norge" is a value in
+    # hundreds of resources, so lifting everything that holds one scrambles a
+    # good ranking. `rank_within_coverage` is kept for a caller that wants a
+    # coverage filter, which is a different question from relevance.
 
     cache: dict[str, str] = {}
     observations = [d for d in ranked if _capability(registry, d, cache) == "observations"]
