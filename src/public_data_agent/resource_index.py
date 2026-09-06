@@ -547,3 +547,75 @@ def _covers(row: Any, period: str) -> bool:
     if not start or not end:
         return True
     return str(start)[:4] <= str(period)[:4] <= str(end)[:4]
+
+
+# Norwegian statistical titles name the subject first and the breakdown after
+# "etter": "Lønn, sysselsetting og produktivitet, etter næring". 72% of the SSB
+# titles in the registry follow it. The distinction matters because a table
+# *split by* employment is not a table *about* employment, and a query naming
+# employment was reaching e-commerce statistics broken down that way.
+SUBJECT_SEPARATORS = (", etter ", ", fordelt på ", ", etter,")
+
+
+def split_title(title: str | None) -> tuple[str, str]:
+    """Return a title's (subject, breakdown) halves.
+
+    A title with no separator is all subject: absence of a breakdown clause is
+    not evidence that the whole title is one.
+    """
+
+    text = title or ""
+    for separator in SUBJECT_SEPARATORS:
+        if separator in text:
+            head, tail = text.split(separator, 1)
+            return head, tail
+    return text, ""
+
+
+def matches_subject(query: str, title: str | None) -> bool | None:
+    """Whether the query's words reach the title's subject rather than only its
+    breakdown.
+
+    Returns None when the query shares no word with either half, so a candidate
+    matched on something other than its title -- a description, an embedding --
+    is neither credited nor punished for it.
+    """
+
+    from public_data_agent.search import tokenize
+
+    subject, breakdown = split_title(title)
+    wanted = set(tokenize(query))
+    if not wanted:
+        return None
+    in_subject = wanted & set(tokenize(subject))
+    in_breakdown = wanted & set(tokenize(breakdown))
+    if not in_subject and not in_breakdown:
+        return None
+    return bool(in_subject)
+
+
+def demote_breakdown_only(
+    registry: Registry, ranked: list[str], query: str, *, depth: int = 20
+) -> list[str]:
+    """Move candidates that match only a title's breakdown below those that
+    match its subject.
+
+    Only demotes. An earlier version also promoted subject matches above
+    candidates the retriever had ranked on something other than a title -- a
+    description, an embedding -- and pushed correct answers down from rank one,
+    costing more in ranking quality than the demotion won in recall. Everything
+    that is not a breakdown-only match keeps its original order.
+
+    Applied to the head of a ranking only, so nothing far down can be promoted.
+    """
+
+    head, tail = ranked[:depth], ranked[depth:]
+    kept: list[str] = []
+    breakdown_only: list[str] = []
+    for dataset_id in head:
+        title = (registry.get_dataset(dataset_id) or {}).get("title")
+        if matches_subject(query, title) is False:
+            breakdown_only.append(dataset_id)
+        else:
+            kept.append(dataset_id)
+    return [*kept, *breakdown_only, *tail]

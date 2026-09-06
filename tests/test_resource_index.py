@@ -11,7 +11,10 @@ from pathlib import Path
 
 from public_data_agent.registry import Registry
 from public_data_agent.resource_index import (
+    demote_breakdown_only,
     field_role,
+    matches_subject,
+    split_title,
     period_span,
     search_resources,
     shape_from_fhi,
@@ -281,4 +284,69 @@ def test_an_unrecorded_period_does_not_exclude_a_resource(tmp_path: Path) -> Non
 def test_a_query_matching_nothing_returns_nothing(tmp_path: Path) -> None:
     registry = _indexed(tmp_path)
     assert search_resources(registry, "kraftproduksjon havbruk") == []
+    registry.close()
+
+
+# ---- subject versus breakdown -------------------------------------------
+
+EMPLOYMENT_BREAKDOWN = "10975: Formål med eiga heimeside, etter sysselsetting og næring"
+EMPLOYMENT_SUBJECT = "09174: Lønn, sysselsetting og produktivitet, etter næring 1970-2025"
+
+
+def test_a_title_splits_into_subject_and_breakdown() -> None:
+    subject, breakdown = split_title(EMPLOYMENT_SUBJECT)
+    assert subject == "09174: Lønn, sysselsetting og produktivitet"
+    assert breakdown.startswith("næring")
+    # No separator means the whole title is the subject.
+    assert split_title("09189: Makroøkonomiske hovedstørrelser 1970-2025")[1] == ""
+    assert split_title(None) == ("", "")
+
+
+def test_a_table_split_by_a_word_is_not_a_table_about_it() -> None:
+    """The failure this exists for: a query naming employment reached
+    e-commerce statistics that merely break down by employment size."""
+
+    query = "sysselsetting etter næring"
+    assert matches_subject(query, EMPLOYMENT_SUBJECT) is True
+    assert matches_subject(query, EMPLOYMENT_BREAKDOWN) is False
+
+
+def test_a_candidate_matched_on_something_other_than_its_title_is_not_judged() -> None:
+    """An embedding match shares no word with the title; crediting or punishing
+    it for that would rank on evidence the match never used."""
+
+    assert matches_subject("kraftproduksjon", "05326: Elever i videregående") is None
+    assert matches_subject("", EMPLOYMENT_SUBJECT) is None
+
+
+def test_demoting_only_moves_breakdown_matches_down(tmp_path: Path) -> None:
+    """It demotes and never promotes. An earlier version also lifted subject
+    matches above candidates ranked on an embedding, which pushed correct
+    answers off rank one and cost more ranking quality than it won in recall."""
+
+    registry = _registry(tmp_path)
+    registry.conn.execute("UPDATE datasets SET title = ? WHERE id = ?",
+                          (EMPLOYMENT_BREAKDOWN, "ssbtable:08651"))
+    registry.conn.execute("UPDATE datasets SET title = ? WHERE id = ?",
+                          (EMPLOYMENT_SUBJECT, "ssbtable:99999"))
+    registry.conn.commit()
+
+    ranked = ["ssbtable:08651", "ssbtable:99999"]
+    assert demote_breakdown_only(registry, ranked, "sysselsetting etter næring") == [
+        "ssbtable:99999", "ssbtable:08651",
+    ]
+    # A query touching neither title leaves the order exactly as it was.
+    assert demote_breakdown_only(registry, ranked, "kraftproduksjon") == ranked
+    registry.close()
+
+
+def test_reordering_never_reaches_past_the_head(tmp_path: Path) -> None:
+    """Nothing the retriever placed far down may be lifted by a title rule."""
+
+    registry = _registry(tmp_path)
+    registry.conn.execute("UPDATE datasets SET title = ? WHERE id = ?",
+                          (EMPLOYMENT_BREAKDOWN, "ssbtable:08651"))
+    registry.conn.commit()
+    ranked = ["x", "y", "ssbtable:08651"]
+    assert demote_breakdown_only(registry, ranked, "sysselsetting", depth=2) == ranked
     registry.close()
