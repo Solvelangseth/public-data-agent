@@ -1,5 +1,5 @@
 {
-  "note": "Gold answers for the fetchable lane: for each question, table(s) that genuinely answer it. Unlike data/benchmark_questions.json, which scores ranking against Data.norge catalogue records, this scores whether the right *retrievable* resource is found -- the v1 goal. Candidates were pooled from every retrieval method (search_report, semantic, resource index) and then checked against the registry directly, so the labels are not bounded by what any one retriever surfaced; several answers here were found by searching titles after every retriever missed them. `expected` lists ids judged to answer the question; any one of them counts as a hit. `expected: []` means the registry holds no table that answers it -- a coverage finding, not a retrieval failure, and those questions are excluded from recall. Labels are author-judged from table titles, which is the main limitation: a title can mislead, and no cell was fetched to confirm.",
+  "note": "Gold answers for the fetchable lane: for each question, table(s) that genuinely answer it. Unlike data/benchmark_questions.json, which scores ranking against Data.norge catalogue records, this scores whether the right *retrievable* resource is found -- the v1 goal. Candidates were pooled from every retrieval method (search_report, semantic, resource index) and then checked against the registry directly, so the labels are not bounded by what any one retriever surfaced; several answers here were found by searching titles after every retriever missed them. `expected` lists ids judged to answer the question; any one of them counts as a hit. `expected: []` means the registry holds no table that answers it -- a coverage finding, not a retrieval failure, and those questions are excluded from recall. Labels are author-judged from table titles, which is the main limitation: a title can mislead, and no cell was fetched to confirm. Labels for agriculture, fisheries, forestry and foreign trade were widened after an audit: the originals named niche cuts (organic-only, Sami-only, salmon export) while the plain subject tables were left out, so correct retrievals scored as misses. Widened because those tables answer the question, not because a retriever returned them -- the distinction matters, since adopting whatever was returned would make the benchmark circular.",
   "questions": [
     {
       "id": "a001",
@@ -104,7 +104,10 @@
       "expected": [
         "ssbtable:08792",
         "ssbtable:08800",
-        "ssbtable:08864"
+        "ssbtable:08864",
+        "ssbtable:06323",
+        "ssbtable:05987",
+        "ssbtable:10191"
       ]
     },
     {
@@ -374,6 +377,10 @@
       "id": "a039",
       "query": "jordbruk areal",
       "expected": [
+        "ssbtable:04607",
+        "ssbtable:05980",
+        "ssbtable:05981",
+        "ssbtable:04613",
         "ssbtable:12662",
         "ssbtable:07646"
       ]
@@ -382,6 +389,9 @@
       "id": "a040",
       "query": "fiskeri fangst",
       "expected": [
+        "ssbtable:09243",
+        "ssbtable:07670",
+        "ssbtable:08991",
         "ssbtable:03024",
         "ssbtable:06743"
       ]
@@ -390,8 +400,11 @@
       "id": "a041",
       "query": "skogbruk avvirkning",
       "expected": [
+        "ssbtable:08979",
+        "ssbtable:07410",
+        "ssbtable:03795",
+        "ssbtable:11181",
         "ssbtable:06310",
-        "ssbtable:06387",
         "ssbtable:06506",
         "ssbtable:14590"
       ]
@@ -634,7 +647,11 @@
       "expected": [
         "ssbtable:08792",
         "ssbtable:08800",
-        "ssbtable:08864"
+        "ssbtable:08864",
+        "ssbtable:06323",
+        "ssbtable:05987",
+        "ssbtable:07336",
+        "ssbtable:09177"
       ]
     },
     {
@@ -745,7 +762,8 @@
       "id": "a082",
       "query": "hvor mye laks eksporterer Norge",
       "expected": [
-        "ssbtable:03024"
+        "ssbtable:03024",
+        "ssbtable:09243"
       ]
     },
     {
@@ -759,6 +777,10 @@
       "id": "a084",
       "query": "hvor mye tømmer hogges i året",
       "expected": [
+        "ssbtable:08979",
+        "ssbtable:07410",
+        "ssbtable:03795",
+        "ssbtable:11181",
         "ssbtable:06310",
         "ssbtable:06506",
         "ssbtable:14590"
