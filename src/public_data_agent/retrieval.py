@@ -42,6 +42,13 @@ class Retrieved:
     observations: list[str] = field(default_factory=list)
     catalogue: list[str] = field(default_factory=list)
     steps: list[str] = field(default_factory=list)
+    # Query terms no retrieved record stores. Reported, never used to refuse:
+    # the index holds titles and field values, so a term absent from it may
+    # still be a dimension value inside a matched table.
+    uncovered: list[str] = field(default_factory=list)
+    # Lexical scores where a result had one. A result found only by embedding
+    # has none, and inventing a number for it would misreport how it was found.
+    relevance: dict[str, int] = field(default_factory=dict)
 
     def as_dict(self) -> dict[str, Any]:
         return {
@@ -49,6 +56,7 @@ class Retrieved:
             "observations": self.observations,
             "catalogue": self.catalogue,
             "steps": self.steps,
+            "uncovered": self.uncovered,
         }
 
 
@@ -75,7 +83,9 @@ def find(
     """
 
     steps: list[str] = []
-    lexical = [hit.dataset_id for hit in search_report(registry, query, limit=depth).hits]
+    report = search_report(registry, query, limit=depth)
+    lexical = [hit.dataset_id for hit in report.hits]
+    relevance = {hit.dataset_id: hit.relevance for hit in report.hits}
     steps.append(f"lexical search returned {len(lexical)}")
 
     if provider is None:
@@ -115,4 +125,6 @@ def find(
         observations=observations[:limit],
         catalogue=catalogue[:limit],
         steps=steps,
+        uncovered=list(report.coverage.missing),
+        relevance=relevance,
     )

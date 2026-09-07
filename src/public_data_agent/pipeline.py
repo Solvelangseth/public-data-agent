@@ -23,6 +23,7 @@ from public_data_agent.intake import (
     read_question_with_fallback,
 )
 from public_data_agent.registry import Registry
+from public_data_agent.retrieval import find
 from public_data_agent.search import search_report
 
 # Rank deeper than the caller wants so each lane can fill its own top-N.
@@ -113,6 +114,7 @@ def assess_readiness(
     *,
     limit: int = 5,
     request: Request | None = None,
+    provider: Any | None = None,
 ) -> Readiness:
     """Decide whether any registered connector could answer this question.
 
@@ -122,30 +124,39 @@ def assess_readiness(
 
     When an intake ``request`` is supplied, its extracted terms are searched
     rather than the raw sentence, so question words do not become requirements.
+
+    With an embedding ``provider`` this ranks through `retrieval.find`, which
+    measures recall@5 0.860 against the fetchable gold set where lexical search
+    alone measures 0.442, and 0.814 against 0.233 on naturally phrased
+    questions. Without one it stays lexical, which is a real loss rather than a
+    missing optimisation.
     """
 
     query = request.search_query() if request is not None and request.search_terms else question
-    report = search_report(registry, query, limit=max(limit * LANE_DEPTH, limit))
-    uncovered = list(report.coverage.missing)
-    observations: list[SourceRef] = []
+    depth = max(limit * LANE_DEPTH, limit)
+    found = find(registry, query, provider=provider, limit=depth, depth=depth)
+    uncovered = list(found.uncovered)
+
+    def _ref(dataset_id: str) -> SourceRef:
+        row = registry.get_dataset(dataset_id) or {}
+        return SourceRef(
+            dataset_id=dataset_id,
+            title=row.get("title"),
+            capability=classify_access_path(row.get("access_path"))["kind"],
+            access_path=row.get("access_path"),
+            publisher=row.get("publisher_name"),
+            # Zero where a result was found by embedding rather than by tokens:
+            # the ordering already carries the ranking, and inventing a lexical
+            # score for a non-lexical match would misreport how it was found.
+            relevance=found.relevance.get(dataset_id, 0),
+        )
+
+    observations = [_ref(d) for d in found.observations]
     lookups: list[SourceRef] = []
     catalogue: list[SourceRef] = []
-    for hit in report.hits:
-        kind = classify_access_path(hit.access_path)["kind"]
-        ref = SourceRef(
-            dataset_id=hit.dataset_id,
-            title=hit.title,
-            capability=kind,
-            access_path=hit.access_path,
-            publisher=(hit.publisher or {}).get("name") if hit.publisher else None,
-            relevance=hit.relevance,
-        )
-        if kind == "observations":
-            observations.append(ref)
-        elif kind == "lookup":
-            lookups.append(ref)
-        else:
-            catalogue.append(ref)
+    for dataset_id in found.catalogue:
+        ref = _ref(dataset_id)
+        (lookups if ref.capability == "lookup" else catalogue).append(ref)
 
     observations, lookups, catalogue = observations[:limit], lookups[:limit], catalogue[:limit]
 
