@@ -404,3 +404,51 @@ def test_lanes_are_filled_from_a_deeper_ranking_than_the_returned_page(tmp_path:
     lane_ids = {hit["id"] for hit in payload["observation_sources"]}
     lane_ids |= {hit["id"] for hit in payload["catalogue_records"]}
     assert lane_ids, "lanes must not be empty just because the page is small"
+
+
+def test_search_reports_when_it_ranked_on_tokens_alone(tmp_path: Path, monkeypatch) -> None:
+    """Ranking without meaning finds the right table for 44% of gold questions
+    against 86% with it, so a caller is told which one it got."""
+
+    from public_data_agent import mcp_server
+
+    monkeypatch.setattr(mcp_server, "_embedding_provider", lambda: None)
+    registry = _registry(tmp_path)
+    registry.close()
+
+    payload = mcp_server.tool_search("strandsone", db=str(tmp_path / "registry.sqlite"))
+    assert payload["ranking"] == "lexical only"
+    assert "44%" in payload["ranking_note"]
+
+
+def test_a_result_found_by_meaning_alone_is_not_dropped(tmp_path: Path, monkeypatch) -> None:
+    """35 of 86 gold questions name a table whose title shares no word with the
+    question. Those have no lexical hit to carry their metadata, and keeping
+    only hits that had one would drop exactly what the ranking was added to
+    find."""
+
+    from public_data_agent import mcp_server
+
+    registry = _registry(tmp_path)
+    unrelated = registry.conn.execute(
+        "SELECT id FROM datasets ORDER BY id"
+    ).fetchall()[0]["id"]
+    registry.close()
+
+    class OnlyFindsTheUnrelatedOne:
+        steps = ["stubbed"]
+        observations: list[str] = []
+        catalogue = [unrelated]
+
+    monkeypatch.setattr(mcp_server, "_embedding_provider", lambda: object())
+    monkeypatch.setattr(mcp_server, "find", lambda *a, **k: OnlyFindsTheUnrelatedOne())
+
+    payload = mcp_server.tool_search(
+        "a query matching no stored token at all", db=str(tmp_path / "registry.sqlite")
+    )
+    returned = {hit["id"] for hit in payload["results"]}
+    assert unrelated in returned
+    entry = next(hit for hit in payload["results"] if hit["id"] == unrelated)
+    # Not matched by tokens, so it carries no token score and says why.
+    assert entry["relevance"] == 0
+    assert "shares no query token" in entry["why"]

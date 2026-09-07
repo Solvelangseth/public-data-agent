@@ -288,6 +288,7 @@ def run_intake(
     *,
     provider: IntakeProvider | None = None,
     limit: int = 5,
+    embedding_provider: Any | None = None,
 ) -> Intake:
     """Read the question, then decide whether anything can answer it.
 
@@ -296,7 +297,9 @@ def run_intake(
     """
 
     request, warning = read_question_with_fallback(question, provider)
-    readiness = assess_readiness(registry, question, limit=limit, request=request)
+    readiness = assess_readiness(
+        registry, question, limit=limit, request=request, provider=embedding_provider
+    )
     return Intake(request=request, readiness=readiness, intake_warning=warning)
 
 
@@ -422,6 +425,7 @@ def run_pipeline(
     intake_provider: IntakeProvider | None = None,
     plan_provider: Any | None = None,
     agent_model: Any | None = None,
+    embedding_provider: Any | None = None,
     limit: int = 5,
     max_steps: int = 10,
 ) -> PipelineRun:
@@ -433,7 +437,8 @@ def run_pipeline(
     reproducible.
     """
 
-    intake = run_intake(registry, question, provider=intake_provider, limit=limit)
+    intake = run_intake(registry, question, provider=intake_provider, limit=limit,
+                        embedding_provider=embedding_provider)
     chosen = route(intake)
 
     if chosen == ROUTE_CLARIFY:
