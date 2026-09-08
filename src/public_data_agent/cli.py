@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any
 
 from public_data_agent.benchmark import DEFAULT_QUESTIONS, load_questions, run_benchmark
+from public_data_agent.brreg_sync import sync_snapshot, sync_updates
 from public_data_agent.enrich import enrich
 from public_data_agent.fetch import DEFAULT_OSLO_DATASET, DEFAULT_OSLO_TABLE, fetch_observations
 from public_data_agent.ask import DEMO_QUESTION, ask, ask_proof_payload
@@ -19,6 +20,7 @@ from public_data_agent.join import (
 )
 from public_data_agent.ssb_pxweb import DEFAULT_SSB_TABLE
 from public_data_agent.harvest import harvest, stderr_progress
+from public_data_agent.http_util import SourceHttpError
 from public_data_agent.registry import Registry
 from public_data_agent.scan_table_urls import scan_printed_table_urls, scan_proof_payload
 from public_data_agent.search import load_prompt_pack, run_search_pack, search_report
@@ -220,6 +222,24 @@ def main(argv: list[str] | None = None) -> int:
     )
     scan_cmd.add_argument("--probe-limit", type=int, default=20)
 
+    mirror_cmd = sub.add_parser(
+        "mirror-brreg",
+        help="Maintain a complete Brønnøysundregistrene entity mirror",
+    )
+    mirror_cmd.add_argument("kind", choices=["enheter", "underenheter"])
+    mirror_cmd.add_argument("phase", choices=["snapshot", "updates"])
+    mirror_cmd.add_argument("--db", type=Path, default=DEFAULT_DB)
+    mirror_cmd.add_argument(
+        "--storage-dir", type=Path, default=Path("data/raw/brreg"),
+        help="Directory for exact compressed publisher snapshots",
+    )
+    mirror_cmd.add_argument("--batch-size", type=int, default=None)
+    mirror_cmd.add_argument(
+        "--limit", type=int, default=None,
+        help="Snapshot smoke-test rows or maximum update events; never checkpoints a sample",
+    )
+    mirror_cmd.add_argument("--force", action="store_true", help="Download even if ETag is unchanged")
+
     mcp_cmd = sub.add_parser("mcp", help="Run the stdio MCP server or call one tool")
     mcp_cmd.add_argument("--call", choices=["search", "ask", "fetch"], default=None)
     mcp_cmd.add_argument("--query", default=None)
@@ -292,6 +312,8 @@ def main(argv: list[str] | None = None) -> int:
         return 1 if result.error else 0
     if args.command == "scan-table-urls":
         return _scan_table_urls(args)
+    if args.command == "mirror-brreg":
+        return _mirror_brreg(args)
     if args.command == "mcp":
         return _mcp(args)
     parser.error(f"unknown command {args.command}")
@@ -399,6 +421,58 @@ def _scan_table_urls(args: argparse.Namespace) -> int:
         return 1 if result.counts.failed else 0
     finally:
         registry.close()
+
+
+def _mirror_brreg(args: argparse.Namespace) -> int:
+    registry = Registry(args.db)
+    try:
+        if args.phase == "snapshot":
+            result = sync_snapshot(
+                registry,
+                args.kind,
+                storage_dir=args.storage_dir,
+                limit=args.limit,
+                batch_size=args.batch_size or 1000,
+                force=args.force,
+            )
+        else:
+            if args.force:
+                raise ValueError("--force applies only to the snapshot phase")
+            result = sync_updates(
+                registry,
+                args.kind,
+                batch_size=args.batch_size or 100,
+                max_events=args.limit,
+            )
+    except (OSError, SourceHttpError, ValueError) as exc:
+        print(str(exc), file=sys.stderr)
+        return 1
+    finally:
+        registry.close()
+    print(
+        json.dumps(
+            {
+                "db": str(args.db),
+                "kind": args.kind,
+                "phase": args.phase,
+                "status": result.status,
+                "request_url": result.request_url,
+                "listed": result.counts.listed,
+                "inserted": result.counts.inserted,
+                "updated": result.counts.updated,
+                "unchanged": result.counts.unchanged,
+                "failed": result.counts.failed,
+                "tombstoned": result.tombstoned,
+                "cursor": result.cursor,
+                "etag": result.etag,
+                "sha256": result.sha256,
+                "storage_path": result.storage_path,
+            },
+            ensure_ascii=False,
+            indent=2,
+        )
+    )
+    return 1 if result.counts.failed else 0
 
 
 def _enrich(args: argparse.Namespace) -> int:

@@ -1,11 +1,14 @@
 from __future__ import annotations
 
+import hashlib
+import http.client
 import json
 import time
 import urllib.error
 import urllib.parse
 import urllib.request
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any
 
 USER_AGENT = "public-data-agent/0.1 (+https://github.com/Solvelangseth/public-data-agent)"
@@ -16,6 +19,16 @@ class JsonResponse:
     status: int
     url: str
     body: Any
+
+
+@dataclass(frozen=True)
+class FileResponse:
+    status: int
+    url: str
+    headers: dict[str, str]
+    path: Path | None = None
+    sha256: str | None = None
+    bytes_written: int = 0
 
 
 class RateLimiter:
@@ -87,6 +100,106 @@ class HttpClient:
                 raise SourceHttpError(exc.code, url, body) from exc
             except (urllib.error.URLError, TimeoutError) as exc:
                 last_error = exc
+                self.sleeper(min(2**attempt, 30))
+                continue
+        raise SourceHttpError(0, url, f"exhausted retries: {last_error}") from last_error
+
+    def head(self, url: str, *, headers: dict[str, str] | None = None) -> FileResponse:
+        """Read publisher file metadata without downloading its body."""
+
+        return self._file_request("HEAD", url, headers=headers)
+
+    def download(
+        self,
+        url: str,
+        destination: Path,
+        *,
+        headers: dict[str, str] | None = None,
+        chunk_size: int = 1024 * 1024,
+    ) -> FileResponse:
+        """Stream a file to an atomic local path while hashing exact bytes."""
+
+        if chunk_size < 1:
+            raise ValueError("chunk_size must be positive")
+        return self._file_request(
+            "GET", url, headers=headers, destination=destination, chunk_size=chunk_size
+        )
+
+    def _file_request(
+        self,
+        method: str,
+        url: str,
+        *,
+        headers: dict[str, str] | None = None,
+        destination: Path | None = None,
+        chunk_size: int = 1024 * 1024,
+    ) -> FileResponse:
+        last_error: Exception | None = None
+        for attempt in range(self.max_retries):
+            if self.limiter:
+                self.limiter.acquire()
+            req_headers = {"User-Agent": USER_AGENT, "Accept": "*/*"}
+            if headers:
+                req_headers.update(headers)
+            request = urllib.request.Request(url, headers=req_headers, method=method)
+            partial = destination.with_name(destination.name + ".part") if destination else None
+            try:
+                with urllib.request.urlopen(request, timeout=self.timeout) as response:
+                    status = int(response.status)
+                    response_headers = {
+                        str(key).casefold(): str(value) for key, value in response.headers.items()
+                    }
+                    if destination is None or method == "HEAD":
+                        return FileResponse(status=status, url=url, headers=response_headers)
+                    destination.parent.mkdir(parents=True, exist_ok=True)
+                    digest = hashlib.sha256()
+                    written = 0
+                    with partial.open("wb") as output:
+                        while True:
+                            block = response.read(chunk_size)
+                            if not block:
+                                break
+                            output.write(block)
+                            digest.update(block)
+                            written += len(block)
+                    expected = response_headers.get("content-length")
+                    if expected is not None and expected.isdigit() and written != int(expected):
+                        raise OSError(
+                            f"incomplete download: expected {expected} bytes, received {written}"
+                        )
+                    partial.replace(destination)
+                    return FileResponse(
+                        status=status,
+                        url=url,
+                        headers=response_headers,
+                        path=destination,
+                        sha256=digest.hexdigest(),
+                        bytes_written=written,
+                    )
+            except urllib.error.HTTPError as exc:
+                last_error = exc
+                if partial is not None and partial.exists():
+                    partial.unlink()
+                if exc.code == 304:
+                    response_headers = {
+                        str(key).casefold(): str(value) for key, value in exc.headers.items()
+                    }
+                    return FileResponse(status=304, url=url, headers=response_headers)
+                if exc.code == 429 or 500 <= exc.code <= 599:
+                    wait = _retry_after(exc) or min(2**attempt, 30)
+                    self.sleeper(wait)
+                    continue
+                body = exc.read().decode("utf-8", errors="replace")
+                raise SourceHttpError(exc.code, url, body) from exc
+            except (
+                urllib.error.URLError,
+                http.client.IncompleteRead,
+                TimeoutError,
+                OSError,
+            ) as exc:
+                last_error = exc
+                if partial is not None and partial.exists():
+                    partial.unlink()
                 self.sleeper(min(2**attempt, 30))
                 continue
         raise SourceHttpError(0, url, f"exhausted retries: {last_error}") from last_error

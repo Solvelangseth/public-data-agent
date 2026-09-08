@@ -119,3 +119,60 @@ semantically different fields: its subject `organisasjonsnummer` and its parent
 `overordnetEnhet`. `resource_keys` stores only one field per scheme per dataset.
 For now the subject wins and the parent remains an indexed attribute. Does query
 dispatch need an explicit field-level relationship representation for the parent?
+
+## brreg-mirror — 2026-09-08 — implemented, full live import pending
+
+**Endpoint(s).** `HEAD` and `GET
+https://data.brreg.no/enhetsregisteret/api/enheter/lastned/csv` provide the complete
+main-unit CSV gzip. The corresponding under-unit file is
+`/api/underenheter/lastned/csv`. Incremental notices come from
+`/api/oppdateringer/enheter` and `/api/oppdateringer/underenheter`; their printed
+item links are fetched to replace the whole changed entity. Brreg's official API
+documentation explicitly describes this complete-copy workflow, says the files are
+produced nightly around 05:00, recommends streaming them, and exposes `etag` and
+`last-modified`. It licenses this API under NLOD 2.0.
+
+**Live source verification.** On 2026-09-08 the main-unit JSON gzip reported
+210,027,337 bytes, its CSV gzip 154,541,019 bytes, and the under-unit JSON gzip about
+88.5 MB. The live CSV printed the expected `organisasjonsnummer`, `navn`, dotted
+organisation-form/address fields and real entity rows. The update endpoint printed
+ascending integer `oppdateringsid`, timestamp, organisation number, change type and an
+item link. A range request was ignored by the server, so `--limit` limits ingestion
+only; it does not avoid downloading the complete compressed file.
+
+**Shape.** Two canonical `entity` datasets, `brenheter:all` and `brunder:all`, one
+stable row per validated `brreg:orgnr`. Snapshot CSV fields and item JSON fields are
+projected into one case-folded dotted attribute namespace so an incremental refetch
+does not introduce a second schema. Unambiguous booleans and numbers are restored,
+while leading-zero codes remain strings. The resource index is replaced from the
+actual CSV header and claims only the validated organisation-number key.
+
+**Continuous-copy behavior.** `pda mirror-brreg enheter snapshot` (and
+`underenheter`) streams exact gzip bytes to a `.part` file, verifies content length,
+hashes SHA-256, atomically renames it, parses with the standard quoted CSV reader and
+stores ETag/Last-Modified/path/hash in `raw_snapshots` plus `crawl_checkpoints`. Equal
+ETags skip the download. A corrupt replacement rolls back every record change. A
+successful complete replacement tombstones rows absent from the new total inventory.
+`pda mirror-brreg enheter updates` starts 24 hours before a new snapshot timestamp, as
+a conservative implementation of Brreg's overlap recommendation, then persists
+`updateid + 1` progress. Each page and its cursor commit together. `Ny`, `Endring` and
+`Ukjent` refetch the complete printed item; `Sletting`, `Fjernet`, and an item that has
+already become HTTP 404 remove the live row and retain deletion provenance. The same
+commands exist for under-units. Requests use the registered two-per-second limiter.
+
+**Database changes.** Additive crawl-owned tables hold checkpoints, raw-snapshot
+manifests and tombstones; large source files remain outside SQLite. The generic record
+upsert now notices changes to labels, geometry and suppression markers, not only value
+and attributes. Existing dataset and observation tables are unchanged.
+
+**Verification.** Snapshot replacement, ETag conditioning, exact-byte hashing,
+partial-download cleanup, schema projection, mod-11 rejection, rollback, tombstones,
+item mismatch, overlap query, monotonic cursor and CLI output are covered offline. Full
+suite: 1,925 passed, 1 skipped, 1 live test deselected. A complete live file has not yet
+been committed into a production registry, so this entry does not claim a national
+record count.
+
+**Open question for the query side.** None. The next crawler-side operation is one
+full `enheter` snapshot, followed immediately by updates, then the same sequence for
+`underenheter`; production storage location and retention policy should be set before
+those multi-hundred-megabyte files are scheduled indefinitely.

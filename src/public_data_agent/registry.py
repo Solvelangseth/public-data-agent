@@ -49,14 +49,17 @@ class Registry:
         """
 
         previous = self._defer_commit
+        outermost = not previous
         self._defer_commit = True
         try:
             yield
         except Exception:
-            self.conn.rollback()
+            if outermost:
+                self.conn.rollback()
             raise
         else:
-            self.conn.commit()
+            if outermost:
+                self.conn.commit()
         finally:
             self._defer_commit = previous
 
@@ -274,6 +277,27 @@ class Registry:
         row that already exists.
         """
 
+        self.ensure_dataset_identity(
+            dataset_id=dataset_id,
+            title=title,
+            publisher_name=publisher_name,
+            access_path=access_path,
+            license=license,
+            ingest_reason="observation_store_identity",
+        )
+
+    def ensure_dataset_identity(
+        self,
+        *,
+        dataset_id: str,
+        title: str | None,
+        publisher_name: str | None,
+        access_path: str | None,
+        license: str | None,
+        ingest_reason: str = "record_store_identity",
+    ) -> None:
+        """Insert a minimal dataset parent for any record kind without overwriting one."""
+
         if self.get_dataset(dataset_id) is not None:
             return
         source_id, _, native_id = dataset_id.partition(":")
@@ -297,7 +321,7 @@ class Registry:
                 publisher_name,
                 license,
                 access_path,
-                "observation_store_identity",
+                ingest_reason,
                 publisher_name or dataset_id,
                 json.dumps([access_path] if access_path else [], ensure_ascii=False),
                 json.dumps({}, ensure_ascii=False),
@@ -379,6 +403,28 @@ class Registry:
             ),
         )
         self.conn.commit()
+
+    def checkpoint_fetch_run(self, run_id: int, counts: HarvestCounts) -> None:
+        """Persist progress for a long-running snapshot while it remains active."""
+
+        self.conn.execute(
+            """
+            UPDATE fetch_runs
+            SET listed = ?, inserted = ?, updated = ?, unchanged = ?, failed = ?,
+                errors_json = ?
+            WHERE id = ?
+            """,
+            (
+                counts.listed,
+                counts.inserted,
+                counts.updated,
+                counts.unchanged,
+                counts.failed,
+                json.dumps(counts.errors, ensure_ascii=False),
+                run_id,
+            ),
+        )
+        self._commit()
 
     def observation_count(self) -> int:
         row = self.conn.execute("SELECT COUNT(*) AS n FROM observations").fetchone()
@@ -632,7 +678,8 @@ class Registry:
             "fetch_run_id": run_id,
         }
         existing = self.conn.execute(
-            "SELECT id, value_json, attributes_json FROM records WHERE id = ?", (row["id"],)
+            f"SELECT {', '.join(_RECORD_CONTENT_COLUMNS)} FROM records WHERE id = ?",
+            (row["id"],),
         ).fetchone()
         if existing is None:
             self.conn.execute(
@@ -642,10 +689,7 @@ class Registry:
             )
             self._commit()
             return "inserted"
-        if (
-            existing["value_json"] == values["value_json"]
-            and existing["attributes_json"] == values["attributes_json"]
-        ):
+        if all(existing[column] == values[column] for column in _RECORD_CONTENT_COLUMNS):
             return "unchanged"
         assign = ", ".join(f"{col} = ?" for col in _RECORD_UPDATE_COLUMNS)
         self.conn.execute(
@@ -707,6 +751,225 @@ class Registry:
                 "SELECT COUNT(*) FROM records WHERE dataset_id = ?", (dataset_id,)
             ).fetchone()[0]
         )
+
+    # ---- continuous crawl state ---------------------------------------
+
+    def get_crawl_checkpoint(self, pipeline_id: str) -> dict[str, Any] | None:
+        row = self.conn.execute(
+            "SELECT * FROM crawl_checkpoints WHERE pipeline_id = ?", (pipeline_id,)
+        ).fetchone()
+        if row is None:
+            return None
+        found = dict(row)
+        found["extra"] = json.loads(found.pop("extra_json") or "{}")
+        return found
+
+    def set_crawl_checkpoint(self, pipeline_id: str, checkpoint: dict[str, Any]) -> str:
+        """Atomically replace a publisher cursor after its records commit."""
+
+        columns = (
+            "pipeline_id", "source_id", "dataset_id", "cursor", "cursor_time",
+            "etag", "last_modified", "snapshot_sha256", "snapshot_path", "updated_at",
+            "extra_json",
+        )
+        values = {
+            "pipeline_id": pipeline_id,
+            "source_id": checkpoint["source_id"],
+            "dataset_id": checkpoint["dataset_id"],
+            "cursor": checkpoint.get("cursor"),
+            "cursor_time": checkpoint.get("cursor_time"),
+            "etag": checkpoint.get("etag"),
+            "last_modified": checkpoint.get("last_modified"),
+            "snapshot_sha256": checkpoint.get("snapshot_sha256"),
+            "snapshot_path": checkpoint.get("snapshot_path"),
+            "updated_at": checkpoint.get("updated_at") or utc_now(),
+            "extra_json": json.dumps(
+                checkpoint.get("extra") or {}, ensure_ascii=False, sort_keys=True
+            ),
+        }
+        existing = self.conn.execute(
+            "SELECT pipeline_id FROM crawl_checkpoints WHERE pipeline_id = ?", (pipeline_id,)
+        ).fetchone()
+        if existing is None:
+            self.conn.execute(
+                f"INSERT INTO crawl_checkpoints ({', '.join(columns)}) "
+                f"VALUES ({_placeholders(columns)})",
+                tuple(values[column] for column in columns),
+            )
+            action = "inserted"
+        else:
+            updates = ", ".join(f"{column} = ?" for column in columns[1:])
+            self.conn.execute(
+                f"UPDATE crawl_checkpoints SET {updates} WHERE pipeline_id = ?",
+                (*(values[column] for column in columns[1:]), pipeline_id),
+            )
+            action = "updated"
+        self._commit()
+        return action
+
+    def start_raw_snapshot(
+        self,
+        *,
+        pipeline_id: str,
+        dataset_id: str,
+        request_url: str,
+        retrieved_at: str | None = None,
+        http_status: int | None = None,
+        etag: str | None = None,
+        last_modified: str | None = None,
+        content_type: str | None = None,
+        content_length: int | None = None,
+    ) -> int:
+        cur = self.conn.execute(
+            """
+            INSERT INTO raw_snapshots (
+                pipeline_id, dataset_id, request_url, retrieved_at, http_status,
+                etag, last_modified, content_type, content_length, status
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'running')
+            """,
+            (
+                pipeline_id, dataset_id, request_url, retrieved_at or utc_now(), http_status,
+                etag, last_modified, content_type, content_length,
+            ),
+        )
+        self._commit()
+        return int(cur.lastrowid)
+
+    def finish_raw_snapshot(
+        self,
+        snapshot_id: int,
+        *,
+        status: str,
+        records_seen: int,
+        sha256: str | None = None,
+        storage_path: str | None = None,
+        error: str | None = None,
+    ) -> None:
+        self.conn.execute(
+            """
+            UPDATE raw_snapshots
+            SET status = ?, records_seen = ?, sha256 = ?, storage_path = ?, error = ?
+            WHERE id = ?
+            """,
+            (status, records_seen, sha256, storage_path, error, snapshot_id),
+        )
+        self._commit()
+
+    def list_raw_snapshots(self, pipeline_id: str | None = None) -> list[dict[str, Any]]:
+        if pipeline_id is None:
+            rows = self.conn.execute("SELECT * FROM raw_snapshots ORDER BY id").fetchall()
+        else:
+            rows = self.conn.execute(
+                "SELECT * FROM raw_snapshots WHERE pipeline_id = ? ORDER BY id",
+                (pipeline_id,),
+            ).fetchall()
+        return [dict(row) for row in rows]
+
+    def tombstone_record(
+        self,
+        *,
+        dataset_id: str,
+        kind: str,
+        subject_scheme: str | None,
+        subject_code: str,
+        reason: str,
+        request_url: str,
+        retrieved_at: str,
+        event_id: str | None = None,
+    ) -> bool:
+        """Remove a current record but preserve why and what was removed."""
+
+        rows = self.conn.execute(
+            """
+            SELECT * FROM records
+            WHERE dataset_id = ? AND kind = ? AND subject_code = ?
+            """,
+            (dataset_id, kind, subject_code),
+        ).fetchall()
+        previous = [dict(row) for row in rows]
+        self.conn.execute(
+            """
+            INSERT INTO record_tombstones (
+                dataset_id, kind, subject_scheme, subject_code, deleted_at, reason,
+                event_id, request_url, retrieved_at, previous_record_json
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT(dataset_id, kind, subject_code) DO UPDATE SET
+                subject_scheme = excluded.subject_scheme,
+                deleted_at = excluded.deleted_at,
+                reason = excluded.reason,
+                event_id = excluded.event_id,
+                request_url = excluded.request_url,
+                retrieved_at = excluded.retrieved_at,
+                previous_record_json = COALESCE(
+                    excluded.previous_record_json, record_tombstones.previous_record_json
+                )
+            """,
+            (
+                dataset_id, kind, subject_scheme, subject_code, retrieved_at, reason,
+                event_id, request_url, retrieved_at,
+                json.dumps(previous, ensure_ascii=False, sort_keys=True) if previous else None,
+            ),
+        )
+        self.conn.execute(
+            "DELETE FROM records WHERE dataset_id = ? AND kind = ? AND subject_code = ?",
+            (dataset_id, kind, subject_code),
+        )
+        self._commit()
+        return bool(previous)
+
+    def clear_record_tombstone(
+        self, *, dataset_id: str, kind: str, subject_code: str
+    ) -> None:
+        self.conn.execute(
+            "DELETE FROM record_tombstones WHERE dataset_id = ? AND kind = ? AND subject_code = ?",
+            (dataset_id, kind, subject_code),
+        )
+        self._commit()
+
+    def list_record_tombstones(self, dataset_id: str | None = None) -> list[dict[str, Any]]:
+        if dataset_id is None:
+            rows = self.conn.execute(
+                "SELECT * FROM record_tombstones ORDER BY dataset_id, subject_code"
+            ).fetchall()
+        else:
+            rows = self.conn.execute(
+                "SELECT * FROM record_tombstones WHERE dataset_id = ? ORDER BY subject_code",
+                (dataset_id,),
+            ).fetchall()
+        return [dict(row) for row in rows]
+
+    def begin_record_reconciliation(self) -> None:
+        """Start a connection-local set used to reconcile a complete snapshot."""
+
+        self.conn.execute(
+            "CREATE TEMP TABLE IF NOT EXISTS crawl_seen_records "
+            "(record_id TEXT PRIMARY KEY) WITHOUT ROWID"
+        )
+        self.conn.execute("DELETE FROM crawl_seen_records")
+        self._commit()
+
+    def mark_record_seen(self, record_id: str) -> None:
+        self.conn.execute(
+            "INSERT OR IGNORE INTO crawl_seen_records (record_id) VALUES (?)", (record_id,)
+        )
+
+    def records_missing_from_reconciliation(
+        self, *, dataset_id: str, kind: str, series: str
+    ) -> list[dict[str, Any]]:
+        """Return current rows absent from the active complete-snapshot set."""
+
+        return [
+            dict(row)
+            for row in self.conn.execute(
+                """
+                SELECT r.* FROM records r
+                LEFT JOIN crawl_seen_records s ON s.record_id = r.id
+                WHERE r.dataset_id = ? AND r.kind = ? AND r.series = ?
+                  AND s.record_id IS NULL
+                """,
+                (dataset_id, kind, series),
+            )
+        ]
 
     def upsert_observation(self, row: dict[str, Any], run_id: int) -> str:
         # A table's own title is never what one of its cells measures. Storing
@@ -1191,6 +1454,11 @@ _RECORD_COLUMNS = (
     "attributes_json", "geometry_json", "retrieved_at", "request_url", "http_status",
     "publisher_name", "license", "fetch_run_id",
 )
+# Retrieval timestamps and request provenance do not make a source record a
+# different value. Everything before them does: entity names, geometry and a
+# suppression marker must not be silently ignored just because value/attributes
+# happened to stay the same.
+_RECORD_CONTENT_COLUMNS = _RECORD_COLUMNS[:14]
 # id never changes; everything else may be re-reported by a later fetch.
 _RECORD_UPDATE_COLUMNS = tuple(c for c in _RECORD_COLUMNS if c != "id")
 
