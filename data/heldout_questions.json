@@ -1,0 +1,263 @@
+{
+  "note": "HELD OUT. Written blind -- without consulting the registry, the existing question set, or any measurement -- and never used to choose or tune anything. data/answerable_questions.json produced the routing rule and was then scored on it, so its 0.860 is optimistic by construction. This set exists to be measured once. If it is ever used to pick a parameter it stops being held out and a new one is needed. Same limitation as the other set: author-written, not sampled from real usage.",
+  "questions": [
+    {
+      "id": "h001",
+      "query": "yrkesdeltakelse kvinner",
+      "topic": "labour",
+      "style": "keyword"
+    },
+    {
+      "id": "h002",
+      "query": "streik og lockout",
+      "topic": "labour",
+      "style": "keyword"
+    },
+    {
+      "id": "h003",
+      "query": "permitteringer",
+      "topic": "labour",
+      "style": "keyword"
+    },
+    {
+      "id": "h004",
+      "query": "sivilstand befolkning",
+      "topic": "population",
+      "style": "keyword"
+    },
+    {
+      "id": "h005",
+      "query": "levendefødte etter mors alder",
+      "topic": "population",
+      "style": "keyword"
+    },
+    {
+      "id": "h006",
+      "query": "adopsjoner",
+      "topic": "population",
+      "style": "keyword"
+    },
+    {
+      "id": "h007",
+      "query": "husholdningenes gjeld",
+      "topic": "economy",
+      "style": "keyword"
+    },
+    {
+      "id": "h008",
+      "query": "detaljomsetning",
+      "topic": "economy",
+      "style": "keyword"
+    },
+    {
+      "id": "h009",
+      "query": "lønnsomhet i industrien",
+      "topic": "economy",
+      "style": "keyword"
+    },
+    {
+      "id": "h010",
+      "query": "leiepriser bolig",
+      "topic": "housing",
+      "style": "keyword"
+    },
+    {
+      "id": "h011",
+      "query": "eierform bolig",
+      "topic": "housing",
+      "style": "keyword"
+    },
+    {
+      "id": "h012",
+      "query": "tannhelse barn",
+      "topic": "health",
+      "style": "keyword"
+    },
+    {
+      "id": "h013",
+      "query": "antibiotikabruk",
+      "topic": "health",
+      "style": "keyword"
+    },
+    {
+      "id": "h014",
+      "query": "svangerskapsavbrudd",
+      "topic": "health",
+      "style": "keyword"
+    },
+    {
+      "id": "h015",
+      "query": "barnehagedekning",
+      "topic": "education",
+      "style": "keyword"
+    },
+    {
+      "id": "h016",
+      "query": "voksenopplæring",
+      "topic": "education",
+      "style": "keyword"
+    },
+    {
+      "id": "h017",
+      "query": "godstransport på vei",
+      "topic": "transport",
+      "style": "keyword"
+    },
+    {
+      "id": "h018",
+      "query": "luftfart passasjerer",
+      "topic": "transport",
+      "style": "keyword"
+    },
+    {
+      "id": "h019",
+      "query": "fjernvarme",
+      "topic": "energy",
+      "style": "keyword"
+    },
+    {
+      "id": "h020",
+      "query": "energibruk i industrien",
+      "topic": "energy",
+      "style": "keyword"
+    },
+    {
+      "id": "h021",
+      "query": "vannforsyning",
+      "topic": "environment",
+      "style": "keyword"
+    },
+    {
+      "id": "h022",
+      "query": "naturvernområder",
+      "topic": "environment",
+      "style": "keyword"
+    },
+    {
+      "id": "h023",
+      "query": "melkeproduksjon",
+      "topic": "primary",
+      "style": "keyword"
+    },
+    {
+      "id": "h024",
+      "query": "oppdrettslaks produksjon",
+      "topic": "primary",
+      "style": "keyword"
+    },
+    {
+      "id": "h025",
+      "query": "domfelte etter alder",
+      "topic": "justice",
+      "style": "keyword"
+    },
+    {
+      "id": "h026",
+      "query": "utenlandsk eierskap foretak",
+      "topic": "company",
+      "style": "keyword"
+    },
+    {
+      "id": "h027",
+      "query": "hvor mange er i deltidsarbeid",
+      "topic": "labour",
+      "style": "natural"
+    },
+    {
+      "id": "h028",
+      "query": "hvor mange streiker i året",
+      "topic": "labour",
+      "style": "natural"
+    },
+    {
+      "id": "h029",
+      "query": "hvor mange gifter seg i Norge",
+      "topic": "population",
+      "style": "natural"
+    },
+    {
+      "id": "h030",
+      "query": "hvor mange skilsmisser er det i året",
+      "topic": "population",
+      "style": "natural"
+    },
+    {
+      "id": "h031",
+      "query": "hvor gamle er førstegangsfødende",
+      "topic": "population",
+      "style": "natural"
+    },
+    {
+      "id": "h032",
+      "query": "hvor mange barn har hull i tennene",
+      "topic": "health",
+      "style": "natural"
+    },
+    {
+      "id": "h033",
+      "query": "hvor mange får kreft hvert år",
+      "topic": "health",
+      "style": "natural"
+    },
+    {
+      "id": "h034",
+      "query": "hvor mange barn går i barnehage",
+      "topic": "education",
+      "style": "natural"
+    },
+    {
+      "id": "h035",
+      "query": "hvor mange lærere mangler utdanning",
+      "topic": "education",
+      "style": "natural"
+    },
+    {
+      "id": "h036",
+      "query": "hvor mange leier boligen sin",
+      "topic": "housing",
+      "style": "natural"
+    },
+    {
+      "id": "h037",
+      "query": "hvor mye gods fraktes på vei",
+      "topic": "transport",
+      "style": "natural"
+    },
+    {
+      "id": "h038",
+      "query": "hvor mange flyr innenlands",
+      "topic": "transport",
+      "style": "natural"
+    },
+    {
+      "id": "h039",
+      "query": "hvor mye fjernvarme brukes i Norge",
+      "topic": "energy",
+      "style": "natural"
+    },
+    {
+      "id": "h040",
+      "query": "hvor mye vann bruker en husholdning",
+      "topic": "environment",
+      "style": "natural"
+    },
+    {
+      "id": "h041",
+      "query": "hvor mye melk produseres i Norge",
+      "topic": "primary",
+      "style": "natural"
+    },
+    {
+      "id": "h042",
+      "query": "hvor mye gjeld har norske husholdninger",
+      "topic": "economy",
+      "style": "natural"
+    },
+    {
+      "id": "h043",
+      "query": "hvor mye handler vi på nett",
+      "topic": "economy",
+      "style": "natural"
+    }
+  ]
+}

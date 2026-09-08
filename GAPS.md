@@ -263,3 +263,38 @@ Measured after the decoder fix, the deletion of 588,442 mislabelled rows and the
 rewiring: recall@5 0.860, MRR 0.763, keyword 0.907, natural 0.814 -- identical to the
 measurement before them. The observation store is a cache; retrieval ranks the registry,
 and emptying the cache does not touch it.
+
+
+## The held-out number is 0.743, not 0.860
+
+`data/answerable_questions.json` produced the routing rule and was then scored on it, so
+its 0.860 was optimistic by construction. `data/heldout_questions.json` was written
+blind and measured once:
+
+```
+              recall@5    MRR   keyword  natural      (tuned set, for comparison)
+lexical         0.400    0.324    0.450    0.333      0.442 / 0.327 / 0.651 / 0.233
+full stack      0.743    0.655    0.850    0.600      0.860 / 0.763 / 0.907 / 0.814
+```
+
+Three things follow.
+
+**The tuned figure overstated by about twelve points.** 0.743 is the number to quote.
+
+**The improvement is real.** Lexical 0.400 to 0.743 held up on data that chose nothing,
+so it is not an artifact of fitting.
+
+**Routing generalises worse than the tuned set implied.** Naturally phrased questions
+score 0.600 held out against 0.814 tuned, the largest gap of any column. The rule --
+fuse for a subject, semantic alone for a question -- was derived from one author's
+phrasings, and the marker list behind `looks_like_a_question` is the part most likely
+to be overfitted. Keyword phrasing barely moved (0.850 against 0.907), which fits: that
+half depends on vocabulary rather than on the router.
+
+Eight of 43 held-out questions have no answer anywhere in the registry -- permitteringer,
+luftfart passasjerer, oppdrettslaks produksjon, melkeproduksjon, lønnsomhet i industrien,
+naturvernområder, vannforbruk per husholdning. That is a coverage finding for the
+connector lane, not a retrieval failure, and those questions are excluded from recall.
+
+The set is spent the moment it is used to choose anything. If a parameter is ever tuned
+against it, a new held-out set is needed.
