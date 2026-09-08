@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from public_data_agent.fetch import fetch_observations
+from public_data_agent.fetch import classify_access_path, fetch_observations
 from public_data_agent.harvest import harvest
 from public_data_agent.http_util import JsonResponse
 from public_data_agent.registry import Registry
@@ -104,7 +104,11 @@ class CatalogHttp:
 
 
 class FetchHttp:
+    def __init__(self) -> None:
+        self.gets: list[str] = []
+
     def get_json_response(self, url: str, *, headers=None) -> JsonResponse:
+        self.gets.append(url)
         if url == REPRESENTANTER_URL:
             return JsonResponse(status=200, url=url, body=REPRESENTANTER_BODY)
         raise AssertionError(f"unexpected GET {url}")
@@ -199,34 +203,21 @@ def test_harvest_writes_printed_id_and_license(tmp_path: Path) -> None:
     registry.close()
 
 
-def test_fetch_gets_printed_representant_names(tmp_path: Path) -> None:
+def test_fetch_refuses_duplicate_discovery_collection_before_request(tmp_path: Path) -> None:
     source = BrrollerSource(http=CatalogHttp())
     registry = Registry(tmp_path / "registry.sqlite")
     harvest(registry, source)
-    result = fetch_observations(
-        registry,
-        DATASET_ID,
-        table_id="ignored",
-        http=FetchHttp(),
-    )
-    assert result.request_url == REPRESENTANTER_URL
-    assert result.table_id == "representanter"
-    assert result.http_status == 200
-    assert result.counts.listed == 2
-    rows = registry.list_observations(DATASET_ID)
-    by_value = {json.loads(row["value_json"]): row for row in rows}
-    assert set(by_value) == {
-        "Representant for A-aksjonærene",
-        "Representant for de ansatte",
-    }
-    assert by_value["Representant for A-aksjonærene"]["measure"] == "beskrivelse"
-    dims = json.loads(by_value["Representant for A-aksjonærene"]["dimensions_json"])
-    assert dims["kode"] == "A-AK"
-    assert "_links" not in dims
-    assert "nested" not in dims
-    assert all(row["publisher_name"] is None for row in rows)
-    assert all(row["license"] == LICENSE_URL for row in rows)
-    assert all(row["access_path"] == REPRESENTANTER_URL for row in rows)
+    http = FetchHttp()
+    with pytest.raises(ValueError, match="not company-role data"):
+        fetch_observations(
+            registry,
+            DATASET_ID,
+            table_id="ignored",
+            http=http,
+        )
+    assert http.gets == []
+    assert registry.list_observations(DATASET_ID) == []
+    assert registry.list_records(DATASET_ID) == []
     registry.close()
 
 
@@ -249,6 +240,9 @@ def test_cells_copy_printed_beskrivelse() -> None:
 def test_is_brroller_url_accepts_only_roller_path() -> None:
     assert is_brroller_url(REPRESENTANTER_URL)
     assert is_brroller_url(ROLLETYPER_URL)
+    classification = classify_access_path(REPRESENTANTER_URL)
+    assert classification["kind"] == "none"
+    assert "does not return company roles" in classification["reason"]
     assert brroller_table_id(REPRESENTANTER_URL) == "representanter"
     assert not is_brroller_url(BRREG_URL)
     assert not is_brroller_url(FRIVILLIG_URL)

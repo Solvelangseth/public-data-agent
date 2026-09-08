@@ -359,3 +359,32 @@ ceiling as the adjacent vocabularies. Mismatched successful responses and imposs
 selections are rejected before they can write records or make unnecessary requests.
 
 **Open question for the query side.** None.
+
+## brroller — 2026-09-08 — duplicate discovery connector, fetch disabled
+
+**Endpoint(s).** This source reads the official OpenAPI document and selects three
+unparameterized paths under `/api/roller/`: `representanter`, `rollegruppetyper` and
+`rolletyper`. Those are exactly the three vocabularies now represented canonically by
+`brrepresent`, `brrollegruppe` and `brrolletype`. The actual company-role endpoint is
+`/api/enheter/{organisasjonsnummer}/roller`; because it requires a path parameter, this
+source deliberately excludes it. `/api/roller/totalbestand` is also deliberately
+excluded.
+
+**Shape.** `none` for this connector. Its three selected endpoints contain lookup
+concepts, but storing their descriptions again under `brroller:*` would create duplicate
+identities and the old adapter incorrectly wrote them as observations. This source does
+not return a company's roles despite its name.
+
+**Capability recorded.** Fetch dispatch now refuses these discovery collections before
+making an HTTP request and directs callers to the three canonical per-code lookup
+sources. Access-path classification returns `none` with the duplicate/non-company-role
+reason. No observations or records are written. Full suite: 1,931 passed, 1 skipped and
+1 live test deselected.
+
+**Surprises.** The old test looked convincingly data-bearing because the endpoint
+returned real labels under `_embedded`; what it proved was only that a code list could
+be misrepresented as measurements a second time. A future company-role connector must
+be keyed from a validated organisation number and model the returned role groups and
+participants explicitly; `brroller` is not that connector and should not be scheduled.
+
+**Open question for the query side.** None.
