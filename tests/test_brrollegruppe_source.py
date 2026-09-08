@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from public_data_agent.fetch import fetch_observations
+from public_data_agent.fetch import classify_access_path, fetch_observations
 from public_data_agent.harvest import harvest
 from public_data_agent.http_util import JsonResponse
 from public_data_agent.registry import Registry
@@ -68,9 +68,14 @@ class CatalogHttp:
 
 
 class FetchHttp:
+    def __init__(self, body=ITEM_BODY) -> None:
+        self.body = body
+        self.gets: list[str] = []
+
     def get_json_response(self, url: str, *, headers=None) -> JsonResponse:
+        self.gets.append(url)
         if url == DAGL_URL:
-            return JsonResponse(status=200, url=url, body=ITEM_BODY)
+            return JsonResponse(status=200, url=url, body=self.body)
         raise AssertionError(f"unexpected GET {url}")
 
     def post_json_response(self, url: str, body, *, headers=None) -> JsonResponse:
@@ -193,7 +198,7 @@ def test_harvest_writes_printed_kode_and_null_license(tmp_path: Path) -> None:
     registry.close()
 
 
-def test_fetch_gets_printed_beskrivelse(tmp_path: Path) -> None:
+def test_fetch_stores_printed_rollegruppe_as_lookup_entity(tmp_path: Path) -> None:
     source = BrrollegruppeSource(http=CatalogHttp())
     registry = Registry(tmp_path / "registry.sqlite")
     harvest(registry, source)
@@ -207,16 +212,24 @@ def test_fetch_gets_printed_beskrivelse(tmp_path: Path) -> None:
     assert result.table_id == "DAGL"
     assert result.http_status == 200
     assert result.counts.listed == 1
-    rows = registry.list_observations(DATASET_ID)
-    values = [json.loads(row["value_json"]) for row in rows]
-    assert values == ["Daglig leder"]
-    assert all(row["measure"] == "beskrivelse" for row in rows)
-    dims = json.loads(rows[0]["dimensions_json"])
-    assert dims["kode"] == "DAGL"
-    assert "_links" not in dims
+    assert registry.list_observations(DATASET_ID) == []
+    rows = registry.list_records(DATASET_ID)
+    assert len(rows) == 1
+    assert rows[0]["kind"] == "entity"
+    assert rows[0]["subject_scheme"] == "brreg:rollegruppetype"
+    assert rows[0]["subject_code"] == "DAGL"
+    assert rows[0]["subject_label"] == "Daglig leder"
+    assert json.loads(rows[0]["attributes_json"]) == {}
     assert all(row["publisher_name"] is None for row in rows)
     assert all(row["license"] is None for row in rows)
-    assert all(row["access_path"] == DAGL_URL for row in rows)
+    assert all(row["request_url"] == DAGL_URL for row in rows)
+    capability = registry.get_capability(DATASET_ID)
+    assert capability["capability"] == "lookup"
+    assert capability["record_kind"] == "entity"
+    assert capability["verified_sample_count"] == 1
+    assert registry.datasets_with_key("brreg:rollegruppetype")[0]["dataset_id"] == (
+        DATASET_ID
+    )
     registry.close()
 
 
@@ -231,9 +244,37 @@ def test_cells_copy_printed_gruppe() -> None:
         cells_from_brrollegruppe({"_links": {"self": {"href": AUTH_URL}}})
 
 
+def test_fetch_refuses_mismatched_or_unsatisfiable_group_before_writing(
+    tmp_path: Path,
+) -> None:
+    registry = Registry(tmp_path / "registry.sqlite")
+    harvest(registry, BrrollegruppeSource(http=CatalogHttp()))
+    with pytest.raises(ValueError, match="not requested"):
+        fetch_observations(
+            registry,
+            DATASET_ID,
+            table_id="ignored",
+            http=FetchHttp({"kode": "ADOS", "beskrivelse": "Administrativ enhet"}),
+        )
+    assert registry.list_records(DATASET_ID) == []
+
+    untouched = FetchHttp()
+    with pytest.raises(ValueError, match="does not match"):
+        fetch_observations(
+            registry,
+            DATASET_ID,
+            table_id="ignored",
+            select={"kode": ["ADOS"]},
+            http=untouched,
+        )
+    assert untouched.gets == []
+    registry.close()
+
+
 def test_is_brrollegruppe_url_accepts_only_rollegruppetyper_item_paths() -> None:
     assert is_brrollegruppe_url(DAGL_URL)
     assert is_brrollegruppe_url(ADOS_URL)
+    assert classify_access_path(DAGL_URL)["kind"] == "lookup"
     assert brrollegruppe_table_id(DAGL_URL) == "DAGL"
     assert not is_brrollegruppe_url(LIST_URL)
     assert not is_brrollegruppe_url(AUTH_URL)

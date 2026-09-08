@@ -299,3 +299,34 @@ SSD before the two national Brreg mirrors are run. A 2 TB SSD is a workable mini
 4 TB gives more useful runway for geospatial sources. Cloud credentials are not needed
 to validate the first import, but an EU bucket should be created before unattended
 retention begins.
+
+## brrollegruppe — 2026-09-08 — promoted
+
+**Endpoint(s).** `GET
+https://data.brreg.no/enhetsregisteret/api/roller/rollegruppetyper` returns the complete
+21-member role-group-type vocabulary. As with role types, its live member `self` links
+point at protected `/autorisert-api/...` paths. The connector derives the public
+`/api/roller/rollegruppetyper/{kode}` path from the collection origin and printed code;
+the live `DAGL` item returned HTTP 200. Brreg's official API documentation lists the
+collection endpoint and explicitly defines `rollegruppetype` as a code list/enum.
+
+**Shape.** `entity` used as a `lookup`. `kode` is the subject under the source-owned
+`brreg:rollegruppetype` scheme, `beskrivelse` is its label, and any future additional
+properties remain attributes. This is intentionally distinct from `brreg:rolletype`:
+the two vocabularies can print the same code, including `DAGL`, without being declared
+globally equivalent.
+
+**Capability recorded.** `lookup`, record kind `entity`. A fresh live run harvested
+all 21 collection members with no failures, then fetched `brrollegruppe:DAGL` from the
+public item URL: HTTP 200, one entity inserted, code `DAGL`, label `Daglig leder`, one
+verified resource key and zero observation rows. Full suite: 1,930 passed, 1 skipped
+and 1 live test deselected.
+
+**Surprises.** The old adapter represented the label as an observation, capped a
+default harvest at ten even though the complete list has 21 members, and did not add a
+resource shape or capability. The limit is now only a 100-member safety ceiling. A
+successful item response whose printed code differs from the requested path is rejected
+before a record or capability is written; an unsatisfiable selection is rejected before
+the HTTP request.
+
+**Open question for the query side.** None.

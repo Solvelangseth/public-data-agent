@@ -11,15 +11,16 @@ SOURCE_ID = "brrollegruppe"
 SOURCE_NAME = "Brønnøysundregistrene Enhetsregisteret rollegruppetyper"
 LIST_URL = "https://data.brreg.no/enhetsregisteret/api/roller/rollegruppetyper"
 PATH_PREFIX = "/enhetsregisteret/api/roller/rollegruppetyper"
-DEFAULT_MAX_ITEMS = 10
+DEFAULT_MAX_ITEMS = 100
 INGEST_REASON = (
     "listed as a printed rollegruppetype on the official Enhetsregisteret "
-    f"rollegruppetyper catalog, capped at {DEFAULT_MAX_ITEMS} codes"
+    f"rollegruppetyper catalog, with a safety ceiling of {DEFAULT_MAX_ITEMS} codes"
 )
 BRROLLEGRUPPE_RPS = 2.0
 BRROLLEGRUPPE_BURST = 4
 HOST = "data.brreg.no"
 NAME_FIELDS = ("beskrivelse", "kode")
+ROLLEGRUPPETYPE_SCHEME = "brreg:rollegruppetype"
 
 
 class BrrollegruppeSource(SourceBase):
@@ -213,6 +214,8 @@ def brrollegruppe_table_id(access_path: str) -> str:
 
 
 def cells_from_brrollegruppe(payload: Any) -> list[tuple[str, Any, dict[str, str]]]:
+    """Legacy observation projection. Prefer entity_from_brrollegruppe."""
+
     if not isinstance(payload, dict):
         raise ValueError("brrollegruppe payload is not a JSON object")
     cells = _cells_from_record(
@@ -221,6 +224,54 @@ def cells_from_brrollegruppe(payload: Any) -> list[tuple[str, Any, dict[str, str
     if not cells:
         raise ValueError("brrollegruppe payload printed no rollegruppetype members")
     return cells
+
+
+def entity_from_brrollegruppe(payload: Any) -> dict[str, Any]:
+    if not isinstance(payload, dict):
+        raise ValueError("brrollegruppe payload is not a JSON object")
+    code = payload.get("kode")
+    if not isinstance(code, str) or not code.strip():
+        raise ValueError("brrollegruppe payload printed no kode")
+    description = payload.get("beskrivelse")
+    label = description.strip() if isinstance(description, str) and description.strip() else None
+    return {
+        "subject_scheme": ROLLEGRUPPETYPE_SCHEME,
+        "subject_code": code.strip(),
+        "subject_label": label,
+        "attributes": {
+            str(key): value
+            for key, value in payload.items()
+            if key not in {"kode", "beskrivelse", "_links"}
+        },
+    }
+
+
+def shape_from_brrollegruppe(
+    payload: Any,
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    entity = entity_from_brrollegruppe(payload)
+    code, label = entity["subject_code"], entity["subject_label"]
+    fields: list[dict[str, Any]] = [
+        {
+            "field_code": "kode", "field_label": "kode", "field_role": "key",
+            "value_count": 1, "values": [{"value_code": code, "value_label": label}],
+        }
+    ]
+    if label is not None:
+        fields.append(
+            {
+                "field_code": "beskrivelse", "field_label": "beskrivelse",
+                "field_role": "attribute", "value_count": 1,
+                "values": [{"value_code": label, "value_label": label}],
+            }
+        )
+    return fields, [
+        {
+            "scheme": ROLLEGRUPPETYPE_SCHEME,
+            "field_code": "kode",
+            "coverage_count": 1,
+        }
+    ]
 
 
 def _cells_from_record(item: dict[str, Any]) -> list[tuple[str, Any, dict[str, str]]]:

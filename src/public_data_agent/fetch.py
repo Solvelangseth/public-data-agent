@@ -674,9 +674,13 @@ from public_data_agent.sources.brunder import (
     shape_from_brunder,
 )
 from public_data_agent.sources.brrollegruppe import (
+    BRROLLEGRUPPE_BURST,
+    BRROLLEGRUPPE_RPS,
+    ROLLEGRUPPETYPE_SCHEME,
     brrollegruppe_table_id,
-    cells_from_brrollegruppe,
+    entity_from_brrollegruppe,
     is_brrollegruppe_url,
+    shape_from_brrollegruppe,
 )
 from public_data_agent.sources.brrolletype import (
     BRROLLETYPE_BURST,
@@ -1185,7 +1189,7 @@ def fetch_observations(
     if is_brorgform_url(access_path):
         return _fetch_brorgform(registry, dataset, http=http, select=select)
     if is_brrollegruppe_url(access_path):
-        return _fetch_brrollegruppe(registry, dataset, http=http)
+        return _fetch_brrollegruppe(registry, dataset, http=http, select=select)
     if is_brrolletype_url(access_path):
         return _fetch_brrolletype(registry, dataset, http=http, select=select)
     if is_brrepresent_url(access_path):
@@ -2032,12 +2036,44 @@ def _fetch_brrollegruppe(
     dataset: dict[str, Any],
     *,
     http: JsonHttp | None = None,
+    select: dict[str, list[str]] | None = None,
 ) -> FetchResult:
     if dataset.get("source_id") != "brrollegruppe":
         return _fetch_brreg(registry, dataset, http=http)
     access_path = dataset.get("access_path") or ""
-    client = http or HttpClient(timeout=60.0, max_retries=4)
     table_id = brrollegruppe_table_id(access_path)
+    select = {str(key): value for key, value in (select or {}).items()}
+    if select:
+        unknown = sorted(key for key in select if key != "kode")
+        if unknown:
+            raise ValueError(
+                f"select names field(s) {unknown}; only rollegruppetype kode is accepted"
+            )
+        wanted = select.get("kode") or []
+        wanted = [wanted] if isinstance(wanted, str) else [str(item) for item in wanted]
+        if len(wanted) > 1:
+            raise SelectionTooLarge(
+                table_id,
+                len(wanted),
+                1,
+                [
+                    {
+                        "code": "kode",
+                        "text": "kode",
+                        "selected": len(wanted),
+                        "available": 1,
+                    }
+                ],
+            )
+        if wanted and wanted != [table_id]:
+            raise ValueError(
+                f"select[kode]={wanted!r} does not match rollegruppetype {table_id!r}"
+            )
+    client = http or HttpClient(
+        limiter=RateLimiter(BRROLLEGRUPPE_RPS, BRROLLEGRUPPE_BURST),
+        timeout=60.0,
+        max_retries=4,
+    )
     started = utc_now()
     run_id = registry.start_fetch_run(
         dataset_id=dataset["id"],
@@ -2054,18 +2090,54 @@ def _fetch_brrollegruppe(
         got = client.get_json_response(access_path)
         http_status = got.status
         registry.set_fetch_request(run_id, request_url=access_path, request_body={"method": "GET"})
-        cells = cells_from_brrollegruppe(got.body)
-        counts.listed = len(cells)
-        sample = _store_cells(
-            registry,
-            dataset,
+        if http_status >= 400:
+            raise ValueError(
+                f"Brreg rollegruppetype GET returned HTTP {http_status} for {access_path}"
+            )
+        entity = entity_from_brrollegruppe(got.body)
+        if entity["subject_code"] != table_id:
+            raise ValueError(
+                f"Brreg rollegruppetype at {access_path} printed kode "
+                f"{entity['subject_code']!r}, not requested {table_id!r}"
+            )
+        retrieved_at = utc_now()
+        record_id = f"entity:{dataset['id']}:{table_id}"
+        action = registry.upsert_record(
+            {
+                "id": record_id,
+                "dataset_id": dataset["id"],
+                "kind": "entity",
+                "series": f"brrollegruppe:{table_id}",
+                "subject_scheme": ROLLEGRUPPETYPE_SCHEME,
+                "subject_code": table_id,
+                "subject_label": entity["subject_label"],
+                "period": None,
+                "measure": None,
+                "value": None,
+                "attributes": entity["attributes"],
+                "retrieved_at": retrieved_at,
+                "request_url": access_path,
+                "http_status": http_status,
+                "publisher_name": dataset.get("publisher_name"),
+                "license": dataset.get("license"),
+            },
             run_id,
-            table_id=table_id,
-            cells=cells,
-            retrieved_at=utc_now(),
-            request_url=access_path,
-            http_status=http_status,
-            counts=counts,
+        )
+        counts.listed = 1
+        setattr(counts, action, 1)
+        sample = [{"kind": "entity", **entity}]
+        fields, keys = shape_from_brrollegruppe(got.body)
+        registry.set_resource_shape(dataset["id"], fields, keys=keys)
+        registry.set_capability(
+            dataset["id"],
+            {
+                "capability": CAPABILITY_LOOKUP,
+                "record_kind": "entity",
+                "endpoint": access_path,
+                "request_method": "GET",
+                "verified_at": retrieved_at,
+                "verified_sample_count": 1,
+            },
         )
         status = "completed"
     except Exception as exc:
@@ -2081,6 +2153,7 @@ def _fetch_brrollegruppe(
         http_status=http_status,
         counts=counts,
         sample=sample,
+        observation_ids=[record_id] if status == "completed" else [],
     )
 
 
@@ -12589,6 +12662,11 @@ def classify_access_path(access_path: str | None) -> dict[str, Any]:
         return {
             "kind": CAPABILITY_LOOKUP,
             "reason": "Brreg role-type item; returns one published code-list concept",
+        }
+    if is_brrollegruppe_url(access_path):
+        return {
+            "kind": CAPABILITY_LOOKUP,
+            "reason": "Brreg role-group-type item; returns one published code-list concept",
         }
     if is_klass_url(access_path):
         return {
