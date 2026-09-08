@@ -264,3 +264,38 @@ into 27 authentication failures. The old adapter also misrepresented each role l
 a measurement.
 
 **Open question for the query side.** None.
+
+## crawl-storage — 2026-09-08 — guarded, provisioning pending
+
+**Finding.** The working filesystem has only 2.3 GiB free and is 99% full. No
+external volume is mounted, and no `rclone`, AWS CLI or Restic client is installed.
+The live Brreg main-unit CSV gzip alone is about 147 MiB, but the active SQLite copy
+also needs room for expanded rows and transaction state; raw-file size is therefore
+not a sufficient capacity estimate.
+
+**Implementation.** Complete Brreg snapshots now check the publisher's printed
+`Content-Length` before starting a manifest or download. The minimum combines the
+compressed object plus 512 MiB raw headroom with an intentionally conservative
+12-times compressed-size estimate plus 1 GiB database headroom. Requirements are
+combined when `--db` and `--storage-dir` share a filesystem. Unknown file size or
+insufficient capacity fails before any bytes are downloaded. A live preflight on this
+machine correctly refused the main-unit snapshot: it estimated 3.4 GiB minimum free
+and found 2.3 GiB. The implementation and exact deployment layout are documented in
+`docs/CRAWL_STORAGE.md`. Unit coverage proves both low-capacity and missing-length
+refusals happen before a download or raw manifest is started. Full suite: 1,929 passed,
+1 skipped and 1 live test deselected.
+
+**Storage decision.** Use both layers for different jobs: an encrypted APFS external
+SSD for the live SQLite database and crawl staging, and a private EU-jurisdiction
+S3-compatible object bucket for immutable compressed publisher bytes and off-site
+recovery. Do not put SQLite or its WAL in object storage. Cloudflare R2 is the simplest
+initial bucket candidate because its official service is S3-compatible, offers an EU
+jurisdiction and currently lists standard storage at USD 0.015/GB-month with free
+Internet egress. Provider selection remains configuration so R2, AWS S3 or Backblaze
+B2 can be changed without changing connector logic.
+
+**Open question for the crawler owner.** Provision and mount a suitably sized external
+SSD before the two national Brreg mirrors are run. A 2 TB SSD is a workable minimum;
+4 TB gives more useful runway for geospatial sources. Cloud credentials are not needed
+to validate the first import, but an EU bucket should be created before unattended
+retention begins.

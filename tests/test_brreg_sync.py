@@ -151,6 +151,47 @@ def test_unchanged_etag_skips_download_and_reingest(tmp_path: Path) -> None:
     registry.close()
 
 
+def test_snapshot_refuses_insufficient_disk_before_download(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    registry = Registry(tmp_path / "registry.sqlite")
+    http = SnapshotHttp(_snapshot(tmp_path))
+    monkeypatch.setattr(
+        "public_data_agent.brreg_sync.shutil.disk_usage",
+        lambda _path: type("Usage", (), {"free": 100})(),
+    )
+    with pytest.raises(ValueError, match="insufficient free space"):
+        sync_snapshot(registry, "enheter", storage_dir=tmp_path / "raw", http=http)
+    assert http.downloads == []
+    assert registry.list_raw_snapshots() == []
+    registry.close()
+
+
+def test_snapshot_refuses_unknown_size_before_download(tmp_path: Path) -> None:
+    registry = Registry(tmp_path / "registry.sqlite")
+    http = SnapshotHttp(_snapshot(tmp_path))
+    original_head = http.head
+
+    def head_without_length(url: str, *, headers=None) -> FileResponse:
+        response = original_head(url, headers=headers)
+        return FileResponse(
+            status=response.status,
+            url=response.url,
+            headers={
+                key: value
+                for key, value in response.headers.items()
+                if key != "content-length"
+            },
+        )
+
+    http.head = head_without_length  # type: ignore[method-assign]
+    with pytest.raises(ValueError, match="cannot verify local capacity safely"):
+        sync_snapshot(registry, "enheter", storage_dir=tmp_path / "raw", http=http)
+    assert http.downloads == []
+    assert registry.list_raw_snapshots() == []
+    registry.close()
+
+
 def test_changed_snapshot_conditions_get_on_previous_not_new_etag(tmp_path: Path) -> None:
     registry = Registry(tmp_path / "registry.sqlite")
     source = _snapshot(tmp_path)

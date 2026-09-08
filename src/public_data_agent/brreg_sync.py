@@ -11,6 +11,7 @@ from __future__ import annotations
 import csv
 import gzip
 import re
+import shutil
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from email.utils import parsedate_to_datetime
@@ -35,6 +36,9 @@ BRREG_MIRROR_BURST = 4
 BRREG_UPDATE_OVERLAP = timedelta(days=1)
 BRREG_LICENSE = "https://data.norge.no/nlod/no/2.0"
 BRREG_PUBLISHER = "Brønnøysundregistrene"
+RAW_SNAPSHOT_HEADROOM_BYTES = 512 * 1024**2
+DATABASE_HEADROOM_BYTES = 1024**3
+SNAPSHOT_DB_EXPANSION_FACTOR = 12
 
 
 @dataclass(frozen=True)
@@ -144,6 +148,7 @@ def sync_snapshot(
         raise ValueError(f"Brreg snapshot HEAD returned HTTP {remote.status}: {spec.snapshot_url}")
     etag = _header(remote, "etag")
     last_modified = _header(remote, "last-modified")
+    content_length = _integer_header(remote, "content-length")
     checkpoint = registry.get_crawl_checkpoint(spec.pipeline_id)
     if not force and limit is None and etag and checkpoint and checkpoint.get("etag") == etag:
         return MirrorResult(
@@ -157,6 +162,13 @@ def sync_snapshot(
             sha256=checkpoint.get("snapshot_sha256"),
         )
 
+    storage_dir.mkdir(parents=True, exist_ok=True)
+    _ensure_snapshot_capacity(
+        registry,
+        storage_dir,
+        content_length=content_length,
+        include_database_growth=limit is None,
+    )
     snapshot_id = registry.start_raw_snapshot(
         pipeline_id=spec.pipeline_id,
         dataset_id=spec.dataset_id,
@@ -165,9 +177,8 @@ def sync_snapshot(
         etag=etag,
         last_modified=last_modified,
         content_type=_header(remote, "content-type"),
-        content_length=_integer_header(remote, "content-length"),
+        content_length=content_length,
     )
-    storage_dir.mkdir(parents=True, exist_ok=True)
     destination = storage_dir / f"{kind}-{snapshot_id}.csv.gz"
     conditional = None
     if checkpoint and checkpoint.get("etag") and not force:
@@ -292,6 +303,74 @@ def sync_snapshot(
             error=str(exc),
         )
         raise
+
+
+def _ensure_snapshot_capacity(
+    registry: Registry,
+    storage_dir: Path,
+    *,
+    content_length: int | None,
+    include_database_growth: bool,
+) -> None:
+    """Refuse a complete copy before it can exhaust a local filesystem.
+
+    Brreg publishes a compressed file, while SQLite needs room for expanded
+    records and transaction state. These are deliberately conservative minimum
+    estimates, not predictions of the final database size.
+    """
+
+    if content_length is None or content_length < 1:
+        raise ValueError(
+            "Brreg snapshot HEAD did not provide a positive content-length; "
+            "cannot verify local capacity safely"
+        )
+
+    # Requirements are combined when the raw archive and database share a
+    # filesystem, which is common both in tests and on a single external SSD.
+    filesystems: dict[int, dict[str, Any]] = {}
+
+    def add(path: Path, required: int, label: str) -> None:
+        device = path.stat().st_dev
+        entry = filesystems.setdefault(
+            device,
+            {"path": path, "required": 0, "labels": []},
+        )
+        entry["required"] += required
+        entry["labels"].append(label)
+
+    add(
+        storage_dir,
+        content_length + RAW_SNAPSHOT_HEADROOM_BYTES,
+        "raw snapshot",
+    )
+    if include_database_growth and registry.path != ":memory:":
+        database_path = Path(registry.path)
+        add(
+            database_path.parent,
+            content_length * SNAPSHOT_DB_EXPANSION_FACTOR + DATABASE_HEADROOM_BYTES,
+            "SQLite database",
+        )
+
+    for entry in filesystems.values():
+        free = shutil.disk_usage(entry["path"]).free
+        required = int(entry["required"])
+        if free < required:
+            labels = " and ".join(entry["labels"])
+            raise ValueError(
+                f"insufficient free space for Brreg {labels}: "
+                f"need at least {_human_bytes(required)} free, "
+                f"found {_human_bytes(free)} at {entry['path']}. "
+                "Put both --db and --storage-dir on a larger filesystem."
+            )
+
+
+def _human_bytes(value: int) -> str:
+    amount = float(value)
+    for unit in ("B", "KiB", "MiB", "GiB", "TiB"):
+        if amount < 1024 or unit == "TiB":
+            return f"{amount:.1f} {unit}"
+        amount /= 1024
+    raise AssertionError("unreachable")
 
 
 def sync_updates(
