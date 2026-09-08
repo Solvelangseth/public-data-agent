@@ -6,15 +6,22 @@ not a changelog; specific past defects live in git history and `GAPS.md`.
 
 ## 1. What we are building
 
-An AI-native data layer over Norwegian public data. Someone asks a question in plain
-Norwegian — through the CLI, the dashboard, or an agent over MCP — and gets back real
-numbers, with the lineage that proves where they came from.
+An MCP server over Norwegian public data. Someone asks a question through Claude and
+gets back real data, with the lineage that proves where it came from — company records,
+demographics, buildings, geography, transport, environment, all of it, not statistics
+alone.
 
-The bar is **generality**. Any reasonable question about Norwegian public statistics
-should work, not a curated list of them. A question about unemployment, rents,
-emissions, or fishing quotas should travel the same path as a question about
-population. If a question only works because someone special-cased it, that is a bug,
-not a feature.
+**The v1 goal is finding the correct data.** Not analysis, not joins, not feature
+engineering. If retrieval does not work, nothing built on top of it matters. Joining and
+deriving are later concerns and must not shape decisions now.
+
+The bar is **generality**. Any reasonable question should work, not a curated list. A
+question about unemployment, rents, emissions or fishing quotas should travel the same
+path as one about population. If a question only works because someone special-cased it,
+that is a bug.
+
+`CRAWL_BRIEF.md` is the brief for the connector lane — the parallel work promoting the
+186 connector files in `sources/`, of which four sources are live.
 
 The end state is a system that can:
 
@@ -98,17 +105,43 @@ questions — "what can answer me" and "what exists" — and a single mixed list
 every ranking change rob one to pay the other. Lanes are filled from a deeper ranking,
 because a lane cannot be filled from a list already truncated to the other's winners.
 
-Two measurements, and both matter:
+`retrieval.find` is the entry point and runs the whole measured stack: lexical search,
+semantic ranking routed by whether the query names a subject or asks a question, tables
+about a word ranked above tables merely split by it, then the lane split. Each step was
+kept or dropped on measurement, and the numbers live in that module's docstring.
 
-- `pda benchmark` — ranking against 65 gold Data.norge questions, scored on the
-  **catalogue lane**, since every gold answer is a catalogue record. R@5 ≈ 0.892,
-  R@10 ≈ 0.938. **Must not regress.**
-- `run_answerable` over `data/answerable_questions.json` — how often a question reaches
-  a dataset we can actually pull numbers from. ≈ 0.87 across 30 topic-spread questions.
+**Which measurement to trust:**
 
-The first measures ranking; only the second measures whether the product works. A
-change that improves one and breaks the other has not been validated. Check both — a
-single green metric has already hidden a broken product once.
+- `data/fetchable_gold.json` — 88 questions, 294 labels naming the tables that actually
+  answer each one. This is the v1 metric. `retrieval.find` scores recall@5 0.860 and
+  MRR 0.763; lexical alone scores 0.442, and 0.233 against 0.814 on naturally phrased
+  questions. Random scores about 0.001.
+- `pda benchmark` — 65 gold Data.norge questions, scored on the **catalogue lane**.
+  R@5 ≈ 0.892, R@10 ≈ 0.938. **Must not regress.**
+- `run_answerable` — do **not** read this as a quality measure. It asks only whether
+  *any* fetchable dataset appears in the top hits, and a third of the corpus is
+  fetchable, so five random picks satisfy it 79.7% of the time. It measures reach, and
+  lexical search scores *below* chance on it because returning relevant catalogue
+  records is penalised.
+
+A change that improves one and breaks another has not been validated. A single green
+metric has already hidden a broken product once.
+
+### The resource index
+
+Every fetchable resource (4,158) has its shape recorded: fields, their roles
+(`key | period | measure | attribute | geometry`), the values they carry, the identifier
+schemes those values belong to, and the period covered. `inspect` answers from it, so a
+caller can plan a fetch against a table nothing has ever pulled — dimension names are
+source-defined and cannot be guessed from a title.
+
+A key is claimed only when a field's codes **and** the names published for them match a
+classification SSB publishes. Codes alone are not enough: historical county codes are
+01-20 and so is the numbering of any small category, so a shape-based rule tagged
+livestock species as counties.
+
+It is not a ranking signal. Fused into the observations lane it costs more in ranking
+quality than it wins in recall; see `GAPS.md`.
 
 ### Connectors and fetch
 
@@ -263,14 +296,23 @@ test fails, first ask whether it is reporting a real defect.
 
 ## 7. Where the ceiling currently is
 
+- **Retrieval misses 17 of 86 gold questions**, in three shapes: a query word that
+  appears as a breakdown rather than a subject; a question needing a derivation rather
+  than a lookup ("hvilken bydel har flest innbyggere" is a max over a table, so no
+  single table is the answer); and plain vocabulary misses where the right table is
+  indexed and embedded and still not reached.
+- **Norwegian compounds miss** — `Privathusholdninger` does not tokenize to
+  `husholdninger`. Measured before building anything: worth at most six questions, while
+  35 of 86 name a table whose title shares no word with the question at all. Every
+  title-based rule caps at 0.593, below where semantic ranking already is.
+- **Without an embedding provider the whole stack degrades to lexical.** That is a real
+  loss, not a missing optimisation, and both `tool_search` and `find` report when it
+  happens. Embeddings stay a ranking aid: they can never authorise a fetch or supply a
+  value.
 - **Methods are not reachable from the agent.** `methods/derive.py` computes YoY, index
-  and rank deterministically, but no tool exposes it, so growth questions are answered
-  by arithmetic done in the model's head.
-- **Norwegian compounds miss.** Queries like `byggekostnader` or `kraftproduksjon` do
-  not match stored `bygge`/`kostnader` tokens. A vocabulary-driven split (only split
-  when both halves exist in the index) generalises better than a hand-written list.
-- **Retrieval is lexical only.** `embeddings.py` has a provider-neutral scaffold.
-  Embeddings must stay a ranking aid: they can never authorise a fetch or supply a value.
+  and rank deterministically, but no tool exposes it.
+- **588,442 stored observations were deleted** as mislabelled; the store now holds 8,107.
+  Observations are a cache, so this cost nothing retrieval depends on.
 - **Most Data.norge records carry no variable list or spatial metadata.** Do not infer
   either.
 - The dashboard is a development harness, not hosting or auth.
