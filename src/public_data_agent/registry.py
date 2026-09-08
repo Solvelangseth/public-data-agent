@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 import sqlite3
 from collections.abc import Iterator
 from contextlib import contextmanager
@@ -708,6 +709,13 @@ class Registry:
         )
 
     def upsert_observation(self, row: dict[str, Any], run_id: int) -> str:
+        # A table's own title is never what one of its cells measures. Storing
+        # it there meant two cells reporting different statistics shared an
+        # identity -- (dataset_id, table_id, measure, dimensions_json) -- and
+        # one silently overwrote the other, leaving 588,442 rows labelled with
+        # a title and percentage changes stored as index levels. Refusing the
+        # write turns that into a failure at the point it happens.
+        _reject_title_as_measure(row.get("measure"))
         existing = self.conn.execute(
             "SELECT id, value_json, series FROM observations WHERE id = ?",
             (row["id"],),
@@ -1185,6 +1193,25 @@ _RECORD_COLUMNS = (
 )
 # id never changes; everything else may be re-reported by a later fetch.
 _RECORD_UPDATE_COLUMNS = tuple(c for c in _RECORD_COLUMNS if c != "id")
+
+
+# An SSB table title, which always opens with the table number: "08650: ...".
+_TABLE_TITLE = re.compile(r"^\d{4,6}:\s")
+
+
+def _reject_title_as_measure(measure: Any) -> None:
+    """Refuse a measure that is a table's title rather than a measurement.
+
+    Narrow on purpose. It catches the decoder dropping the dimension that says
+    what a cell measures, and matches nothing a publisher would legitimately
+    call a measure.
+    """
+
+    if isinstance(measure, str) and _TABLE_TITLE.match(measure):
+        raise ValueError(
+            f"measure {measure[:60]!r} is a table title, not what a cell measures; "
+            "the dimension naming the statistic was probably dropped while decoding"
+        )
 
 
 def _numeric(value: Any) -> float | None:

@@ -250,3 +250,36 @@ def test_one_scheme_on_two_fields_is_recorded_once(tmp_path: Path) -> None:
     assert hits[0]["field_code"] == "Region"
     assert hits[0]["coverage_count"] == 356
     registry.close()
+
+
+def test_a_table_title_is_refused_as_a_measure(tmp_path: Path) -> None:
+    """A table's title is never what one of its cells measures. Storing it there
+    gave two cells reporting different statistics one identity, and one silently
+    overwrote the other -- 588,442 rows ended up labelled with a title, with
+    percentage changes stored as index levels."""
+
+    registry = _registry(tmp_path)
+    row = {
+        "id": "o1", "dataset_id": "src:1", "table_id": "t",
+        "measure": "08650: Byggekostnadsindeks for bustader i alt, etter arbeidstype",
+        "value": 4.3, "dimensions": {"Tid": "2025"}, **RETRIEVED,
+    }
+    with pytest.raises(ValueError, match="is a table title"):
+        registry.upsert_observation(row, 1)
+
+    # What the cell actually measures is accepted.
+    row["measure"] = "Endring frå førre år (prosent)"
+    assert registry.upsert_observation(row, 1) == "inserted"
+    registry.close()
+
+
+def test_the_guard_does_not_refuse_a_real_measure(tmp_path: Path) -> None:
+    """It has to be narrow enough that nothing a publisher legitimately calls a
+    measure trips it."""
+
+    from public_data_agent.registry import _reject_title_as_measure
+
+    for measure in ("Byggekostnadsindeks", "andel (prosent)", "Personer (antall)",
+                    "Bydelsinndeling 2020", "forholdstall (Norge=100), standardisert",
+                    "1000 tonn CO2-ekvivalenter"):
+        _reject_title_as_measure(measure)

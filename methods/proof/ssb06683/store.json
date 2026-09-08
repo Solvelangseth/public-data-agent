@@ -100,7 +100,7 @@
       "id": "9dfbb0c4a931647520d856a3a81447e5e330e01f",
       "dataset_id": "ssb:06683",
       "table_id": "06683",
-      "measure": "06683: Adopsjoner, etter adopsjonstype, statistikkvariabel og år",
+      "measure": "Adopsjoner",
       "value": 34,
       "dimensions": {
         "Adopsjonstype": "Utenlandsadopsjoner",
@@ -118,7 +118,7 @@
       "id": "9cd3cc377bd311258bb7f1b88e582a50bcd7b30c",
       "dataset_id": "ssb:06683",
       "table_id": "06683",
-      "measure": "06683: Adopsjoner, etter adopsjonstype, statistikkvariabel og år",
+      "measure": "Adopsjoner",
       "value": 24,
       "dimensions": {
         "Adopsjonstype": "Utenlandsadopsjoner",
@@ -136,7 +136,7 @@
       "id": "c35149585e883145d3077abbfed744ee27d3d817",
       "dataset_id": "ssb:06683",
       "table_id": "06683",
-      "measure": "06683: Adopsjoner, etter adopsjonstype, statistikkvariabel og år",
+      "measure": "Adopsjoner",
       "value": 202,
       "dimensions": {
         "Adopsjonstype": "Stebarn",
@@ -154,7 +154,7 @@
       "id": "791144f3b481c6e10f48bdd66ed649797d89118b",
       "dataset_id": "ssb:06683",
       "table_id": "06683",
-      "measure": "06683: Adopsjoner, etter adopsjonstype, statistikkvariabel og år",
+      "measure": "Adopsjoner",
       "value": 236,
       "dimensions": {
         "Adopsjonstype": "Stebarn",
