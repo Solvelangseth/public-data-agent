@@ -344,4 +344,30 @@ barnehagedekning          -> Barnehagekvalitet_bemanning         (right domain, 
 hvor mye handler vi på nett -> Formål med bruk av einingar
 ```
 
-Weighting query terms by rarity before embedding is the obvious idea, and is untested.
+Two fixes were proposed and both are wrong.
+
+**Rarity weighting cannot work.** The failing terms are not rare, they are absent: over
+13,281 titles, `yrkesdeltakelse`, `domfelte`, `flyr`, `barnehagedekning` and `handler`
+all have document frequency **zero**. Nothing can up-weight a term that matches nothing.
+Absence also does not predict failure -- `leiepriser` is equally absent and its query
+succeeds at rank one.
+
+**Stripping filler before embedding is worse.** `semantic_ranking` embeds the raw query,
+so "domfelte etter alder" carries a structure that hundreds of titles share. Removing it
+helped one query and broke two:
+
+```
+query                              raw   content words only
+hvor mange gifter seg i Norge        1   None
+hvor mye handler vi på nett         25   None
+hvor mange flyr innenlands          30     12   (still a miss)
+```
+
+The model reads a natural sentence better than the keywords inside it, which is
+consistent with natural phrasing scoring 0.867 held out against 0.850 for keywords.
+Phrasing is not the problem.
+
+What remains is genuine vocabulary distance in Norwegian: `domfelte` against `straffede
+personer`, `yrkesdeltakelse` against `arbeidsstyrken`. Closing those needs a
+Norwegian-specific embedding model or synonym expansion, and neither is a small change.
+At five failures in 35 the returns are thin; coverage is the binding constraint now.
