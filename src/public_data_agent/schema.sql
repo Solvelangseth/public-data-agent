@@ -210,13 +210,18 @@ CREATE TABLE IF NOT EXISTS printed_table_urls (
 -- authorise a fetch or supply a value: those still come from connectors.
 -- text_hash records what was embedded, so a re-harvest can re-embed only
 -- the rows whose text actually changed.
+-- Keyed on (dataset_id, model), not dataset_id alone. Keyed on the id only,
+-- indexing a second model overwrote the first, so two models could never be
+-- compared on the same corpus -- which is the only way to find out whether one
+-- of them is better.
 CREATE TABLE IF NOT EXISTS embeddings (
-    dataset_id TEXT PRIMARY KEY,
+    dataset_id TEXT NOT NULL,
     model TEXT NOT NULL,
     dim INTEGER NOT NULL,
     vector BLOB NOT NULL,
     text_hash TEXT NOT NULL,
     created_at TEXT NOT NULL,
+    PRIMARY KEY (dataset_id, model),
     FOREIGN KEY (dataset_id) REFERENCES datasets(id)
 );
 

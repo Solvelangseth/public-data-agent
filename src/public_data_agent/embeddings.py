@@ -120,7 +120,9 @@ def build_index(
         ORDER BY d.id
         """
     ).fetchall()
-    existing = registry.embedded_hashes()
+    # Scoped to this model: another model having embedded the same text is
+    # not evidence that this one has.
+    existing = registry.embedded_hashes(model)
     pending: list[tuple[str, str, str]] = []
     skipped = 0
     for row in rows:
@@ -296,3 +298,79 @@ def rank_for_query(
     if looks_like_a_question(query):
         return semantic[:limit]
     return fuse(lexical, semantic, limit=limit)
+
+
+def export_texts(registry: Any, path: Any, *, limit: int | None = None) -> dict[str, int]:
+    """Write the text each dataset would be embedded as, for embedding elsewhere.
+
+    Building an index of 13,281 texts on a laptop CPU is hours; on a rented GPU
+    it is minutes. Only the bulk build needs to move -- a query is one short
+    text and embeds fast anywhere -- so this exports what to embed and
+    `import_vectors` takes the result back.
+
+    The `text_hash` travels with each row so an import stays incremental: a
+    vector is only accepted for text that still hashes the same.
+    """
+
+    import json
+    from pathlib import Path
+
+    out = Path(path)
+    written = 0
+    with out.open("w", encoding="utf-8") as handle:
+        for row in registry.iter_datasets() if hasattr(registry, "iter_datasets") else _all_datasets(registry):
+            text = embedding_text(row)
+            if not text:
+                continue
+            handle.write(json.dumps(
+                {"dataset_id": row["id"], "text": text, "text_hash": text_hash(text)},
+                ensure_ascii=False,
+            ) + "\n")
+            written += 1
+            if limit is not None and written >= limit:
+                break
+    return {"written": written, "path": str(out)}
+
+
+def _all_datasets(registry: Any):
+    for row in registry.conn.execute("SELECT * FROM datasets ORDER BY id"):
+        yield dict(row)
+
+
+def import_vectors(registry: Any, path: Any, *, model: str) -> dict[str, int]:
+    """Load vectors embedded elsewhere, under their own model name.
+
+    A vector is refused when the dataset's text no longer hashes to what was
+    exported: the row changed after export, and storing a vector for text that
+    is no longer there would rank a resource by a description it does not have.
+    """
+
+    import json
+    from pathlib import Path
+
+    current = {row["id"]: text_hash(embedding_text(dict(row)))
+               for row in registry.conn.execute("SELECT * FROM datasets")}
+    stored = stale = unknown = 0
+    with Path(path).open(encoding="utf-8") as handle:
+        for line in handle:
+            line = line.strip()
+            if not line:
+                continue
+            record = json.loads(line)
+            dataset_id = record["dataset_id"]
+            if dataset_id not in current:
+                unknown += 1
+                continue
+            if record.get("text_hash") and record["text_hash"] != current[dataset_id]:
+                stale += 1
+                continue
+            vector = record["vector"]
+            registry.upsert_embedding(
+                dataset_id=dataset_id,
+                model=model,
+                vector=pack(vector),
+                dim=len(vector),
+                text_hash=current[dataset_id],
+            )
+            stored += 1
+    return {"stored": stored, "stale": stale, "unknown": unknown, "model": model}

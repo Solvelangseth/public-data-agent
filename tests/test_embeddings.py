@@ -1,8 +1,11 @@
 from __future__ import annotations
 
+from pathlib import Path
+
 import pytest
 
 from public_data_agent.embeddings import EmbeddedCandidate, rank_candidates
+from public_data_agent.registry import Registry
 
 
 class FakeEmbeddings:
@@ -138,3 +141,70 @@ def test_routing_uses_semantic_alone_for_a_question() -> None:
     assert asked == ["S1", "S2", "S3"]
     named = rank_for_query(lexical, semantic, "byggekostnader", limit=6)
     assert set(named) == {"L1", "L2", "L3", "S1", "S2", "S3"}
+
+
+def test_two_models_can_index_the_same_corpus(tmp_path: Path) -> None:
+    """Keyed on dataset_id alone, indexing a second model overwrote the first,
+    so two models could never be compared on the same corpus -- which is the
+    only way to find out whether one is better."""
+
+    from public_data_agent.embeddings import pack
+
+    registry = Registry(tmp_path / "r.sqlite")
+    registry.conn.execute(
+        """
+        INSERT INTO datasets (id, source_id, ingest_reason, source_name,
+            source_endpoints_json, missing_fields_json, payload_hash,
+            first_ingested_at, last_ingested_at, last_seen_at, last_changed_at, title)
+        VALUES ('a', 's', 't', 'S', '[]', '{}', 'h', 't', 't', 't', 't', 'Folkemengde')
+        """
+    )
+    registry.conn.commit()
+    for model in ("model-one", "model-two"):
+        registry.upsert_embedding(dataset_id="a", model=model, vector=pack([1.0, 0.0]),
+                                  dim=2, text_hash="h")
+    assert registry.embedding_count() == 2
+    assert registry.embedding_count("model-one") == 1
+    assert registry.embedded_hashes("model-two") == {"a": "h"}
+    # A model that has never run must not see another model's work as its own.
+    assert registry.embedded_hashes("model-three") == {}
+    registry.close()
+
+
+def test_a_vector_is_refused_when_the_text_has_changed(tmp_path: Path) -> None:
+    """Storing a vector for text no longer on the row would rank a resource by
+    a description it does not have."""
+
+    import json
+
+    from public_data_agent.embeddings import export_texts, import_vectors
+
+    registry = Registry(tmp_path / "r.sqlite")
+    registry.conn.execute(
+        """
+        INSERT INTO datasets (id, source_id, ingest_reason, source_name,
+            source_endpoints_json, missing_fields_json, payload_hash,
+            first_ingested_at, last_ingested_at, last_seen_at, last_changed_at, title)
+        VALUES ('a', 's', 't', 'S', '[]', '{}', 'h', 't', 't', 't', 't', 'Folkemengde')
+        """
+    )
+    registry.conn.commit()
+
+    texts = tmp_path / "texts.jsonl"
+    assert export_texts(registry, texts)["written"] == 1
+    exported = json.loads(texts.read_text(encoding="utf-8").strip())
+    assert exported["dataset_id"] == "a" and exported["text_hash"]
+
+    vectors = tmp_path / "vectors.jsonl"
+    vectors.write_text(
+        json.dumps({"dataset_id": "a", "text_hash": exported["text_hash"], "vector": [1.0, 0.0]})
+        + "\n"
+        + json.dumps({"dataset_id": "a", "text_hash": "stale", "vector": [0.0, 1.0]})
+        + "\n"
+        + json.dumps({"dataset_id": "gone", "text_hash": "x", "vector": [0.0, 1.0]})
+        + "\n",
+        encoding="utf-8",
+    )
+    result = import_vectors(registry, vectors, model="elsewhere")
+    assert result == {"stored": 1, "stale": 1, "unknown": 1, "model": "elsewhere"}
+    registry.close()

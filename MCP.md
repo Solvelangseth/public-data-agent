@@ -80,3 +80,63 @@ pda mcp --call search \
 ```
 
 That writes the request and the registry rows to `data/mcp_proof.json`.
+
+## Embedding elsewhere (Colab, or any GPU)
+
+Ranking quality depends on the embedding index, and building one over 13,281 datasets
+is hours on a laptop CPU and minutes on a rented GPU. Only the bulk build has to move:
+a query is one short text and embeds fast anywhere, so the model still runs locally at
+query time.
+
+**1. Export what to embed**
+
+```bash
+pda embed --db data/registry.sqlite --export texts.jsonl
+```
+
+One JSON object per line: `dataset_id`, `text`, `text_hash`. About 6 MB.
+
+**2. Embed it on a GPU**
+
+```python
+# Colab, GPU runtime
+!pip -q install sentence-transformers
+import json, torch
+from sentence_transformers import SentenceTransformer
+
+MODEL = "NbAiLab/nb-sbert-base"          # or intfloat/multilingual-e5-large
+rows  = [json.loads(l) for l in open("texts.jsonl")]
+model = SentenceTransformer(MODEL, device="cuda" if torch.cuda.is_available() else "cpu")
+
+vectors = model.encode([r["text"] for r in rows], batch_size=64,
+                       normalize_embeddings=True, show_progress_bar=True)
+
+with open("vectors.jsonl", "w") as out:
+    for row, vector in zip(rows, vectors):
+        out.write(json.dumps({"dataset_id": row["dataset_id"],
+                              "text_hash": row["text_hash"],
+                              "vector": [float(x) for x in vector]}) + "\n")
+```
+
+**3. Load the vectors back**
+
+```bash
+pda embed --db data/registry.sqlite --model NbAiLab/nb-sbert-base \
+          --import-vectors vectors.jsonl
+```
+
+Vectors are stored under their own model name and **do not replace** an existing index,
+so two models can be compared on the same corpus. A vector is refused when the dataset's
+text no longer hashes to what was exported: the row changed after export, and ranking a
+resource by a description it no longer has is worse than not ranking it.
+
+**4. Query with the same model**
+
+`semantic_ranking(..., model=...)` selects the index. The model has to be loadable
+locally to embed the query — one short text, fast on a laptop — so this splits the work
+rather than removing the dependency.
+
+Whether a Norwegian model beats `text-embedding-3-small` is an open question, not an
+assumption. The current stack scores recall@5 0.857 against `data/heldout_gold.json`,
+and the failures left are Norwegian vocabulary distance — `domfelte` against `straffede
+personer`, `yrkesdeltakelse` against `arbeidsstyrken`. Measure before switching.

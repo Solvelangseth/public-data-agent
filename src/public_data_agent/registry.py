@@ -779,25 +779,36 @@ class Registry:
             """
             INSERT INTO embeddings (dataset_id, model, dim, vector, text_hash, created_at)
             VALUES (?, ?, ?, ?, ?, ?)
-            ON CONFLICT(dataset_id) DO UPDATE SET
-                model = excluded.model, dim = excluded.dim, vector = excluded.vector,
+            ON CONFLICT(dataset_id, model) DO UPDATE SET
+                dim = excluded.dim, vector = excluded.vector,
                 text_hash = excluded.text_hash, created_at = excluded.created_at
             """,
             (dataset_id, model, dim, vector, text_hash, utc_now()),
         )
         self._commit()
 
-    def embedding_count(self) -> int:
-        row = self.conn.execute("SELECT COUNT(*) AS n FROM embeddings").fetchone()
-        return int(row["n"])
+    def embedding_count(self, model: str | None = None) -> int:
+        sql = "SELECT COUNT(*) AS n FROM embeddings"
+        params: tuple[Any, ...] = ()
+        if model is not None:
+            sql += " WHERE model = ?"
+            params = (model,)
+        return int(self.conn.execute(sql, params).fetchone()["n"])
 
-    def embedded_hashes(self) -> dict[str, str]:
-        """dataset_id -> text_hash already embedded, so re-embedding is incremental."""
+    def embedded_hashes(self, model: str | None = None) -> dict[str, str]:
+        """dataset_id -> text_hash already embedded, so re-embedding is incremental.
 
-        return {
-            row["dataset_id"]: row["text_hash"]
-            for row in self.conn.execute("SELECT dataset_id, text_hash FROM embeddings")
-        }
+        Scoped to a model: an index built with one model says nothing about
+        whether another has seen the same text, and an unscoped read made every
+        row look already-embedded to a model that had never run.
+        """
+
+        sql = "SELECT dataset_id, text_hash FROM embeddings"
+        params: tuple[Any, ...] = ()
+        if model is not None:
+            sql += " WHERE model = ?"
+            params = (model,)
+        return {row["dataset_id"]: row["text_hash"] for row in self.conn.execute(sql, params)}
 
     def iter_embeddings(self, model: str | None = None):
         sql = "SELECT dataset_id, dim, vector FROM embeddings"

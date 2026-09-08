@@ -74,6 +74,10 @@ def main(argv: list[str] | None = None) -> int:
     embed_cmd.add_argument("--model", default="text-embedding-3-small")
     embed_cmd.add_argument("--limit", type=int, default=None, help="Max rows this run")
     embed_cmd.add_argument("--quiet", action="store_true")
+    embed_cmd.add_argument("--export", type=Path, default=None,
+                           help="Write the texts to embed as JSONL and stop (for a GPU elsewhere)")
+    embed_cmd.add_argument("--import-vectors", dest="import_vectors", type=Path, default=None,
+                           help="Load vectors embedded elsewhere, stored under --model")
 
     status = sub.add_parser("status", help="Show registry counts and recent harvest runs")
     status.add_argument("--db", type=Path, default=DEFAULT_DB)
@@ -243,6 +247,24 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "stats":
         return _stats(args)
     if args.command == "embed":
+        from public_data_agent.embeddings import export_texts, import_vectors
+
+        if args.export is not None:
+            registry = Registry(args.db)
+            try:
+                result = export_texts(registry, args.export)
+            finally:
+                registry.close()
+            print(json.dumps(result, ensure_ascii=False))
+            return 0
+        if args.import_vectors is not None:
+            registry = Registry(args.db)
+            try:
+                result = import_vectors(registry, args.import_vectors, model=args.model)
+            finally:
+                registry.close()
+            print(json.dumps(result, ensure_ascii=False))
+            return 0
         return _embed(args)
     if args.command == "check":
         return _check(args)
