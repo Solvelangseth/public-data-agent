@@ -203,3 +203,28 @@ dimension lists it. That is what `resource_field_values` exists for, and it held
 Suffix matching also carries a risk worth remembering: "strøm" is the suffix of
 "Lillestrøm", which is a municipality, not electricity. The same collision already made
 election statistics an answer about power production once.
+
+
+## 588,442 stored observations are labelled with a table title
+
+`cells_from_jsonstat` skipped `ContentsCode` -- the dimension saying what a cell
+measures -- so the measure fell back to the table's own title. Two consequences, both
+live in the store today.
+
+Cells differing only in which statistic they report became identical in
+`(measure, dimensions)`, which is the key `observations` is unique on, so one silently
+overwrote the other. Fetching 08650 for a single year with both of its statistics
+returned six cells and stored three. The survivors were percentage changes carrying the
+label "Byggekostnadsindeks" -- a percentage stored as an index, with correct provenance
+and a correct request URL.
+
+The decoder is fixed and the same fetch now stores all six, correctly labelled. What is
+not fixed is the store: **588,442 of 596,549 rows** have a table title as their measure,
+so 98.6% of what is stored was written by the broken decoder. Those rows are provably
+mislabelled -- a table title is never what a cell measures -- and any table with more
+than one statistic is also missing rows that were overwritten.
+
+Re-fetching does not repair them. The observation id includes the measure, so a corrected
+fetch writes new rows beside the old ones rather than replacing them, leaving both in the
+store. Deleting the mislabelled rows is a decision about the user's data, not a code
+change, so it is recorded here rather than taken.

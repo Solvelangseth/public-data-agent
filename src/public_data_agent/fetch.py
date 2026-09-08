@@ -1089,9 +1089,14 @@ def cells_from_jsonstat(payload: dict[str, Any]) -> list[tuple[str, Any, dict[st
         dims: dict[str, str] = {}
         for dim_id, pos, axis in zip(ids, coords, axes):
             _code, label = axis[pos]
-            if dim_id == "ContentsCode":
-                continue
-            if dim_id == metric_id:
+            # ContentsCode is what the cell measures. Skipping it dropped the
+            # distinction entirely: the measure fell back to the table's title,
+            # so two cells differing only in which statistic they report became
+            # identical in (measure, dimensions) -- the key observations are
+            # unique on -- and one silently overwrote the other. Fetching 08650
+            # with both of its statistics returned six cells and stored three,
+            # and the survivors were percentage changes labelled as an index.
+            if dim_id == "ContentsCode" or dim_id == metric_id:
                 measure = label
                 continue
             dims[dim_id] = label

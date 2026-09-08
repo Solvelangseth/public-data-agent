@@ -328,3 +328,46 @@ def test_cells_from_jsonstat_coded_keeps_array_index_codes() -> None:
         "Bydel Gamle Oslo",
         "Bydel Grünerløkka",
     ]
+
+
+# A table with two statistics variables: the same dimensions, different things
+# measured. This is the ordinary shape of an SSB table, not an edge case.
+TWO_STATISTICS = {
+    "label": "08650: Byggekostnadsindeks for bustader i alt",
+    "id": ["Arbeidstype", "ContentsCode", "Tid"],
+    "size": [2, 2, 1],
+    "value": [152.7, 4.3, 133.6, 3.9],
+    "dimension": {
+        "Arbeidstype": {"category": {"index": {"01": 0, "02": 1},
+                                     "label": {"01": "I alt", "02": "Arbeidskraft"}}},
+        "ContentsCode": {"category": {
+            "index": {"Byggindeks": 0, "EndringForrAar": 1},
+            "label": {"Byggindeks": "Byggekostnadsindeks",
+                      "EndringForrAar": "Endring frå førre år (prosent)"}}},
+        "Tid": {"category": {"index": {"2025": 0}, "label": {"2025": "2025"}}},
+    },
+}
+
+
+def test_what_a_cell_measures_is_not_dropped() -> None:
+    """ContentsCode was skipped, so the measure fell back to the table title and
+    two cells differing only in which statistic they report became identical in
+    (measure, dimensions) -- the key observations are unique on. Fetching 08650
+    with both statistics returned six cells and stored three, and the survivors
+    were percentage changes labelled as an index."""
+
+    cells = cells_from_jsonstat(TWO_STATISTICS)
+    assert len(cells) == 4
+    measures = {measure for measure, _, _ in cells}
+    assert measures == {"Byggekostnadsindeks", "Endring frå førre år (prosent)"}
+    # The table title is not a measure of anything.
+    assert not any(m.startswith("08650:") for m in measures)
+
+
+def test_two_statistics_over_one_dimension_stay_distinct() -> None:
+    """Identity is (measure, dimensions); if the measure collapses, so do the
+    rows."""
+
+    cells = cells_from_jsonstat(TWO_STATISTICS)
+    identities = {(measure, tuple(sorted(dims.items()))) for measure, _, dims in cells}
+    assert len(identities) == len(cells)
