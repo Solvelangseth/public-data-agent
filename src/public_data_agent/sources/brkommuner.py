@@ -11,15 +11,16 @@ SOURCE_ID = "brkommuner"
 SOURCE_NAME = "Brønnøysundregistrene Enhetsregisteret kommuner"
 LIST_URL = "https://data.brreg.no/enhetsregisteret/api/kommuner"
 PATH_PREFIX = "/enhetsregisteret/api/kommuner"
-DEFAULT_MAX_ITEMS = 10
+DEFAULT_MAX_ITEMS = 10_000
 INGEST_REASON = (
-    "listed as a printed kommune on the official Enhetsregisteret "
-    f"kommuner catalog, capped at {DEFAULT_MAX_ITEMS} codes"
+    "listed across all printed pages of the official Enhetsregisteret "
+    f"kommuner catalog, with a safety ceiling of {DEFAULT_MAX_ITEMS} codes"
 )
 BRKOMMUNER_RPS = 2.0
 BRKOMMUNER_BURST = 4
 HOST = "data.brreg.no"
 NAME_FIELDS = ("navn", "nummer")
+BRREG_KOMMUNE_SCHEME = "brreg:kommunenummer"
 
 
 class BrkommunerSource(SourceBase):
@@ -113,13 +114,22 @@ class BrkommunerSource(SourceBase):
     def _catalog(self) -> list[dict[str, Any]]:
         if self._listed is not None:
             return self._listed
-        try:
-            body = self.http.get_json(self.list_url)
-        except Exception as exc:
-            raise SourceError(
-                f"Enhetsregisteret kommuner catalog failed for {self.list_url}: {exc}"
-            ) from exc
-        listed = printed_kommuner(body)
+        listed: list[dict[str, Any]] = []
+        url: str | None = self.list_url
+        visited: set[str] = set()
+        while url is not None and len(listed) < self.max_items:
+            if url in visited:
+                raise SourceError(f"Enhetsregisteret kommuner pagination loop at {url}")
+            visited.add(url)
+            try:
+                body = self.http.get_json(url)
+            except Exception as exc:
+                raise SourceError(
+                    f"Enhetsregisteret kommuner catalog failed for {url}: {exc}"
+                ) from exc
+            listed.extend(printed_kommuner(body))
+            url = printed_next_url(body, self.list_url)
+        listed = listed[: self.max_items]
         if not listed:
             raise SourceError("Enhetsregisteret kommuner catalog printed no kommuner")
         self._listed = listed
@@ -182,6 +192,21 @@ def printed_title(item: dict[str, Any], ident: str) -> dict[str, str]:
     return {"no": ident}
 
 
+def printed_next_url(body: Any, list_url: str) -> str | None:
+    links = body.get("_links") if isinstance(body, dict) else None
+    next_link = links.get("next") if isinstance(links, dict) else None
+    href = next_link.get("href") if isinstance(next_link, dict) else None
+    if not isinstance(href, str) or not href.strip():
+        return None
+    parsed = urlsplit(href.strip())
+    origin = urlsplit(list_url)
+    if parsed.scheme != "https" or parsed.netloc.casefold() != origin.netloc.casefold():
+        raise SourceError("Enhetsregisteret kommuner printed an unsafe next-page URL")
+    if parsed.path.rstrip("/") != PATH_PREFIX:
+        raise SourceError("Enhetsregisteret kommuner next-page URL left the collection")
+    return href.strip()
+
+
 def is_brkommuner_url(access_path: str | None) -> bool:
     if not access_path:
         return False
@@ -202,6 +227,8 @@ def brkommuner_table_id(access_path: str) -> str:
 
 
 def cells_from_brkommuner(payload: Any) -> list[tuple[str, Any, dict[str, str]]]:
+    """Legacy observation projection. Prefer entity_from_brkommuner."""
+
     if not isinstance(payload, dict):
         raise ValueError("brkommuner payload is not a JSON object")
     cells = _cells_from_record(
@@ -210,6 +237,54 @@ def cells_from_brkommuner(payload: Any) -> list[tuple[str, Any, dict[str, str]]]
     if not cells:
         raise ValueError("brkommuner payload printed no kommune members")
     return cells
+
+
+def entity_from_brkommuner(payload: Any) -> dict[str, Any]:
+    if not isinstance(payload, dict):
+        raise ValueError("brkommuner payload is not a JSON object")
+    number = payload.get("nummer")
+    if not isinstance(number, str) or not number.strip():
+        raise ValueError("brkommuner payload printed no nummer")
+    name = payload.get("navn")
+    label = name.strip() if isinstance(name, str) and name.strip() else None
+    attributes = {
+        str(key): value
+        for key, value in payload.items()
+        if key not in {"nummer", "navn", "_links"}
+    }
+    return {
+        "subject_scheme": BRREG_KOMMUNE_SCHEME,
+        "subject_code": number.strip(),
+        "subject_label": label,
+        "attributes": attributes,
+    }
+
+
+def shape_from_brkommuner(
+    payload: Any,
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    entity = entity_from_brkommuner(payload)
+    code, label = entity["subject_code"], entity["subject_label"]
+    fields: list[dict[str, Any]] = [
+        {
+            "field_code": "nummer", "field_label": "nummer", "field_role": "key",
+            "value_count": 1, "values": [{"value_code": code, "value_label": label}],
+        }
+    ]
+    if label is not None:
+        fields.append(
+            {
+                "field_code": "navn", "field_label": "navn", "field_role": "attribute",
+                "value_count": 1, "values": [{"value_code": label, "value_label": label}],
+            }
+        )
+    return fields, [
+        {
+            "scheme": BRREG_KOMMUNE_SCHEME,
+            "field_code": "nummer",
+            "coverage_count": 1,
+        }
+    ]
 
 
 def _cells_from_record(item: dict[str, Any]) -> list[tuple[str, Any, dict[str, str]]]:

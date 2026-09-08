@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from public_data_agent.fetch import fetch_observations
+from public_data_agent.fetch import classify_access_path, fetch_observations
 from public_data_agent.harvest import harvest
 from public_data_agent.http_util import JsonResponse
 from public_data_agent.registry import Registry
@@ -69,9 +69,14 @@ class CatalogHttp:
 
 
 class FetchHttp:
+    def __init__(self, body=ITEM_BODY) -> None:
+        self.body = body
+        self.gets: list[str] = []
+
     def get_json_response(self, url: str, *, headers=None) -> JsonResponse:
+        self.gets.append(url)
         if url == OSLO_URL:
-            return JsonResponse(status=200, url=url, body=ITEM_BODY)
+            return JsonResponse(status=200, url=url, body=self.body)
         raise AssertionError(f"unexpected GET {url}")
 
     def post_json_response(self, url: str, body, *, headers=None) -> JsonResponse:
@@ -193,7 +198,7 @@ def test_harvest_writes_printed_nummer_and_null_license(tmp_path: Path) -> None:
     registry.close()
 
 
-def test_fetch_gets_printed_navn(tmp_path: Path) -> None:
+def test_fetch_stores_printed_kommune_as_lookup_entity(tmp_path: Path) -> None:
     source = BrkommunerSource(http=CatalogHttp())
     registry = Registry(tmp_path / "registry.sqlite")
     harvest(registry, source)
@@ -207,16 +212,18 @@ def test_fetch_gets_printed_navn(tmp_path: Path) -> None:
     assert result.table_id == "0301"
     assert result.http_status == 200
     assert result.counts.listed == 1
-    rows = registry.list_observations(DATASET_ID)
-    values = [json.loads(row["value_json"]) for row in rows]
-    assert values == ["OSLO"]
-    assert all(row["measure"] == "navn" for row in rows)
-    dims = json.loads(rows[0]["dimensions_json"])
-    assert dims["nummer"] == "0301"
-    assert "_links" not in dims
+    assert registry.list_observations(DATASET_ID) == []
+    rows = registry.list_records(DATASET_ID)
+    assert len(rows) == 1
+    assert rows[0]["kind"] == "entity"
+    assert rows[0]["subject_scheme"] == "brreg:kommunenummer"
+    assert rows[0]["subject_code"] == "0301"
+    assert rows[0]["subject_label"] == "OSLO"
     assert all(row["publisher_name"] is None for row in rows)
     assert all(row["license"] is None for row in rows)
-    assert all(row["access_path"] == OSLO_URL for row in rows)
+    assert all(row["request_url"] == OSLO_URL for row in rows)
+    assert registry.get_capability(DATASET_ID)["capability"] == "lookup"
+    assert registry.datasets_with_key("brreg:kommunenummer")[0]["dataset_id"] == DATASET_ID
     registry.close()
 
 
@@ -233,6 +240,7 @@ def test_cells_copy_printed_kommune() -> None:
 
 def test_is_brkommuner_url_accepts_only_kommune_item_paths() -> None:
     assert is_brkommuner_url(OSLO_URL)
+    assert classify_access_path(OSLO_URL)["kind"] == "lookup"
     assert not is_brkommuner_url(LIST_URL)
     assert brkommuner_table_id(OSLO_URL) == "0301"
     assert not is_brkommuner_url(ORGFORM_URL)
@@ -252,3 +260,27 @@ def test_limit_and_offset_slice_printed_kommuner() -> None:
     nxt = source.list_dataset_refs(limit=1, offset=1)
     assert [ref.source_native_id for ref in nxt] == ["1101"]
     assert source.list_dataset_refs(limit=1, offset=2) == []
+
+
+def test_catalog_follows_only_printed_safe_next_pages() -> None:
+    second = LIST_URL + "?page=1&size=20"
+
+    class PagedHttp:
+        def __init__(self) -> None:
+            self.gets = []
+
+        def get_json(self, url, *, headers=None):
+            self.gets.append(url)
+            if url == LIST_URL:
+                return {
+                    "_embedded": {"kommuner": [CATALOG["_embedded"]["kommuner"][0]]},
+                    "_links": {"next": {"href": second}},
+                }
+            if url == second:
+                return {"_embedded": {"kommuner": [CATALOG["_embedded"]["kommuner"][1]]}}
+            raise AssertionError(url)
+
+    http = PagedHttp()
+    refs = BrkommunerSource(http=http).list_dataset_refs()
+    assert [ref.source_native_id for ref in refs] == ["0301", "1101"]
+    assert http.gets == [LIST_URL, second]

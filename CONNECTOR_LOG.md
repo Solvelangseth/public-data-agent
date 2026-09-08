@@ -205,3 +205,34 @@ documentation states NLOD 2.0, but that provenance has not yet been wired into t
 legacy metadata adapter.
 
 **Open question for the query side.** None.
+
+## brkommuner — 2026-09-08 — promoted
+
+**Endpoint(s).** `GET https://data.brreg.no/enhetsregisteret/api/kommuner` is a
+paginated collection; its printed `next` links lead through 19 pages. `GET
+https://data.brreg.no/enhetsregisteret/api/kommuner/{nummer}` returns one municipality
+concept. Pagination now follows only HTTPS next links on the exact Brreg collection
+path, rejects loops/off-origin links, and stops at a 10,000-item safety ceiling.
+
+**Shape.** `entity` used as a `lookup`. The printed `nummer` is the subject under
+`brreg:kommunenummer`, `navn` is the label, and any future extra fields are attributes.
+This deliberately does not claim `klass:131`: Brreg currently includes special code
+`0999 UTENLANDS` and historical-looking `0301 OSLO`, so equivalence to particular Klass
+versions must be validated rather than inferred from four digits.
+
+**Capability recorded.** `lookup`, record kind `entity`. A full fresh live catalogue
+walk returned and harvested all 365 printed municipalities with no failures. A live item
+fetch then stored `brkommuner:1101` as code `1101`, label `EIGERSUND`, HTTP 200, one
+verified resource key and zero observation rows. Mismatched selections and mismatched
+successful item responses are refused before writes.
+
+**Surprises.** The previous connector read only the first page and defaulted to ten
+items, silently turning a 365-member source into a ten-member catalogue. It also stored
+the municipality name as if it were a measurement. Both behaviors looked successful in
+the old observation-only tests. This is the first promoted connector where exhaustive
+listing, not a sample, exposed the actual source coverage.
+
+**Open question for the query side.** `brreg:kommunenummer` is the safe source-native
+scheme. A separate validated correspondence should relate its code/name pairs to the
+correct historical/current `klass:131` versions; do not make them globally identical by
+code alone.

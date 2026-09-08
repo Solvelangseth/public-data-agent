@@ -505,9 +505,13 @@ from public_data_agent.sources.brenheter import (
     valid_orgnr,
 )
 from public_data_agent.sources.brkommuner import (
+    BRKOMMUNER_BURST,
+    BRKOMMUNER_RPS,
+    BRREG_KOMMUNE_SCHEME,
     brkommuner_table_id,
-    cells_from_brkommuner,
+    entity_from_brkommuner,
     is_brkommuner_url,
+    shape_from_brkommuner,
 )
 from public_data_agent.sources.brorgform import (
     BRORGFORM_BURST,
@@ -1163,7 +1167,7 @@ def fetch_observations(
     if is_nve_magasin_url(access_path):
         return _fetch_nve_magasin(registry, dataset, http=http)
     if is_brkommuner_url(access_path):
-        return _fetch_brkommuner(registry, dataset, http=http)
+        return _fetch_brkommuner(registry, dataset, http=http, select=select)
     if is_brenheter_url(access_path):
         return _fetch_brenheter(registry, dataset, http=http, select=select)
     if is_brenheter_collection_url(access_path):
@@ -1918,12 +1922,36 @@ def _fetch_brkommuner(
     dataset: dict[str, Any],
     *,
     http: JsonHttp | None = None,
+    select: dict[str, list[str]] | None = None,
 ) -> FetchResult:
     if dataset.get("source_id") != "brkommuner":
         return _fetch_brreg(registry, dataset, http=http)
     access_path = dataset.get("access_path") or ""
-    client = http or HttpClient(timeout=60.0, max_retries=4)
     table_id = brkommuner_table_id(access_path)
+    select = {str(key): value for key, value in (select or {}).items()}
+    if select:
+        unknown = sorted(key for key in select if key != "nummer")
+        if unknown:
+            raise ValueError(
+                f"select names field(s) {unknown}; only kommune nummer is accepted"
+            )
+        wanted = select.get("nummer") or []
+        wanted = [wanted] if isinstance(wanted, str) else [str(item) for item in wanted]
+        if len(wanted) > 1:
+            raise SelectionTooLarge(
+                table_id, len(wanted), 1,
+                [{"code": "nummer", "text": "nummer", "selected": len(wanted), "available": 1}],
+            )
+        if wanted and wanted != [table_id]:
+            raise ValueError(
+                f"select[nummer]={wanted!r} does not match kommune {table_id!r}; "
+                "refusing to silently widen or redirect the request"
+            )
+    client = http or HttpClient(
+        limiter=RateLimiter(BRKOMMUNER_RPS, BRKOMMUNER_BURST),
+        timeout=60.0,
+        max_retries=4,
+    )
     started = utc_now()
     run_id = registry.start_fetch_run(
         dataset_id=dataset["id"],
@@ -1940,18 +1968,42 @@ def _fetch_brkommuner(
         got = client.get_json_response(access_path)
         http_status = got.status
         registry.set_fetch_request(run_id, request_url=access_path, request_body={"method": "GET"})
-        cells = cells_from_brkommuner(got.body)
-        counts.listed = len(cells)
-        sample = _store_cells(
-            registry,
-            dataset,
+        if http_status >= 400:
+            raise ValueError(f"Brreg kommune GET returned HTTP {http_status} for {access_path}")
+        entity = entity_from_brkommuner(got.body)
+        if entity["subject_code"] != table_id:
+            raise ValueError(
+                f"Brreg kommune at {access_path} printed nummer {entity['subject_code']!r}, "
+                f"not requested {table_id!r}"
+            )
+        retrieved_at = utc_now()
+        record_id = f"entity:{dataset['id']}:{table_id}"
+        action = registry.upsert_record(
+            {
+                "id": record_id, "dataset_id": dataset["id"], "kind": "entity",
+                "series": f"brkommuner:{table_id}",
+                "subject_scheme": BRREG_KOMMUNE_SCHEME,
+                "subject_code": table_id, "subject_label": entity["subject_label"],
+                "period": None, "measure": None, "value": None,
+                "attributes": entity["attributes"], "retrieved_at": retrieved_at,
+                "request_url": access_path, "http_status": http_status,
+                "publisher_name": dataset.get("publisher_name"),
+                "license": dataset.get("license"),
+            },
             run_id,
-            table_id=table_id,
-            cells=cells,
-            retrieved_at=utc_now(),
-            request_url=access_path,
-            http_status=http_status,
-            counts=counts,
+        )
+        counts.listed = 1
+        setattr(counts, action, 1)
+        sample = [{"kind": "entity", **entity}]
+        fields, keys = shape_from_brkommuner(got.body)
+        registry.set_resource_shape(dataset["id"], fields, keys=keys)
+        registry.set_capability(
+            dataset["id"],
+            {
+                "capability": CAPABILITY_LOOKUP, "record_kind": "entity",
+                "endpoint": access_path, "request_method": "GET",
+                "verified_at": retrieved_at, "verified_sample_count": 1,
+            },
         )
         status = "completed"
     except Exception as exc:
@@ -1967,6 +2019,7 @@ def _fetch_brkommuner(
         http_status=http_status,
         counts=counts,
         sample=sample,
+        observation_ids=[record_id] if status == "completed" else [],
     )
 
 
@@ -12479,6 +12532,11 @@ def classify_access_path(access_path: str | None) -> dict[str, Any]:
         return {
             "kind": CAPABILITY_LOOKUP,
             "reason": "Brreg organisation-form item; returns one published code-list concept",
+        }
+    if is_brkommuner_url(access_path):
+        return {
+            "kind": CAPABILITY_LOOKUP,
+            "reason": "Brreg municipality item; returns one published code-to-name concept",
         }
     if is_klass_url(access_path):
         return {
