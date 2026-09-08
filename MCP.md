@@ -21,14 +21,29 @@ Cursor / Claude Desktop, after `pip install -e .`:
 {
   "mcpServers": {
     "public-data-agent": {
-      "command": "pda",
-      "args": ["mcp"]
+      "command": "/absolute/path/to/.venv/bin/pda",
+      "args": ["mcp"],
+      "env": { "OPENAI_API_KEY": "sk-..." }
     }
   }
 }
 ```
 
+Use the absolute path to the interpreter's `pda`. A bare `pda` resolves against
+whatever PATH the client happens to have, which is usually not the virtualenv.
+
 The client owns stdin/stdout. Do not print logs on stdout.
+
+### The API key is not optional in practice
+
+Without an embedding provider the server still runs and still answers, ranking on
+token overlap alone. Measured against the fetchable gold set, that is the difference
+between finding the right table for **86% of questions and 40%** — and for naturally
+phrased ones, 87% against 33%. A question like "byggekostnader" returns nothing
+fetchable at all, while five building-cost tables sit in the registry.
+
+`search` reports which ranking it used in `ranking`, and says what the weaker one costs
+in `ranking_note`. Check that field if results look thin.
 
 ## Tools
 
@@ -37,6 +52,22 @@ The client owns stdin/stdout. Do not print logs on stdout.
 | `search` | `search_report` | Registry only. Each hit already has publisher, license, access path, original source, and why. |
 | `ask` | `ask` | Search plus Klass/11763 join. Lineage is on each ranked row. |
 | `fetch` | `fetch_observations` or `join_bydel_population` | Set `join=true` for the existing bydel join. Otherwise this is `pda fetch`. |
+| `inspect` | registry + resource index | The shape a fetch is planned from: fields, their roles, sample values, period covered. Answers for a resource nothing has fetched, which `observation_schema` cannot. |
+| `get_provenance` | registry | Publisher, licence, access path, stored count. Licence is `null` when unknown, never guessed. |
+| `run_analysis` | `analysis` | Aggregates over stored observations only. |
+| `create_visualization` | `artifacts` | Writes a chart from stored cells. Needs `path`. |
+| `export_artifact` | `export` | Writes CSV from stored cells. Needs `path`. |
+
+## What a caller should do first
+
+`search`, then `inspect` on the chosen dataset, then `fetch` with a selection built from
+the fields `inspect` returned. Dimension names are source-defined and cannot be guessed
+from a title; a filter invented without inspecting matches no rows and comes back as an
+empty result rather than an error.
+
+`fetch` refuses a selection larger than the source allows before sending it, and names
+which dimension to narrow. It also refuses a value the table does not publish rather
+than dropping it, since a dropped value silently widens the query.
 
 ## One-shot call (same handlers)
 
