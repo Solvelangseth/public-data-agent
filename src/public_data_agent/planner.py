@@ -67,6 +67,7 @@ def build_plan(
     latest_year: int,
     prior_year: int,
     registry: Any,
+    candidates: list[str] | None = None,
 ) -> QuestionPlan:
     """Turn one Norwegian question and search report into executable steps."""
 
@@ -125,7 +126,7 @@ def build_plan(
             ),
         )
 
-    fetchable = _first_fetchable_hit(report, registry)
+    fetchable = _first_fetchable_hit(report, registry, candidates)
     steps = [PlanStep("search", "discover and rank catalog records")]
     refusal_reason = None
     if fetchable is not None:
@@ -170,12 +171,26 @@ def _row_is_fetchable(row: dict[str, Any]) -> bool:
     return bool(row.get("access_path") and can_fetch_access_path(row["access_path"]))
 
 
-def _first_fetchable_hit(report: SearchReport, registry: Any) -> tuple[str, str] | None:
-    for hit in report.hits:
-        row = registry.get_dataset(hit.dataset_id)
+def _first_fetchable_hit(
+    report: SearchReport, registry: Any, candidates: list[str] | None = None
+) -> tuple[str, str] | None:
+    """Pick the first ranked record something can actually fetch.
+
+    `candidates` comes from the measured retrieval stack when a caller has one.
+    Token matching alone finds the right table for 44% of gold questions against
+    86%, so a caller ranking on tokens alone plans a fetch from a worse list --
+    or, for "byggekostnader", from an empty one while five building-cost tables
+    sit in the registry.
+    """
+
+    ordered = list(candidates or []) + [
+        hit.dataset_id for hit in report.hits if hit.dataset_id not in set(candidates or [])
+    ]
+    for dataset_id in ordered:
+        row = registry.get_dataset(dataset_id)
         if not row or not _row_is_fetchable(row):
             continue
         access = str(row["access_path"])
-        table_id = access.rstrip("/").rsplit("/", 1)[-1] or hit.dataset_id
-        return hit.dataset_id, table_id
+        table_id = access.rstrip("/").rsplit("/", 1)[-1] or dataset_id
+        return dataset_id, table_id
     return None

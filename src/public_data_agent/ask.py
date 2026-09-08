@@ -16,6 +16,7 @@ from public_data_agent.join import (
     join_bydel_population,
 )
 from public_data_agent.registry import Registry, utc_now
+from public_data_agent.retrieval import find
 from public_data_agent.search import search_report
 from public_data_agent.ssb_pxweb import DEFAULT_SSB_TABLE
 from public_data_agent.planner import QuestionPlan, build_plan
@@ -58,13 +59,20 @@ def ask(
     prior_year: int = 2024,
     search_limit: int = 10,
     http: JsonHttp | None = None,
+    provider: Any | None = None,
 ) -> AskResult:
     """Search, join two years, then rank size and YoY from the joined cells."""
 
     report = search_report(registry, question, limit=search_limit)
+    # Discovery used token matching alone, which finds the right table for 44%
+    # of gold questions against 86% for the measured stack. Asking
+    # "byggekostnader" planned no fetch at all while five building-cost tables
+    # sat in the registry, so the question was answered "no numbers retrieved".
+    found = find(registry, question, provider=provider, limit=search_limit)
     plan = build_plan(
         question,
         report,
+        candidates=found.observations,
         klass_dataset_id=klass_dataset_id,
         ssb_table=ssb_table,
         latest_year=latest_year,

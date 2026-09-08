@@ -228,6 +228,7 @@ def tool_ask(
             latest_year=year,
             prior_year=prior_year,
             search_limit=limit,
+            provider=_embedding_provider(),
         )
         payload = ask_proof_payload(
             result,
