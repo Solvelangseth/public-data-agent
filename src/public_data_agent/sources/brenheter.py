@@ -342,11 +342,14 @@ def entity_from_enhet(payload: Any) -> dict[str, Any]:
 
 
 def entity_attributes(item: dict[str, Any]) -> dict[str, Any]:
-    """Scalar and nested-code attributes copied from the printed enhet.
+    """Attributes copied from the printed enhet without HAL links.
 
     Nested objects that print a `kode` keep that code (and optional beskrivelse
-    under `{field}_beskrivelse`). Nothing is invented; keys not printed are
-    omitted. `_links` never becomes an attribute.
+    under `{field}_beskrivelse`) for compatibility with the other code-list
+    connectors. Other objects and arrays are retained as JSON: addresses,
+    historical names, activities and capital are entity data, not metadata to
+    discard. Nothing is invented; keys not printed are omitted and `_links` is
+    removed recursively.
     """
 
     attributes: dict[str, Any] = {}
@@ -363,7 +366,10 @@ def entity_attributes(item: dict[str, Any]) -> dict[str, Any]:
                 beskrivelse = value.get("beskrivelse")
                 if isinstance(beskrivelse, str) and beskrivelse.strip():
                     attributes[f"{key}_beskrivelse"] = beskrivelse.strip()
-            continue
+                continue
+        copied = _without_links(value)
+        if copied is not _UNSUPPORTED:
+            attributes[key] = copied
     return attributes
 
 
@@ -408,19 +414,7 @@ def shape_from_brenheter(
                 "values": [{"value_code": navn, "value_label": navn}],
             }
         )
-    for key, value in entity_attributes(body).items():
-        if not _is_scalar(value):
-            continue
-        code = str(value)
-        fields.append(
-            {
-                "field_code": key,
-                "field_label": key,
-                "field_role": "attribute",
-                "value_count": 1,
-                "values": [{"value_code": code, "value_label": code}],
-            }
-        )
+    fields.extend(_attribute_fields(entity_attributes(body)))
     keys = [
         {
             "scheme": ORGNR_SCHEME,
@@ -454,6 +448,89 @@ def _cells_from_record(item: dict[str, Any]) -> list[tuple[str, Any, dict[str, s
 
 def _is_scalar(value: Any) -> bool:
     return value is None or isinstance(value, (str, int, float, bool))
+
+
+_UNSUPPORTED = object()
+
+
+def _without_links(value: Any) -> Any:
+    """Copy JSON data while removing publisher navigation links at every depth."""
+
+    if _is_scalar(value):
+        return value
+    if isinstance(value, list):
+        copied: list[Any] = []
+        for item in value:
+            clean = _without_links(item)
+            if clean is not _UNSUPPORTED:
+                copied.append(clean)
+        return copied
+    if isinstance(value, dict):
+        copied_object: dict[str, Any] = {}
+        for key, item in value.items():
+            if key == "_links":
+                continue
+            clean = _without_links(item)
+            if clean is not _UNSUPPORTED:
+                copied_object[str(key)] = clean
+        return copied_object
+    return _UNSUPPORTED
+
+
+def _attribute_fields(attributes: dict[str, Any]) -> list[dict[str, Any]]:
+    """Expose scalar leaves of structured entity attributes to resource search.
+
+    Dotted field codes preserve the path printed by the API. Arrays contribute
+    every printed scalar value under the same field, so an address line or a
+    historical name is findable without pretending the object is one opaque
+    string value.
+    """
+
+    found: dict[str, list[tuple[str, str]]] = {}
+    empty_fields: set[str] = set()
+
+    def visit(path: str, value: Any) -> None:
+        if value is None:
+            empty_fields.add(path)
+            return
+        if isinstance(value, (str, int, float, bool)):
+            printed = str(value)
+            found.setdefault(path, []).append((printed, printed))
+            return
+        if isinstance(value, dict):
+            if not value:
+                empty_fields.add(path)
+            for child, item in value.items():
+                visit(f"{path}.{child}", item)
+            return
+        if isinstance(value, list):
+            if not value:
+                empty_fields.add(path)
+            for item in value:
+                visit(path, item)
+
+    for key, value in attributes.items():
+        visit(key, value)
+
+    fields: list[dict[str, Any]] = []
+    for code in sorted(set(found) | empty_fields):
+        seen: set[str] = set()
+        values: list[dict[str, str]] = []
+        for value_code, value_label in found.get(code, []):
+            if value_code in seen:
+                continue
+            seen.add(value_code)
+            values.append({"value_code": value_code, "value_label": value_label})
+        fields.append(
+            {
+                "field_code": code,
+                "field_label": code,
+                "field_role": "attribute",
+                "value_count": len(values),
+                "values": values,
+            }
+        )
+    return fields
 
 
 def _as_dim(value: Any) -> str:

@@ -1821,6 +1821,11 @@ def _fetch_brenheter(
                 f"Enhetsregisteret enhet GET returned HTTP {http_status} for {access_path}"
             )
         entity = entity_from_enhet(got.body)
+        if entity["subject_code"] != table_id:
+            raise ValueError(
+                f"Enhetsregisteret enhet at {access_path} printed organisasjonsnummer "
+                f"{entity['subject_code']!r}, not the requested {table_id!r}"
+            )
         retrieved_at = utc_now()
         record_id = f"entity:{dataset['id']}:{entity['subject_code']}"
         action = registry.upsert_record(
