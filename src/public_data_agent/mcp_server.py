@@ -525,13 +525,9 @@ def call_tool(name: str, arguments: dict[str, Any] | None = None) -> dict[str, A
 
 
 def build_server():
-    # `mcp.server.mcpserver.MCPServer` does not exist in the mcp package. The
-    # server could never start, so every tool worked when called directly in
-    # Python and nothing could connect to it -- the one failure no unit test
-    # covering `call_tool` can see.
-    from mcp.server.fastmcp import FastMCP
+    from mcp.server.mcpserver import MCPServer
 
-    server = FastMCP(
+    server = MCPServer(
         name="public-data-agent",
         instructions=(
             "Search, inspect, ask, and fetch Norwegian open data from the local registry. "
