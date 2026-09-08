@@ -655,9 +655,15 @@ from public_data_agent.sources.brrepresent import (
     is_brrepresent_url,
 )
 from public_data_agent.sources.brunder import (
+    BRUNDER_BURST,
+    BRUNDER_ORGNR_LIMIT,
+    BRUNDER_RPS,
     brunder_table_id,
     cells_from_brunder,
+    entity_from_brunder,
+    is_brunder_collection_url,
     is_brunder_url,
+    shape_from_brunder,
 )
 from public_data_agent.sources.brrollegruppe import (
     brrollegruppe_table_id,
@@ -1177,7 +1183,13 @@ def fetch_observations(
     if is_broppdater_url(access_path):
         return _fetch_broppdater(registry, dataset, http=http)
     if is_brunder_url(access_path):
-        return _fetch_brunder(registry, dataset, http=http)
+        return _fetch_brunder(registry, dataset, http=http, select=select)
+    if is_brunder_collection_url(access_path):
+        raise ValueError(
+            "Enhetsregisteret underenheter collection/lastned is too large to fetch as one "
+            "request; narrow to a single organisasjonsnummer via "
+            f"{access_path.rstrip('/')}/{{orgnr}}"
+        )
     if is_brreg_url(access_path):
         return _fetch_brreg(registry, dataset, http=http)
     if is_valg_url(access_path):
@@ -10342,10 +10354,53 @@ def _fetch_brunder(
     dataset: dict[str, Any],
     *,
     http: JsonHttp | None = None,
+    select: dict[str, list[str]] | None = None,
 ) -> FetchResult:
+    """Fetch one Enhetsregisteret sub-unit as an entity, never an observation."""
+
+    if dataset.get("source_id") != "brunder":
+        return _fetch_brreg(registry, dataset, http=http)
     access_path = dataset.get("access_path") or ""
-    client = http or HttpClient(timeout=60.0, max_retries=4)
     table_id = brunder_table_id(access_path)
+    if not valid_orgnr(table_id):
+        raise ValueError(
+            f"organisasjonsnummer {table_id!r} fails the mod-11 check digit; "
+            "refusing to fetch an unsatisfiable underenhet request"
+        )
+    select = {str(k): v for k, v in (select or {}).items()}
+    if select:
+        unknown = sorted(key for key in select if key != "organisasjonsnummer")
+        if unknown:
+            raise ValueError(
+                f"select names field(s) {unknown} that a brunder underenhet fetch does not "
+                "filter on; only organisasjonsnummer is accepted"
+            )
+        wanted = select.get("organisasjonsnummer") or []
+        wanted = [wanted] if isinstance(wanted, str) else [str(item) for item in wanted]
+        if len(wanted) > BRUNDER_ORGNR_LIMIT:
+            raise SelectionTooLarge(
+                table_id,
+                len(wanted),
+                BRUNDER_ORGNR_LIMIT,
+                [
+                    {
+                        "code": "organisasjonsnummer",
+                        "text": "organisasjonsnummer",
+                        "selected": len(wanted),
+                        "available": 1,
+                    }
+                ],
+            )
+        if wanted and wanted != [table_id]:
+            raise ValueError(
+                f"select[organisasjonsnummer]={wanted!r} does not match this underenhet "
+                f"{table_id!r}; refusing to silently widen or redirect the request"
+            )
+    client = http or HttpClient(
+        limiter=RateLimiter(BRUNDER_RPS, BRUNDER_BURST),
+        timeout=60.0,
+        max_retries=4,
+    )
     started = utc_now()
     run_id = registry.start_fetch_run(
         dataset_id=dataset["id"],
@@ -10358,22 +10413,75 @@ def _fetch_brunder(
     status = "failed"
     http_status = 0
     sample: list[dict[str, Any]] = []
+    touched: list[str] = []
     try:
         got = client.get_json_response(access_path)
         http_status = got.status
         registry.set_fetch_request(run_id, request_url=access_path, request_body={"method": "GET"})
-        cells = cells_from_brunder(got.body)
-        counts.listed = len(cells)
-        sample = _store_cells(
-            registry,
-            dataset,
+        if http_status == 404:
+            raise ValueError(f"Enhetsregisteret has no underenhet {table_id}; unsatisfiable request")
+        if http_status >= 400:
+            raise ValueError(
+                f"Enhetsregisteret underenhet GET returned HTTP {http_status} for {access_path}"
+            )
+        entity = entity_from_brunder(got.body)
+        if entity["subject_code"] != table_id:
+            raise ValueError(
+                f"Enhetsregisteret underenhet at {access_path} printed organisasjonsnummer "
+                f"{entity['subject_code']!r}, not the requested {table_id!r}"
+            )
+        retrieved_at = utc_now()
+        record_id = f"entity:{dataset['id']}:{entity['subject_code']}"
+        action = registry.upsert_record(
+            {
+                "id": record_id,
+                "dataset_id": dataset["id"],
+                "kind": "entity",
+                "series": f"brunder:{entity['subject_code']}",
+                "subject_scheme": entity["subject_scheme"],
+                "subject_code": entity["subject_code"],
+                "subject_label": entity["subject_label"],
+                "period": None,
+                "measure": None,
+                "value": None,
+                "attributes": entity["attributes"],
+                "retrieved_at": retrieved_at,
+                "request_url": access_path,
+                "http_status": http_status,
+                "publisher_name": dataset.get("publisher_name"),
+                "license": dataset.get("license"),
+            },
             run_id,
-            table_id=table_id,
-            cells=cells,
-            retrieved_at=utc_now(),
-            request_url=access_path,
-            http_status=http_status,
-            counts=counts,
+        )
+        counts.listed = 1
+        if action == "inserted":
+            counts.inserted += 1
+        elif action == "updated":
+            counts.updated += 1
+        else:
+            counts.unchanged += 1
+        sample.append(
+            {
+                "kind": "entity",
+                "subject_scheme": ORGNR_SCHEME,
+                "subject_code": entity["subject_code"],
+                "subject_label": entity["subject_label"],
+                "attributes": entity["attributes"],
+            }
+        )
+        touched.append(record_id)
+        fields, keys = shape_from_brunder(got.body)
+        registry.set_resource_shape(dataset["id"], fields, keys=keys)
+        registry.set_capability(
+            dataset["id"],
+            {
+                "capability": CAPABILITY_ENTITIES,
+                "record_kind": "entity",
+                "endpoint": access_path,
+                "request_method": "GET",
+                "verified_at": retrieved_at,
+                "verified_sample_count": 1,
+            },
         )
         status = "completed"
     except Exception as exc:
@@ -10389,6 +10497,7 @@ def _fetch_brunder(
         http_status=http_status,
         counts=counts,
         sample=sample,
+        observation_ids=touched,
     )
 
 
@@ -12278,6 +12387,16 @@ def classify_access_path(access_path: str | None) -> dict[str, Any]:
         return {
             "kind": CAPABILITY_NONE,
             "reason": "Enhetsregisteret enheter collection/lastned; too large and not a single entity",
+        }
+    if is_brunder_url(access_path):
+        return {
+            "kind": CAPABILITY_ENTITIES,
+            "reason": "Enhetsregisteret underenhet endpoint; returns one sub-unit entity by orgnr",
+        }
+    if is_brunder_collection_url(access_path):
+        return {
+            "kind": CAPABILITY_NONE,
+            "reason": "Enhetsregisteret underenheter collection/lastned; too large and not a single entity",
         }
     if is_klass_url(access_path):
         return {

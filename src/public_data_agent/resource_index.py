@@ -265,6 +265,7 @@ def index_dataset(
 
     from public_data_agent.fetch import _is_ssb_table_url, classify_access_path
     from public_data_agent.sources.brenheter import is_brenheter_url, shape_from_brenheter
+    from public_data_agent.sources.brunder import is_brunder_url, shape_from_brunder
     from public_data_agent.sources.fhi import is_fhi_table_url, printed_table_data_url, split_table_url
 
     dataset = registry.get_dataset(dataset_id)
@@ -292,6 +293,11 @@ def index_dataset(
         # classify says unless a fetch already verified a sample.
         meta = client.get_json_response(access_path)
         fields, keys = shape_from_brenheter(meta.body or {})
+        endpoint, method = access_path, "GET"
+        record_kind = "entity"
+    elif is_brunder_url(access_path):
+        meta = client.get_json_response(access_path)
+        fields, keys = shape_from_brunder(meta.body or {})
         endpoint, method = access_path, "GET"
         record_kind = "entity"
     else:

@@ -79,3 +79,43 @@ is written. No rate-limit response was encountered while using the existing
 2 requests/second limiter.
 
 **Open question for the query side.** None.
+
+## brunder — 2026-09-08 — promoted
+
+**Endpoint(s).** `GET https://data.brreg.no/enhetsregisteret/api/underenheter`
+lists printed `_embedded.underenheter` members and their item links. `GET
+https://data.brreg.no/enhetsregisteret/api/underenheter/{organisasjonsnummer}`
+returns one data-bearing sub-unit. The collection and `/lastned` paths are
+classified `none` as fetch targets and refused before send; a fetch must name one
+sub-unit organisation number.
+
+**Shape.** `entity`. The printed sub-unit `organisasjonsnummer` and `navn` become
+the subject code and label. `overordnetEnhet` retains the parent organisation
+number, and organisation form, industry and structured location fields are copied
+as attributes. Structured scalar leaves such as
+`beliggenhetsadresse.kommunenummer` are present in the resource index. The claimed
+subject scheme is `brreg:orgnr`; the parent code is searchable as an attribute but
+is not claimed as a second resource key.
+
+**Capability recorded.** `entities`. A fresh live collection-to-item run on
+2026-09-08 listed and fetched `brunder:933489272` (`- ZOTKO .NO`): HTTP 200, one
+entity inserted, zero observations, `verified_sample_count = 1`, request URL
+stored, parent `933365573` retained, and licence `null`. The full offline suite
+passed after the live run.
+
+**Surprises.** The earlier connector stored `navn` as an observation and silently
+dropped the structured address; it now uses the entity store and shared lossless
+attribute reader. Both the subject and parent values pass mod-11. The subject is
+also verified by a successful item GET whose printed organisation number must
+equal the requested number. Invalid-check-digit item URLs are not classified as
+entities. Oversized, mismatched and unsupported selections are rejected before
+the fake HTTP client sees a request. The source was originally developed on the
+listed `cursor/brunder-*` branches and already incorporated into trunk as the
+legacy adapter, so no branch was duplicated. No rate-limit response was seen with
+the registered 2 requests/second client.
+
+**Open question for the query side.** A sub-unit speaks `brreg:orgnr` in two
+semantically different fields: its subject `organisasjonsnummer` and its parent
+`overordnetEnhet`. `resource_keys` stores only one field per scheme per dataset.
+For now the subject wins and the parent remains an indexed attribute. Does query
+dispatch need an explicit field-level relationship representation for the parent?
