@@ -388,3 +388,46 @@ be keyed from a validated organisation number and model the returned role groups
 participants explicitly; `brroller` is not that connector and should not be scheduled.
 
 **Open question for the query side.** None.
+
+## brroles-totalbestand — 2026-09-08 — contract verified, implementation pending storage
+
+**Endpoint(s).** `GET`/`HEAD
+https://data.brreg.no/enhetsregisteret/api/roller/totalbestand` serves the public
+national role inventory as gzip-compressed JSON. On 2026-09-08 it reported ETag
+`2641cfe3f2ed281ae040e8ee37698e3d`, last-modified 04:03 CEST and 129,790,836
+compressed bytes. The stream begins with a top-level JSON array containing one object
+per printed `organisasjonsnummer`, its printed company and self links, and nested
+`rollegrupper`. `GET /api/oppdateringer/roller` is the continuous feed; the official
+contract exposes `afterTime`, then monotonic `afterId`, and each CloudEvent prints the
+organisation number plus the company-role source URL to refetch.
+
+**Shape decision.** Store one `document` record per validated company organisation
+number, with `brreg:orgnr` as the subject and the complete role groups as nested
+attributes. This preserves the published relationship without inventing a person ID.
+The public payload prints a person's name and birth date but no stable public person
+identifier; combining those fields into a synthetic identity would violate the schema
+trust boundary. A role participant that is itself an organisation does print a real
+organisation number and can retain that relation in attributes.
+
+**Pipeline plan.** Stream and hash the exact gzip to immutable raw storage, then parse
+the top-level JSON array incrementally rather than loading the national file in memory.
+Checkpoint the ETag, last-modified timestamp and hash. Apply update pages and their
+`afterId + 1` cursor atomically; refetch the complete printed company-role URL for each
+event, and retain a tombstone if it becomes 404. This is the same snapshot-plus-event
+contract already implemented for entities, with JSON-array parsing and document records
+instead of CSV entities.
+
+**Privacy boundary.** Only the unauthenticated public endpoint is in scope. Brreg also
+offers a Maskinporten-protected totalbestand containing national identity numbers; that
+endpoint is neither required nor authorized and must not be called or stored. The public
+birth-date fields still deserve access controls and a documented retention purpose even
+though Brreg publishes them openly.
+
+**Blocked operation.** The working disk remains 99% full with 2.3 GiB free. The stream
+format was verified by decompressing only its first bytes through a pipe; no snapshot
+was saved. Implementing and testing the streaming adapter can continue locally, but its
+first complete live proof should use the external SSD so raw bytes, SQLite expansion and
+rollback space share a capacity-safe volume.
+
+**Open question for the crawler owner.** Mount the external SSD and provide its volume
+path before the full roles snapshot proof is run.
