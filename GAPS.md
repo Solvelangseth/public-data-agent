@@ -298,3 +298,50 @@ connector lane, not a retrieval failure, and those questions are excluded from r
 
 The set is spent the moment it is used to choose anything. If a parameter is ever tuned
 against it, a new held-out set is needed.
+
+
+## Correction: the held-out gap was bad labels, not overfitting
+
+The entry above concluded from 0.743 held out against 0.860 tuned that the routing rule
+overfitted, and that naturally phrased questions generalised worst. Auditing every one of
+the 35 scored questions -- not only the misses, which can only raise a score -- found four
+labels naming a worse table than one that plainly answers the question: cancer *deaths*
+for "hvor mange får kreft hvert år", ownership status for "hvor mange leier boligen sin",
+`Tannhelse_DMFT` where `Tannhelsetilstand og kariesforekomst` exists.
+
+```
+                          recall@5    MRR   keyword  natural
+lexical                     0.400    0.324    0.450    0.333
+full, labels as written     0.743    0.655    0.850    0.600
+full, labels corrected      0.857    0.762    0.850    0.867
+tuned set                   0.860    0.763    0.907    0.814
+```
+
+Held out now matches tuned, so no meaningful overfitting is detectable, and natural
+phrasing scores *higher* held out than tuned -- the opposite of what was concluded.
+
+The residual risk is real and worth stating: labels were corrected after seeing which
+questions failed. What limits it is that the audit was symmetric, and in the hit cases
+the top result was usually already the labelled one, so there was no over-labelling to
+correct in the other direction. The honest interval is [0.743, 0.857], nearer the top.
+
+**This is the second time a conclusion here came from bad labels.** The first was nine
+keyword misses in the other set, of which four were mislabelled. Roughly half of every
+apparent retrieval failure examined this session has turned out to be the benchmark
+rather than the retriever. Labelling is the weakest part of the measurement, and any
+future set should be audited across all questions before a number from it is believed.
+
+## What still genuinely fails
+
+Five of 35, all one shape: a rare content word swamped by a common one in the averaged
+query embedding.
+
+```
+yrkesdeltakelse kvinner   -> fruktbarhetstall, skilsmisserater   ("kvinner" dominates)
+domfelte etter alder      -> Døde, etter aldersgrupper           ("alder" dominates)
+hvor mange flyr innenlands-> Flyttinger innenfor kommunene       ("flyr" reads as "flytting")
+barnehagedekning          -> Barnehagekvalitet_bemanning         (right domain, wrong table)
+hvor mye handler vi på nett -> Formål med bruk av einingar
+```
+
+Weighting query terms by rarity before embedding is the obvious idea, and is untested.

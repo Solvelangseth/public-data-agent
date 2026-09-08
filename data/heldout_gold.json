@@ -1,48 +1,341 @@
 {
-  "note": "HELD-OUT gold labels for data/heldout_questions.json. Same method as data/fetchable_gold.json: candidates pooled from every retriever, then checked against the registry directly, so labels are not bounded by what any one method surfaced. `expected: []` means the registry holds nothing that answers the question -- a coverage finding, excluded from recall. This set exists to be measured ONCE. The other set produced the routing rule and was then scored on it, so its number is optimistic by construction; this one is not. If it is ever used to choose or tune anything it stops being held out. Same limitation as the other: labels are author-judged from titles, and no cell was fetched to confirm.",
+  "note": "HELD-OUT gold labels for data/heldout_questions.json. Same method as data/fetchable_gold.json: candidates pooled from every retriever, then checked against the registry directly, so labels are not bounded by what any one method surfaced. `expected: []` means the registry holds nothing that answers the question -- a coverage finding, excluded from recall. This set exists to be measured ONCE. The other set produced the routing rule and was then scored on it, so its number is optimistic by construction; this one is not. If it is ever used to choose or tune anything it stops being held out. Same limitation as the other: labels are author-judged from titles, and no cell was fetched to confirm. LABELS CORRECTED ONCE, after an audit of all 35 scored questions (not only the misses): four named a worse table than one that plainly answers the question -- cancer *deaths* for 'hvor mange får kreft', ownership status for 'hvor mange leier boligen sin'. Corrected on merit from titles. This is a change to the instrument after seeing results, so both the before and after numbers are recorded in GAPS.md.",
   "questions": [
-    {"id": "h001", "query": "yrkesdeltakelse kvinner", "expected": ["ssbtable:03777", "ssbtable:03780", "ssbtable:03781"]},
-    {"id": "h002", "query": "streik og lockout", "expected": ["ssbtable:03629", "ssbtable:07952"]},
-    {"id": "h003", "query": "permitteringer", "expected": []},
-    {"id": "h004", "query": "sivilstand befolkning", "expected": ["ssbtable:03027", "ssbtable:03031", "ssbtable:05328"]},
-    {"id": "h005", "query": "levendefødte etter mors alder", "expected": ["ssbtable:04231", "ssbtable:08453", "ssbtable:07872"]},
-    {"id": "h006", "query": "adopsjoner", "expected": ["ssbtable:06683", "ssbtable:06685", "ssbtable:06688"]},
-    {"id": "h007", "query": "husholdningenes gjeld", "expected": ["ssbtable:06468", "ssbtable:09477", "ssbtable:07879", "ssbtable:07895"]},
-    {"id": "h008", "query": "detaljomsetning", "expected": ["ssbtable:10955"]},
-    {"id": "h009", "query": "lønnsomhet i industrien", "expected": []},
-    {"id": "h010", "query": "leiepriser bolig", "expected": ["ssbtable:09895", "ssbtable:06230", "ssbtable:09896"]},
-    {"id": "h011", "query": "eierform bolig", "expected": ["ssbtable:14724", "ssbtable:11034"]},
-    {"id": "h012", "query": "tannhelse barn", "expected": ["fhi:nokkel:606"]},
-    {"id": "h013", "query": "antibiotikabruk", "expected": ["fhi:nokkel:334"]},
-    {"id": "h014", "query": "svangerskapsavbrudd", "expected": ["fhi:abr:280", "fhi:abr:884", "fhi:abr:286"]},
-    {"id": "h015", "query": "barnehagedekning", "expected": ["ssbtable:09169", "ssbtable:14522"]},
-    {"id": "h016", "query": "voksenopplæring", "expected": ["ssbtable:12237"]},
-    {"id": "h017", "query": "godstransport på vei", "expected": ["ssbtable:13321"]},
-    {"id": "h018", "query": "luftfart passasjerer", "expected": []},
-    {"id": "h019", "query": "fjernvarme", "expected": ["ssbtable:04727", "ssbtable:04729", "ssbtable:04730", "ssbtable:09469"]},
-    {"id": "h020", "query": "energibruk i industrien", "expected": ["ssbtable:08205", "ssbtable:11602"]},
-    {"id": "h021", "query": "vannforsyning", "expected": ["ssbtable:11787", "ssbtable:11786", "ssbtable:11791"]},
-    {"id": "h022", "query": "naturvernområder", "expected": []},
-    {"id": "h023", "query": "melkeproduksjon", "expected": []},
-    {"id": "h024", "query": "oppdrettslaks produksjon", "expected": []},
-    {"id": "h025", "query": "domfelte etter alder", "expected": ["ssbtable:13582", "ssbtable:13731", "ssbtable:13732"]},
-    {"id": "h026", "query": "utenlandsk eierskap foretak", "expected": ["ssbtable:08085", "ssbtable:08086"]},
-    {"id": "h027", "query": "hvor mange er i deltidsarbeid", "expected": ["ssbtable:12545", "ssbtable:13893"]},
-    {"id": "h028", "query": "hvor mange streiker i året", "expected": ["ssbtable:03629", "ssbtable:07952"]},
-    {"id": "h029", "query": "hvor mange gifter seg i Norge", "expected": ["ssbtable:05698", "ssbtable:05713"]},
-    {"id": "h030", "query": "hvor mange skilsmisser er det i året", "expected": ["ssbtable:05706", "ssbtable:05692"]},
-    {"id": "h031", "query": "hvor gamle er førstegangsfødende", "expected": ["ssbtable:07872", "ssbtable:08453"]},
-    {"id": "h032", "query": "hvor mange barn har hull i tennene", "expected": ["fhi:nokkel:606"]},
-    {"id": "h033", "query": "hvor mange får kreft hvert år", "expected": ["fhi:daar:868"]},
-    {"id": "h034", "query": "hvor mange barn går i barnehage", "expected": ["ssbtable:09169", "ssbtable:14522", "ssbtable:12272"]},
-    {"id": "h035", "query": "hvor mange lærere mangler utdanning", "expected": ["ssbtable:12919"]},
-    {"id": "h036", "query": "hvor mange leier boligen sin", "expected": ["ssbtable:11032", "ssbtable:11033", "ssbtable:11034", "ssbtable:14724"]},
-    {"id": "h037", "query": "hvor mye gods fraktes på vei", "expected": ["ssbtable:13321"]},
-    {"id": "h038", "query": "hvor mange flyr innenlands", "expected": ["ssbtable:03982"]},
-    {"id": "h039", "query": "hvor mye fjernvarme brukes i Norge", "expected": ["ssbtable:04727", "ssbtable:09469", "ssbtable:04730"]},
-    {"id": "h040", "query": "hvor mye vann bruker en husholdning", "expected": []},
-    {"id": "h041", "query": "hvor mye melk produseres i Norge", "expected": []},
-    {"id": "h042", "query": "hvor mye gjeld har norske husholdninger", "expected": ["ssbtable:06468", "ssbtable:09477", "ssbtable:07879", "ssbtable:07895"]},
-    {"id": "h043", "query": "hvor mye handler vi på nett", "expected": ["ssbtable:11434", "ssbtable:11005", "ssbtable:09657"]}
+    {
+      "id": "h001",
+      "query": "yrkesdeltakelse kvinner",
+      "expected": [
+        "ssbtable:03777",
+        "ssbtable:03780",
+        "ssbtable:03781"
+      ]
+    },
+    {
+      "id": "h002",
+      "query": "streik og lockout",
+      "expected": [
+        "ssbtable:03629",
+        "ssbtable:07952"
+      ]
+    },
+    {
+      "id": "h003",
+      "query": "permitteringer",
+      "expected": []
+    },
+    {
+      "id": "h004",
+      "query": "sivilstand befolkning",
+      "expected": [
+        "ssbtable:03027",
+        "ssbtable:03031",
+        "ssbtable:05328"
+      ]
+    },
+    {
+      "id": "h005",
+      "query": "levendefødte etter mors alder",
+      "expected": [
+        "ssbtable:04231",
+        "ssbtable:08453",
+        "ssbtable:07872"
+      ]
+    },
+    {
+      "id": "h006",
+      "query": "adopsjoner",
+      "expected": [
+        "ssbtable:06683",
+        "ssbtable:06685",
+        "ssbtable:06688"
+      ]
+    },
+    {
+      "id": "h007",
+      "query": "husholdningenes gjeld",
+      "expected": [
+        "ssbtable:06468",
+        "ssbtable:09477",
+        "ssbtable:07879",
+        "ssbtable:07895"
+      ]
+    },
+    {
+      "id": "h008",
+      "query": "detaljomsetning",
+      "expected": [
+        "ssbtable:10955"
+      ]
+    },
+    {
+      "id": "h009",
+      "query": "lønnsomhet i industrien",
+      "expected": []
+    },
+    {
+      "id": "h010",
+      "query": "leiepriser bolig",
+      "expected": [
+        "ssbtable:09895",
+        "ssbtable:06230",
+        "ssbtable:09896"
+      ]
+    },
+    {
+      "id": "h011",
+      "query": "eierform bolig",
+      "expected": [
+        "ssbtable:14724",
+        "ssbtable:11034"
+      ]
+    },
+    {
+      "id": "h012",
+      "query": "tannhelse barn",
+      "expected": [
+        "fhi:nokkel:606"
+      ]
+    },
+    {
+      "id": "h013",
+      "query": "antibiotikabruk",
+      "expected": [
+        "fhi:nokkel:334"
+      ]
+    },
+    {
+      "id": "h014",
+      "query": "svangerskapsavbrudd",
+      "expected": [
+        "fhi:abr:280",
+        "fhi:abr:884",
+        "fhi:abr:286"
+      ]
+    },
+    {
+      "id": "h015",
+      "query": "barnehagedekning",
+      "expected": [
+        "ssbtable:09169",
+        "ssbtable:14522"
+      ]
+    },
+    {
+      "id": "h016",
+      "query": "voksenopplæring",
+      "expected": [
+        "ssbtable:12237"
+      ]
+    },
+    {
+      "id": "h017",
+      "query": "godstransport på vei",
+      "expected": [
+        "ssbtable:13321"
+      ]
+    },
+    {
+      "id": "h018",
+      "query": "luftfart passasjerer",
+      "expected": []
+    },
+    {
+      "id": "h019",
+      "query": "fjernvarme",
+      "expected": [
+        "ssbtable:04727",
+        "ssbtable:04729",
+        "ssbtable:04730",
+        "ssbtable:09469"
+      ]
+    },
+    {
+      "id": "h020",
+      "query": "energibruk i industrien",
+      "expected": [
+        "ssbtable:08205",
+        "ssbtable:11602"
+      ]
+    },
+    {
+      "id": "h021",
+      "query": "vannforsyning",
+      "expected": [
+        "ssbtable:11787",
+        "ssbtable:11786",
+        "ssbtable:11791"
+      ]
+    },
+    {
+      "id": "h022",
+      "query": "naturvernområder",
+      "expected": []
+    },
+    {
+      "id": "h023",
+      "query": "melkeproduksjon",
+      "expected": []
+    },
+    {
+      "id": "h024",
+      "query": "oppdrettslaks produksjon",
+      "expected": []
+    },
+    {
+      "id": "h025",
+      "query": "domfelte etter alder",
+      "expected": [
+        "ssbtable:13582",
+        "ssbtable:13731",
+        "ssbtable:13732"
+      ]
+    },
+    {
+      "id": "h026",
+      "query": "utenlandsk eierskap foretak",
+      "expected": [
+        "ssbtable:08085",
+        "ssbtable:08086"
+      ]
+    },
+    {
+      "id": "h027",
+      "query": "hvor mange er i deltidsarbeid",
+      "expected": [
+        "ssbtable:12545",
+        "ssbtable:13893"
+      ]
+    },
+    {
+      "id": "h028",
+      "query": "hvor mange streiker i året",
+      "expected": [
+        "ssbtable:03629",
+        "ssbtable:07952"
+      ]
+    },
+    {
+      "id": "h029",
+      "query": "hvor mange gifter seg i Norge",
+      "expected": [
+        "ssbtable:05698",
+        "ssbtable:05713"
+      ]
+    },
+    {
+      "id": "h030",
+      "query": "hvor mange skilsmisser er det i året",
+      "expected": [
+        "ssbtable:05706",
+        "ssbtable:05692"
+      ]
+    },
+    {
+      "id": "h031",
+      "query": "hvor gamle er førstegangsfødende",
+      "expected": [
+        "ssbtable:07872",
+        "ssbtable:08453"
+      ]
+    },
+    {
+      "id": "h032",
+      "query": "hvor mange barn har hull i tennene",
+      "expected": [
+        "ssbtable:13033",
+        "fhi:nokkel:606"
+      ]
+    },
+    {
+      "id": "h033",
+      "query": "hvor mange får kreft hvert år",
+      "expected": [
+        "fhi:nokkel:619",
+        "fhi:nokkel:368",
+        "fhi:daar:868"
+      ]
+    },
+    {
+      "id": "h034",
+      "query": "hvor mange barn går i barnehage",
+      "expected": [
+        "ssbtable:09169",
+        "ssbtable:14522",
+        "ssbtable:12272"
+      ]
+    },
+    {
+      "id": "h035",
+      "query": "hvor mange lærere mangler utdanning",
+      "expected": [
+        "ssbtable:14577",
+        "ssbtable:14576",
+        "ssbtable:12919"
+      ]
+    },
+    {
+      "id": "h036",
+      "query": "hvor mange leier boligen sin",
+      "expected": [
+        "ssbtable:14064",
+        "ssbtable:14059",
+        "ssbtable:11032",
+        "ssbtable:11033",
+        "ssbtable:11034",
+        "ssbtable:14724"
+      ]
+    },
+    {
+      "id": "h037",
+      "query": "hvor mye gods fraktes på vei",
+      "expected": [
+        "ssbtable:13321"
+      ]
+    },
+    {
+      "id": "h038",
+      "query": "hvor mange flyr innenlands",
+      "expected": [
+        "ssbtable:03982"
+      ]
+    },
+    {
+      "id": "h039",
+      "query": "hvor mye fjernvarme brukes i Norge",
+      "expected": [
+        "ssbtable:04727",
+        "ssbtable:09469",
+        "ssbtable:04730"
+      ]
+    },
+    {
+      "id": "h040",
+      "query": "hvor mye vann bruker en husholdning",
+      "expected": []
+    },
+    {
+      "id": "h041",
+      "query": "hvor mye melk produseres i Norge",
+      "expected": []
+    },
+    {
+      "id": "h042",
+      "query": "hvor mye gjeld har norske husholdninger",
+      "expected": [
+        "ssbtable:06468",
+        "ssbtable:09477",
+        "ssbtable:07879",
+        "ssbtable:07895"
+      ]
+    },
+    {
+      "id": "h043",
+      "query": "hvor mye handler vi på nett",
+      "expected": [
+        "ssbtable:11434",
+        "ssbtable:11005",
+        "ssbtable:09657"
+      ]
+    }
   ]
 }
