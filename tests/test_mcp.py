@@ -484,3 +484,29 @@ def test_inspect_reports_the_shape_of_a_resource_never_fetched(tmp_path: Path) -
     # which is exactly why the indexed shape has to be there too.
     assert payload["observation_schema"]["observation_count"] == 0
     assert _shape is not None
+
+
+def test_the_server_actually_builds_and_exposes_its_tools() -> None:
+    """Every other test here calls `call_tool` directly, so all of them passed
+    while `build_server` raised ModuleNotFoundError on an import path that does
+    not exist in the mcp package. The tools worked; nothing could connect to
+    them, which for an MCP server is the whole product."""
+
+    import asyncio
+
+    from public_data_agent.mcp_server import TOOLS, build_server
+
+    server = build_server()
+    exposed = {tool.name for tool in asyncio.run(server.list_tools())}
+    assert exposed == set(TOOLS), f"registered {sorted(TOOLS)} but exposed {sorted(exposed)}"
+
+
+def test_every_exposed_tool_carries_a_description() -> None:
+    """A tool an agent cannot tell apart from another is not usable."""
+
+    import asyncio
+
+    from public_data_agent.mcp_server import build_server
+
+    for tool in asyncio.run(build_server().list_tools()):
+        assert tool.description, f"{tool.name} has no description"
