@@ -340,6 +340,40 @@ check whether the identity you are writing under already exists under a differen
 - Do not do any work involving `offentligdata.no`.
 - Do not print or commit `OPENAI_API_KEY`; `.env` and `.env.*` are gitignored.
 
+## Start with questions that have no answer
+
+Retrieval was measured on a held-out set written blind. Of 43 ordinary questions about
+Norway, **eight have no answer anywhere in the registry** — not a retrieval failure, an
+absence:
+
+```
+permitteringer                        luftfart passasjerer
+lønnsomhet i industrien               oppdrettslaks produksjon
+melkeproduksjon                       naturvernområder
+vannforbruk per husholdning           (and one more in economy)
+```
+
+End to end a random question succeeds about 60% of the time: retrieval finds the right
+table 74% of the time, but only 81% of questions have a table to find. Closing that
+coverage is worth about as much as any further work on ranking.
+
+A connector that answers a question someone actually asked beats one chosen
+alphabetically. Work back from that list where you can.
+
+## Not everything in these domains is a statistic
+
+The store holds four record kinds and most connectors here are not `observation`:
+
+- A weather forecast or a sea-level series is an `observation`.
+- A company or a parliamentary decision is an `entity` or a `document`.
+- A vessel, a power station or a protected area is a `feature` — it has geometry.
+- **A WMS or WFS map service returns imagery or geometry, not numeric cells.** Classify
+  those `none`. There are many in `sources/`, and marking one `observations` because a
+  connector predicate matched is exactly the overreach `unverified` exists for.
+
+Forcing a feature into the observation shape is what made the original FHI connector
+store table ids as measurements.
+
 ## Where to start
 
 Company registry (`brreg*`, 15 files) is the strongest first domain: Brønnøysund has a
