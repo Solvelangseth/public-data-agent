@@ -419,3 +419,65 @@ def test_coverage_lifts_without_demoting_below_the_ranking(tmp_path: Path) -> No
     # Nothing recognised means the ranking is returned untouched.
     assert rank_within_coverage(registry, ranked, "byggekostnader") == ranked
     registry.close()
+
+
+# ---- the shape a caller plans a fetch from -------------------------------
+
+
+def test_shape_is_available_for_a_resource_nothing_has_fetched(tmp_path: Path) -> None:
+    """`describe_observations` reports what has already been pulled, so it is
+    empty for every resource a caller is about to fetch for the first time.
+    Dimension names are source-defined and cannot be guessed from a title."""
+
+    from public_data_agent.resource_index import resource_shape
+
+    registry = _indexed(tmp_path)
+    shape = resource_shape(registry, "ssbtable:08651")
+    assert shape["indexed"] is True
+    assert shape["capability"] == "observations"
+    codes = {f["code"] for f in shape["fields"]}
+    assert codes == {"Region", "ContentsCode", "Tid"}
+    roles = {f["code"]: f["role"] for f in shape["fields"]}
+    assert roles["Tid"] == "period"
+    assert roles["ContentsCode"] == "measure"
+    registry.close()
+
+
+def test_a_period_field_shows_its_ends_and_others_show_a_head(tmp_path: Path) -> None:
+    """A caller needs the range of a period and the shape of everything else."""
+
+    from public_data_agent.resource_index import resource_shape
+
+    registry = _indexed(tmp_path)
+    fields = {f["code"]: f for f in resource_shape(registry, "ssbtable:08651")["fields"]}
+    assert [v["code"] for v in fields["Tid"]["values"]] == ["2019M01", "2024M12"]
+    assert len(fields["Region"]["values"]) == fields["Region"]["value_count"]
+    registry.close()
+
+
+def test_a_sampled_field_reports_how_many_values_it_really_has(tmp_path: Path) -> None:
+    """A value absent from a sample is not absent from the resource, and a
+    caller that assumed otherwise would rule out a valid selection."""
+
+    from public_data_agent.resource_index import SAMPLE_VALUES, resource_shape
+
+    registry = _registry(tmp_path)
+    values = [{"value_code": f"c{i}", "value_label": f"v{i}"} for i in range(60)]
+    registry.set_resource_shape("ssbtable:08651", [
+        {"field_code": "Big", "field_role": "attribute", "values": values},
+    ])
+    registry.set_capability("ssbtable:08651", {"capability": "observations"})
+    field = resource_shape(registry, "ssbtable:08651")["fields"][0]
+    assert field["value_count"] == 60
+    assert field["values_shown"] == SAMPLE_VALUES
+    registry.close()
+
+
+def test_an_unindexed_resource_says_so_rather_than_looking_empty(tmp_path: Path) -> None:
+    from public_data_agent.resource_index import resource_shape
+
+    registry = _registry(tmp_path)
+    shape = resource_shape(registry, "ssbtable:99999")
+    assert shape["indexed"] is False
+    assert "not been recorded" in shape["reason"]
+    registry.close()

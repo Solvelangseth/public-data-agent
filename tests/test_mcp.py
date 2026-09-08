@@ -452,3 +452,35 @@ def test_a_result_found_by_meaning_alone_is_not_dropped(tmp_path: Path, monkeypa
     # Not matched by tokens, so it carries no token score and says why.
     assert entry["relevance"] == 0
     assert "shares no query token" in entry["why"]
+
+
+def test_inspect_reports_the_shape_of_a_resource_never_fetched(tmp_path: Path) -> None:
+    """The point of inspecting before fetching is to learn the dimension names,
+    and `observation_schema` only knows the ones already pulled."""
+
+    from public_data_agent.resource_index import resource_shape as _shape
+
+    registry = _registry(tmp_path)
+    dataset = registry.conn.execute("SELECT id FROM datasets ORDER BY id").fetchall()[0]["id"]
+    registry.set_resource_shape(dataset, [
+        {"field_code": "Region", "field_label": "region", "field_role": "key",
+         "values": [{"value_code": "0301", "value_label": "Oslo"}]},
+        {"field_code": "Tid", "field_role": "period",
+         "values": [{"value_code": "2020", "value_label": "2020"}]},
+    ], keys=[{"scheme": "klass:131:kommune", "field_code": "Region", "coverage_count": 1}])
+    registry.set_capability(dataset, {
+        "capability": "observations", "request_method": "POST",
+        "period_start": "2020", "period_end": "2020",
+    })
+    db = str(tmp_path / "registry.sqlite")
+    registry.close()
+
+    payload = call_tool("inspect", {"dataset": dataset, "db": db})
+    shape = payload["resource_shape"]
+    assert shape["indexed"] is True
+    assert {f["code"] for f in shape["fields"]} == {"Region", "Tid"}
+    assert shape["keys"][0]["scheme"] == "klass:131:kommune"
+    # Nothing has been fetched, so the observation schema is still empty --
+    # which is exactly why the indexed shape has to be there too.
+    assert payload["observation_schema"]["observation_count"] == 0
+    assert _shape is not None

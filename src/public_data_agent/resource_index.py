@@ -683,3 +683,79 @@ def rank_within_coverage(
     head = [d for d in ranked[:keep] if d in eligible]
     rest = [d for d in ranked[:keep] if d not in eligible]
     return [*head, *rest, *ranked[keep:]]
+
+
+# How many of a field's values to show. A planner needs enough to recognise the
+# shape and write a valid selection; the exact count is reported alongside so a
+# sample is never mistaken for the whole list.
+SAMPLE_VALUES = 12
+
+
+def resource_shape(registry: Registry, dataset_id: str) -> dict[str, Any]:
+    """What a resource holds and how to ask it for something.
+
+    Read from the index rather than the network, and available for a resource
+    nothing has ever fetched -- which is the point. Dimension names are
+    source-defined and cannot be guessed from a title, so without this a caller
+    planning a fetch invents a filter that matches no rows.
+    """
+
+    capability = registry.get_capability(dataset_id) or {}
+    fields: list[dict[str, Any]] = []
+    for field in registry.resource_fields(dataset_id):
+        code = field["field_code"]
+        rows = registry.conn.execute(
+            "SELECT value_code, value_label FROM resource_field_values "
+            "WHERE dataset_id = ? AND field_code = ? ORDER BY value_code",
+            (dataset_id, code),
+        ).fetchall()
+        stored = [{"code": r["value_code"], "label": r["value_label"]} for r in rows]
+        # For a period the ends are what a caller needs; for anything else the
+        # first few show the shape.
+        sample = (
+            [stored[0], stored[-1]]
+            if field["field_role"] == "period" and len(stored) > 2
+            else stored[:SAMPLE_VALUES]
+        )
+        fields.append(
+            {
+                "code": code,
+                "label": field["field_label"],
+                "role": field["field_role"],
+                "value_count": field["value_count"],
+                "values": sample,
+                "values_shown": len(sample),
+            }
+        )
+    keys = [
+        {
+            "scheme": row["scheme"],
+            "field_code": row["field_code"],
+            "coverage_count": row["coverage_count"],
+        }
+        for row in registry.conn.execute(
+            "SELECT scheme, field_code, coverage_count FROM resource_keys WHERE dataset_id = ?",
+            (dataset_id,),
+        )
+    ]
+    if not fields and not capability:
+        return {"indexed": False, "reason": "this resource's shape has not been recorded"}
+    return {
+        "indexed": True,
+        "capability": capability.get("capability"),
+        "record_kind": capability.get("record_kind"),
+        "endpoint": capability.get("endpoint"),
+        "request_method": capability.get("request_method"),
+        "period": {
+            "start": capability.get("period_start"),
+            "end": capability.get("period_end"),
+        },
+        "verified_at": capability.get("verified_at"),
+        "verified_sample_count": capability.get("verified_sample_count"),
+        "fields": fields,
+        "keys": keys,
+        "values_note": (
+            "`values` is a sample; `value_count` is how many the source publishes. "
+            "A value absent from the sample is not absent from the resource."
+        ),
+    }

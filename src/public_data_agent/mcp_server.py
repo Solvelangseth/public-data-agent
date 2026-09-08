@@ -21,6 +21,7 @@ from public_data_agent.join import (
     join_proof_payload,
 )
 from public_data_agent.registry import Registry
+from public_data_agent.resource_index import resource_shape
 from public_data_agent.retrieval import find
 from public_data_agent.search import search_report, tokenize
 from public_data_agent.ssb_pxweb import DEFAULT_SSB_TABLE
@@ -394,6 +395,11 @@ def tool_inspect(dataset: str, db: str = DEFAULT_DB) -> dict[str, Any]:
             # guessed from the title.  Returning them is what lets a caller
             # build a filter that matches rows instead of silently matching none.
             "observation_schema": describe_observations(registry, dataset),
+            # `observation_schema` describes what has already been fetched, so
+            # it is empty for a resource nothing has pulled yet -- which is
+            # every resource a caller is about to plan its first fetch against.
+            # The index describes the resource itself, fetched or not.
+            "resource_shape": resource_shape(registry, dataset),
         }
     finally:
         registry.close()
