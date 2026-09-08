@@ -176,3 +176,32 @@ record count.
 full `enheter` snapshot, followed immediately by updates, then the same sequence for
 `underenheter`; production storage location and retention policy should be set before
 those multi-hundred-megabyte files are scheduled indefinitely.
+
+## brorgform — 2026-09-08 — promoted
+
+**Endpoint(s).** `GET
+https://data.brreg.no/enhetsregisteret/api/organisasjonsformer` lists the complete
+published vocabulary and printed item links. `GET
+https://data.brreg.no/enhetsregisteret/api/organisasjonsformer/{kode}` returns one
+data-bearing concept. The collection currently prints 44 concepts.
+
+**Shape.** `entity` used as a `lookup`, not an observation. `kode` is the subject under
+the source-owned `brreg:organisasjonsform` scheme and `beskrivelse` is its label. Any
+future additional printed properties remain attributes. The resource index records the
+actual `kode` and label plus one verified key.
+
+**Capability recorded.** `lookup`, with record kind `entity`. A fresh live run fetched
+`brorgform:AS` from its printed item URL: HTTP 200, one record inserted as code `AS`,
+label `Aksjeselskap`, `verified_sample_count = 1`, and zero observation rows. The
+connector refuses a requested code that differs from the harvested item before sending,
+and rejects a successful response that prints another code before writing.
+
+**Surprises.** The old adapter represented `Aksjeselskap` as a measured value named
+`beskrivelse`; this is a classification concept, so that shape was false even though
+the payload and provenance were real. The API does expose stable per-code item URLs even
+though the service overview emphasizes the collection. The harvested dataset still has
+a null licence because the item payload does not print one; the separate official API
+documentation states NLOD 2.0, but that provenance has not yet been wired into this
+legacy metadata adapter.
+
+**Open question for the query side.** None.

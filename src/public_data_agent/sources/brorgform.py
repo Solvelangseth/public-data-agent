@@ -20,6 +20,7 @@ BRORGFORM_RPS = 2.0
 BRORGFORM_BURST = 4
 HOST = "data.brreg.no"
 NAME_FIELDS = ("beskrivelse", "kode")
+ORGFORM_SCHEME = "brreg:organisasjonsform"
 
 
 class BrorgformSource(SourceBase):
@@ -209,6 +210,8 @@ def brorgform_table_id(access_path: str) -> str:
 
 
 def cells_from_brorgform(payload: Any) -> list[tuple[str, Any, dict[str, str]]]:
+    """Legacy observation projection. Prefer entity_from_brorgform."""
+
     if not isinstance(payload, dict):
         raise ValueError("brorgform payload is not a JSON object")
     cells = _cells_from_record(
@@ -217,6 +220,64 @@ def cells_from_brorgform(payload: Any) -> list[tuple[str, Any, dict[str, str]]]:
     if not cells:
         raise ValueError("brorgform payload printed no organisasjonsform members")
     return cells
+
+
+def entity_from_brorgform(payload: Any) -> dict[str, Any]:
+    """Read one published organisation-form concept without treating it as a measure."""
+
+    if not isinstance(payload, dict):
+        raise ValueError("brorgform payload is not a JSON object")
+    code = payload.get("kode")
+    if not isinstance(code, str) or not code.strip():
+        raise ValueError("brorgform payload printed no kode")
+    description = payload.get("beskrivelse")
+    label = description.strip() if isinstance(description, str) and description.strip() else None
+    attributes = {
+        str(key): value
+        for key, value in payload.items()
+        if key not in {"kode", "beskrivelse", "_links"}
+    }
+    return {
+        "subject_scheme": ORGFORM_SCHEME,
+        "subject_code": code.strip(),
+        "subject_label": label,
+        "attributes": attributes,
+    }
+
+
+def shape_from_brorgform(
+    payload: Any,
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    entity = entity_from_brorgform(payload)
+    code = entity["subject_code"]
+    label = entity["subject_label"]
+    fields: list[dict[str, Any]] = [
+        {
+            "field_code": "kode",
+            "field_label": "kode",
+            "field_role": "key",
+            "value_count": 1,
+            "values": [{"value_code": code, "value_label": label}],
+        }
+    ]
+    if label is not None:
+        fields.append(
+            {
+                "field_code": "beskrivelse",
+                "field_label": "beskrivelse",
+                "field_role": "attribute",
+                "value_count": 1,
+                "values": [{"value_code": label, "value_label": label}],
+            }
+        )
+    keys = [
+        {
+            "scheme": ORGFORM_SCHEME,
+            "field_code": "kode",
+            "coverage_count": 1,
+        }
+    ]
+    return fields, keys
 
 
 def _cells_from_record(item: dict[str, Any]) -> list[tuple[str, Any, dict[str, str]]]:

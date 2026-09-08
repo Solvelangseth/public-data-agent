@@ -510,9 +510,13 @@ from public_data_agent.sources.brkommuner import (
     is_brkommuner_url,
 )
 from public_data_agent.sources.brorgform import (
+    BRORGFORM_BURST,
+    BRORGFORM_RPS,
+    ORGFORM_SCHEME,
     brorgform_table_id,
-    cells_from_brorgform,
+    entity_from_brorgform,
     is_brorgform_url,
+    shape_from_brorgform,
 )
 from public_data_agent.sources.brorgformen import (
     brorgformen_table_id,
@@ -1171,7 +1175,7 @@ def fetch_observations(
     if is_brorgformen_url(access_path):
         return _fetch_brorgformen(registry, dataset, http=http)
     if is_brorgform_url(access_path):
-        return _fetch_brorgform(registry, dataset, http=http)
+        return _fetch_brorgform(registry, dataset, http=http, select=select)
     if is_brrollegruppe_url(access_path):
         return _fetch_brrollegruppe(registry, dataset, http=http)
     if is_brrolletype_url(access_path):
@@ -2083,12 +2087,41 @@ def _fetch_brorgform(
     dataset: dict[str, Any],
     *,
     http: JsonHttp | None = None,
+    select: dict[str, list[str]] | None = None,
 ) -> FetchResult:
+    """Fetch one Brreg organisation-form lookup concept as an entity record."""
+
     if dataset.get("source_id") != "brorgform":
         return _fetch_brreg(registry, dataset, http=http)
     access_path = dataset.get("access_path") or ""
-    client = http or HttpClient(timeout=60.0, max_retries=4)
     table_id = brorgform_table_id(access_path)
+    select = {str(key): value for key, value in (select or {}).items()}
+    if select:
+        unknown = sorted(key for key in select if key != "kode")
+        if unknown:
+            raise ValueError(
+                f"select names field(s) {unknown} that an organisation-form lookup does "
+                "not filter on; only kode is accepted"
+            )
+        wanted = select.get("kode") or []
+        wanted = [wanted] if isinstance(wanted, str) else [str(item) for item in wanted]
+        if len(wanted) > 1:
+            raise SelectionTooLarge(
+                table_id,
+                len(wanted),
+                1,
+                [{"code": "kode", "text": "kode", "selected": len(wanted), "available": 1}],
+            )
+        if wanted and wanted != [table_id]:
+            raise ValueError(
+                f"select[kode]={wanted!r} does not match organisation form {table_id!r}; "
+                "refusing to silently widen or redirect the request"
+            )
+    client = http or HttpClient(
+        limiter=RateLimiter(BRORGFORM_RPS, BRORGFORM_BURST),
+        timeout=60.0,
+        max_retries=4,
+    )
     started = utc_now()
     run_id = registry.start_fetch_run(
         dataset_id=dataset["id"],
@@ -2105,18 +2138,61 @@ def _fetch_brorgform(
         got = client.get_json_response(access_path)
         http_status = got.status
         registry.set_fetch_request(run_id, request_url=access_path, request_body={"method": "GET"})
-        cells = cells_from_brorgform(got.body)
-        counts.listed = len(cells)
-        sample = _store_cells(
-            registry,
-            dataset,
+        if http_status == 404:
+            raise ValueError(f"Brreg has no organisation form {table_id!r}")
+        if http_status >= 400:
+            raise ValueError(
+                f"Brreg organisation-form GET returned HTTP {http_status} for {access_path}"
+            )
+        entity = entity_from_brorgform(got.body)
+        if entity["subject_code"] != table_id:
+            raise ValueError(
+                f"Brreg organisation form at {access_path} printed kode "
+                f"{entity['subject_code']!r}, not requested {table_id!r}"
+            )
+        retrieved_at = utc_now()
+        record_id = f"entity:{dataset['id']}:{table_id}"
+        action = registry.upsert_record(
+            {
+                "id": record_id,
+                "dataset_id": dataset["id"],
+                "kind": "entity",
+                "series": f"brorgform:{table_id}",
+                "subject_scheme": ORGFORM_SCHEME,
+                "subject_code": table_id,
+                "subject_label": entity["subject_label"],
+                "period": None,
+                "measure": None,
+                "value": None,
+                "attributes": entity["attributes"],
+                "retrieved_at": retrieved_at,
+                "request_url": access_path,
+                "http_status": http_status,
+                "publisher_name": dataset.get("publisher_name"),
+                "license": dataset.get("license"),
+            },
             run_id,
-            table_id=table_id,
-            cells=cells,
-            retrieved_at=utc_now(),
-            request_url=access_path,
-            http_status=http_status,
-            counts=counts,
+        )
+        counts.listed = 1
+        if action == "inserted":
+            counts.inserted = 1
+        elif action == "updated":
+            counts.updated = 1
+        else:
+            counts.unchanged = 1
+        sample = [{"kind": "entity", **entity}]
+        fields, keys = shape_from_brorgform(got.body)
+        registry.set_resource_shape(dataset["id"], fields, keys=keys)
+        registry.set_capability(
+            dataset["id"],
+            {
+                "capability": CAPABILITY_LOOKUP,
+                "record_kind": "entity",
+                "endpoint": access_path,
+                "request_method": "GET",
+                "verified_at": retrieved_at,
+                "verified_sample_count": 1,
+            },
         )
         status = "completed"
     except Exception as exc:
@@ -2132,6 +2208,7 @@ def _fetch_brorgform(
         http_status=http_status,
         counts=counts,
         sample=sample,
+        observation_ids=[record_id] if status == "completed" else [],
     )
 
 
@@ -12397,6 +12474,11 @@ def classify_access_path(access_path: str | None) -> dict[str, Any]:
         return {
             "kind": CAPABILITY_NONE,
             "reason": "Enhetsregisteret underenheter collection/lastned; too large and not a single entity",
+        }
+    if is_brorgform_url(access_path):
+        return {
+            "kind": CAPABILITY_LOOKUP,
+            "reason": "Brreg organisation-form item; returns one published code-list concept",
         }
     if is_klass_url(access_path):
         return {
