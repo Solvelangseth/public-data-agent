@@ -228,3 +228,38 @@ Re-fetching does not repair them. The observation id includes the measure, so a 
 fetch writes new rows beside the old ones rather than replacing them, leaving both in the
 store. Deleting the mislabelled rows is a decision about the user's data, not a code
 change, so it is recorded here rather than taken.
+
+
+## Resource search is not a ranking signal
+
+With the index complete, "Bruttonasjonalprodukt" is a stored value of 09189 and 09190 --
+both gold answers -- so resource search finds them where title and embedding ranking do
+not. It reaches the correct table for two of the eight remaining misses, in exactly the
+cases where the query names something inside a table rather than in its title.
+
+Fused into the observations lane it still does not pay:
+
+```
+current               recall@5 0.860  MRR 0.763  keyword 0.907  natural 0.814
+fused with resource   recall@5 0.860  MRR 0.593  keyword 0.930  natural 0.791
+```
+
+One keyword question gained, one natural question lost, seventeen points of MRR spent.
+That is the coverage lift's failure again in a milder form: blending a weaker ranking
+into a stronger one dilutes it, and being right about two queries does not pay for being
+noisier about the rest.
+
+A fallback that fires only when the observations lane is empty would not help either --
+the remaining misses have a full lane with the wrong things in it, not an empty one.
+
+Resource search earns its place elsewhere: `inspect` reads the shape a caller plans a
+fetch from, `covering` answers which resources hold a value, and `resource_keys` answers
+which speak an identifier scheme. Those are questions about a resource, not rankings of
+it.
+
+## Retrieval is unchanged by the store cleanup
+
+Measured after the decoder fix, the deletion of 588,442 mislabelled rows and the `ask`
+rewiring: recall@5 0.860, MRR 0.763, keyword 0.907, natural 0.814 -- identical to the
+measurement before them. The observation store is a cache; retrieval ranks the registry,
+and emptying the cache does not touch it.
