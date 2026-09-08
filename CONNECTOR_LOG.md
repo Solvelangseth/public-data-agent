@@ -330,3 +330,32 @@ before a record or capability is written; an unsatisfiable selection is rejected
 the HTTP request.
 
 **Open question for the query side.** None.
+
+## brrepresent — 2026-09-08 — promoted
+
+**Endpoint(s).** `GET
+https://data.brreg.no/enhetsregisteret/api/roller/representanter` returns the complete
+four-member representative vocabulary: `A-AK`, `AREP`, `B-AK` and `C-AK`. Member
+`self` links point at protected `/autorisert-api/...` paths, while the equivalent
+public `/api/roller/representanter/{kode}` paths work; a live fetch of `A-AK` returned
+HTTP 200. Brreg's official API documentation lists the collection and defines
+`representant` as a code list/enum describing whom someone represents on a board.
+
+**Shape.** `entity` used as a `lookup`. The printed `kode` is the subject under
+`brreg:representant`, `beskrivelse` is its label, and future additional properties
+remain attributes. It is a vocabulary used to interpret role records, not a numeric
+observation.
+
+**Capability recorded.** `lookup`, record kind `entity`. A fresh live run harvested
+all four collection members with no failures, then fetched `brrepresent:A-AK` from the
+public item URL: HTTP 200, one entity inserted, label `Representant for A-aksjonærene`,
+one verified resource key and zero observation rows. Full suite: 1,931 passed, 1
+skipped and 1 live test deselected.
+
+**Surprises.** The old adapter turned the description into a measured value and had no
+resource shape or verified capability. It also used a ten-item default cap; the complete
+collection is only four, but the source now uses the same explicit 100-code safety
+ceiling as the adjacent vocabularies. Mismatched successful responses and impossible
+selections are rejected before they can write records or make unnecessary requests.
+
+**Open question for the query side.** None.

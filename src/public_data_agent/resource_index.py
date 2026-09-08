@@ -272,6 +272,7 @@ def index_dataset(
         is_brrollegruppe_url,
         shape_from_brrollegruppe,
     )
+    from public_data_agent.sources.brrepresent import is_brrepresent_url, shape_from_brrepresent
     from public_data_agent.sources.brrolletype import is_brrolletype_url, shape_from_brrolletype
     from public_data_agent.sources.fhi import is_fhi_table_url, printed_table_data_url, split_table_url
 
@@ -325,6 +326,11 @@ def index_dataset(
     elif is_brrollegruppe_url(access_path):
         meta = client.get_json_response(access_path)
         fields, keys = shape_from_brrollegruppe(meta.body or {})
+        endpoint, method = access_path, "GET"
+        record_kind = "entity"
+    elif is_brrepresent_url(access_path):
+        meta = client.get_json_response(access_path)
+        fields, keys = shape_from_brrepresent(meta.body or {})
         endpoint, method = access_path, "GET"
         record_kind = "entity"
     else:
