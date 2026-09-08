@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from public_data_agent.fetch import fetch_observations
+from public_data_agent.fetch import classify_access_path, fetch_observations
 from public_data_agent.harvest import harvest
 from public_data_agent.http_util import JsonResponse
 from public_data_agent.registry import Registry
@@ -191,7 +191,7 @@ def test_harvest_writes_printed_kode_and_null_license(tmp_path: Path) -> None:
     registry.close()
 
 
-def test_fetch_gets_printed_beskrivelse(tmp_path: Path) -> None:
+def test_fetch_stores_printed_rolletype_as_lookup_entity(tmp_path: Path) -> None:
     source = BrrolletypeSource(http=CatalogHttp())
     registry = Registry(tmp_path / "registry.sqlite")
     harvest(registry, source)
@@ -205,16 +205,18 @@ def test_fetch_gets_printed_beskrivelse(tmp_path: Path) -> None:
     assert result.table_id == "ADOS"
     assert result.http_status == 200
     assert result.counts.listed == 1
-    rows = registry.list_observations(DATASET_ID)
-    values = [json.loads(row["value_json"]) for row in rows]
-    assert values == ["Administrativ enhet - offentlig sektor"]
-    assert all(row["measure"] == "beskrivelse" for row in rows)
-    dims = json.loads(rows[0]["dimensions_json"])
-    assert dims["kode"] == "ADOS"
-    assert "_links" not in dims
+    assert registry.list_observations(DATASET_ID) == []
+    rows = registry.list_records(DATASET_ID)
+    assert len(rows) == 1
+    assert rows[0]["kind"] == "entity"
+    assert rows[0]["subject_scheme"] == "brreg:rolletype"
+    assert rows[0]["subject_code"] == "ADOS"
+    assert rows[0]["subject_label"] == "Administrativ enhet - offentlig sektor"
     assert all(row["publisher_name"] is None for row in rows)
     assert all(row["license"] is None for row in rows)
-    assert all(row["access_path"] == ADOS_URL for row in rows)
+    assert all(row["request_url"] == ADOS_URL for row in rows)
+    assert registry.get_capability(DATASET_ID)["capability"] == "lookup"
+    assert registry.datasets_with_key("brreg:rolletype")[0]["dataset_id"] == DATASET_ID
     registry.close()
 
 
@@ -231,6 +233,7 @@ def test_cells_copy_printed_rolletype() -> None:
 
 def test_is_brrolletype_url_accepts_only_rolletype_item_paths() -> None:
     assert is_brrolletype_url(ADOS_URL)
+    assert classify_access_path(ADOS_URL)["kind"] == "lookup"
     assert not is_brrolletype_url(LIST_URL)
     assert not is_brrolletype_url(AUTORISERT_URL)
     assert brrolletype_table_id(ADOS_URL) == "ADOS"

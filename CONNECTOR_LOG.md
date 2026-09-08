@@ -236,3 +236,31 @@ listing, not a sample, exposed the actual source coverage.
 scheme. A separate validated correspondence should relate its code/name pairs to the
 correct historical/current `klass:131` versions; do not make them globally identical by
 code alone.
+
+## brrolletype — 2026-09-08 — promoted
+
+**Endpoint(s).** `GET
+https://data.brreg.no/enhetsregisteret/api/roller/rolletyper` returns the complete
+27-member role-type vocabulary. Its live member `self` links currently point at
+`/autorisert-api/...` and return HTTP 401 without Maskinporten, but the official API
+documentation prints the public `/api/roller/rolletyper/{kode}` item form; that public
+path returns HTTP 200. The connector already derived precisely that documented path
+from the collection origin plus each printed code and never follows the unusable
+authorized link.
+
+**Shape.** `entity` used as a `lookup`. `kode` is the subject under
+`brreg:rolletype`, `beskrivelse` is the label, and additional properties remain
+attributes. This vocabulary is the interpretation key for role records such as `DAGL`
+(Daglig leder), `LEDE` and `MEDL`.
+
+**Capability recorded.** `lookup`, record kind `entity`. A fresh live run harvested all
+27 collection members, then fetched the public `brrolletype:DAGL` item: HTTP 200, one
+entity inserted, one verified `brreg:rolletype` key and zero observation rows.
+
+**Surprises.** The publisher's live collection self-links cross from the public API to
+the protected API even though equivalent public item endpoints work and are printed in
+the official documentation. Blind HAL traversal would turn a fully public vocabulary
+into 27 authentication failures. The old adapter also misrepresented each role label as
+a measurement.
+
+**Open question for the query side.** None.
