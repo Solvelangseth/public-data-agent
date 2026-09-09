@@ -451,3 +451,31 @@ That does not overturn the earlier finding that fusing it into the ranking costs
 than it wins. It does sharpen what it is for: a query naming something that exists only
 as a value inside a resource. Worth revisiting as a **fallback for queries the main stack
 fails**, which is narrower than fusion and was never tested.
+
+
+## Five retrieval ideas measured and rejected — stop re-litigating them
+
+Each was plausible, each was tested against a labelled set, each lost:
+
+| idea | result |
+|---|---|
+| coverage lift from the resource index | 0.802 against 0.860; +6 misses |
+| fusing resource search into the lane | recall level, MRR 0.593 against 0.763 |
+| exact match on a measure's name | fires on 34/86 tuned questions, 9 correct (26%) |
+| weighting query terms by rarity | the failing terms have document frequency **zero** |
+| stripping filler before embedding | broke two queries to fix one |
+
+The resource index does not add ranking value. It earns its place elsewhere -- `inspect`
+reads the shape a fetch is planned from, `covering` answers which resources hold a value,
+`resource_keys` answers which speak an identifier scheme -- and those are questions about
+a resource rather than rankings of it.
+
+The stack as it stands (lexical, semantic routed by phrasing, subject over breakdown,
+retrievable-lane filter) is at its practical ceiling for this corpus. The five remaining
+failures are Norwegian vocabulary distance -- `domfelte` against `straffede personer` --
+and `NbAiLab/nb-sbert-base` was measured on that too and lost. What is untested is a
+larger multilingual model, deferred for memory reasons, and synonym expansion.
+
+Anything new here should be measured with `scripts/eval_retrieval.py` against both sets
+before it is believed. Roughly half of every apparent retrieval failure examined in this
+project has turned out to be the benchmark rather than the retriever.
