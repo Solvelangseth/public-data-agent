@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from typing import Any
-from urllib.parse import urlsplit
+from urllib.parse import quote, unquote, urlsplit
 
 from public_data_agent.http_util import HttpClient, RateLimiter
 from public_data_agent.models import DatasetRef, HarvestedRecord, SourceError
@@ -175,7 +175,7 @@ def printed_item_url(item: dict[str, Any], list_url: str) -> str:
     if not parts.scheme or not parts.netloc:
         raise SourceError("Enhetsregisteret representanter catalog URL has no printed origin")
     kode = printed_kode(item)
-    return f"{parts.scheme}://{parts.netloc}{PATH_PREFIX}/{kode}"
+    return f"{parts.scheme}://{parts.netloc}{PATH_PREFIX}/{quote(kode, safe='')}"
 
 
 def printed_title(item: dict[str, Any], ident: str) -> dict[str, str]:
@@ -201,7 +201,7 @@ def is_brrepresent_url(access_path: str | None) -> bool:
 
 def brrepresent_table_id(access_path: str) -> str:
     segment = urlsplit(access_path).path.rstrip("/").split("/")[-1]
-    return segment or "brrepresent"
+    return unquote(segment) if segment else "brrepresent"
 
 
 def cells_from_brrepresent(payload: Any) -> list[tuple[str, Any, dict[str, str]]]:

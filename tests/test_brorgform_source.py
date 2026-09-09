@@ -21,6 +21,7 @@ from public_data_agent.sources.brorgform import (
 
 AAFY_URL = "https://data.brreg.no/enhetsregisteret/api/organisasjonsformer/AAFY"
 AS_URL = "https://data.brreg.no/enhetsregisteret/api/organisasjonsformer/AS"
+SAER_URL = "https://data.brreg.no/enhetsregisteret/api/organisasjonsformer/S%C3%86R"
 ENHETER_URL = "https://data.brreg.no/enhetsregisteret/api/enheter"
 KOMMUNER_URL = "https://data.brreg.no/enhetsregisteret/api/kommuner"
 UNDERENHETER_URL = "https://data.brreg.no/enhetsregisteret/api/underenheter"
@@ -96,6 +97,8 @@ def test_printed_refs_copy_form_kodes() -> None:
 def test_item_url_copies_printed_self_href() -> None:
     assert printed_item_url({"kode": "AS", "_links": {"self": {"href": AS_URL}}}, LIST_URL) == AS_URL
     assert printed_item_url({"kode": "AS"}, LIST_URL) == AS_URL
+    assert printed_item_url({"kode": "SÆR"}, LIST_URL) == SAER_URL
+    assert brorgform_table_id(SAER_URL) == "SÆR"
 
 
 def test_brorgform_is_a_registered_source() -> None:

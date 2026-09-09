@@ -431,3 +431,43 @@ rollback space share a capacity-safe volume.
 
 **Open question for the crawler owner.** Mount the external SSD and provide its volume
 path before the full roles snapshot proof is run.
+
+## shared-registry landing — 2026-09-09 — promoted connectors now findable
+
+**Endpoint(s).** Landed only registered item endpoints into the shared
+`data/registry.sqlite`: one `/api/enheter/{orgnr}`, one
+`/api/underenheter/{orgnr}`, and every published item in the five small lookup
+vocabularies. No `/lastned`, totalbestand, update-feed or other bulk endpoint was
+called. The earlier live evidence in this log came from isolated temporary registries;
+it proved connector behavior but did not make those resources available to the query
+lane.
+
+**Shape.** The shared registry now contains 463 Brreg datasets and 463 records:
+1 main entity, 1 sub-unit, 44 organisation forms, 365 municipality/special codes,
+27 role types, 21 role-group types and 4 representative types. Every one of those 463
+datasets has a stored capability, at least one resource field, and its connector's
+verified source-owned key. There are zero harvested datasets in this bounded landing
+set without a record, capability or resource shape.
+
+**Capability recorded.** The two organisation-number samples are `entities`; all 461
+code-list concepts are `lookup`; every record kind is `entity` and each capability has
+`verified_sample_count = 1`. MCP `inspect` now reports `indexed: true`, the endpoint,
+fields, values and key for tested company, organisation-form and municipality datasets.
+Normal search returns `brorgform:AS` for `Aksjeselskap`, and MCP fetch returns its live
+`AS` / `Aksjeselskap` entity with HTTP 200 and stored provenance. These checks are
+independent of the SQL completeness audit.
+
+**Surprises.** Landing the whole small vocabulary set exposed three non-ASCII codes that
+ASCII smoke samples missed. Organisation form `SÆR` arrived through a percent-encoded
+self URL and was compared to the encoded path segment; role-type and role-group code
+`FFØR` had not been encoded when constructing their public item URLs. Item path segments
+are now percent-encoded on construction and decoded before comparing to the publisher's
+printed code. Regression tests cover the exact live codes, and all three failed shared
+items succeeded on retry. Full suite: 1,931 passed, 1 skipped and 1 live test deselected.
+
+**Scope correction.** The two bulk entity mirrors and the proposed national roles and
+operations work are deferred. They were not run or landed. V1 work returns to breadth:
+auditing duplicate/metadata-only connectors and then the unanswered question list,
+starting with a source that can return real luftfart passenger observations.
+
+**Open question for the query side.** None.

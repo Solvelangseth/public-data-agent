@@ -21,6 +21,7 @@ from public_data_agent.sources.brrolletype import (
 
 ADOS_URL = "https://data.brreg.no/enhetsregisteret/api/roller/rolletyper/ADOS"
 DAGL_URL = "https://data.brreg.no/enhetsregisteret/api/roller/rolletyper/DAGL"
+FFOR_URL = "https://data.brreg.no/enhetsregisteret/api/roller/rolletyper/FF%C3%98R"
 AUTORISERT_URL = "https://data.brreg.no/enhetsregisteret/autorisert-api/roller/rolletyper/ADOS"
 ENHETER_URL = "https://data.brreg.no/enhetsregisteret/api/enheter"
 ORGFORM_URL = "https://data.brreg.no/enhetsregisteret/api/organisasjonsformer/AS"
@@ -96,6 +97,8 @@ def test_printed_refs_copy_rolletype_kodes() -> None:
 def test_item_url_joins_printed_kode_onto_public_path() -> None:
     assert printed_item_url({"kode": "ADOS", "_links": {"self": {"href": AUTORISERT_URL}}}, LIST_URL) == ADOS_URL
     assert printed_item_url({"kode": "ADOS"}, LIST_URL) == ADOS_URL
+    assert printed_item_url({"kode": "FFØR"}, LIST_URL) == FFOR_URL
+    assert brrolletype_table_id(FFOR_URL) == "FFØR"
 
 
 def test_brrolletype_is_a_registered_source() -> None:

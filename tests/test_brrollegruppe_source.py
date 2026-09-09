@@ -21,6 +21,7 @@ from public_data_agent.sources.brrollegruppe import (
 
 ADOS_URL = "https://data.brreg.no/enhetsregisteret/api/roller/rollegruppetyper/ADOS"
 DAGL_URL = "https://data.brreg.no/enhetsregisteret/api/roller/rollegruppetyper/DAGL"
+FFOR_URL = "https://data.brreg.no/enhetsregisteret/api/roller/rollegruppetyper/FF%C3%98R"
 AUTH_URL = "https://data.brreg.no/enhetsregisteret/autorisert-api/roller/rollegruppetyper/DAGL"
 ROLLETYPE_URL = "https://data.brreg.no/enhetsregisteret/api/roller/rolletyper/DAGL"
 REPRESENTANT_URL = "https://data.brreg.no/enhetsregisteret/api/roller/representanter"
@@ -97,6 +98,8 @@ def test_item_url_joins_printed_kode_onto_public_path() -> None:
     assert printed_item_url({"kode": "DAGL", "_links": {"self": {"href": AUTH_URL}}}, LIST_URL) == DAGL_URL
     assert printed_item_url({"kode": "DAGL"}, LIST_URL) == DAGL_URL
     assert printed_item_url({"kode": "ADOS"}, LIST_URL) == ADOS_URL
+    assert printed_item_url({"kode": "FFØR"}, LIST_URL) == FFOR_URL
+    assert brrollegruppe_table_id(FFOR_URL) == "FFØR"
 
 
 def test_brrollegruppe_is_a_registered_source() -> None:
