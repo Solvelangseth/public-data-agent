@@ -524,3 +524,55 @@ The 168 ms that remains is the scorer reading 2,000 rows, not the FTS5 query, wh
 0.4 ms. Cutting the depth to 500 would be faster and would keep only 73% of the
 scorer's top 20, so the depth stays at 2,000: this change is worth having *because* it
 alters nothing.
+
+## The resource index cannot rank, and now it is clear why — a sixth rejection
+
+`resource_field_values` holds 15,170 measure names across 4,158 datasets — the
+names a table publishes for what it actually counts, none of which need appear in
+its title. It looks like exactly the missing ingredient: `lønnsomhet` is a measure
+in 08264, `Driftsmargin` in 07371 and 08142, and all three are gold labels for the
+question "lønnsomhet i industrien" that the retriever misses. The index coverage is
+not the problem either — 4,158 of the 4,160 retrievable datasets have a shape.
+
+It has now been tried three ways and lost three times, and the third attempt found
+the mechanism.
+
+| | tuned recall@5 | MRR |
+|---|---|---|
+| baseline | **0.860** | **0.763** |
+| measure as a scored field, weight 2 / 3 / 5 | 0.849 | 0.754 |
+| the same, gated on token rarity, DF ≤ 5 / ≤ 30 | 0.849 | 0.745 |
+| the same, **weight 0** | 0.849 | 0.750 |
+
+Weight 0 is the result that matters. A measure match that contributes *nothing* to
+the score costs exactly as much recall as one weighted 5. The damage is not scoring,
+it is **admission**: `_rank_rows` keeps any row with at least one match, and
+`_select_hits` then chooses among them, so a new field lets rows in that displace
+better rows before any weight is consulted. No weighting or gating can fix that,
+because no weighting or gating is what breaks it.
+
+The other half of the finding kills the idea on its own terms. The questions that
+fail hardest fail because their words are absent from the registry entirely, not
+because they are hidden inside tables:
+
+| query token | datasets whose title/keyword/theme says it | datasets with it as a measure |
+|---|---|---|
+| `yrkesdeltakelse` | 0 | 0 |
+| `barnehagedekning` | 0 | 0 |
+| `domfelte` | 0 | 0 |
+| `alder` | 905 | 116 (0 of them gold) |
+| `nett` | 235 | 197 (1 of them gold) |
+
+Where a token is rare enough for a measure lookup to be informative it is usually
+absent from the measures too; where it is present in the measures it is common
+enough to match everywhere. That is the same shape as the earlier rarity-weighting
+rejection, measured from the other side.
+
+**What this means for the next attempt.** The remaining held-out failures are a
+Norwegian vocabulary problem — `yrkesdeltakelse` against `arbeidsstyrken`,
+`domfelte` against `straffede personer`, `barnehagedekning` against `andel barn i
+barnehage`. Writing those pairs into `QUERY_SYNONYMS` would raise the number and
+destroy the held-out set, which exists to be measured once; it must not be done.
+The honest routes left are a better embedding model (`multilingual-e5-large`,
+deferred on disk, not on merit) or a synonym source derived from something other
+than the questions being scored.
