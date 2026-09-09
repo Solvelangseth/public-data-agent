@@ -576,3 +576,61 @@ destroy the held-out set, which exists to be measured once; it must not be done.
 The honest routes left are a better embedding model (`multilingual-e5-large`,
 deferred on disk, not on merit) or a synonym source derived from something other
 than the questions being scored.
+
+## Lifting each lane's top result: +0.035 tuned, +0.000 held out
+
+A stage-by-stage trace of the twelve tuned-set misses found four where one lane
+ranked the answer first and the combination buried it: `hvor mange studenter er det
+i Norge` and `hvor mange boliger ble bygget i fjor` were lexical rank 1 and came out
+9th and 7th; `husholdninger størrelse` was semantic rank 1 and came out 8th.
+
+Two things were measured off that trace.
+
+**The rules that buried them still earn their place.** Both routing and demotion were
+chosen when recall was 0.709, and the stack has changed a great deal since, so both
+were re-ablated through `find` on today's stack:
+
+| | tuned recall@5 | MRR |
+|---|---|---|
+| baseline (route + demote) | **0.860** | **0.763** |
+| always fuse + demote | 0.849 | 0.672 |
+| route, no demote | 0.860 | 0.750 |
+| always fuse, no demote | 0.860 | 0.648 |
+
+Per-question the trace is right and both rules do throw away a rank-1 answer. In
+aggregate they each win more than they lose. Neither should be removed.
+
+**The obvious repair does not generalise.** The smallest rule that keeps those four —
+move each lane's top result to the front, no threshold to tune — measures:
+
+| | tuned recall@5 | tuned MRR | held-out recall@5 | held-out MRR |
+|---|---|---|---|---|
+| baseline | 0.860 | 0.763 | **0.811** | **0.723** |
+| both lanes' top-1 to the front | 0.895 | 0.750 | 0.811 | 0.620 |
+| only if absent from the top 5 | **0.895** | 0.762 | 0.811 | 0.665 |
+
+Three questions gained on the set the rule was derived from; zero on the set it was
+not, and MRR falls 6 to 10 points there. This is what looking at misses and fixing
+them produces, and it is worth keeping as a calibration: a +0.035 tuned gain
+transferred as exactly 0.000. Rejected.
+
+## The questions nothing finds are not coverage gaps
+
+The five tuned-set misses that neither lexical nor semantic ranking reaches at any
+depth all have an answer sitting in the registry, and one BM25 lookup on the right
+word returns it:
+
+| question | what a direct lookup returns |
+|---|---|
+| hva er gjennomsnittsalderen i Tromsø | `13536: Gjennomsnittsalder og medianalder i kommuner, fylker og hele landet` |
+| hvor mye tjener en sykepleier i gjennomsnitt | `13311: Månedslønn og alder, etter arbeidstid, kjønn og yrke` |
+| hvor mye har prisene steget det siste året | `14710: Konsumprisindeks, historisk serie` |
+| hvor stor er Norge i kvadratkilometer | `Arealstatistikk for Norge` |
+| bruttonasjonalprodukt | `09391: Hovedtall fylkesfordelt nasjonalregnskap` |
+
+So the ceiling is not the catalogue and it is not the index. The asker says "hvor mye
+har prisene steget"; the table says "konsumprisindeks". Nothing in the query survives
+tokenisation as a word the catalogue uses, and the embedding lane does not bridge it
+either. Every remaining failure is this same translation gap, which is why six
+attempts to squeeze more out of ranking have all failed: the ranking is not what is
+broken.
