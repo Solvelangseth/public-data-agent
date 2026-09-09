@@ -740,12 +740,28 @@ def resource_shape(registry: Registry, dataset_id: str) -> dict[str, Any]:
     ]
     if not fields and not capability:
         return {"indexed": False, "reason": "this resource's shape has not been recorded"}
+    # A register is addressed by naming a subject, not by selecting dimensions.
+    # A caller that does not know which of the two it is facing cannot plan a
+    # request at all.
+    register = None
+    if capability.get("subject_template"):
+        register = {
+            "subject_scheme": capability.get("subject_scheme"),
+            "subject_template": capability.get("subject_template"),
+            "subject_count": capability.get("subject_count"),
+            "how": (
+                "Name one subject; the template addresses it. This resource holds "
+                "one record per subject, so there is nothing useful to fetch without "
+                "naming which."
+            ),
+        }
     return {
         "indexed": True,
         "capability": capability.get("capability"),
         "record_kind": capability.get("record_kind"),
         "endpoint": capability.get("endpoint"),
         "request_method": capability.get("request_method"),
+        "register": register,
         "period": {
             "start": capability.get("period_start"),
             "end": capability.get("period_end"),
@@ -759,3 +775,27 @@ def resource_shape(registry: Registry, dataset_id: str) -> dict[str, Any]:
             "A value absent from the sample is not absent from the resource."
         ),
     }
+
+
+
+def subject_url(registry: Registry, dataset_id: str, subject: str) -> str:
+    """The URL for one subject of a register.
+
+    Refuses a dataset that is not a register rather than guessing a URL shape,
+    and refuses an empty subject rather than requesting the whole collection --
+    a register's collection endpoint is millions of records and is not a fetch.
+    """
+
+    capability = registry.get_capability(dataset_id) or {}
+    template = capability.get("subject_template")
+    if not template:
+        raise ValueError(
+            f"{dataset_id} is not a register: it has no subject_template, so there is "
+            "no subject to address. Fetch it the way its capability describes."
+        )
+    if not str(subject).strip():
+        raise ValueError(
+            f"{dataset_id} needs a subject to address. Its collection endpoint holds "
+            f"{capability.get('subject_count') or 'many'} records and is not a fetch."
+        )
+    return template.replace("{subject}", str(subject).strip())

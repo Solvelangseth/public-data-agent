@@ -61,9 +61,25 @@ class Retrieved:
 
 
 def _capability(registry: Registry, dataset_id: str, cache: dict[str, str]) -> str:
+    """What this resource can return, preferring what was verified over what a
+    URL looks like.
+
+    `classify_access_path` reads a pattern; `resource_capability` records what a
+    fetch actually returned. Where they disagree the record wins. A register's
+    stored access path is its collection endpoint, which the classifier rightly
+    calls unfetchable -- a million companies is not one request -- while the
+    resource is reachable by naming a subject. Classifying from the URL alone
+    hid Enhetsregisteret from every query, including the literal word
+    "Enhetsregisteret".
+    """
+
     if dataset_id not in cache:
-        row = registry.get_dataset(dataset_id) or {}
-        cache[dataset_id] = classify_access_path(row.get("access_path"))["kind"]
+        recorded = (registry.get_capability(dataset_id) or {}).get("capability")
+        if recorded:
+            cache[dataset_id] = recorded
+        else:
+            row = registry.get_dataset(dataset_id) or {}
+            cache[dataset_id] = classify_access_path(row.get("access_path"))["kind"]
     return cache[dataset_id]
 
 

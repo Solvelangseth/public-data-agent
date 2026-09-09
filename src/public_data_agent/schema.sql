@@ -271,6 +271,18 @@ CREATE TABLE IF NOT EXISTS resource_capability (
     source_modified_at TEXT,                   -- publisher's own timestamp, for refresh
     verified_at TEXT,                          -- when it was last seen to return real data
     verified_sample_count INTEGER,             -- how many records that check actually saw
+
+    -- A register is one resource holding millions of subjects, not millions of
+    -- resources. Enhetsregisteret has ~1.1M companies: filing each as its own
+    -- dataset makes the catalogue the thing being searched rather than the
+    -- index over it, and search reads every dataset row per query -- 1.8s at
+    -- 13,744 rows, about 146s at a million.
+    --
+    -- These say how to reach one subject instead. `subject_template` carries a
+    -- single `{subject}` placeholder; the scheme says what a subject is.
+    subject_scheme TEXT,                       -- brreg:orgnr, matrikkel:bygningsnummer
+    subject_template TEXT,                     -- https://.../enheter/{subject}
+    subject_count INTEGER,                     -- how many subjects the register holds
     notes TEXT,
     FOREIGN KEY (dataset_id) REFERENCES datasets(id)
 );

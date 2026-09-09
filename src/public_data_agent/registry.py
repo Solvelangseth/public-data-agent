@@ -83,6 +83,18 @@ class Registry:
         if "series" not in columns:
             self.conn.execute("ALTER TABLE observations ADD COLUMN series TEXT")
 
+        # Register addressing, added after resource_capability already held rows.
+        capability_columns = {
+            row["name"]
+            for row in self.conn.execute("PRAGMA table_info(resource_capability)").fetchall()
+        }
+        for column, kind in (("subject_scheme", "TEXT"), ("subject_template", "TEXT"),
+                             ("subject_count", "INTEGER")):
+            if capability_columns and column not in capability_columns:
+                self.conn.execute(
+                    f"ALTER TABLE resource_capability ADD COLUMN {column} {kind}"
+                )
+
     def start_run(
         self,
         *,
@@ -431,6 +443,17 @@ class Registry:
         `unverified` kind exists to express.
         """
 
+        template = capability.get("subject_template")
+        if template and "{subject}" not in template:
+            raise ValueError(
+                f"subject_template {template!r} has no {{subject}} placeholder; without one "
+                "there is no way to address a single record in the register"
+            )
+        if template and not capability.get("subject_scheme"):
+            raise ValueError(
+                "a subject_template needs a subject_scheme saying what a subject is; "
+                "an unnamed identifier cannot be validated or joined"
+            )
         if capability.get("verified_at") and not capability.get("verified_sample_count"):
             raise ValueError(
                 "verified_at requires verified_sample_count; a capability is "
@@ -439,7 +462,8 @@ class Registry:
         columns = (
             "dataset_id", "capability", "record_kind", "endpoint", "request_method",
             "period_start", "period_end", "source_modified_at", "verified_at",
-            "verified_sample_count", "notes",
+            "verified_sample_count", "subject_scheme", "subject_template",
+            "subject_count", "notes",
         )
         values = {"dataset_id": dataset_id, **{c: capability.get(c) for c in columns[1:]}}
         if values["capability"] is None:

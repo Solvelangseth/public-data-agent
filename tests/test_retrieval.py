@@ -133,3 +133,42 @@ def test_a_code_list_is_not_offered_as_an_answer(tmp_path: Path) -> None:
     assert not is_retrievable("unverified")
     assert not is_retrievable("none")
     assert not is_retrievable(None)
+
+
+def test_a_verified_capability_beats_a_guess_from_the_url(tmp_path: Path) -> None:
+    """`classify_access_path` reads a pattern; `resource_capability` records what
+    a fetch actually returned. A register's stored access path is its collection
+    endpoint, which the classifier rightly calls unfetchable -- a million
+    companies is not one request -- while the resource is reachable by naming a
+    subject. Classifying from the URL alone hid Enhetsregisteret from every
+    query, including the literal word "Enhetsregisteret"."""
+
+    from public_data_agent.fetch import classify_access_path
+
+    collection = "https://data.brreg.no/enhetsregisteret/api/enheter"
+    assert classify_access_path(collection)["kind"] == "none"
+
+    registry = _registry(tmp_path)
+    registry.conn.execute(
+        """
+        INSERT INTO datasets (id, source_id, ingest_reason, source_name,
+            source_endpoints_json, missing_fields_json, payload_hash,
+            first_ingested_at, last_ingested_at, last_seen_at, last_changed_at,
+            title, access_path)
+        VALUES ('brreg:enhetsregisteret', 'brreg', 't', 'B', '[]', '{}', 'h',
+                't', 't', 't', 't', 'Enhetsregisteret', ?)
+        """,
+        (collection,),
+    )
+    registry.conn.commit()
+    registry.set_capability("brreg:enhetsregisteret", {
+        "capability": "entities", "record_kind": "entity", "endpoint": collection,
+        "subject_scheme": "brreg:orgnr",
+        "subject_template": collection + "/{subject}",
+        "subject_count": 1_100_000,
+    })
+
+    found = find(registry, "Enhetsregisteret")
+    assert "brreg:enhetsregisteret" in found.observations
+    assert "brreg:enhetsregisteret" not in found.catalogue
+    registry.close()

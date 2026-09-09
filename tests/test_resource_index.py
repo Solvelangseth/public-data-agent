@@ -9,6 +9,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
+
 from public_data_agent.registry import Registry
 from public_data_agent.resource_index import (
     demote_breakdown_only,
@@ -480,4 +482,47 @@ def test_an_unindexed_resource_says_so_rather_than_looking_empty(tmp_path: Path)
     shape = resource_shape(registry, "ssbtable:99999")
     assert shape["indexed"] is False
     assert "not been recorded" in shape["reason"]
+    registry.close()
+
+
+def test_a_register_says_how_to_reach_one_subject(tmp_path: Path) -> None:
+    """A register holds a million subjects. Filing each as its own dataset makes
+    the catalogue the thing being searched rather than the index over it: search
+    reads every dataset row per query, 1.8s at 13,744 rows and about 146s at a
+    million."""
+
+    from public_data_agent.resource_index import resource_shape, subject_url
+
+    registry = _registry(tmp_path)
+    registry.set_capability("ssbtable:08651", {
+        "capability": "entities", "record_kind": "entity",
+        "endpoint": "https://example.org/api/enheter",
+        "subject_scheme": "brreg:orgnr",
+        "subject_template": "https://example.org/api/enheter/{subject}",
+        "subject_count": 1_100_000,
+    })
+    block = resource_shape(registry, "ssbtable:08651")["register"]
+    assert block["subject_scheme"] == "brreg:orgnr"
+    assert block["subject_count"] == 1_100_000
+    assert subject_url(registry, "ssbtable:08651", "923609016").endswith("/923609016")
+    registry.close()
+
+
+def test_a_register_refuses_an_empty_subject(tmp_path: Path) -> None:
+    """Its collection endpoint is millions of records and is not a fetch."""
+
+    from public_data_agent.resource_index import subject_url
+
+    registry = _registry(tmp_path)
+    registry.set_capability("ssbtable:08651", {
+        "capability": "entities", "subject_scheme": "brreg:orgnr",
+        "subject_template": "https://example.org/api/enheter/{subject}",
+        "subject_count": 1_100_000,
+    })
+    with pytest.raises(ValueError, match="needs a subject"):
+        subject_url(registry, "ssbtable:08651", "  ")
+    # A resource that is not a register says so rather than guessing a URL shape.
+    registry.set_capability("ssbtable:99999", {"capability": "observations"})
+    with pytest.raises(ValueError, match="not a register"):
+        subject_url(registry, "ssbtable:99999", "923609016")
     registry.close()
