@@ -1,5 +1,5 @@
 {
-  "note": "HELD-OUT gold labels for data/heldout_questions.json. Same method as data/fetchable_gold.json: candidates pooled from every retriever, then checked against the registry directly, so labels are not bounded by what any one method surfaced. `expected: []` means the registry holds nothing that answers the question -- a coverage finding, excluded from recall. This set exists to be measured ONCE. The other set produced the routing rule and was then scored on it, so its number is optimistic by construction; this one is not. If it is ever used to choose or tune anything it stops being held out. Same limitation as the other: labels are author-judged from titles, and no cell was fetched to confirm. LABELS CORRECTED ONCE, after an audit of all 35 scored questions (not only the misses): four named a worse table than one that plainly answers the question -- cancer *deaths* for 'hvor mange får kreft', ownership status for 'hvor mange leier boligen sin'. Corrected on merit from titles. This is a change to the instrument after seeing results, so both the before and after numbers are recorded in GAPS.md.",
+  "note": "HELD-OUT gold labels for data/heldout_questions.json. Same method as data/fetchable_gold.json: candidates pooled from every retriever, then checked against the registry directly, so labels are not bounded by what any one method surfaced. `expected: []` means the registry holds nothing that answers the question -- a coverage finding, excluded from recall. This set exists to be measured ONCE. The other set produced the routing rule and was then scored on it, so its number is optimistic by construction; this one is not. If it is ever used to choose or tune anything it stops being held out. Same limitation as the other: labels are author-judged from titles, and no cell was fetched to confirm. LABELS CORRECTED ONCE, after an audit of all 35 scored questions (not only the misses): four named a worse table than one that plainly answers the question -- cancer *deaths* for 'hvor mange får kreft', ownership status for 'hvor mange leier boligen sin'. Corrected on merit from titles. This is a change to the instrument after seeing results, so both the before and after numbers are recorded in GAPS.md. CORRECTED AGAIN 2026-09-09: h009 and h040 were recorded as having no answer in the registry. They do -- as *measures inside* tables rather than in any title. 11787 publishes 'Mengde kommunalt vann til husholdninger' and 08120/07371 publish 'Driftsresultat' and 'Driftsmargin'. The labels were written from titles, which is the systematic flaw in this set. This correction moves two questions from excluded to scored-and-failing, so it lowers the number rather than raising it.",
   "questions": [
     {
       "id": "h001",
@@ -70,7 +70,13 @@
     {
       "id": "h009",
       "query": "lønnsomhet i industrien",
-      "expected": []
+      "expected": [
+        "ssbtable:08120",
+        "ssbtable:08143",
+        "ssbtable:07371",
+        "ssbtable:08142",
+        "ssbtable:08264"
+      ]
     },
     {
       "id": "h010",
@@ -311,7 +317,10 @@
     {
       "id": "h040",
       "query": "hvor mye vann bruker en husholdning",
-      "expected": []
+      "expected": [
+        "ssbtable:11787",
+        "ssbtable:11791"
+      ]
     },
     {
       "id": "h041",

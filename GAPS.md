@@ -406,3 +406,48 @@ The benchmark script takes `--models`, so re-running it there is one command. Th
 scoring harness measures `fuse(lexical, semantic)` only -- no routing, subject demotion
 or lane filter -- so its numbers are lower than the production stack's and comparable
 only to each other.
+
+
+## Third label correction: two "coverage gaps" were retrieval failures
+
+`lønnsomhet i industrien` and `hvor mye vann bruker en husholdning` were recorded as
+having no answer in the registry. Both have one, as a **measure inside** a table rather
+than in any title:
+
+```
+11787  Vannforsyning og beredskap   measure "Mengde kommunalt vann til husholdninger"
+08120  Alle næringer. Resultatposter measure "Driftsresultat"
+07371  Nøkkeltall for aksjeselskap   measure "Driftsmargin (prosent)"
+08264  Konjunkturbarometeret         measure "Lønnsomhet"
+```
+
+The labels were written from titles. That is the systematic flaw in both sets, and it has
+now produced a wrong conclusion three times. The resource index knew all along -- it
+records what is inside a resource -- and was never queried that way while labelling.
+
+This correction moves two questions from excluded to scored-and-failing, so unlike the
+previous one it lowers the number:
+
+```
+                     scored   recall@5    MRR   keyword  natural
+before this fix          35      0.857   0.762    0.850    0.867
+after                    37      0.811   0.723    0.810    0.812
+```
+
+**Coverage is better than reported and retrieval is worse.** Six questions of 43 have no
+answer anywhere, not eight, so the corpus reaches about 86% of ordinary questions rather
+than 81%.
+
+`scripts/eval_retrieval.py` now lives in the repo rather than a scratch directory, which
+is why this was cheap to re-measure. Three earlier versions were written and lost.
+
+## Resource search finds what titles cannot -- sometimes
+
+Against the two newly-labelled questions, `search_resources` ranks `lønnsomhet i
+industrien` **first**, through the measure "Lønnsomhet" in 08264, where the full stack
+does not find it in fifty candidates. It misses the water question entirely.
+
+That does not overturn the earlier finding that fusing it into the ranking costs more
+than it wins. It does sharpen what it is for: a query naming something that exists only
+as a value inside a resource. Worth revisiting as a **fallback for queries the main stack
+fails**, which is narrower than fusion and was never tested.
