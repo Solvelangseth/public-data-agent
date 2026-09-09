@@ -8,9 +8,13 @@ from public_data_agent.harvest import harvest
 from public_data_agent.registry import Registry
 from public_data_agent.search import (
     VARIABLES_UNKNOWN_REASON,
+    _iter_scored_rows,
+    build_search_index,
     decompose,
+    index_is_current,
     keywords_from_payload,
     load_prompt_pack,
+    prefilter,
     run_search_pack,
     search,
     search_report,
@@ -654,3 +658,88 @@ def test_live_prompt_pack_queries_are_not_gold_queries() -> None:
     assert not (set(pack_queries) & gold_queries)
     assert not (set(pack_ids) & {item["id"] for item in gold["questions"]})
     assert all("expected" not in item and "dataset_id" not in item for item in pack["questions"])
+
+
+def test_prefilter_is_skipped_until_the_index_is_built(tmp_path: Path) -> None:
+    # An unbuilt index must mean "score everything", not "no candidates". The
+    # difference is a search that works slowly against one that answers nothing.
+    registry = _registry(tmp_path)
+    try:
+        assert index_is_current(registry) is False
+        assert prefilter(registry, "strandsone") is None
+        assert [hit.dataset_id for hit in search(registry, "strandsone", limit=5)]
+    finally:
+        registry.close()
+
+
+def test_prefilter_narrows_once_the_index_is_built(tmp_path: Path) -> None:
+    registry = _registry(tmp_path)
+    try:
+        assert build_search_index(registry)["indexed"] == 3
+        assert index_is_current(registry) is True
+        candidates = prefilter(registry, "strandsone")
+        assert candidates is not None
+        assert STRANDSONE_ID in candidates
+    finally:
+        registry.close()
+
+
+def test_index_covers_keywords_and_publisher_not_only_the_title(tmp_path: Path) -> None:
+    # The filter has to index every field the scorer scores. Indexing title and
+    # description alone dropped a fifth of the scorer's top results, because a
+    # row can match on a keyword the title never says.
+    registry = _registry(tmp_path)
+    try:
+        build_search_index(registry)
+        row = next(iter(_iter_scored_rows(registry)))[0]
+        body = registry.conn.execute(
+            "SELECT body FROM search_index WHERE dataset_id = ?", (row["id"],)
+        ).fetchone()["body"]
+        indexed = set(body.split())
+        for _row, fields, _keywords, _payload in _iter_scored_rows(registry):
+            if _row["id"] != row["id"]:
+                continue
+            for field, tokens in fields.items():
+                missing = set(tokens) - indexed
+                assert not missing, f"{field} tokens absent from the index: {missing}"
+    finally:
+        registry.close()
+
+
+def test_a_stale_index_falls_back_to_the_full_scan(tmp_path: Path) -> None:
+    # A dataset harvested after the index was built is not in it. Using the
+    # index anyway would hide that dataset from every search, and hide it
+    # quietly. Falling back is slower and correct.
+    registry = _registry(tmp_path)
+    try:
+        build_search_index(registry)
+        assert index_is_current(registry) is True
+        registry.ensure_observation_dataset(
+            dataset_id="fixture:added-later",
+            title="Kystlinje og strandsone i Nordland",
+            publisher_name="Fixture",
+            access_path=None,
+            license=None,
+        )
+        registry.conn.commit()
+        assert index_is_current(registry) is False
+        assert prefilter(registry, "kystlinje") is None
+        found = [hit.dataset_id for hit in search(registry, "kystlinje", limit=5)]
+        assert "fixture:added-later" in found
+    finally:
+        registry.close()
+
+
+def test_the_index_does_not_change_what_search_returns(tmp_path: Path) -> None:
+    # The filter chooses which rows the scorer reads; it must not change how the
+    # scorer ranks them. Measured on the real registry this holds for all 131
+    # labelled questions, top 50 each.
+    registry = _registry(tmp_path)
+    queries = ["strandsone", "helsedata ssb", "forurensning i oslo", "befolkning"]
+    try:
+        without = {q: [h.dataset_id for h in search(registry, q, limit=10)] for q in queries}
+        build_search_index(registry)
+        with_index = {q: [h.dataset_id for h in search(registry, q, limit=10)] for q in queries}
+        assert with_index == without
+    finally:
+        registry.close()

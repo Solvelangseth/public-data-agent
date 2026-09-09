@@ -479,3 +479,48 @@ larger multilingual model, deferred for memory reasons, and synonym expansion.
 Anything new here should be measured with `scripts/eval_retrieval.py` against both sets
 before it is believed. Roughly half of every apparent retrieval failure examined in this
 project has turned out to be the benchmark rather than the retriever.
+
+## Search was scanning every row; an FTS5 pre-filter made it 10x faster and changed nothing
+
+Every query scored every dataset in the registry — 13,744 rows, each one JSON-decoded
+and tokenised in Python. That cost **1,761 ms per query** on an idle machine and 7,648 ms
+on a loaded one, and it grows with the catalogue. For an MCP server answering
+interactively, that is the difference between a tool call and a wait.
+
+The fix is a SQLite FTS5 index used as a *candidate filter*, not as a ranker. FTS5
+returns its top 2,000 by BM25; the existing scorer then ranks those 2,000 exactly as
+before — same weights, same synonyms, same AND-decomposition. BM25 never has to agree
+with the scorer, it only has to put the right rows *somewhere* in the candidate set.
+
+Measured on all 131 labelled questions, top 50 each:
+
+| | full scan | with the filter |
+|---|---|---|
+| latency | 1,761 ms/query | **168 ms/query** |
+| identical top-50 | — | **131/131** |
+| held-out recall@5 / MRR | 0.811 / 0.723 | 0.811 / 0.723 |
+| tuned recall@5 / MRR | 0.860 / 0.763 | 0.860 / 0.763 |
+| `pda benchmark` recall@5 | 0.892 | 0.892 |
+
+Two things had to be right, and the first attempt got one of them wrong:
+
+**Index every field the scorer scores.** A first prototype indexed title and
+description only and kept **80.3%** of the scorer's top 20 — the scorer also matches
+keywords, themes and publisher, so rows matching on those vanished. `_index_body` now
+builds its text from the same `fields` dict `_iter_scored_rows` produces, which makes
+the two impossible to drift apart. Query tokens are expanded through `_token_alts`
+before matching, because the scorer accepts compound splits that a prefix match would
+not.
+
+**A stale index must be slow, not wrong.** An index built before an ingest does not
+contain the new datasets, and using it would hide them from every search silently.
+`search_index_state` records how many datasets were indexed; `index_is_current`
+compares that against the live count, and `prefilter` returns `None` — meaning "score
+everything" — whenever they disagree, whenever the index has never been built, and
+whenever the query has no usable token. `pda ingest` rebuilds the index when it wrote
+anything; `pda index` rebuilds it on demand (4.9 s for 13,744 rows, 14 MB).
+
+The 168 ms that remains is the scorer reading 2,000 rows, not the FTS5 query, which is
+0.4 ms. Cutting the depth to 500 would be faster and would keep only 73% of the
+scorer's top 20, so the depth stays at 2,000: this change is worth having *because* it
+alters nothing.

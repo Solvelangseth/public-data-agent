@@ -250,15 +250,37 @@ class Registry:
         rows = self.conn.execute("SELECT * FROM harvest_runs ORDER BY id").fetchall()
         return [dict(row) for row in rows]
 
-    def iter_search_rows(self) -> list[dict[str, Any]]:
-        rows = self.conn.execute(
-            """
-            SELECT d.*, p.payload_json
-            FROM datasets d
-            LEFT JOIN harvested_payloads p ON p.dataset_id = d.id
-            """
-        ).fetchall()
-        return [dict(row) for row in rows]
+    SEARCH_ROW_SQL = """
+        SELECT d.*, p.payload_json
+        FROM datasets d
+        LEFT JOIN harvested_payloads p ON p.dataset_id = d.id
+    """
+
+    def iter_search_rows(self, ids: set[str] | None = None) -> list[dict[str, Any]]:
+        """Every dataset the search scores, or only the ones named.
+
+        `ids` is the lexical pre-filter's candidate set. Restricting here rather
+        than in the caller is the point: the cost is reading and decoding the
+        rows, so a caller that fetches all of them and then discards most has
+        already paid it.
+        """
+
+        if ids is None:
+            rows = self.conn.execute(self.SEARCH_ROW_SQL).fetchall()
+            return [dict(row) for row in rows]
+        if not ids:
+            return []
+        # Chunked because SQLite caps how many parameters one statement takes.
+        out: list[dict[str, Any]] = []
+        ordered = list(ids)
+        for start in range(0, len(ordered), 500):
+            chunk = ordered[start : start + 500]
+            placeholders = ",".join("?" * len(chunk))
+            rows = self.conn.execute(
+                f"{self.SEARCH_ROW_SQL} WHERE d.id IN ({placeholders})", chunk
+            ).fetchall()
+            out.extend(dict(row) for row in rows)
+        return out
 
     def get_enrichment(self, dataset_id: str) -> dict[str, Any] | None:
         row = self.conn.execute(

@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import json
 import re
+import sqlite3
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -385,9 +387,12 @@ def search(
 ) -> list[SearchHit]:
     if limit <= 0:
         return []
+    # Narrow to candidates before scoring. None means the filter had nothing
+    # to say and every row is scored, which is what happened before it existed.
+    candidates = prefilter(registry, query)
     requirements = decompose(query) if decompose_query else []
     if decompose_query and len(requirements) > 1:
-        return _search_requirements(registry, requirements, limit=limit)
+        return _search_requirements(registry, requirements, limit=limit, candidates=candidates)
     query_tokens = tokenize(query)
     if not query_tokens:
         return []
@@ -396,6 +401,7 @@ def search(
         query_tokens,
         limit=limit,
         match_distribution=match_distribution,
+        candidates=candidates,
     )
 
 
@@ -536,12 +542,13 @@ def _search_requirements(
     requirements: list[Requirement],
     *,
     limit: int,
+    candidates: set[str] | None = None,
 ) -> list[SearchHit]:
     """Search each requirement, then keep rows that satisfy every one."""
 
     hits: list[SearchHit] = []
     req_texts = [req.text for req in requirements]
-    for row, fields, keywords, payload in _iter_scored_rows(registry):
+    for row, fields, keywords, payload in _iter_scored_rows(registry, candidates):
         combined: list[FieldMatch] = []
         failed = False
         for req in requirements:
@@ -592,11 +599,12 @@ def _rank_rows(
     *,
     limit: int,
     match_distribution: bool = False,
+    candidates: set[str] | None = None,
 ) -> list[SearchHit]:
     query_text = " ".join(query_tokens)
     theme_hits: list[SearchHit] = []
     other_hits: list[SearchHit] = []
-    for row, fields, keywords, payload in _iter_scored_rows(registry):
+    for row, fields, keywords, payload in _iter_scored_rows(registry, candidates):
         themes = themes_from_payload(payload)
         if any(theme.casefold() == query_text for theme in themes):
             matches = _theme_string_matches(query_tokens, themes)
@@ -623,8 +631,8 @@ def _rank_rows(
     return _select_hits(hits, limit)
 
 
-def _iter_scored_rows(registry: Registry):
-    for row in registry.iter_search_rows():
+def _iter_scored_rows(registry: Registry, candidates: set[str] | None = None):
+    for row in registry.iter_search_rows(ids=candidates):
         payload = _json_obj(row.get("payload_json"))
         keywords = keywords_from_payload(payload)
         themes = themes_from_payload(payload)
@@ -827,3 +835,104 @@ def run_search_pack(
         "question_count": len(rows),
         "questions": rows,
     }
+
+
+# How many candidates the pre-filter hands the scorer. Measured against the
+# held-out questions: 2,000 keeps every one of the scorer's top 20, 500 keeps
+# 73% of them. The cut has to be generous because BM25 and this scorer do not
+# rank the same way -- BM25 only has to put a row somewhere in the candidates,
+# not near the top.
+PREFILTER_DEPTH = 2000
+
+
+def _index_body(fields: dict[str, list[str]], publisher: str | None) -> str:
+    """The text the pre-filter indexes for one row.
+
+    Built from the tokens the scorer scores, so the filter cannot drop a row the
+    scorer would have matched. Indexing less is the failure mode: title and
+    description alone kept only 80% of the scorer's top 20, because the scorer
+    also matches keywords, themes and publisher.
+    """
+
+    parts = [token for tokens in fields.values() for token in tokens]
+    parts.extend(tokenize(publisher))
+    return " ".join(parts)
+
+
+def build_search_index(registry: Registry, *, progress=None) -> dict[str, int]:
+    """Rebuild the lexical pre-filter over every dataset."""
+
+    log = progress or (lambda _message: None)
+    registry.conn.execute("DELETE FROM search_index")
+    batch: list[tuple[str, str]] = []
+    total = 0
+    for row, fields, _keywords, _payload in _iter_scored_rows(registry):
+        batch.append((row["id"], _index_body(fields, row.get("publisher_name"))))
+        total += 1
+        if len(batch) >= 2000:
+            registry.conn.executemany("INSERT INTO search_index VALUES (?, ?)", batch)
+            batch = []
+            log(f"indexed {total}")
+    if batch:
+        registry.conn.executemany("INSERT INTO search_index VALUES (?, ?)", batch)
+    registry.conn.execute(
+        "INSERT OR REPLACE INTO search_index_state (id, dataset_count, built_at) "
+        "VALUES (1, ?, ?)",
+        (total, datetime.now(timezone.utc).isoformat(timespec="seconds")),
+    )
+    registry.conn.commit()
+    log(f"indexed {total}")
+    return {"indexed": total}
+
+
+def index_is_current(registry: Registry) -> bool:
+    """Whether the pre-filter covers every dataset the search would score."""
+
+    try:
+        state = registry.conn.execute(
+            "SELECT dataset_count FROM search_index_state WHERE id = 1"
+        ).fetchone()
+    except sqlite3.OperationalError:
+        return False
+    if state is None:
+        return False
+    datasets = registry.conn.execute("SELECT COUNT(*) AS n FROM datasets").fetchone()
+    return int(state["dataset_count"]) == int(datasets["n"])
+
+
+def prefilter(
+    registry: Registry, query: str, *, depth: int = PREFILTER_DEPTH
+) -> set[str] | None:
+    """Candidate ids for a query, or None when the filter has nothing to say.
+
+    None means score every row, which is what the search did before this
+    existed: a stale or unbuilt index, a query with no tokens, or a query that
+    matches nothing must not be confused with a query that legitimately has no
+    answer. Returning an empty set for those would answer nothing at all.
+
+    Matches are by prefix and include the compound splits `score_document`
+    accepts, so the candidate set is a superset of what the scorer would match
+    on a full scan -- up to the depth cut.
+    """
+
+    if not index_is_current(registry):
+        return None
+    tokens: list[str] = []
+    for token in tokenize(query):
+        tokens.extend(_token_alts(token))
+    if not tokens:
+        return None
+    match = " OR ".join(f'"{token}"*' for token in dict.fromkeys(tokens))
+    try:
+        rows = registry.conn.execute(
+            "SELECT dataset_id FROM search_index WHERE search_index MATCH ? "
+            "ORDER BY bm25(search_index) LIMIT ?",
+            (match, depth),
+        ).fetchall()
+    except sqlite3.OperationalError:
+        # No index in this database, or a query FTS5 will not parse. Either way
+        # the full scan still answers correctly, only slower.
+        return None
+    if not rows:
+        return None
+    return {row["dataset_id"] for row in rows}

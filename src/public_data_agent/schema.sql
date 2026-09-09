@@ -384,3 +384,33 @@ CREATE INDEX IF NOT EXISTS resource_keys_scheme ON resource_keys (scheme);
 -- whose title never mentions the thing being asked about.
 CREATE INDEX IF NOT EXISTS resource_field_values_code ON resource_field_values (value_code);
 CREATE INDEX IF NOT EXISTS resource_capability_kind ON resource_capability (capability);
+
+
+-- A lexical pre-filter, so the scorer reads two thousand candidate rows instead
+-- of every row in the catalogue. Scanning all of them cost 1.8s on an idle
+-- machine and 7.6s on a busy one, per query, and grows with the catalogue.
+--
+-- It indexes exactly the fields the scorer scores -- title, description,
+-- publisher, keywords, themes -- because a filter that indexes less than the
+-- ranker reads drops results the ranker would have returned. Indexing only
+-- title and description kept 80% of the scorer's top 20; indexing all of them
+-- keeps 100%.
+--
+-- Contentless would be smaller but this table is rebuilt wholesale, not synced
+-- row by row, so the simpler form is the safer one.
+CREATE VIRTUAL TABLE IF NOT EXISTS search_index USING fts5(
+    dataset_id UNINDEXED,
+    body,
+    tokenize='unicode61'
+);
+
+-- How many datasets existed when the index was built. A filter built before an
+-- ingest would hide every dataset added since, and hide it silently: the search
+-- would return a shorter list and look like it simply found less. Comparing the
+-- count lets a stale index fall back to the full scan, which is slow and right
+-- rather than fast and wrong.
+CREATE TABLE IF NOT EXISTS search_index_state (
+    id INTEGER PRIMARY KEY CHECK (id = 1),
+    dataset_count INTEGER NOT NULL,
+    built_at TEXT NOT NULL
+);

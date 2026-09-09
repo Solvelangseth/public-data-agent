@@ -20,6 +20,7 @@ from public_data_agent.join import (
 from public_data_agent.ssb_pxweb import DEFAULT_SSB_TABLE
 from public_data_agent.harvest import harvest, stderr_progress
 from public_data_agent.registry import Registry
+from public_data_agent.search import build_search_index
 from public_data_agent.scan_table_urls import scan_printed_table_urls, scan_proof_payload
 from public_data_agent.search import load_prompt_pack, run_search_pack, search_report
 from public_data_agent.sources import SOURCE_IDS, build_source
@@ -78,6 +79,11 @@ def main(argv: list[str] | None = None) -> int:
                            help="Write the texts to embed as JSONL and stop (for a GPU elsewhere)")
     embed_cmd.add_argument("--import-vectors", dest="import_vectors", type=Path, default=None,
                            help="Load vectors embedded elsewhere, stored under --model")
+
+    index_cmd = sub.add_parser(
+        "index", help="Rebuild the lexical index that narrows what search scores"
+    )
+    index_cmd.add_argument("--db", type=Path, default=DEFAULT_DB)
 
     status = sub.add_parser("status", help="Show registry counts and recent harvest runs")
     status.add_argument("--db", type=Path, default=DEFAULT_DB)
@@ -242,6 +248,16 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     if args.command == "ingest":
         return _ingest(args)
+    if args.command == "index":
+        from public_data_agent.search import build_search_index
+
+        registry = Registry(args.db)
+        try:
+            result = build_search_index(registry)
+        finally:
+            registry.close()
+        print(json.dumps(result, ensure_ascii=False))
+        return 0
     if args.command == "status":
         return _status(args)
     if args.command == "stats":
@@ -334,6 +350,11 @@ def _ingest(args: argparse.Namespace) -> int:
             batch_size=args.batch_size,
             progress=None if args.quiet else stderr_progress,
         )
+        # An ingest leaves the lexical index behind, and a stale index makes
+        # every search fall back to the full scan. Rebuilding costs a few
+        # seconds against an ingest that took minutes.
+        if counts.inserted or counts.updated:
+            build_search_index(registry, progress=None if args.quiet else stderr_progress)
     finally:
         registry.close()
     print(
