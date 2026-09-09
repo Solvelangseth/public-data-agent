@@ -74,6 +74,26 @@ def _embedding_provider() -> Any | None:
         return None
 
 
+def _query_rewriter() -> Any | None:
+    """A query rewriter if one can be built, else None.
+
+    Optional for the same reason the embedding provider is: the server has to
+    work without an API key. Its absence costs the questions whose words the
+    catalogue does not use -- held-out recall@5 0.811 without it against
+    0.865-0.892 with it, and naturally phrased questions 0.812 against
+    0.938-1.000.
+    """
+
+    from pathlib import Path as _Path
+
+    try:
+        from public_data_agent.openai_agent import OpenAIQueryRewriter
+
+        return OpenAIQueryRewriter.from_env(dotenv=_Path(".env"))
+    except Exception:
+        return None
+
+
 def _entry_for(registry: Registry, dataset_id: str) -> dict[str, Any]:
     """A result entry built from stored metadata for a dataset the lexical
     search never returned.
@@ -134,7 +154,14 @@ def tool_search(query: str, db: str = DEFAULT_DB, limit: int = 10) -> dict[str, 
                 "against 81% for naturally phrased ones."
             )
         else:
-            found = find(registry, query, provider=provider, limit=depth, depth=depth)
+            found = find(
+                registry,
+                query,
+                provider=provider,
+                limit=depth,
+                depth=depth,
+                rewriter=_query_rewriter(),
+            )
             order = [*found.observations, *found.catalogue]
             position = {dataset_id: i for i, dataset_id in enumerate(order)}
             by_id = {hit["id"]: hit for hit in ranked}

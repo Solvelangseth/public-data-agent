@@ -282,6 +282,35 @@ class Registry:
             out.extend(dict(row) for row in rows)
         return out
 
+    def get_query_rewrite(self, query: str, *, model: str) -> list[str] | None:
+        """Terms stored for this question, or None if it has never been asked.
+
+        None and `[]` mean different things: never asked, against asked and the
+        model proposed nothing. An empty list is a real answer and is cached, so
+        a question that gains nothing from rewriting does not pay for a call
+        every time it is asked.
+        """
+
+        row = self.conn.execute(
+            "SELECT terms_json FROM query_rewrites WHERE query = ? AND model = ?",
+            (query, model),
+        ).fetchone()
+        if row is None:
+            return None
+        try:
+            terms = json.loads(row["terms_json"])
+        except ValueError:
+            return None
+        return [t for t in terms if isinstance(t, str)]
+
+    def set_query_rewrite(self, query: str, terms: list[str], *, model: str) -> None:
+        self.conn.execute(
+            "INSERT OR REPLACE INTO query_rewrites (query, model, terms_json, created_at) "
+            "VALUES (?, ?, ?, ?)",
+            (query, model, json.dumps(terms, ensure_ascii=False), utc_now()),
+        )
+        self.conn.commit()
+
     def get_enrichment(self, dataset_id: str) -> dict[str, Any] | None:
         row = self.conn.execute(
             "SELECT * FROM enrichments WHERE dataset_id = ?",

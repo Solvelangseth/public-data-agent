@@ -414,3 +414,16 @@ CREATE TABLE IF NOT EXISTS search_index_state (
     dataset_count INTEGER NOT NULL,
     built_at TEXT NOT NULL
 );
+
+
+-- What a language model proposed as the catalogue's words for a question. A
+-- rewrite costs a network call and an MCP server sees a question more than
+-- once, so it is stored. Keyed by model because a different model gives
+-- different terms and mixing them would make a measurement unrepeatable.
+CREATE TABLE IF NOT EXISTS query_rewrites (
+    query TEXT NOT NULL,
+    model TEXT NOT NULL,
+    terms_json TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    PRIMARY KEY (query, model)
+);

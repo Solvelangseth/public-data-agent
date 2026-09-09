@@ -35,6 +35,8 @@ def main() -> int:
     parser.add_argument("--no-provider", action="store_true",
                         help="Rank lexically only, to show what an absent API key costs")
     parser.add_argument("--depth", type=int, default=50)
+    parser.add_argument("--rewrite", action="store_true",
+                        help="Also search the catalogue's words for the question")
     args = parser.parse_args()
 
     from public_data_agent.registry import Registry
@@ -45,6 +47,12 @@ def main() -> int:
         from public_data_agent.openai_agent import OpenAIEmbeddingProvider
 
         provider = OpenAIEmbeddingProvider.from_env(dotenv=Path(".env"))
+
+    rewriter = None
+    if args.rewrite:
+        from public_data_agent.openai_agent import OpenAIQueryRewriter
+
+        rewriter = OpenAIQueryRewriter.from_env(dotenv=Path(".env"))
 
     gold_path, meta_path = SETS[args.which]
     gold = {q["id"]: set(q["expected"]) for q in json.load(open(gold_path))["questions"]}
@@ -60,7 +68,9 @@ def main() -> int:
     try:
         for i, qid in enumerate(scored, 1):
             query, style, want = meta[qid]["query"], meta[qid]["style"], gold[qid]
-            ranked = find(registry, query, provider=provider, limit=args.depth).observations
+            ranked = find(
+                registry, query, provider=provider, limit=args.depth, rewriter=rewriter
+            ).observations
             got = bool(want & set(ranked[:5]))
             hits += got
             rank = next((j for j, d in enumerate(ranked, 1) if d in want), None)
@@ -75,6 +85,8 @@ def main() -> int:
 
     n = len(scored)
     ranking = "lexical only" if provider is None else "full stack"
+    if rewriter is not None:
+        ranking += " + query rewriting"
     print(f"\n{args.which} set, {ranking}: {n} scored, "
           f"{len(unanswerable)} with no answer in the registry\n")
     print(f"  recall@5 {hits / n:.3f}   MRR {reciprocal / n:.3f}")

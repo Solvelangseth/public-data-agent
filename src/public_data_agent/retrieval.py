@@ -25,9 +25,18 @@ from public_data_agent.embeddings import rank_for_query, semantic_ranking
 from public_data_agent.fetch import classify_access_path, is_retrievable
 from public_data_agent.registry import Registry
 from public_data_agent.resource_index import demote_breakdown_only
+from public_data_agent.rewrite import QueryRewriter, terms_for
 from public_data_agent.search import search_report
 
 DEPTH = 50
+# How many of a rewritten term's results are interleaved, and how far down the
+# main ranking they go. Fusing the two instead measured 0.802 against 0.860:
+# a rewrite is a second opinion about the subject, not a second vote on a
+# ranking, and RRF treats it as the latter.
+REWRITE_LEAD = 3
+# How far into a rewritten term's own ranking to look. Ten is what was measured;
+# the terms are alternatives, so this is per term rather than in total.
+REWRITE_DEPTH = 10
 
 
 class EmbeddingProvider(Protocol):
@@ -90,6 +99,8 @@ def find(
     provider: EmbeddingProvider | None = None,
     limit: int = 10,
     depth: int = DEPTH,
+    rewriter: QueryRewriter | None = None,
+    rewrite_model: str = "gpt-4.1-mini",
 ) -> Retrieved:
     """Rank what could answer a question, fetchable results kept apart.
 
@@ -104,6 +115,13 @@ def find(
     relevance = {hit.dataset_id: hit.relevance for hit in report.hits}
     steps.append(f"lexical search returned {len(lexical)}")
 
+    def rank(text: str) -> list[str]:
+        hits = [hit.dataset_id for hit in search_report(registry, text, limit=depth).hits]
+        if provider is None:
+            return hits
+        semantic = [d for d, _ in semantic_ranking(registry, provider, text, limit=depth)]
+        return rank_for_query(hits, semantic, text, limit=depth)
+
     if provider is None:
         ranked = lexical
         steps.append("no embedding provider; semantic ranking skipped")
@@ -114,6 +132,30 @@ def find(
             "ranked semantically alone (query reads as a question)"
             if ranked == semantic[:depth]
             else "fused lexical and semantic (query names a subject)"
+        )
+
+    if rewriter is not None:
+        # Each term is searched on its own. They are alternative names for the
+        # subject, not a conjunction, so one bad term must not exclude the rest.
+        terms = terms_for(registry, rewriter, query, model=rewrite_model)
+        alternative: list[str] = []
+        for term in terms:
+            alternative.extend(rank(term)[:REWRITE_DEPTH])
+        alternative = list(dict.fromkeys(alternative))
+        if alternative:
+            # Interleaved rather than merged: the head of the original ranking
+            # is kept, the rewrite's best few go directly behind it, and the
+            # rest of the original follows. Deduplication keeps the earlier
+            # position, so a result both agree on is not pushed down.
+            ranked = list(
+                dict.fromkeys(
+                    ranked[:REWRITE_LEAD] + alternative[:REWRITE_LEAD] + ranked
+                )
+            )[:depth]
+        steps.append(
+            f"searched the catalogue's words for this question: {', '.join(terms)}"
+            if terms
+            else "query rewriter proposed no terms; ranking unchanged"
         )
 
     reordered = demote_breakdown_only(registry, ranked, query)

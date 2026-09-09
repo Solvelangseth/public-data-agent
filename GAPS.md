@@ -671,3 +671,59 @@ wrong, the technique is aimed away from the problem.
 There was no cheap trigger to gate it, either. `lex = -` in the stage trace means the
 gold table is absent from the lexical lane's top 50, not that the lane is empty — only
 2 of 86 tuned questions have an empty lexical lane, and both are already answered.
+
+## What finally moved the honest number: asking a model for the catalogue's word
+
+Six attempts to improve the ranking all failed because the ranking was not what was
+broken. The gap is translation — the asker writes "hvor mye har prisene steget",
+Statistics Norway writes "konsumprisindeks", and neither the lexical index nor
+`text-embedding-3-small` bridges it.
+
+A language model bridges it in one call. It is asked for **search terms only**, never
+sees a dataset and never names one, and the terms it returns are recorded in the
+retrieval steps and surfaced by the MCP `search` tool as `ranking_steps`. Nothing it
+says is evidence: results still come from the index, values still come from a fetch,
+and a wrong term costs a bad search rather than a wrong answer. The knowledge comes
+from Norwegian rather than from the labelled questions, which is why it was allowed to
+be measured on the held-out set at all.
+
+| | tuned recall@5 | tuned MRR | held-out recall@5 | held-out MRR | held-out natural |
+|---|---|---|---|---|---|
+| baseline | 0.860 | **0.763** | 0.811 | 0.723 | 0.812 |
+| + query rewriting | **0.872** | 0.746 | **0.865 – 0.892** | 0.729 – 0.738 | **0.938 – 1.000** |
+
+**The held-out gain is larger than the tuned gain**, which is the point. The previous
+attempt — lifting each lane's top result — gained 0.035 on the set it was derived from
+and 0.000 on the set it was not. This one gains 0.012 where it could have been fitted
+and 0.054 to 0.081 where it could not, because nothing about it was fitted to anything.
+Naturally phrased questions go from 13 of 16 to 15 or 16 of 16.
+
+**The range is real and is not a choice of the best run.** Four runs of the held-out
+set measured 0.892, 0.865, 0.892, 0.865. The model returns different terms for the same
+question — 26 of 123 rewrites changed between two runs — and `temperature: 0` reduces
+that without removing it. So the effect is +2 to +3 questions of 37, with a run-to-run
+spread of one question. Anyone re-running this should expect a number in that band and
+should not report the top of it.
+
+**Integration matters as much as the terms.** Each term is searched separately, because
+the terms are alternatives and `decompose` would make a conjunction of them exclude
+everything. The results are interleaved behind the head of the original ranking, not
+fused into it: fusing measured 0.802 tuned and 0.757 held-out, worse than doing nothing.
+A rewrite is a second opinion about the subject, and RRF treats it as a second vote on a
+ranking.
+
+**What it costs.** One model call plus one search per term, so roughly six times the
+work of a plain query. The FTS pre-filter landed first and made each search ten times
+cheaper, which is most of what pays for this. Rewrites are cached in `query_rewrites`
+keyed by query and model, so a repeated question costs nothing, and an empty result is
+cached too — a question that gains nothing from rewriting should not pay for a call
+every time it is asked.
+
+**Still failing, and now clearly.** `yrkesdeltakelse kvinner`, `domfelte etter alder`
+and `barnehagedekning` remain missed, and the rewriter is why: asked about
+`yrkesdeltakelse` it returns `yrkesdeltakelse`, and about `domfelte` it returns
+`domfelte`. It translates dagligtale into statistics vocabulary but does not translate
+one statistics word into the synonym this catalogue happens to use. Sharpening the
+prompt against those three would be fitting it to the held-out set and must not be done;
+the legitimate version is a synonym source built from Klass or from SSB's own subject
+hierarchy, which no question set would have chosen.

@@ -186,3 +186,51 @@ class OpenAIEmbeddingProvider:
         # The API may return items out of order; index is authoritative.
         ordered = sorted(data, key=lambda item: item.get("index", 0))
         return [item["embedding"] for item in ordered]
+
+
+class OpenAIQueryRewriter:
+    """Asks the model what the catalogue would call the subject of a question.
+
+    Shares the credential handling of the other adapters. Returns search terms
+    and nothing else: `rewrite.clean_terms` discards anything that is not a
+    short Norwegian phrase, so a model that answers the question instead of
+    translating it contributes nothing rather than something false.
+    """
+
+    def __init__(self, api_key: str, *, model: str = "gpt-4.1-mini", timeout: float = 45.0) -> None:
+        if not api_key.strip():
+            raise ValueError("OpenAI API key is empty")
+        self.api_key, self.model, self.timeout = api_key, model, timeout
+
+    @classmethod
+    def from_env(
+        cls, *, model: str = "gpt-4.1-mini", dotenv: Path | None = None
+    ) -> "OpenAIQueryRewriter":
+        agent = OpenAIAgentModel.from_env(model=model, dotenv=dotenv)
+        return cls(agent.api_key, model=model)
+
+    def terms(self, query: str) -> list[str]:
+        from public_data_agent.rewrite import REWRITE_INSTRUCTIONS, clean_terms
+
+        body = {
+            "model": self.model,
+            "instructions": REWRITE_INSTRUCTIONS,
+            # json_object format requires the word "json" in the input itself.
+            "input": [{"role": "user", "content": f"Return json search terms for:\n{query}"}],
+            "text": {"format": {"type": "json_object"}},
+            # Left to itself the model returns different terms for the same
+            # question -- 26 of 123 rewrites changed between two runs, which
+            # moved held-out recall@5 from 0.865 to 0.892. A search backend
+            # should answer the same question the same way, and a measurement
+            # of it should be repeatable.
+            "temperature": 0,
+        }
+        request = Request(
+            "https://api.openai.com/v1/responses",
+            data=json.dumps(body).encode(),
+            headers={"Authorization": f"Bearer {self.api_key}", "Content-Type": "application/json"},
+            method="POST",
+        )
+        with urlopen(request, timeout=self.timeout) as response:
+            payload = json.loads(response.read().decode())
+        return clean_terms(payload.get("output_text") or _extract_text(payload))
