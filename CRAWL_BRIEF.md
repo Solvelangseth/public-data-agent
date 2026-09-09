@@ -374,6 +374,43 @@ The store holds four record kinds and most connectors here are not `observation`
 Forcing a feature into the observation shape is what made the original FHI connector
 store table ids as measurements.
 
+## A register is one resource, not a million
+
+Enhetsregisteret holds about 1.1 million companies. Each was becoming its own row in
+`datasets`, and search reads every dataset row per query -- measured 1.83s at 13,744
+rows, so roughly **146 seconds** at a million. Filing each subject as a dataset makes the
+catalogue the thing being searched rather than the index over it.
+
+The two Brreg per-company datasets have been collapsed into `brreg:enhetsregisteret` and
+`brreg:underenheter` (commit `870f336`). **Do not create one dataset per company,
+building, vessel or person.** Register the register:
+
+```python
+registry.set_capability("brreg:enhetsregisteret", {
+    "capability": "entities", "record_kind": "entity",
+    "endpoint": "https://data.brreg.no/enhetsregisteret/api/enheter",
+    "request_method": "GET",
+    "subject_scheme": "brreg:orgnr",                       # what a subject is
+    "subject_template": ".../api/enheter/{subject}",       # how to reach one
+    "subject_count": 1_100_000,
+})
+```
+
+`resource_index.subject_url(registry, dataset_id, subject)` builds the URL and refuses an
+empty subject. A template without `{subject}`, or without a scheme naming what a subject
+is, is refused at write time.
+
+Records still carry `subject_scheme` and `subject_code`, so a fetched company is exactly
+as findable as before -- by name rather than by enumeration. `scripts/collapse_registers.py`
+is the migration if you find another per-instance source.
+
+**A verified capability now beats a URL pattern.** `find` used to classify from
+`access_path`, and a register's stored path is its collection endpoint, which
+`classify_access_path` rightly calls unfetchable. That made the register invisible to
+every query including the literal word "Enhetsregisteret". Recording a capability with
+`set_capability` is therefore not optional bookkeeping: it is what makes a resource
+reachable at all.
+
 ## Where to start
 
 Company registry (`brreg*`, 15 files) is the strongest first domain: Brønnøysund has a
