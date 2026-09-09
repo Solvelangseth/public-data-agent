@@ -137,6 +137,10 @@ locally to embed the query — one short text, fast on a laptop — so this spli
 rather than removing the dependency.
 
 Whether a Norwegian model beats `text-embedding-3-small` is an open question, not an
-assumption. The current stack scores recall@5 0.857 against `data/heldout_gold.json`,
-and the failures left are Norwegian vocabulary distance — `domfelte` against `straffede
-personer`, `yrkesdeltakelse` against `arbeidsstyrken`. Measure before switching.
+assumption. The current stack scores recall@5 0.865–0.892 against
+`data/heldout_gold.json`, and the failures left are Norwegian vocabulary distance —
+`domfelte` against `straffede personer`, `yrkesdeltakelse` against `arbeidsstyrken`.
+Measure before switching. Note that query rewriting closed most of that distance for
+naturally phrased questions without touching the embedding model at all, so a model
+swap should be measured against the stack *with* rewriting, not against the old
+number.
