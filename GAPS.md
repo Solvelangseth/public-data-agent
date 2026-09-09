@@ -371,3 +371,38 @@ What remains is genuine vocabulary distance in Norwegian: `domfelte` against `st
 personer`, `yrkesdeltakelse` against `arbeidsstyrken`. Closing those needs a
 Norwegian-specific embedding model or synonym expansion, and neither is a small change.
 At five failures in 35 the returns are thin; coverage is the binding constraint now.
+
+
+## Embedding models: one tested, one deferred on purpose
+
+`NbAiLab/nb-sbert-base` was indexed over all 13,281 datasets and scored through the same
+harness as the baseline:
+
+```
+model                     tuned r@5   held-out r@5   natural (tuned)
+nb-sbert-base                 0.721          0.743            0.651
+text-embedding-3-small        0.860          0.743            0.814
+```
+
+It loses by fourteen points on the tuned set, ties held out, and gives up most on
+naturally phrased questions. A 2021 sentence-similarity model against a modern
+retrieval-trained one: **training objective and recency beat language specificity**, so
+Norwegian-specific training is not the missing ingredient. That answers the expensive
+question -- whether to train a Norwegian embedding model -- cheaply, and the answer is
+not yet.
+
+`intfloat/multilingual-e5-large` is **untested and deliberately deferred**. It tests the
+other hypothesis: that model *size* rather than language is what is missing. It was not
+run because 2.2 GB of weights would be resident for every query the MCP server answers,
+on a 9 GB laptop, and a first attempt at downloading it exhausted the disk. Even a win
+would not be deployable on this machine.
+
+Revisit when the server has the memory to hold it. What it would settle: if e5-large
+wins where nb-sbert lost, size is the factor and a larger multilingual model is the
+answer; if it also loses, `text-embedding-3-small` is genuinely good at this and the
+remaining five failures need synonym expansion rather than any new model.
+
+The benchmark script takes `--models`, so re-running it there is one command. The
+scoring harness measures `fuse(lexical, semantic)` only -- no routing, subject demotion
+or lane filter -- so its numbers are lower than the production stack's and comparable
+only to each other.
