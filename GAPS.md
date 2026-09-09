@@ -634,3 +634,40 @@ tokenisation as a word the catalogue uses, and the embedding lane does not bridg
 either. Every remaining failure is this same translation gap, which is why six
 attempts to squeeze more out of ranking have all failed: the ranking is not what is
 broken.
+
+## Pseudo-relevance feedback cannot repair a ranking it depends on
+
+The translation gap has a standard IR answer: take the top few results, harvest the
+terms that are frequent in them and rare in the catalogue, and search again with the
+catalogue's own words. It needs no synonym list and nothing derived from the labelled
+questions, and it visibly produces the right vocabulary — for `lønn etter yrke` it
+proposes `månedslønn, arbeidstid, yrkesfordelt, årslønn` and the expansion lane then
+ranks the gold table **1st**, as it does for `husholdninger størrelse` and `hvor mange
+studenter er det i Norge`.
+
+It still cannot be used. Expansion terms cannot be appended to the query, because
+`decompose` makes every token a hard AND requirement and one wrong guess excludes
+everything, so it has to be a third lane. As a lane it measures:
+
+| | tuned recall@5 | MRR |
+|---|---|---|
+| baseline | **0.860** | **0.763** |
+| PRF lane fused at full weight (RRF k=10) | 0.535 | 0.423 |
+| PRF lane discounted, k=60 | 0.721 | 0.565 |
+| PRF lane heavily discounted, k=200 | 0.756 | 0.638 |
+
+The scores rise monotonically as the lane's weight falls, which is the whole result:
+the best contribution this lane can make is not to participate. Dropping years and
+table numbers from the terms — `1970`, `2026`, `12543` were eating half the budget —
+improved the terms visibly and moved the numbers not at all.
+
+The reason is structural, and it is why no tuning rescues it. The feedback set is the
+semantic lane's top results. On a query the stack already answers, they are right and
+the expansion is redundant; on a query it fails, they are wrong and the expansion
+describes the wrong subject confidently. PRF amplifies an initial ranking; it cannot
+repair one. Since the failures we care about are exactly where the initial ranking is
+wrong, the technique is aimed away from the problem.
+
+There was no cheap trigger to gate it, either. `lex = -` in the stage trace means the
+gold table is absent from the lexical lane's top 50, not that the lane is empty — only
+2 of 86 tuned questions have an empty lexical lane, and both are already answered.
