@@ -90,6 +90,22 @@ MAX_LISTED_VALUES = 40
 TOTAL_LABELS = frozenset({"i alt", "alle", "total", "totalt", "begge kjønn", "alle bydeler i oslo"})
 
 
+def stored_records(registry: Registry, dataset_id: str) -> dict[str, int]:
+    """How many records of each kind a dataset holds.
+
+    The observation store is not the whole store. A company, a building and a
+    parliamentary decision live in `records`, and a tool that counts only
+    observations reports a dataset holding a company as empty -- which reads as
+    "there is nothing here" rather than "I cannot read what is here".
+    """
+
+    rows = registry.conn.execute(
+        "SELECT kind, COUNT(*) AS n FROM records WHERE dataset_id = ? GROUP BY kind",
+        (dataset_id,),
+    ).fetchall()
+    return {row["kind"]: int(row["n"]) for row in rows}
+
+
 def describe_observations(
     registry: Registry, dataset_id: str, *, series: str | None = None
 ) -> dict[str, Any]:

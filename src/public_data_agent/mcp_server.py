@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Any, Callable
 
 from public_data_agent.ask import DEMO_QUESTION, ask, ask_proof_payload
-from public_data_agent.analysis import describe_observations, run_analysis
+from public_data_agent.analysis import describe_observations, stored_records, run_analysis
 from public_data_agent.artifacts import export_csv, export_json, plot_values
 from public_data_agent.fetch import DEFAULT_OSLO_DATASET, DEFAULT_OSLO_TABLE, fetch_observations
 from public_data_agent.fetch import (
@@ -397,6 +397,9 @@ def tool_inspect(dataset: str, db: str = DEFAULT_DB) -> dict[str, Any]:
             # guessed from the title.  Returning them is what lets a caller
             # build a filter that matches rows instead of silently matching none.
             "observation_schema": describe_observations(registry, dataset),
+            # What is stored of every kind, so a dataset holding a company does
+            # not read as empty because it holds no statistical cells.
+            "stored_records": stored_records(registry, dataset),
             # `observation_schema` describes what has already been fetched, so
             # it is empty for a resource nothing has pulled yet -- which is
             # every resource a caller is about to plan its first fetch against.
@@ -423,7 +426,23 @@ def tool_run_analysis(
     registry = _open_registry(db)
     try:
         result = run_analysis(registry, dataset, filters=filters, measure=measure, series=series, columns=columns, group_by=group_by, aggregate=aggregate, sort_by=sort_by, descending=descending)
-        return {"tool": "run_analysis", "values_from": "stored_observations", **result.to_dict()}
+        payload = {"tool": "run_analysis", "values_from": "stored_observations", **result.to_dict()}
+        # This reads observations only. A dataset holding companies or buildings
+        # returned "completed" with no rows and no explanation, which a caller
+        # reads as "this dataset is empty" rather than "I cannot analyse what is
+        # stored here". Empty because nothing matched and empty because the data
+        # is a shape this tool does not handle are different answers.
+        if not (payload.get("values") or payload.get("rows")):
+            records = stored_records(registry, dataset)
+            if records:
+                kinds = ", ".join(f"{n} {kind}" for kind, n in sorted(records.items()))
+                payload["stored_records"] = records
+                payload["explanation"] = (
+                    f"No observations matched, but this dataset stores {kinds}. "
+                    "run_analysis reads the observation store only, so those are not "
+                    "analysable here; read them with the record store instead."
+                )
+        return payload
     finally:
         registry.close()
 
@@ -478,6 +497,18 @@ def tool_get_provenance(dataset: str, db: str = DEFAULT_DB) -> dict[str, Any]:
         if row is None:
             raise ValueError(f"dataset not found in registry: {dataset}")
         observations = registry.list_observations(dataset)
+        # The observation store is not the whole store. Reporting only its count
+        # said "0" for a dataset holding a company record, which reads as "there
+        # is nothing here" rather than "what is here is not an observation".
+        records = stored_records(registry, dataset)
+        urls = {item.get("request_url") for item in observations if item.get("request_url")}
+        urls |= {
+            r["request_url"]
+            for r in registry.conn.execute(
+                "SELECT DISTINCT request_url FROM records WHERE dataset_id = ?", (dataset,)
+            )
+            if r["request_url"]
+        }
         return {
             "tool": "get_provenance",
             "values_from": "registry",
@@ -489,7 +520,9 @@ def tool_get_provenance(dataset: str, db: str = DEFAULT_DB) -> dict[str, Any]:
                 "access_path": row.get("access_path"),
             },
             "observation_count": len(observations),
-            "request_urls": sorted({item.get("request_url") for item in observations if item.get("request_url")}),
+            "record_counts": records,
+            "stored_total": len(observations) + sum(records.values()),
+            "request_urls": sorted(urls),
         }
     finally:
         registry.close()

@@ -510,3 +510,71 @@ def test_every_exposed_tool_carries_a_description() -> None:
 
     for tool in asyncio.run(build_server().list_tools()):
         assert tool.description, f"{tool.name} has no description"
+
+
+def _with_entity_record(tmp_path: Path) -> str:
+    """A dataset holding one company record and no observations."""
+
+    from public_data_agent.registry import Registry as _R
+
+    db = str(tmp_path / "registry.sqlite")
+    registry = _R(db)
+    url = "https://data.brreg.no/enhetsregisteret/api/enheter/923609016"
+    registry.conn.execute(
+        """
+        INSERT INTO datasets (id, source_id, ingest_reason, source_name,
+            source_endpoints_json, missing_fields_json, payload_hash,
+            first_ingested_at, last_ingested_at, last_seen_at, last_changed_at,
+            title, access_path, publisher_name)
+        VALUES ('b:1', 'brenheter', 't', 'B', '[]', '{}', 'h', 't', 't', 't', 't',
+                'EQUINOR ASA', ?, 'Brønnøysundregistrene')
+        """,
+        (url,),
+    )
+    registry.conn.execute(
+        """
+        INSERT INTO fetch_runs (id, dataset_id, table_id, request_url, request_method,
+                                started_at, status)
+        VALUES (1, 'b:1', 'enheter', ?, 'GET', 't', 'completed')
+        """,
+        (url,),
+    )
+    registry.conn.commit()
+    registry.upsert_record({
+        "id": "r1", "dataset_id": "b:1", "kind": "entity",
+        "subject_scheme": "brreg:orgnr", "subject_code": "923609016",
+        "subject_label": "EQUINOR ASA", "attributes": {"ansatte": 21126},
+        "retrieved_at": "t", "request_url": url, "http_status": 200,
+    }, 1)
+    registry.close()
+    return db
+
+
+def test_provenance_counts_records_not_only_observations(tmp_path: Path) -> None:
+    """Reporting the observation count alone said "0" for a dataset holding a
+    company, which reads as "there is nothing here" rather than "what is here is
+    not an observation"."""
+
+    payload = call_tool("get_provenance", {"dataset": "b:1", "db": _with_entity_record(tmp_path)})
+    assert payload["observation_count"] == 0
+    assert payload["record_counts"] == {"entity": 1}
+    assert payload["stored_total"] == 1
+    # The record's request URL is lineage too.
+    assert any("brreg" in url for url in payload["request_urls"])
+
+
+def test_run_analysis_says_it_cannot_read_what_is_stored(tmp_path: Path) -> None:
+    """Empty because nothing matched and empty because the data is a shape this
+    tool does not handle are different answers. It reported the first while the
+    second was true, with no explanation at all."""
+
+    payload = call_tool("run_analysis", {"dataset": "b:1", "db": _with_entity_record(tmp_path)})
+    assert payload["stored_records"] == {"entity": 1}
+    assert "1 entity" in payload["explanation"]
+    assert "observation store only" in payload["explanation"]
+
+
+def test_inspect_reports_what_kinds_are_stored(tmp_path: Path) -> None:
+    payload = call_tool("inspect", {"dataset": "b:1", "db": _with_entity_record(tmp_path)})
+    assert payload["stored_records"] == {"entity": 1}
+    assert payload["observation_schema"]["observation_count"] == 0
