@@ -22,7 +22,7 @@ from dataclasses import dataclass, field
 from typing import Any, Protocol
 
 from public_data_agent.embeddings import rank_for_query, semantic_ranking
-from public_data_agent.fetch import classify_access_path
+from public_data_agent.fetch import classify_access_path, is_retrievable
 from public_data_agent.registry import Registry
 from public_data_agent.resource_index import demote_breakdown_only
 from public_data_agent.search import search_report
@@ -113,11 +113,13 @@ def find(
     # coverage filter, which is a different question from relevance.
 
     cache: dict[str, str] = {}
-    observations = [d for d in ranked if _capability(registry, d, cache) == "observations"]
-    # A record that cannot return a number does not belong in the lane whose
-    # job is returning numbers; it belongs in the other one, where saying "this
-    # exists but I cannot retrieve it" is a real answer.
-    catalogue = [d for d in ranked if _capability(registry, d, cache) != "observations"]
+    observations = [d for d in ranked if is_retrievable(_capability(registry, d, cache))]
+    # A record that cannot return data does not belong in the lane whose job is
+    # returning it; it belongs in the other one, where saying "this exists but I
+    # cannot retrieve it" is a real answer. The test is whether anything can be
+    # fetched, not whether it happens to be a statistic -- a company or a
+    # building answers a question just as a table does.
+    catalogue = [d for d in ranked if not is_retrievable(_capability(registry, d, cache))]
     steps.append(f"split into {len(observations)} fetchable and {len(catalogue)} descriptive")
 
     return Retrieved(

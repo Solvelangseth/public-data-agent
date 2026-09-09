@@ -86,3 +86,50 @@ def test_the_limit_applies_to_each_lane(tmp_path: Path) -> None:
     assert len(found.observations) <= 1
     assert len(found.catalogue) <= 1
     registry.close()
+
+
+BRREG_ENTITY = "https://data.brreg.no/enhetsregisteret/api/enheter/923609016"
+
+
+def test_a_company_is_retrievable_even_though_it_is_not_a_statistic(tmp_path: Path) -> None:
+    """The lane split tested `== "observations"` because statistics were the
+    only retrievable kind when it was written. Every entity, feature and
+    document connector would have landed in the lane for records that cannot be
+    retrieved at all -- a company endpoint that fetches fine filed as
+    "describes data we cannot retrieve"."""
+
+    registry = _registry(tmp_path)
+    registry.conn.execute(
+        """
+        INSERT INTO datasets (id, source_id, ingest_reason, source_name,
+            source_endpoints_json, missing_fields_json, payload_hash,
+            first_ingested_at, last_ingested_at, last_seen_at, last_changed_at,
+            title, access_path)
+        VALUES ('brenheter:923609016', 'brenheter', 'test', 'B', '[]', '{}', 'h',
+                't', 't', 't', 't', 'EQUINOR ASA', ?)
+        """,
+        (BRREG_ENTITY,),
+    )
+    registry.conn.commit()
+
+    found = find(registry, "Equinor")
+    assert "brenheter:923609016" in found.observations
+    assert "brenheter:923609016" not in found.catalogue
+    registry.close()
+
+
+def test_a_code_list_is_not_offered_as_an_answer(tmp_path: Path) -> None:
+    """A classification supplies join keys, never measures. Offering one as an
+    answer is the substitution the readiness gate exists to refuse, so `lookup`
+    stays outside the retrievable set."""
+
+    from public_data_agent.fetch import is_retrievable
+
+    assert is_retrievable("observations")
+    assert is_retrievable("entities")
+    assert is_retrievable("features")
+    assert is_retrievable("documents")
+    assert not is_retrievable("lookup")
+    assert not is_retrievable("unverified")
+    assert not is_retrievable("none")
+    assert not is_retrievable(None)

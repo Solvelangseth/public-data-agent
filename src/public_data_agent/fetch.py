@@ -12228,6 +12228,28 @@ CAPABILITY_LOOKUP = "lookup"
 CAPABILITY_UNVERIFIED = "unverified"
 CAPABILITY_NONE = "none"
 
+# Capabilities that can return data a question is answered from. Statistics were
+# the only kind when the lane split was written, so it tested `== "observations"`
+# and every other retrievable kind fell into the lane for records that cannot be
+# retrieved at all -- a company endpoint that fetches fine was filed as
+# "describes data we cannot retrieve".
+#
+# `lookup` is deliberately outside this set: a classification supplies join keys,
+# never measures, and offering one as an answer is the substitution the readiness
+# gate exists to refuse.
+RETRIEVABLE_CAPABILITIES = frozenset({
+    CAPABILITY_OBSERVATIONS,
+    CAPABILITY_ENTITIES,
+    CAPABILITY_FEATURES,
+    CAPABILITY_DOCUMENTS,
+})
+
+
+def is_retrievable(capability: str | None) -> bool:
+    """Whether a capability can return data, whatever shape that data takes."""
+
+    return capability in RETRIEVABLE_CAPABILITIES
+
 _MAP_SERVICE_MARKS = ("/geoserver/", "/ows", "/wms", "/wfs", "service=wms", "service=wfs")
 _DOC_MARKS = ("/dokumentasjon/", ".html", "/swagger", "/openapi", "/docs/")
 

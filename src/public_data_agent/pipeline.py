@@ -151,6 +151,9 @@ def assess_readiness(
             relevance=found.relevance.get(dataset_id, 0),
         )
 
+    # `found.observations` is the retrievable lane, whatever shape its records
+    # take. A company answers a question as a table does; a code list does not,
+    # which is why lookups stay separate.
     observations = [_ref(d) for d in found.observations]
     lookups: list[SourceRef] = []
     catalogue: list[SourceRef] = []

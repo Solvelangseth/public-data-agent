@@ -20,6 +20,7 @@ from public_data_agent.join import (
     join_classification_to_table,
     join_proof_payload,
 )
+from public_data_agent.fetch import is_retrievable
 from public_data_agent.registry import Registry
 from public_data_agent.resource_index import resource_shape
 from public_data_agent.retrieval import find
@@ -185,10 +186,10 @@ def tool_search(query: str, db: str = DEFAULT_DB, limit: int = 10) -> dict[str, 
         # same slots means every ranking change robs one to pay the other. Ranked
         # order is unchanged; the lanes just stop crowding each other out.
         payload["observation_sources"] = [
-            hit for hit in ranked if hit["connector"]["capability"] == "observations"
+            hit for hit in ranked if is_retrievable(hit["connector"]["capability"])
         ][:limit]
         payload["catalogue_records"] = [
-            hit for hit in ranked if hit["connector"]["capability"] != "observations"
+            hit for hit in ranked if not is_retrievable(hit["connector"]["capability"])
         ][:limit]
         payload["lanes_note"] = (
             "observation_sources can return numbers; catalogue_records describe data that "
