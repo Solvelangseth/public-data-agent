@@ -1,0 +1,33 @@
+{
+  "NbAiLab/nb-sbert-base | tuned": {
+    "recall@5": 0.7209302325581395,
+    "mrr": 0.49853334327171545,
+    "n": 86,
+    "keyword": 0.7906976744186046,
+    "natural": 0.6511627906976745
+  },
+  "NbAiLab/nb-sbert-base | held-out": {
+    "recall@5": 0.7428571428571429,
+    "mrr": 0.673447742733457,
+    "n": 35,
+    "keyword": 0.85,
+    "natural": 0.6
+  },
+  "intfloat/multilingual-e5-large | error": {
+    "error": "OSError: Can't load the model for 'intfloat/multilingual-e5-large'. If you were trying to load it from 'https://huggingface.co/models', make sure you don't have a local directory with the same name. Otherwise, make sure 'intfloat/multilingual-e5-large' is the correct path to a directory containing a file named pytorch_model.bin."
+  },
+  "text-embedding-3-small | tuned": {
+    "recall@5": 0.8604651162790697,
+    "mrr": 0.6449544909844198,
+    "n": 86,
+    "keyword": 0.9069767441860465,
+    "natural": 0.813953488372093
+  },
+  "text-embedding-3-small | held-out": {
+    "recall@5": 0.7428571428571429,
+    "mrr": 0.6581822344322344,
+    "n": 35,
+    "keyword": 0.85,
+    "natural": 0.6
+  }
+}

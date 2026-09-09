@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import pathlib
 import sys
 import time
 from pathlib import Path
@@ -37,6 +38,40 @@ def log(message: str) -> None:
     print(f"[{time.strftime('%H:%M:%S')}] {message}", flush=True)
 
 
+# Weights, roughly, so a model is refused before it fills the disk rather than
+# after. A first run of this script drove free space from 3.0 GB to 1.4 GB while
+# downloading a 2.2 GB model and had to be killed; leaving a machine with no disk
+# is worse than not running the benchmark.
+APPROX_SIZE_GB = {
+    "NbAiLab/nb-sbert-base": 0.7,
+    "intfloat/multilingual-e5-large": 2.3,
+}
+HEADROOM_GB = 3.0
+
+
+def free_gb() -> float:
+    import shutil
+
+    return shutil.disk_usage(pathlib.Path.home()).free / 1e9
+
+
+class NotEnoughDisk(RuntimeError):
+    pass
+
+
+def check_disk(name: str) -> None:
+    """Refuse a model that would not leave the machine room to work."""
+
+    need = APPROX_SIZE_GB.get(name, 2.5) + HEADROOM_GB
+    have = free_gb()
+    if have < need:
+        raise NotEnoughDisk(
+            f"{name} needs about {APPROX_SIZE_GB.get(name, 2.5):.1f} GB and "
+            f"{HEADROOM_GB:.0f} GB should stay free; only {have:.1f} GB available"
+        )
+    log(f"disk: {have:.1f} GB free, {name} needs ~{APPROX_SIZE_GB.get(name, 2.5):.1f} GB")
+
+
 class LocalProvider:
     """Wraps a sentence-transformers model in the one method the project needs."""
 
@@ -44,6 +79,7 @@ class LocalProvider:
         from sentence_transformers import SentenceTransformer
         import torch
 
+        check_disk(name)
         device = "mps" if torch.backends.mps.is_available() else "cpu"
         log(f"loading {name} on {device}")
         self.model = SentenceTransformer(name, device=device)
@@ -73,6 +109,8 @@ def build(registry, provider: LocalProvider) -> None:
     log(f"{provider.name}: {len(rows) - len(todo)} already indexed, {len(todo)} to do")
     started = time.time()
     for i in range(0, len(todo), 256):
+        if free_gb() < 1.0:
+            raise NotEnoughDisk(f"stopping: only {free_gb():.1f} GB free mid-run")
         chunk = todo[i : i + 256]
         vectors = provider.embed([text for _id, text, _d in chunk])
         with registry.deferred_commit():
