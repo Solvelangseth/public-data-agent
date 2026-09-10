@@ -44,6 +44,7 @@ from public_data_agent.sources.fhi import FhiStatistikkSource
 from public_data_agent.sources.fiskeridir import FiskeridirVesselSource
 from public_data_agent.sources.fiskerigis import FiskerigisSource
 from public_data_agent.sources.fixture import FixtureSource
+from public_data_agent.sources.nvdb import NvdbSource
 from public_data_agent.sources.ssbtable import SsbTableSource
 from public_data_agent.sources.frivillig import FrivilligSource
 from public_data_agent.sources.geonorge import GeonorgeKartkatalogSource
@@ -195,6 +196,7 @@ SOURCE_IDS = (
     "datanorge",
     "fixture",
     "ssb",
+    "nvdb",
     "ssbtable",
     "geonorge",
     "nve",
@@ -391,6 +393,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return FixtureSource.from_directory(fixtures)
     if source_id == "ssb":
         return SsbStatbankSource()
+    if source_id == "nvdb":
+        return NvdbSource()
     if source_id == "ssbtable":
         return SsbTableSource()
     if source_id == "geonorge":
