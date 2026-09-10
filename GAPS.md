@@ -840,3 +840,58 @@ when no model was named, which was safe only while one model was stored at each 
 `3-large` truncated to 1536 is the same width as `3-small` and means something entirely
 different, and comparing across them ranks badly without erroring. The provider's own
 model now selects the index, with `test_embedding_model_selection.py` holding it there.
+
+## Reranking a shortlist: the answer was usually found, just placed too low
+
+Two signals said the ranking was leaving something on the table rather than failing to
+retrieve it. `pda benchmark` scored 0.938 at ten against 0.892 at five, and the held-out
+misses sat at rank 10, 11 and 32 — retrieved, and ranked past where anyone looks.
+
+Showing a model twenty real titles and asking which answers the question closes most of
+that:
+
+| | tuned recall@5 | tuned MRR | held-out recall@5 | held-out MRR |
+|---|---|---|---|---|
+| baseline | 0.860 | 0.763 | 0.811 | 0.723 |
+| + query rewriting | 0.872 | 0.746 | 0.865 – 0.892 | 0.729 – 0.738 |
+| + rewriting **and** reranking | **0.884** | **0.766** | **0.892** | **0.759** |
+
+Held-out misses fall from 7 to 4, and the two the reranker fixes are exactly the ones
+the diagnosis predicted: `barnehagedekning` at rank 10 and `hvor mye vann bruker en
+husholdning` at rank 11. Keyword questions rise to 18 of 21. MRR is the clearest gain —
+0.723 to 0.759 — which is what "it was already there, one page down" looks like when it
+is fixed.
+
+**The merge matters more than the reranking.** Handing the model's ordering straight to
+the caller measured *worse* than doing nothing, 0.860 against 0.872 on tuned. What works
+is holding the original first result in front and letting the model's top three follow:
+
+| merge (tuned, with rewriting) | recall@5 | MRR |
+|---|---|---|
+| model's ordering, wholesale | 0.860 | 0.729 |
+| model's top 1 first | 0.907 | 0.759 |
+| **keep 1, then model's top 3** | 0.895 | 0.768 |
+
+The shipped merge is the third, chosen on the tuned set *without* rewriting, where it
+also won, before any held-out number for it existed. `model's top 1 first` scores higher
+on tuned (0.907) and lower on held-out (0.865), which is the reason not to pick the best
+cell in a table: these variants sit within each other's noise, and the difference between
+them is smaller than the run-to-run spread. Implementation measured 0.884 tuned where the
+prototype measured 0.895, from the same nondeterminism the rewriter has.
+
+**Why this is safe, and it is structural rather than a promise.** The model is shown
+titles the index returned and answers with *positions in that list*. It cannot name a
+dataset, so it cannot introduce one; a position outside the list is discarded rather than
+interpreted. Anything it does not rank keeps its original order behind what it did, so a
+truncated, lazy or failed answer degrades to the ranking that was already there. It
+reorders candidates, never supplies a value, and never authorises a fetch.
+
+**Cost.** One call per query on top of the rewrite call, roughly 800 tokens of titles.
+Orderings are cached in `query_reranks` keyed by the query *and the shortlist* — an
+ordering is positions, and positions mean nothing without the list they were given, so a
+changed shortlist is a cache miss rather than a silent mismatch.
+
+**What still fails.** `yrkesdeltakelse kvinner`, `lønnsomhet i industrien` and `domfelte
+etter alder` are all "not in depth" — the reranker only reorders what retrieval found,
+and these are never found. They are the same vocabulary gap that Klass and a bigger
+embedding model both failed to close.

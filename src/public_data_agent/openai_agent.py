@@ -256,3 +256,53 @@ class OpenAIQueryRewriter:
         with urlopen(request, timeout=self.timeout) as response:
             payload = json.loads(response.read().decode())
         return clean_terms(payload.get("output_text") or _extract_text(payload))
+
+
+class OpenAIReranker:
+    """Asks the model to order a shortlist of titles by how well each answers.
+
+    Shares the credential handling of the other adapters. Answers are positions
+    in the list it was given, never names, so the model cannot introduce a
+    dataset the index did not return -- see `rerank.clean_order`, which discards
+    any position outside the list rather than trying to interpret it.
+    """
+
+    def __init__(self, api_key: str, *, model: str = "gpt-4.1-mini", timeout: float = 90.0) -> None:
+        if not api_key.strip():
+            raise ValueError("OpenAI API key is empty")
+        self.api_key, self.model, self.timeout = api_key, model, timeout
+        # Orderings are cached under this, so it has to say which model ranked.
+        self.name = model
+
+    @classmethod
+    def from_env(
+        cls, *, model: str = "gpt-4.1-mini", dotenv: Path | None = None
+    ) -> "OpenAIReranker":
+        agent = OpenAIAgentModel.from_env(model=model, dotenv=dotenv)
+        return cls(agent.api_key, model=model)
+
+    def order(self, query: str, titles: list[str]) -> list[int]:
+        from public_data_agent.rerank import RERANK_INSTRUCTIONS
+
+        listing = "\n".join(f"{i}. {title}" for i, title in enumerate(titles, 1))
+        body = {
+            "model": self.model,
+            "instructions": RERANK_INSTRUCTIONS,
+            "input": [
+                {
+                    "role": "user",
+                    "content": f"Spørsmål: {query}\n\nDatasett (json svar):\n{listing}",
+                }
+            ],
+            "text": {"format": {"type": "json_object"}},
+            "temperature": 0,
+        }
+        request = Request(
+            "https://api.openai.com/v1/responses",
+            data=json.dumps(body).encode(),
+            headers={"Authorization": f"Bearer {self.api_key}", "Content-Type": "application/json"},
+            method="POST",
+        )
+        with urlopen(request, timeout=self.timeout) as response:
+            payload = json.loads(response.read().decode())
+        return json.loads(payload.get("output_text") or _extract_text(payload)).get("order") or []

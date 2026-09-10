@@ -25,6 +25,7 @@ from public_data_agent.embeddings import rank_for_query, semantic_ranking
 from public_data_agent.fetch import classify_access_path, is_retrievable
 from public_data_agent.registry import Registry
 from public_data_agent.resource_index import demote_breakdown_only
+from public_data_agent.rerank import Reranker, rerank
 from public_data_agent.rewrite import QueryRewriter, terms_for
 from public_data_agent.search import search_report
 
@@ -101,6 +102,7 @@ def find(
     depth: int = DEPTH,
     rewriter: QueryRewriter | None = None,
     rewrite_model: str | None = None,
+    reranker: Reranker | None = None,
 ) -> Retrieved:
     """Rank what could answer a question, fetchable results kept apart.
 
@@ -179,6 +181,16 @@ def find(
     # building answers a question just as a table does.
     catalogue = [d for d in ranked if not is_retrievable(_capability(registry, d, cache))]
     steps.append(f"split into {len(observations)} fetchable and {len(catalogue)} descriptive")
+
+    if reranker is not None:
+        # Applied to the fetchable lane and after the split, because that lane
+        # is what a caller reads and reordering it is the only thing that shows
+        # up in an answer. The model sees titles, not data, and answers with
+        # positions, so the worst it can do is order the same results badly.
+        reordered = rerank(registry, reranker, query, observations)
+        if reordered != observations:
+            steps.append("a model reordered the shortlist by what answers the question")
+        observations = reordered
 
     return Retrieved(
         query=query,

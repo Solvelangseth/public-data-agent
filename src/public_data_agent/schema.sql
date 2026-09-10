@@ -447,3 +447,17 @@ CREATE TABLE IF NOT EXISTS term_aliases (
 );
 
 CREATE INDEX IF NOT EXISTS term_aliases_term ON term_aliases (term);
+
+
+-- A model's ordering of one shortlist. Keyed by the shortlist as well as the
+-- query, because an ordering of positions means nothing without the list it
+-- was given: if retrieval changes what it returns, the stored positions point
+-- at different datasets and must not be reused.
+CREATE TABLE IF NOT EXISTS query_reranks (
+    query TEXT NOT NULL,
+    candidates_hash TEXT NOT NULL,
+    model TEXT NOT NULL,
+    order_json TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    PRIMARY KEY (query, candidates_hash, model)
+);

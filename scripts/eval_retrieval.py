@@ -38,6 +38,8 @@ def main() -> int:
     parser.add_argument("--embedding-model", dest="embedding_model", default=None,
                         help="Rank with this embedding index instead of the default")
     parser.add_argument("--dimensions", type=int, default=None)
+    parser.add_argument("--rerank", action="store_true",
+                        help="Let a model reorder the shortlist it retrieved")
     parser.add_argument("--rewrite", choices=("openai", "klass", "both"), default=None,
                         help="Also search the catalogue's words for the question")
     args = parser.parse_args()
@@ -69,6 +71,12 @@ def main() -> int:
         klass = KlassRewriter(registry)
         rewriter = CombinedRewriter([rewriter, klass]) if rewriter else klass
 
+    reranker = None
+    if args.rerank:
+        from public_data_agent.openai_agent import OpenAIReranker
+
+        reranker = OpenAIReranker.from_env(dotenv=Path(".env"))
+
     gold_path, meta_path = SETS[args.which]
     gold = {q["id"]: set(q["expected"]) for q in json.load(open(gold_path))["questions"]}
     meta = {q["id"]: q for q in json.load(open(meta_path))["questions"]}
@@ -83,7 +91,8 @@ def main() -> int:
         for i, qid in enumerate(scored, 1):
             query, style, want = meta[qid]["query"], meta[qid]["style"], gold[qid]
             ranked = find(
-                registry, query, provider=provider, limit=args.depth, rewriter=rewriter
+                registry, query, provider=provider, limit=args.depth,
+                rewriter=rewriter, reranker=reranker,
             ).observations
             got = bool(want & set(ranked[:5]))
             hits += got
@@ -101,6 +110,8 @@ def main() -> int:
     ranking = "lexical only" if provider is None else f"full stack [{provider.model}]"
     if rewriter is not None:
         ranking += f" + {args.rewrite} rewriting"
+    if reranker is not None:
+        ranking += " + reranking"
     print(f"\n{args.which} set, {ranking}: {n} scored, "
           f"{len(unanswerable)} with no answer in the registry\n")
     print(f"  recall@5 {hits / n:.3f}   MRR {reciprocal / n:.3f}")

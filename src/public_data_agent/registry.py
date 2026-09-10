@@ -294,6 +294,40 @@ class Registry:
     def alias_count(self) -> int:
         return int(self.conn.execute("SELECT COUNT(*) AS n FROM term_aliases").fetchone()["n"])
 
+    @staticmethod
+    def _candidates_hash(candidates: list[str]) -> str:
+        return hashlib.sha256("\n".join(candidates).encode("utf-8")).hexdigest()
+
+    def get_rerank(self, query: str, candidates: list[str], *, model: str) -> list[int] | None:
+        """A stored ordering for exactly this shortlist, or None.
+
+        None and `[]` differ: never asked, against asked and the model ranked
+        nothing. Both are worth storing; only one is worth paying for twice.
+        """
+
+        row = self.conn.execute(
+            "SELECT order_json FROM query_reranks "
+            "WHERE query = ? AND candidates_hash = ? AND model = ?",
+            (query, self._candidates_hash(candidates), model),
+        ).fetchone()
+        if row is None:
+            return None
+        try:
+            order = json.loads(row["order_json"])
+        except ValueError:
+            return None
+        return [int(value) for value in order if isinstance(value, int)]
+
+    def set_rerank(
+        self, query: str, candidates: list[str], order: list[int], *, model: str
+    ) -> None:
+        self.conn.execute(
+            "INSERT OR REPLACE INTO query_reranks "
+            "(query, candidates_hash, model, order_json, created_at) VALUES (?, ?, ?, ?, ?)",
+            (query, self._candidates_hash(candidates), model, json.dumps(order), utc_now()),
+        )
+        self.conn.commit()
+
     def get_query_rewrite(self, query: str, *, model: str) -> list[str] | None:
         """Terms stored for this question, or None if it has never been asked.
 
