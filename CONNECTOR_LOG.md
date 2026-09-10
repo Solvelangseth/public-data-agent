@@ -537,6 +537,10 @@ may need compound expansion (`oppdrettslaks` → `oppdrett` + `laks`) to rank th
 the source title uses the publisher's precise `Matfisk. Salg av laks` wording. That
 retrieval issue is recorded rather than solved in the crawler lane.
 
+The harvested metadata now also carries the publisher-defined category terms
+`Akvakultur`, `Salg`, `Matfisk`, and `Produksjon`; this adds source vocabulary without
+renaming the official table or inventing a measure.
+
 ## source reconnaissance — 2026-09-10 — future crawl paths saved
 
 This is a link inventory only. No archive or bulk download was started while the

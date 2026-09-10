@@ -128,7 +128,16 @@ class FdirPxwebSource(SourceBase):
             ],
             "landingPage": [LANDING_PAGE],
             "variables": variables,
-            "keyword": [{"no": "Akvakultur"}, {"no": "Salg"}, *({"no": v} for v in variables)],
+            # The official landing page labels this A.06 branch
+            # ``Matfiskproduksjon``; keeping its two printed concepts separate
+            # lets a question about production reach the precise sales table.
+            "keyword": [
+                {"no": "Akvakultur"},
+                {"no": "Salg"},
+                {"no": "Matfisk"},
+                {"no": "Produksjon"},
+                *({"no": v} for v in variables),
+            ],
             # The table metadata does not print a licence URI.  The publisher's
             # general licence page is not silently promoted to a per-table claim.
             "license": None,
