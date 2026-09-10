@@ -18,6 +18,15 @@ from public_data_agent.models import DatasetRef, HarvestedRecord
 from public_data_agent.sources.base import SourceBase
 
 CATALOGUE_URL = "https://data.ssb.no/api/pxwebapi/v2/tables"
+# The beta listing publishes tables the stable one omits -- 245 of them when
+# this was measured, mostly older series like the 1996 population projections.
+# Neither listing is complete on its own: 154 tables the registry holds from the
+# stable list are absent from the beta one, and spot checks (01301 from beta
+# only, 06265 from stable only) show both still answer through the table API. So
+# both are paged and the results unioned, rather than trusting either as the
+# catalogue.
+CATALOGUE_URL_BETA = "https://data.ssb.no/api/pxwebapi/v2-beta/tables"
+CATALOGUE_URLS = (CATALOGUE_URL, CATALOGUE_URL_BETA)
 TABLE_API = "https://data.ssb.no/api/v0/no/table"
 SSB_PUBLISHER = "Statistisk sentralbyrå"
 INGEST_REASON = "listed as a public table in the SSB PxWeb v2 table catalogue"
@@ -31,21 +40,23 @@ class SsbTableSource(SourceBase):
 
     source_id = "ssbtable"
     source_name = "SSB PxWeb table catalogue"
-    endpoints = (CATALOGUE_URL,)
+    endpoints = CATALOGUE_URLS
     ingest_reason = INGEST_REASON
 
     def __init__(
         self,
         *,
         http: Any | None = None,
-        catalogue_url: str = CATALOGUE_URL,
+        catalogue_url: str | tuple[str, ...] = CATALOGUE_URLS,
         page_size: int = PAGE_SIZE,
         language: str = "no",
     ) -> None:
         self._http = http or HttpClient(
             limiter=RateLimiter(REQUESTS_PER_MINUTE, 1), timeout=60.0, max_retries=3
         )
-        self._catalogue_url = catalogue_url
+        self._catalogue_urls = (
+            (catalogue_url,) if isinstance(catalogue_url, str) else tuple(catalogue_url)
+        )
         self._page_size = page_size
         self._language = language
         self._by_id: dict[str, dict[str, Any]] = {}
@@ -55,27 +66,36 @@ class SsbTableSource(SourceBase):
 
         wanted = None if limit is None else offset + limit
         refs: list[DatasetRef] = []
-        page = 1
-        total_pages: int | None = None
-        while total_pages is None or page <= total_pages:
-            tables, total_pages = self._page(page)
-            if not tables:
-                break
-            for table in tables:
-                table_id = table.get("id")
-                if not isinstance(table_id, str) or not table_id:
-                    continue
-                self._by_id[table_id] = table
-                refs.append(
-                    DatasetRef(
-                        source_native_uri=f"{TABLE_API}/{table_id}",
-                        source_native_id=table_id,
-                        catalog_modified=_string(table.get("updated")),
+        seen: set[str] = set()
+        for catalogue_url in self._catalogue_urls:
+            page = 1
+            total_pages: int | None = None
+            while total_pages is None or page <= total_pages:
+                tables, total_pages = self._page(catalogue_url, page)
+                if not tables:
+                    break
+                for table in tables:
+                    table_id = table.get("id")
+                    if not isinstance(table_id, str) or not table_id:
+                        continue
+                    # A table in both listings is one table. The first listing
+                    # wins, so the stable catalogue's record is the one kept.
+                    if table_id in seen:
+                        continue
+                    seen.add(table_id)
+                    self._by_id[table_id] = table
+                    refs.append(
+                        DatasetRef(
+                            source_native_uri=f"{TABLE_API}/{table_id}",
+                            source_native_id=table_id,
+                            catalog_modified=_string(table.get("updated")),
+                        )
                     )
-                )
+                if wanted is not None and len(refs) >= wanted:
+                    break
+                page += 1
             if wanted is not None and len(refs) >= wanted:
                 break
-            page += 1
         end = None if limit is None else offset + limit
         return refs[offset:end]
 
@@ -90,7 +110,7 @@ class SsbTableSource(SourceBase):
             ingest_reason=self.ingest_reason,
             source_native_id=ref.source_native_id,
             source_native_uri=ref.source_native_uri,
-            fetched_from=self._catalogue_url,
+            fetched_from=self._catalogue_urls[0],
             payload=_payload(table),
             catalog_modified=ref.catalog_modified,
         )
@@ -99,7 +119,7 @@ class SsbTableSource(SourceBase):
         # The listing already carries the full record; no extra request needed.
         return [self.fetch_dataset(ref) for ref in refs]
 
-    def _page(self, page: int) -> tuple[list[dict[str, Any]], int | None]:
+    def _page(self, catalogue_url: str, page: int) -> tuple[list[dict[str, Any]], int | None]:
         """Return one page of tables plus the catalogue's own page count.
 
         Requesting a page past the end is a 404, not an empty list, so the
@@ -107,7 +127,7 @@ class SsbTableSource(SourceBase):
         """
 
         url = (
-            f"{self._catalogue_url}?lang={self._language}"
+            f"{catalogue_url}?lang={self._language}"
             f"&pagesize={self._page_size}&pageNumber={page}"
         )
         body = self._http.get_json(url)

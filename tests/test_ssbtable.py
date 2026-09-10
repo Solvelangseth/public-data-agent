@@ -33,8 +33,39 @@ class ScriptedHttp:
 def test_source_lists_tables_and_stops_at_the_last_page() -> None:
     http = ScriptedHttp()
     refs = SsbTableSource(http=http).list_dataset_refs()
+    # Both catalogues list this table; one table is one dataset.
     assert [ref.source_native_id for ref in refs] == ["11763"]
-    # Requesting a page past the end is a 404, so totalPages must bound the loop.
+    # Requesting a page past the end is a 404, so totalPages must bound the
+    # loop -- once per catalogue, and no further.
+    assert len(http.urls) == 2
+    assert all("pageNumber=1" in url for url in http.urls)
+
+
+def test_both_catalogues_are_paged_because_neither_is_complete() -> None:
+    # The stable listing omits 245 tables the beta one has, and the beta one
+    # omits 154 the registry holds from the stable one. Spot checks showed
+    # tables from each still answering, so the union is the catalogue.
+    class TwoCatalogues:
+        def __init__(self) -> None:
+            self.urls: list[str] = []
+
+        def get_json(self, url, headers=None):
+            self.urls.append(url)
+            table_id = "11763" if "v2-beta" not in url else "01301"
+            return {
+                "tables": [{**PAGE["tables"][0], "id": table_id}],
+                "page": {"pageNumber": 1, "pageSize": 500, "totalElements": 1, "totalPages": 1},
+            }
+
+    http = TwoCatalogues()
+    refs = SsbTableSource(http=http).list_dataset_refs()
+    assert sorted(ref.source_native_id for ref in refs) == ["01301", "11763"]
+
+
+def test_a_single_catalogue_url_is_still_accepted() -> None:
+    http = ScriptedHttp()
+    refs = SsbTableSource(http=http, catalogue_url="https://example.test/tables").list_dataset_refs()
+    assert [ref.source_native_id for ref in refs] == ["11763"]
     assert len(http.urls) == 1
 
 
