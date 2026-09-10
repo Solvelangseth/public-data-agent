@@ -599,3 +599,22 @@ pull was attempted.
 by a current numeric cell, although the published measure is technically per connected
 resident rather than per household. Query-side ranking should use the table's indexed
 measure label and explain that distinction in an answer.
+
+## ssbtable:08264 — 2026-09-10 — industry profitability indicator verified
+
+**Endpoint.** Reused the official SSB PxWeb table
+`https://data.ssb.no/api/v0/no/table/08264`, *Konjunkturbarometer. Tendenser*. The
+indexed shape publishes ten measures, including source-owned `ContentsCode=Lonnsomhet`,
+with industrial group `PKoder=P105` (Industri), adjustment `Justering=S` (seasonally
+adjusted), reference period `ReferansePeriode=01` (actual change from the previous
+quarter), series `SerieType=01` (diffusion index), and periods through `2026K2`.
+
+**Bounded live proof.** That exact six-dimensional selection returned HTTP 200 and
+`45.7`. One observation and provenance are now shared. Capability is `observations`,
+record kind `observation`, and `verified_sample_count = 1`; no company-level accounts
+or broad time series were imported.
+
+**Interpretation boundary.** This answers “lønnsomhet i industrien” as SSB's survey-based
+diffusion index, not a kroner-based profit margin. The distinction and the source-owned
+dimensions are retained so the query lane can explain it instead of presenting the
+indicator as accounting profit.
