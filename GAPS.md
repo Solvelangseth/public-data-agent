@@ -895,3 +895,56 @@ changed shortlist is a cache miss rather than a silent mismatch.
 etter alder` are all "not in depth" — the reranker only reorders what retrieval found,
 and these are never found. They are the same vocabulary gap that Klass and a bigger
 embedding model both failed to close.
+
+## Plural questions, singular titles: the fix is real but only in the bare-noun case
+
+NVDB names a register with a bare noun — `Bru`, `Gjerde`, `Rekkverk` — and a question
+asks about several of them, so `bruer i Norge` reached none of the 423 road registers.
+Codex hit the same wall from the other side: SSB titles table 08507 in Nynorsk
+(`passasjerar`), and the Bokmål question `luftfart passasjerer` does not reach it. Two
+independent sightings of one thing, which is what made it worth fixing as a language
+rule rather than a special case.
+
+`fold_inflection` removes at most one regular Norwegian plural ending — `-ene`, `-ane`,
+`-er`, `-ar` — and `-het` is handled first because it is derivational, not inflectional:
+`leseferdighet` is already the base form and reading its `et` as a definite ending
+produces `leseferdigh`, which is not what any other form reaches. This is deliberately
+not a stemmer; it only ever compares a query token to a token some resource actually
+publishes, so a fold that produces a non-word matches nothing.
+
+**Where it applies is the whole result, and it took four measured attempts to find.**
+
+| scope | tuned recall@5 | tuned MRR | held-out recall@5 | held-out MRR |
+|---|---|---|---|---|
+| no folding | **0.860** | **0.755** | **0.811** | **0.723** |
+| all endings, all fields | 0.849 | 0.740 | 0.784 | 0.698 |
+| all endings, title only | 0.849 | 0.746 | — | — |
+| plural endings, all fields | 0.860 | 0.750 | 0.784 | 0.698 |
+| plural endings, folded match at half weight | 0.860 | 0.750 | 0.784 | 0.698 |
+| **plural endings, one-word titles only** | **0.860** | **0.755** | **0.811** | **0.723** |
+
+Every broad version costs a question on each set, and in both cases by promoting tables
+that are genuinely about the subject: folding `leiepriser` to `leiepris` lets more rent
+tables compete and pushes the labelled one from rank 1 to 16; folding `prøver` to
+`prøve` does the same for the national-test tables. Weighting a folded match at half an
+exact one did not repair it. The gain lives entirely in the bare-noun case, so that is
+where the rule now lives: a one-word title folds, a multi-word title does not.
+
+The final version is **bit-for-bit identical** to no folding on both labelled sets —
+0.860/0.755 and 0.811/0.723, 0.892/0.759 with the model steps, `pda benchmark` 0.8923 —
+while `bruer i Norge` now returns `nvdb:60` first and `gjerder` returns `nvdb:855`.
+
+**A bias worth naming.** When the broad version cost a question, inspection suggested the
+displacing tables were better answers than the label — SSB's `Mestringsnivå ... etter
+klassetrinn, prøve` tables outranking FHI's `Leseferdighet_UTDANN_1` indicator for
+"leseferdighet nasjonale prøver". That may well be true, and I did not relabel, because
+the incentive to declare a label wrong is at its strongest exactly when a change of mine
+caused the regression. The labels stand and the narrow rule was found instead.
+
+**A limit of the instrument, stated plainly.** The labelled sets contain no NVDB
+question, so they can measure this change's cost and not its benefit. That asymmetry is
+why the bar here was "costs nothing measurable" rather than "wins on the metric"; a
+version that traded held-out MRR for an unmeasurable gain was available and was not
+taken. `luftfart passasjerer` still does not reach 08507: that needs Nynorsk/Bokmål
+vocabulary, not plural folding, and it is a held-out question, so it should not be
+optimised against directly.

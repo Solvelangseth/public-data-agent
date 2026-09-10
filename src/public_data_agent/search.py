@@ -342,6 +342,61 @@ def variables_from_stored(payload: dict[str, Any] | None) -> dict[str, Any]:
     return {"status": "unknown", "reason": VARIABLES_UNKNOWN_REASON}
 
 
+# Regular Norwegian noun endings, longest first. Both Bokmål and Nynorsk are
+# here because SSB publishes in both: a table titled "Passasjerar" is invisible
+# to a question that says "passasjerer" otherwise, and NVDB's "Bru" is invisible
+# to "bruer".
+#
+# This is deliberately not a stemmer. A stemmer folds every word it sees and
+# turns `alder` into `ald`; this only ever compares a query token to a token
+# some resource actually publishes, so a fold that produces a non-word matches
+# nothing and costs nothing.
+# Definite plural first, then indefinite plural, then definite singular, then
+# the bare -e. Order is by length so the longest ending wins: "kommunene" must
+# lose "ene" and reach the same "kommun" that "kommuner" reaches, not lose "e"
+# and stop at "kommunen". "ne" is not on this list -- it would take "kommune"
+# to "kommu", which is not the form anything else reaches.
+# Plural only. The singular endings -e, -en, -et and -a were measured and
+# removed: they cost a question by matching `nasjonale` to `nasjonal` and
+# `prøver` to `prøve`, which is linguistically right and lets so many more
+# tables compete that the labelled answer is pushed out of the top five. Plural
+# is where the actual mismatch lives -- a catalogue names a thing once, in the
+# singular, and a question asks about several of them.
+INFLECTIONS = ("ene", "ane", "er", "ar")
+# Longest first, and all of them fold back to the bare "-het".
+HET_FORMS = ("hetene", "hetene", "heter", "heten")
+# Below this a fold is not an inflection, it is a different word. Without it
+# "vare" folds to "var" and "sine" to "sin".
+MIN_STEM = 3
+
+
+def fold_inflection(token: str) -> str:
+    """A token with at most one regular Norwegian ending removed.
+
+    One ending, not repeatedly: stripping until nothing matches turns
+    `kommunene` into `kommun` and then into something shorter still, and the
+    point is to reach the form another Norwegian word for the same thing
+    reaches, not the shortest string.
+
+    `-het` is handled before anything else because it is a derivational suffix,
+    not an inflection. `leseferdighet` is already the base form, and treating
+    its `et` as a definite ending produces `leseferdigh`, which is not a word
+    and not what `leseferdigheter` reaches. Its own endings are `-heten`,
+    `-heter` and `-hetene`, which all fold back to `-het`.
+    """
+
+    for suffix in HET_FORMS:
+        if token.endswith(suffix) and len(token) - len(suffix) >= MIN_STEM:
+            return token[: -len(suffix)] + "het"
+    if token.endswith("het"):
+        return token
+
+    for suffix in sorted(INFLECTIONS, key=len, reverse=True):
+        if token.endswith(suffix) and len(token) - len(suffix) >= MIN_STEM:
+            return token[: -len(suffix)]
+    return token
+
+
 def _token_alts(token: str) -> tuple[str, ...]:
     parts = QUERY_COMPOUND_SPLITS.get(token)
     if parts is None:
@@ -349,10 +404,31 @@ def _token_alts(token: str) -> tuple[str, ...]:
     return (token, *parts)
 
 
-def _first_stored_token(token: str, field_tokens: set[str]) -> str | None:
+# An inflected match is weaker evidence than the word itself. A resource whose
+# title says exactly what was asked should outrank one that says a different
+# form of it, and without this they score the same and the inflected ones crowd
+# the exact one out.
+FOLD_WEIGHT = 0.5
+
+
+def _first_stored_token(
+    token: str, field_tokens: set[str], folded: dict[str, str] | None = None
+) -> tuple[str, bool] | None:
+    """The stored token a query token matches, or None.
+
+    Exact match first, then compound splits, then inflection. The stored
+    spelling is what comes back, never the folded form: a caller reading why a
+    result matched should see the word the resource actually publishes.
+    """
+
     for alt in _token_alts(token):
         if alt in field_tokens:
-            return alt
+            return alt, True
+    if folded is not None:
+        for alt in _token_alts(token):
+            stored = folded.get(fold_inflection(alt))
+            if stored is not None:
+                return stored, False
     return None
 
 
@@ -360,10 +436,36 @@ def score_document(query_tokens: list[str], fields: dict[str, list[str]]) -> lis
     matches: list[FieldMatch] = []
     for field_name, weight in FIELD_WEIGHTS.items():
         field_tokens = set(fields.get(field_name, []))
+        # Folding applies to one-word titles only, and this is the whole of the
+        # rule. A one-word title is a bare noun naming a kind of thing -- NVDB
+        # calls a register "Bru", "Rekkverk", "Gjerde" -- and a question asks
+        # about several of them, so without folding the register is unreachable
+        # by the plural anyone would actually type.
+        #
+        # A multi-word title is a statistical description, and folding there was
+        # measured and removed: it matched `leiepriser` to `leiepris` and
+        # `nasjonale` to `nasjonal`, which is linguistically right and let so
+        # many more tables compete that the labelled answer fell out of the top
+        # five on both sets. Weighting the folded match at half did not repair
+        # it. The gain is real and lives entirely in the bare-noun case.
+        folded: dict[str, str] = {}
+        # Distinct tokens: a title field carries the title and its i18n copies,
+        # so "Bru" arrives as ["bru", "bru"] and a plain length check reads it
+        # as two words.
+        stored_tokens = list(dict.fromkeys(fields.get(field_name, [])))
+        if field_name == "title" and len(stored_tokens) == 1:
+            folded[fold_inflection(stored_tokens[0])] = stored_tokens[0]
         for token in query_tokens:
-            stored = _first_stored_token(token, field_tokens)
-            if stored is not None:
-                matches.append(FieldMatch(field=field_name, token=stored, weight=weight))
+            found = _first_stored_token(token, field_tokens, folded)
+            if found is not None:
+                stored, exact = found
+                matches.append(
+                    FieldMatch(
+                        field=field_name,
+                        token=stored,
+                        weight=weight if exact else weight * FOLD_WEIGHT,
+                    )
+                )
     return matches
 
 
@@ -587,9 +689,9 @@ def _theme_string_matches(query_tokens: list[str], themes: list[str]) -> list[Fi
         seen.add(key)
         theme_tokens = set(tokenize(theme))
         for token in query_tokens:
-            stored = _first_stored_token(token, theme_tokens)
-            if stored is not None:
-                matches.append(FieldMatch(field="theme", token=stored, weight=weight))
+            found = _first_stored_token(token, theme_tokens)
+            if found is not None:
+                matches.append(FieldMatch(field="theme", token=found[0], weight=weight))
     return matches
 
 
@@ -696,7 +798,7 @@ def _requirement_matches(
         return [
             FieldMatch(
                 field="publisher_name",
-                token=_first_stored_token(token, publisher_tokens) or token,
+                token=(_first_stored_token(token, publisher_tokens) or (token, True))[0],
                 weight=PUBLISHER_WEIGHT,
             )
             for token in tokens
@@ -708,7 +810,7 @@ def _requirement_matches(
         return [
             FieldMatch(
                 field="distribution",
-                token=_first_stored_token(token, distribution_tokens) or token,
+                token=(_first_stored_token(token, distribution_tokens) or (token, True))[0],
                 weight=DISTRIBUTION_WEIGHT,
             )
             for token in tokens
@@ -856,7 +958,12 @@ def _index_body(fields: dict[str, list[str]], publisher: str | None) -> str:
 
     parts = [token for tokens in fields.values() for token in tokens]
     parts.extend(tokenize(publisher))
-    return " ".join(parts)
+    # The scorer folds one-word titles, so the filter has to offer that row as a
+    # candidate or the match never gets the chance to happen.
+    title = list(dict.fromkeys(fields.get("title") or []))
+    if len(title) == 1:
+        parts.append(fold_inflection(title[0]))
+    return " ".join(dict.fromkeys(parts))
 
 
 def build_search_index(registry: Registry, *, progress=None) -> dict[str, int]:
@@ -910,16 +1017,20 @@ def prefilter(
     matches nothing must not be confused with a query that legitimately has no
     answer. Returning an empty set for those would answer nothing at all.
 
-    Matches are by prefix and include the compound splits `score_document`
-    accepts, so the candidate set is a superset of what the scorer would match
-    on a full scan -- up to the depth cut.
+    Matches are by prefix and include the compound splits and inflection folds
+    `score_document` accepts, so the candidate set is a superset of what the
+    scorer would match on a full scan -- up to the depth cut.
     """
 
     if not index_is_current(registry):
         return None
     tokens: list[str] = []
     for token in tokenize(query):
-        tokens.extend(_token_alts(token))
+        alts = _token_alts(token)
+        tokens.extend(alts)
+        # The scorer matches by inflection, so the filter has to offer the same
+        # candidates or it decides the question before the scorer sees it.
+        tokens.extend(fold_inflection(alt) for alt in alts)
     if not tokens:
         return None
     match = " OR ".join(f'"{token}"*' for token in dict.fromkeys(tokens))
