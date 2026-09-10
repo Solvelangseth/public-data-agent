@@ -574,3 +574,23 @@ discovery path for subsequent bounded tables, not as a reason to ingest every ta
 **Dead-end check.** Direct Geonorge metadata format routes for the nature UUID were
 tested and returned an HTML application shell (HTTP 200), so they are not data endpoints.
 The attempt is written down to prevent retrying those routes as if they were GeoJSON.
+
+## ssbtable:11787 — 2026-09-10 — household water consumption sample verified
+
+**Endpoint.** Reused the indexed official SSB KOSTRA PxWeb table
+`https://data.ssb.no/api/v0/no/table/11787`, *Vannforsyning og beredskap. Kommunalt
+drikkevann*. Its shape has 32 measures, 891 municipality/region values and years
+2015–2025. The relevant source-owned measure is
+`KOSVREGesthushfo0000` — “Estimert gjennomsnittlig husholdningsforbruk per tilknyttet
+innbygger per døgn”.
+
+**Bounded live proof.** Selected exactly `KOKkommuneregion0000=0301` (Oslo - Oslove),
+`Tid=2025`, and that measure. SSB returned HTTP 200 and `149` litres per person per
+day. One observation and provenance are now in the shared registry; capability is
+`observations` with `verified_sample_count = 1`. No municipality-wide or historical
+pull was attempted.
+
+**Retrieval note.** The held-out wording “vannforbruk per husholdning” is now supported
+by a current numeric cell, although the published measure is technically per connected
+resident rather than per household. Query-side ranking should use the table's indexed
+measure label and explain that distinction in an answer.
