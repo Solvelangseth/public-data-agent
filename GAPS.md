@@ -727,3 +727,67 @@ one statistics word into the synonym this catalogue happens to use. Sharpening t
 prompt against those three would be fitting it to the held-out set and must not be done;
 the legitimate version is a synonym source built from Klass or from SSB's own subject
 hierarchy, which no question set would have chosen.
+
+## Klass is a register of administrative renames, not a synonym source
+
+The model-backed rewriter leaves one kind of failure: it translates dagligtale into
+statistics vocabulary but not one statistics word into this catalogue's synonym for
+it, so `yrkesdeltakelse` comes back as `yrkesdeltakelse`. Writing those pairs by hand
+would fit the held-out set. Klass was the principled alternative — SSB's own
+classification service, every historical version of every standard, one code carrying
+different names over time. `2.03` was "Spesialiserte fosterhjem" and is now "Statlige
+familiehjem". SSB maintains that record for its own reasons, so using it spends
+nothing.
+
+All 151 classifications and 837 versions were downloaded (`scripts/harvest_klass.py`,
+about 12 minutes at 2 req/s, none failed). After extraction it yields 3,245 rename
+pairs. It then proposes a term for **8 of the 131 labelled questions, and all 8 are
+wrong**:
+
+| query | Klass proposes |
+|---|---|
+| hvor mange bor det i Bergen | `Bergen amt` (abolished 1763) |
+| hva koster en bolig i Oslo | `Christiania amt`, `Oslo Havn KF` |
+| hva er gjennomsnittsalderen i Tromsø | `Tromsø Havn KF` |
+| husholdninger størrelse | `Andre næringer - stasjonær forbrenning` |
+
+| | tuned recall@5 | MRR | held-out recall@5 | MRR |
+|---|---|---|---|---|
+| baseline | 0.860 | 0.763 | 0.811 | 0.723 |
+| + Klass rewriting | 0.860 | 0.763 | 0.811 | 0.723 |
+| + model rewriting | 0.872 | 0.746 | 0.865 – 0.892 | 0.729 – 0.738 |
+| + both | — | — | 0.892 | 0.738 |
+
+Unchanged to three decimals on both sets. The combination lands inside the model
+rewriter's own run-to-run band, so Klass adds nothing there either.
+
+**Why, and it is the same reason as the resource index.** `husholdninger` →
+`Andre næringer - stasjonær forbrenning` is a *correct* Klass rename, of a category
+code in an emissions standard, and it is catastrophic as a synonym for a question
+about household size. A word common enough to appear in a question is common enough
+to name different things in different standards; a word unambiguous enough to be safe
+is too rare for anyone to ask about. Klass records what administrative units and
+category codes have been called, and questions are not about administrative units.
+
+**Two hazards found on the way, both real and both handled.** Reading version history
+naively claims Trøndelag is Vestlandet, because landsdel codes were *renumbered* — the
+tell is a name that has belonged to two codes in one standard, and every pair such a
+name appears in is now dropped. And most name changes are not renames at all:
+punctuation (`Refne - Banken` / `Refne/Banken`), case (`Vold-Skog` / `Vold-skog`), a
+corrected typo (`Sommerr0` / `Sommerro`), a renumbered paragraph reference. `is_rename`
+compares word by word rather than as strings, ignoring digits and connectives, because
+comparing whole names calls a typo fix in a short name a rename and a renumbered
+statute a rename.
+
+**A measurement bug worth remembering.** The first Klass run scored 0.865, beating
+baseline. It was reading the model's cached terms: `terms_for` keyed its cache on a
+default model name rather than on the rewriter, so any rewriter got whatever had been
+written under `gpt-4.1-mini`. The cache key is now the rewriter's own name and
+`test_rewriters_do_not_read_each_others_cached_terms` holds it there. A result that
+flatters a new component is worth one look at whether the component ran at all.
+
+**What is kept.** The harvester and the mirror, because a complete local Klass copy has
+uses beyond vocabulary — join keys are already verified against Klass over the network.
+The extraction and `KlassRewriter` are kept, opt-in and wired into nothing, with the
+result at the top of the module. The remaining honest route for this gap is still a
+better embedding model, which is deferred on this machine by choice rather than merit.

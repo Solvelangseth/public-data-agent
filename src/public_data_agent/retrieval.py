@@ -100,7 +100,7 @@ def find(
     limit: int = 10,
     depth: int = DEPTH,
     rewriter: QueryRewriter | None = None,
-    rewrite_model: str = "gpt-4.1-mini",
+    rewrite_model: str | None = None,
 ) -> Retrieved:
     """Rank what could answer a question, fetchable results kept apart.
 

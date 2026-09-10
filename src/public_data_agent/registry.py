@@ -282,6 +282,18 @@ class Registry:
             out.extend(dict(row) for row in rows)
         return out
 
+    def aliases_for(self, term: str) -> list[dict[str, Any]]:
+        """Other names recorded for something this phrase names."""
+
+        rows = self.conn.execute(
+            "SELECT alias, source, evidence FROM term_aliases WHERE term = ? ORDER BY alias",
+            (term,),
+        ).fetchall()
+        return [dict(row) for row in rows]
+
+    def alias_count(self) -> int:
+        return int(self.conn.execute("SELECT COUNT(*) AS n FROM term_aliases").fetchone()["n"])
+
     def get_query_rewrite(self, query: str, *, model: str) -> list[str] | None:
         """Terms stored for this question, or None if it has never been asked.
 

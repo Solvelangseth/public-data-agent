@@ -427,3 +427,23 @@ CREATE TABLE IF NOT EXISTS query_rewrites (
     created_at TEXT NOT NULL,
     PRIMARY KEY (query, model)
 );
+
+
+-- Names that Klass records as belonging to one classification code. SSB keeps
+-- every version of every standard, so a code's name history is a synonym list
+-- SSB maintains for its own reasons -- which is exactly what makes it usable
+-- here: it owes nothing to the questions this project is scored on.
+--
+-- Stored in both directions, because a query may use either name. `term` is
+-- normalised for lookup, `alias` keeps the spelling to search for, and
+-- `evidence` names the classification and code that justify the pair so a
+-- surprising expansion can be traced to a source rather than to a guess.
+CREATE TABLE IF NOT EXISTS term_aliases (
+    term TEXT NOT NULL,
+    alias TEXT NOT NULL,
+    source TEXT NOT NULL,
+    evidence TEXT NOT NULL,
+    PRIMARY KEY (term, alias, source)
+);
+
+CREATE INDEX IF NOT EXISTS term_aliases_term ON term_aliases (term);

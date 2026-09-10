@@ -201,6 +201,8 @@ class OpenAIQueryRewriter:
         if not api_key.strip():
             raise ValueError("OpenAI API key is empty")
         self.api_key, self.model, self.timeout = api_key, model, timeout
+        # Terms are cached under this, so it has to say which model wrote them.
+        self.name = model
 
     @classmethod
     def from_env(

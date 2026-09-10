@@ -35,7 +35,7 @@ def main() -> int:
     parser.add_argument("--no-provider", action="store_true",
                         help="Rank lexically only, to show what an absent API key costs")
     parser.add_argument("--depth", type=int, default=50)
-    parser.add_argument("--rewrite", action="store_true",
+    parser.add_argument("--rewrite", choices=("openai", "klass", "both"), default=None,
                         help="Also search the catalogue's words for the question")
     args = parser.parse_args()
 
@@ -48,11 +48,19 @@ def main() -> int:
 
         provider = OpenAIEmbeddingProvider.from_env(dotenv=Path(".env"))
 
+    registry = Registry(args.db)
+
     rewriter = None
-    if args.rewrite:
+    if args.rewrite in ("openai", "both"):
         from public_data_agent.openai_agent import OpenAIQueryRewriter
 
         rewriter = OpenAIQueryRewriter.from_env(dotenv=Path(".env"))
+    if args.rewrite in ("klass", "both"):
+        from public_data_agent.klass_vocabulary import KlassRewriter
+        from public_data_agent.rewrite import CombinedRewriter
+
+        klass = KlassRewriter(registry)
+        rewriter = CombinedRewriter([rewriter, klass]) if rewriter else klass
 
     gold_path, meta_path = SETS[args.which]
     gold = {q["id"]: set(q["expected"]) for q in json.load(open(gold_path))["questions"]}
@@ -60,7 +68,6 @@ def main() -> int:
     scored = [qid for qid, expected in gold.items() if expected]
     unanswerable = [qid for qid, expected in gold.items() if not expected]
 
-    registry = Registry(args.db)
     hits = 0
     reciprocal = 0.0
     by_style: dict[str, list[int]] = defaultdict(lambda: [0, 0])
@@ -86,7 +93,7 @@ def main() -> int:
     n = len(scored)
     ranking = "lexical only" if provider is None else "full stack"
     if rewriter is not None:
-        ranking += " + query rewriting"
+        ranking += f" + {args.rewrite} rewriting"
     print(f"\n{args.which} set, {ranking}: {n} scored, "
           f"{len(unanswerable)} with no answer in the registry\n")
     print(f"  recall@5 {hits / n:.3f}   MRR {reciprocal / n:.3f}")

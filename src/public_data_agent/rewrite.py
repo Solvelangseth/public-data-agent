@@ -47,6 +47,11 @@ MAX_TERMS = 5
 
 
 class QueryRewriter(Protocol):
+    # Identifies whose terms these are. It is the cache key, so two rewriters
+    # sharing a name would read each other's answers: a Klass run once scored
+    # 0.865 by reading terms a model had written under the default key.
+    name: str
+
     def terms(self, query: str) -> list[str]: ...
 
 
@@ -79,7 +84,11 @@ def clean_terms(raw: object) -> list[str]:
     return out[:MAX_TERMS]
 
 
-def terms_for(registry, rewriter: QueryRewriter, query: str, *, model: str) -> list[str]:
+def rewriter_name(rewriter: QueryRewriter) -> str:
+    return getattr(rewriter, "name", None) or type(rewriter).__name__
+
+
+def terms_for(registry, rewriter: QueryRewriter, query: str, *, model: str | None = None) -> list[str]:
     """The catalogue's words for this question, from cache where possible.
 
     A rewrite costs a network call, and an MCP server sees the same question
@@ -88,6 +97,7 @@ def terms_for(registry, rewriter: QueryRewriter, query: str, *, model: str) -> l
     search down with it.
     """
 
+    model = model or rewriter_name(rewriter)
     cached = registry.get_query_rewrite(query, model=model)
     if cached is not None:
         return cached
@@ -97,3 +107,30 @@ def terms_for(registry, rewriter: QueryRewriter, query: str, *, model: str) -> l
         return []
     registry.set_query_rewrite(query, terms, model=model)
     return terms
+
+
+class CombinedRewriter:
+    """Several rewriters as one, in the order given.
+
+    They answer from different knowledge -- a model knows Norwegian, Klass knows
+    what SSB has renamed -- so a term from either is worth searching. Terms are
+    deduplicated and the combined list is capped like any other, which means an
+    earlier rewriter can crowd out a later one; that is deliberate, since the
+    order states which source is trusted first.
+    """
+
+    def __init__(self, rewriters: list[QueryRewriter | None]) -> None:
+        self.rewriters = [r for r in rewriters if r is not None]
+        self.name = "+".join(rewriter_name(r) for r in self.rewriters)
+
+    def terms(self, query: str) -> list[str]:
+        out: list[str] = []
+        for rewriter in self.rewriters:
+            try:
+                proposed = clean_terms(rewriter.terms(query))
+            except Exception:
+                continue
+            for term in proposed:
+                if term not in out:
+                    out.append(term)
+        return out[:MAX_TERMS]
