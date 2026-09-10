@@ -74,6 +74,9 @@ def main(argv: list[str] | None = None) -> int:
     embed_cmd.add_argument("--db", type=Path, default=DEFAULT_DB)
     embed_cmd.add_argument("--model", default="text-embedding-3-small")
     embed_cmd.add_argument("--limit", type=int, default=None, help="Max rows this run")
+    embed_cmd.add_argument("--dimensions", type=int, default=None,
+                           help="Shorten the vector (text-embedding-3-* only), to trade "
+                                "a little accuracy for a smaller index")
     embed_cmd.add_argument("--quiet", action="store_true")
     embed_cmd.add_argument("--export", type=Path, default=None,
                            help="Write the texts to embed as JSONL and stop (for a GPU elsewhere)")
@@ -811,7 +814,9 @@ def _embed(args: argparse.Namespace) -> int:
         print(f"no registry at {args.db}", file=sys.stderr)
         return 1
     try:
-        provider = OpenAIEmbeddingProvider.from_env(model=args.model, dotenv=Path(".env"))
+        provider = OpenAIEmbeddingProvider.from_env(
+            model=args.model, dotenv=Path(".env"), dimensions=getattr(args, "dimensions", None)
+        )
     except (RuntimeError, ValueError) as exc:
         print(str(exc), file=sys.stderr)
         return 1

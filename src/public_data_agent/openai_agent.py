@@ -157,21 +157,41 @@ class OpenAIEmbeddingProvider:
 
     DEFAULT_MODEL = "text-embedding-3-small"
 
-    def __init__(self, api_key: str, *, model: str = DEFAULT_MODEL, timeout: float = 120.0) -> None:
+    def __init__(
+        self,
+        api_key: str,
+        *,
+        model: str = DEFAULT_MODEL,
+        timeout: float = 120.0,
+        dimensions: int | None = None,
+    ) -> None:
         if not api_key.strip():
             raise ValueError("OpenAI API key is empty")
         self.api_key, self.model, self.timeout = api_key, model, timeout
+        # `text-embedding-3-*` can return a shorter vector than it was trained
+        # at, so a larger model can be stored in the space a smaller one used.
+        # The stored index and the query must agree, which is why this travels
+        # with the provider rather than being passed per call.
+        self.dimensions = dimensions
 
     @classmethod
-    def from_env(cls, *, model: str = DEFAULT_MODEL, dotenv: Path | None = None) -> "OpenAIEmbeddingProvider":
+    def from_env(
+        cls,
+        *,
+        model: str = DEFAULT_MODEL,
+        dotenv: Path | None = None,
+        dimensions: int | None = None,
+    ) -> "OpenAIEmbeddingProvider":
         agent = OpenAIAgentModel.from_env(dotenv=dotenv)
-        return cls(agent.api_key, model=model)
+        return cls(agent.api_key, model=model, dimensions=dimensions)
 
     def embed(self, texts: Any) -> list[list[float]]:
         items = [str(text) for text in texts]
         if not items:
             return []
-        body = {"model": self.model, "input": items}
+        body: dict[str, Any] = {"model": self.model, "input": items}
+        if self.dimensions is not None:
+            body["dimensions"] = self.dimensions
         request = Request(
             "https://api.openai.com/v1/embeddings",
             data=json.dumps(body).encode(),

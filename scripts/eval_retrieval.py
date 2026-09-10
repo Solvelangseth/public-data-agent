@@ -35,6 +35,9 @@ def main() -> int:
     parser.add_argument("--no-provider", action="store_true",
                         help="Rank lexically only, to show what an absent API key costs")
     parser.add_argument("--depth", type=int, default=50)
+    parser.add_argument("--embedding-model", dest="embedding_model", default=None,
+                        help="Rank with this embedding index instead of the default")
+    parser.add_argument("--dimensions", type=int, default=None)
     parser.add_argument("--rewrite", choices=("openai", "klass", "both"), default=None,
                         help="Also search the catalogue's words for the question")
     args = parser.parse_args()
@@ -46,7 +49,11 @@ def main() -> int:
     if not args.no_provider:
         from public_data_agent.openai_agent import OpenAIEmbeddingProvider
 
-        provider = OpenAIEmbeddingProvider.from_env(dotenv=Path(".env"))
+        provider = OpenAIEmbeddingProvider.from_env(
+            dotenv=Path(".env"),
+            **({"model": args.embedding_model} if args.embedding_model else {}),
+            dimensions=args.dimensions,
+        )
 
     registry = Registry(args.db)
 
@@ -91,7 +98,7 @@ def main() -> int:
         registry.close()
 
     n = len(scored)
-    ranking = "lexical only" if provider is None else "full stack"
+    ranking = "lexical only" if provider is None else f"full stack [{provider.model}]"
     if rewriter is not None:
         ranking += f" + {args.rewrite} rewriting"
     print(f"\n{args.which} set, {ranking}: {n} scored, "

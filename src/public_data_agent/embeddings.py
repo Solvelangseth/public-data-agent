@@ -188,6 +188,12 @@ def semantic_ranking(
     about the data itself.
     """
 
+    # Which index to read. Selecting by dimension alone was enough while only
+    # one model was stored at each width, and stops being enough the moment two
+    # are: `text-embedding-3-large` truncated to 1536 would be compared against
+    # `text-embedding-3-small` vectors, which is meaningless and does not error.
+    if model is None:
+        model = getattr(provider, "model", None)
     query_vector = provider.embed([query])[0]
     dim = len(query_vector)
     rows = [(did, blob) for did, stored_dim, blob in registry.iter_embeddings(model) if stored_dim == dim]

@@ -791,3 +791,52 @@ uses beyond vocabulary — join keys are already verified against Klass over the
 The extraction and `KlassRewriter` are kept, opt-in and wired into nothing, with the
 result at the top of the module. The remaining honest route for this gap is still a
 better embedding model, which is deferred on this machine by choice rather than merit.
+
+## `text-embedding-3-large` is worse here, at both widths
+
+The remaining honest route for the vocabulary gap was a better embedding model, and
+`multilingual-e5-large` is deferred on this machine by choice. `text-embedding-3-large`
+tests the same hypothesis without local compute: it is an API call, so no download, no
+2.2 GB resident, no local inference. It is also the stronger model on OpenAI's own
+benchmarks.
+
+It loses.
+
+| | tuned recall@5 | tuned MRR | held-out recall@5 | held-out MRR | held-out keyword | held-out natural |
+|---|---|---|---|---|---|---|
+| `3-small` (1536) | **0.860** | **0.763** | **0.811** | **0.723** | 0.810 | 0.812 |
+| `3-large` truncated to 1536 | — | — | 0.784 | 0.727 | 0.714 | 0.875 |
+| `3-large` at full 3072 | 0.733 | 0.617 | 0.811 | 0.718 | 0.714 | 0.938 |
+| `3-small` + rewriting | — | — | **0.865** | **0.733** | 0.810 | 0.938 |
+| `3-large` + rewriting | — | — | 0.811 | 0.717 | 0.714 | 0.938 |
+
+Truncation is not the explanation — full width scores the same 0.811 held-out and is
+much worse on the tuned set. Both widths are stored under the same model name, so the
+1536 index was replaced rather than kept alongside.
+
+**A caution about reading the held-out split.** At full width `3-large` looks better on
+naturally phrased questions there, 15 of 16 against 13 of 16, which is a tempting story:
+a stronger model for the phrasing an MCP server actually receives. The tuned set has 43
+natural questions rather than 16 and says the opposite — 0.628 against 0.814. Sixteen
+questions cannot separate two models, and the apparent gain was noise. The tuned number
+is the one to believe here, which is the reverse of the usual rule and only because this
+comparison was never tuned on anything.
+
+Once query rewriting is on, the question settles: `3-small` 0.865 against `3-large`
+0.811. Rewriting already closes the natural-language gap — both reach 15 of 16 — so
+`3-large`'s only remaining distinction is that it is worse on keyword queries, 15 of 21
+against 17 of 21.
+
+**What this does and does not establish.** Routing, fusion weights and demotion were all
+fitted against `3-small`'s score distribution, so this measures `3-large` inside a stack
+shaped for another model, not its ceiling. That is the practical question — swapping the
+model in is not a win — but a rebuild of the ranking around it was not attempted. What it
+does establish, together with the `nb-sbert` result, is that a bigger or more
+language-specific embedding model is not the missing ingredient. Two models from opposite
+directions have now failed to beat `text-embedding-3-small` on this corpus.
+
+**A correctness fix came out of it.** `semantic_ranking` chose the index by vector width
+when no model was named, which was safe only while one model was stored at each width.
+`3-large` truncated to 1536 is the same width as `3-small` and means something entirely
+different, and comparing across them ranks badly without erroring. The provider's own
+model now selects the index, with `test_embedding_model_selection.py` holding it there.
