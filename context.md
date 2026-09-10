@@ -109,7 +109,7 @@ because a lane cannot be filled from a list already truncated to the other's win
 over an FTS5-narrowed candidate set, semantic ranking routed by whether the query names
 a subject or asks a question, optionally a second search for what a model says the
 catalogue calls the subject, tables about a word ranked above tables merely split by it,
-then the lane split. Each step was kept or dropped on measurement, and the numbers live
+the lane split, and optionally a model reordering the shortlist it retrieved. Each step was kept or dropped on measurement, and the numbers live
 in that module's docstring. Six proposals that did **not** survive measurement are in
 GAPS.md; read those before proposing a ranking change.
 
@@ -120,9 +120,14 @@ GAPS.md; read those before proposing a ranking change.
   MRR 0.763, or 0.872 with query rewriting; lexical alone scores 0.442, and 0.233
   against 0.814 on naturally phrased questions. Random scores about 0.001.
 - `data/heldout_gold.json` — 37 scored questions, measured rather than tuned on, so it
-  is the honest read. 0.811 without query rewriting and 0.865–0.892 with it; naturally
-  phrased questions 0.812 against 0.938–1.000. The range is run-to-run variation in what
-  the model returns, not a choice of the best run — report the band, not its top.
+  is the honest read. **0.811** with neither model step, **0.865–0.892** with query
+  rewriting, **0.892 (MRR 0.759)** with rewriting and reranking; naturally phrased
+  questions 0.812 against 0.938. Ranges are run-to-run variation in what the model
+  returns, not a choice of the best run — report the band, not its top.
+
+Both model steps are optional and degrade to the ranking beneath them, so the server
+works without an API key at 0.811. Neither can invent a result: a rewriter proposes
+search terms and a reranker answers with positions in a list it was given.
 - `pda benchmark` — 65 gold Data.norge questions, scored on the **catalogue lane**.
   R@5 ≈ 0.892, R@10 ≈ 0.938. **Must not regress.**
 - `run_answerable` — do **not** read this as a quality measure. It asks only whether
