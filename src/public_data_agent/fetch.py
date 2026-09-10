@@ -491,6 +491,18 @@ from public_data_agent.sources.ssclass import (
     is_ssclass_url,
     ssclass_table_id,
 )
+from public_data_agent.sources.nvdb import (
+    DEFAULT_OBJECT_LIMIT,
+    HEADERS as NVDB_HEADERS,
+    MAX_OBJECT_LIMIT,
+    OBJECT_API,
+    REQUESTS_PER_SECOND as NVDB_RPS,
+    SUBJECT_SCHEME as NVDB_SCHEME,
+    feature_from_vegobjekt,
+    is_nvdb_collection_url,
+    is_nvdb_object_url,
+    nvdb_type_id,
+)
 from public_data_agent.sources.brenheter import (
     BRENHETER_ORGNR_LIMIT,
     BRENHETER_RPS,
@@ -1152,6 +1164,8 @@ def fetch_observations(
         return _fetch_geonorge_rest(registry, dataset, http=http)
     if is_nve_magasin_url(access_path):
         return _fetch_nve_magasin(registry, dataset, http=http)
+    if is_nvdb_object_url(access_path) or is_nvdb_collection_url(access_path):
+        return _fetch_nvdb(registry, dataset, http=http, select=select)
     if is_brkommuner_url(access_path):
         return _fetch_brkommuner(registry, dataset, http=http)
     if is_brenheter_url(access_path):
@@ -12296,6 +12310,19 @@ def classify_access_path(access_path: str | None) -> dict[str, Any]:
             "kind": CAPABILITY_NONE,
             "reason": "Enhetsregisteret enheter collection/lastned; too large and not a single entity",
         }
+    if is_nvdb_object_url(access_path):
+        return {
+            "kind": CAPABILITY_FEATURES,
+            "reason": "NVDB vegobjekt endpoint; returns one road feature with geometry and attributes",
+        }
+    if is_nvdb_collection_url(access_path):
+        return {
+            "kind": CAPABILITY_FEATURES,
+            "reason": (
+                "NVDB vegobjekt type endpoint; returns road features with geometry, "
+                "fetched a bounded page at a time rather than whole"
+            ),
+        }
     if is_klass_url(access_path):
         return {
             "kind": CAPABILITY_LOOKUP,
@@ -12325,3 +12352,194 @@ def classify_access_path(access_path: str | None) -> dict[str, Any]:
                       "to yield numeric cells; inspect the result before relying on it",
         }
     return {"kind": CAPABILITY_NONE, "reason": "no registered connector matches this access_path"}
+
+
+def _fetch_nvdb(
+    registry: Registry,
+    dataset: dict[str, Any],
+    *,
+    http: JsonHttp | None = None,
+    select: dict[str, list[str]] | None = None,
+) -> FetchResult:
+    """Fetch road features from NVDB: one object, or a bounded page of a type.
+
+    A road object is not a measure of anything, so rows land in `records` with
+    kind `feature` and subject scheme `NVDB vegobjekt-id`.
+
+    "Fetch this type" cannot mean "fetch all of it" -- type 5 alone holds
+    245,616 guardrails -- so a collection request returns a bounded page and
+    says so. `select` narrows it: `kommune` and `fylke` take Klass codes, which
+    is what makes a road object reachable from a question about a place, and
+    `antall` raises the page size up to a hard cap rather than without limit.
+    """
+
+    access_path = dataset.get("access_path") or ""
+    type_id = nvdb_type_id(access_path)
+    single = is_nvdb_object_url(access_path)
+    select = {str(key): value for key, value in (select or {}).items()}
+
+    allowed = {"kommune", "fylke", "antall"}
+    unknown = sorted(key for key in select if key not in allowed)
+    if unknown:
+        raise ValueError(
+            f"select names field(s) {unknown} that an NVDB fetch does not filter on; "
+            f"accepted: {sorted(allowed)}"
+        )
+
+    limit = DEFAULT_OBJECT_LIMIT
+    if "antall" in select:
+        wanted = select["antall"]
+        wanted = [wanted] if isinstance(wanted, str) else list(wanted)
+        try:
+            limit = int(str(wanted[0]))
+        except (ValueError, IndexError) as exc:
+            raise ValueError(f"select[antall]={select['antall']!r} is not a number") from exc
+        if limit < 1:
+            raise ValueError(f"select[antall]={limit} must be at least 1")
+        if limit > MAX_OBJECT_LIMIT:
+            raise SelectionTooLarge(
+                type_id,
+                limit,
+                MAX_OBJECT_LIMIT,
+                [{
+                    "code": "antall",
+                    "text": "objects per request",
+                    "selected": limit,
+                    "available": MAX_OBJECT_LIMIT,
+                }],
+            )
+
+    def _codes(name: str) -> str:
+        values = select.get(name)
+        if values is None:
+            return ""
+        values = [values] if isinstance(values, str) else [str(v) for v in values]
+        for value in values:
+            if not value.isdigit():
+                raise ValueError(
+                    f"select[{name}]={value!r} is not a numeric Klass code; NVDB filters "
+                    "on kommune and fylke numbers, not names"
+                )
+        return ",".join(values)
+
+    if single:
+        request_url = f"{access_path}?inkluder=metadata,egenskaper,lokasjon"
+        if select:
+            raise ValueError(
+                "select does not apply when fetching one object by id; drop it, or "
+                f"address the type at {OBJECT_API}/{type_id} to filter"
+            )
+    else:
+        query = [f"antall={limit}", "inkluder=metadata,egenskaper,lokasjon"]
+        for name in ("kommune", "fylke"):
+            codes = _codes(name)
+            if codes:
+                query.append(f"{name}={codes}")
+        request_url = f"{OBJECT_API}/{type_id}?" + "&".join(query)
+
+    client = http or HttpClient(
+        limiter=RateLimiter(NVDB_RPS, 1), timeout=60.0, max_retries=3
+    )
+    started = utc_now()
+    run_id = registry.start_fetch_run(
+        dataset_id=dataset["id"],
+        table_id=type_id,
+        request_url=request_url,
+        request_method="GET",
+        started_at=started,
+    )
+    counts = HarvestCounts()
+    status = "failed"
+    http_status = 0
+    sample: list[dict[str, Any]] = []
+    touched: list[str] = []
+    try:
+        got = client.get_json_response(request_url, headers=dict(NVDB_HEADERS))
+        http_status = got.status
+        registry.set_fetch_request(run_id, request_url=request_url, request_body={"method": "GET"})
+        if http_status == 404:
+            raise ValueError(f"NVDB has no object at {request_url}; unsatisfiable request")
+        if http_status >= 400:
+            raise ValueError(f"NVDB GET returned HTTP {http_status} for {request_url}")
+
+        body = got.body
+        objects = [body] if single else [o for o in (body.get("objekter") or []) if isinstance(o, dict)]
+        retrieved_at = utc_now()
+        type_name = dataset.get("title") or ""
+        for payload in objects:
+            feature = feature_from_vegobjekt(payload, type_name=type_name)
+            record_id = f"feature:{dataset['id']}:{feature['subject_code']}"
+            action = registry.upsert_record(
+                {
+                    "id": record_id,
+                    "dataset_id": dataset["id"],
+                    "kind": "feature",
+                    "series": f"nvdb:{type_id}",
+                    "subject_scheme": feature["subject_scheme"],
+                    "subject_code": feature["subject_code"],
+                    "subject_label": feature["subject_label"],
+                    "period": None,
+                    "measure": None,
+                    "value": None,
+                    "attributes": feature["attributes"],
+                    "retrieved_at": retrieved_at,
+                    "request_url": request_url,
+                    "http_status": http_status,
+                    "publisher_name": dataset.get("publisher_name"),
+                    "license": dataset.get("license"),
+                },
+                run_id,
+            )
+            counts.listed += 1
+            if action == "inserted":
+                counts.inserted += 1
+            elif action == "updated":
+                counts.updated += 1
+            else:
+                counts.unchanged += 1
+            touched.append(record_id)
+            if len(sample) < 3:
+                sample.append(
+                    {
+                        "kind": "feature",
+                        "subject_scheme": NVDB_SCHEME,
+                        "subject_code": feature["subject_code"],
+                        "subject_label": feature["subject_label"],
+                        "attributes": feature["attributes"],
+                    }
+                )
+        if not objects:
+            raise ValueError(
+                f"NVDB returned no objects for {request_url}; nothing was stored"
+            )
+        registry.set_capability(
+            dataset["id"],
+            {
+                "capability": CAPABILITY_FEATURES,
+                "record_kind": "feature",
+                "endpoint": f"{OBJECT_API}/{type_id}",
+                "request_method": "GET",
+                "subject_scheme": NVDB_SCHEME,
+                "subject_template": f"{OBJECT_API}/{type_id}/{{subject}}",
+                "subject_count": (registry.get_capability(dataset["id"]) or {}).get("subject_count"),
+                "verified_at": retrieved_at,
+                "verified_sample_count": counts.listed,
+                "notes": f"{counts.listed} object(s) fetched and stored",
+            },
+        )
+        status = "completed"
+    except Exception as exc:
+        counts.failed += 1
+        counts.errors.append({"error": str(exc), "url": request_url})
+        raise
+    finally:
+        registry.finish_fetch_run(run_id, counts, status=status, http_status=http_status)
+    return FetchResult(
+        dataset_id=dataset["id"],
+        table_id=type_id,
+        request_url=request_url,
+        http_status=http_status,
+        counts=counts,
+        sample=sample,
+        observation_ids=touched,
+    )

@@ -98,3 +98,44 @@ NVE HydAPI both return 401 and need registered keys. Guessed PxWeb hosts for NAV
 Landbruksdirektoratet, Husbanken, Helsedirektoratet, Miljødirektoratet and Vegvesen all
 404 or fail DNS: guessing URLs is the wrong method, and mining `access_path` and
 distribution URLs already in the registry is what found NVDB and CKAN.
+
+## nvdb:* — 2026-09-10 — fetch wired, bounded by construction
+
+**What changed.** `classify_access_path` now recognises both NVDB shapes, and
+`fetch_observations` dispatches them to `_fetch_nvdb`. Road objects land in `records`
+with kind `feature` and subject scheme `NVDB vegobjekt-id`, alongside observations and
+entities on the same provenance spine.
+
+**"Fetch this type" cannot mean "fetch all of it".** Type 5 holds 245,616 guardrails.
+A collection request returns a bounded page — ten by default, a hundred at most — and
+asking for more raises `SelectionTooLarge` with the limit rather than truncating
+quietly. `select` accepts `kommune` and `fylke` as **numeric Klass codes**; a place
+name is refused, because NVDB would accept the parameter and match nothing, which reads
+as "there are no bridges in Oslo".
+
+**Bounded live proof.** One bridge by id: object 272296863, `Byggverkstype = Hvelvbru
+(562)`, `Eier = Fylkeskommune`, `lengde = 22.95`, kommune `3105`, fylke `31`, with a
+`LINESTRING Z`. Then three bridges in Oslo via `select={"kommune": ["0301"], "antall":
+["3"]}` — 272296875, 272296888, 272296891, kommune `301`. Four feature records stored
+in total, each with its request URL, HTTP status and retrieval time. Capability for
+`nvdb:60` now carries `verified_at` and `verified_sample_count = 3`; the other 422 types
+still say the class was verified and they were not.
+
+**Why the kommune code matters.** It is a Klass code, the same vocabulary the SSB tables
+use, so a road object is joinable to a statistic about the same municipality. That is the
+thing NVDB adds that a map tile does not.
+
+**An empty response is an error, not an answer.** A request that returns no objects
+raises and stores nothing. Reporting success with zero records would read as "there are
+none", which is a claim about the world rather than about the request.
+
+**Storage.** Still pointers: 423 registers addressing 29,658,377 objects, and 4 objects
+actually stored. Held-out recall@5 holds at 0.892 / MRR 0.759, `pda benchmark` 0.8923.
+
+## Klass mirror deleted — 2026-09-10
+
+`data/klass/versions/` (170 MB, 837 version payloads) is removed. The vocabulary it was
+harvested for measured no change in retrieval and the reasoning is in GAPS.md. The
+derived aliases stay in `term_aliases` (5,869 rows, tiny) and `scripts/harvest_klass.py`
+rebuilds the mirror in about twelve minutes; `data/klass/classifications.json` is kept
+because the harvester reuses it and it saves 151 requests on a rebuild.

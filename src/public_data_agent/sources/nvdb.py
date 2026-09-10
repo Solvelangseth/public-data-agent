@@ -36,6 +36,11 @@ INGEST_REASON = "listed as a road object type in the NVDB object type catalogue"
 # harder and the header costs nothing.
 HEADERS = {"Accept": "application/json", "X-Client": "public-data-agent"}
 REQUESTS_PER_SECOND = 2.0
+SUBJECT_SCHEME = "NVDB vegobjekt-id"
+# A collection fetch is bounded on purpose. Type 5 alone holds 245,616
+# guardrails, so "fetch this type" cannot mean "fetch all of it".
+DEFAULT_OBJECT_LIMIT = 10
+MAX_OBJECT_LIMIT = 100
 
 
 class NvdbSource(SourceBase):
@@ -155,3 +160,77 @@ def _payload(row: dict[str, Any]) -> dict[str, Any]:
 
 def _string(value: Any) -> str:
     return value.strip() if isinstance(value, str) else ""
+
+
+def _object_path(access_path: str | None) -> list[str] | None:
+    """The `/vegobjekter/...` segments of an NVDB URL, or None."""
+
+    if not access_path:
+        return None
+    from urllib.parse import urlparse
+
+    parsed = urlparse(access_path)
+    if parsed.netloc != "nvdbapiles.atlas.vegvesen.no":
+        return None
+    parts = [segment for segment in parsed.path.split("/") if segment]
+    if not parts or parts[0] != "vegobjekter":
+        return None
+    return parts[1:]
+
+
+def is_nvdb_collection_url(access_path: str | None) -> bool:
+    """`/vegobjekter/{type}` — every object of a type, which is far too many."""
+
+    parts = _object_path(access_path)
+    return bool(parts) and len(parts) == 1 and parts[0].isdigit()
+
+
+def is_nvdb_object_url(access_path: str | None) -> bool:
+    """`/vegobjekter/{type}/{id}` — exactly one road object."""
+
+    parts = _object_path(access_path)
+    return bool(parts) and len(parts) == 2 and all(part.isdigit() for part in parts)
+
+
+def nvdb_type_id(access_path: str | None) -> str:
+    parts = _object_path(access_path) or []
+    return parts[0] if parts else ""
+
+
+def feature_from_vegobjekt(payload: Any, *, type_name: str = "") -> dict[str, Any]:
+    """One NVDB object as a record. Values are copied; nothing is derived.
+
+    Geometry, the municipalities and counties the object lies in, and every
+    typed attribute the publisher printed are kept. The kommune and fylke codes
+    are what make a road object joinable to the statistics, so they are lifted
+    out of `lokasjon` rather than left buried.
+    """
+
+    if not isinstance(payload, dict):
+        raise ValueError("NVDB object payload is not an object")
+    object_id = payload.get("id")
+    if object_id is None:
+        raise ValueError("NVDB object payload has no id")
+    location = payload.get("lokasjon") if isinstance(payload.get("lokasjon"), dict) else {}
+    attributes: dict[str, Any] = {}
+    for item in payload.get("egenskaper") or []:
+        if isinstance(item, dict) and item.get("navn") is not None:
+            attributes[str(item["navn"])] = item.get("verdi")
+    geometry = (location.get("geometri") or {}).get("wkt") if isinstance(location, dict) else None
+    if geometry:
+        attributes["geometri_wkt"] = geometry
+    for key in ("kommuner", "fylker"):
+        values = location.get(key) if isinstance(location, dict) else None
+        if isinstance(values, list) and values:
+            attributes[key] = [str(value) for value in values]
+    length = location.get("lengde") if isinstance(location, dict) else None
+    if length is not None:
+        attributes["lengde"] = length
+    metadata = payload.get("metadata") if isinstance(payload.get("metadata"), dict) else {}
+    label = (metadata.get("type") or {}).get("navn") if isinstance(metadata, dict) else None
+    return {
+        "subject_scheme": SUBJECT_SCHEME,
+        "subject_code": str(object_id),
+        "subject_label": str(label or type_name or ""),
+        "attributes": attributes,
+    }
