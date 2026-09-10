@@ -575,6 +575,11 @@ discovery path for subsequent bounded tables, not as a reason to ingest every ta
 tested and returned an HTML application shell (HTTP 200), so they are not data endpoints.
 The attempt is written down to prevent retrying those routes as if they were GeoJSON.
 
+**NAV follow-up check (2026-09-10).** The catalog URL above now redirects and ends at
+NAV HTTP 404, with no CSV/JSON/XLSX link in the returned page. Treat that Data.norge
+landing path as stale until NAV publishes a replacement; do not build a connector
+against the dead URL. The failed check is retained here so it is not retried blindly.
+
 ## ssbtable:11787 — 2026-09-10 — household water consumption sample verified
 
 **Endpoint.** Reused the indexed official SSB KOSTRA PxWeb table
