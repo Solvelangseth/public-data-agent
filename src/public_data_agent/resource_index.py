@@ -274,6 +274,7 @@ def index_dataset(
     )
     from public_data_agent.sources.brrepresent import is_brrepresent_url, shape_from_brrepresent
     from public_data_agent.sources.brrolletype import is_brrolletype_url, shape_from_brrolletype
+    from public_data_agent.sources.fdirpx import is_fdirpx_url
     from public_data_agent.sources.fhi import is_fhi_table_url, printed_table_data_url, split_table_url
 
     dataset = registry.get_dataset(dataset_id)
@@ -291,7 +292,7 @@ def index_dataset(
         fields, keys = shape_from_fhi((meta.body or {}).get("dimensions") or [], catalogues)
         endpoint, method = f"{base}/data", "POST"
         record_kind = "observation"
-    elif _is_ssb_table_url(access_path):
+    elif _is_ssb_table_url(access_path) or is_fdirpx_url(access_path):
         meta = client.get_json_response(access_path.rstrip("/"))
         fields, keys = shape_from_pxweb(meta.body or {}, catalogues)
         endpoint, method = access_path.rstrip("/"), "POST"

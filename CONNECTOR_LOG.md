@@ -471,3 +471,106 @@ auditing duplicate/metadata-only connectors and then the unanswered question lis
 starting with a source that can return real luftfart passenger observations.
 
 **Open question for the query side.** None.
+
+## ssbtable:08507 — 2026-09-09 — luftfart passenger sample verified
+
+**Endpoint(s).** Reused the official SSB PxWeb resource already present in the shared
+registry: `POST https://data.ssb.no/api/v0/no/table/08507`. No new Avinor scraper was
+needed. The table is *Lufttransport. Passasjerar, etter lufthamn, trafikktype og
+innanlands-/utanlandsflyging*, covering `2009M01` through `2026M07` when checked.
+
+**Bounded live proof.** Sent an explicit one-cell selection: `Lufthavn=ENGM` (Oslo
+Gardermoen), `TrafikkType=000` (all commercial flights), `TrafikkFly=IU` (domestic and
+international), `PassasjerType=AAT` (total passengers aboard at arrival and departure),
+`ContentsCode=Passasjerer`, and `Tid=2026M07`. SSB returned HTTP 200 and exactly one
+cell: 2,737,712 passengers. One observation with request URL, retrieval time and HTTP
+status is now stored in the shared registry; no broad table query or historical import
+was attempted.
+
+**Shape and capability.** The indexed shape has six source-owned fields: one measure,
+one monthly period and four attributes (airport, traffic type, domestic/international
+flight, and passenger group). Capability remains `observations` with record kind
+`observation` and method `POST`; `verified_at` and `verified_sample_count = 1` now reflect
+the live record rather than metadata inspection alone.
+
+**Surprises.** The resource was already registered and shaped but had zero observations,
+so it looked complete from the catalog side without an end-to-end data proof. The exact
+held-out query `luftfart passasjerer` also does not retrieve table 08507 in the first ten
+results even after the sample is stored. The most likely cause is a language-form gap:
+the official Norwegian title and labels use Nynorsk `passasjerar`, while the question
+uses Bokmål `passasjerer`.
+
+**Open question for the query side.** Add or evaluate Bokmål/Nynorsk lexical expansion
+so `luftfart passasjerer` reaches `ssbtable:08507`. This is a retrieval concern; the
+crawler-side source, live observation, capability and shape are now present.
+
+## fdirpx:A06002a — 2026-09-10 — farmed salmon production source verified
+
+**Endpoint(s).** Added a bounded Fiskeridirektoratet PxWeb connector. The official
+catalogue is `https://statistikkbanken.fiskeridir.no/PxWeb/api/v1/no/Fiskeridirektoratet/A_Akvakultur/A_06_Salg`;
+it prints table `A06002a.px`, whose direct metadata/data endpoint is
+`https://statistikkbanken.fiskeridir.no/PxWeb/api/v1/no/Fiskeridirektoratet/A_Akvakultur/A_06_Salg/A06002a.px`.
+The publisher's explanatory page is the official *Akvakulturstatistikk: laks,
+regnbueørret og ørret* page. The connector promotes only this table for now instead
+of creating thirteen metadata-only neighbours.
+
+**Shape.** The publisher prints three dimensions: `År` (1994–2025), `Art` (Laks,
+Regnbueørret, Ørret), and `Statistikkvariabel` (Kvantum (tonn), Verdi (1000 kroner)).
+The shared resource index records all 32 year values and both measures. Licence remains
+null because the PxWeb table metadata does not print a per-table licence URI; the
+publisher's general NLOD page is retained as a landing/reference link, not silently
+claimed as a field from the table payload.
+
+**Bounded live proof.** Queried exactly one cell with `År=2025`, `Art=Laks`, and
+`Statistikkvariabel=Kvantum (tonn)`. The official endpoint returned HTTP 200 and
+`1,754,557` tonnes. That observation, its POST URL, retrieval time and status are now
+in the shared registry. Capability is `observations`, record kind `observation`, with
+`verified_sample_count = 1`; no historical or company-level import was attempted.
+
+**Implementation note.** This is a normal PxWeb table, but its API is hosted under
+Fiskeridirektoratet rather than SSB. Fetch dispatch, capability classification and
+resource-shape indexing now recognise the exact `/PxWeb/api/v1/no/Fiskeridirektoratet/`
+path. Focused connector/fetch/index tests pass.
+
+**Open question for the query side.** The held-out wording `oppdrettslaks produksjon`
+may need compound expansion (`oppdrettslaks` → `oppdrett` + `laks`) to rank this table;
+the source title uses the publisher's precise `Matfisk. Salg av laks` wording. That
+retrieval issue is recorded rather than solved in the crawler lane.
+
+## source reconnaissance — 2026-09-10 — future crawl paths saved
+
+This is a link inventory only. No archive or bulk download was started while the
+external storage decision is pending.
+
+**Naturvernområder (Miljødirektoratet/Geonorge).** The registered Data.norge row is
+`datanorge:0f231dc0-84be-3765-a4e1-bc0c761788f3`, metadata UUID
+`5857ec0a-8d2c-4cd8-baa2-0dc54ae213b4`. The publisher's live Atom feed is
+`https://pgisnedlasting.blob.core.windows.net/data/atom/datasett/vern.xml` and was
+updated `2026-09-10T06:01:40`; it prints national data links including
+`.../vern/GEOJSON/4326/vern_0000_norge_4326_GEOJSON.zip`,
+`.../vern/GML/25833/vern_0000_norge_25833_GML.zip`, and FileGDB variants for EPSG:4326,
+25832 and 25833. The feed also prints county/regional ZIP paths. The GeoJSON national
+ZIP is about 61 MB and was deliberately not downloaded. The Geonorge metadata and
+frontend `/Metadata/.../GeoJSON` routes returned HTML, not features; the Atom feed is
+the machine-readable discovery path to use later. NLOD 2.0 is printed by the catalog.
+
+**Permitteringer / driftsinnskrenkninger (NAV).** The registered landing page is
+`https://www.nav.no/no/NAV+og+samfunn/Statistikk/Arbeidssokere+og+stillinger+-+statistikk/Forhandsinnmeldte+driftsinnskrenkninger`
+and the corresponding catalog title is *Statistikk forhåndsinnmeldte driftsinnskrenkninger*.
+The current registry row has no machine-readable distribution or verified capability;
+the page is therefore recorded as a lead, not promoted. Next crawl should inspect the
+page's printed CSV/JSON/download links and NAV's official public API/catalogue before
+writing any rows.
+
+**Fiskeridirektoratet statistics-bank root.** The official landing page is
+`https://www.fiskeridir.no/statistikk-tall-og-analyse/statistikkbanken`; its PX-Web UI
+is `https://statistikkbanken.fiskeridir.no/PxWeb/pxweb/no/Fiskeridirektoratet/` and
+its API root is
+`https://statistikkbanken.fiskeridir.no/PxWeb/api/v1/no/Fiskeridirektoratet/`.
+The API lists `A_Akvakultur` and `F_Fiskeri` folders; the first promoted table uses
+the exact `A_Akvakultur/A_06_Salg/A06002a.px` path above. This root is retained as the
+discovery path for subsequent bounded tables, not as a reason to ingest every table.
+
+**Dead-end check.** Direct Geonorge metadata format routes for the nature UUID were
+tested and returned an HTML application shell (HTTP 200), so they are not data endpoints.
+The attempt is written down to prevent retrying those routes as if they were GeoJSON.

@@ -24,7 +24,7 @@ from public_data_agent.http_util import SourceHttpError
 from public_data_agent.registry import Registry
 from public_data_agent.scan_table_urls import scan_printed_table_urls, scan_proof_payload
 from public_data_agent.search import load_prompt_pack, run_search_pack, search_report
-from public_data_agent.sources import SOURCE_IDS, build_source
+from public_data_agent.sources import ADDITIONAL_SOURCE_IDS, SOURCE_IDS, build_source
 
 DEFAULT_DB = Path("data/registry.sqlite")
 
@@ -37,7 +37,9 @@ def main(argv: list[str] | None = None) -> int:
     sub = parser.add_subparsers(dest="command", required=True)
 
     ingest = sub.add_parser("ingest", help="Harvest a source into the registry")
-    ingest.add_argument("--source", default="datanorge", choices=SOURCE_IDS)
+    ingest.add_argument(
+        "--source", default="datanorge", choices=(*SOURCE_IDS, *ADDITIONAL_SOURCE_IDS)
+    )
     ingest.add_argument("--db", type=Path, default=DEFAULT_DB)
     ingest.add_argument("--limit", type=int, default=None, help="Max datasets this run. Use this in CI/smoke.")
     ingest.add_argument("--offset", type=int, default=0)

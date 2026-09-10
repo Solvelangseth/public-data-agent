@@ -106,6 +106,7 @@ from public_data_agent.sources.fdirwms import (
     fdirwms_table_id,
     is_fdirwms_url,
 )
+from public_data_agent.sources.fdirpx import fdirpx_table_id, is_fdirpx_url
 from public_data_agent.sources.hiwms import (
     cells_from_hiwms,
     hiwms_table_id,
@@ -1536,13 +1537,18 @@ def fetch_observations(
     if is_vegvesen_url(access_path):
         return _fetch_vegvesen(registry, dataset, http=http)
     client = http or HttpClient(timeout=60.0, max_retries=4)
-    if _is_ssb_table_url(access_path) or is_oslo_statbank_url(access_path):
+    if (
+        _is_ssb_table_url(access_path)
+        or is_oslo_statbank_url(access_path)
+        or is_fdirpx_url(access_path)
+    ):
         request_url = access_path.rstrip("/")
-        table_id = (
-            oslo_table_id(access_path)
-            if is_oslo_statbank_url(access_path)
-            else request_url.rsplit("/", 1)[-1]
-        )
+        if is_oslo_statbank_url(access_path):
+            table_id = oslo_table_id(access_path)
+        elif is_fdirpx_url(access_path):
+            table_id = fdirpx_table_id(access_path)
+        else:
+            table_id = request_url.rsplit("/", 1)[-1]
     else:
         request_url = pxweb_api_url(access_path, table_id)
     started = utc_now()
@@ -12649,7 +12655,11 @@ def classify_access_path(access_path: str | None) -> dict[str, Any]:
         return {"kind": CAPABILITY_NONE, "reason": "no access_path is stored"}
     lowered = access_path.casefold()
 
-    if _is_ssb_table_url(access_path) or is_oslo_statbank_url(access_path):
+    if (
+        _is_ssb_table_url(access_path)
+        or is_oslo_statbank_url(access_path)
+        or is_fdirpx_url(access_path)
+    ):
         return {
             "kind": CAPABILITY_OBSERVATIONS,
             "reason": "PxWeb table endpoint; returns numeric observation cells",
