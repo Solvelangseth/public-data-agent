@@ -311,3 +311,22 @@ def test_a_flow_too_wide_to_read_names_the_dimensions_that_narrow_it(tmp_path: P
         assert registry.list_observations(DATASET_ID) == []
     finally:
         registry.close()
+
+
+def test_the_narrowing_advice_fits_the_source_that_refused() -> None:
+    """A Norges Bank flow is wide in series, not time.
+
+    The shared advice said to shorten from_year/to_year, which the Norges Bank
+    fetcher ignores -- a caller following it hits the same refusal again. SSB
+    keeps the advice, because a shorter year range does narrow an SSB table.
+    """
+
+    from public_data_agent.mcp_server import _too_large_suggestion
+
+    norges = _too_large_suggestion("https://data.norges-bank.no/api/data/MONEY_MARKET?format=sdmx-json")
+    assert "from_year and to_year do not narrow it" in norges
+    assert "inspect" in norges
+
+    ssb = _too_large_suggestion("https://data.ssb.no/api/v0/no/table/13760")
+    assert "from_year/to_year to shorten time" in ssb
+    assert _too_large_suggestion(None) == ssb

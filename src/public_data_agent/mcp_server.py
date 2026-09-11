@@ -289,6 +289,31 @@ def tool_ask(
         registry.close()
 
 
+def _too_large_suggestion(access_path: str | None) -> str:
+    """How to narrow a refused fetch, for the source that refused it.
+
+    The same advice does not fit every source. An SSB table is wide in time as
+    well as in dimensions, so a shorter year range helps. A Norges Bank dataflow
+    is wide in series -- MONEY_MARKET holds 35,354 -- and its fetcher ignores
+    from_year/to_year entirely, so suggesting them sends a caller round the same
+    refusal again.
+    """
+
+    from public_data_agent.sources.norgesbank import is_norgesbank_url
+
+    if is_norgesbank_url(access_path):
+        return (
+            "Re-run fetch with select={dimension: [codes]} using the dimension codes "
+            "listed above; this dataflow is wide in series, not time, so from_year and "
+            "to_year do not narrow it. inspect shows each dimension's codes and its "
+            "position in the series key."
+        )
+    return (
+        "Re-run fetch with select={dimension: [values]} narrowing the "
+        "dimensions listed above, or use from_year/to_year to shorten time."
+    )
+
+
 def tool_fetch(
     dataset: str = DEFAULT_OSLO_DATASET,
     table: str = DEFAULT_OSLO_TABLE,
@@ -385,10 +410,7 @@ def tool_fetch(
                     "cells_requested": exc.cells,
                     "cell_limit": exc.limit,
                     "dimensions": exc.dimensions,
-                    "suggested_action": (
-                        "Re-run fetch with select={dimension: [values]} narrowing the "
-                        "dimensions listed above, or use from_year/to_year to shorten time."
-                    ),
+                    "suggested_action": _too_large_suggestion(access_path),
                 },
                 "numbers_retrieved": False,
             }

@@ -1115,3 +1115,33 @@ set, so it was not done.
 changing the instructions kept serving terms the old prompt wrote — a silently stale
 answer and an experiment that measures nothing. The cache key now includes a digest of
 the instructions.
+
+## A question word that is the head of a longer title word: measured, not built
+
+`pengemarked` does not retrieve `norgesbank:MONEY_MARKET`, titled `Pengemarkedsdata`. The
+prefilter keeps the row because FTS5 matches by prefix, and the scorer then drops it
+because it matches whole words. The compound splitter handles the opposite shape — a
+question compound whose halves the catalogue publishes — so this case was measured before
+anything was written.
+
+Occurrence counts only; no gold label was read, so this cannot fit to either set.
+
+| | question tokens | unpublished heads of longer title words |
+|---|---|---|
+| tuned | 159 | 8 |
+| held-out | 76 | 2 |
+
+Reach is small, which makes dilution a minor risk: the widest, `konkurs` and
+`overnatting`, each touch 27 titles (0.2%). Quality is mixed. `sykepleier` → `sykepleiere`,
+`røyker` → `røykere` and `kollektivt` → `kollektivtransport` are the right words;
+`tømmer` → `tømmerneset` is a place name. `pengemarked` itself is in no labelled question.
+
+So a rule here would be low-risk and nearly unmeasurable: ten tokens across both sets,
+several already reached another way, and the case that prompted it not represented at all.
+Not built. The obvious guard would be the splitter's — accept a longer title word only if
+the tail after the question's word is itself a published word — and checking the tails
+shows it is too blunt to rescue the idea. It refuses `tømmerneset` (`neset` is in no title),
+which is right, and keeps `kollektivtransport` (`transport`, 14 titles) and `konkursbo`
+(`bo`, 1). But it equally refuses `sykepleiere` (`e`, 0), `vindkraftselskap`
+(`kraftselskap`, 0) and `konkursdebitor` (`debitor`, 0), which are the right words. The guard
+tracks whether a tail happens to be published, not whether the match is good.
