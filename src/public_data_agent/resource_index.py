@@ -237,6 +237,50 @@ def shape_from_fhi(
     return fields, keys
 
 
+def shape_from_sdmx_serieskeys(payload: Any) -> list[dict[str, Any]]:
+    """A dataflow's series dimensions, in key order, from `detail=serieskeysonly`.
+
+    SDMX addresses a series positionally -- `B.USD.NOK.SP` is FREQ, BASE_CUR,
+    QUOTE_CUR, TENOR in that order -- so the order is recorded with each field.
+    Without it a caller can see which dimensions exist and still not know how
+    to write a key.
+
+    `serieskeysonly` returns the codes that actually occur and no observations,
+    which is what makes shaping a flow too wide to read whole affordable:
+    MONEY_MARKET's 35,354 series describe themselves in 1.7 MB.
+    """
+
+    data = payload.get("data") if isinstance(payload, dict) else None
+    structure = data.get("structure") if isinstance(data, dict) else None
+    dimensions = structure.get("dimensions") if isinstance(structure, dict) else None
+    series = dimensions.get("series") if isinstance(dimensions, dict) else None
+    if not isinstance(series, list) or not series:
+        raise ValueError("SDMX payload printed no series dimensions")
+    fields: list[dict[str, Any]] = []
+    for position, dim in enumerate(series):
+        if not isinstance(dim, dict) or not dim.get("id"):
+            continue
+        code = str(dim["id"])
+        values = [
+            (str(item["id"]), str(item.get("name") or item["id"]))
+            for item in dim.get("values") or []
+            if isinstance(item, dict) and item.get("id") is not None
+        ]
+        fields.append(
+            {
+                "field_code": code,
+                "field_label": dim.get("name") or code,
+                "field_role": field_role(code, values),
+                "value_count": len(values),
+                "values": [
+                    {"value_code": c, "value_label": t} for c, t in values[:MAX_VALUES_PER_FIELD]
+                ],
+                "position": position,
+            }
+        )
+    return fields
+
+
 def period_span(fields: list[dict[str, Any]]) -> tuple[str | None, str | None]:
     """Earliest and latest period a resource publishes, from its period field."""
 
@@ -275,7 +319,22 @@ def index_dataset(
     if catalogues is None:
         catalogues = load_classifications()
 
-    if is_fhi_table_url(access_path):
+    from public_data_agent.sources.norgesbank import is_norgesbank_url
+
+    if is_norgesbank_url(access_path):
+        # `serieskeysonly` lists the codes that occur without any observations,
+        # which is what lets a flow too wide to read whole describe itself.
+        from urllib.parse import urlsplit, urlunsplit
+
+        parts = urlsplit(access_path)
+        query = "&".join(q for q in (parts.query, "detail=serieskeysonly") if q)
+        meta = client.get_json_response(
+            urlunsplit((parts.scheme, parts.netloc, parts.path, query, ""))
+        )
+        fields, keys = shape_from_sdmx_serieskeys(meta.body or {}), []
+        endpoint, method = access_path, "GET"
+        record_kind = "observation"
+    elif is_fhi_table_url(access_path):
         source_id, table_id = split_table_url(access_path)
         base = printed_table_data_url(source_id, table_id)
         meta = client.get_json_response(f"{base}/dimension?includeValues=true")
@@ -300,7 +359,15 @@ def index_dataset(
     written = registry.set_resource_shape(dataset_id, fields, keys=keys)
     start, end = period_span(fields)
     existing = registry.get_capability(dataset_id) or {}
-    capability = classify_access_path(access_path)["kind"]
+    # A verification already earned is carried forward whole. Carrying only its
+    # timestamp was not enough: `set_capability` replaces the row, so indexing a
+    # verified Norges Bank flow wrote the URL's `unverified` over a proven
+    # `observations` and erased the subject template that says how to address it.
+    capability = (
+        existing.get("capability")
+        if existing.get("verified_at") and existing.get("capability")
+        else classify_access_path(access_path)["kind"]
+    )
     registry.set_capability(
         dataset_id,
         {
@@ -314,6 +381,9 @@ def index_dataset(
             # earned is carried forward and never invented here.
             "verified_at": existing.get("verified_at"),
             "verified_sample_count": existing.get("verified_sample_count"),
+            "subject_scheme": existing.get("subject_scheme"),
+            "subject_template": existing.get("subject_template"),
+            "subject_count": existing.get("subject_count"),
             "notes": f"shape read {utc_now()}",
         },
     )
@@ -723,6 +793,9 @@ def resource_shape(registry: Registry, dataset_id: str) -> dict[str, Any]:
                 "label": field["field_label"],
                 "role": field["field_role"],
                 "value_count": field["value_count"],
+                # Set only where the source addresses fields by position, as an
+                # SDMX series key does; the order is how a key is written.
+                "position": field.get("position"),
                 "values": sample,
                 "values_shown": len(sample),
             }

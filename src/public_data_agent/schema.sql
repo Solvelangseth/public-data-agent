@@ -297,6 +297,12 @@ CREATE TABLE IF NOT EXISTS resource_fields (
     -- used, so a caller can find the period field without guessing at its name.
     field_role TEXT,
     value_count INTEGER,                       -- distinct values, where bounded
+    -- Where the field sits in the source's own addressing, when that order is
+    -- meaningful. An SDMX series key is positional -- `B.USD.NOK.SP` means
+    -- FREQ.BASE_CUR.QUOTE_CUR.TENOR -- and reading fields back alphabetically
+    -- loses the only thing that says which value goes where. NULL for sources
+    -- whose fields are named rather than positional.
+    position INTEGER,
     PRIMARY KEY (dataset_id, field_code),
     FOREIGN KEY (dataset_id) REFERENCES datasets(id)
 );

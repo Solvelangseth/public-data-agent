@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 from dataclasses import dataclass, field
 from typing import Any, Protocol
 from urllib.parse import urljoin, urlparse
@@ -4804,6 +4805,64 @@ NORGESBANK_MAX_CELLS = 2000
 NORGESBANK_SUBJECT_SCHEME = "SDMX series key"
 
 
+_SDMX_KEY_SAFE = re.compile(r"^[A-Za-z0-9_-]+$")
+
+
+def _norgesbank_series_key(
+    registry: Registry,
+    dataset_id: str,
+    dimensions: list[dict[str, Any]],
+    select: dict[str, Any],
+) -> str | None:
+    """An SDMX series key built from per-dimension selections, or None.
+
+    Unselected dimensions are left empty, which SDMX reads as a wildcard, and
+    several values for one dimension are joined with `+`. A value is checked
+    before anything is sent, because the API answers a malformed key with a bare
+    400 or 404 that says nothing about which position was wrong.
+    """
+
+    chosen = {field["field_code"]: select[field["field_code"]]
+              for field in dimensions if field["field_code"] in select}
+    if not chosen:
+        return None
+    positions: list[str] = []
+    for field in sorted(dimensions, key=lambda item: item["position"]):
+        code = field["field_code"]
+        raw = chosen.get(code)
+        if raw is None:
+            positions.append("")
+            continue
+        values = [raw] if isinstance(raw, str) else [str(item) for item in raw]
+        for value in values:
+            if not _SDMX_KEY_SAFE.match(value):
+                # GOVT_PRIMARY_MARKET's COUPON codes are like "0.00000000": the
+                # dot is the key separator, so no key can carry that value.
+                raise ValueError(
+                    f"select[{code}]={value!r} contains characters an SDMX series key "
+                    f"cannot carry; leave {code} unselected and narrow by another dimension"
+                )
+        stored = [
+            row["value_code"]
+            for row in registry.conn.execute(
+                "SELECT value_code FROM resource_field_values WHERE dataset_id = ? AND field_code = ?",
+                (dataset_id, code),
+            )
+        ]
+        # Only a complete code list can refuse a value. MONEY_MARKET's COLL_ISIN
+        # has 1,046 codes and the index keeps the first 400, so an absent code
+        # there may still be real.
+        if field.get("value_count") and len(stored) >= field["value_count"]:
+            missing = [value for value in values if value not in stored]
+            if missing:
+                raise ValueError(
+                    f"select[{code}] names {missing}, which this dataflow does not use; "
+                    f"it uses {stored[:8]}{' ...' if len(stored) > 8 else ''}"
+                )
+        positions.append("+".join(values))
+    return ".".join(positions)
+
+
 def _norgesbank_request_url(access_path: str, observations: int) -> str:
     separator = "&" if "?" in access_path else "?"
     return f"{access_path}{separator}lastNObservations={observations}"
@@ -4818,12 +4877,31 @@ def _fetch_norgesbank(
 ) -> FetchResult:
     access_path = dataset.get("access_path") or ""
     select = {str(key): value for key, value in (select or {}).items()}
-    unknown = sorted(key for key in select if key != "observations")
+    # A flow's series dimensions, in key order, when its shape has been
+    # recorded. They are what a caller narrows by: selecting FX_CURRENCY=USD is
+    # meaningful, while writing the positional key by hand is where a miscounted
+    # dot turns into a bare 404.
+    dimensions = [
+        field for field in registry.resource_fields(dataset["id"])
+        if field.get("position") is not None
+    ]
+    dimension_codes = [field["field_code"] for field in dimensions]
+    unknown = sorted(
+        key for key in select if key != "observations" and key not in dimension_codes
+    )
     if unknown:
+        accepted = ["observations", *dimension_codes]
+        hint = (
+            f"accepted: {accepted}"
+            if dimension_codes
+            else "only observations is accepted until this dataflow's dimensions are "
+            "indexed; index it to narrow by dimension"
+        )
         raise ValueError(
             f"select names field(s) {unknown} that a Norges Bank fetch does not "
-            "filter on; only observations is accepted"
+            f"filter on; {hint}"
         )
+    series_key = _norgesbank_series_key(registry, dataset["id"], dimensions, select)
     observations = NORGESBANK_DEFAULT_OBSERVATIONS
     wanted = select.get("observations")
     if wanted:
@@ -4848,6 +4926,12 @@ def _fetch_norgesbank(
             )
     client = http or HttpClient(timeout=60.0, max_retries=4)
     table_id = norgesbank_table_id(access_path)
+    if series_key is not None:
+        from urllib.parse import quote, urlsplit, urlunsplit
+
+        parts = urlsplit(access_path)
+        path = f"{parts.path.rstrip('/')}/{quote(series_key, safe='.+-_')}"
+        access_path = urlunsplit((parts.scheme, parts.netloc, path, parts.query, ""))
     access_path = _norgesbank_request_url(access_path, observations)
     started = utc_now()
     run_id = registry.start_fetch_run(
@@ -4869,17 +4953,31 @@ def _fetch_norgesbank(
         if len(cells) > NORGESBANK_MAX_CELLS:
             # Refused before anything is stored. Truncating would answer a
             # different question than the one asked and would look complete.
-            raise SelectionTooLarge(
-                table_id,
-                len(cells),
-                NORGESBANK_MAX_CELLS,
-                [{
-                    "code": "series",
-                    "text": f"series in this dataflow; narrow with {table_id}/{{series key}}",
+            #
+            # The error lists the flow's real dimensions because the MCP tool
+            # tells the caller to narrow by "the dimensions listed above". This
+            # used to list one made-up dimension, `series`, which this fetcher
+            # refuses as an unknown field -- so following the error's own
+            # instructions failed.
+            if dimensions:
+                listed = []
+                for field in dimensions:
+                    chosen = select.get(field["field_code"])
+                    chosen = [chosen] if isinstance(chosen, str) else list(chosen or [])
+                    listed.append({
+                        "code": field["field_code"],
+                        "text": field.get("field_label") or field["field_code"],
+                        "selected": len(chosen) or field.get("value_count"),
+                        "available": field.get("value_count"),
+                    })
+            else:
+                listed = [{
+                    "code": "(dimensions not indexed)",
+                    "text": "index this dataflow to learn the dimensions it can be narrowed by",
                     "selected": len(cells),
                     "available": NORGESBANK_MAX_CELLS,
-                }],
-            )
+                }]
+            raise SelectionTooLarge(table_id, len(cells), NORGESBANK_MAX_CELLS, listed)
         counts.listed = len(cells)
         retrieved_at = utc_now()
         sample = _store_cells(

@@ -95,6 +95,15 @@ class Registry:
                     f"ALTER TABLE resource_capability ADD COLUMN {column} {kind}"
                 )
 
+        # Positional addressing, added after resource_fields already held rows.
+        # Existing rows keep position NULL: their fields are named, not ordered.
+        field_columns = {
+            row["name"]
+            for row in self.conn.execute("PRAGMA table_info(resource_fields)").fetchall()
+        }
+        if field_columns and "position" not in field_columns:
+            self.conn.execute("ALTER TABLE resource_fields ADD COLUMN position INTEGER")
+
     def start_run(
         self,
         *,
@@ -619,11 +628,12 @@ class Registry:
                 values = field.get("values") or []
                 self.conn.execute(
                     "INSERT INTO resource_fields "
-                    "(dataset_id, field_code, field_label, field_role, value_count) "
-                    "VALUES (?, ?, ?, ?, ?)",
+                    "(dataset_id, field_code, field_label, field_role, value_count, position) "
+                    "VALUES (?, ?, ?, ?, ?, ?)",
                     (
                         dataset_id, code, field.get("field_label"), field.get("field_role"),
                         field.get("value_count", len(values)) or None,
+                        field.get("position"),
                     ),
                 )
                 seen: set[str] = set()
@@ -665,7 +675,10 @@ class Registry:
         return [
             dict(row)
             for row in self.conn.execute(
-                "SELECT * FROM resource_fields WHERE dataset_id = ? ORDER BY field_code",
+                # Position first where the source's addressing is positional;
+                # NULLs sort first, so named fields keep alphabetical order.
+                "SELECT * FROM resource_fields WHERE dataset_id = ? "
+                "ORDER BY position, field_code",
                 (dataset_id,),
             )
         ]

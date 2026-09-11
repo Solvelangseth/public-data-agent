@@ -182,3 +182,70 @@ at 0.897 / 0.749 and `pda benchmark` at 0.8923 / 0.9385.
 that was better than the one I was writing. It was restored from git and my duplicate
 reverted. Check what exists before building; `cat >` on a path you have not read is a
 destructive write.
+
+## norgesbank:* — 2026-09-11 — the five wide flows, readable one series at a time
+
+**The problem.** Five dataflows answered even a one-period request with more cells than
+the 2,000-cell ceiling allows — `MONEY_MARKET` 34,906, `FAUCTION` 11,941,
+`LIQUIDITY_FORECAST` 5,053, `GOVT_PRIMARY_MARKET` 2,529, `GOVT_SECONDARY_MARKET` 2,117 —
+so they were refused and stayed `unverified`. That was honest, but it left real data with
+no bounded way in.
+
+**Dimensions first, from `detail=serieskeysonly`.** That request lists the codes that
+occur and no observations, so a flow too wide to read still describes itself cheaply:
+`MONEY_MARKET`'s 35,354 series fit in 1.7 MB and show why the flow is wide — 12
+dimensions, one of them `COLL_ISIN` with 1,046 values. `index_dataset` now has a Norges
+Bank branch that records these as the resource's shape.
+
+**Order had to become data.** An SDMX key is positional (`B.USD.NOK.SP` is
+FREQ.BASE_CUR.QUOTE_CUR.TENOR), and `resource_fields` read back alphabetically, losing the
+only thing that says which code goes where. It gained a `position` column, added by
+migration and NULL for named-field sources, which keep their alphabetical order.
+`resource_shape`, and therefore MCP `inspect`, now shows each field's position.
+
+**Narrowing by dimension, not by hand-written key.** `select={"FX_CURRENCY": ["USD"]}`
+builds the key in recorded order, with empty slots as wildcards and `+` for several
+values. Two things are refused before anything is sent, because the API answers both
+with a bare 400 or 404:
+- a code the flow doesn't use, when the stored code list is complete (a list truncated at
+  400 values, like `COLL_ISIN`'s, cannot refuse anything);
+- a code containing a character a key can't carry. `GOVT_PRIMARY_MARKET`'s `COUPON` codes
+  are all like `0.00000000` — the dot is the key separator — and its `INSTR` codes are like
+  `NTB 03/2004`. Wildcarding both works, and that is what the refusal says to do.
+
+The 404 that started this was mine: I wrote an 11-position key for a 12-dimension flow.
+Counting positions from the recorded shape is exactly the check that would have caught it.
+
+**Proven live.** `scripts/verify_norgesbank.py` now indexes each flow and then reads it
+whole, or narrows to the first real series the flow lists. Result: **18 read whole, 5
+proved by narrowing, 1 failed** (`LENDINGSURVEY` 404s, as before). `MONEY_MARKET` narrowed
+on all 12 dimensions to 1 cell; `GOVT_PRIMARY_MARKET` on 6 of 8, with `COUPON` and `INSTR`
+wildcarded. All five now carry `observations` with a verified sample. Storage grew by
+exactly five observations.
+
+Through the MCP tool rather than the fetcher directly: `tool_fetch` on `EXR` with
+`BASE_CUR=USD` sent `.../EXR/.USD..` and returned three USD/NOK rates, including 9.2999 for
+2026-09-11. `tool_fetch` on `MONEY_MARKET` unnarrowed refuses with all 12 real dimensions
+and their widths, and stores nothing.
+
+**Two bugs this found in existing code.**
+- *Re-indexing downgraded a verified resource.* `index_dataset` carried `verified_at`
+  forward but rewrote the capability from the URL, and `set_capability` replaces the whole
+  row. Indexing a proven Norges Bank flow would have written `unverified` over
+  `observations` and erased its subject template. It now carries a verified capability
+  forward whole.
+- *The too-wide error pointed at a field the fetcher refuses.* The MCP tool tells a caller
+  to narrow by "the dimensions listed above", and my first cell cap listed one made-up
+  dimension, `series`. Following the error's own instructions failed. It now lists the
+  flow's real dimensions.
+
+**Unchanged.** Held-out 0.897 / 0.749, `pda benchmark` 0.8923 / 0.9385.
+
+**Open.**
+- The MCP too-wide suggestion also says "or use from_year/to_year to shorten time". The
+  Norges Bank fetcher ignores those; width here is series count, not time. The message is
+  shared with SSB, where it is correct, so it was left as it is.
+- `pengemarked` does not retrieve `MONEY_MARKET` (`Pengemarkedsdata`). The query is the
+  head of a longer title compound — the prefilter keeps the row by prefix and the exact
+  scorer then drops it. The compound splitter handles the opposite case, not this one.
+- `index_dataset` still has no caller outside tests and this script.
