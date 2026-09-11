@@ -400,6 +400,7 @@ CREATE INDEX IF NOT EXISTS resource_capability_kind ON resource_capability (capa
 -- row by row, so the simpler form is the safer one.
 CREATE VIRTUAL TABLE IF NOT EXISTS search_index USING fts5(
     dataset_id UNINDEXED,
+    title,
     body,
     tokenize='unicode61'
 );

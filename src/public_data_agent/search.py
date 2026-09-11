@@ -120,6 +120,21 @@ QUERY_COMPOUND_SPLITS = {
     "befolkningsvekst": ("befolkning", "vekst"),
     "kraftsituasjonen": ("kraft", "situasjonen"),
 }
+# A compound is split only where both halves are words the catalogue publishes,
+# and only if the catalogue does not publish the compound itself. That second
+# condition does most of the work: without it `eierskap` splits into `eier` and
+# `skap`, `barnehage` into `barn` and `hage`, and questions about nurseries
+# start matching tables about gardens. The catalogue publishes `barnehage` in 30
+# titles, so the exact match is the right match and there is nothing to split.
+COMPOUND_MIN_PART = 4
+# A part that appears in more than this share of the catalogue is too common to
+# discriminate, and splitting on it floods the candidates with everything that
+# mentions it. `datahotell` split into `data` and `hotell` and the right answer
+# fell from rank 8 out of the top 20 entirely, because `data` is in 7.5% of
+# resources. Every part that matters here is under 2%.
+COMPOUND_MAX_DF_RATIO = 0.05
+# Norwegian joins compounds with a linking -s or -e: oppdrett + s + laks.
+COMPOUND_LINKERS = ("s", "e")
 PUBLISHER_WEIGHT = 5
 DISTRIBUTION_WEIGHT = 2
 VARIABLES_UNKNOWN_REASON = (
@@ -138,6 +153,12 @@ class FieldMatch:
     field: str
     token: str
     weight: int
+    # Which word in the question produced this match. The stored token is what
+    # the resource publishes and is what gets reported; they differ whenever the
+    # match came through a compound split, an inflection fold or the other
+    # written norm, and a requirement is satisfied by the question's word rather
+    # than by the catalogue's.
+    query_token: str = ""
 
 
 @dataclass
@@ -430,9 +451,88 @@ def spelling_variants(token: str) -> tuple[str, ...]:
     return tuple(out)
 
 
-def _token_alts(token: str) -> tuple[str, ...]:
-    parts = QUERY_COMPOUND_SPLITS.get(token)
-    base = (token,) if parts is None else (token, *parts)
+def published_token(
+    registry: Registry, token: str, memo: dict[str, bool], *, titles_only: bool = False
+) -> bool:
+    """Whether any resource is described with exactly this word.
+
+    `titles_only` asks the narrower question: does the catalogue *name* things
+    with this word. That is the one that matters for deciding whether a compound
+    is a real term -- `oppdrettslaks` appears in a description somewhere and in
+    no title, so treating it as a published word would leave it unsplit and
+    unmatched.
+    """
+
+    key = f"title:{token}" if titles_only else token
+    if key not in memo:
+        match = f'title:"{token}"' if titles_only else f'"{token}"'
+        try:
+            row = registry.conn.execute(
+                "SELECT 1 FROM search_index WHERE search_index MATCH ? LIMIT 1",
+                (match,),
+            ).fetchone()
+        except sqlite3.OperationalError:
+            # No index to consult; claim nothing rather than guess.
+            memo[key] = True
+            return True
+        memo[key] = row is not None
+    return memo[key]
+
+
+def _discriminating(registry: Registry, token: str, memo: dict[str, bool]) -> bool:
+    """Whether a word is specific enough for splitting onto it to mean anything."""
+
+    key = f"df:{token}"
+    if key not in memo:
+        try:
+            total = registry.conn.execute("SELECT COUNT(*) c FROM datasets").fetchone()["c"]
+            count = registry.conn.execute(
+                "SELECT COUNT(*) FROM search_index WHERE search_index MATCH ?", (f'"{token}"',)
+            ).fetchone()[0]
+        except sqlite3.OperationalError:
+            return False
+        memo[key] = bool(total) and count / total <= COMPOUND_MAX_DF_RATIO
+    return memo[key]
+
+
+def compound_splits(
+    registry: Registry, token: str, memo: dict[str, bool] | None = None
+) -> tuple[str, ...]:
+    """The parts of a compound the catalogue never publishes as one word.
+
+    `oppdrettslaks` appears in no title, and a question using it reaches nothing
+    even though `laks` is what the publisher wrote. Splitting it at a point where
+    both halves are published words recovers that.
+
+    Returns the parts of the first split found, longest left part first, or an
+    empty tuple. Only one split is offered: a word with several readings is
+    ambiguous, and guessing between them is worse than leaving it alone.
+    """
+
+    memo = {} if memo is None else memo
+    if len(token) < COMPOUND_MIN_PART * 2:
+        return ()
+    # Published as a title word means the catalogue names things with it, and a
+    # word the catalogue names things with should be matched, not taken apart.
+    if published_token(registry, token, memo, titles_only=True):
+        return ()
+    for cut in range(len(token) - COMPOUND_MIN_PART, COMPOUND_MIN_PART - 1, -1):
+        right = token[cut:]
+        if not published_token(registry, right, memo) or not _discriminating(registry, right, memo):
+            continue
+        for left in (token[:cut], token[: cut - 1] if token[cut - 1] in COMPOUND_LINKERS else ""):
+            if (
+                len(left) >= COMPOUND_MIN_PART
+                and published_token(registry, left, memo)
+                and _discriminating(registry, left, memo)
+            ):
+                return (left, right)
+    return ()
+
+
+def _token_alts(token: str, splits: dict[str, tuple[str, ...]] | None = None) -> tuple[str, ...]:
+    parts = QUERY_COMPOUND_SPLITS.get(token) or (splits or {}).get(token)
+    base = (token,) if not parts else (token, *parts)
     out: list[str] = []
     for item in base:
         for variant in spelling_variants(item):
@@ -446,11 +546,19 @@ def _token_alts(token: str) -> tuple[str, ...]:
 # form of it, and without this they score the same and the inflected ones crowd
 # the exact one out.
 FOLD_WEIGHT = 0.5
+# A part of a compound is weaker evidence than the whole word matched anywhere,
+# including in a description. Without that, a title part (10 x 0.5 = 5) beat a
+# description match on the word itself (2), and five single-word benchmark
+# queries fell from rank 1 to rank 2.
+PART_WEIGHT = 0.1
 
 
 def _first_stored_token(
-    token: str, field_tokens: set[str], folded: dict[str, str] | None = None
-) -> tuple[str, bool] | None:
+    token: str,
+    field_tokens: set[str],
+    folded: dict[str, str] | None = None,
+    splits: dict[str, tuple[str, ...]] | None = None,
+) -> tuple[str, bool | str] | None:
     """The stored token a query token matches, or None.
 
     Exact match first, then compound splits, then inflection. The stored
@@ -458,18 +566,33 @@ def _first_stored_token(
     result matched should see the word the resource actually publishes.
     """
 
-    for alt in _token_alts(token):
+    # The word itself and the other written norm's spelling of it are the same
+    # word, so they count fully. A part of a compound and an inflected form are
+    # weaker evidence: a table titled "Boligpriser" should outrank one that
+    # merely says "priser", and without this they score the same and the exact
+    # title is crowded out.
+    whole = spelling_variants(token)
+    for alt in whole:
         if alt in field_tokens:
             return alt, True
+    parts = tuple(a for a in _token_alts(token, splits) if a not in whole)
+    for alt in parts:
+        if alt in field_tokens:
+            return alt, "part"
     if folded is not None:
-        for alt in _token_alts(token):
+        for alt in (*whole, *parts):
             stored = folded.get(fold_inflection(alt))
             if stored is not None:
                 return stored, False
     return None
 
 
-def score_document(query_tokens: list[str], fields: dict[str, list[str]]) -> list[FieldMatch]:
+def score_document(
+    query_tokens: list[str],
+    fields: dict[str, list[str]],
+    *,
+    splits: dict[str, tuple[str, ...]] | None = None,
+) -> list[FieldMatch]:
     matches: list[FieldMatch] = []
     for field_name, weight in FIELD_WEIGHTS.items():
         field_tokens = set(fields.get(field_name, []))
@@ -493,14 +616,16 @@ def score_document(query_tokens: list[str], fields: dict[str, list[str]]) -> lis
         if field_name == "title" and len(stored_tokens) == 1:
             folded[fold_inflection(stored_tokens[0])] = stored_tokens[0]
         for token in query_tokens:
-            found = _first_stored_token(token, field_tokens, folded)
+            found = _first_stored_token(token, field_tokens, folded, splits)
             if found is not None:
-                stored, exact = found
+                stored, kind = found
+                scale = {True: 1.0, False: FOLD_WEIGHT, "part": PART_WEIGHT}[kind]
                 matches.append(
                     FieldMatch(
                         field=field_name,
                         token=stored,
-                        weight=weight if exact else weight * FOLD_WEIGHT,
+                        weight=weight * scale,
+                        query_token=token,
                     )
                 )
     return matches
@@ -528,10 +653,20 @@ def search(
         return []
     # Narrow to candidates before scoring. None means the filter had nothing
     # to say and every row is scored, which is what happened before it existed.
-    candidates = prefilter(registry, query)
+    # Compounds the catalogue does not name anything with, split once per query
+    # so the same word is not re-tested for every row.
+    memo: dict[str, bool] = {}
+    splits = {
+        token: parts
+        for token in tokenize(query)
+        if (parts := compound_splits(registry, token, memo))
+    }
+    candidates = prefilter(registry, query, splits=splits)
     requirements = decompose(query) if decompose_query else []
     if decompose_query and len(requirements) > 1:
-        return _search_requirements(registry, requirements, limit=limit, candidates=candidates)
+        return _search_requirements(
+            registry, requirements, limit=limit, candidates=candidates, splits=splits
+        )
     query_tokens = tokenize(query)
     if not query_tokens:
         return []
@@ -541,6 +676,7 @@ def search(
         limit=limit,
         match_distribution=match_distribution,
         candidates=candidates,
+        splits=splits,
     )
 
 
@@ -682,6 +818,7 @@ def _search_requirements(
     *,
     limit: int,
     candidates: set[str] | None = None,
+    splits: dict[str, tuple[str, ...]] | None = None,
 ) -> list[SearchHit]:
     """Search each requirement, then keep rows that satisfy every one."""
 
@@ -691,7 +828,9 @@ def _search_requirements(
         combined: list[FieldMatch] = []
         failed = False
         for req in requirements:
-            matches = _requirement_matches(req.tokens, fields, row.get("publisher_name"))
+            matches = _requirement_matches(
+                req.tokens, fields, row.get("publisher_name"), splits=splits
+            )
             if matches is None:
                 failed = True
                 break
@@ -739,6 +878,7 @@ def _rank_rows(
     limit: int,
     match_distribution: bool = False,
     candidates: set[str] | None = None,
+    splits: dict[str, tuple[str, ...]] | None = None,
 ) -> list[SearchHit]:
     query_text = " ".join(query_tokens)
     theme_hits: list[SearchHit] = []
@@ -752,7 +892,7 @@ def _rank_rows(
                     _hit_from_row(row, payload, keywords, matches, why=why_summary(matches))
                 )
             continue
-        matches = score_document(query_tokens, fields)
+        matches = score_document(query_tokens, fields, splits=splits)
         if not matches:
             matches = (
                 _requirement_matches(
@@ -760,6 +900,7 @@ def _rank_rows(
                     fields,
                     row.get("publisher_name"),
                     allow_distribution=match_distribution,
+                    splits=splits,
                 )
                 or []
             )
@@ -816,7 +957,18 @@ def _select_hits(hits: list[SearchHit], limit: int) -> list[SearchHit]:
 
 
 def _requirement_satisfied(tokens: tuple[str, ...], matched: set[str]) -> bool:
-    return all(any(alt in matched for alt in _token_alts(token)) for token in tokens)
+    """Whether every word of a requirement found something.
+
+    `matched` holds the question's own words, not the catalogue's. Comparing
+    against stored tokens instead fails exactly when the match was interesting:
+    `oppdrettslaks` matching a title that says `laks` produced a real match and
+    then failed its own requirement, so the row was dropped.
+    """
+
+    return all(
+        token in matched or any(alt in matched for alt in _token_alts(token))
+        for token in tokens
+    )
 
 
 def _requirement_matches(
@@ -825,9 +977,10 @@ def _requirement_matches(
     publisher_name: str | None,
     *,
     allow_distribution: bool = False,
+    splits: dict[str, tuple[str, ...]] | None = None,
 ) -> list[FieldMatch] | None:
-    matches = score_document(list(tokens), fields)
-    matched = {match.token for match in matches}
+    matches = score_document(list(tokens), fields, splits=splits)
+    matched = {match.query_token or match.token for match in matches}
     if _requirement_satisfied(tokens, matched):
         return matches
     publisher_tokens = set(tokenize(publisher_name))
@@ -1011,14 +1164,15 @@ def build_search_index(registry: Registry, *, progress=None) -> dict[str, int]:
     batch: list[tuple[str, str]] = []
     total = 0
     for row, fields, _keywords, _payload in _iter_scored_rows(registry):
-        batch.append((row["id"], _index_body(fields, row.get("publisher_name"))))
+        title = " ".join(dict.fromkeys(fields.get("title") or []))
+        batch.append((row["id"], title, _index_body(fields, row.get("publisher_name"))))
         total += 1
         if len(batch) >= 2000:
-            registry.conn.executemany("INSERT INTO search_index VALUES (?, ?)", batch)
+            registry.conn.executemany("INSERT INTO search_index VALUES (?, ?, ?)", batch)
             batch = []
             log(f"indexed {total}")
     if batch:
-        registry.conn.executemany("INSERT INTO search_index VALUES (?, ?)", batch)
+        registry.conn.executemany("INSERT INTO search_index VALUES (?, ?, ?)", batch)
     registry.conn.execute(
         "INSERT OR REPLACE INTO search_index_state (id, dataset_count, built_at) "
         "VALUES (1, ?, ?)",
@@ -1045,7 +1199,11 @@ def index_is_current(registry: Registry) -> bool:
 
 
 def prefilter(
-    registry: Registry, query: str, *, depth: int = PREFILTER_DEPTH
+    registry: Registry,
+    query: str,
+    *,
+    depth: int = PREFILTER_DEPTH,
+    splits: dict[str, tuple[str, ...]] | None = None,
 ) -> set[str] | None:
     """Candidate ids for a query, or None when the filter has nothing to say.
 
@@ -1063,7 +1221,7 @@ def prefilter(
         return None
     tokens: list[str] = []
     for token in tokenize(query):
-        alts = _token_alts(token)
+        alts = _token_alts(token, splits)
         tokens.extend(alts)
         # The scorer matches by inflection, so the filter has to offer the same
         # candidates or it decides the question before the scorer sees it.

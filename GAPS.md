@@ -1026,3 +1026,53 @@ cannot answer.
 `oppdrettslaks produksjon` is now a scored miss, not in the top 50. The connector lane
 predicted exactly this: the publisher's title is `Matfisk. Salg av laks`, and the
 question's `oppdrettslaks` is a compound whose second element is the word that matches.
+
+## Splitting compounds the catalogue never names anything with
+
+`oppdrettslaks` appears in no title. The publisher wrote `Matfisk. Salg av laks`, so the
+question reached nothing even though the word that matches was sitting there. The
+connector lane predicted this in writing before it became a scored miss.
+
+The splitter cuts a token where **both halves are words the catalogue publishes**, and
+it is the conditions on that, not the idea, that took the work. Each one exists because
+a looser version measured worse:
+
+| condition | what it prevents |
+|---|---|
+| the compound is not itself a **title** word | `eierskap` → `eier` + `skap` (cupboard), `barnehage` → `barn` + `hage` (garden). The catalogue titles 30 things `barnehage`, so the exact match is the right match |
+| both halves appear in ≤ 5% of resources | `datahotell` → `data` + `hotell`. `data` is in 7.5% of the catalogue, and splitting on it dropped the answer from rank 8 out of the top 20 |
+| a part match scores a tenth of a whole match | a title part (10 × 0.5 = 5) outscored a description match on the word itself (2), and five single-word benchmark queries fell from rank 1 to 2 |
+| four letters minimum per half | stops arbitrary cuts of short words |
+
+Checking the title specifically is what made it work at all: `oppdrettslaks` does occur
+in some description, so asking "is this word published anywhere" left it unsplit. Asking
+"does the catalogue **name** things with it" is the right question, and it needed a
+`title` column on the FTS index to answer.
+
+Audited the same way as the spelling rule: of the 223 tokens across both labelled
+question sets, 29 can be split and only 11 survive the conditions — `oppdrettslaks`,
+`barnehagedekning`, `yrkesdeltakelse`, `boligpriser`, `byggekostnader`, `deltidsarbeid`,
+`gjennomsnittsalderen`, `kraftproduksjon`, `leiepriser`, `strømpriser`, `vindkraft`. All
+eleven are genuine compounds. The rule also reproduces `befolkningsvekst` →
+`befolkning` + `vekst`, which was one of the two hand-written entries in
+`QUERY_COMPOUND_SPLITS`, which is some evidence the rule is the one a person was
+approximating.
+
+**A latent bug it exposed.** `_requirement_satisfied` compared the *question's* word
+against the *stored* tokens that matched. Any match found through a split, an inflection
+fold or the other written norm therefore failed its own requirement and the row was
+dropped — the split found `laks` and then threw the row away for not containing
+`oppdrettslaks`. Matches now carry the query token that produced them.
+
+| | before | after |
+|---|---|---|
+| held-out, lexical + semantic | 0.795 / 0.712 | **0.821 / 0.724** |
+| held-out, full stack | 0.872 / 0.745 | **0.897 / 0.745** |
+| tuned, lexical + semantic | 0.860 / **0.755** | 0.860 / 0.741 |
+| `pda benchmark` | 0.8923 / 0.9385 / 0.8287 | 0.8923 / 0.9385 / 0.8210 |
+
+The held-out set gains a question and improves on both measures. The cost is MRR
+elsewhere: three tuned questions move from rank 1 to ranks 2–5 while staying hits, and
+five single-word benchmark queries move from 1 to 2. Both protected benchmark
+recalls hold exactly. That trade was taken because the honest set improved on both
+measures and no question was lost anywhere.

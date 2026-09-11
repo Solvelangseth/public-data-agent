@@ -10,6 +10,7 @@ from public_data_agent.search import (
     VARIABLES_UNKNOWN_REASON,
     _iter_scored_rows,
     build_search_index,
+    compound_splits,
     decompose,
     index_is_current,
     keywords_from_payload,
@@ -730,16 +731,38 @@ def test_a_stale_index_falls_back_to_the_full_scan(tmp_path: Path) -> None:
         registry.close()
 
 
-def test_the_index_does_not_change_what_search_returns(tmp_path: Path) -> None:
+def test_narrowing_the_candidates_does_not_change_the_ranking(tmp_path: Path) -> None:
     # The filter chooses which rows the scorer reads; it must not change how the
     # scorer ranks them. Measured on the real registry this holds for all 131
     # labelled questions, top 50 each.
+    #
+    # This compares the filter on against the filter off with the index built,
+    # rather than index against no index. The index is now also the vocabulary
+    # the compound splitter consults, so "no index" means something weaker than
+    # "no filter" -- see the test below.
+    import public_data_agent.search as search_module
+
     registry = _registry(tmp_path)
     queries = ["strandsone", "helsedata ssb", "forurensning i oslo", "befolkning"]
+    build_search_index(registry)
+    real = search_module.prefilter
     try:
-        without = {q: [h.dataset_id for h in search(registry, q, limit=10)] for q in queries}
-        build_search_index(registry)
-        with_index = {q: [h.dataset_id for h in search(registry, q, limit=10)] for q in queries}
-        assert with_index == without
+        narrowed = {q: [h.dataset_id for h in search(registry, q, limit=10)] for q in queries}
+        search_module.prefilter = lambda *a, **k: None
+        full_scan = {q: [h.dataset_id for h in search(registry, q, limit=10)] for q in queries}
+        assert narrowed == full_scan
+    finally:
+        search_module.prefilter = real
+        registry.close()
+
+
+def test_without_an_index_no_compound_is_split(tmp_path: Path) -> None:
+    # The splitter asks the index whether a word is published. With no index it
+    # can answer nothing, so it proposes nothing and search behaves as it did
+    # before the splitter existed -- slower and no worse.
+    registry = _registry(tmp_path)
+    try:
+        assert compound_splits(registry, "oppdrettslaks") == ()
+        assert [h.dataset_id for h in search(registry, "strandsone", limit=5)]
     finally:
         registry.close()
