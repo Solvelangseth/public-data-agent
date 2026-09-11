@@ -948,3 +948,50 @@ version that traded held-out MRR for an unmeasurable gain was available and was 
 taken. `luftfart passasjerer` still does not reach 08507: that needs Nynorsk/Bokmål
 vocabulary, not plural folding, and it is a held-out question, so it should not be
 optimised against directly.
+
+## Nynorsk and Bokmål: 52 spellings bridged, at no measured cost
+
+SSB writes each table in whichever written norm its authors chose, so the catalogue
+holds `Overnattingar` in 24 titles and `Overnattinger` in 4, `personar` in 4 and
+`personer` in 494. A question using one spelling could not see the tables using the
+other. This was found twice independently — Codex hit it on `passasjerar`, and the
+NVDB work hit the neighbouring plural problem.
+
+**The rule is a swap between endings, never a removal, and that is the whole safety
+argument.** Removing `-er` turns `leiepriser` into `leiepris`, which lets every rent
+table compete and cost a question on both labelled sets when inflection folding was
+tried. Swapping it produces `leieprisar`, which nothing publishes, so it matches
+nothing and costs nothing. `spelling_variants` never reaches a bare stem.
+
+Four correspondences, each checked against the catalogue before it was added:
+`-ar`/`-er`, `-ane`/`-ene`, `-leg`/`-lig`, `-ande`/`-ende`.
+
+**The precision check is the part worth keeping.** Every variant the rule can generate
+that is *also* a published word was enumerated — 52 distinct pairs, the only ones that
+can change any search — and all 52 are genuine variants of one word: `personer`/
+`personar`, `offentlig`/`offentleg`, `sommer`/`sommar`, `elver`/`elvar`,
+`næringsdrivande`/`næringsdrivende`. No false pair.
+
+**Rules that were tried and refused**, all on evidence from the same sweep:
+
+| candidate | why not |
+|---|---|
+| `au` ↔ `ø` | would equate **Aurland** with **Ørland**, and `austre` with `østre` |
+| `ei` ↔ `e` | would equate **Eigersund** with **Egersund**, `eid` with `ed` |
+| `dd` ↔ `d` | `skadde`/`skade`, `idd`/`id` — different words |
+| `hamn` ↔ `havn` | a genuine correspondence, but stem-internal rather than a suffix, so it needs a different mechanism for three pairs. Also noticed while diagnosing a held-out question, which makes it the wrong thing to add on a hunch |
+
+A minimum stem of three letters does the rest of the work: `sande` is a municipality and
+would otherwise swap to `sende`.
+
+**Measured at zero cost and demonstrated gain.** Both labelled sets are bit-for-bit
+unchanged — tuned 0.860/0.755, held-out 0.811/0.723, 0.892/0.759 with the model steps,
+`pda benchmark` 0.8923. The gain is in reach the labelled sets do not measure: a query
+for `personar` reached 4 datasets and now reaches 100, `barnehagar` 5 and now 88,
+`gjennomsnittleg` 11 and now 100, `fagleg` 2 and now 39. Read the other way,
+`overnattinger` reached 1 and now reaches 24, `bekymringsmeldinger` 1 and now 10.
+
+**What this does not fix.** `luftfart passasjerer` still does not reach table 08507.
+The plural is now bridged, but that title says `Lufttransport` where the question says
+`luftfart` — a synonym, not a spelling. That is a vocabulary problem, and it is a
+held-out question, so it should not be optimised against directly.

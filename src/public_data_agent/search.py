@@ -397,11 +397,48 @@ def fold_inflection(token: str) -> str:
     return token
 
 
+# Regular Nynorsk/Bokmål correspondences, as pairs of endings that mean the same
+# thing. SSB writes each table in whichever language its authors used, so the
+# catalogue holds both spellings of the same word -- `personar` in four titles
+# and `personer` in 494, `elevar` in 48 and `elever` in 86 -- and a question
+# using one spelling cannot see the tables that use the other.
+#
+# These are swaps, never removals, and that is what makes them safe. Removing
+# `-er` turns `leiepriser` into `leiepris` and lets every rent table compete,
+# which measured worse on both labelled sets. Swapping it produces
+# `leieprisar`, which nothing publishes, so it matches nothing and costs
+# nothing.
+# Each of these was checked against the catalogue before being added: a rule
+# earns its place only if the catalogue publishes both spellings of real words,
+# and only if every collision it can cause is a genuine variant. Rules that
+# failed that test are recorded in GAPS.md -- `au`/`ø` would have equated
+# Aurland with Ørland, which are different places.
+SPELLING_PAIRS = (("ar", "er"), ("ane", "ene"), ("leg", "lig"), ("ande", "ende"))
+MIN_SPELLING_STEM = 3
+
+
+def spelling_variants(token: str) -> tuple[str, ...]:
+    """The same word as the other written norm would spell it."""
+
+    out = [token]
+    for left, right in SPELLING_PAIRS:
+        for source, target in ((left, right), (right, left)):
+            if token.endswith(source) and len(token) - len(source) >= MIN_SPELLING_STEM:
+                candidate = token[: -len(source)] + target
+                if candidate not in out:
+                    out.append(candidate)
+    return tuple(out)
+
+
 def _token_alts(token: str) -> tuple[str, ...]:
     parts = QUERY_COMPOUND_SPLITS.get(token)
-    if parts is None:
-        return (token,)
-    return (token, *parts)
+    base = (token,) if parts is None else (token, *parts)
+    out: list[str] = []
+    for item in base:
+        for variant in spelling_variants(item):
+            if variant not in out:
+                out.append(variant)
+    return tuple(out)
 
 
 # An inflected match is weaker evidence than the word itself. A resource whose
