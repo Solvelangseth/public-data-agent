@@ -127,10 +127,21 @@ class CatalogHttp:
 
 
 class FetchHttp:
+    """Accepts only a bounded request.
+
+    A dataflow fetched as listed returns every series for its whole history --
+    EXR is decades of daily rates across dozens of currency pairs -- so the
+    fetch must ask SDMX for a bounded window rather than truncate afterwards.
+    """
+
+    def __init__(self) -> None:
+        self.gets: list[str] = []
+
     def get_json_response(self, url: str, *, headers=None) -> JsonResponse:
-        if url == ANN_KPRA_URL:
+        self.gets.append(url)
+        if url.startswith(ANN_KPRA_URL) and "lastNObservations=" in url:
             return JsonResponse(status=200, url=url, body=ANN_KPRA_BODY)
-        raise AssertionError(f"unexpected GET {url}")
+        raise AssertionError(f"unexpected or unbounded GET {url}")
 
     def post_json_response(self, url: str, body, *, headers=None) -> JsonResponse:
         raise AssertionError(f"norgesbank fetch must GET, not POST {url}")
@@ -197,7 +208,9 @@ def test_fetch_gets_printed_ann_kpra(tmp_path: Path) -> None:
         table_id="ignored",
         http=FetchHttp(),
     )
-    assert result.request_url == ANN_KPRA_URL
+    # The stored request URL is the bounded one that was actually sent, since
+    # that is what the provenance record has to be able to reproduce.
+    assert result.request_url == f"{ANN_KPRA_URL}&lastNObservations=5"
     assert result.table_id == "ANN_KPRA"
     assert result.http_status == 200
     assert result.counts.listed == 2
@@ -244,3 +257,38 @@ def test_limit_and_offset_slice_printed_dataflows() -> None:
     ]
     nxt = source.list_dataset_refs(limit=1, offset=2)
     assert [ref.source_native_id for ref in nxt] == ["EXR"]
+
+
+def test_the_number_of_periods_is_bounded(tmp_path: Path) -> None:
+    """A caller may widen the window, but not without limit."""
+
+    from public_data_agent.fetch import SelectionTooLarge
+
+    source = NorgesBankSource(http=CatalogHttp())
+    registry = Registry(tmp_path / "registry.sqlite")
+    harvest(registry, source)
+    http = FetchHttp()
+    result = fetch_observations(
+        registry, DATASET_ID, table_id="ignored", http=http, select={"observations": ["2"]}
+    )
+    assert result.request_url.endswith("lastNObservations=2")
+
+    try:
+        fetch_observations(
+            registry, DATASET_ID, table_id="ignored", http=FetchHttp(),
+            select={"observations": ["100000"]},
+        )
+    except SelectionTooLarge:
+        pass
+    else:
+        raise AssertionError("an unbounded history should be refused, not truncated")
+
+    try:
+        fetch_observations(
+            registry, DATASET_ID, table_id="ignored", http=FetchHttp(),
+            select={"currency": ["USD"]},
+        )
+    except ValueError as exc:
+        assert "does not" in str(exc)
+    else:
+        raise AssertionError("an unknown filter should be refused, not ignored")

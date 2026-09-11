@@ -1232,7 +1232,7 @@ def fetch_observations(
     if is_nbconcept_url(access_path):
         return _fetch_nbconcept(registry, dataset, http=http)
     if is_norgesbank_url(access_path):
-        return _fetch_norgesbank(registry, dataset, http=http)
+        return _fetch_norgesbank(registry, dataset, http=http, select=select)
     if is_npolar_url(access_path):
         return _fetch_npolar(registry, dataset, http=http)
     if is_sikt_url(access_path):
@@ -4788,15 +4788,67 @@ def _fetch_nbconcept(
     )
 
 
+# A dataflow fetched as listed returns every series it holds for its whole
+# history: EXR alone is decades of daily rates across dozens of currency pairs.
+# SDMX takes `lastNObservations`, so the request is bounded at source rather
+# than truncated after the fact.
+NORGESBANK_DEFAULT_OBSERVATIONS = 5
+NORGESBANK_MAX_OBSERVATIONS = 100
+# `lastNObservations` bounds periods per series, not the number of series, and
+# some flows have tens of thousands. MONEY_MARKET answered a one-period request
+# with 34,906 cells and LIQUIDITY_FORECAST with 5,053, so a request can be
+# bounded in one dimension and unbounded in the other. This is the other bound.
+NORGESBANK_MAX_CELLS = 2000
+# SDMX addresses one series inside a flow by key, which is how a caller narrows
+# a flow that is too wide to read whole.
+NORGESBANK_SUBJECT_SCHEME = "SDMX series key"
+
+
+def _norgesbank_request_url(access_path: str, observations: int) -> str:
+    separator = "&" if "?" in access_path else "?"
+    return f"{access_path}{separator}lastNObservations={observations}"
+
+
 def _fetch_norgesbank(
     registry: Registry,
     dataset: dict[str, Any],
     *,
     http: JsonHttp | None = None,
+    select: dict[str, list[str]] | None = None,
 ) -> FetchResult:
     access_path = dataset.get("access_path") or ""
+    select = {str(key): value for key, value in (select or {}).items()}
+    unknown = sorted(key for key in select if key != "observations")
+    if unknown:
+        raise ValueError(
+            f"select names field(s) {unknown} that a Norges Bank fetch does not "
+            "filter on; only observations is accepted"
+        )
+    observations = NORGESBANK_DEFAULT_OBSERVATIONS
+    wanted = select.get("observations")
+    if wanted:
+        wanted = [wanted] if isinstance(wanted, str) else [str(v) for v in wanted]
+        try:
+            observations = int(wanted[0])
+        except ValueError as exc:
+            raise ValueError(f"select[observations]={wanted[0]!r} is not a number") from exc
+        if observations < 1:
+            raise ValueError(f"select[observations]={observations} must be at least 1")
+        if observations > NORGESBANK_MAX_OBSERVATIONS:
+            raise SelectionTooLarge(
+                norgesbank_table_id(access_path),
+                observations,
+                NORGESBANK_MAX_OBSERVATIONS,
+                [{
+                    "code": "observations",
+                    "text": "periods per series",
+                    "selected": observations,
+                    "available": NORGESBANK_MAX_OBSERVATIONS,
+                }],
+            )
     client = http or HttpClient(timeout=60.0, max_retries=4)
     table_id = norgesbank_table_id(access_path)
+    access_path = _norgesbank_request_url(access_path, observations)
     started = utc_now()
     run_id = registry.start_fetch_run(
         dataset_id=dataset["id"],
@@ -4814,18 +4866,54 @@ def _fetch_norgesbank(
         http_status = got.status
         registry.set_fetch_request(run_id, request_url=access_path, request_body={"method": "GET"})
         cells = cells_from_norgesbank(got.body)
+        if len(cells) > NORGESBANK_MAX_CELLS:
+            # Refused before anything is stored. Truncating would answer a
+            # different question than the one asked and would look complete.
+            raise SelectionTooLarge(
+                table_id,
+                len(cells),
+                NORGESBANK_MAX_CELLS,
+                [{
+                    "code": "series",
+                    "text": f"series in this dataflow; narrow with {table_id}/{{series key}}",
+                    "selected": len(cells),
+                    "available": NORGESBANK_MAX_CELLS,
+                }],
+            )
         counts.listed = len(cells)
+        retrieved_at = utc_now()
         sample = _store_cells(
             registry,
             dataset,
             run_id,
             table_id=table_id,
             cells=cells,
-            retrieved_at=utc_now(),
+            retrieved_at=retrieved_at,
             request_url=access_path,
             http_status=http_status,
             counts=counts,
         )
+        if cells:
+            # The dataflow classifies as `unverified` from its URL alone, which
+            # is the honest default and is what keeps it out of the fetchable
+            # lane. Having just read numeric cells from it, say so: a capability
+            # is claimed from records actually seen.
+            registry.set_capability(
+                dataset["id"],
+                {
+                    "capability": CAPABILITY_OBSERVATIONS,
+                    "record_kind": "observation",
+                    "endpoint": dataset.get("access_path"),
+                    "request_method": "GET",
+                    "subject_scheme": NORGESBANK_SUBJECT_SCHEME,
+                    "subject_template": (
+                        f"{(dataset.get('access_path') or '').split('?')[0]}/{{subject}}"
+                    ),
+                    "verified_at": retrieved_at,
+                    "verified_sample_count": len(cells),
+                    "notes": f"{len(cells)} cell(s) read from a bounded request",
+                },
+            )
         status = "completed"
     except Exception as exc:
         counts.failed += 1

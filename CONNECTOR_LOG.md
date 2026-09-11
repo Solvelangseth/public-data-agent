@@ -139,3 +139,46 @@ harvested for measured no change in retrieval and the reasoning is in GAPS.md. T
 derived aliases stay in `term_aliases` (5,869 rows, tiny) and `scripts/harvest_klass.py`
 rebuilds the mirror in about twelve minutes; `data/klass/classifications.json` is kept
 because the harvester reuses it and it saves 151 requests on a rebuild.
+
+## norgesbank:* — 2026-09-11 — harvested, bounded, and verified
+
+**The connector already existed.** `sources/norgesbank.py`, the fetch dispatch and
+`tests/test_norgesbank_source.py` were all committed and working; the source had simply
+never been run, so the registry held no financial or monetary data. I did not check that
+before starting, and wrote a second connector for a source that already had one — see
+the note at the end.
+
+**Harvested.** 24 dataflows, with the publisher's Norwegian names because the API prints
+both: `Valutakurser`, `Styringsrente`, `Nøkkeltall for statsgjelden`, `Pengemarkedsdata`.
+The source caps itself at 10 by default and says so in its ingest reason, so `--limit 50`
+was used rather than changing someone else's deliberate default.
+
+**Two bounds, because one was not enough.** The fetch requested `access_path` as listed,
+which for `EXR` is every currency pair for its whole history. Adding SDMX's
+`lastNObservations` (default 5, capped at 100) bounds periods per series — and that alone
+is not a bound. `MONEY_MARKET` answered a **one-period** request with **34,906 cells**,
+`FAUCTION` with 11,941, `LIQUIDITY_FORECAST` with 5,053, because those flows hold tens of
+thousands of *series*. A request can be bounded in one dimension and unbounded in the
+other. A 2,000-cell ceiling now refuses the response before anything is stored, naming
+the series key as the way to narrow.
+
+I found that out by writing 58,687 rows and 65 MB into the registry first. They are
+deleted, the cap is in place, and re-verification stores 2,141 cells across 18 flows.
+
+**Verified, and honestly partial.** A dataflow classifies as `unverified` from its URL,
+which is correct and keeps it out of the fetchable lane. `scripts/verify_norgesbank.py`
+discharges that with one period per flow: 18 proved and now carry `observations` with
+`verified_at`, a sample count and an SDMX `subject_template`; 5 are refused as too wide
+and stay `unverified`, which is the true statement — no bounded read of them has been
+demonstrated yet; 1 (`LENDINGSURVEY`) 404s and is left alone. The five that are too wide
+need series-key addressing to become readable, which is the next step.
+
+`valutakurser` now returns `norgesbank:EXR`, `styringsrenten` returns
+`norgesbank:ANN_KPRA`, `rentebytteavtaler` returns `norgesbank:GOVT_IRS`. Held-out holds
+at 0.897 / 0.749 and `pda benchmark` at 0.8923 / 0.9385.
+
+**A mistake worth recording.** I wrote `src/public_data_agent/sources/norgesbank.py` with
+`cat >` without checking whether the file existed, and destroyed a committed connector
+that was better than the one I was writing. It was restored from git and my duplicate
+reverted. Check what exists before building; `cat >` on a path you have not read is a
+destructive write.
