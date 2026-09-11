@@ -249,3 +249,67 @@ and their widths, and stores nothing.
   head of a longer title compound — the prefilter keeps the row by prefix and the exact
   scorer then drops it. The compound splitter handles the opposite case, not this one.
 - `index_dataset` still has no caller outside tests and this script.
+
+## vegvesen:* — 2026-09-11 — Dataportalen's 23 data services, pointed at the services
+
+**The connector already existed and had never been run.** `sources/vegvesen.py` and its
+tests were committed, capped at 10 packages, and the registry held no `vegvesen:` rows.
+Reading it before running it turned up two things worth more than the harvest.
+
+**It pointed at the catalogue, not the data.** Every record's `access_path` and
+distribution was CKAN's `package_show` action, which returns metadata. And `fetch.py`
+dispatched that URL to `cells_from_vegvesen`, which stored each *resource description*
+as an observation — measure `name`, value `"Åpne data via NVDB api"`. Two tests pinned
+exactly that. The dispatch, `_fetch_vegvesen` and `cells_from_vegvesen` are removed, and
+the two tests are replaced by one asserting the opposite: a `package_show` URL classifies
+as `none`, and fetching a stored catalogue record writes no observations. Replacing those
+tests corrects a pinned violation of the rule that observations are data values; it is
+not a weakening. Nothing to clean up — the old path had never been run, so it had written
+nothing.
+
+**Most of the portal was already catalogued, and one field says which part.** Of its 85
+packages, 62 are already in the registry through data.norge, matched by CKAN package id,
+with no licence disagreements; CKAN would have added a missing licence to only 3. Harvesting
+all 85 would have put 62 second copies into search. The split is exact on the package's own
+`type`: all 62 covered packages are `dataset`, all 23 uncovered ones are `dataservice`, with
+no exceptions. data.norge harvests Vegvesen's datasets and not its data services. So the
+source now lists `package_search` with `fq=type:dataservice` — and checks the printed type
+itself, in case the filter is ignored — which is also one request rather than 86.
+
+**Pointed at the services.** Distributions are the printed `end_point_url` then any printed
+resources; landing pages are the printed `uri` (a live `/dataservice/<uuid>` page) and `url`
+(a live publisher page, on 8). Formats stay in the stored package rather than being mapped,
+because the portal prints values like `ukjent`.
+
+**Access rights recorded, because an open portal is not all open data.** The printed EU
+access-right URI now fills `access_rights` / `access_rights_uri`: 13 `PUBLIC`, 5 `RESTRICTED`
+(NVDB Skriv, Datafangst, vehicle data with owner details, eCOC, driving-log submission), and
+5 printing nothing — parking-permit registers, change of ownership, change of lessee, vehicle
+technical data — which stay unknown rather than open. `api_requirements` prints what look
+like encrypted blobs and is not interpreted.
+
+**Harvested.** 23 of 23 inserted, none failed, none pointing at `package_show`. Licences: 10
+NLOD, 2 CC-BY 4.0, 11 not stated and left null. All 23 land in the descriptive lane: no
+connector reads these services yet, and several are write or restricted APIs that should
+never be one. `ferjedatabank`'s printed endpoint is `/api/Login`, so it is credentialed in
+practice whatever its access right says.
+
+**Overlap that remains, checked by endpoint rather than assumed.** One service shares an
+endpoint with a data.norge record: `nvdb-les` and "Nasjonal vegdatabank (NVDB)", both at
+`nvdbapiles.atlas.vegvesen.no` — which the 423 `nvdb:*` registers also address. Kept, as the
+publisher's own entry for its API. Three data.norge records surface beside new services on the
+same subject — `Trafikkmeldinger`, `Værdata`, `Webkamera` — and are different resources: all
+three point at the DATEX2 *specification* repository on `git.vegvesen.no`, while the new
+records point at the live endpoints.
+
+**Open.** `reisetider på veg` does not reach `vegvesen:reisetider-*`; `reisetider` alone does.
+Every query word is a hard requirement and `veg` is not in those titles — existing search
+behaviour, not a connector defect.
+
+**What an agent now gets.** `tool_fetch` on `vegvesen:datex` returns
+`unsupported_access_path` — "numbers were not retrieved" — naming the live DATEX endpoint,
+and writes no observations. The same record would previously have been fetched through
+`package_show` and returned resource descriptions as numbers.
+
+**Displacement checked.** 23 new records can push answers down. Held-out holds at 0.897 /
+0.749 and `pda benchmark` at 0.8923 / 0.9385. 1988 tests.
