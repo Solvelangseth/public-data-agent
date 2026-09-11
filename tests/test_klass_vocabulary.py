@@ -17,7 +17,7 @@ from public_data_agent.klass_vocabulary import (
     normalise,
 )
 from public_data_agent.registry import Registry
-from public_data_agent.rewrite import rewriter_name, terms_for
+from public_data_agent.rewrite import instructions_version, rewriter_name, terms_for
 
 
 def _klass_dir(tmp_path: Path, versions: dict[str, dict]) -> Path:
@@ -134,7 +134,14 @@ def test_rewriters_do_not_read_each_others_cached_terms(tmp_path: Path) -> None:
         assert rewriter_name(klass) == "klass"
         assert terms_for(registry, Fake(), "prisene") == ["konsumprisindeks"]
         assert terms_for(registry, klass, "prisene") == []
-        assert registry.get_query_rewrite("prisene", model="fake-model") == ["konsumprisindeks"]
-        assert registry.get_query_rewrite("prisene", model="klass") == []
+        version = instructions_version()
+        assert registry.get_query_rewrite("prisene", model=f"fake-model@{version}") == [
+            "konsumprisindeks"
+        ]
+        assert registry.get_query_rewrite("prisene", model=f"klass@{version}") == []
+        # The prompt is part of the answer, so it is part of the key. Without
+        # this, changing the instructions keeps serving terms the old prompt
+        # wrote, and the experiment measures nothing.
+        assert registry.get_query_rewrite("prisene", model="fake-model@other") is None
     finally:
         registry.close()

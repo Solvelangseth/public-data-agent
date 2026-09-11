@@ -1076,3 +1076,42 @@ elsewhere: three tuned questions move from rank 1 to ranks 2–5 while staying h
 five single-word benchmark queries move from 1 to 2. Both protected benchmark
 recalls hold exactly. That trade was taken because the honest set improved on both
 measures and no question was lost anywhere.
+
+## Word-level embeddings match spelling, not meaning
+
+The three remaining held-out misses are all one shape: the asker's word is a synonym the
+catalogue never uses. `yrkesdeltakelse` where the titles say `arbeidsstyrken`, `domfelte`
+where they say `Straffede personer`, `lønnsomhet` where they say `Nøkkeltall`.
+
+The obvious mechanism, and the one that would need no per-question tuning: embed the
+catalogue's title vocabulary and, for a word the catalogue never uses, propose its
+nearest published word. Tested before building, on 1,503 sampled title words with the
+right answers deliberately included in the pool:
+
+```
+domfelte         feierode, ferjelem, fortalt, fjelldal, dumpefelt
+fattigdom        volden, alvorlig, arbeidskraft, overflatesaltholdighet
+folketall        folketeljinga, statsborger, generelt, grunnboken
+yrkesdeltakelse  yrkesstatus, deltakelse, yrkestilknytning
+```
+
+`domfelte` finds `feierode` and `fjelldal`. `fattigdom` never finds `lavinntekt`. An
+isolated Norwegian word out of context gives `text-embedding-3-small` almost nothing but
+characters to go on, so the neighbours are words that *look* alike. Only
+`yrkesdeltakelse` produces anything sensible, and not the word its gold titles use.
+Rejected without building it.
+
+**What the model does know, and where.** Asked about a single word with instructions to
+give SSB's term, the same model answers well — `fattigdom` → `lavinntekt`,
+`folketall` → `befolkning, folkemengde`, `yrkesdeltakelse` → `arbeidsstyrke,
+sysselsatte`. Asked about the whole question, it returns `yrkesdeltakelse` unchanged,
+because in context the word already reads as a statistical term. Sharpening the prompt to
+say "if the user's word is a fagord but not the one SSB titles things with, give SSB's"
+helped generally (held-out MRR 0.745 → 0.749, recall unchanged) but did not move these
+three. Iterating the prompt further until they pass would be fitting it to the held-out
+set, so it was not done.
+
+**A flaw the prompt work exposed.** Rewrites were cached on the model name alone, so
+changing the instructions kept serving terms the old prompt wrote — a silently stale
+answer and an experiment that measures nothing. The cache key now includes a digest of
+the instructions.

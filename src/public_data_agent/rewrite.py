@@ -26,19 +26,23 @@ are recorded in the retrieval steps so a caller can see what was searched for.
 
 from __future__ import annotations
 
+import hashlib
 import json
 from typing import Protocol
 
 REWRITE_INSTRUCTIONS = """Du hjelper med å søke i en katalog over norsk offentlig statistikk (SSB, FHI).
 
-Brukeren skriver dagligtale. Katalogen bruker statistikkfaglige termer.
-Oppgaven din er å oversette spørsmålet til de ordene en tabelltittel ville brukt.
+Oppgaven din er å gi ordene som faktisk står i en tabelltittel hos SSB.
 
 Svar med JSON: {"terms": ["...", "..."]}
 - 2 til 5 termer, på norsk, hver på 1-3 ord
-- bruk termen katalogen ville brukt, ikke brukerens ord
+- oversett dagligtale til statistikkens ord
   ("hvor mye har prisene steget" -> "konsumprisindeks")
   ("hvor mye tjener en sykepleier" -> "månedslønn", "yrke")
+- hvis brukerens ord er et fagord, men IKKE det SSB bruker i titler, gi SSBs ord
+  ("fattigdom" -> "lavinntekt")
+  ("folketall" -> "befolkning", "folkemengde")
+- ta med et synonym når du er i tvil om hvilket ord SSB bruker
 - ikke ta med stedsnavn, årstall eller tabellnummer
 - ikke gjett en tabell; foreslå bare søkeord
 """
@@ -84,6 +88,18 @@ def clean_terms(raw: object) -> list[str]:
     return out[:MAX_TERMS]
 
 
+def instructions_version() -> str:
+    """A short digest of the prompt, used in the cache key.
+
+    Terms depend on the instructions as much as on the model, and the cache was
+    keyed only on the model. Changing the prompt therefore kept serving terms
+    written by the old one -- a silently stale answer, and an experiment that
+    measures nothing.
+    """
+
+    return hashlib.sha256(REWRITE_INSTRUCTIONS.encode("utf-8")).hexdigest()[:8]
+
+
 def rewriter_name(rewriter: QueryRewriter) -> str:
     return getattr(rewriter, "name", None) or type(rewriter).__name__
 
@@ -97,7 +113,7 @@ def terms_for(registry, rewriter: QueryRewriter, query: str, *, model: str | Non
     search down with it.
     """
 
-    model = model or rewriter_name(rewriter)
+    model = model or f"{rewriter_name(rewriter)}@{instructions_version()}"
     cached = registry.get_query_rewrite(query, model=model)
     if cached is not None:
         return cached
