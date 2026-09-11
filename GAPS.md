@@ -991,7 +991,38 @@ for `personar` reached 4 datasets and now reaches 100, `barnehagar` 5 and now 88
 `gjennomsnittleg` 11 and now 100, `fagleg` 2 and now 39. Read the other way,
 `overnattinger` reached 1 and now reaches 24, `bekymringsmeldinger` 1 and now 10.
 
-**What this does not fix.** `luftfart passasjerer` still does not reach table 08507.
-The plural is now bridged, but that title says `Lufttransport` where the question says
-`luftfart` — a synonym, not a spelling. That is a vocabulary problem, and it is a
-held-out question, so it should not be optimised against directly.
+**A claim I made here was wrong.** This entry originally said `luftfart passasjerer`
+still does not reach table 08507, because the title says `Lufttransport` where the
+question says `luftfart`. I wrote that without re-testing after the spelling rule landed.
+It is false: `passasjerer` now matches `Passasjerar`, and 08507 ranks **first** both with
+and without the model steps. The `luftfart`/`Lufttransport` mismatch never had to be
+solved, because the other token in the query carries the match. Stating a limitation is
+a measurement like any other and should not be done from memory.
+
+## Two more labels corrected, and the number went down
+
+`data/heldout_gold.json` recorded `luftfart passasjerer` (h018) and `oppdrettslaks
+produksjon` (h024) as having no answer in the registry. Both now have one, and neither
+was judged from a title — both were verified by live one-cell fetches in the crawler
+lane. `ssbtable:08507` returned 2,737,712 passengers for Oslo Gardermoen in 2026M07, and
+`fdirpx:A06002a` returned 1,754,557 tonnes of salmon for 2025.
+
+The original labels were not wrong when they were written: 08507 sat in the registry
+unverified, and the Fiskeridirektoratet connector did not exist. Coverage moved, so the
+labels had to.
+
+**This lowers the reported number, which is the point of recording it.** Two questions
+move from excluded to scored, and only one of them is answered:
+
+| | before (37 scored) | after (39 scored) |
+|---|---|---|
+| lexical + semantic | 0.811 / 0.723 | 0.795 / 0.712 |
+| + rewriting and reranking | 0.892 / 0.759 | **0.872 / 0.745** |
+
+The absolute count went up — 33 of 37 became 34 of 39 — while the rate went down. Any
+future comparison against 0.892 is against a set that excluded a question the stack
+cannot answer.
+
+`oppdrettslaks produksjon` is now a scored miss, not in the top 50. The connector lane
+predicted exactly this: the publisher's title is `Matfisk. Salg av laks`, and the
+question's `oppdrettslaks` is a compound whose second element is the word that matches.
