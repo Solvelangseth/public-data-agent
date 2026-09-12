@@ -107,6 +107,7 @@ from public_data_agent.sources.fdirwms import (
     fdirwms_table_id,
     is_fdirwms_url,
 )
+from public_data_agent.sources.fdirpx import fdirpx_table_id, is_fdirpx_url
 from public_data_agent.sources.hiwms import (
     cells_from_hiwms,
     hiwms_table_id,
@@ -518,14 +519,22 @@ from public_data_agent.sources.brenheter import (
     valid_orgnr,
 )
 from public_data_agent.sources.brkommuner import (
+    BRKOMMUNER_BURST,
+    BRKOMMUNER_RPS,
+    BRREG_KOMMUNE_SCHEME,
     brkommuner_table_id,
-    cells_from_brkommuner,
+    entity_from_brkommuner,
     is_brkommuner_url,
+    shape_from_brkommuner,
 )
 from public_data_agent.sources.brorgform import (
+    BRORGFORM_BURST,
+    BRORGFORM_RPS,
+    ORGFORM_SCHEME,
     brorgform_table_id,
-    cells_from_brorgform,
+    entity_from_brorgform,
     is_brorgform_url,
+    shape_from_brorgform,
 )
 from public_data_agent.sources.brorgformen import (
     brorgformen_table_id,
@@ -663,28 +672,44 @@ from public_data_agent.sources.broppdater import (
     is_broppdater_url,
 )
 from public_data_agent.sources.brrepresent import (
+    BRREPRESENT_BURST,
+    BRREPRESENT_RPS,
+    REPRESENTANT_SCHEME,
     brrepresent_table_id,
-    cells_from_brrepresent,
+    entity_from_brrepresent,
     is_brrepresent_url,
+    shape_from_brrepresent,
 )
 from public_data_agent.sources.brunder import (
+    BRUNDER_BURST,
+    BRUNDER_ORGNR_LIMIT,
+    BRUNDER_RPS,
     brunder_table_id,
     cells_from_brunder,
+    entity_from_brunder,
+    is_brunder_collection_url,
     is_brunder_url,
+    shape_from_brunder,
 )
 from public_data_agent.sources.brrollegruppe import (
+    BRROLLEGRUPPE_BURST,
+    BRROLLEGRUPPE_RPS,
+    ROLLEGRUPPETYPE_SCHEME,
     brrollegruppe_table_id,
-    cells_from_brrollegruppe,
+    entity_from_brrollegruppe,
     is_brrollegruppe_url,
+    shape_from_brrollegruppe,
 )
 from public_data_agent.sources.brrolletype import (
+    BRROLLETYPE_BURST,
+    BRROLLETYPE_RPS,
+    ROLLETYPE_SCHEME,
     brrolletype_table_id,
-    cells_from_brrolletype,
+    entity_from_brrolletype,
     is_brrolletype_url,
+    shape_from_brrolletype,
 )
 from public_data_agent.sources.brroller import (
-    brroller_table_id,
-    cells_from_brroller,
     is_brroller_url,
 )
 from public_data_agent.sources.kystwms import (
@@ -1163,7 +1188,7 @@ def fetch_observations(
     if is_nvdb_object_url(access_path) or is_nvdb_collection_url(access_path):
         return _fetch_nvdb(registry, dataset, http=http, select=select)
     if is_brkommuner_url(access_path):
-        return _fetch_brkommuner(registry, dataset, http=http)
+        return _fetch_brkommuner(registry, dataset, http=http, select=select)
     if is_brenheter_url(access_path):
         return _fetch_brenheter(registry, dataset, http=http, select=select)
     if is_brenheter_collection_url(access_path):
@@ -1175,19 +1200,25 @@ def fetch_observations(
     if is_brorgformen_url(access_path):
         return _fetch_brorgformen(registry, dataset, http=http)
     if is_brorgform_url(access_path):
-        return _fetch_brorgform(registry, dataset, http=http)
+        return _fetch_brorgform(registry, dataset, http=http, select=select)
     if is_brrollegruppe_url(access_path):
-        return _fetch_brrollegruppe(registry, dataset, http=http)
+        return _fetch_brrollegruppe(registry, dataset, http=http, select=select)
     if is_brrolletype_url(access_path):
-        return _fetch_brrolletype(registry, dataset, http=http)
+        return _fetch_brrolletype(registry, dataset, http=http, select=select)
     if is_brrepresent_url(access_path):
-        return _fetch_brrepresent(registry, dataset, http=http)
+        return _fetch_brrepresent(registry, dataset, http=http, select=select)
     if is_brroller_url(access_path):
         return _fetch_brroller(registry, dataset, http=http)
     if is_broppdater_url(access_path):
         return _fetch_broppdater(registry, dataset, http=http)
     if is_brunder_url(access_path):
-        return _fetch_brunder(registry, dataset, http=http)
+        return _fetch_brunder(registry, dataset, http=http, select=select)
+    if is_brunder_collection_url(access_path):
+        raise ValueError(
+            "Enhetsregisteret underenheter collection/lastned is too large to fetch as one "
+            "request; narrow to a single organisasjonsnummer via "
+            f"{access_path.rstrip('/')}/{{orgnr}}"
+        )
     if is_brreg_url(access_path):
         return _fetch_brreg(registry, dataset, http=http)
     if is_valg_url(access_path):
@@ -1518,13 +1549,18 @@ def fetch_observations(
     # description as an observation. A Vegvesen record now points at the service
     # itself; there is no connector for those services yet.
     client = http or HttpClient(timeout=60.0, max_retries=4)
-    if _is_ssb_table_url(access_path) or is_oslo_statbank_url(access_path):
+    if (
+        _is_ssb_table_url(access_path)
+        or is_oslo_statbank_url(access_path)
+        or is_fdirpx_url(access_path)
+    ):
         request_url = access_path.rstrip("/")
-        table_id = (
-            oslo_table_id(access_path)
-            if is_oslo_statbank_url(access_path)
-            else request_url.rsplit("/", 1)[-1]
-        )
+        if is_oslo_statbank_url(access_path):
+            table_id = oslo_table_id(access_path)
+        elif is_fdirpx_url(access_path):
+            table_id = fdirpx_table_id(access_path)
+        else:
+            table_id = request_url.rsplit("/", 1)[-1]
     else:
         request_url = pxweb_api_url(access_path, table_id)
     started = utc_now()
@@ -1833,6 +1869,11 @@ def _fetch_brenheter(
                 f"Enhetsregisteret enhet GET returned HTTP {http_status} for {access_path}"
             )
         entity = entity_from_enhet(got.body)
+        if entity["subject_code"] != table_id:
+            raise ValueError(
+                f"Enhetsregisteret enhet at {access_path} printed organisasjonsnummer "
+                f"{entity['subject_code']!r}, not the requested {table_id!r}"
+            )
         retrieved_at = utc_now()
         record_id = f"entity:{dataset['id']}:{entity['subject_code']}"
         action = registry.upsert_record(
@@ -1909,12 +1950,36 @@ def _fetch_brkommuner(
     dataset: dict[str, Any],
     *,
     http: JsonHttp | None = None,
+    select: dict[str, list[str]] | None = None,
 ) -> FetchResult:
     if dataset.get("source_id") != "brkommuner":
         return _fetch_brreg(registry, dataset, http=http)
     access_path = dataset.get("access_path") or ""
-    client = http or HttpClient(timeout=60.0, max_retries=4)
     table_id = brkommuner_table_id(access_path)
+    select = {str(key): value for key, value in (select or {}).items()}
+    if select:
+        unknown = sorted(key for key in select if key != "nummer")
+        if unknown:
+            raise ValueError(
+                f"select names field(s) {unknown}; only kommune nummer is accepted"
+            )
+        wanted = select.get("nummer") or []
+        wanted = [wanted] if isinstance(wanted, str) else [str(item) for item in wanted]
+        if len(wanted) > 1:
+            raise SelectionTooLarge(
+                table_id, len(wanted), 1,
+                [{"code": "nummer", "text": "nummer", "selected": len(wanted), "available": 1}],
+            )
+        if wanted and wanted != [table_id]:
+            raise ValueError(
+                f"select[nummer]={wanted!r} does not match kommune {table_id!r}; "
+                "refusing to silently widen or redirect the request"
+            )
+    client = http or HttpClient(
+        limiter=RateLimiter(BRKOMMUNER_RPS, BRKOMMUNER_BURST),
+        timeout=60.0,
+        max_retries=4,
+    )
     started = utc_now()
     run_id = registry.start_fetch_run(
         dataset_id=dataset["id"],
@@ -1931,18 +1996,42 @@ def _fetch_brkommuner(
         got = client.get_json_response(access_path)
         http_status = got.status
         registry.set_fetch_request(run_id, request_url=access_path, request_body={"method": "GET"})
-        cells = cells_from_brkommuner(got.body)
-        counts.listed = len(cells)
-        sample = _store_cells(
-            registry,
-            dataset,
+        if http_status >= 400:
+            raise ValueError(f"Brreg kommune GET returned HTTP {http_status} for {access_path}")
+        entity = entity_from_brkommuner(got.body)
+        if entity["subject_code"] != table_id:
+            raise ValueError(
+                f"Brreg kommune at {access_path} printed nummer {entity['subject_code']!r}, "
+                f"not requested {table_id!r}"
+            )
+        retrieved_at = utc_now()
+        record_id = f"entity:{dataset['id']}:{table_id}"
+        action = registry.upsert_record(
+            {
+                "id": record_id, "dataset_id": dataset["id"], "kind": "entity",
+                "series": f"brkommuner:{table_id}",
+                "subject_scheme": BRREG_KOMMUNE_SCHEME,
+                "subject_code": table_id, "subject_label": entity["subject_label"],
+                "period": None, "measure": None, "value": None,
+                "attributes": entity["attributes"], "retrieved_at": retrieved_at,
+                "request_url": access_path, "http_status": http_status,
+                "publisher_name": dataset.get("publisher_name"),
+                "license": dataset.get("license"),
+            },
             run_id,
-            table_id=table_id,
-            cells=cells,
-            retrieved_at=utc_now(),
-            request_url=access_path,
-            http_status=http_status,
-            counts=counts,
+        )
+        counts.listed = 1
+        setattr(counts, action, 1)
+        sample = [{"kind": "entity", **entity}]
+        fields, keys = shape_from_brkommuner(got.body)
+        registry.set_resource_shape(dataset["id"], fields, keys=keys)
+        registry.set_capability(
+            dataset["id"],
+            {
+                "capability": CAPABILITY_LOOKUP, "record_kind": "entity",
+                "endpoint": access_path, "request_method": "GET",
+                "verified_at": retrieved_at, "verified_sample_count": 1,
+            },
         )
         status = "completed"
     except Exception as exc:
@@ -1958,6 +2047,7 @@ def _fetch_brkommuner(
         http_status=http_status,
         counts=counts,
         sample=sample,
+        observation_ids=[record_id] if status == "completed" else [],
     )
 
 
@@ -1966,12 +2056,44 @@ def _fetch_brrollegruppe(
     dataset: dict[str, Any],
     *,
     http: JsonHttp | None = None,
+    select: dict[str, list[str]] | None = None,
 ) -> FetchResult:
     if dataset.get("source_id") != "brrollegruppe":
         return _fetch_brreg(registry, dataset, http=http)
     access_path = dataset.get("access_path") or ""
-    client = http or HttpClient(timeout=60.0, max_retries=4)
     table_id = brrollegruppe_table_id(access_path)
+    select = {str(key): value for key, value in (select or {}).items()}
+    if select:
+        unknown = sorted(key for key in select if key != "kode")
+        if unknown:
+            raise ValueError(
+                f"select names field(s) {unknown}; only rollegruppetype kode is accepted"
+            )
+        wanted = select.get("kode") or []
+        wanted = [wanted] if isinstance(wanted, str) else [str(item) for item in wanted]
+        if len(wanted) > 1:
+            raise SelectionTooLarge(
+                table_id,
+                len(wanted),
+                1,
+                [
+                    {
+                        "code": "kode",
+                        "text": "kode",
+                        "selected": len(wanted),
+                        "available": 1,
+                    }
+                ],
+            )
+        if wanted and wanted != [table_id]:
+            raise ValueError(
+                f"select[kode]={wanted!r} does not match rollegruppetype {table_id!r}"
+            )
+    client = http or HttpClient(
+        limiter=RateLimiter(BRROLLEGRUPPE_RPS, BRROLLEGRUPPE_BURST),
+        timeout=60.0,
+        max_retries=4,
+    )
     started = utc_now()
     run_id = registry.start_fetch_run(
         dataset_id=dataset["id"],
@@ -1988,18 +2110,54 @@ def _fetch_brrollegruppe(
         got = client.get_json_response(access_path)
         http_status = got.status
         registry.set_fetch_request(run_id, request_url=access_path, request_body={"method": "GET"})
-        cells = cells_from_brrollegruppe(got.body)
-        counts.listed = len(cells)
-        sample = _store_cells(
-            registry,
-            dataset,
+        if http_status >= 400:
+            raise ValueError(
+                f"Brreg rollegruppetype GET returned HTTP {http_status} for {access_path}"
+            )
+        entity = entity_from_brrollegruppe(got.body)
+        if entity["subject_code"] != table_id:
+            raise ValueError(
+                f"Brreg rollegruppetype at {access_path} printed kode "
+                f"{entity['subject_code']!r}, not requested {table_id!r}"
+            )
+        retrieved_at = utc_now()
+        record_id = f"entity:{dataset['id']}:{table_id}"
+        action = registry.upsert_record(
+            {
+                "id": record_id,
+                "dataset_id": dataset["id"],
+                "kind": "entity",
+                "series": f"brrollegruppe:{table_id}",
+                "subject_scheme": ROLLEGRUPPETYPE_SCHEME,
+                "subject_code": table_id,
+                "subject_label": entity["subject_label"],
+                "period": None,
+                "measure": None,
+                "value": None,
+                "attributes": entity["attributes"],
+                "retrieved_at": retrieved_at,
+                "request_url": access_path,
+                "http_status": http_status,
+                "publisher_name": dataset.get("publisher_name"),
+                "license": dataset.get("license"),
+            },
             run_id,
-            table_id=table_id,
-            cells=cells,
-            retrieved_at=utc_now(),
-            request_url=access_path,
-            http_status=http_status,
-            counts=counts,
+        )
+        counts.listed = 1
+        setattr(counts, action, 1)
+        sample = [{"kind": "entity", **entity}]
+        fields, keys = shape_from_brrollegruppe(got.body)
+        registry.set_resource_shape(dataset["id"], fields, keys=keys)
+        registry.set_capability(
+            dataset["id"],
+            {
+                "capability": CAPABILITY_LOOKUP,
+                "record_kind": "entity",
+                "endpoint": access_path,
+                "request_method": "GET",
+                "verified_at": retrieved_at,
+                "verified_sample_count": 1,
+            },
         )
         status = "completed"
     except Exception as exc:
@@ -2015,6 +2173,7 @@ def _fetch_brrollegruppe(
         http_status=http_status,
         counts=counts,
         sample=sample,
+        observation_ids=[record_id] if status == "completed" else [],
     )
 
 
@@ -2078,12 +2237,41 @@ def _fetch_brorgform(
     dataset: dict[str, Any],
     *,
     http: JsonHttp | None = None,
+    select: dict[str, list[str]] | None = None,
 ) -> FetchResult:
+    """Fetch one Brreg organisation-form lookup concept as an entity record."""
+
     if dataset.get("source_id") != "brorgform":
         return _fetch_brreg(registry, dataset, http=http)
     access_path = dataset.get("access_path") or ""
-    client = http or HttpClient(timeout=60.0, max_retries=4)
     table_id = brorgform_table_id(access_path)
+    select = {str(key): value for key, value in (select or {}).items()}
+    if select:
+        unknown = sorted(key for key in select if key != "kode")
+        if unknown:
+            raise ValueError(
+                f"select names field(s) {unknown} that an organisation-form lookup does "
+                "not filter on; only kode is accepted"
+            )
+        wanted = select.get("kode") or []
+        wanted = [wanted] if isinstance(wanted, str) else [str(item) for item in wanted]
+        if len(wanted) > 1:
+            raise SelectionTooLarge(
+                table_id,
+                len(wanted),
+                1,
+                [{"code": "kode", "text": "kode", "selected": len(wanted), "available": 1}],
+            )
+        if wanted and wanted != [table_id]:
+            raise ValueError(
+                f"select[kode]={wanted!r} does not match organisation form {table_id!r}; "
+                "refusing to silently widen or redirect the request"
+            )
+    client = http or HttpClient(
+        limiter=RateLimiter(BRORGFORM_RPS, BRORGFORM_BURST),
+        timeout=60.0,
+        max_retries=4,
+    )
     started = utc_now()
     run_id = registry.start_fetch_run(
         dataset_id=dataset["id"],
@@ -2100,18 +2288,61 @@ def _fetch_brorgform(
         got = client.get_json_response(access_path)
         http_status = got.status
         registry.set_fetch_request(run_id, request_url=access_path, request_body={"method": "GET"})
-        cells = cells_from_brorgform(got.body)
-        counts.listed = len(cells)
-        sample = _store_cells(
-            registry,
-            dataset,
+        if http_status == 404:
+            raise ValueError(f"Brreg has no organisation form {table_id!r}")
+        if http_status >= 400:
+            raise ValueError(
+                f"Brreg organisation-form GET returned HTTP {http_status} for {access_path}"
+            )
+        entity = entity_from_brorgform(got.body)
+        if entity["subject_code"] != table_id:
+            raise ValueError(
+                f"Brreg organisation form at {access_path} printed kode "
+                f"{entity['subject_code']!r}, not requested {table_id!r}"
+            )
+        retrieved_at = utc_now()
+        record_id = f"entity:{dataset['id']}:{table_id}"
+        action = registry.upsert_record(
+            {
+                "id": record_id,
+                "dataset_id": dataset["id"],
+                "kind": "entity",
+                "series": f"brorgform:{table_id}",
+                "subject_scheme": ORGFORM_SCHEME,
+                "subject_code": table_id,
+                "subject_label": entity["subject_label"],
+                "period": None,
+                "measure": None,
+                "value": None,
+                "attributes": entity["attributes"],
+                "retrieved_at": retrieved_at,
+                "request_url": access_path,
+                "http_status": http_status,
+                "publisher_name": dataset.get("publisher_name"),
+                "license": dataset.get("license"),
+            },
             run_id,
-            table_id=table_id,
-            cells=cells,
-            retrieved_at=utc_now(),
-            request_url=access_path,
-            http_status=http_status,
-            counts=counts,
+        )
+        counts.listed = 1
+        if action == "inserted":
+            counts.inserted = 1
+        elif action == "updated":
+            counts.updated = 1
+        else:
+            counts.unchanged = 1
+        sample = [{"kind": "entity", **entity}]
+        fields, keys = shape_from_brorgform(got.body)
+        registry.set_resource_shape(dataset["id"], fields, keys=keys)
+        registry.set_capability(
+            dataset["id"],
+            {
+                "capability": CAPABILITY_LOOKUP,
+                "record_kind": "entity",
+                "endpoint": access_path,
+                "request_method": "GET",
+                "verified_at": retrieved_at,
+                "verified_sample_count": 1,
+            },
         )
         status = "completed"
     except Exception as exc:
@@ -2127,6 +2358,7 @@ def _fetch_brorgform(
         http_status=http_status,
         counts=counts,
         sample=sample,
+        observation_ids=[record_id] if status == "completed" else [],
     )
 
 
@@ -10310,12 +10542,44 @@ def _fetch_brrepresent(
     dataset: dict[str, Any],
     *,
     http: JsonHttp | None = None,
+    select: dict[str, list[str]] | None = None,
 ) -> FetchResult:
     if dataset.get("source_id") != "brrepresent":
         return _fetch_brroller(registry, dataset, http=http)
     access_path = dataset.get("access_path") or ""
-    client = http or HttpClient(timeout=60.0, max_retries=4)
     table_id = brrepresent_table_id(access_path)
+    select = {str(key): value for key, value in (select or {}).items()}
+    if select:
+        unknown = sorted(key for key in select if key != "kode")
+        if unknown:
+            raise ValueError(
+                f"select names field(s) {unknown}; only representant kode is accepted"
+            )
+        wanted = select.get("kode") or []
+        wanted = [wanted] if isinstance(wanted, str) else [str(item) for item in wanted]
+        if len(wanted) > 1:
+            raise SelectionTooLarge(
+                table_id,
+                len(wanted),
+                1,
+                [
+                    {
+                        "code": "kode",
+                        "text": "kode",
+                        "selected": len(wanted),
+                        "available": 1,
+                    }
+                ],
+            )
+        if wanted and wanted != [table_id]:
+            raise ValueError(
+                f"select[kode]={wanted!r} does not match representant {table_id!r}"
+            )
+    client = http or HttpClient(
+        limiter=RateLimiter(BRREPRESENT_RPS, BRREPRESENT_BURST),
+        timeout=60.0,
+        max_retries=4,
+    )
     started = utc_now()
     run_id = registry.start_fetch_run(
         dataset_id=dataset["id"],
@@ -10332,18 +10596,54 @@ def _fetch_brrepresent(
         got = client.get_json_response(access_path)
         http_status = got.status
         registry.set_fetch_request(run_id, request_url=access_path, request_body={"method": "GET"})
-        cells = cells_from_brrepresent(got.body)
-        counts.listed = len(cells)
-        sample = _store_cells(
-            registry,
-            dataset,
+        if http_status >= 400:
+            raise ValueError(
+                f"Brreg representant GET returned HTTP {http_status} for {access_path}"
+            )
+        entity = entity_from_brrepresent(got.body)
+        if entity["subject_code"] != table_id:
+            raise ValueError(
+                f"Brreg representant at {access_path} printed kode "
+                f"{entity['subject_code']!r}, not requested {table_id!r}"
+            )
+        retrieved_at = utc_now()
+        record_id = f"entity:{dataset['id']}:{table_id}"
+        action = registry.upsert_record(
+            {
+                "id": record_id,
+                "dataset_id": dataset["id"],
+                "kind": "entity",
+                "series": f"brrepresent:{table_id}",
+                "subject_scheme": REPRESENTANT_SCHEME,
+                "subject_code": table_id,
+                "subject_label": entity["subject_label"],
+                "period": None,
+                "measure": None,
+                "value": None,
+                "attributes": entity["attributes"],
+                "retrieved_at": retrieved_at,
+                "request_url": access_path,
+                "http_status": http_status,
+                "publisher_name": dataset.get("publisher_name"),
+                "license": dataset.get("license"),
+            },
             run_id,
-            table_id=table_id,
-            cells=cells,
-            retrieved_at=utc_now(),
-            request_url=access_path,
-            http_status=http_status,
-            counts=counts,
+        )
+        counts.listed = 1
+        setattr(counts, action, 1)
+        sample = [{"kind": "entity", **entity}]
+        fields, keys = shape_from_brrepresent(got.body)
+        registry.set_resource_shape(dataset["id"], fields, keys=keys)
+        registry.set_capability(
+            dataset["id"],
+            {
+                "capability": CAPABILITY_LOOKUP,
+                "record_kind": "entity",
+                "endpoint": access_path,
+                "request_method": "GET",
+                "verified_at": retrieved_at,
+                "verified_sample_count": 1,
+            },
         )
         status = "completed"
     except Exception as exc:
@@ -10359,6 +10659,7 @@ def _fetch_brrepresent(
         http_status=http_status,
         counts=counts,
         sample=sample,
+        observation_ids=[record_id] if status == "completed" else [],
     )
 
 
@@ -10367,12 +10668,31 @@ def _fetch_brrolletype(
     dataset: dict[str, Any],
     *,
     http: JsonHttp | None = None,
+    select: dict[str, list[str]] | None = None,
 ) -> FetchResult:
     if dataset.get("source_id") != "brrolletype":
         return _fetch_brroller(registry, dataset, http=http)
     access_path = dataset.get("access_path") or ""
-    client = http or HttpClient(timeout=60.0, max_retries=4)
     table_id = brrolletype_table_id(access_path)
+    select = {str(key): value for key, value in (select or {}).items()}
+    if select:
+        unknown = sorted(key for key in select if key != "kode")
+        if unknown:
+            raise ValueError(f"select names field(s) {unknown}; only rolletype kode is accepted")
+        wanted = select.get("kode") or []
+        wanted = [wanted] if isinstance(wanted, str) else [str(item) for item in wanted]
+        if len(wanted) > 1:
+            raise SelectionTooLarge(
+                table_id, len(wanted), 1,
+                [{"code": "kode", "text": "kode", "selected": len(wanted), "available": 1}],
+            )
+        if wanted and wanted != [table_id]:
+            raise ValueError(f"select[kode]={wanted!r} does not match rolletype {table_id!r}")
+    client = http or HttpClient(
+        limiter=RateLimiter(BRROLLETYPE_RPS, BRROLLETYPE_BURST),
+        timeout=60.0,
+        max_retries=4,
+    )
     started = utc_now()
     run_id = registry.start_fetch_run(
         dataset_id=dataset["id"],
@@ -10389,18 +10709,41 @@ def _fetch_brrolletype(
         got = client.get_json_response(access_path)
         http_status = got.status
         registry.set_fetch_request(run_id, request_url=access_path, request_body={"method": "GET"})
-        cells = cells_from_brrolletype(got.body)
-        counts.listed = len(cells)
-        sample = _store_cells(
-            registry,
-            dataset,
+        if http_status >= 400:
+            raise ValueError(f"Brreg rolletype GET returned HTTP {http_status} for {access_path}")
+        entity = entity_from_brrolletype(got.body)
+        if entity["subject_code"] != table_id:
+            raise ValueError(
+                f"Brreg rolletype at {access_path} printed kode {entity['subject_code']!r}, "
+                f"not requested {table_id!r}"
+            )
+        retrieved_at = utc_now()
+        record_id = f"entity:{dataset['id']}:{table_id}"
+        action = registry.upsert_record(
+            {
+                "id": record_id, "dataset_id": dataset["id"], "kind": "entity",
+                "series": f"brrolletype:{table_id}", "subject_scheme": ROLLETYPE_SCHEME,
+                "subject_code": table_id, "subject_label": entity["subject_label"],
+                "period": None, "measure": None, "value": None,
+                "attributes": entity["attributes"], "retrieved_at": retrieved_at,
+                "request_url": access_path, "http_status": http_status,
+                "publisher_name": dataset.get("publisher_name"),
+                "license": dataset.get("license"),
+            },
             run_id,
-            table_id=table_id,
-            cells=cells,
-            retrieved_at=utc_now(),
-            request_url=access_path,
-            http_status=http_status,
-            counts=counts,
+        )
+        counts.listed = 1
+        setattr(counts, action, 1)
+        sample = [{"kind": "entity", **entity}]
+        fields, keys = shape_from_brrolletype(got.body)
+        registry.set_resource_shape(dataset["id"], fields, keys=keys)
+        registry.set_capability(
+            dataset["id"],
+            {
+                "capability": CAPABILITY_LOOKUP, "record_kind": "entity",
+                "endpoint": access_path, "request_method": "GET",
+                "verified_at": retrieved_at, "verified_sample_count": 1,
+            },
         )
         status = "completed"
     except Exception as exc:
@@ -10416,61 +10759,22 @@ def _fetch_brrolletype(
         http_status=http_status,
         counts=counts,
         sample=sample,
+        observation_ids=[record_id] if status == "completed" else [],
     )
 
 
 def _fetch_brroller(
-    registry: Registry,
+    _registry: Registry,
     dataset: dict[str, Any],
     *,
     http: JsonHttp | None = None,
 ) -> FetchResult:
+    del http
     access_path = dataset.get("access_path") or ""
-    client = http or HttpClient(timeout=60.0, max_retries=4)
-    table_id = brroller_table_id(access_path)
-    started = utc_now()
-    run_id = registry.start_fetch_run(
-        dataset_id=dataset["id"],
-        table_id=table_id,
-        request_url=access_path,
-        request_method="GET",
-        started_at=started,
-    )
-    counts = HarvestCounts()
-    status = "failed"
-    http_status = 0
-    sample: list[dict[str, Any]] = []
-    try:
-        got = client.get_json_response(access_path)
-        http_status = got.status
-        registry.set_fetch_request(run_id, request_url=access_path, request_body={"method": "GET"})
-        cells = cells_from_brroller(got.body)
-        counts.listed = len(cells)
-        sample = _store_cells(
-            registry,
-            dataset,
-            run_id,
-            table_id=table_id,
-            cells=cells,
-            retrieved_at=utc_now(),
-            request_url=access_path,
-            http_status=http_status,
-            counts=counts,
-        )
-        status = "completed"
-    except Exception as exc:
-        counts.failed += 1
-        counts.errors.append({"error": str(exc), "url": access_path})
-        raise
-    finally:
-        registry.finish_fetch_run(run_id, counts, status=status, http_status=http_status)
-    return FetchResult(
-        dataset_id=dataset["id"],
-        table_id=table_id,
-        request_url=access_path,
-        http_status=http_status,
-        counts=counts,
-        sample=sample,
+    raise ValueError(
+        f"{access_path} is a Brreg code-list discovery collection, not company-role "
+        "data; use the canonical brrolletype, brrollegruppe or brrepresent lookup "
+        "datasets instead"
     )
 
 
@@ -10534,10 +10838,53 @@ def _fetch_brunder(
     dataset: dict[str, Any],
     *,
     http: JsonHttp | None = None,
+    select: dict[str, list[str]] | None = None,
 ) -> FetchResult:
+    """Fetch one Enhetsregisteret sub-unit as an entity, never an observation."""
+
+    if dataset.get("source_id") != "brunder":
+        return _fetch_brreg(registry, dataset, http=http)
     access_path = dataset.get("access_path") or ""
-    client = http or HttpClient(timeout=60.0, max_retries=4)
     table_id = brunder_table_id(access_path)
+    if not valid_orgnr(table_id):
+        raise ValueError(
+            f"organisasjonsnummer {table_id!r} fails the mod-11 check digit; "
+            "refusing to fetch an unsatisfiable underenhet request"
+        )
+    select = {str(k): v for k, v in (select or {}).items()}
+    if select:
+        unknown = sorted(key for key in select if key != "organisasjonsnummer")
+        if unknown:
+            raise ValueError(
+                f"select names field(s) {unknown} that a brunder underenhet fetch does not "
+                "filter on; only organisasjonsnummer is accepted"
+            )
+        wanted = select.get("organisasjonsnummer") or []
+        wanted = [wanted] if isinstance(wanted, str) else [str(item) for item in wanted]
+        if len(wanted) > BRUNDER_ORGNR_LIMIT:
+            raise SelectionTooLarge(
+                table_id,
+                len(wanted),
+                BRUNDER_ORGNR_LIMIT,
+                [
+                    {
+                        "code": "organisasjonsnummer",
+                        "text": "organisasjonsnummer",
+                        "selected": len(wanted),
+                        "available": 1,
+                    }
+                ],
+            )
+        if wanted and wanted != [table_id]:
+            raise ValueError(
+                f"select[organisasjonsnummer]={wanted!r} does not match this underenhet "
+                f"{table_id!r}; refusing to silently widen or redirect the request"
+            )
+    client = http or HttpClient(
+        limiter=RateLimiter(BRUNDER_RPS, BRUNDER_BURST),
+        timeout=60.0,
+        max_retries=4,
+    )
     started = utc_now()
     run_id = registry.start_fetch_run(
         dataset_id=dataset["id"],
@@ -10550,22 +10897,75 @@ def _fetch_brunder(
     status = "failed"
     http_status = 0
     sample: list[dict[str, Any]] = []
+    touched: list[str] = []
     try:
         got = client.get_json_response(access_path)
         http_status = got.status
         registry.set_fetch_request(run_id, request_url=access_path, request_body={"method": "GET"})
-        cells = cells_from_brunder(got.body)
-        counts.listed = len(cells)
-        sample = _store_cells(
-            registry,
-            dataset,
+        if http_status == 404:
+            raise ValueError(f"Enhetsregisteret has no underenhet {table_id}; unsatisfiable request")
+        if http_status >= 400:
+            raise ValueError(
+                f"Enhetsregisteret underenhet GET returned HTTP {http_status} for {access_path}"
+            )
+        entity = entity_from_brunder(got.body)
+        if entity["subject_code"] != table_id:
+            raise ValueError(
+                f"Enhetsregisteret underenhet at {access_path} printed organisasjonsnummer "
+                f"{entity['subject_code']!r}, not the requested {table_id!r}"
+            )
+        retrieved_at = utc_now()
+        record_id = f"entity:{dataset['id']}:{entity['subject_code']}"
+        action = registry.upsert_record(
+            {
+                "id": record_id,
+                "dataset_id": dataset["id"],
+                "kind": "entity",
+                "series": f"brunder:{entity['subject_code']}",
+                "subject_scheme": entity["subject_scheme"],
+                "subject_code": entity["subject_code"],
+                "subject_label": entity["subject_label"],
+                "period": None,
+                "measure": None,
+                "value": None,
+                "attributes": entity["attributes"],
+                "retrieved_at": retrieved_at,
+                "request_url": access_path,
+                "http_status": http_status,
+                "publisher_name": dataset.get("publisher_name"),
+                "license": dataset.get("license"),
+            },
             run_id,
-            table_id=table_id,
-            cells=cells,
-            retrieved_at=utc_now(),
-            request_url=access_path,
-            http_status=http_status,
-            counts=counts,
+        )
+        counts.listed = 1
+        if action == "inserted":
+            counts.inserted += 1
+        elif action == "updated":
+            counts.updated += 1
+        else:
+            counts.unchanged += 1
+        sample.append(
+            {
+                "kind": "entity",
+                "subject_scheme": ORGNR_SCHEME,
+                "subject_code": entity["subject_code"],
+                "subject_label": entity["subject_label"],
+                "attributes": entity["attributes"],
+            }
+        )
+        touched.append(record_id)
+        fields, keys = shape_from_brunder(got.body)
+        registry.set_resource_shape(dataset["id"], fields, keys=keys)
+        registry.set_capability(
+            dataset["id"],
+            {
+                "capability": CAPABILITY_ENTITIES,
+                "record_kind": "entity",
+                "endpoint": access_path,
+                "request_method": "GET",
+                "verified_at": retrieved_at,
+                "verified_sample_count": 1,
+            },
         )
         status = "completed"
     except Exception as exc:
@@ -10581,6 +10981,7 @@ def _fetch_brunder(
         http_status=http_status,
         counts=counts,
         sample=sample,
+        observation_ids=touched,
     )
 
 
@@ -12418,7 +12819,11 @@ def classify_access_path(access_path: str | None) -> dict[str, Any]:
         return {"kind": CAPABILITY_NONE, "reason": "no access_path is stored"}
     lowered = access_path.casefold()
 
-    if _is_ssb_table_url(access_path) or is_oslo_statbank_url(access_path):
+    if (
+        _is_ssb_table_url(access_path)
+        or is_oslo_statbank_url(access_path)
+        or is_fdirpx_url(access_path)
+    ):
         return {
             "kind": CAPABILITY_OBSERVATIONS,
             "reason": "PxWeb table endpoint; returns numeric observation cells",
@@ -12449,6 +12854,49 @@ def classify_access_path(access_path: str | None) -> dict[str, Any]:
             "reason": (
                 "NVDB vegobjekt type endpoint; returns road features with geometry, "
                 "fetched a bounded page at a time rather than whole"
+            ),
+        }
+    if is_brunder_url(access_path):
+        return {
+            "kind": CAPABILITY_ENTITIES,
+            "reason": "Enhetsregisteret underenhet endpoint; returns one sub-unit entity by orgnr",
+        }
+    if is_brunder_collection_url(access_path):
+        return {
+            "kind": CAPABILITY_NONE,
+            "reason": "Enhetsregisteret underenheter collection/lastned; too large and not a single entity",
+        }
+    if is_brorgform_url(access_path):
+        return {
+            "kind": CAPABILITY_LOOKUP,
+            "reason": "Brreg organisation-form item; returns one published code-list concept",
+        }
+    if is_brkommuner_url(access_path):
+        return {
+            "kind": CAPABILITY_LOOKUP,
+            "reason": "Brreg municipality item; returns one published code-to-name concept",
+        }
+    if is_brrolletype_url(access_path):
+        return {
+            "kind": CAPABILITY_LOOKUP,
+            "reason": "Brreg role-type item; returns one published code-list concept",
+        }
+    if is_brrollegruppe_url(access_path):
+        return {
+            "kind": CAPABILITY_LOOKUP,
+            "reason": "Brreg role-group-type item; returns one published code-list concept",
+        }
+    if is_brrepresent_url(access_path):
+        return {
+            "kind": CAPABILITY_LOOKUP,
+            "reason": "Brreg representative item; returns one published code-list concept",
+        }
+    if is_brroller_url(access_path):
+        return {
+            "kind": CAPABILITY_NONE,
+            "reason": (
+                "Brreg role discovery collection; duplicates canonical per-code lookup "
+                "datasets and does not return company roles"
             ),
         }
     if is_klass_url(access_path):

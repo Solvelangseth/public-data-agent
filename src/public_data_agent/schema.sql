@@ -383,6 +383,69 @@ CREATE TABLE IF NOT EXISTS records (
 CREATE INDEX IF NOT EXISTS records_dataset_kind ON records (dataset_id, kind);
 -- "everything known about this municipality / this company", across domains.
 CREATE INDEX IF NOT EXISTS records_subject ON records (subject_scheme, subject_code);
+
+-- Durable state for continuous source mirrors. A cursor is advanced only after
+-- the corresponding records have committed, so a stopped crawler can replay a
+-- page safely without skipping publisher events.
+CREATE TABLE IF NOT EXISTS crawl_checkpoints (
+    pipeline_id TEXT PRIMARY KEY,
+    source_id TEXT NOT NULL,
+    dataset_id TEXT NOT NULL,
+    cursor TEXT,
+    cursor_time TEXT,
+    etag TEXT,
+    last_modified TEXT,
+    snapshot_sha256 TEXT,
+    snapshot_path TEXT,
+    updated_at TEXT NOT NULL,
+    extra_json TEXT NOT NULL DEFAULT '{}',
+    FOREIGN KEY (dataset_id) REFERENCES datasets(id)
+);
+
+-- One row per raw snapshot attempt. Large publisher files stay outside SQLite;
+-- this table makes the exact bytes, request and local/object-store location
+-- auditable without forcing a GeoTIFF or compressed national dump into a BLOB.
+CREATE TABLE IF NOT EXISTS raw_snapshots (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    pipeline_id TEXT NOT NULL,
+    dataset_id TEXT NOT NULL,
+    request_url TEXT NOT NULL,
+    retrieved_at TEXT NOT NULL,
+    http_status INTEGER,
+    etag TEXT,
+    last_modified TEXT,
+    content_type TEXT,
+    content_length INTEGER,
+    sha256 TEXT,
+    storage_path TEXT,
+    status TEXT NOT NULL,
+    records_seen INTEGER NOT NULL DEFAULT 0,
+    error TEXT,
+    FOREIGN KEY (dataset_id) REFERENCES datasets(id)
+);
+
+-- A current record may disappear while its deletion remains provenance. This
+-- is separate from records so ordinary reads cannot accidentally treat a
+-- deleted company as live.
+CREATE TABLE IF NOT EXISTS record_tombstones (
+    dataset_id TEXT NOT NULL,
+    kind TEXT NOT NULL,
+    subject_scheme TEXT,
+    subject_code TEXT NOT NULL,
+    deleted_at TEXT NOT NULL,
+    reason TEXT NOT NULL,
+    event_id TEXT,
+    request_url TEXT NOT NULL,
+    retrieved_at TEXT NOT NULL,
+    previous_record_json TEXT,
+    PRIMARY KEY (dataset_id, kind, subject_code),
+    FOREIGN KEY (dataset_id) REFERENCES datasets(id)
+);
+
+CREATE INDEX IF NOT EXISTS crawl_checkpoints_source ON crawl_checkpoints (source_id);
+CREATE INDEX IF NOT EXISTS raw_snapshots_pipeline ON raw_snapshots (pipeline_id, retrieved_at);
+CREATE INDEX IF NOT EXISTS record_tombstones_subject
+    ON record_tombstones (subject_scheme, subject_code);
 CREATE INDEX IF NOT EXISTS records_series ON records (dataset_id, series);
 -- "which resources carry organisation numbers", answered without a crawl.
 CREATE INDEX IF NOT EXISTS resource_keys_scheme ON resource_keys (scheme);

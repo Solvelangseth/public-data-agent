@@ -340,6 +340,77 @@ check whether the identity you are writing under already exists under a differen
 - Do not do any work involving `offentligdata.no`.
 - Do not print or commit `OPENAI_API_KEY`; `.env` and `.env.*` are gitignored.
 
+## Start with questions that have no answer
+
+Retrieval was measured on a held-out set written blind. Of 43 ordinary questions about
+Norway, **eight have no answer anywhere in the registry** — not a retrieval failure, an
+absence:
+
+```
+permitteringer                        luftfart passasjerer
+lønnsomhet i industrien               oppdrettslaks produksjon
+melkeproduksjon                       naturvernområder
+vannforbruk per husholdning           (and one more in economy)
+```
+
+End to end a random question succeeds about 60% of the time: retrieval finds the right
+table 74% of the time, but only 81% of questions have a table to find. Closing that
+coverage is worth about as much as any further work on ranking.
+
+A connector that answers a question someone actually asked beats one chosen
+alphabetically. Work back from that list where you can.
+
+## Not everything in these domains is a statistic
+
+The store holds four record kinds and most connectors here are not `observation`:
+
+- A weather forecast or a sea-level series is an `observation`.
+- A company or a parliamentary decision is an `entity` or a `document`.
+- A vessel, a power station or a protected area is a `feature` — it has geometry.
+- **A WMS or WFS map service returns imagery or geometry, not numeric cells.** Classify
+  those `none`. There are many in `sources/`, and marking one `observations` because a
+  connector predicate matched is exactly the overreach `unverified` exists for.
+
+Forcing a feature into the observation shape is what made the original FHI connector
+store table ids as measurements.
+
+## A register is one resource, not a million
+
+Enhetsregisteret holds about 1.1 million companies. Each was becoming its own row in
+`datasets`, and search reads every dataset row per query -- measured 1.83s at 13,744
+rows, so roughly **146 seconds** at a million. Filing each subject as a dataset makes the
+catalogue the thing being searched rather than the index over it.
+
+The two Brreg per-company datasets have been collapsed into `brreg:enhetsregisteret` and
+`brreg:underenheter` (commit `870f336`). **Do not create one dataset per company,
+building, vessel or person.** Register the register:
+
+```python
+registry.set_capability("brreg:enhetsregisteret", {
+    "capability": "entities", "record_kind": "entity",
+    "endpoint": "https://data.brreg.no/enhetsregisteret/api/enheter",
+    "request_method": "GET",
+    "subject_scheme": "brreg:orgnr",                       # what a subject is
+    "subject_template": ".../api/enheter/{subject}",       # how to reach one
+    "subject_count": 1_100_000,
+})
+```
+
+`resource_index.subject_url(registry, dataset_id, subject)` builds the URL and refuses an
+empty subject. A template without `{subject}`, or without a scheme naming what a subject
+is, is refused at write time.
+
+Records still carry `subject_scheme` and `subject_code`, so a fetched company is exactly
+as findable as before -- by name rather than by enumeration. `scripts/collapse_registers.py`
+is the migration if you find another per-instance source.
+
+**A verified capability now beats a URL pattern.** `find` used to classify from
+`access_path`, and a register's stored path is its collection endpoint, which
+`classify_access_path` rightly calls unfetchable. That made the register invisible to
+every query including the literal word "Enhetsregisteret". Recording a capability with
+`set_capability` is therefore not optional bookkeeping: it is what makes a resource
+reachable at all.
+
 ## Where to start
 
 Company registry (`brreg*`, 15 files) is the strongest first domain: Brønnøysund has a

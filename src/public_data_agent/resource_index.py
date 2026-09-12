@@ -309,6 +309,16 @@ def index_dataset(
 
     from public_data_agent.fetch import _is_ssb_table_url, classify_access_path
     from public_data_agent.sources.brenheter import is_brenheter_url, shape_from_brenheter
+    from public_data_agent.sources.brunder import is_brunder_url, shape_from_brunder
+    from public_data_agent.sources.brorgform import is_brorgform_url, shape_from_brorgform
+    from public_data_agent.sources.brkommuner import is_brkommuner_url, shape_from_brkommuner
+    from public_data_agent.sources.brrollegruppe import (
+        is_brrollegruppe_url,
+        shape_from_brrollegruppe,
+    )
+    from public_data_agent.sources.brrepresent import is_brrepresent_url, shape_from_brrepresent
+    from public_data_agent.sources.brrolletype import is_brrolletype_url, shape_from_brrolletype
+    from public_data_agent.sources.fdirpx import is_fdirpx_url
     from public_data_agent.sources.fhi import is_fhi_table_url, printed_table_data_url, split_table_url
 
     dataset = registry.get_dataset(dataset_id)
@@ -341,7 +351,7 @@ def index_dataset(
         fields, keys = shape_from_fhi((meta.body or {}).get("dimensions") or [], catalogues)
         endpoint, method = f"{base}/data", "POST"
         record_kind = "observation"
-    elif _is_ssb_table_url(access_path):
+    elif _is_ssb_table_url(access_path) or is_fdirpx_url(access_path):
         meta = client.get_json_response(access_path.rstrip("/"))
         fields, keys = shape_from_pxweb(meta.body or {}, catalogues)
         endpoint, method = access_path.rstrip("/"), "POST"
@@ -351,6 +361,36 @@ def index_dataset(
         # classify says unless a fetch already verified a sample.
         meta = client.get_json_response(access_path)
         fields, keys = shape_from_brenheter(meta.body or {})
+        endpoint, method = access_path, "GET"
+        record_kind = "entity"
+    elif is_brunder_url(access_path):
+        meta = client.get_json_response(access_path)
+        fields, keys = shape_from_brunder(meta.body or {})
+        endpoint, method = access_path, "GET"
+        record_kind = "entity"
+    elif is_brorgform_url(access_path):
+        meta = client.get_json_response(access_path)
+        fields, keys = shape_from_brorgform(meta.body or {})
+        endpoint, method = access_path, "GET"
+        record_kind = "entity"
+    elif is_brkommuner_url(access_path):
+        meta = client.get_json_response(access_path)
+        fields, keys = shape_from_brkommuner(meta.body or {})
+        endpoint, method = access_path, "GET"
+        record_kind = "entity"
+    elif is_brrolletype_url(access_path):
+        meta = client.get_json_response(access_path)
+        fields, keys = shape_from_brrolletype(meta.body or {})
+        endpoint, method = access_path, "GET"
+        record_kind = "entity"
+    elif is_brrollegruppe_url(access_path):
+        meta = client.get_json_response(access_path)
+        fields, keys = shape_from_brrollegruppe(meta.body or {})
+        endpoint, method = access_path, "GET"
+        record_kind = "entity"
+    elif is_brrepresent_url(access_path):
+        meta = client.get_json_response(access_path)
+        fields, keys = shape_from_brrepresent(meta.body or {})
         endpoint, method = access_path, "GET"
         record_kind = "entity"
     else:

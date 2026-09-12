@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from typing import Any
-from urllib.parse import urlsplit
+from urllib.parse import quote, unquote, urlsplit
 
 from public_data_agent.http_util import HttpClient, RateLimiter
 from public_data_agent.models import DatasetRef, HarvestedRecord, SourceError
@@ -11,15 +11,16 @@ SOURCE_ID = "brrepresent"
 SOURCE_NAME = "Brønnøysundregistrene Enhetsregisteret rollerepresentanter"
 LIST_URL = "https://data.brreg.no/enhetsregisteret/api/roller/representanter"
 PATH_PREFIX = "/enhetsregisteret/api/roller/representanter"
-DEFAULT_MAX_ITEMS = 10
+DEFAULT_MAX_ITEMS = 100
 INGEST_REASON = (
     "listed as a printed representant on the official Enhetsregisteret "
-    f"representanter catalog, capped at {DEFAULT_MAX_ITEMS} codes"
+    f"representanter catalog, with a safety ceiling of {DEFAULT_MAX_ITEMS} codes"
 )
 BRREPRESENT_RPS = 2.0
 BRREPRESENT_BURST = 4
 HOST = "data.brreg.no"
 NAME_FIELDS = ("beskrivelse", "kode")
+REPRESENTANT_SCHEME = "brreg:representant"
 
 
 class BrrepresentSource(SourceBase):
@@ -174,7 +175,7 @@ def printed_item_url(item: dict[str, Any], list_url: str) -> str:
     if not parts.scheme or not parts.netloc:
         raise SourceError("Enhetsregisteret representanter catalog URL has no printed origin")
     kode = printed_kode(item)
-    return f"{parts.scheme}://{parts.netloc}{PATH_PREFIX}/{kode}"
+    return f"{parts.scheme}://{parts.netloc}{PATH_PREFIX}/{quote(kode, safe='')}"
 
 
 def printed_title(item: dict[str, Any], ident: str) -> dict[str, str]:
@@ -200,10 +201,12 @@ def is_brrepresent_url(access_path: str | None) -> bool:
 
 def brrepresent_table_id(access_path: str) -> str:
     segment = urlsplit(access_path).path.rstrip("/").split("/")[-1]
-    return segment or "brrepresent"
+    return unquote(segment) if segment else "brrepresent"
 
 
 def cells_from_brrepresent(payload: Any) -> list[tuple[str, Any, dict[str, str]]]:
+    """Legacy observation projection. Prefer entity_from_brrepresent."""
+
     if not isinstance(payload, dict):
         raise ValueError("brrepresent payload is not a JSON object")
     cells = _cells_from_record(
@@ -212,6 +215,54 @@ def cells_from_brrepresent(payload: Any) -> list[tuple[str, Any, dict[str, str]]
     if not cells:
         raise ValueError("brrepresent payload printed no representant members")
     return cells
+
+
+def entity_from_brrepresent(payload: Any) -> dict[str, Any]:
+    if not isinstance(payload, dict):
+        raise ValueError("brrepresent payload is not a JSON object")
+    code = payload.get("kode")
+    if not isinstance(code, str) or not code.strip():
+        raise ValueError("brrepresent payload printed no kode")
+    description = payload.get("beskrivelse")
+    label = description.strip() if isinstance(description, str) and description.strip() else None
+    return {
+        "subject_scheme": REPRESENTANT_SCHEME,
+        "subject_code": code.strip(),
+        "subject_label": label,
+        "attributes": {
+            str(key): value
+            for key, value in payload.items()
+            if key not in {"kode", "beskrivelse", "_links"}
+        },
+    }
+
+
+def shape_from_brrepresent(
+    payload: Any,
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    entity = entity_from_brrepresent(payload)
+    code, label = entity["subject_code"], entity["subject_label"]
+    fields: list[dict[str, Any]] = [
+        {
+            "field_code": "kode", "field_label": "kode", "field_role": "key",
+            "value_count": 1, "values": [{"value_code": code, "value_label": label}],
+        }
+    ]
+    if label is not None:
+        fields.append(
+            {
+                "field_code": "beskrivelse", "field_label": "beskrivelse",
+                "field_role": "attribute", "value_count": 1,
+                "values": [{"value_code": label, "value_label": label}],
+            }
+        )
+    return fields, [
+        {
+            "scheme": REPRESENTANT_SCHEME,
+            "field_code": "kode",
+            "coverage_count": 1,
+        }
+    ]
 
 
 def _cells_from_record(item: dict[str, Any]) -> list[tuple[str, Any, dict[str, str]]]:

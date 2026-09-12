@@ -63,6 +63,20 @@ ITEM_BODY = {
     "navn": "- P A L M E R A -",
     "organisasjonsform": {"kode": "FLI", "beskrivelse": "Forening/lag/innretning"},
     "registreringsdatoEnhetsregisteret": "2016-01-02",
+    "forretningsadresse": {
+        "adresse": ["Testgata 1"],
+        "kommune": "OSLO",
+        "kommunenummer": "0301",
+        "_links": {"kommune": {"href": KOMMUNE_URL}},
+    },
+    "historiskeNavn": [
+        {
+            "gammeltNavn": "PALMERA FORENING",
+            "gyldigFra": "2015-01-01",
+            "_links": {"self": {"href": PALMERA_URL}},
+        }
+    ],
+    "kapital": {"belop": 10000, "valuta": "NOK"},
     "konkurs": False,
     "_links": {"self": {"href": PALMERA_URL}},
 }
@@ -253,6 +267,15 @@ def test_fetch_stores_entity_record_and_fills_resource_index(tmp_path: Path) -> 
     assert attrs["organisasjonsform"] == "FLI"
     assert attrs["organisasjonsform_beskrivelse"] == "Forening/lag/innretning"
     assert attrs["konkurs"] is False
+    assert attrs["forretningsadresse"] == {
+        "adresse": ["Testgata 1"],
+        "kommune": "OSLO",
+        "kommunenummer": "0301",
+    }
+    assert attrs["historiskeNavn"] == [
+        {"gammeltNavn": "PALMERA FORENING", "gyldigFra": "2015-01-01"}
+    ]
+    assert attrs["kapital"] == {"belop": 10000, "valuta": "NOK"}
     assert "_links" not in attrs
     # Observations stay empty: companies are not measures.
     assert registry.list_observations(DATASET_ID) == []
@@ -266,6 +289,13 @@ def test_fetch_stores_entity_record_and_fills_resource_index(tmp_path: Path) -> 
     assert cap["verified_at"]
     fields = {f["field_code"]: f for f in registry.resource_fields(DATASET_ID)}
     assert fields["organisasjonsnummer"]["field_role"] == "key"
+    assert fields["forretningsadresse.kommunenummer"]["field_role"] == "attribute"
+    municipality_hits = registry.datasets_containing_value(
+        "0301", field_code="forretningsadresse.kommunenummer"
+    )
+    assert [hit["dataset_id"] for hit in municipality_hits] == [DATASET_ID]
+    assert "historiskeNavn.gammeltNavn" in fields
+    assert "kapital.belop" in fields
     keys = registry.datasets_with_key(ORGNR_SCHEME)
     assert any(k["dataset_id"] == DATASET_ID for k in keys)
     assert classify_access_path(PALMERA_URL)["kind"] == "entities"
@@ -301,6 +331,27 @@ def test_entity_and_shape_claim_brreg_orgnr_only_after_mod11() -> None:
     assert not valid_orgnr("123456789")
     assert not valid_orgnr("91662793")  # too short
     assert not valid_orgnr("abcdefgh i")
+
+
+def test_fetch_refuses_a_different_printed_orgnr(tmp_path: Path) -> None:
+    class WrongEntityHttp(FetchHttp):
+        def get_json_response(self, url: str, *, headers=None) -> JsonResponse:
+            if url == PALMERA_URL:
+                return JsonResponse(status=200, url=url, body=ZOTKO_BODY)
+            return super().get_json_response(url, headers=headers)
+
+    source = BrenheterSource(http=CatalogHttp())
+    registry = Registry(tmp_path / "registry.sqlite")
+    harvest(registry, source)
+    with pytest.raises(ValueError, match="not the requested"):
+        fetch_observations(
+            registry,
+            DATASET_ID,
+            table_id="ignored",
+            http=WrongEntityHttp(),
+        )
+    assert registry.list_records(DATASET_ID) == []
+    registry.close()
 
 
 def test_is_brenheter_url_accepts_only_enhet_item_paths() -> None:

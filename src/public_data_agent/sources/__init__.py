@@ -38,6 +38,7 @@ from public_data_agent.sources.elcert import ElcertSource
 from public_data_agent.sources.entur import EnturGbfsSource
 from public_data_agent.sources.envreportreg import EnvreportregSource
 from public_data_agent.sources.fbgis import FbgisSource
+from public_data_agent.sources.fdirpx import FdirPxwebSource
 from public_data_agent.sources.fdkorg import FdkorgSource
 from public_data_agent.sources.fdirwms import FdirwmsSource
 from public_data_agent.sources.fhi import FhiStatistikkSource
@@ -383,6 +384,11 @@ SOURCE_IDS = (
     "stskrift",
 )
 
+# Kept separate from the historical tuple because downstream tests and callers
+# rely on its long-standing order. New bounded connectors can be added here
+# without renumbering that public sequence.
+ADDITIONAL_SOURCE_IDS = ("fdirpx",)
+
 
 def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSource:
     if source_id == "datanorge":
@@ -663,6 +669,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return AvinorgisSource()
     if source_id == "brroller":
         return BrrollerSource()
+    if source_id == "fdirpx":
+        return FdirPxwebSource()
     if source_id == "fdirwms":
         return FdirwmsSource()
     if source_id == "brorgform":
@@ -763,7 +771,9 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return NibiogardSource()
     if source_id == "stskrift":
         return StskriftSource()
-    raise ValueError(f"unknown source {source_id!r}; known: {', '.join(SOURCE_IDS)}")
+    raise ValueError(
+        f"unknown source {source_id!r}; known: {', '.join((*SOURCE_IDS, *ADDITIONAL_SOURCE_IDS))}"
+    )
 
 
 __all__ = [
@@ -803,6 +813,7 @@ __all__ = [
     "EnturGbfsSource",
     "EnvreportregSource",
     "FbgisSource",
+    "FdirPxwebSource",
     "FdirwmsSource",
     "FdkorgSource",
     "FhiStatistikkSource",
@@ -926,6 +937,7 @@ __all__ = [
     "SsbvarSource",
     "SsbverSource",
     "SOURCE_IDS",
+    "ADDITIONAL_SOURCE_IDS",
     "SourceBase",
     "StatnettDriftsdataSource",
     "StedsnavnSource",

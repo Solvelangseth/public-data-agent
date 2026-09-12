@@ -5,18 +5,22 @@ from pathlib import Path
 
 import pytest
 
-from public_data_agent.fetch import fetch_observations
+from public_data_agent.fetch import SelectionTooLarge, classify_access_path, fetch_observations
 from public_data_agent.harvest import harvest
 from public_data_agent.http_util import JsonResponse
 from public_data_agent.registry import Registry
 from public_data_agent.sources import SOURCE_IDS, build_source
 from public_data_agent.sources.brunder import (
     LIST_URL,
+    ORGNR_SCHEME,
     BrunderSource,
     brunder_table_id,
     cells_from_brunder,
+    entity_from_brunder,
+    is_brunder_collection_url,
     is_brunder_url,
     printed_item_url,
+    shape_from_brunder,
 )
 
 ZOTKO_URL = "https://data.brreg.no/enhetsregisteret/api/underenheter/933489272"
@@ -46,15 +50,33 @@ CATALOG = {
                 "navn": "missing organisasjonsnummer is skipped",
                 "_links": {"self": {"href": ZOTKO_URL}},
             },
+            {
+                "organisasjonsnummer": "123456789",
+                "navn": "invalid check digit is skipped",
+            },
         ]
     }
 }
 ITEM_BODY = {
     "organisasjonsnummer": "933489272",
     "navn": "- ZOTKO .NO",
+    "organisasjonsform": {"kode": "BEDR", "beskrivelse": "Underenhet"},
     "registrertIMvaregisteret": False,
-    "beliggenhetsadresse": {"land": "Norge"},
+    "overordnetEnhet": "933365573",
+    "beliggenhetsadresse": {
+        "adresse": ["Testgata 1"],
+        "kommune": "OSLO",
+        "kommunenummer": "0301",
+        "land": "Norge",
+        "_links": {"kommune": {"href": KOMMUNER_URL}},
+    },
     "_links": {"self": {"href": ZOTKO_URL}},
+}
+MYHRE_BODY = {
+    "organisasjonsnummer": "934551524",
+    "navn": "----ADVOKATFIRMAET CATO MYHRE",
+    "overordnetEnhet": "934551435",
+    "_links": {"self": {"href": MYHRE_URL}},
 }
 
 
@@ -66,11 +88,19 @@ class CatalogHttp:
         self.gets.append(url)
         if url == LIST_URL:
             return CATALOG
+        if url == ZOTKO_URL:
+            return ITEM_BODY
+        if url == MYHRE_URL:
+            return MYHRE_BODY
         raise AssertionError(f"unexpected GET {url}")
 
 
 class FetchHttp:
+    def __init__(self) -> None:
+        self.gets: list[str] = []
+
     def get_json_response(self, url: str, *, headers=None) -> JsonResponse:
+        self.gets.append(url)
         if url == ZOTKO_URL:
             return JsonResponse(status=200, url=url, body=ITEM_BODY)
         raise AssertionError(f"unexpected GET {url}")
@@ -196,7 +226,7 @@ def test_harvest_writes_printed_id_and_null_license(tmp_path: Path) -> None:
     registry.close()
 
 
-def test_fetch_gets_printed_navn(tmp_path: Path) -> None:
+def test_fetch_stores_entity_record_and_fills_resource_index(tmp_path: Path) -> None:
     source = BrunderSource(http=CatalogHttp())
     registry = Registry(tmp_path / "registry.sqlite")
     harvest(registry, source)
@@ -210,29 +240,51 @@ def test_fetch_gets_printed_navn(tmp_path: Path) -> None:
     assert result.table_id == "933489272"
     assert result.http_status == 200
     assert result.counts.listed == 1
-    rows = registry.list_observations(DATASET_ID)
-    values = [json.loads(row["value_json"]) for row in rows]
-    assert values == ["- ZOTKO .NO"]
-    assert all(row["measure"] == "navn" for row in rows)
-    dims = json.loads(rows[0]["dimensions_json"])
-    assert dims["organisasjonsnummer"] == "933489272"
-    assert "beliggenhetsadresse" not in dims
-    assert "_links" not in dims
-    assert all(row["publisher_name"] is None for row in rows)
-    assert all(row["license"] is None for row in rows)
-    assert all(row["access_path"] == ZOTKO_URL for row in rows)
+    assert result.counts.inserted == 1
+    rows = registry.list_records(DATASET_ID)
+    assert len(rows) == 1
+    row = rows[0]
+    assert row["kind"] == "entity"
+    assert row["subject_scheme"] == ORGNR_SCHEME
+    assert row["subject_code"] == "933489272"
+    assert row["subject_label"] == "- ZOTKO .NO"
+    assert row["measure"] is None
+    assert row["value_num"] is None
+    assert row["license"] is None
+    attrs = json.loads(row["attributes_json"])
+    assert attrs["overordnetEnhet"] == "933365573"
+    assert attrs["organisasjonsform"] == "BEDR"
+    assert attrs["beliggenhetsadresse"] == {
+        "adresse": ["Testgata 1"],
+        "kommune": "OSLO",
+        "kommunenummer": "0301",
+        "land": "Norge",
+    }
+    assert registry.list_observations(DATASET_ID) == []
+    cap = registry.get_capability(DATASET_ID)
+    assert cap is not None
+    assert cap["capability"] == "entities"
+    assert cap["record_kind"] == "entity"
+    assert cap["endpoint"] == ZOTKO_URL
+    assert cap["request_method"] == "GET"
+    assert cap["verified_sample_count"] == 1
+    fields = {field["field_code"]: field for field in registry.resource_fields(DATASET_ID)}
+    assert fields["organisasjonsnummer"]["field_role"] == "key"
+    assert fields["overordnetEnhet"]["field_role"] == "attribute"
+    assert fields["beliggenhetsadresse.kommunenummer"]["field_role"] == "attribute"
+    assert registry.datasets_containing_value("933365573", field_code="overordnetEnhet")
+    keys = registry.datasets_with_key(ORGNR_SCHEME)
+    assert [key["dataset_id"] for key in keys] == [DATASET_ID]
+    assert classify_access_path(ZOTKO_URL)["kind"] == "entities"
     registry.close()
 
 
 def test_cells_copy_printed_underenhet() -> None:
     cells = cells_from_brunder(ITEM_BODY)
-    assert cells == [
-        (
-            "navn",
-            "- ZOTKO .NO",
-            {"organisasjonsnummer": "933489272", "registrertIMvaregisteret": "False"},
-        )
-    ]
+    assert cells[0][0] == "navn"
+    assert cells[0][1] == "- ZOTKO .NO"
+    assert cells[0][2]["organisasjonsnummer"] == "933489272"
+    assert cells[0][2]["overordnetEnhet"] == "933365573"
     fallback = cells_from_brunder({"organisasjonsnummer": "933489272"})
     assert fallback == [("organisasjonsnummer", "933489272", {})]
     with pytest.raises(ValueError, match="JSON object"):
@@ -241,19 +293,45 @@ def test_cells_copy_printed_underenhet() -> None:
         cells_from_brunder({"_links": {"self": {"href": ZOTKO_URL}}})
 
 
+def test_entity_and_shape_validate_subject_and_parent_orgnrs() -> None:
+    entity = entity_from_brunder(ITEM_BODY)
+    assert entity["subject_scheme"] == ORGNR_SCHEME
+    assert entity["subject_code"] == "933489272"
+    assert entity["attributes"]["overordnetEnhet"] == "933365573"
+    fields, keys = shape_from_brunder(ITEM_BODY)
+    assert keys == [
+        {"scheme": ORGNR_SCHEME, "field_code": "organisasjonsnummer", "coverage_count": 1}
+    ]
+    assert any(field["field_code"] == "overordnetEnhet" for field in fields)
+    with pytest.raises(ValueError, match="mod-11"):
+        entity_from_brunder({"organisasjonsnummer": "123456789"})
+    with pytest.raises(ValueError, match="parent organisation"):
+        entity_from_brunder(
+            {"organisasjonsnummer": "933489272", "overordnetEnhet": "123456789"}
+        )
+
+
 def test_is_brunder_url_accepts_only_underenhet_item_paths() -> None:
     assert is_brunder_url(ZOTKO_URL)
     assert is_brunder_url(MYHRE_URL)
     assert brunder_table_id(ZOTKO_URL) == "933489272"
     assert not is_brunder_url(LIST_URL)
+    assert is_brunder_collection_url(LIST_URL)
     assert not is_brunder_url(LASTNED_URL)
+    assert is_brunder_collection_url(LASTNED_URL)
     assert not is_brunder_url(ENHETER_URL)
     assert not is_brunder_url(OPPDATER_URL)
     assert not is_brunder_url(ORGFORM_URL)
     assert not is_brunder_url(KOMMUNER_URL)
     assert not is_brunder_url(ROOT_URL)
+    assert not is_brunder_url(
+        "https://data.brreg.no/enhetsregisteret/api/underenheter/123456789"
+    )
     assert not is_brunder_url("https://data.norge.no/datasets/x")
     assert not is_brunder_url(None)
+    assert classify_access_path(ZOTKO_URL)["kind"] == "entities"
+    assert classify_access_path(LIST_URL)["kind"] == "none"
+    assert classify_access_path(LASTNED_URL)["kind"] == "none"
 
 
 def test_limit_and_offset_slice_printed_underenheter() -> None:
@@ -262,3 +340,66 @@ def test_limit_and_offset_slice_printed_underenheter() -> None:
     nxt = source.list_dataset_refs(limit=1, offset=1)
     assert [ref.source_native_id for ref in nxt] == ["934551524"]
     assert source.list_dataset_refs(limit=1, offset=2) == []
+
+
+def test_fetch_refuses_oversized_orgnr_select(tmp_path: Path) -> None:
+    source = BrunderSource(http=CatalogHttp())
+    registry = Registry(tmp_path / "registry.sqlite")
+    harvest(registry, source)
+    http = FetchHttp()
+    with pytest.raises(SelectionTooLarge) as excinfo:
+        fetch_observations(
+            registry,
+            DATASET_ID,
+            table_id="ignored",
+            http=http,
+            select={"organisasjonsnummer": ["933489272", "934551524"]},
+        )
+    assert excinfo.value.limit == 1
+    assert http.gets == []
+    registry.close()
+
+
+def test_fetch_refuses_mismatched_and_unknown_selects(tmp_path: Path) -> None:
+    source = BrunderSource(http=CatalogHttp())
+    registry = Registry(tmp_path / "registry.sqlite")
+    harvest(registry, source)
+    http = FetchHttp()
+    with pytest.raises(ValueError, match="does not match"):
+        fetch_observations(
+            registry,
+            DATASET_ID,
+            table_id="ignored",
+            http=http,
+            select={"organisasjonsnummer": ["934551524"]},
+        )
+    with pytest.raises(ValueError, match="does not filter"):
+        fetch_observations(
+            registry,
+            DATASET_ID,
+            table_id="ignored",
+            http=http,
+            select={"overordnetEnhet": ["933365573"]},
+        )
+    assert http.gets == []
+    registry.close()
+
+
+def test_fetch_refuses_a_different_printed_orgnr(tmp_path: Path) -> None:
+    class WrongEntityHttp(FetchHttp):
+        def get_json_response(self, url: str, *, headers=None) -> JsonResponse:
+            if url == ZOTKO_URL:
+                return JsonResponse(status=200, url=url, body=MYHRE_BODY)
+            return super().get_json_response(url, headers=headers)
+
+    registry = Registry(tmp_path / "registry.sqlite")
+    harvest(registry, BrunderSource(http=CatalogHttp()))
+    with pytest.raises(ValueError, match="not the requested"):
+        fetch_observations(
+            registry,
+            DATASET_ID,
+            table_id="ignored",
+            http=WrongEntityHttp(),
+        )
+    assert registry.list_records(DATASET_ID) == []
+    registry.close()

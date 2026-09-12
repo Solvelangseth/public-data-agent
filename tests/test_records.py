@@ -148,6 +148,17 @@ def test_an_unchanged_record_is_reported_as_such(tmp_path: Path) -> None:
     registry.close()
 
 
+def test_a_changed_entity_label_is_not_mistaken_for_an_unchanged_record(
+    tmp_path: Path,
+) -> None:
+    registry = _registry(tmp_path)
+    entity = _record(kind="entity", measure=None, period=None, value=None)
+    registry.upsert_record(entity, 1)
+    assert registry.upsert_record({**entity, "subject_label": "Nytt navn AS"}, 1) == "updated"
+    assert registry.list_records("src:1")[0]["subject_label"] == "Nytt navn AS"
+    registry.close()
+
+
 # ---- resource index -----------------------------------------------------
 
 

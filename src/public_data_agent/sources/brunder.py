@@ -6,6 +6,12 @@ from urllib.parse import urlsplit
 from public_data_agent.http_util import HttpClient, RateLimiter
 from public_data_agent.models import DatasetRef, HarvestedRecord, SourceError
 from public_data_agent.sources.base import SourceBase
+from public_data_agent.sources.brenheter import (
+    ORGNR_SCHEME,
+    entity_from_enhet,
+    shape_from_brenheter,
+    valid_orgnr,
+)
 
 SOURCE_ID = "brunder"
 SOURCE_NAME = "Brønnøysundregistrene Enhetsregisteret underenheter"
@@ -20,6 +26,7 @@ BRUNDER_RPS = 2.0
 BRUNDER_BURST = 4
 HOST = "data.brreg.no"
 NAME_FIELDS = ("navn", "organisasjonsnummer")
+BRUNDER_ORGNR_LIMIT = 1
 
 
 class BrunderSource(SourceBase):
@@ -37,7 +44,9 @@ class BrunderSource(SourceBase):
     (`--source brroller`), not leftover oppdateringer
     (`--source broppdater`), not leftover representanter
     (`--source brrepresent`), and not leftover enheter
-    (`--source brenheter`).
+    (`--source brenheter`). Fetching a harvested item stores an `entity`
+    record keyed by `brreg:orgnr`; the legacy observation-shaped mapper is
+    retained only for compatibility.
     """
 
     source_id = SOURCE_ID
@@ -77,8 +86,28 @@ class BrunderSource(SourceBase):
 
     def fetch_dataset(self, ref: DatasetRef) -> HarvestedRecord:
         ident = ref.source_native_id or brunder_table_id(ref.source_native_uri or "")
-        item = self._catalog_item(ident)
-        endpoint = printed_item_url(item, self.list_url)
+        if not valid_orgnr(ident):
+            raise SourceError(
+                f"Enhetsregisteret underenhet organisasjonsnummer {ident!r} fails "
+                "the mod-11 check digit; refusing to fetch"
+            )
+        endpoint = ref.source_native_uri or underenhet_url(ident, self.list_url)
+        try:
+            item = self.http.get_json(endpoint)
+        except Exception as exc:
+            raise SourceError(
+                f"Enhetsregisteret underenhet GET failed for {endpoint}: {exc}"
+            ) from exc
+        if not isinstance(item, dict):
+            raise SourceError(
+                f"Enhetsregisteret underenhet response is not a JSON object: {endpoint}"
+            )
+        printed = printed_organisasjonsnummer(item)
+        if printed != ident:
+            raise SourceError(
+                f"Enhetsregisteret underenhet at {endpoint} printed organisasjonsnummer "
+                f"{printed!r}, not the requested {ident!r}"
+            )
         title = printed_title(item, ident)
         payload = {
             "id": ident,
@@ -97,7 +126,7 @@ class BrunderSource(SourceBase):
             "brunder_underenhet": {
                 key: item[key]
                 for key in item
-                if key != "_links" and _is_scalar(item[key])
+                if key != "_links"
             },
             "brunder_self_href": endpoint,
         }
@@ -108,7 +137,7 @@ class BrunderSource(SourceBase):
             ingest_reason=self.ingest_reason,
             source_native_id=ident,
             source_native_uri=endpoint,
-            fetched_from=self.list_url,
+            fetched_from=endpoint,
             payload=payload,
         )
 
@@ -154,7 +183,9 @@ def printed_underenheter(body: Any) -> list[dict[str, Any]]:
         if not isinstance(item, dict):
             continue
         try:
-            printed_organisasjonsnummer(item)
+            ident = printed_organisasjonsnummer(item)
+            if not valid_orgnr(ident):
+                continue
             printed_item_url(item, LIST_URL)
         except SourceError:
             continue
@@ -186,11 +217,14 @@ def printed_item_url(item: dict[str, Any], list_url: str) -> str:
     href = _printed_self_href(item)
     if href is not None and is_brunder_url(href):
         return href
+    return underenhet_url(printed_organisasjonsnummer(item), list_url)
+
+
+def underenhet_url(orgnr: str, list_url: str = LIST_URL) -> str:
     parts = urlsplit(list_url)
     if not parts.scheme or not parts.netloc:
         raise SourceError("Enhetsregisteret underenheter catalog URL has no printed origin")
-    ident = printed_organisasjonsnummer(item)
-    return f"{parts.scheme}://{parts.netloc}{PATH_PREFIX}/{ident}"
+    return f"{parts.scheme}://{parts.netloc}{PATH_PREFIX}/{orgnr}"
 
 
 def _printed_self_href(item: dict[str, Any]) -> str | None:
@@ -226,7 +260,19 @@ def is_brunder_url(access_path: str | None) -> bool:
     if not path.startswith(prefix):
         return False
     rest = path[len(prefix) :]
-    return bool(rest) and "/" not in rest and rest.isdigit()
+    return bool(rest) and "/" not in rest and valid_orgnr(rest)
+
+
+def is_brunder_collection_url(access_path: str | None) -> bool:
+    """The underenheter collection or lastned dump, not one entity."""
+
+    if not access_path:
+        return False
+    parsed = urlsplit(access_path)
+    if parsed.netloc.lower() != HOST:
+        return False
+    path = parsed.path.rstrip("/")
+    return path in {PATH_PREFIX, PATH_PREFIX + "/lastned"}
 
 
 def brunder_table_id(access_path: str) -> str:
@@ -235,6 +281,8 @@ def brunder_table_id(access_path: str) -> str:
 
 
 def cells_from_brunder(payload: Any) -> list[tuple[str, Any, dict[str, str]]]:
+    """Legacy observation-shaped view. Prefer entity_from_brunder."""
+
     if not isinstance(payload, dict):
         raise ValueError("brunder payload is not a JSON object")
     cells = _cells_from_record(
@@ -243,6 +291,34 @@ def cells_from_brunder(payload: Any) -> list[tuple[str, Any, dict[str, str]]]:
     if not cells:
         raise ValueError("brunder payload printed no underenhet members")
     return cells
+
+
+def entity_from_brunder(payload: Any) -> dict[str, Any]:
+    """One verified sub-unit entity from an official item response."""
+
+    entity = entity_from_enhet(payload)
+    parent = entity["attributes"].get("overordnetEnhet")
+    if parent is not None and not valid_orgnr(str(parent)):
+        raise ValueError(
+            f"printed overordnetEnhet {parent!r} fails the mod-11 check digit; "
+            "refusing an invalid parent organisation reference"
+        )
+    return entity
+
+
+def shape_from_brunder(
+    payload: Any,
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    """Resource fields for a verified sub-unit response.
+
+    The subject organisation number is the resource key. `overordnetEnhet` is
+    retained and indexed as an attribute: the current resource-key table stores
+    one field per scheme, so claiming the same scheme on both fields would hide
+    which organisation the record itself is about.
+    """
+
+    entity_from_brunder(payload)
+    return shape_from_brenheter(payload)
 
 
 def _cells_from_record(item: dict[str, Any]) -> list[tuple[str, Any, dict[str, str]]]:
