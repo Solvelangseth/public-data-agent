@@ -22,6 +22,11 @@ HOST = "data.stortinget.no"
 FORMAT_QUERY = "json"
 SESJON_QUERY = "sesjonid"
 NAME_FIELDS = ("tittel", "id")
+SUBJECT_SCHEME = "stortinget:sporsmal_id"
+LIST_KEY = "sporsmal_liste"
+DEFAULT_LIMIT = 10
+MAX_LIMIT = 100
+_SKIP_KEYS = {"respons_dato_tid", "versjon"}
 
 
 class StsporreSource(SourceBase):
@@ -256,3 +261,160 @@ def _as_dim(value: Any) -> str:
     if value is None:
         return ""
     return str(value)
+
+
+def document_from_sporsmal(item: dict[str, Any]) -> dict[str, Any]:
+    code = _id_code(item.get("id"))
+    if not code:
+        raise ValueError("Stortinget question printed no id")
+    label = _string(item.get("tittel")) or code
+    attributes: dict[str, Any] = {}
+    for key, value in item.items():
+        if key in _SKIP_KEYS:
+            continue
+        if isinstance(value, dict):
+            _flatten_nested(attributes, key, value)
+            continue
+        if isinstance(value, list):
+            continue
+        if value is None:
+            continue
+        if key == "id":
+            attributes[key] = code
+            continue
+        attributes[key] = value
+    return {
+        "subject_scheme": SUBJECT_SCHEME,
+        "subject_code": code,
+        "subject_label": label,
+        "attributes": attributes,
+    }
+
+
+def documents_from_payload(payload: Any) -> list[dict[str, Any]]:
+    if not isinstance(payload, dict):
+        raise ValueError("sporretimesporsmal payload is not a JSON object")
+    listed = payload.get(LIST_KEY)
+    if not isinstance(listed, list) or not listed:
+        raise ValueError("sporretimesporsmal payload printed no questions")
+    out = []
+    for item in listed:
+        if isinstance(item, dict):
+            out.append(document_from_sporsmal(item))
+    if not out:
+        raise ValueError("sporretimesporsmal payload printed no question objects")
+    return out
+
+
+def shape_from_sporsmal(
+    documents: list[dict[str, Any]],
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    ids = [
+        {"value_code": item["subject_code"], "value_label": item["subject_label"]}
+        for item in documents[:20]
+    ]
+    fields = [
+        {
+            "field_code": "id",
+            "field_label": "id",
+            "field_role": "key",
+            "values": ids,
+        },
+        {
+            "field_code": "tittel",
+            "field_label": "tittel",
+            "field_role": "attribute",
+            "values": [],
+        },
+        {
+            "field_code": "sesjon_id",
+            "field_label": "sesjon",
+            "field_role": "attribute",
+            "values": [],
+        },
+        {
+            "field_code": "sporsmal_fra.id",
+            "field_label": "spørsmål fra",
+            "field_role": "attribute",
+            "values": [],
+        },
+        {
+            "field_code": "sporsmal_til_minister_tittel",
+            "field_label": "til minister",
+            "field_role": "attribute",
+            "values": [],
+        },
+    ]
+    keys = [
+        {
+            "scheme": SUBJECT_SCHEME,
+            "field_code": "id",
+            "coverage_count": len(documents),
+        }
+    ]
+    return fields, keys
+
+
+def selected_question(
+    select: dict[str, list[str]] | None,
+) -> tuple[list[str] | None, int]:
+    """Return (ids or None for a page, page size). Unknown fields error."""
+
+    select = {str(k): v for k, v in (select or {}).items()}
+    allowed = {"id", "antall"}
+    unknown = sorted(key for key in select if key not in allowed)
+    if unknown:
+        raise ValueError(
+            f"select names field(s) {unknown} that a sporretimesporsmal fetch "
+            f"does not filter on; accepted: {sorted(allowed)}"
+        )
+    limit = DEFAULT_LIMIT
+    if "antall" in select:
+        wanted = select["antall"]
+        wanted = [wanted] if isinstance(wanted, str) else list(wanted)
+        try:
+            limit = int(str(wanted[0]))
+        except (ValueError, IndexError) as exc:
+            raise ValueError(f"select[antall]={select['antall']!r} is not a number") from exc
+        if limit < 1:
+            raise ValueError(f"select[antall]={limit} must be at least 1")
+    if "id" not in select:
+        return None, limit
+    values = select["id"]
+    values = [values] if isinstance(values, str) else [str(v) for v in values]
+    if len(values) != 1:
+        raise ValueError("select id accepts exactly one question id")
+    return values, 1
+
+
+def _flatten_nested(attributes: dict[str, Any], prefix: str, value: dict[str, Any]) -> None:
+    nested_id = _id_code(value.get("id")) or _string(value.get("id"))
+    nested_fornavn = _string(value.get("fornavn"))
+    nested_etternavn = _string(value.get("etternavn"))
+    nested_navn = _string(value.get("navn"))
+    if nested_id:
+        attributes[f"{prefix}.id"] = nested_id
+    if nested_fornavn:
+        attributes[f"{prefix}.fornavn"] = nested_fornavn
+    if nested_etternavn:
+        attributes[f"{prefix}.etternavn"] = nested_etternavn
+    if nested_navn:
+        attributes[f"{prefix}.navn"] = nested_navn
+    for child_key in ("parti", "fylke"):
+        child = value.get(child_key)
+        if isinstance(child, dict):
+            _flatten_nested(attributes, f"{prefix}.{child_key}", child)
+
+
+def _id_code(value: Any) -> str | None:
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, int):
+        return str(value)
+    if isinstance(value, str) and value.strip():
+        return value.strip()
+    return None
+
+
+def _string(value: Any) -> str | None:
+    return value if isinstance(value, str) and value.strip() else None

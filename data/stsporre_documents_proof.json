@@ -1,0 +1,44 @@
+{
+  "dataset": "stsporre:2025-2026",
+  "title": "2025-2026",
+  "request_url": "https://data.stortinget.no/eksport/sporretimesporsmal?sesjonid=2025-2026&format=json",
+  "http_status": 200,
+  "listed": 1,
+  "page_listed": 10,
+  "publisher_count": 524,
+  "sample": {
+    "id": "124284",
+    "tittel": "I forbindelse med flyttingen av palliativt senter ved Haukeland universitetssykehus mister kreftklinikken åtte sengeplasser samt noen årsverk. Dette skjer samtidig som vi har passert 40 000 nye kreftforløp på et år.\nMener statsråden det er forsvarlig å redusere kapasiteten mens man ser en slik økning i behov?",
+    "sesjon_id": "2025-2026",
+    "sporsmal_nummer": 4,
+    "sporsmal_fra.id": "STIA",
+    "sporsmal_til_minister_tittel": "helse- og omsorgsministeren"
+  },
+  "page_sample": [
+    {
+      "id": "124284",
+      "tittel": "I forbindelse med flyttingen av palliativt senter ved Haukeland universitetssykehus mister kreftklinikken åtte sengeplasser samt noen årsverk. Dette skjer samtidig som vi har passert 40 000 nye kreftforløp på et år.\nMener statsråden det er forsvarlig å redusere kapasiteten mens man ser en slik økning i behov?",
+      "sesjon_id": "2025-2026",
+      "sporsmal_nummer": 4,
+      "sporsmal_fra.id": "STIA",
+      "sporsmal_til_minister_tittel": "helse- og omsorgsministeren"
+    },
+    {
+      "id": "124283",
+      "tittel": "Regjeringen varsler at sykehus og kommuner skal kunne stille 7 000 sengeplasser til rådighet for sårede i tilfelle krig på norsk jord. Dette skal skje innenfor dagens budsjettrammer, samtidig som norske sykehus har blant de høyeste beleggene i OECD-landene, sykehus har blitt bygget for små for reelle behov, kirurgisk sengepost ved Lærdal sykehus legges ned, og foretakenes gjeldsbelastning øker.\nHvordan vil regjeringen sørge for at beredskapen reelt bygges opp?",
+      "sesjon_id": "2025-2026",
+      "sporsmal_nummer": 3,
+      "sporsmal_fra.id": "KJT",
+      "sporsmal_til_minister_tittel": "helse- og omsorgsministeren"
+    },
+    {
+      "id": "124282",
+      "tittel": "Norge er inne i Totalforsvarsåret 2026. Trusselbildet er alvorlig, og forventningene til beredskap er høye. Sikkerhetsloven påla alle departementer å kartlegge grunnleggende nasjonale funksjoner, seks år etter at loven trådte i kraft. Denne kartleggingen er ennå ikke fullført i alle departementer. Vi vet dermed ikke hva som må beskyttes for at samfunnet skal fungere i krig og krise. Det er et reelt hull i beredskapen. \nHvilke departementer har ikke oppfylt sin lovpålagte plikt, og når kan Stortinget forvente at dette er i orden?",
+      "sesjon_id": "2025-2026",
+      "sporsmal_nummer": 16,
+      "sporsmal_fra.id": "MAHF",
+      "sporsmal_til_minister_tittel": "justis- og beredskapsministeren"
+    }
+  ],
+  "note": "Documents, not title observations. Session collection fetched once; one id plus a page of 10 stored. 524 questions exist; they were not all ingested."
+}

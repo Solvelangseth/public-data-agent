@@ -1080,13 +1080,42 @@ historical dump.
 - Search for `stortingsrepresentanter` still ranks SSB election tables first;
   the harvested title is the printed operation id `dagensrepresentanter`.
 
-**Open question for the query side.** Session questions
-(`/eksport/sporretimesporsmal?sesjonid=2025-2026`, 524 items) are still
-catalogued per-session by `stsporre` and would be stored as name observations
-if fetched. They should become documents addressed by printed question id, not
-another observation dump.
+**Open question for the query side.** None for this register. Session
+questions are now documents; see `stsporre:2025-2026`.
 
 Proof: `data/strepresent_source_proof.json`.
+
+## stsporre:2025-2026 — 2026-09-13 — promoted (documents)
+
+**Endpoint(s).** `GET https://data.stortinget.no/eksport/sporretimesporsmal?sesjonid=2025-2026&format=json`.
+The session is already harvested as `stsporre:2025-2026`. Other leftover
+`/eksport/` lists (saker, interpellasjoner, møter) still use the generic
+title-as-observation decoder and were not changed.
+
+**Shape.** `document`. Subject scheme `stortinget:sporsmal_id` (printed `id`,
+e.g. `124284`). Label is printed `tittel`. Nested `sporsmal_fra` is flattened
+to `sporsmal_fra.id` / `fornavn` / `etternavn` / `parti.id`. `emne_liste` is
+skipped. Microsoft `/Date(...)/` timestamps are stored as printed. Licence
+is `null`. Publisher count for session 2025-2026 is 524.
+
+**Capability recorded.** `documents`. Live GET 2026-09-13: HTTP 200, one
+question by `select={"id": ["124284"]}` then a page of ten. Zero observation
+rows. Sample: `124284` from STIA (Stig Atle Abrahamsen) to
+helse- og omsorgsministeren. Default page is 10, hard cap 100; an unknown id
+is refused. The 524 questions were not all ingested. The API has no
+per-question URL; the session collection is fetched and filtered.
+
+**Surprises.**
+- The previous fetch stored each `tittel` as an observation (`measure=tittel`).
+  Dispatch now writes documents. `cells_from_stsporre` still copies titles for
+  unit tests and is unused by fetch.
+- Harvested title is the session id `2025-2026`, not "spørretimespørsmål".
+
+**Open question for the query side.** Other leftover Stortinget collections
+(`stsaker`, interpellasjoner) would still store titles as observations if
+fetched.
+
+Proof: `data/stsporre_documents_proof.json`.
 
 
 
