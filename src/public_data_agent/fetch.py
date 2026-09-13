@@ -108,6 +108,43 @@ from public_data_agent.sources.fdirwms import (
     is_fdirwms_url,
 )
 from public_data_agent.sources.fdirpx import fdirpx_table_id, is_fdirpx_url
+from public_data_agent.sources.ldirmelk import (
+    FARM_LIMIT,
+    cells_from_ldirmelk,
+    is_ldirmelk_url,
+    ldirmelk_table_id,
+    shape_from_ldirmelk,
+)
+from public_data_agent.sources.naturvern import (
+    DEFAULT_LIMIT as NATURVERN_DEFAULT_LIMIT,
+    MAX_LIMIT as NATURVERN_MAX_LIMIT,
+    SUBJECT_SCHEME as NATURVERN_SCHEME,
+    feature_from_arcgis,
+    is_naturvern_url,
+    naturvern_table_id,
+    query_url as naturvern_query_url,
+    shape_from_layer as shape_from_naturvern_layer,
+)
+from public_data_agent.sources.anadrom import (
+    DEFAULT_LIMIT as ANADROM_DEFAULT_LIMIT,
+    MAX_LIMIT as ANADROM_MAX_LIMIT,
+    SUBJECT_SCHEME as ANADROM_SCHEME,
+    anadrom_table_id,
+    feature_from_arcgis as anadrom_feature_from_arcgis,
+    is_anadrom_url,
+    query_url as anadrom_query_url,
+    shape_from_layer as shape_from_anadrom_layer,
+)
+from public_data_agent.sources.friluft import (
+    DEFAULT_LIMIT as FRILUFT_DEFAULT_LIMIT,
+    MAX_LIMIT as FRILUFT_MAX_LIMIT,
+    SUBJECT_SCHEME as FRILUFT_SCHEME,
+    feature_from_arcgis as friluft_feature_from_arcgis,
+    friluft_table_id,
+    is_friluft_url,
+    query_url as friluft_query_url,
+    shape_from_layer as shape_from_friluft_layer,
+)
 from public_data_agent.sources.hiwms import (
     cells_from_hiwms,
     hiwms_table_id,
@@ -353,11 +390,7 @@ from public_data_agent.sources.hitiles import (
     hitiles_table_id,
     is_hitiles_url,
 )
-from public_data_agent.sources.miljogis import (
-    cells_from_miljogis,
-    is_miljogis_url,
-    miljogis_table_id,
-)
+from public_data_agent.sources.miljogis import is_miljogis_url
 from public_data_agent.sources.hoydegis import (
     cells_from_hoydegis,
     hoydegis_table_id,
@@ -1187,6 +1220,8 @@ def fetch_observations(
         return _fetch_nve_magasin(registry, dataset, http=http)
     if is_nvdb_object_url(access_path) or is_nvdb_collection_url(access_path):
         return _fetch_nvdb(registry, dataset, http=http, select=select)
+    if is_ldirmelk_url(access_path):
+        return _fetch_ldirmelk(registry, dataset, http=http, select=select)
     if is_brkommuner_url(access_path):
         return _fetch_brkommuner(registry, dataset, http=http, select=select)
     if is_brenheter_url(access_path):
@@ -1444,8 +1479,16 @@ def fetch_observations(
         return _fetch_navwarnings(registry, dataset, http=http)
     if is_havnedata_url(access_path):
         return _fetch_havnedata(registry, dataset, http=http)
-    if is_miljogis_url(access_path):
-        return _fetch_miljogis(registry, dataset, http=http)
+    if is_naturvern_url(access_path):
+        return _fetch_naturvern(registry, dataset, http=http, select=select)
+    if is_anadrom_url(access_path):
+        return _fetch_anadrom(registry, dataset, http=http, select=select)
+    if is_friluft_url(access_path):
+        return _fetch_friluft(registry, dataset, http=http, select=select)
+    # No Miljødirektoratet MapServer-root dispatch. That JSON lists layer
+    # names; fetching it stored each layer's name as an observation. The
+    # vern, anadromous-stretch and statlig-sikra layers are handled above.
+    # Other MapServer catalogs are not data.
     if is_hoydegis_url(access_path):
         return _fetch_hoydegis(registry, dataset, http=http)
     if is_npitema_url(access_path):
@@ -2752,6 +2795,632 @@ def _fetch_geonorge_rest(
         dataset_id=dataset["id"],
         table_id=table_id,
         request_url=request_url,
+        http_status=http_status,
+        counts=counts,
+        sample=sample,
+    )
+
+
+def _fetch_naturvern(
+    registry: Registry,
+    dataset: dict[str, Any],
+    *,
+    http: JsonHttp | None = None,
+    select: dict[str, list[str]] | None = None,
+) -> FetchResult:
+    """Fetch protected-area features from the vern ArcGIS layer.
+
+    Default is a page of ten attribute records, no geometry. A named
+    ``naturvernId`` fetches that one area. ``antall`` raises the page size up
+    to a hard cap. An empty response is an error, not "there are none".
+    """
+
+    access_path = dataset.get("access_path") or ""
+    table_id = naturvern_table_id(access_path)
+    select = {str(k): v for k, v in (select or {}).items()}
+    allowed = {"naturvernId", "antall"}
+    unknown = sorted(key for key in select if key not in allowed)
+    if unknown:
+        raise ValueError(
+            f"select names field(s) {unknown} that a naturvern fetch does not filter on; "
+            f"accepted: {sorted(allowed)}"
+        )
+    limit = NATURVERN_DEFAULT_LIMIT
+    if "antall" in select:
+        wanted = select["antall"]
+        wanted = [wanted] if isinstance(wanted, str) else list(wanted)
+        try:
+            limit = int(str(wanted[0]))
+        except (ValueError, IndexError) as exc:
+            raise ValueError(f"select[antall]={select['antall']!r} is not a number") from exc
+        if limit < 1:
+            raise ValueError(f"select[antall]={limit} must be at least 1")
+        if limit > NATURVERN_MAX_LIMIT:
+            raise SelectionTooLarge(
+                table_id,
+                limit,
+                NATURVERN_MAX_LIMIT,
+                [
+                    {
+                        "code": "antall",
+                        "text": "features per request",
+                        "selected": limit,
+                        "available": NATURVERN_MAX_LIMIT,
+                    }
+                ],
+            )
+    naturvern_id = None
+    if "naturvernId" in select:
+        values = select["naturvernId"]
+        values = [values] if isinstance(values, str) else [str(v) for v in values]
+        if len(values) != 1:
+            raise ValueError("select naturvernId accepts exactly one id")
+        naturvern_id = values[0]
+        limit = 1
+    request_url = naturvern_query_url(access_path, naturvern_id=naturvern_id, limit=limit)
+    client = http or HttpClient(timeout=60.0, max_retries=4)
+    started = utc_now()
+    run_id = registry.start_fetch_run(
+        dataset_id=dataset["id"],
+        table_id=table_id,
+        request_url=request_url,
+        request_method="GET",
+        started_at=started,
+    )
+    counts = HarvestCounts()
+    status = "failed"
+    http_status = 0
+    sample: list[dict[str, Any]] = []
+    touched: list[str] = []
+    try:
+        got = client.get_json_response(request_url)
+        http_status = got.status
+        registry.set_fetch_request(run_id, request_url=request_url, request_body={"method": "GET"})
+        features = [
+            item
+            for item in ((got.body or {}).get("features") or [])
+            if isinstance(item, dict)
+        ]
+        retrieved_at = utc_now()
+        for payload in features:
+            feature = feature_from_arcgis(payload)
+            record_id = f"feature:{dataset['id']}:{feature['subject_code']}"
+            action = registry.upsert_record(
+                {
+                    "id": record_id,
+                    "dataset_id": dataset["id"],
+                    "kind": "feature",
+                    "series": "naturvern:naturvern_omrade",
+                    "subject_scheme": feature["subject_scheme"],
+                    "subject_code": feature["subject_code"],
+                    "subject_label": feature["subject_label"],
+                    "period": None,
+                    "measure": None,
+                    "value": None,
+                    "attributes": feature["attributes"],
+                    "retrieved_at": retrieved_at,
+                    "request_url": request_url,
+                    "http_status": http_status,
+                    "publisher_name": dataset.get("publisher_name"),
+                    "license": dataset.get("license"),
+                },
+                run_id,
+            )
+            counts.listed += 1
+            if action == "inserted":
+                counts.inserted += 1
+            elif action == "updated":
+                counts.updated += 1
+            else:
+                counts.unchanged += 1
+            touched.append(record_id)
+            if len(sample) < 3:
+                sample.append(
+                    {
+                        "kind": "feature",
+                        "subject_scheme": NATURVERN_SCHEME,
+                        "subject_code": feature["subject_code"],
+                        "subject_label": feature["subject_label"],
+                        "attributes": {
+                            key: feature["attributes"][key]
+                            for key in (
+                                "naturvernId",
+                                "offisieltNavn",
+                                "verneform",
+                                "kommune",
+                            )
+                            if key in feature["attributes"]
+                        },
+                    }
+                )
+        if not features:
+            raise ValueError(
+                f"vern layer returned no features for {request_url}; nothing was stored"
+            )
+        registry.set_capability(
+            dataset["id"],
+            {
+                "capability": CAPABILITY_FEATURES,
+                "record_kind": "feature",
+                "endpoint": access_path.split("?", 1)[0].rstrip("/"),
+                "request_method": "GET",
+                "subject_scheme": NATURVERN_SCHEME,
+                "subject_template": access_path.split("?", 1)[0].rstrip("/")
+                + "/query?where=naturvernId='{subject}'&f=json",
+                "verified_at": retrieved_at,
+                "verified_sample_count": counts.listed,
+                "notes": f"{counts.listed} protected area(s) fetched without geometry",
+            },
+        )
+        status = "completed"
+    except Exception as exc:
+        counts.failed += 1
+        counts.errors.append({"error": str(exc), "url": request_url})
+        raise
+    finally:
+        registry.finish_fetch_run(run_id, counts, status=status, http_status=http_status)
+    return FetchResult(
+        dataset_id=dataset["id"],
+        table_id=table_id,
+        request_url=request_url,
+        http_status=http_status,
+        counts=counts,
+        sample=sample,
+        observation_ids=touched,
+    )
+
+
+def _fetch_anadrom(
+    registry: Registry,
+    dataset: dict[str, Any],
+    *,
+    http: JsonHttp | None = None,
+    select: dict[str, list[str]] | None = None,
+) -> FetchResult:
+    """Fetch anadromous-stretch features from the laksefisk ArcGIS layer.
+
+    Default is a page of ten attribute records, no geometry. A named
+    ``vassdragsNR`` fetches that one river. ``elvenavn`` matches the printed
+    river name. ``nasjonaltLaksevassdrag`` filters the printed Ja/Nei flag.
+    ``antall`` raises the page size up to a hard cap. An empty response is
+    an error, not "there are none".
+    """
+
+    access_path = dataset.get("access_path") or ""
+    table_id = anadrom_table_id(access_path)
+    select = {str(k): v for k, v in (select or {}).items()}
+    allowed = {"vassdragsNR", "elvenavn", "nasjonaltLaksevassdrag", "antall"}
+    unknown = sorted(key for key in select if key not in allowed)
+    if unknown:
+        raise ValueError(
+            f"select names field(s) {unknown} that an anadrom fetch does not filter on; "
+            f"accepted: {sorted(allowed)}"
+        )
+    limit = ANADROM_DEFAULT_LIMIT
+    if "antall" in select:
+        wanted = select["antall"]
+        wanted = [wanted] if isinstance(wanted, str) else list(wanted)
+        try:
+            limit = int(str(wanted[0]))
+        except (ValueError, IndexError) as exc:
+            raise ValueError(f"select[antall]={select['antall']!r} is not a number") from exc
+        if limit < 1:
+            raise ValueError(f"select[antall]={limit} must be at least 1")
+        if limit > ANADROM_MAX_LIMIT:
+            raise SelectionTooLarge(
+                table_id,
+                limit,
+                ANADROM_MAX_LIMIT,
+                [
+                    {
+                        "code": "antall",
+                        "text": "features per request",
+                        "selected": limit,
+                        "available": ANADROM_MAX_LIMIT,
+                    }
+                ],
+            )
+
+    def _one(name: str) -> str | None:
+        if name not in select:
+            return None
+        values = select[name]
+        values = [values] if isinstance(values, str) else [str(v) for v in values]
+        if len(values) != 1:
+            raise ValueError(f"select {name} accepts exactly one value")
+        return values[0]
+
+    vassdrags_nr = _one("vassdragsNR")
+    elvenavn = _one("elvenavn")
+    nasjonalt = _one("nasjonaltLaksevassdrag")
+    if vassdrags_nr:
+        limit = 1
+    request_url = anadrom_query_url(
+        access_path,
+        vassdrags_nr=vassdrags_nr,
+        elvenavn=elvenavn,
+        nasjonalt_laksevassdrag=nasjonalt,
+        limit=limit,
+    )
+    client = http or HttpClient(timeout=60.0, max_retries=4)
+    started = utc_now()
+    run_id = registry.start_fetch_run(
+        dataset_id=dataset["id"],
+        table_id=table_id,
+        request_url=request_url,
+        request_method="GET",
+        started_at=started,
+    )
+    counts = HarvestCounts()
+    status = "failed"
+    http_status = 0
+    sample: list[dict[str, Any]] = []
+    touched: list[str] = []
+    try:
+        got = client.get_json_response(request_url)
+        http_status = got.status
+        registry.set_fetch_request(run_id, request_url=request_url, request_body={"method": "GET"})
+        features = [
+            item
+            for item in ((got.body or {}).get("features") or [])
+            if isinstance(item, dict)
+        ]
+        retrieved_at = utc_now()
+        for payload in features:
+            feature = anadrom_feature_from_arcgis(payload)
+            record_id = f"feature:{dataset['id']}:{feature['subject_code']}"
+            action = registry.upsert_record(
+                {
+                    "id": record_id,
+                    "dataset_id": dataset["id"],
+                    "kind": "feature",
+                    "series": "anadrom:anadrome_strekninger_lin",
+                    "subject_scheme": feature["subject_scheme"],
+                    "subject_code": feature["subject_code"],
+                    "subject_label": feature["subject_label"],
+                    "period": None,
+                    "measure": None,
+                    "value": None,
+                    "attributes": feature["attributes"],
+                    "retrieved_at": retrieved_at,
+                    "request_url": request_url,
+                    "http_status": http_status,
+                    "publisher_name": dataset.get("publisher_name"),
+                    "license": dataset.get("license"),
+                },
+                run_id,
+            )
+            counts.listed += 1
+            if action == "inserted":
+                counts.inserted += 1
+            elif action == "updated":
+                counts.updated += 1
+            else:
+                counts.unchanged += 1
+            touched.append(record_id)
+            if len(sample) < 3:
+                sample.append(
+                    {
+                        "kind": "feature",
+                        "subject_scheme": ANADROM_SCHEME,
+                        "subject_code": feature["subject_code"],
+                        "subject_label": feature["subject_label"],
+                        "attributes": {
+                            key: feature["attributes"][key]
+                            for key in (
+                                "vassdragsNR",
+                                "elvenavn",
+                                "nasjonaltLaksevassdrag",
+                                "lakseregURL",
+                            )
+                            if key in feature["attributes"]
+                        },
+                    }
+                )
+        if not features:
+            raise ValueError(
+                f"anadrom stretch layer returned no features for {request_url}; nothing was stored"
+            )
+        registry.set_capability(
+            dataset["id"],
+            {
+                "capability": CAPABILITY_FEATURES,
+                "record_kind": "feature",
+                "endpoint": access_path.split("?", 1)[0].rstrip("/"),
+                "request_method": "GET",
+                "subject_scheme": ANADROM_SCHEME,
+                "subject_template": access_path.split("?", 1)[0].rstrip("/")
+                + "/query?where=vassdragsNR='{subject}'&f=json",
+                "verified_at": retrieved_at,
+                "verified_sample_count": counts.listed,
+                "notes": f"{counts.listed} anadromous stretch(es) fetched without geometry",
+            },
+        )
+        status = "completed"
+    except Exception as exc:
+        counts.failed += 1
+        counts.errors.append({"error": str(exc), "url": request_url})
+        raise
+    finally:
+        registry.finish_fetch_run(run_id, counts, status=status, http_status=http_status)
+    return FetchResult(
+        dataset_id=dataset["id"],
+        table_id=table_id,
+        request_url=request_url,
+        http_status=http_status,
+        counts=counts,
+        sample=sample,
+        observation_ids=touched,
+    )
+
+
+def _fetch_friluft(
+    registry: Registry,
+    dataset: dict[str, Any],
+    *,
+    http: JsonHttp | None = None,
+    select: dict[str, list[str]] | None = None,
+) -> FetchResult:
+    """Fetch state-secured recreation-area features from the ArcGIS layer.
+
+    Default is a page of ten attribute records, no geometry. A named
+    ``friluftId`` fetches that one area. ``antall`` raises the page size up
+    to a hard cap. An empty response is an error, not "there are none".
+    """
+
+    access_path = dataset.get("access_path") or ""
+    table_id = friluft_table_id(access_path)
+    select = {str(k): v for k, v in (select or {}).items()}
+    allowed = {"friluftId", "antall"}
+    unknown = sorted(key for key in select if key not in allowed)
+    if unknown:
+        raise ValueError(
+            f"select names field(s) {unknown} that a friluft fetch does not filter on; "
+            f"accepted: {sorted(allowed)}"
+        )
+    limit = FRILUFT_DEFAULT_LIMIT
+    if "antall" in select:
+        wanted = select["antall"]
+        wanted = [wanted] if isinstance(wanted, str) else list(wanted)
+        try:
+            limit = int(str(wanted[0]))
+        except (ValueError, IndexError) as exc:
+            raise ValueError(f"select[antall]={select['antall']!r} is not a number") from exc
+        if limit < 1:
+            raise ValueError(f"select[antall]={limit} must be at least 1")
+        if limit > FRILUFT_MAX_LIMIT:
+            raise SelectionTooLarge(
+                table_id,
+                limit,
+                FRILUFT_MAX_LIMIT,
+                [
+                    {
+                        "code": "antall",
+                        "text": "features per request",
+                        "selected": limit,
+                        "available": FRILUFT_MAX_LIMIT,
+                    }
+                ],
+            )
+    friluft_id = None
+    if "friluftId" in select:
+        values = select["friluftId"]
+        values = [values] if isinstance(values, str) else [str(v) for v in values]
+        if len(values) != 1:
+            raise ValueError("select friluftId accepts exactly one id")
+        friluft_id = values[0]
+        limit = 1
+    request_url = friluft_query_url(access_path, friluft_id=friluft_id, limit=limit)
+    client = http or HttpClient(timeout=60.0, max_retries=4)
+    started = utc_now()
+    run_id = registry.start_fetch_run(
+        dataset_id=dataset["id"],
+        table_id=table_id,
+        request_url=request_url,
+        request_method="GET",
+        started_at=started,
+    )
+    counts = HarvestCounts()
+    status = "failed"
+    http_status = 0
+    sample: list[dict[str, Any]] = []
+    touched: list[str] = []
+    try:
+        got = client.get_json_response(request_url)
+        http_status = got.status
+        registry.set_fetch_request(run_id, request_url=request_url, request_body={"method": "GET"})
+        features = [
+            item
+            for item in ((got.body or {}).get("features") or [])
+            if isinstance(item, dict)
+        ]
+        retrieved_at = utc_now()
+        for payload in features:
+            feature = friluft_feature_from_arcgis(payload)
+            record_id = f"feature:{dataset['id']}:{feature['subject_code']}"
+            action = registry.upsert_record(
+                {
+                    "id": record_id,
+                    "dataset_id": dataset["id"],
+                    "kind": "feature",
+                    "series": "friluft:friluftsliv_statlig_sikra",
+                    "subject_scheme": feature["subject_scheme"],
+                    "subject_code": feature["subject_code"],
+                    "subject_label": feature["subject_label"],
+                    "period": None,
+                    "measure": None,
+                    "value": None,
+                    "attributes": feature["attributes"],
+                    "retrieved_at": retrieved_at,
+                    "request_url": request_url,
+                    "http_status": http_status,
+                    "publisher_name": dataset.get("publisher_name"),
+                    "license": dataset.get("license"),
+                },
+                run_id,
+            )
+            counts.listed += 1
+            if action == "inserted":
+                counts.inserted += 1
+            elif action == "updated":
+                counts.updated += 1
+            else:
+                counts.unchanged += 1
+            touched.append(record_id)
+            if len(sample) < 3:
+                sample.append(
+                    {
+                        "kind": "feature",
+                        "subject_scheme": FRILUFT_SCHEME,
+                        "subject_code": feature["subject_code"],
+                        "subject_label": feature["subject_label"],
+                        "attributes": {
+                            key: feature["attributes"][key]
+                            for key in (
+                                "friluftId",
+                                "omraadeNavn",
+                                "omraadeVerdi",
+                                "faktaark",
+                            )
+                            if key in feature["attributes"]
+                        },
+                    }
+                )
+        if not features:
+            raise ValueError(
+                f"friluft layer returned no features for {request_url}; nothing was stored"
+            )
+        registry.set_capability(
+            dataset["id"],
+            {
+                "capability": CAPABILITY_FEATURES,
+                "record_kind": "feature",
+                "endpoint": access_path.split("?", 1)[0].rstrip("/"),
+                "request_method": "GET",
+                "subject_scheme": FRILUFT_SCHEME,
+                "subject_template": access_path.split("?", 1)[0].rstrip("/")
+                + "/query?where=friluftId='{subject}'&f=json",
+                "verified_at": retrieved_at,
+                "verified_sample_count": counts.listed,
+                "notes": f"{counts.listed} state-secured recreation area(s) fetched without geometry",
+            },
+        )
+        status = "completed"
+    except Exception as exc:
+        counts.failed += 1
+        counts.errors.append({"error": str(exc), "url": request_url})
+        raise
+    finally:
+        registry.finish_fetch_run(run_id, counts, status=status, http_status=http_status)
+    return FetchResult(
+        dataset_id=dataset["id"],
+        table_id=table_id,
+        request_url=request_url,
+        http_status=http_status,
+        counts=counts,
+        sample=sample,
+        observation_ids=touched,
+    )
+
+
+def _fetch_ldirmelk(
+    registry: Registry,
+    dataset: dict[str, Any],
+    *,
+    http: JsonHttp | None = None,
+    select: dict[str, list[str]] | None = None,
+) -> FetchResult:
+    """Fetch dairy-delivery litres from a Landbruksdirektoratet year CSV.
+
+    Default is two national sums (kumelk, geitemelk). A farm extract must name
+    organisasjonsnummer, and more than FARM_LIMIT farms is refused before parse
+    of the selection, so a whole-register pull cannot look like success.
+    """
+
+    access_path = dataset.get("access_path") or ""
+    table_id = ldirmelk_table_id(access_path)
+    select = {str(k): v for k, v in (select or {}).items()}
+    wanted = select.get("organisasjonsnummer")
+    if wanted is not None:
+        wanted_list = [wanted] if isinstance(wanted, str) else list(wanted)
+        if len(wanted_list) > FARM_LIMIT:
+            raise SelectionTooLarge(
+                table_id,
+                len(wanted_list),
+                FARM_LIMIT,
+                [
+                    {
+                        "code": "organisasjonsnummer",
+                        "text": "organisasjonsnummer",
+                        "selected": len(wanted_list),
+                        "available": FARM_LIMIT,
+                    }
+                ],
+            )
+    client = http if http is not None and hasattr(http, "get_text") else HttpClient(
+        timeout=60.0, max_retries=4
+    )
+    started = utc_now()
+    run_id = registry.start_fetch_run(
+        dataset_id=dataset["id"],
+        table_id=table_id,
+        request_url=access_path,
+        request_method="GET",
+        started_at=started,
+    )
+    counts = HarvestCounts()
+    status = "failed"
+    http_status = 0
+    sample: list[dict[str, Any]] = []
+    try:
+        body = client.get_text(access_path)
+        http_status = 200
+        registry.set_fetch_request(
+            run_id, request_url=access_path, request_body={"method": "GET", "select": select}
+        )
+        cells = cells_from_ldirmelk(body, year=table_id, select=select or None)
+        counts.listed = len(cells)
+        retrieved_at = utc_now()
+        sample = _store_cells(
+            registry,
+            dataset,
+            run_id,
+            table_id=table_id,
+            cells=cells,
+            retrieved_at=retrieved_at,
+            request_url=access_path,
+            http_status=http_status,
+            counts=counts,
+        )
+        fields, keys = shape_from_ldirmelk(body, year=table_id)
+        registry.set_resource_shape(dataset["id"], fields, keys=keys)
+        if cells:
+            registry.set_capability(
+                dataset["id"],
+                {
+                    "capability": CAPABILITY_OBSERVATIONS,
+                    "record_kind": "observation",
+                    "endpoint": access_path,
+                    "request_method": "GET",
+                    "verified_at": retrieved_at,
+                    "verified_sample_count": len(cells),
+                    "notes": (
+                        f"{len(cells)} cell(s) from dairy deliveries; "
+                        "litres to dairies, excluding local processing"
+                    ),
+                },
+            )
+        status = "completed"
+    except Exception as exc:
+        counts.failed += 1
+        counts.errors.append({"error": str(exc), "url": access_path})
+        raise
+    finally:
+        registry.finish_fetch_run(run_id, counts, status=status, http_status=http_status)
+    return FetchResult(
+        dataset_id=dataset["id"],
+        table_id=table_id,
+        request_url=access_path,
         http_status=http_status,
         counts=counts,
         sample=sample,
@@ -8301,61 +8970,6 @@ def _fetch_nve2gis(
     )
 
 
-def _fetch_miljogis(
-    registry: Registry,
-    dataset: dict[str, Any],
-    *,
-    http: JsonHttp | None = None,
-) -> FetchResult:
-    access_path = dataset.get("access_path") or ""
-    client = http or HttpClient(timeout=60.0, max_retries=4)
-    table_id = miljogis_table_id(access_path)
-    started = utc_now()
-    run_id = registry.start_fetch_run(
-        dataset_id=dataset["id"],
-        table_id=table_id,
-        request_url=access_path,
-        request_method="GET",
-        started_at=started,
-    )
-    counts = HarvestCounts()
-    status = "failed"
-    http_status = 0
-    sample: list[dict[str, Any]] = []
-    try:
-        got = client.get_json_response(access_path)
-        http_status = got.status
-        registry.set_fetch_request(run_id, request_url=access_path, request_body={"method": "GET"})
-        cells = cells_from_miljogis(got.body)
-        counts.listed = len(cells)
-        sample = _store_cells(
-            registry,
-            dataset,
-            run_id,
-            table_id=table_id,
-            cells=cells,
-            retrieved_at=utc_now(),
-            request_url=access_path,
-            http_status=http_status,
-            counts=counts,
-        )
-        status = "completed"
-    except Exception as exc:
-        counts.failed += 1
-        counts.errors.append({"error": str(exc), "url": access_path})
-        raise
-    finally:
-        registry.finish_fetch_run(run_id, counts, status=status, http_status=http_status)
-    return FetchResult(
-        dataset_id=dataset["id"],
-        table_id=table_id,
-        request_url=access_path,
-        http_status=http_status,
-        counts=counts,
-        sample=sample,
-    )
-
-
 def _fetch_hitiles(
     registry: Registry,
     dataset: dict[str, Any],
@@ -12827,6 +13441,46 @@ def classify_access_path(access_path: str | None) -> dict[str, Any]:
         return {
             "kind": CAPABILITY_OBSERVATIONS,
             "reason": "PxWeb table endpoint; returns numeric observation cells",
+        }
+    if is_ldirmelk_url(access_path):
+        return {
+            "kind": CAPABILITY_OBSERVATIONS,
+            "reason": (
+                "Landbruksdirektoratet dairy-delivery CSV; national litre totals "
+                "or one farm by organisasjonsnummer"
+            ),
+        }
+    if is_naturvern_url(access_path):
+        return {
+            "kind": CAPABILITY_FEATURES,
+            "reason": (
+                "Miljødirektoratet vern ArcGIS layer; protected-area features "
+                "addressed by naturvernId, fetched a bounded page at a time"
+            ),
+        }
+    if is_anadrom_url(access_path):
+        return {
+            "kind": CAPABILITY_FEATURES,
+            "reason": (
+                "Miljødirektoratet anadrome_laksefisk stretch layer; river "
+                "features addressed by vassdragsNR, fetched a bounded page at a time"
+            ),
+        }
+    if is_friluft_url(access_path):
+        return {
+            "kind": CAPABILITY_FEATURES,
+            "reason": (
+                "Miljødirektoratet friluftsliv_statlig_sikra layer; recreation-area "
+                "features addressed by friluftId, fetched a bounded page at a time"
+            ),
+        }
+    if is_miljogis_url(access_path):
+        return {
+            "kind": CAPABILITY_NONE,
+            "reason": (
+                "Miljødirektoratet ArcGIS MapServer catalog; lists layer names, "
+                "does not return protected-area or other feature records"
+            ),
         }
     if is_fhi_table_url(access_path):
         return {

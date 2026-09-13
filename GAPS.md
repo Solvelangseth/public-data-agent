@@ -291,7 +291,7 @@ phrasings, and the marker list behind `looks_like_a_question` is the part most l
 to be overfitted. Keyword phrasing barely moved (0.850 against 0.907), which fits: that
 half depends on vocabulary rather than on the router.
 
-Eight of 43 held-out questions have no answer anywhere in the registry -- permitteringer,
+Eight of 43 held-out questions were recorded as having no answer anywhere in the registry -- permitteringer,
 luftfart passasjerer, oppdrettslaks produksjon, melkeproduksjon, lønnsomhet i industrien,
 naturvernområder, vannforbruk per husholdning. That is a coverage finding for the
 connector lane, not a retrieval failure, and those questions are excluded from recall.

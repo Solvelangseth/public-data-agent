@@ -893,3 +893,167 @@ and writes no observations. The same record would previously have been fetched t
 
 **Displacement checked.** 23 new records can push answers down. Held-out holds at 0.897 /
 0.749 and `pda benchmark` at 0.8923 / 0.9385. 1988 tests.
+
+## ldirmelk / datanorge melk CSVs — 2026-09-13 — promoted
+
+**Endpoint(s).** Yearly CSVs already stored as Data.norge access paths, for example
+`https://raw.githubusercontent.com/LandbruksdirektoratetGIT/opendata/refs/heads/main/datasets/leveransedata-melk/2025/dataset.csv`.
+GitHub lists year directories 2013–2025 under `datasets/leveransedata-melk`. The
+publisher's råvarestatistikk page describes the same series. No new catalogue
+cards were ingested: the 13 year rows were already in the shared registry and
+were classified `none` because nothing read the CSV.
+
+**Shape.** `observation`. Printed columns are `orgnr`, `navn`, `komnr`,
+`kumelk_liter`, `geitemelk_liter`. Default fetch stores the **national sums** of
+the two litre columns for that year, not one row per farm (~6,000 farms, 268 KB
+file). A farm extract requires `select={"organisasjonsnummer": [...]}` and is
+capped at 20. Empty cells are skipped, not stored as zero. `brreg:orgnr` is
+claimed only after the printed orgnr column passes mod-11; `komnr` stays an
+attribute because the CSV prints no municipality names.
+
+**Capability recorded.** `observations` on the 2025 Data.norge row
+`datanorge:ab9ed61d-0e4a-38d8-8fe1-5f47a02b9433`. Live GET 2026-09-13: HTTP 200,
+two cells inserted: `kumelk_liter` 1,528,922,792 and `geitemelk_liter`
+17,649,873 for `år=2025`. That is 1,546.6 million litres delivered to dairies,
+against the publisher's rounded 1,547 million litres (1,529 cow + 18 goat) in
+the 2025 markedsrapport. Licence on the harvested card is NLOD 2.0. The CSV
+itself prints none.
+
+**Surprises.**
+- SSB's table catalogue has no milk-production table. Livestock tables count
+  dairy cows, not litres. The coverage hole was Landbruksdirektoratet, already
+  catalogued, never connected.
+- The publisher states the CSV excludes milk sent to local processing. The
+  stored measures are dairy deliveries, not all production. That distinction
+  belongs in the answer.
+- Fetching every farm would have been a bulk import of a small file. The bound
+  is still applied: national totals by default, one farm by orgnr, otherwise
+  `SelectionTooLarge`.
+
+**Open question for the query side.** `melkeproduksjon` may not rank the title
+`Leveranser til meieri i landbruket 2025`. That is a retrieval issue; the
+source, live cells, capability and shape are now present. Held-out labels h023
+and h041 now name this dataset, moving them from excluded to scored.
+
+Proof: `data/ldirmelk_source_proof.json`.
+
+## naturvern:naturvern_omrade — 2026-09-13 — promoted
+
+**Endpoint(s).** Layer 0 of the printed ArcGIS REST MapServer
+`https://kart.miljodirektoratet.no/arcgis/rest/services/vern/MapServer/0`.
+Query is `.../query?where=...&outFields=...&returnGeometry=false&resultRecordCount=N&f=json`.
+The Geonorge dataset UUID is `5857ec0a-8d2c-4cd8-baa2-0dc54ae213b4`. The Atom
+feed national GeoJSON zip (~61 MB) was not downloaded. The WMS
+(`mdirgis:vern`) stays a map service, classified `none`.
+
+**Shape.** `feature`. Subject scheme `naturbase:naturvernId` (printed
+`VV00003155`). Label is printed `offisieltNavn`. Attributes include
+`verneform`, `kommune` as `"Asker (3203)"`, IUCN class, faktaark URL, and
+`SHAPE.STArea()` / `SHAPE.STLength()`. Geometry is omitted on purpose.
+Publisher count for the layer is 3,512.
+
+**Capability recorded.** `features`. Live ingest of the one layer, then a
+bounded page of ten: HTTP 200, ten feature records stored, zero observations.
+Sample: `VV00003155` Blåfjell naturreservat, Naturreservat, Asker (3203).
+Default page is 10, hard cap 100; `select={"naturvernId": ["VV00003155"]}`
+fetches one. Licence on this harvest is `null`; Geonorge states NLOD 2.0 for
+the dataset this layer serves and that was not copied onto the ArcGIS JSON.
+
+**Surprises.**
+- The leftover `miljogis` connector matches the same host and would have
+  stored MapServer *layer names* as observations. Fetch dispatch checks the
+  area-layer URL first. Do not fetch the MapServer root as data.
+- `kommune` is a name plus a four-digit code in one string. No Klass key is
+  claimed from that.
+- Search ranks the Data.norge metadata card first and `naturvern:naturvern_omrade`
+  second. Lanes should put the REST layer in the fetchable list.
+
+**Open question for the query side.** MCP `fetch` still requires `table`. A
+naturvern fetch uses `select.naturvernId`, not a PxWeb table id. Same gap as
+Brreg orgnr and NVDB object id.
+
+Proof: `data/naturvern_source_proof.json`.
+
+## miljogis MapServer catalog — 2026-09-13 — fetch disabled
+
+**Endpoint(s).** `https://kart.miljodirektoratet.no/arcgis/rest/services/{name}/MapServer?f=json` lists layers. That JSON is a catalog, the same shape Vegvesen `package_show` was.
+
+**What changed.** Fetch dispatch for these URLs is removed. `classify_access_path` is `none`. The old path stored each layer's `name` as an observation (`anadrome_vandringshinder_laks` as a measured value). Tests that pinned that are replaced by one asserting a catalog fetch writes no observations. Harvest of the 10 MapServer rows is unchanged. The vern **area layer** (`.../vern/MapServer/0`) is the data endpoint and is handled by `naturvern`.
+
+**Open question for the query side.** Anadrome stretches and statlig-sikra
+friluftsliv now have layer-query connectors. Other MapServer services (NiN,
+anadrome barriers/stocks, `friluftsliv_kartlagt`) still need the same treatment
+if those questions matter. Do not re-enable catalog fetch to fake coverage.
+Do not bulk-load `friluftsliv_kartlagt` (~44k polygons).
+
+## anadrom:anadrome_strekninger_lin — 2026-09-13 — promoted
+
+**Endpoint(s).** Layer 4 of the printed ArcGIS REST MapServer
+`https://kart.miljodirektoratet.no/arcgis/rest/services/anadrome_laksefisk/MapServer/4`.
+Query is `.../query?where=...&outFields=...&returnGeometry=false&resultRecordCount=N&f=json`.
+The Geonorge dataset UUID is `8e01b0fb-476b-4b7f-8c16-60fcfb2df508`. The MapServer
+root stays a catalog, classified `none`. Other layers on the same service
+(barriers, stocks, outlets) are not this register.
+
+**Shape.** `feature`. Subject scheme `nve:vassdragsnummer` (printed
+`vassdragsNR`, e.g. `234.Z`). Label is printed `elvenavn`. Attributes include
+`nasjonaltLaksevassdrag` (Ja/Nei) and `lakseregURL`. Geometry is omitted on
+purpose. Publisher count for the layer is 471; vassdragsNR is unique on that
+set. The scheme is the printed NVE vassdragsnummer, the same id Lakseregisteret
+puts in `visElv.aspx?id=`; it was not checked against a downloaded NVE list.
+No Klass key is claimed.
+
+**Capability recorded.** `features`. Live ingest of the one layer, then one
+river by `vassdragsNR=234.Z` and a bounded page of ten: HTTP 200. Sample:
+`234.Z` Tanaelva, nasjonalt laksevassdrag Ja. Default page is 10, hard cap 100;
+`select={"vassdragsNR": ["234.Z"]}` fetches one; `elvenavn` and
+`nasjonaltLaksevassdrag` are exact printed filters. Licence on this harvest is
+`null`; Geonorge states NLOD 2.0 for the dataset this layer serves and that was
+not copied onto the ArcGIS JSON.
+
+**Surprises.**
+- The leftover `miljogis` connector matches the same host and would have
+  stored MapServer *layer names* as observations. Fetch dispatch checks the
+  stretch-layer URL first. Do not fetch the MapServer root as data.
+- `vassdragsNR` values look like `001.1Z` / `234.Z`. They are not kommune
+  codes.
+
+**Open question for the query side.** `friluftsliv_kartlagt` is ~44k polygons;
+do not bulk-load it. Other leftover MapServers (NiN, barriers/stocks) still
+need a layer-query connector if those questions matter.
+
+Proof: `data/anadrom_source_proof.json`.
+
+## friluft:friluftsliv_statlig_sikra — 2026-09-13 — promoted
+
+**Endpoint(s).** Layer 0 of the printed ArcGIS REST MapServer
+`https://kart.miljodirektoratet.no/arcgis/rest/services/friluftsliv_statlig_sikra/MapServer/0`.
+Query is `.../query?where=...&outFields=...&returnGeometry=false&resultRecordCount=N&f=json`.
+The Geonorge dataset UUID is `e08ad2cb-3262-4a78-bc58-2f3b5c5ccfd2`. The MapServer
+root stays a catalog, classified `none`. `friluftsliv_kartlagt` (~44k polygons)
+was not ingested.
+
+**Shape.** `feature`. Subject scheme `naturbase:friluftId` (printed
+`FS00000161`). Label is printed `omraadeNavn`. Attributes include
+`omraadeVerdi`, `faktaark` (`https://faktaark.naturbase.no/?id=FS00000161`),
+and `SHAPE.STArea()` / `SHAPE.STLength()`. Geometry is omitted on purpose.
+Publisher count for the layer is 2,347.
+
+**Capability recorded.** `features`. Live ingest of the one layer, then one
+area by `friluftId=FS00000161` and a bounded page of ten: HTTP 200. Sample:
+`FS00000161` Kystad. Default page is 10, hard cap 100;
+`select={"friluftId": ["FS00000161"]}` fetches one. Licence on this harvest is
+`null`; Geonorge states NLOD 2.0 for the dataset this layer serves and that was
+not copied onto the ArcGIS JSON.
+
+**Surprises.**
+- Same leftover `miljogis` catalog trap as vern and anadrom. Dispatch checks
+  the area-layer URL first.
+- `kommune` is not a field on this layer. No Klass key is claimed.
+
+**Open question for the query side.** None.
+
+Proof: `data/friluft_source_proof.json`.
+
+
+

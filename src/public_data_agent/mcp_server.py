@@ -316,7 +316,7 @@ def _too_large_suggestion(access_path: str | None) -> str:
 
 def tool_fetch(
     dataset: str = DEFAULT_OSLO_DATASET,
-    table: str = DEFAULT_OSLO_TABLE,
+    table: str | None = None,
     db: str = DEFAULT_DB,
     from_year: int | None = None,
     to_year: int | None = None,
@@ -326,16 +326,30 @@ def tool_fetch(
     series: str | None = None,
     select: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
-    """Fetch observation rows, or join a Klass classification to a table when join=true.
+    """Fetch rows from a registered connector, or join Klass to a table when join=true.
 
-    With join=true, `dataset` is the Klass classification and `table` the SSB
-    table. The join key is discovered by matching the classification's codes
-    against the table's stored dimension values; no overlap means no join.
+    `table` is a PxWeb table id. Registers (companies, road objects, protected
+    areas, dairy-delivery years) address a subject with `select` and do not
+    need it. With join=true, `dataset` is the Klass classification and `table`
+    the SSB table. The join key is discovered by matching stored codes.
     """
 
     registry = _open_registry(db)
     try:
         if join:
+            if not table:
+                return {
+                    "tool": "fetch",
+                    "mode": "join",
+                    "values_from": "registry",
+                    "dataset": dataset,
+                    "error": {
+                        "code": "table_required",
+                        "retryable": True,
+                        "message": "join=true needs table set to an SSB PxWeb table id.",
+                    },
+                    "numbers_retrieved": False,
+                }
             result = join_classification_to_table(
                 registry,
                 klass_dataset_id=dataset,
@@ -368,13 +382,14 @@ def tool_fetch(
             return payload
         dataset_row = registry.get_dataset(dataset) or {}
         access_path = dataset_row.get("access_path")
+        table_id = table or dataset_row.get("source_native_id") or ""
         if not can_fetch_access_path(access_path):
             return {
                 "tool": "fetch",
                 "mode": "observations",
                 "values_from": "registry",
                 "dataset": dataset,
-                "table": table,
+                "table": table_id,
                 "error": {
                     "code": "unsupported_access_path",
                     "retryable": False,
@@ -388,7 +403,7 @@ def tool_fetch(
             result = fetch_observations(
                 registry,
                 dataset,
-                table_id=table,
+                table_id=table_id,
                 from_year=from_year,
                 to_year=to_year,
                 select=select,
@@ -402,7 +417,7 @@ def tool_fetch(
                 "mode": "observations",
                 "values_from": "registry",
                 "dataset": dataset,
-                "table": table,
+                "table": table_id,
                 "error": {
                     "code": "selection_too_large",
                     "retryable": True,

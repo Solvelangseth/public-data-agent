@@ -343,14 +343,12 @@ check whether the identity you are writing under already exists under a differen
 ## Start with questions that have no answer
 
 Retrieval was measured on a held-out set written blind. Of 43 ordinary questions about
-Norway, **eight have no answer anywhere in the registry** — not a retrieval failure, an
-absence:
+Norway, eight originally had no answer anywhere in the registry. Several have since
+been closed with bounded live fetches (air passengers, salmon, water, industry
+profitability, milk, protected areas). Still absent:
 
 ```
-permitteringer                        luftfart passasjerer
-lønnsomhet i industrien               oppdrettslaks produksjon
-melkeproduksjon                       naturvernområder
-vannforbruk per husholdning           (and one more in economy)
+permitteringer     NAV landing URL is 404; do not retry blindly
 ```
 
 End to end a random question succeeds about 60% of the time: retrieval finds the right

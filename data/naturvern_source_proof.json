@@ -1,0 +1,18 @@
+{
+  "dataset": "naturvern:naturvern_omrade",
+  "title": "Naturvernområder",
+  "request_url": "https://kart.miljodirektoratet.no/arcgis/rest/services/vern/MapServer/0/query?where=1=1&outFields=naturvernId,cddaId,navn,offisieltNavn,faktaark,verneform,verneforskrift,kommune,forvaltningsmyndighet,iucn,verneformAggregert,OBJECTID,SHAPE.STArea(),SHAPE.STLength()&returnGeometry=false&resultRecordCount=10&f=json",
+  "http_status": 200,
+  "listed": 10,
+  "inserted": 10,
+  "publisher_count": 3512,
+  "sample": [
+    {
+      "naturvernId": "VV00003155",
+      "offisieltNavn": "Blåfjell naturreservat",
+      "verneform": "Naturreservat",
+      "kommune": "Asker (3203)"
+    }
+  ],
+  "note": "Attributes only; geometry not stored. National zip was not downloaded."
+}

@@ -26,3 +26,4 @@ def test_fetch_schema_exposes_registered_join() -> None:
     fetch = next(tool for tool in TOOL_SCHEMAS if tool["name"] == "fetch")
     assert "join" in fetch["parameters"]["properties"]
     assert "year" in fetch["parameters"]["properties"]
+    assert fetch["parameters"]["required"] == ["dataset"]

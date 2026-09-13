@@ -28,6 +28,9 @@ data/e5.log
 data/heldout_eval.txt
 data/heldout_eval.log
 
+# Local autonomous-loop heartbeat/state (not product)
+.grok/
+
 # Klass version payloads: ~840 files rebuilt by scripts/harvest_klass.py.
 # The vocabulary derived from them lives in the registry, which is also not
 # committed; the harvester and the extraction rules are the durable parts.

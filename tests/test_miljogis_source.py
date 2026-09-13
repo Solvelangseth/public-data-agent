@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from public_data_agent.fetch import fetch_observations
+from public_data_agent.fetch import classify_access_path, fetch_observations
 from public_data_agent.harvest import harvest
 from public_data_agent.http_util import JsonResponse
 from public_data_agent.registry import Registry
@@ -172,33 +172,22 @@ def test_harvest_writes_printed_id_null_license_and_publisher(tmp_path: Path) ->
     registry.close()
 
 
-def test_fetch_gets_printed_layer_names(tmp_path: Path) -> None:
+def test_a_mapserver_catalog_is_not_fetched_as_observations(tmp_path: Path) -> None:
+    # Fetching the MapServer root once stored each layer's name as a measured
+    # value. A catalog of layers is not data.
+    assert classify_access_path(LAKSEFISK_URL)["kind"] == "none"
+
     source = MiljogisSource(http=CatalogHttp())
     registry = Registry(tmp_path / "registry.sqlite")
     harvest(registry, source)
-    result = fetch_observations(
-        registry,
-        DATASET_ID,
-        table_id="ignored",
-        http=FetchHttp(),
-    )
-    assert result.request_url == LAKSEFISK_URL
-    assert result.table_id == "anadrome_laksefisk"
-    assert result.http_status == 200
-    assert result.counts.listed == 2
-    rows = registry.list_observations(DATASET_ID)
-    by_value = {json.loads(row["value_json"]): row for row in rows}
-    assert set(by_value) == {
-        "anadrome_vandringshinder_laks",
-        "anadrome_vandringshinder_sjoorret",
-    }
-    assert by_value["anadrome_vandringshinder_laks"]["measure"] == "name"
-    dims = json.loads(by_value["anadrome_vandringshinder_laks"]["dimensions_json"])
-    assert dims["id"] == "0"
-    assert "nested" not in dims
-    assert all(row["publisher_name"] is None for row in rows)
-    assert all(row["license"] is None for row in rows)
-    assert all(row["access_path"] == LAKSEFISK_URL for row in rows)
+    with pytest.raises(Exception):
+        fetch_observations(
+            registry,
+            DATASET_ID,
+            table_id="ignored",
+            http=FetchHttp(),
+        )
+    assert registry.list_observations(DATASET_ID) == []
     registry.close()
 
 

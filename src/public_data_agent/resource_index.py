@@ -319,6 +319,10 @@ def index_dataset(
     from public_data_agent.sources.brrepresent import is_brrepresent_url, shape_from_brrepresent
     from public_data_agent.sources.brrolletype import is_brrolletype_url, shape_from_brrolletype
     from public_data_agent.sources.fdirpx import is_fdirpx_url
+    from public_data_agent.sources.ldirmelk import is_ldirmelk_url, shape_from_ldirmelk
+    from public_data_agent.sources.anadrom import is_anadrom_url, shape_from_layer as shape_from_anadrom_layer
+    from public_data_agent.sources.friluft import is_friluft_url, shape_from_layer as shape_from_friluft_layer
+    from public_data_agent.sources.naturvern import is_naturvern_url, shape_from_layer as shape_from_naturvern_layer
     from public_data_agent.sources.fhi import is_fhi_table_url, printed_table_data_url, split_table_url
 
     dataset = registry.get_dataset(dataset_id)
@@ -393,6 +397,32 @@ def index_dataset(
         fields, keys = shape_from_brrepresent(meta.body or {})
         endpoint, method = access_path, "GET"
         record_kind = "entity"
+    elif is_ldirmelk_url(access_path):
+        from public_data_agent.sources.ldirmelk import ldirmelk_table_id
+
+        reader = client if hasattr(client, "get_text") else HttpClient(timeout=60.0, max_retries=3)
+        body = reader.get_text(access_path)
+        fields, keys = shape_from_ldirmelk(body, year=ldirmelk_table_id(access_path))
+        endpoint, method = access_path, "GET"
+        record_kind = "observation"
+    elif is_naturvern_url(access_path):
+        layer_url = access_path.split("?", 1)[0].rstrip("/")
+        meta = client.get_json_response(f"{layer_url}?f=json")
+        fields, keys = shape_from_naturvern_layer(meta.body or {})
+        endpoint, method = layer_url, "GET"
+        record_kind = "feature"
+    elif is_anadrom_url(access_path):
+        layer_url = access_path.split("?", 1)[0].rstrip("/")
+        meta = client.get_json_response(f"{layer_url}?f=json")
+        fields, keys = shape_from_anadrom_layer(meta.body or {})
+        endpoint, method = layer_url, "GET"
+        record_kind = "feature"
+    elif is_friluft_url(access_path):
+        layer_url = access_path.split("?", 1)[0].rstrip("/")
+        meta = client.get_json_response(f"{layer_url}?f=json")
+        fields, keys = shape_from_friluft_layer(meta.body or {})
+        endpoint, method = layer_url, "GET"
+        record_kind = "feature"
     else:
         raise ValueError(f"no metadata reader for {dataset_id} ({access_path or 'no access_path'})")
 

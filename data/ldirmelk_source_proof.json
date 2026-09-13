@@ -1,0 +1,13 @@
+{
+  "dataset": "datanorge:ab9ed61d-0e4a-38d8-8fe1-5f47a02b9433",
+  "title": "Leveranser til meieri i landbruket 2025",
+  "request_url": "https://raw.githubusercontent.com/LandbruksdirektoratetGIT/opendata/refs/heads/main/datasets/leveransedata-melk/2025/dataset.csv",
+  "http_status": 200,
+  "listed": 2,
+  "inserted": 2,
+  "sample": [
+    {"measure": "kumelk_liter", "value": 1528922792, "dimensions": {"år": "2025"}},
+    {"measure": "geitemelk_liter", "value": 17649873, "dimensions": {"år": "2025"}}
+  ],
+  "note": "Litres delivered to dairies in calendar year 2025. Excludes local processing, as the publisher states. National totals only; farm rows were not stored. Publisher markedsrapport 2025 rounds the same series to 1 529 mill. l kumelk + 18 mill. l geitemelk = 1 547 mill. l."
+}

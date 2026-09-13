@@ -1,0 +1,37 @@
+{
+  "dataset": "anadrom:anadrome_strekninger_lin",
+  "title": "Anadrome laksefisk - Strekninger",
+  "request_url": "https://kart.miljodirektoratet.no/arcgis/rest/services/anadrome_laksefisk/MapServer/4/query?where=vassdragsNR='234.Z'&outFields=objtype%2CvassdragsNR%2CnasjonaltLaksevassdrag%2ClakseregURL%2Celvenavn%2Cmalemetode%2Cnoyaktighet%2Coppdateringsdato%2COBJECTID&returnGeometry=false&resultRecordCount=1&f=json",
+  "page_request_url": "https://kart.miljodirektoratet.no/arcgis/rest/services/anadrome_laksefisk/MapServer/4/query?where=1=1&outFields=objtype%2CvassdragsNR%2CnasjonaltLaksevassdrag%2ClakseregURL%2Celvenavn%2Cmalemetode%2Cnoyaktighet%2Coppdateringsdato%2COBJECTID&returnGeometry=false&resultRecordCount=10&f=json",
+  "http_status": 200,
+  "listed": 1,
+  "page_listed": 10,
+  "publisher_count": 471,
+  "sample": {
+    "vassdragsNR": "234.Z",
+    "elvenavn": "Tanaelva",
+    "nasjonaltLaksevassdrag": "Ja",
+    "lakseregURL": "https://lakseregisteret.statsforvalteren.no/visElv.aspx?id=234.Z"
+  },
+  "page_sample": [
+    {
+      "vassdragsNR": "001.1Z",
+      "elvenavn": "Enningdalselva",
+      "nasjonaltLaksevassdrag": "Ja",
+      "lakseregURL": "https://lakseregisteret.statsforvalteren.no/visElv.aspx?id=001.1Z"
+    },
+    {
+      "vassdragsNR": "234.Z",
+      "elvenavn": "Tanaelva",
+      "nasjonaltLaksevassdrag": "Ja",
+      "lakseregURL": "https://lakseregisteret.statsforvalteren.no/visElv.aspx?id=234.Z"
+    },
+    {
+      "vassdragsNR": "015.Z",
+      "elvenavn": "Numedalslågen",
+      "nasjonaltLaksevassdrag": "Ja",
+      "lakseregURL": "https://lakseregisteret.statsforvalteren.no/visElv.aspx?id=015.Z"
+    }
+  ],
+  "note": "Attributes only; geometry not stored. MapServer catalog was not fetched as data."
+}

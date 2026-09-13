@@ -176,6 +176,42 @@ def test_search_tool_marks_connector_capability_and_candidates(tmp_path: Path) -
     assert payload["connector_candidates"] == []
 
 
+def test_fetch_without_table_uses_the_dataset_native_id(tmp_path: Path, monkeypatch) -> None:
+    registry = _registry(tmp_path)
+    db = str(tmp_path / "registry.sqlite")
+    native = registry.get_dataset(STRANDSONE_ID)["source_native_id"]
+    registry.close()
+    seen: dict[str, str] = {}
+
+    def fake_fetch(reg, dataset_id, *, table_id, **kwargs):
+        from public_data_agent.fetch import FetchResult
+        from public_data_agent.models import HarvestCounts
+
+        seen["table_id"] = table_id
+        return FetchResult(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            request_url="https://example.test",
+            http_status=200,
+            counts=HarvestCounts(),
+        )
+
+    monkeypatch.setattr("public_data_agent.mcp_server.fetch_observations", fake_fetch)
+    payload = call_tool("fetch", {"dataset": STRANDSONE_ID, "db": db})
+    assert seen["table_id"] == native
+    assert payload["table"] == native
+
+
+def test_join_without_table_is_refused(tmp_path: Path) -> None:
+    _registry(tmp_path).close()
+    payload = call_tool(
+        "fetch",
+        {"dataset": STRANDSONE_ID, "join": True, "db": str(tmp_path / "registry.sqlite")},
+    )
+    assert payload["numbers_retrieved"] is False
+    assert payload["error"]["code"] == "table_required"
+
+
 def test_fetch_rejects_unregistered_access_path(tmp_path: Path) -> None:
     registry = _registry(tmp_path)
     db = str(tmp_path / "registry.sqlite")

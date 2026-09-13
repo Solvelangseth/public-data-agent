@@ -39,6 +39,10 @@ from public_data_agent.sources.entur import EnturGbfsSource
 from public_data_agent.sources.envreportreg import EnvreportregSource
 from public_data_agent.sources.fbgis import FbgisSource
 from public_data_agent.sources.fdirpx import FdirPxwebSource
+from public_data_agent.sources.anadrom import AnadromSource
+from public_data_agent.sources.friluft import FriluftSource
+from public_data_agent.sources.ldirmelk import LdirMelkSource
+from public_data_agent.sources.naturvern import NaturvernSource
 from public_data_agent.sources.fdkorg import FdkorgSource
 from public_data_agent.sources.fdirwms import FdirwmsSource
 from public_data_agent.sources.fhi import FhiStatistikkSource
@@ -387,7 +391,7 @@ SOURCE_IDS = (
 # Kept separate from the historical tuple because downstream tests and callers
 # rely on its long-standing order. New bounded connectors can be added here
 # without renumbering that public sequence.
-ADDITIONAL_SOURCE_IDS = ("fdirpx",)
+ADDITIONAL_SOURCE_IDS = ("fdirpx", "ldirmelk", "naturvern", "anadrom", "friluft")
 
 
 def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSource:
@@ -671,6 +675,14 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return BrrollerSource()
     if source_id == "fdirpx":
         return FdirPxwebSource()
+    if source_id == "ldirmelk":
+        return LdirMelkSource()
+    if source_id == "naturvern":
+        return NaturvernSource()
+    if source_id == "anadrom":
+        return AnadromSource()
+    if source_id == "friluft":
+        return FriluftSource()
     if source_id == "fdirwms":
         return FdirwmsSource()
     if source_id == "brorgform":
@@ -814,6 +826,10 @@ __all__ = [
     "EnvreportregSource",
     "FbgisSource",
     "FdirPxwebSource",
+    "LdirMelkSource",
+    "NaturvernSource",
+    "AnadromSource",
+    "FriluftSource",
     "FdirwmsSource",
     "FdkorgSource",
     "FhiStatistikkSource",
