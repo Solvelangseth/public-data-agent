@@ -1,0 +1,13 @@
+{
+  "http_status": 200,
+  "observations": 0,
+  "catalogs": {
+    "stortinget:sesjoner": {"listed": 43, "sample_id": "2028-2029"},
+    "stortinget:emner": {"listed": 27, "sample_id": "4", "sample_label": "Energi"},
+    "stortinget:fylker": {"listed": 19, "sample_id": "AA", "sample_label": "Aust-Agder"},
+    "stortinget:allepartier": {"listed": 23, "sample_id": "A", "sample_label": "Arbeiderpartiet"},
+    "stortinget:allekomiteer": {"listed": 60, "sample_id": "ARBSOS", "sample_label": "Arbeids- og sosialkomiteen"},
+    "stortinget:saksganger": {"listed": 50, "sample_id": "PRPLOV", "sample_label": "Lovforslag fra Regjeringen"}
+  },
+  "note": "Complete published lists as lookup entities. Nested subtopic/step arrays were not stored."
+}

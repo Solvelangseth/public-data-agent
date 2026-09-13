@@ -1319,11 +1319,47 @@ ingested. Other harvested periods were not fetched.
 - Live id for Abid Raja in this period is `ABIR`, not the older `AR` used
   in the harvest-era fixture.
 
-**Open question for the query side.** Leftover untemplated `/eksport/` lists
-(`sesjoner`, `emner`, `fylker`, `allepartier`) still use the generic
-Stortinget name-as-observation decoder if fetched.
+**Open question for the query side.** The leftover untemplated `/eksport/`
+lists are now lookups; see the following entry. Interpellasjoner have no
+registered source. Generic `_fetch_stortinget` still decodes unknown
+`/eksport/` paths as observations.
 
 Proof: `data/stperioder_representanter_proof.json`.
+
+## stortinget leftover /eksport/ catalogs — 2026-09-14 — promoted (lookup)
+
+**Endpoint(s).** Untemplated collection GETs already harvested as `stortinget:*`:
+`sesjoner` (43), `emner` (27), `fylker` (19), `allepartier` (23),
+`allekomiteer` (60), `saksganger` (50). Same `format=json` query the
+documentation prints.
+
+**Shape.** `entity` with capability `lookup`. Subject schemes
+`stortinget:sesjon_id`, `emne_id`, `fylke_id`, `parti_id`, `komite_id`,
+`saksgang_id`. Label is printed `navn` except sessions, which use printed
+`id`. Nested arrays (`underemne_liste`, `saksgang_steg_liste`) are skipped.
+Licence is `null`.
+
+**Capability recorded.** `lookup` on all six. Live GET 2026-09-14: HTTP 200,
+complete published lists, zero observation rows. Samples: session `2028-2029`;
+emne `4` Energi; fylke `AA` Aust-Agder; party `A` Arbeiderpartiet; committee
+`ARBSOS` Arbeids- og sosialkomiteen; saksgang `PRPLOV` Lovforslag fra
+Regjeringen. `select={"id": [...]}` fetches one; unknown ids are refused.
+
+**Surprises.**
+- The generic Stortinget fetch stored each `navn`/`id` as an observation.
+  These six catalogs now share one lookup decoder. `cells_from_stortinget`
+  remains for unit tests and for any future untemplated path not in the map.
+- `allepartier` / `allekomiteer` share subject schemes with the session
+  `stpartier` / `stkomiteer` lists. Record ids stay dataset-scoped.
+- `sesjoner` is also the harvest listing URL for leftover session sources.
+  Classifying it as lookup is correct for `stortinget:sesjoner`.
+
+**Open question for the query side.** Interpellasjoner have no registered
+source. Generic `_fetch_stortinget` still decodes unknown `/eksport/` paths
+as observations.
+
+Proof: `data/stortinget_lookup_proof.json`.
+
 
 
 

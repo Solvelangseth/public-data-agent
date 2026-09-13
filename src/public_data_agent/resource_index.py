@@ -324,7 +324,10 @@ def index_dataset(
     from public_data_agent.sources.friluft import is_friluft_url, shape_from_layer as shape_from_friluft_layer
     from public_data_agent.sources.naturvern import is_naturvern_url, shape_from_layer as shape_from_naturvern_layer
     from public_data_agent.sources.strepresent import is_dagensrepresentanter_url
-    from public_data_agent.sources.stortinget import is_stortingsperioder_url
+    from public_data_agent.sources.stortinget import (
+        is_stortinget_lookup_url,
+        is_stortingsperioder_url,
+    )
     from public_data_agent.sources.stsporre import is_stsporre_url
     from public_data_agent.sources.stsaker import is_stsaker_url
     from public_data_agent.sources.stskrift import is_stskrift_url
@@ -452,6 +455,19 @@ def index_dataset(
         meta = client.get_json_response(access_path)
         periods = periods_from_payload(meta.body or {})
         fields, keys = shape_from_perioder(periods)
+        endpoint, method = access_path, "GET"
+        record_kind = "entity"
+    elif is_stortinget_lookup_url(access_path):
+        from public_data_agent.sources.stortinget import (
+            lookup_catalog,
+            lookups_from_payload,
+            shape_from_lookups,
+        )
+
+        spec = lookup_catalog(access_path)
+        meta = client.get_json_response(access_path)
+        members = lookups_from_payload(meta.body or {}, spec)
+        fields, keys = shape_from_lookups(members, spec)
         endpoint, method = access_path, "GET"
         record_kind = "entity"
     elif is_stsporre_url(access_path):

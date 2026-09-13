@@ -15,6 +15,7 @@ from public_data_agent.sources.stortinget import (
     StortingetSource,
     cells_from_stortinget,
     entity_from_periode,
+    is_stortinget_lookup_url,
     is_stortinget_url,
     is_stortingsperioder_url,
     printed_eksport_paths,
@@ -27,6 +28,7 @@ from public_data_agent.sources.stortinget import (
 DOCS_URL = "https://data.stortinget.no/dokumentasjon-og-hjelp/teknisk-dokumentasjon/"
 PERIODER_URL = "https://data.stortinget.no/eksport/stortingsperioder?format=json"
 SESIONER_URL = "https://data.stortinget.no/eksport/sesjoner?format=json"
+FYLKER_URL = "https://data.stortinget.no/eksport/fylker?format=json"
 ENVREPORTREG_URL = "https://api.fiskeridir.no/envreportreg-public/api/v2/report/search"
 HIMAPS_URL = "https://kart.hi.no/data/ogc/maps/v1/collections"
 CRISTIN_URL = "https://api.cristin.no/v2/countries"
@@ -88,10 +90,20 @@ class CatalogHttp:
         raise AssertionError(f"unexpected GET {url}")
 
 
+FYLKER_BODY = {
+    "fylker_liste": [
+        {"id": "AA", "navn": "Aust-Agder", "historisk_fylke": False, "versjon": "1.6"},
+        {"id": "Oslo", "navn": "Oslo", "historisk_fylke": False, "versjon": "1.6"},
+    ]
+}
+
+
 class FetchHttp:
     def get_json_response(self, url: str, *, headers=None) -> JsonResponse:
         if url == PERIODER_URL:
             return JsonResponse(status=200, url=url, body=PERIODER_BODY)
+        if url == FYLKER_URL:
+            return JsonResponse(status=200, url=url, body=FYLKER_BODY)
         raise AssertionError(f"unexpected GET {url}")
 
     def post_json_response(self, url: str, body, *, headers=None) -> JsonResponse:
@@ -232,6 +244,33 @@ def test_fetch_stores_period_lookups_not_id_observations(tmp_path: Path) -> None
             select={"id": ["NOPE"]},
             http=FetchHttp(),
         )
+    registry.close()
+
+
+def test_leftover_fylker_catalog_is_lookup() -> None:
+    assert is_stortinget_lookup_url(FYLKER_URL)
+    assert classify_access_path(FYLKER_URL)["kind"] == "lookup"
+    assert classify_access_path(PERIODER_URL)["kind"] == "lookup"
+
+
+def test_fetch_stores_fylke_lookups_not_name_observations(tmp_path: Path) -> None:
+    source = StortingetSource(http=CatalogHttp())
+    registry = Registry(tmp_path / "registry.sqlite")
+    harvest(registry, source)
+    result = fetch_observations(
+        registry,
+        "stortinget:fylker",
+        table_id="ignored",
+        select={"id": ["AA"]},
+        http=FetchHttp(),
+    )
+    assert result.counts.listed == 1
+    assert result.sample[0]["kind"] == "entity"
+    assert result.sample[0]["subject_code"] == "AA"
+    assert result.sample[0]["subject_label"] == "Aust-Agder"
+    assert registry.list_observations("stortinget:fylker") == []
+    cap = registry.get_capability("stortinget:fylker")
+    assert cap["capability"] == "lookup"
     registry.close()
 
 

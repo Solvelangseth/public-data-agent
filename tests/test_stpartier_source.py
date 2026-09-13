@@ -200,7 +200,7 @@ def test_harvest_writes_printed_sesjon_id_and_null_license(tmp_path: Path) -> No
 
 def test_url_is_lookup_not_name_observations() -> None:
     assert classify_access_path(SESSION_2025_URL)["kind"] == "lookup"
-    assert classify_access_path(LIST_URL)["kind"] != "lookup"
+    assert classify_access_path(LIST_URL)["kind"] == "lookup"
 
 
 def test_entity_uses_printed_id() -> None:

@@ -390,3 +390,170 @@ def _period_id(value: Any) -> str | None:
     if isinstance(value, str) and value.strip():
         return value.strip()
     return None
+
+
+# Remaining untemplated /eksport/ catalogs that were harvested as
+# stortinget:* and still used the name-as-observation decoder. Each is a
+# small complete list. Nested arrays (underemner, saksgang steps) are skipped.
+LOOKUP_CATALOGS: dict[str, dict[str, str]] = {
+    "/eksport/sesjoner": {
+        "list_key": "sesjoner_liste",
+        "scheme": "stortinget:sesjon_id",
+        "label_field": "id",
+        "series": "stortinget:sesjoner",
+    },
+    "/eksport/emner": {
+        "list_key": "emne_liste",
+        "scheme": "stortinget:emne_id",
+        "label_field": "navn",
+        "series": "stortinget:emner",
+    },
+    "/eksport/fylker": {
+        "list_key": "fylker_liste",
+        "scheme": "stortinget:fylke_id",
+        "label_field": "navn",
+        "series": "stortinget:fylker",
+    },
+    "/eksport/allepartier": {
+        "list_key": "partier_liste",
+        "scheme": "stortinget:parti_id",
+        "label_field": "navn",
+        "series": "stortinget:allepartier",
+    },
+    "/eksport/allekomiteer": {
+        "list_key": "komiteer_liste",
+        "scheme": "stortinget:komite_id",
+        "label_field": "navn",
+        "series": "stortinget:allekomiteer",
+    },
+    "/eksport/saksganger": {
+        "list_key": "saksgang_liste",
+        "scheme": "stortinget:saksgang_id",
+        "label_field": "navn",
+        "series": "stortinget:saksganger",
+    },
+}
+_LOOKUP_SKIP = {"respons_dato_tid", "versjon"}
+
+
+def is_stortinget_lookup_url(access_path: str | None) -> bool:
+    if not access_path:
+        return False
+    parsed = urlsplit(access_path)
+    if parsed.netloc.casefold() != HOST:
+        return False
+    return parsed.path.rstrip("/") in LOOKUP_CATALOGS
+
+
+def lookup_catalog(access_path: str) -> dict[str, str]:
+    parsed = urlsplit(access_path)
+    spec = LOOKUP_CATALOGS.get(parsed.path.rstrip("/"))
+    if spec is None:
+        raise ValueError(f"not a Stortinget lookup catalog: {access_path}")
+    return spec
+
+
+def entity_from_lookup_item(item: dict[str, Any], spec: dict[str, str]) -> dict[str, Any]:
+    code = _lookup_id(item.get("id"))
+    if not code:
+        raise ValueError(f"{spec['series']} member printed no id")
+    label_field = spec["label_field"]
+    raw = item.get(label_field)
+    if label_field == "id":
+        label = code
+    elif isinstance(raw, str) and raw.strip():
+        label = raw.strip()
+    else:
+        label = code
+    attributes: dict[str, Any] = {}
+    for key, value in item.items():
+        if key in _LOOKUP_SKIP:
+            continue
+        if isinstance(value, (dict, list)) or value is None:
+            continue
+        if key == "id":
+            attributes[key] = code
+            continue
+        attributes[key] = value
+    return {
+        "subject_scheme": spec["scheme"],
+        "subject_code": code,
+        "subject_label": label,
+        "attributes": attributes,
+    }
+
+
+def lookups_from_payload(payload: Any, spec: dict[str, str]) -> list[dict[str, Any]]:
+    if not isinstance(payload, dict):
+        raise ValueError(f"{spec['series']} payload is not a JSON object")
+    listed = payload.get(spec["list_key"])
+    if not isinstance(listed, list) or not listed:
+        raise ValueError(f"{spec['series']} payload printed no members")
+    out = []
+    for item in listed:
+        if isinstance(item, dict):
+            out.append(entity_from_lookup_item(item, spec))
+    if not out:
+        raise ValueError(f"{spec['series']} payload printed no member objects")
+    return out
+
+
+def shape_from_lookups(
+    members: list[dict[str, Any]], spec: dict[str, str]
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    ids = [
+        {"value_code": item["subject_code"], "value_label": item["subject_label"]}
+        for item in members
+    ]
+    fields = [
+        {
+            "field_code": "id",
+            "field_label": "id",
+            "field_role": "key",
+            "values": ids,
+        },
+    ]
+    if spec["label_field"] != "id":
+        fields.append(
+            {
+                "field_code": spec["label_field"],
+                "field_label": spec["label_field"],
+                "field_role": "attribute",
+                "values": [],
+            }
+        )
+    keys = [
+        {
+            "scheme": spec["scheme"],
+            "field_code": "id",
+            "coverage_count": len(members),
+        }
+    ]
+    return fields, keys
+
+
+def selected_lookup_ids(select: dict[str, list[str]] | None) -> list[str] | None:
+    if not select:
+        return None
+    unknown = sorted(key for key in select if key != "id")
+    if unknown:
+        raise ValueError(
+            f"select names field(s) {unknown} that a Stortinget lookup fetch "
+            "does not filter on; only id is accepted, or omit select for the full list"
+        )
+    wanted = select.get("id") or []
+    wanted = [wanted] if isinstance(wanted, str) else [str(item) for item in wanted]
+    if not wanted:
+        raise ValueError("select id is empty")
+    return wanted
+
+
+def _lookup_id(value: Any) -> str | None:
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, int):
+        return str(value)
+    if isinstance(value, str) and value.strip():
+        return value.strip()
+    return None
+
