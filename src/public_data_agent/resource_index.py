@@ -325,6 +325,7 @@ def index_dataset(
     from public_data_agent.sources.naturvern import is_naturvern_url, shape_from_layer as shape_from_naturvern_layer
     from public_data_agent.sources.strepresent import is_dagensrepresentanter_url
     from public_data_agent.sources.stsporre import is_stsporre_url
+    from public_data_agent.sources.stsaker import is_stsaker_url
     from public_data_agent.sources.fhi import is_fhi_table_url, printed_table_data_url, split_table_url
 
     dataset = registry.get_dataset(dataset_id)
@@ -445,6 +446,17 @@ def index_dataset(
         meta = client.get_json_response(access_path)
         documents = stsporre_documents_from_payload(meta.body or {})
         fields, keys = shape_from_stsporre(documents)
+        endpoint, method = access_path, "GET"
+        record_kind = "document"
+    elif is_stsaker_url(access_path):
+        from public_data_agent.sources.stsaker import (
+            documents_from_payload as stsaker_documents_from_payload,
+            shape_from_saker as shape_from_stsaker,
+        )
+
+        meta = client.get_json_response(access_path)
+        documents = stsaker_documents_from_payload(meta.body or {})
+        fields, keys = shape_from_stsaker(documents)
         endpoint, method = access_path, "GET"
         record_kind = "document"
     else:

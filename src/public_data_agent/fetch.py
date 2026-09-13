@@ -445,8 +445,12 @@ from public_data_agent.sources.stperioder import (
     stperioder_table_id,
 )
 from public_data_agent.sources.stsaker import (
-    cells_from_stsaker,
+    MAX_LIMIT as STSAKER_MAX_LIMIT,
+    SUBJECT_SCHEME as STSAKER_SCHEME,
+    documents_from_payload as stsaker_documents_from_payload,
     is_stsaker_url,
+    selected_sak as stsaker_selected_sak,
+    shape_from_saker as shape_from_stsaker,
     stsaker_table_id,
 )
 from public_data_agent.sources.stpartier import (
@@ -1466,7 +1470,7 @@ def fetch_observations(
     if is_stperioder_url(access_path):
         return _fetch_stperioder(registry, dataset, http=http)
     if is_stsaker_url(access_path):
-        return _fetch_stsaker(registry, dataset, http=http)
+        return _fetch_stsaker(registry, dataset, http=http, select=select)
     if is_stpartier_url(access_path):
         return _fetch_stpartier(registry, dataset, http=http)
     if is_stsporre_url(access_path):
@@ -12393,12 +12397,35 @@ def _fetch_stsaker(
     dataset: dict[str, Any],
     *,
     http: JsonHttp | None = None,
+    select: dict[str, list[str]] | None = None,
 ) -> FetchResult:
+    """Fetch session cases as documents, not title observations.
+
+    Default is a page of ten. ``select={"id": ["200391"]}`` returns that one
+    case. ``antall`` raises the page size up to a hard cap. An unknown id is
+    an error. The 665 cases in 2025-2026 are not all ingested.
+    """
+
     if dataset.get("source_id") != "stsaker":
         return _fetch_stortinget(registry, dataset, http=http)
     access_path = dataset.get("access_path") or ""
-    client = http or HttpClient(timeout=60.0, max_retries=4)
     table_id = stsaker_table_id(access_path)
+    wanted, limit = stsaker_selected_sak(select)
+    if wanted is None and limit > STSAKER_MAX_LIMIT:
+        raise SelectionTooLarge(
+            table_id,
+            limit,
+            STSAKER_MAX_LIMIT,
+            [
+                {
+                    "code": "antall",
+                    "text": "cases per request",
+                    "selected": limit,
+                    "available": STSAKER_MAX_LIMIT,
+                }
+            ],
+        )
+    client = http or HttpClient(timeout=60.0, max_retries=4)
     started = utc_now()
     run_id = registry.start_fetch_run(
         dataset_id=dataset["id"],
@@ -12411,22 +12438,92 @@ def _fetch_stsaker(
     status = "failed"
     http_status = 0
     sample: list[dict[str, Any]] = []
+    touched: list[str] = []
     try:
         got = client.get_json_response(access_path)
         http_status = got.status
-        registry.set_fetch_request(run_id, request_url=access_path, request_body={"method": "GET"})
-        cells = cells_from_stsaker(got.body)
-        counts.listed = len(cells)
-        sample = _store_cells(
-            registry,
-            dataset,
-            run_id,
-            table_id=table_id,
-            cells=cells,
-            retrieved_at=utc_now(),
-            request_url=access_path,
-            http_status=http_status,
-            counts=counts,
+        registry.set_fetch_request(
+            run_id, request_url=access_path, request_body={"method": "GET", "select": select}
+        )
+        documents = stsaker_documents_from_payload(got.body)
+        if wanted is not None:
+            by_id = {item["subject_code"]: item for item in documents}
+            missing = [code for code in wanted if code not in by_id]
+            if missing:
+                raise ValueError(
+                    f"sak id {missing} not in saker {table_id}; "
+                    "the session list does not print that id"
+                )
+            documents = [by_id[code] for code in wanted]
+        else:
+            documents = documents[:limit]
+        retrieved_at = utc_now()
+        for doc in documents:
+            record_id = f"document:{dataset['id']}:{doc['subject_code']}"
+            action = registry.upsert_record(
+                {
+                    "id": record_id,
+                    "dataset_id": dataset["id"],
+                    "kind": "document",
+                    "series": "stsaker:saker",
+                    "subject_scheme": doc["subject_scheme"],
+                    "subject_code": doc["subject_code"],
+                    "subject_label": doc["subject_label"],
+                    "period": None,
+                    "measure": None,
+                    "value": None,
+                    "attributes": doc["attributes"],
+                    "retrieved_at": retrieved_at,
+                    "request_url": access_path,
+                    "http_status": http_status,
+                    "publisher_name": dataset.get("publisher_name"),
+                    "license": dataset.get("license"),
+                },
+                run_id,
+            )
+            counts.listed += 1
+            if action == "inserted":
+                counts.inserted += 1
+            elif action == "updated":
+                counts.updated += 1
+            else:
+                counts.unchanged += 1
+            touched.append(record_id)
+            if len(sample) < 3:
+                sample.append(
+                    {
+                        "kind": "document",
+                        "subject_scheme": STSAKER_SCHEME,
+                        "subject_code": doc["subject_code"],
+                        "subject_label": doc["subject_label"],
+                        "attributes": {
+                            key: doc["attributes"][key]
+                            for key in ("id", "korttittel", "henvisning", "status")
+                            if key in doc["attributes"]
+                        },
+                    }
+                )
+        if not documents:
+            raise ValueError(
+                f"saker returned no cases for {access_path}; nothing was stored"
+            )
+        fields, keys = shape_from_stsaker(documents)
+        registry.set_resource_shape(dataset["id"], fields, keys=keys)
+        registry.set_capability(
+            dataset["id"],
+            {
+                "capability": CAPABILITY_DOCUMENTS,
+                "record_kind": "document",
+                "endpoint": access_path,
+                "request_method": "GET",
+                "subject_scheme": STSAKER_SCHEME,
+                "verified_at": retrieved_at,
+                "verified_sample_count": counts.listed,
+                "notes": (
+                    f"{counts.listed} case document(s) from session {table_id}; "
+                    "titles are labels, not observation values"
+                ),
+            },
         )
         status = "completed"
     except Exception as exc:
@@ -12442,6 +12539,7 @@ def _fetch_stsaker(
         http_status=http_status,
         counts=counts,
         sample=sample,
+        observation_ids=touched,
     )
 
 
@@ -13712,6 +13810,14 @@ def classify_access_path(access_path: str | None) -> dict[str, Any]:
             "reason": (
                 "Stortinget sporretimesporsmal; session questions as documents "
                 "addressed by printed id, fetched a bounded page at a time"
+            ),
+        }
+    if is_stsaker_url(access_path):
+        return {
+            "kind": CAPABILITY_DOCUMENTS,
+            "reason": (
+                "Stortinget saker; session cases as documents addressed by "
+                "printed id, fetched a bounded page at a time"
             ),
         }
     if is_anadrom_url(access_path):

@@ -1,0 +1,17 @@
+{
+  "dataset": "stsaker:2025-2026",
+  "request_url": "https://data.stortinget.no/eksport/saker?sesjonid=2025-2026&format=json",
+  "http_status": 200,
+  "listed": 1,
+  "inserted": 1,
+  "observations": 0,
+  "publisher_count": 665,
+  "sample": [
+    {
+      "id": "200391",
+      "henvisning": "Dokument 8:288 S (2025–2026)",
+      "korttittel": "Representantforslag fra stortingsrepresentantene Remi Sølvberg, Sofie Marhaug og Geir Jørgensen om ?å sikre rullestolbrukere likeverdig tilgang til luftfart?"
+    }
+  ],
+  "note": "One case by printed id. Session has 665 cases; they were not all stored."
+}

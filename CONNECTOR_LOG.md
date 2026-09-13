@@ -1117,6 +1117,39 @@ fetched.
 
 Proof: `data/stsporre_documents_proof.json`.
 
+## stsaker:2025-2026 — 2026-09-13 — promoted (documents)
+
+**Endpoint(s).** `GET https://data.stortinget.no/eksport/saker?sesjonid=2025-2026&format=json`.
+The session is already harvested as `stsaker:2025-2026`. Other leftover lists
+(`stskrift`, møter) still use the title-as-observation decoder and were not
+changed.
+
+**Shape.** `document`. Subject scheme `stortinget:sak_id` (printed `id`, e.g.
+`200391`). Label is printed `tittel` (else `korttittel`). Nested `komite` is
+flattened to `komite.id` / `komite.navn`. `emne_liste` and
+`forslagstiller_liste` are skipped. Licence is `null`. Publisher count for
+session 2025-2026 is 665.
+
+**Capability recorded.** `documents`. Live GET 2026-09-13: HTTP 200, one case
+by `select={"id": ["200391"]}`. Zero observation rows. Sample: `200391`
+Dokument 8:288 S (2025–2026), representantforslag on wheelchair access to air
+travel. Default page is 10, hard cap 100; an unknown id is refused. The 665
+cases were not all ingested. The API has no per-case URL; the session
+collection is fetched and filtered.
+
+**Surprises.**
+- The previous fetch stored each `korttittel` as an observation. Dispatch now
+  writes documents. `cells_from_stsaker` still copies titles for unit tests
+  and is unused by fetch.
+- The publisher's JSON for this case prints `?å sikre` where å belongs; that
+  character is stored as printed.
+
+**Open question for the query side.** `stskrift` (skriftlige spørsmål) is the
+same leftover shape and would still store titles as observations if fetched.
+
+Proof: `data/stsaker_documents_proof.json`.
+
+
 
 
 
