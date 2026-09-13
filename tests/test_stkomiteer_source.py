@@ -5,15 +5,17 @@ from pathlib import Path
 
 import pytest
 
-from public_data_agent.fetch import fetch_observations
+from public_data_agent.fetch import classify_access_path, fetch_observations
 from public_data_agent.harvest import harvest
 from public_data_agent.http_util import JsonResponse
 from public_data_agent.registry import Registry
 from public_data_agent.sources import SOURCE_IDS, build_source
+from public_data_agent.resource_index import index_dataset
 from public_data_agent.sources.stkomiteer import (
     LIST_URL,
     StkomiteerSource,
     cells_from_stkomiteer,
+    entity_from_komite,
     is_stkomiteer_url,
     printed_item_url,
     stkomiteer_table_id,
@@ -162,29 +164,50 @@ def test_harvest_writes_printed_sesjon_id_and_null_license(tmp_path: Path) -> No
     registry.close()
 
 
-def test_fetch_gets_printed_navn(tmp_path: Path) -> None:
+def test_url_is_lookup_not_name_observations() -> None:
+    assert classify_access_path(SESSION_2025_URL)["kind"] == "lookup"
+    assert classify_access_path(LIST_URL)["kind"] != "lookup"
+
+
+def test_entity_uses_printed_id() -> None:
+    entity = entity_from_komite(ITEM_BODY["komiteer_liste"][0])
+    assert entity["subject_code"] == "ARBSOS"
+    assert entity["subject_label"] == "Arbeids- og sosialkomiteen"
+    assert entity["subject_scheme"] == "stortinget:komite_id"
+
+
+def test_fetch_stores_lookup_entities_not_name_observations(tmp_path: Path) -> None:
     source = StkomiteerSource(http=CatalogHttp())
     registry = Registry(tmp_path / "registry.sqlite")
     harvest(registry, source)
+    indexed = index_dataset(registry, DATASET_ID, http=FetchHttp(), catalogues={})
+    assert indexed["fields"] >= 1
     result = fetch_observations(
         registry,
         DATASET_ID,
         table_id="ignored",
+        select={"id": ["ARBSOS"]},
         http=FetchHttp(),
     )
     assert result.request_url == SESSION_2025_URL
     assert result.table_id == "2025-2026"
     assert result.http_status == 200
     assert result.counts.listed == 1
-    rows = registry.list_observations(DATASET_ID)
-    values = [json.loads(row["value_json"]) for row in rows]
-    assert values == ["Arbeids- og sosialkomiteen"]
-    assert all(row["measure"] == "navn" for row in rows)
-    dims = json.loads(rows[0]["dimensions_json"])
-    assert dims["id"] == "ARBSOS"
-    assert all(row["publisher_name"] is None for row in rows)
-    assert all(row["license"] is None for row in rows)
-    assert all(row["access_path"] == SESSION_2025_URL for row in rows)
+    assert result.sample[0]["kind"] == "entity"
+    assert result.sample[0]["subject_code"] == "ARBSOS"
+    assert registry.list_observations(DATASET_ID) == []
+    cap = registry.get_capability(DATASET_ID)
+    assert cap["capability"] == "lookup"
+    assert cap["record_kind"] == "entity"
+    assert cap["verified_sample_count"] == 1
+    with pytest.raises(ValueError, match="not in komiteer"):
+        fetch_observations(
+            registry,
+            DATASET_ID,
+            table_id="ignored",
+            select={"id": ["NOPE"]},
+            http=FetchHttp(),
+        )
     registry.close()
 
 

@@ -1233,10 +1233,36 @@ bulk dump.
 - Capability is `lookup`, not `entities`: this is a code list used as a join
   key on representatives and questions, the same role Brreg orgform plays.
 
-**Open question for the query side.** `stkomiteer` and `stperioder` are the
-same leftover shape.
+**Open question for the query side.** `stkomiteer` is now a lookup list; see
+`stkomiteer:2025-2026`. `stperioder` still stores names as observations.
 
 Proof: `data/stpartier_lookup_proof.json`.
+
+## stkomiteer:2025-2026 — 2026-09-13 — promoted (lookup)
+
+**Endpoint(s).** `GET https://data.stortinget.no/eksport/komiteer?sesjonid=2025-2026&format=json`.
+The session is already harvested as `stkomiteer:2025-2026`.
+
+**Shape.** `entity` with capability `lookup`. Subject scheme
+`stortinget:komite_id` (printed `id`, e.g. `ARBSOS`). Label is printed
+`navn`. Licence is `null`. Publisher count for session 2025-2026 is 18.
+
+**Capability recorded.** `lookup`. Live GET 2026-09-13: HTTP 200, one
+committee by `select={"id": ["ARBSOS"]}` then the complete session list of
+18. Zero observation rows. Sample: `ARBSOS` Arbeids- og sosialkomiteen. An
+unknown id is refused. Eighteen is the whole published list for the session.
+
+**Surprises.**
+- The previous fetch stored each `navn` as an observation. Dispatch now
+  writes lookup entities. `cells_from_stkomiteer` still copies names for
+  unit tests and is unused by fetch.
+- The session list includes special committees whose printed names mention
+  earlier sessions (e.g. `KOR`, `EOS`). Those names are stored as printed.
+
+**Open question for the query side.** `stperioder` is the remaining leftover
+name-as-observation vocabulary.
+
+Proof: `data/stkomiteer_lookup_proof.json`.
 
 
 

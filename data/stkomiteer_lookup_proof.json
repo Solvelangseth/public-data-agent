@@ -1,0 +1,28 @@
+{
+  "dataset": "stkomiteer:2025-2026",
+  "title": "2025-2026",
+  "request_url": "https://data.stortinget.no/eksport/komiteer?sesjonid=2025-2026&format=json",
+  "http_status": 200,
+  "listed": 1,
+  "all_listed": 18,
+  "publisher_count": 18,
+  "sample": {
+    "id": "ARBSOS",
+    "navn": "Arbeids- og sosialkomiteen"
+  },
+  "all_sample": [
+    {
+      "id": "ARBSOS",
+      "navn": "Arbeids- og sosialkomiteen"
+    },
+    {
+      "id": "KOR",
+      "navn": "Den særskilte komité for å behandle spesielle saker vedrørende korona-krisen"
+    },
+    {
+      "id": "EOS",
+      "navn": "Den særskilte komité for å behandle Særskilt melding fra EOS-utvalget (Dokument 7:2 (2020-2021))"
+    }
+  ],
+  "note": "Lookup entities, not name observations. Complete session list is 18 committees; all stored."
+}

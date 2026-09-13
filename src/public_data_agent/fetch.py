@@ -435,8 +435,11 @@ from public_data_agent.sources.strepresent import (
     shape_from_representanter,
 )
 from public_data_agent.sources.stkomiteer import (
-    cells_from_stkomiteer,
+    SUBJECT_SCHEME as STKOMITEER_SCHEME,
+    committees_from_payload as stkomiteer_from_payload,
     is_stkomiteer_url,
+    selected_ids as stkomiteer_selected_ids,
+    shape_from_komiteer as shape_from_stkomiteer,
     stkomiteer_table_id,
 )
 from public_data_agent.sources.stperioder import (
@@ -1477,7 +1480,7 @@ def fetch_observations(
     if is_himaps_url(access_path):
         return _fetch_himaps(registry, dataset, http=http)
     if is_stkomiteer_url(access_path):
-        return _fetch_stkomiteer(registry, dataset, http=http)
+        return _fetch_stkomiteer(registry, dataset, http=http, select=select)
     if is_stperioder_url(access_path):
         return _fetch_stperioder(registry, dataset, http=http)
     if is_stsaker_url(access_path):
@@ -12294,12 +12297,21 @@ def _fetch_stkomiteer(
     dataset: dict[str, Any],
     *,
     http: JsonHttp | None = None,
+    select: dict[str, list[str]] | None = None,
 ) -> FetchResult:
+    """Fetch session committees as lookup entities, not name observations.
+
+    Default is the complete published list for the session (18 in 2025-2026).
+    ``select={"id": ["ARBSOS"]}`` returns that one committee. An unknown id
+    is an error, not an empty success.
+    """
+
     if dataset.get("source_id") != "stkomiteer":
         return _fetch_stortinget(registry, dataset, http=http)
     access_path = dataset.get("access_path") or ""
-    client = http or HttpClient(timeout=60.0, max_retries=4)
     table_id = stkomiteer_table_id(access_path)
+    wanted = stkomiteer_selected_ids(select)
+    client = http or HttpClient(timeout=60.0, max_retries=4)
     started = utc_now()
     run_id = registry.start_fetch_run(
         dataset_id=dataset["id"],
@@ -12312,22 +12324,90 @@ def _fetch_stkomiteer(
     status = "failed"
     http_status = 0
     sample: list[dict[str, Any]] = []
+    touched: list[str] = []
     try:
         got = client.get_json_response(access_path)
         http_status = got.status
-        registry.set_fetch_request(run_id, request_url=access_path, request_body={"method": "GET"})
-        cells = cells_from_stkomiteer(got.body)
-        counts.listed = len(cells)
-        sample = _store_cells(
-            registry,
-            dataset,
-            run_id,
-            table_id=table_id,
-            cells=cells,
-            retrieved_at=utc_now(),
-            request_url=access_path,
-            http_status=http_status,
-            counts=counts,
+        registry.set_fetch_request(
+            run_id, request_url=access_path, request_body={"method": "GET", "select": select}
+        )
+        committees = stkomiteer_from_payload(got.body)
+        if wanted is not None:
+            by_id = {item["subject_code"]: item for item in committees}
+            missing = [code for code in wanted if code not in by_id]
+            if missing:
+                raise ValueError(
+                    f"komite id {missing} not in komiteer {table_id}; "
+                    "the session list does not print that id"
+                )
+            committees = [by_id[code] for code in wanted]
+        retrieved_at = utc_now()
+        for entity in committees:
+            record_id = f"entity:{dataset['id']}:{entity['subject_code']}"
+            action = registry.upsert_record(
+                {
+                    "id": record_id,
+                    "dataset_id": dataset["id"],
+                    "kind": "entity",
+                    "series": "stkomiteer:komiteer",
+                    "subject_scheme": entity["subject_scheme"],
+                    "subject_code": entity["subject_code"],
+                    "subject_label": entity["subject_label"],
+                    "period": None,
+                    "measure": None,
+                    "value": None,
+                    "attributes": entity["attributes"],
+                    "retrieved_at": retrieved_at,
+                    "request_url": access_path,
+                    "http_status": http_status,
+                    "publisher_name": dataset.get("publisher_name"),
+                    "license": dataset.get("license"),
+                },
+                run_id,
+            )
+            counts.listed += 1
+            if action == "inserted":
+                counts.inserted += 1
+            elif action == "updated":
+                counts.updated += 1
+            else:
+                counts.unchanged += 1
+            touched.append(record_id)
+            if len(sample) < 3:
+                sample.append(
+                    {
+                        "kind": "entity",
+                        "subject_scheme": STKOMITEER_SCHEME,
+                        "subject_code": entity["subject_code"],
+                        "subject_label": entity["subject_label"],
+                        "attributes": {
+                            key: entity["attributes"][key]
+                            for key in ("id", "navn")
+                            if key in entity["attributes"]
+                        },
+                    }
+                )
+        if not committees:
+            raise ValueError(
+                f"komiteer returned no committees for {access_path}; nothing was stored"
+            )
+        fields, keys = shape_from_stkomiteer(committees)
+        registry.set_resource_shape(dataset["id"], fields, keys=keys)
+        registry.set_capability(
+            dataset["id"],
+            {
+                "capability": CAPABILITY_LOOKUP,
+                "record_kind": "entity",
+                "endpoint": access_path,
+                "request_method": "GET",
+                "subject_scheme": STKOMITEER_SCHEME,
+                "verified_at": retrieved_at,
+                "verified_sample_count": counts.listed,
+                "notes": (
+                    f"{counts.listed} committee lookup record(s) from session {table_id}; "
+                    "names are labels, not observation values"
+                ),
+            },
         )
         status = "completed"
     except Exception as exc:
@@ -12343,6 +12423,7 @@ def _fetch_stkomiteer(
         http_status=http_status,
         counts=counts,
         sample=sample,
+        observation_ids=touched,
     )
 
 
@@ -14093,6 +14174,14 @@ def classify_access_path(access_path: str | None) -> dict[str, Any]:
             "kind": CAPABILITY_LOOKUP,
             "reason": (
                 "Stortinget partier; session party list as lookup entities "
+                "addressed by printed id"
+            ),
+        }
+    if is_stkomiteer_url(access_path):
+        return {
+            "kind": CAPABILITY_LOOKUP,
+            "reason": (
+                "Stortinget komiteer; session committee list as lookup entities "
                 "addressed by printed id"
             ),
         }
