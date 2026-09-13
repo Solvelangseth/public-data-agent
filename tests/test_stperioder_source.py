@@ -5,19 +5,22 @@ from pathlib import Path
 
 import pytest
 
-from public_data_agent.fetch import fetch_observations
+from public_data_agent.fetch import SelectionTooLarge, classify_access_path, fetch_observations
 from public_data_agent.harvest import harvest
 from public_data_agent.http_util import JsonResponse
 from public_data_agent.registry import Registry
 from public_data_agent.sources import SOURCE_IDS, build_source
+from public_data_agent.resource_index import index_dataset
 from public_data_agent.sources.stperioder import (
     LIST_URL,
+    MAX_LIMIT,
     StperioderSource,
     cells_from_stperioder,
     is_stperioder_url,
     printed_item_url,
     stperioder_table_id,
 )
+from public_data_agent.sources.strepresent import entity_from_representant
 
 PERIOD_2025_URL = (
     "https://data.stortinget.no/eksport/representanter"
@@ -48,6 +51,8 @@ ITEM_BODY = {
             "fornavn": "Abid",
             "etternavn": "Raja",
             "kjoenn": "mann",
+            "parti": {"id": "V", "navn": "Venstre"},
+            "fylke": {"id": "Ak", "navn": "Akershus"},
         }
     ],
 }
@@ -163,30 +168,65 @@ def test_harvest_writes_printed_periode_id_and_null_license(tmp_path: Path) -> N
     registry.close()
 
 
-def test_fetch_gets_printed_fornavn(tmp_path: Path) -> None:
+def test_url_is_entities_not_name_observations() -> None:
+    assert classify_access_path(PERIOD_2025_URL)["kind"] == "entities"
+    assert classify_access_path(LIST_URL)["kind"] != "entities"
+
+
+def test_entity_uses_printed_id() -> None:
+    entity = entity_from_representant(ITEM_BODY["representanter_liste"][0])
+    assert entity["subject_code"] == "AR"
+    assert entity["subject_label"] == "Abid Raja"
+    assert entity["subject_scheme"] == "stortinget:representant_id"
+    assert entity["attributes"]["parti.id"] == "V"
+
+
+def test_fetch_stores_people_not_name_observations(tmp_path: Path) -> None:
     source = StperioderSource(http=CatalogHttp())
     registry = Registry(tmp_path / "registry.sqlite")
     harvest(registry, source)
+    indexed = index_dataset(registry, DATASET_ID, http=FetchHttp(), catalogues={})
+    assert indexed["fields"] >= 1
     result = fetch_observations(
         registry,
         DATASET_ID,
         table_id="ignored",
+        select={"id": ["AR"]},
         http=FetchHttp(),
     )
     assert result.request_url == PERIOD_2025_URL
     assert result.table_id == "2025-2029"
     assert result.http_status == 200
     assert result.counts.listed == 1
-    rows = registry.list_observations(DATASET_ID)
-    values = [json.loads(row["value_json"]) for row in rows]
-    assert values == ["Abid"]
-    assert all(row["measure"] == "fornavn" for row in rows)
-    dims = json.loads(rows[0]["dimensions_json"])
-    assert dims["etternavn"] == "Raja"
-    assert dims["id"] == "AR"
-    assert all(row["publisher_name"] is None for row in rows)
-    assert all(row["license"] is None for row in rows)
-    assert all(row["access_path"] == PERIOD_2025_URL for row in rows)
+    assert result.sample[0]["kind"] == "entity"
+    assert result.sample[0]["subject_code"] == "AR"
+    assert registry.list_observations(DATASET_ID) == []
+    cap = registry.get_capability(DATASET_ID)
+    assert cap["capability"] == "entities"
+    assert cap["verified_sample_count"] == 1
+    with pytest.raises(ValueError, match="not in representanter"):
+        fetch_observations(
+            registry,
+            DATASET_ID,
+            table_id="ignored",
+            select={"id": ["NOPE"]},
+            http=FetchHttp(),
+        )
+    registry.close()
+
+
+def test_page_above_the_cap_is_refused(tmp_path: Path) -> None:
+    source = StperioderSource(http=CatalogHttp())
+    registry = Registry(tmp_path / "registry.sqlite")
+    harvest(registry, source)
+    with pytest.raises(SelectionTooLarge):
+        fetch_observations(
+            registry,
+            DATASET_ID,
+            table_id="ignored",
+            select={"antall": [str(MAX_LIMIT + 1)]},
+            http=FetchHttp(),
+        )
     registry.close()
 
 

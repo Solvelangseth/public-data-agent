@@ -1,0 +1,44 @@
+{
+  "dataset": "stperioder:2025-2029",
+  "title": "2025-2029",
+  "request_url": "https://data.stortinget.no/eksport/representanter?stortingsperiodeid=2025-2029&format=json",
+  "http_status": 200,
+  "listed": 1,
+  "page_listed": 10,
+  "publisher_count": 169,
+  "sample": {
+    "id": "MARNIL",
+    "navn": "Marius Arion Nilsen",
+    "parti.id": "FrP",
+    "parti.navn": "Fremskrittspartiet",
+    "fylke.id": "AA",
+    "fylke.navn": "Aust-Agder"
+  },
+  "page_sample": [
+    {
+      "id": "ABIR",
+      "navn": "Abid Raja",
+      "parti.id": "V",
+      "parti.navn": "Venstre",
+      "fylke.id": "Ak",
+      "fylke.navn": "Akershus"
+    },
+    {
+      "id": "AE",
+      "navn": "Anette Carnarius Elseth",
+      "parti.id": "FrP",
+      "parti.navn": "Fremskrittspartiet",
+      "fylke.id": "Ak",
+      "fylke.navn": "Akershus"
+    },
+    {
+      "id": "AGHA",
+      "navn": "Anne Grethe Hauan",
+      "parti.id": "FrP",
+      "parti.navn": "Fremskrittspartiet",
+      "fylke.id": "Ve",
+      "fylke.navn": "Vestfold"
+    }
+  ],
+  "note": "Person entities, not name observations. One id plus a page of 10 stored. 169 members exist for 2025-2029; they were not all ingested. Other periods were not fetched."
+}

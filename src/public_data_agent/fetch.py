@@ -448,8 +448,11 @@ from public_data_agent.sources.stkomiteer import (
     stkomiteer_table_id,
 )
 from public_data_agent.sources.stperioder import (
-    cells_from_stperioder,
+    MAX_LIMIT as STPERIODER_MAX_LIMIT,
     is_stperioder_url,
+    representanter_from_payload as stperioder_from_payload,
+    selected_member as stperioder_selected_member,
+    shape_from_representanter as shape_from_stperioder,
     stperioder_table_id,
 )
 from public_data_agent.sources.stsaker import (
@@ -1487,7 +1490,7 @@ def fetch_observations(
     if is_stkomiteer_url(access_path):
         return _fetch_stkomiteer(registry, dataset, http=http, select=select)
     if is_stperioder_url(access_path):
-        return _fetch_stperioder(registry, dataset, http=http)
+        return _fetch_stperioder(registry, dataset, http=http, select=select)
     if is_stsaker_url(access_path):
         return _fetch_stsaker(registry, dataset, http=http, select=select)
     if is_stpartier_url(access_path):
@@ -12439,12 +12442,35 @@ def _fetch_stperioder(
     dataset: dict[str, Any],
     *,
     http: JsonHttp | None = None,
+    select: dict[str, list[str]] | None = None,
 ) -> FetchResult:
+    """Fetch period representatives as person entities, not name observations.
+
+    Default is a page of ten. ``select={"id": ["MARNIL"]}`` returns that one
+    member. ``antall`` raises the page size up to a hard cap. An unknown id
+    is an error. A period holds ~169 members; they are not all ingested.
+    """
+
     if dataset.get("source_id") != "stperioder":
         return _fetch_stortinget(registry, dataset, http=http)
     access_path = dataset.get("access_path") or ""
-    client = http or HttpClient(timeout=60.0, max_retries=4)
     table_id = stperioder_table_id(access_path)
+    wanted, limit = stperioder_selected_member(select)
+    if wanted is None and limit > STPERIODER_MAX_LIMIT:
+        raise SelectionTooLarge(
+            table_id,
+            limit,
+            STPERIODER_MAX_LIMIT,
+            [
+                {
+                    "code": "antall",
+                    "text": "members per request",
+                    "selected": limit,
+                    "available": STPERIODER_MAX_LIMIT,
+                }
+            ],
+        )
+    client = http or HttpClient(timeout=60.0, max_retries=4)
     started = utc_now()
     run_id = registry.start_fetch_run(
         dataset_id=dataset["id"],
@@ -12457,22 +12483,92 @@ def _fetch_stperioder(
     status = "failed"
     http_status = 0
     sample: list[dict[str, Any]] = []
+    touched: list[str] = []
     try:
         got = client.get_json_response(access_path)
         http_status = got.status
-        registry.set_fetch_request(run_id, request_url=access_path, request_body={"method": "GET"})
-        cells = cells_from_stperioder(got.body)
-        counts.listed = len(cells)
-        sample = _store_cells(
-            registry,
-            dataset,
-            run_id,
-            table_id=table_id,
-            cells=cells,
-            retrieved_at=utc_now(),
-            request_url=access_path,
-            http_status=http_status,
-            counts=counts,
+        registry.set_fetch_request(
+            run_id, request_url=access_path, request_body={"method": "GET", "select": select}
+        )
+        members = stperioder_from_payload(got.body)
+        if wanted is not None:
+            by_id = {item["subject_code"]: item for item in members}
+            missing = [code for code in wanted if code not in by_id]
+            if missing:
+                raise ValueError(
+                    f"representant id {missing} not in representanter {table_id}; "
+                    "the period list does not print that id"
+                )
+            members = [by_id[code] for code in wanted]
+        else:
+            members = members[:limit]
+        retrieved_at = utc_now()
+        for entity in members:
+            record_id = f"entity:{dataset['id']}:{entity['subject_code']}"
+            action = registry.upsert_record(
+                {
+                    "id": record_id,
+                    "dataset_id": dataset["id"],
+                    "kind": "entity",
+                    "series": "stperioder:representanter",
+                    "subject_scheme": entity["subject_scheme"],
+                    "subject_code": entity["subject_code"],
+                    "subject_label": entity["subject_label"],
+                    "period": None,
+                    "measure": None,
+                    "value": None,
+                    "attributes": entity["attributes"],
+                    "retrieved_at": retrieved_at,
+                    "request_url": access_path,
+                    "http_status": http_status,
+                    "publisher_name": dataset.get("publisher_name"),
+                    "license": dataset.get("license"),
+                },
+                run_id,
+            )
+            counts.listed += 1
+            if action == "inserted":
+                counts.inserted += 1
+            elif action == "updated":
+                counts.updated += 1
+            else:
+                counts.unchanged += 1
+            touched.append(record_id)
+            if len(sample) < 3:
+                sample.append(
+                    {
+                        "kind": "entity",
+                        "subject_scheme": STREPRESENT_SCHEME,
+                        "subject_code": entity["subject_code"],
+                        "subject_label": entity["subject_label"],
+                        "attributes": {
+                            key: entity["attributes"][key]
+                            for key in ("parti.id", "parti.navn", "fylke.id", "fylke.navn")
+                            if key in entity["attributes"]
+                        },
+                    }
+                )
+        if not members:
+            raise ValueError(
+                f"representanter returned no members for {access_path}; nothing was stored"
+            )
+        fields, keys = shape_from_stperioder(members)
+        registry.set_resource_shape(dataset["id"], fields, keys=keys)
+        registry.set_capability(
+            dataset["id"],
+            {
+                "capability": CAPABILITY_ENTITIES,
+                "record_kind": "entity",
+                "endpoint": access_path,
+                "request_method": "GET",
+                "subject_scheme": STREPRESENT_SCHEME,
+                "verified_at": retrieved_at,
+                "verified_sample_count": counts.listed,
+                "notes": (
+                    f"{counts.listed} period member(s) from {table_id}; "
+                    "names are labels, not observation values"
+                ),
+            },
         )
         status = "completed"
     except Exception as exc:
@@ -12488,6 +12584,7 @@ def _fetch_stperioder(
         http_status=http_status,
         counts=counts,
         sample=sample,
+        observation_ids=touched,
     )
 
 
@@ -14306,6 +14403,14 @@ def classify_access_path(access_path: str | None) -> dict[str, Any]:
             "reason": (
                 "Stortinget dagensrepresentanter; current members as person "
                 "entities addressed by printed id"
+            ),
+        }
+    if is_stperioder_url(access_path):
+        return {
+            "kind": CAPABILITY_ENTITIES,
+            "reason": (
+                "Stortinget period representanter; historical members as person "
+                "entities addressed by printed id, fetched a bounded page at a time"
             ),
         }
     if is_stpartier_url(access_path):

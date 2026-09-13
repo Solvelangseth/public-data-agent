@@ -6,6 +6,11 @@ from urllib.parse import parse_qs, urlencode, urlsplit
 from public_data_agent.http_util import HttpClient, RateLimiter
 from public_data_agent.models import DatasetRef, HarvestedRecord, SourceError
 from public_data_agent.sources.base import SourceBase
+from public_data_agent.sources.strepresent import (
+    SUBJECT_SCHEME,
+    entity_from_representant,
+    shape_from_representanter,
+)
 
 SOURCE_ID = "stperioder"
 SOURCE_NAME = "Stortinget leftover stortingsperioder representanter"
@@ -22,6 +27,9 @@ HOST = "data.stortinget.no"
 FORMAT_QUERY = "json"
 PERIODE_QUERY = "stortingsperiodeid"
 NAME_FIELDS = ("fornavn", "etternavn", "id", "navn")
+LIST_KEY = "representanter_liste"
+DEFAULT_LIMIT = 10
+MAX_LIMIT = 100
 
 
 class StperioderSource(SourceBase):
@@ -252,3 +260,49 @@ def _as_dim(value: Any) -> str:
     if value is None:
         return ""
     return str(value)
+
+
+def representanter_from_payload(payload: Any) -> list[dict[str, Any]]:
+    if not isinstance(payload, dict):
+        raise ValueError("representanter payload is not a JSON object")
+    listed = payload.get(LIST_KEY)
+    if not isinstance(listed, list) or not listed:
+        raise ValueError("representanter payload printed no members")
+    out = []
+    for item in listed:
+        if isinstance(item, dict):
+            out.append(entity_from_representant(item))
+    if not out:
+        raise ValueError("representanter payload printed no member objects")
+    return out
+
+
+def selected_member(
+    select: dict[str, list[str]] | None,
+) -> tuple[list[str] | None, int]:
+    select = {str(k): v for k, v in (select or {}).items()}
+    allowed = {"id", "antall"}
+    unknown = sorted(key for key in select if key not in allowed)
+    if unknown:
+        raise ValueError(
+            f"select names field(s) {unknown} that a period-representanter fetch "
+            f"does not filter on; accepted: {sorted(allowed)}"
+        )
+    limit = DEFAULT_LIMIT
+    if "antall" in select:
+        wanted = select["antall"]
+        wanted = [wanted] if isinstance(wanted, str) else list(wanted)
+        try:
+            limit = int(str(wanted[0]))
+        except (ValueError, IndexError) as exc:
+            raise ValueError(f"select[antall]={select['antall']!r} is not a number") from exc
+        if limit < 1:
+            raise ValueError(f"select[antall]={limit} must be at least 1")
+    if "id" not in select:
+        return None, limit
+    values = select["id"]
+    values = [values] if isinstance(values, str) else [str(v) for v in values]
+    if len(values) != 1:
+        raise ValueError("select id accepts exactly one representant id")
+    return values, 1
+

@@ -1259,9 +1259,9 @@ unknown id is refused. Eighteen is the whole published list for the session.
 - The session list includes special committees whose printed names mention
   earlier sessions (e.g. `KOR`, `EOS`). Those names are stored as printed.
 
-**Open question for the query side.** `stortinget:stortingsperioder` is now a
-lookup list; see that entry. `stperioder:*` still stores historical
-representative names as observations if fetched.
+**Open question for the query side.** `stortinget:stortingsperioder` is a
+lookup list. `stperioder:*` representatives are now person entities; see
+`stperioder:2025-2029`.
 
 Proof: `data/stkomiteer_lookup_proof.json`.
 
@@ -1288,11 +1288,42 @@ records inserted, zero observation rows. Sample: `2025-2029`, `2021-2025`.
 - `stperioder:2025-2029` is a different resource: ~169 historical members for
   that period. It still uses the name-as-observation decoder.
 
-**Open question for the query side.** `stperioder:*` representatives should
-become person entities like `dagensrepresentanter`, bounded by id or a page
-of ten, not a dump of every period.
+**Open question for the query side.** None for this register. Period
+representatives are now person entities; see `stperioder:2025-2029`.
 
 Proof: `data/stperioder_lookup_proof.json`.
+
+## stperioder:2025-2029 — 2026-09-14 — promoted (entities)
+
+**Endpoint(s).** `GET https://data.stortinget.no/eksport/representanter?stortingsperiodeid=2025-2029&format=json`.
+The period is already harvested as `stperioder:2025-2029`. Other periods
+were not fetched. This is not `stortinget:stortingsperioder` (the 21-period
+catalog).
+
+**Shape.** `entity`. Subject scheme `stortinget:representant_id` (printed
+`id`, e.g. `MARNIL`) — the same scheme as `dagensrepresentanter`. Label is
+printed `fornavn` + `etternavn`. Nested `parti` and `fylke` are flattened.
+Licence is `null`. Publisher count for 2025-2029 is 169.
+
+**Capability recorded.** `entities`. Live GET 2026-09-14: HTTP 200, one
+member by `select={"id": ["MARNIL"]}` then a page of ten. Zero observation
+rows. Sample: `MARNIL` Marius Arion Nilsen, FrP, Aust-Agder. Default page is
+10, hard cap 100; an unknown id is refused. The 169 members were not all
+ingested. Other harvested periods were not fetched.
+
+**Surprises.**
+- The previous fetch stored each `fornavn` as an observation. Dispatch now
+  writes person entities, reusing `entity_from_representant`.
+  `cells_from_stperioder` still copies names for unit tests and is unused
+  by fetch.
+- Live id for Abid Raja in this period is `ABIR`, not the older `AR` used
+  in the harvest-era fixture.
+
+**Open question for the query side.** Leftover untemplated `/eksport/` lists
+(`sesjoner`, `emner`, `fylker`, `allepartier`) still use the generic
+Stortinget name-as-observation decoder if fetched.
+
+Proof: `data/stperioder_representanter_proof.json`.
 
 
 

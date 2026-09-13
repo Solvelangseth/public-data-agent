@@ -331,6 +331,7 @@ def index_dataset(
     from public_data_agent.sources.stmoter import is_stmoter_url
     from public_data_agent.sources.stpartier import is_stpartier_url
     from public_data_agent.sources.stkomiteer import is_stkomiteer_url
+    from public_data_agent.sources.stperioder import is_stperioder_url
     from public_data_agent.sources.fhi import is_fhi_table_url, printed_table_data_url, split_table_url
 
     dataset = registry.get_dataset(dataset_id)
@@ -517,6 +518,17 @@ def index_dataset(
         meta = client.get_json_response(access_path)
         committees = stkomiteer_from_payload(meta.body or {})
         fields, keys = shape_from_stkomiteer(committees)
+        endpoint, method = access_path, "GET"
+        record_kind = "entity"
+    elif is_stperioder_url(access_path):
+        from public_data_agent.sources.stperioder import (
+            representanter_from_payload as stperioder_from_payload,
+            shape_from_representanter as shape_from_stperioder,
+        )
+
+        meta = client.get_json_response(access_path)
+        members = stperioder_from_payload(meta.body or {})
+        fields, keys = shape_from_stperioder(members)
         endpoint, method = access_path, "GET"
         record_kind = "entity"
     else:
