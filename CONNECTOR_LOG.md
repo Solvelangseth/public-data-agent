@@ -1144,10 +1144,43 @@ collection is fetched and filtered.
 - The publisher's JSON for this case prints `?å sikre` where å belongs; that
   character is stored as printed.
 
-**Open question for the query side.** `stskrift` (skriftlige spørsmål) is the
-same leftover shape and would still store titles as observations if fetched.
+**Open question for the query side.** None for this register. Written
+questions are now documents; see `stskrift:2025-2026`.
 
 Proof: `data/stsaker_documents_proof.json`.
+
+## stskrift:2025-2026 — 2026-09-13 — promoted (documents)
+
+**Endpoint(s).** `GET https://data.stortinget.no/eksport/skriftligesporsmal?sesjonid=2025-2026&format=json`.
+The session is already harvested as `stskrift:2025-2026`. Other leftover
+lists (`stmoter`, interpellasjoner) still use the title-as-observation
+decoder and were not changed.
+
+**Shape.** `document`. Subject scheme `stortinget:sporsmal_id` (printed `id`,
+e.g. `127161`). Same id space as spørretimespørsmål. Label is printed
+`tittel`. Nested `sporsmal_fra` is flattened to `sporsmal_fra.id` /
+`fornavn` / `etternavn` / `parti.id`. `emne_liste` is skipped. Licence is
+`null`. Publisher count for session 2025-2026 is 3,657.
+
+**Capability recorded.** `documents`. Live GET 2026-09-13: HTTP 200, one
+question by `select={"id": ["127161"]}` then a page of ten. Zero observation
+rows. Sample: `127161` from TMV (Trygve Slagsvold Vedum) to
+landbruks- og matministeren. Default page is 10, hard cap 100; an unknown id
+is refused. The 3,657 written questions were not all ingested. The API has no
+per-question URL; the session collection is fetched and filtered.
+
+**Surprises.**
+- The previous fetch stored each `tittel` as an observation. Dispatch now
+  writes documents. `cells_from_stskrift` still copies titles for unit tests
+  and is unused by fetch.
+- This collection is much larger than spørretimespørsmål (3,657 vs 524). The
+  bound matters.
+
+**Open question for the query side.** `stmoter` would still store titles as
+observations if fetched. Interpellasjoner/høringer have leftover comments in
+`stskrift` but no registered source.
+
+Proof: `data/stskrift_documents_proof.json`.
 
 
 

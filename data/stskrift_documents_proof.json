@@ -1,0 +1,44 @@
+{
+  "dataset": "stskrift:2025-2026",
+  "title": "2025-2026",
+  "request_url": "https://data.stortinget.no/eksport/skriftligesporsmal?sesjonid=2025-2026&format=json",
+  "http_status": 200,
+  "listed": 1,
+  "page_listed": 10,
+  "publisher_count": 3657,
+  "sample": {
+    "id": "127161",
+    "tittel": "Kan statsråden legge frem et estimat på de økonomiske konsekvensene for tradisjonelle gårdsbruk i Telemark dersom Frp skulle få vedtatt sitt forslag i deres alternative statsbudsjett om å redusere støtten til jordbruket med 3,4 milliarder kroner, og kan statsråden estimere hvor store markedsinntekter det norske tollvernet tilfører jordbruket?",
+    "sesjon_id": "2025-2026",
+    "sporsmal_nummer": 3688,
+    "sporsmal_fra.id": "TMV",
+    "sporsmal_til_minister_tittel": "landbruks- og matministeren"
+  },
+  "page_sample": [
+    {
+      "id": "127161",
+      "tittel": "Kan statsråden legge frem et estimat på de økonomiske konsekvensene for tradisjonelle gårdsbruk i Telemark dersom Frp skulle få vedtatt sitt forslag i deres alternative statsbudsjett om å redusere støtten til jordbruket med 3,4 milliarder kroner, og kan statsråden estimere hvor store markedsinntekter det norske tollvernet tilfører jordbruket?",
+      "sesjon_id": "2025-2026",
+      "sporsmal_nummer": 3688,
+      "sporsmal_fra.id": "TMV",
+      "sporsmal_til_minister_tittel": "landbruks- og matministeren"
+    },
+    {
+      "id": "127133",
+      "tittel": "Hvor mange saker de siste fem årene har utlendingsmyndighetene kommet til at en utlending har gitt uriktige opplysninger eller fortiet forhold av vesentlig betydning for innvilgelsen av en oppholdstillatelse, men likevel besluttet ikke å tilbakekalle tillatelsen, og hva har vært årsakene til at oppholdstillatelsen ikke er trukket tilbake?",
+      "sesjon_id": "2025-2026",
+      "sporsmal_nummer": 3657,
+      "sporsmal_fra.id": "EW",
+      "sporsmal_til_minister_tittel": "justis- og beredskapsministeren"
+    },
+    {
+      "id": "127132",
+      "tittel": "Brannvesenet er i hele Norge, de tar på seg noen av de farligste jobbene i samfunnet, og takket være den lokale tilhørigheten er de ofte først på stedet når en ulykke skjer. Hittil i år har 55 personer mistet livet i drukningsulykker i Norge. Det er flere enn i hele 2025. Til tross for at brannvesenet ofte er først på stedet, må de vente på redningsdykkere etter krav fra Arbeidstilsynet.\r\nVil statsråden ta til orde for å oppdatere regelverket, og/eller tolkningen av det, for å sikre at brannmannskap kan bidra i en redningsulykke?",
+      "sesjon_id": "2025-2026",
+      "sporsmal_nummer": 3656,
+      "sporsmal_fra.id": "JSB",
+      "sporsmal_til_minister_tittel": "arbeids- og inkluderingsministeren"
+    }
+  ],
+  "note": "Documents, not title observations. One id plus a page of 10 stored. 3657 written questions exist; they were not all ingested."
+}
