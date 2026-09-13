@@ -1,0 +1,32 @@
+{
+  "dataset": "stpartier:2025-2026",
+  "title": "2025-2026",
+  "request_url": "https://data.stortinget.no/eksport/partier?sesjonid=2025-2026&format=json",
+  "http_status": 200,
+  "listed": 1,
+  "all_listed": 9,
+  "publisher_count": 9,
+  "sample": {
+    "id": "FrP",
+    "navn": "Fremskrittspartiet",
+    "representert_parti": true
+  },
+  "all_sample": [
+    {
+      "id": "A",
+      "navn": "Arbeiderpartiet",
+      "representert_parti": true
+    },
+    {
+      "id": "FrP",
+      "navn": "Fremskrittspartiet",
+      "representert_parti": true
+    },
+    {
+      "id": "H",
+      "navn": "Høyre",
+      "representert_parti": true
+    }
+  ],
+  "note": "Lookup entities, not name observations. Complete session list is 9 parties; all stored."
+}

@@ -1204,12 +1204,39 @@ not all ingested.
   writes documents. `cells_from_stmoter` still copies referat ids for unit
   tests and is unused by fetch.
 
-**Open question for the query side.** `stpartier` / `stkomiteer` /
-`stperioder` are small vocabularies that would still store names as
-observations if fetched; they should become lookup entities like Brreg
-code lists. Interpellasjoner have no registered source.
+**Open question for the query side.** `stpartier` is now a lookup list; see
+`stpartier:2025-2026`. `stkomiteer` / `stperioder` still store names as
+observations. Interpellasjoner have no registered source.
 
 Proof: `data/stmoter_documents_proof.json`.
+
+## stpartier:2025-2026 — 2026-09-13 — promoted (lookup)
+
+**Endpoint(s).** `GET https://data.stortinget.no/eksport/partier?sesjonid=2025-2026&format=json`.
+The session is already harvested as `stpartier:2025-2026`.
+
+**Shape.** `entity` with capability `lookup`. Subject scheme
+`stortinget:parti_id` (printed `id`, e.g. `FrP`). Label is printed `navn`.
+`representert_parti` is stored as printed. Licence is `null`. Publisher
+count for session 2025-2026 is 9.
+
+**Capability recorded.** `lookup`. Live GET 2026-09-13: HTTP 200, one party
+by `select={"id": ["FrP"]}` then the complete session list of nine. Zero
+observation rows. Sample: `FrP` Fremskrittspartiet, representert. An unknown
+id is refused. Nine is the whole published roster for the session, not a
+bulk dump.
+
+**Surprises.**
+- The previous fetch stored each `navn` as an observation (`measure=navn`).
+  Dispatch now writes lookup entities. `cells_from_stpartier` still copies
+  names for unit tests and is unused by fetch.
+- Capability is `lookup`, not `entities`: this is a code list used as a join
+  key on representatives and questions, the same role Brreg orgform plays.
+
+**Open question for the query side.** `stkomiteer` and `stperioder` are the
+same leftover shape.
+
+Proof: `data/stpartier_lookup_proof.json`.
 
 
 

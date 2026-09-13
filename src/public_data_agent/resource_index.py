@@ -328,6 +328,7 @@ def index_dataset(
     from public_data_agent.sources.stsaker import is_stsaker_url
     from public_data_agent.sources.stskrift import is_stskrift_url
     from public_data_agent.sources.stmoter import is_stmoter_url
+    from public_data_agent.sources.stpartier import is_stpartier_url
     from public_data_agent.sources.fhi import is_fhi_table_url, printed_table_data_url, split_table_url
 
     dataset = registry.get_dataset(dataset_id)
@@ -483,6 +484,17 @@ def index_dataset(
         fields, keys = shape_from_stmoter(documents)
         endpoint, method = access_path, "GET"
         record_kind = "document"
+    elif is_stpartier_url(access_path):
+        from public_data_agent.sources.stpartier import (
+            parties_from_payload as stpartier_from_payload,
+            shape_from_partier as shape_from_stpartier,
+        )
+
+        meta = client.get_json_response(access_path)
+        parties = stpartier_from_payload(meta.body or {})
+        fields, keys = shape_from_stpartier(parties)
+        endpoint, method = access_path, "GET"
+        record_kind = "entity"
     else:
         raise ValueError(f"no metadata reader for {dataset_id} ({access_path or 'no access_path'})")
 

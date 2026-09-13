@@ -454,8 +454,11 @@ from public_data_agent.sources.stsaker import (
     stsaker_table_id,
 )
 from public_data_agent.sources.stpartier import (
-    cells_from_stpartier,
+    SUBJECT_SCHEME as STPARTIER_SCHEME,
     is_stpartier_url,
+    parties_from_payload as stpartier_from_payload,
+    selected_ids as stpartier_selected_ids,
+    shape_from_partier as shape_from_stpartier,
     stpartier_table_id,
 )
 from public_data_agent.sources.stsporre import (
@@ -1480,7 +1483,7 @@ def fetch_observations(
     if is_stsaker_url(access_path):
         return _fetch_stsaker(registry, dataset, http=http, select=select)
     if is_stpartier_url(access_path):
-        return _fetch_stpartier(registry, dataset, http=http)
+        return _fetch_stpartier(registry, dataset, http=http, select=select)
     if is_stsporre_url(access_path):
         return _fetch_stsporre(registry, dataset, http=http, select=select)
     if is_stmoter_url(access_path):
@@ -12714,12 +12717,21 @@ def _fetch_stpartier(
     dataset: dict[str, Any],
     *,
     http: JsonHttp | None = None,
+    select: dict[str, list[str]] | None = None,
 ) -> FetchResult:
+    """Fetch session parties as lookup entities, not name observations.
+
+    Default is the complete published list for the session (nine parties in
+    2025-2026). ``select={"id": ["FrP"]}`` returns that one party. An unknown
+    id is an error, not an empty success.
+    """
+
     if dataset.get("source_id") != "stpartier":
         return _fetch_stortinget(registry, dataset, http=http)
     access_path = dataset.get("access_path") or ""
-    client = http or HttpClient(timeout=60.0, max_retries=4)
     table_id = stpartier_table_id(access_path)
+    wanted = stpartier_selected_ids(select)
+    client = http or HttpClient(timeout=60.0, max_retries=4)
     started = utc_now()
     run_id = registry.start_fetch_run(
         dataset_id=dataset["id"],
@@ -12732,22 +12744,90 @@ def _fetch_stpartier(
     status = "failed"
     http_status = 0
     sample: list[dict[str, Any]] = []
+    touched: list[str] = []
     try:
         got = client.get_json_response(access_path)
         http_status = got.status
-        registry.set_fetch_request(run_id, request_url=access_path, request_body={"method": "GET"})
-        cells = cells_from_stpartier(got.body)
-        counts.listed = len(cells)
-        sample = _store_cells(
-            registry,
-            dataset,
-            run_id,
-            table_id=table_id,
-            cells=cells,
-            retrieved_at=utc_now(),
-            request_url=access_path,
-            http_status=http_status,
-            counts=counts,
+        registry.set_fetch_request(
+            run_id, request_url=access_path, request_body={"method": "GET", "select": select}
+        )
+        parties = stpartier_from_payload(got.body)
+        if wanted is not None:
+            by_id = {item["subject_code"]: item for item in parties}
+            missing = [code for code in wanted if code not in by_id]
+            if missing:
+                raise ValueError(
+                    f"parti id {missing} not in partier {table_id}; "
+                    "the session list does not print that id"
+                )
+            parties = [by_id[code] for code in wanted]
+        retrieved_at = utc_now()
+        for entity in parties:
+            record_id = f"entity:{dataset['id']}:{entity['subject_code']}"
+            action = registry.upsert_record(
+                {
+                    "id": record_id,
+                    "dataset_id": dataset["id"],
+                    "kind": "entity",
+                    "series": "stpartier:partier",
+                    "subject_scheme": entity["subject_scheme"],
+                    "subject_code": entity["subject_code"],
+                    "subject_label": entity["subject_label"],
+                    "period": None,
+                    "measure": None,
+                    "value": None,
+                    "attributes": entity["attributes"],
+                    "retrieved_at": retrieved_at,
+                    "request_url": access_path,
+                    "http_status": http_status,
+                    "publisher_name": dataset.get("publisher_name"),
+                    "license": dataset.get("license"),
+                },
+                run_id,
+            )
+            counts.listed += 1
+            if action == "inserted":
+                counts.inserted += 1
+            elif action == "updated":
+                counts.updated += 1
+            else:
+                counts.unchanged += 1
+            touched.append(record_id)
+            if len(sample) < 3:
+                sample.append(
+                    {
+                        "kind": "entity",
+                        "subject_scheme": STPARTIER_SCHEME,
+                        "subject_code": entity["subject_code"],
+                        "subject_label": entity["subject_label"],
+                        "attributes": {
+                            key: entity["attributes"][key]
+                            for key in ("id", "navn", "representert_parti")
+                            if key in entity["attributes"]
+                        },
+                    }
+                )
+        if not parties:
+            raise ValueError(
+                f"partier returned no parties for {access_path}; nothing was stored"
+            )
+        fields, keys = shape_from_stpartier(parties)
+        registry.set_resource_shape(dataset["id"], fields, keys=keys)
+        registry.set_capability(
+            dataset["id"],
+            {
+                "capability": CAPABILITY_LOOKUP,
+                "record_kind": "entity",
+                "endpoint": access_path,
+                "request_method": "GET",
+                "subject_scheme": STPARTIER_SCHEME,
+                "verified_at": retrieved_at,
+                "verified_sample_count": counts.listed,
+                "notes": (
+                    f"{counts.listed} party lookup entit(y/ies) from session {table_id}; "
+                    "names are labels, not observation values"
+                ),
+            },
         )
         status = "completed"
     except Exception as exc:
@@ -12763,6 +12843,7 @@ def _fetch_stpartier(
         http_status=http_status,
         counts=counts,
         sample=sample,
+        observation_ids=touched,
     )
 
 
@@ -14005,6 +14086,14 @@ def classify_access_path(access_path: str | None) -> dict[str, Any]:
             "reason": (
                 "Stortinget dagensrepresentanter; current members as person "
                 "entities addressed by printed id"
+            ),
+        }
+    if is_stpartier_url(access_path):
+        return {
+            "kind": CAPABILITY_LOOKUP,
+            "reason": (
+                "Stortinget partier; session party list as lookup entities "
+                "addressed by printed id"
             ),
         }
     if is_stsporre_url(access_path):
