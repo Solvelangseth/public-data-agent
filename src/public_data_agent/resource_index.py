@@ -327,6 +327,7 @@ def index_dataset(
     from public_data_agent.sources.stsporre import is_stsporre_url
     from public_data_agent.sources.stsaker import is_stsaker_url
     from public_data_agent.sources.stskrift import is_stskrift_url
+    from public_data_agent.sources.stmoter import is_stmoter_url
     from public_data_agent.sources.fhi import is_fhi_table_url, printed_table_data_url, split_table_url
 
     dataset = registry.get_dataset(dataset_id)
@@ -469,6 +470,17 @@ def index_dataset(
         meta = client.get_json_response(access_path)
         documents = stskrift_documents_from_payload(meta.body or {})
         fields, keys = shape_from_stskrift(documents)
+        endpoint, method = access_path, "GET"
+        record_kind = "document"
+    elif is_stmoter_url(access_path):
+        from public_data_agent.sources.stmoter import (
+            documents_from_payload as stmoter_documents_from_payload,
+            shape_from_moter as shape_from_stmoter,
+        )
+
+        meta = client.get_json_response(access_path)
+        documents = stmoter_documents_from_payload(meta.body or {})
+        fields, keys = shape_from_stmoter(documents)
         endpoint, method = access_path, "GET"
         record_kind = "document"
     else:

@@ -1,0 +1,17 @@
+{
+  "dataset": "stmoter:2025-2026",
+  "request_url": "https://data.stortinget.no/eksport/moter?sesjonid=2025-2026&format=json",
+  "http_status": 200,
+  "listed": 1,
+  "inserted": 1,
+  "observations": 0,
+  "publisher_count": 155,
+  "sample": [
+    {
+      "id": "11513",
+      "referat_id": "refs-202526-10-01",
+      "merknad": "-PACE. Strasbourg"
+    }
+  ],
+  "note": "One meeting by printed id. Session has 155 meetings; they were not all stored."
+}

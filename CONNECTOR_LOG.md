@@ -1176,11 +1176,41 @@ per-question URL; the session collection is fetched and filtered.
 - This collection is much larger than spørretimespørsmål (3,657 vs 524). The
   bound matters.
 
-**Open question for the query side.** `stmoter` would still store titles as
-observations if fetched. Interpellasjoner/høringer have leftover comments in
+**Open question for the query side.** `stmoter` is now documents; see
+`stmoter:2025-2026`. Interpellasjoner/høringer have leftover comments in
 `stskrift` but no registered source.
 
 Proof: `data/stskrift_documents_proof.json`.
+
+## stmoter:2025-2026 — 2026-09-13 — promoted (documents)
+
+**Endpoint(s).** `GET https://data.stortinget.no/eksport/moter?sesjonid=2025-2026&format=json`.
+The session is already harvested as `stmoter:2025-2026`. Leftover lookup lists
+(`stpartier`, `stkomiteer`, `stperioder`) still use the name-as-observation
+decoder and were not changed.
+
+**Shape.** `document`. Subject scheme `stortinget:mote_id` (printed `id`, e.g.
+`11513`). Label is printed `referat_id` (else `merknad`). There is no title
+field. Licence is `null`. Publisher count for session 2025-2026 is 155.
+
+**Capability recorded.** `documents`. Live GET 2026-09-13: HTTP 200, one
+meeting by `select={"id": ["11513"]}`. Zero observation rows. Sample:
+`11513` referat `refs-202526-10-01`, merknad `-PACE. Strasbourg`. Default
+page is 10, hard cap 100; an unknown id is refused. The 155 meetings were
+not all ingested.
+
+**Surprises.**
+- The previous fetch stored each `referat_id` as an observation. Dispatch now
+  writes documents. `cells_from_stmoter` still copies referat ids for unit
+  tests and is unused by fetch.
+
+**Open question for the query side.** `stpartier` / `stkomiteer` /
+`stperioder` are small vocabularies that would still store names as
+observations if fetched; they should become lookup entities like Brreg
+code lists. Interpellasjoner have no registered source.
+
+Proof: `data/stmoter_documents_proof.json`.
+
 
 
 

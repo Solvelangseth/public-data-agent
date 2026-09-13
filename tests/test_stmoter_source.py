@@ -5,15 +5,18 @@ from pathlib import Path
 
 import pytest
 
-from public_data_agent.fetch import fetch_observations
+from public_data_agent.fetch import SelectionTooLarge, classify_access_path, fetch_observations
 from public_data_agent.harvest import harvest
 from public_data_agent.http_util import JsonResponse
 from public_data_agent.registry import Registry
 from public_data_agent.sources import SOURCE_IDS, build_source
+from public_data_agent.resource_index import index_dataset
 from public_data_agent.sources.stmoter import (
     LIST_URL,
+    MAX_LIMIT,
     StmoterSource,
     cells_from_stmoter,
+    document_from_mote,
     is_stmoter_url,
     printed_item_url,
     stmoter_table_id,
@@ -156,29 +159,64 @@ def test_harvest_writes_printed_sesjon_id_and_null_license(tmp_path: Path) -> No
     registry.close()
 
 
-def test_fetch_gets_printed_referat_id(tmp_path: Path) -> None:
+def test_url_is_documents_not_title_observations() -> None:
+    assert classify_access_path(SESSION_2025_URL)["kind"] == "documents"
+    assert classify_access_path(LIST_URL)["kind"] != "documents"
+
+
+def test_document_uses_printed_id() -> None:
+    doc = document_from_mote(ITEM_BODY["moter_liste"][0])
+    assert doc["subject_code"] == "11513"
+    assert doc["subject_label"] == "refs-202526-10-01"
+    assert doc["attributes"]["merknad"] == "-PACE. Strasbourg"
+
+
+def test_fetch_stores_documents_not_referat_observations(tmp_path: Path) -> None:
     source = StmoterSource(http=CatalogHttp())
     registry = Registry(tmp_path / "registry.sqlite")
     harvest(registry, source)
+    indexed = index_dataset(registry, DATASET_ID, http=FetchHttp(), catalogues={})
+    assert indexed["fields"] >= 1
     result = fetch_observations(
         registry,
         DATASET_ID,
         table_id="ignored",
+        select={"id": ["11513"]},
         http=FetchHttp(),
     )
     assert result.request_url == SESSION_2025_URL
     assert result.table_id == "2025-2026"
     assert result.http_status == 200
     assert result.counts.listed == 1
-    rows = registry.list_observations(DATASET_ID)
-    values = [json.loads(row["value_json"]) for row in rows]
-    assert values == ["refs-202526-10-01"]
-    assert all(row["measure"] == "referat_id" for row in rows)
-    dims = json.loads(rows[0]["dimensions_json"])
-    assert dims["id"] == "11513"
-    assert all(row["publisher_name"] is None for row in rows)
-    assert all(row["license"] is None for row in rows)
-    assert all(row["access_path"] == SESSION_2025_URL for row in rows)
+    assert result.sample[0]["kind"] == "document"
+    assert result.sample[0]["subject_code"] == "11513"
+    assert registry.list_observations(DATASET_ID) == []
+    cap = registry.get_capability(DATASET_ID)
+    assert cap["capability"] == "documents"
+    assert cap["verified_sample_count"] == 1
+    with pytest.raises(ValueError, match="not in moter"):
+        fetch_observations(
+            registry,
+            DATASET_ID,
+            table_id="ignored",
+            select={"id": ["NOPE"]},
+            http=FetchHttp(),
+        )
+    registry.close()
+
+
+def test_page_above_the_cap_is_refused(tmp_path: Path) -> None:
+    source = StmoterSource(http=CatalogHttp())
+    registry = Registry(tmp_path / "registry.sqlite")
+    harvest(registry, source)
+    with pytest.raises(SelectionTooLarge):
+        fetch_observations(
+            registry,
+            DATASET_ID,
+            table_id="ignored",
+            select={"antall": [str(MAX_LIMIT + 1)]},
+            http=FetchHttp(),
+        )
     registry.close()
 
 
