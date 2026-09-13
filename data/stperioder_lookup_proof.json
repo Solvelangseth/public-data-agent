@@ -1,0 +1,13 @@
+{
+  "dataset": "stortinget:stortingsperioder",
+  "request_url": "https://data.stortinget.no/eksport/stortingsperioder?format=json",
+  "http_status": 200,
+  "listed": 21,
+  "inserted": 21,
+  "observations": 0,
+  "sample": [
+    {"id": "2025-2029"},
+    {"id": "2021-2025"}
+  ],
+  "note": "Complete published list of 21 parliamentary periods as lookup entities."
+}

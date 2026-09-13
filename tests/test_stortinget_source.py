@@ -5,15 +5,18 @@ from pathlib import Path
 
 import pytest
 
-from public_data_agent.fetch import fetch_observations
+from public_data_agent.fetch import classify_access_path, fetch_observations
 from public_data_agent.harvest import harvest
 from public_data_agent.http_util import JsonResponse
 from public_data_agent.registry import Registry
 from public_data_agent.sources import SOURCE_IDS, build_source
+from public_data_agent.resource_index import index_dataset
 from public_data_agent.sources.stortinget import (
     StortingetSource,
     cells_from_stortinget,
+    entity_from_periode,
     is_stortinget_url,
+    is_stortingsperioder_url,
     printed_eksport_paths,
     printed_endpoint_url,
     printed_operation_id,
@@ -189,30 +192,46 @@ def test_harvest_writes_printed_id_and_keeps_license_null(tmp_path: Path) -> Non
     registry.close()
 
 
-def test_fetch_gets_printed_periods(tmp_path: Path) -> None:
+def test_period_catalog_is_lookup_not_id_observations() -> None:
+    assert is_stortingsperioder_url(PERIODER_URL)
+    assert classify_access_path(PERIODER_URL)["kind"] == "lookup"
+    entity = entity_from_periode(PERIODER_BODY["stortingsperioder_liste"][0])
+    assert entity["subject_code"] == "2021-2025"
+    assert entity["subject_scheme"] == "stortinget:periode_id"
+    assert "nested" not in entity["attributes"]
+
+
+def test_fetch_stores_period_lookups_not_id_observations(tmp_path: Path) -> None:
     source = StortingetSource(http=CatalogHttp())
     registry = Registry(tmp_path / "registry.sqlite")
     harvest(registry, source)
+    indexed = index_dataset(registry, DATASET_ID, http=FetchHttp(), catalogues={})
+    assert indexed["fields"] >= 1
     result = fetch_observations(
         registry,
         DATASET_ID,
         table_id="ignored",
+        select={"id": ["2021-2025"]},
         http=FetchHttp(),
     )
     assert result.request_url == PERIODER_URL
     assert result.table_id == "stortingsperioder"
     assert result.http_status == 200
-    assert result.counts.listed == 2
-    rows = registry.list_observations(DATASET_ID)
-    by_value = {json.loads(row["value_json"]): row for row in rows}
-    assert set(by_value) == {"2021-2025", "2017-2021"}
-    assert by_value["2021-2025"]["measure"] == "id"
-    dims = json.loads(by_value["2021-2025"]["dimensions_json"])
-    assert dims["versjon"] == "1.6"
-    assert "nested" not in dims
-    assert all(row["publisher_name"] is None for row in rows)
-    assert all(row["license"] is None for row in rows)
-    assert all(row["access_path"] == PERIODER_URL for row in rows)
+    assert result.counts.listed == 1
+    assert result.sample[0]["kind"] == "entity"
+    assert result.sample[0]["subject_code"] == "2021-2025"
+    assert registry.list_observations(DATASET_ID) == []
+    cap = registry.get_capability(DATASET_ID)
+    assert cap["capability"] == "lookup"
+    assert cap["verified_sample_count"] == 1
+    with pytest.raises(ValueError, match="not in stortingsperioder"):
+        fetch_observations(
+            registry,
+            DATASET_ID,
+            table_id="ignored",
+            select={"id": ["NOPE"]},
+            http=FetchHttp(),
+        )
     registry.close()
 
 

@@ -281,3 +281,112 @@ def _as_dim(value: Any) -> str:
     if value is None:
         return ""
     return str(value)
+
+
+PERIODER_PATH = "/eksport/stortingsperioder"
+PERIODER_SCHEME = "stortinget:periode_id"
+PERIODER_LIST_KEY = "stortingsperioder_liste"
+_PERIODER_SKIP = {"respons_dato_tid", "versjon"}
+
+
+def is_stortingsperioder_url(access_path: str | None) -> bool:
+    if not access_path:
+        return False
+    parsed = urlsplit(access_path)
+    return parsed.netloc.casefold() == HOST and parsed.path.rstrip("/") == PERIODER_PATH
+
+
+def entity_from_periode(item: dict[str, Any]) -> dict[str, Any]:
+    code = _period_id(item.get("id"))
+    if not code:
+        raise ValueError("Stortinget period printed no id")
+    attributes: dict[str, Any] = {}
+    for key, value in item.items():
+        if key in _PERIODER_SKIP:
+            continue
+        if isinstance(value, (dict, list)) or value is None:
+            continue
+        if key == "id":
+            attributes[key] = code
+            continue
+        attributes[key] = value
+    return {
+        "subject_scheme": PERIODER_SCHEME,
+        "subject_code": code,
+        "subject_label": code,
+        "attributes": attributes,
+    }
+
+
+def periods_from_payload(payload: Any) -> list[dict[str, Any]]:
+    if not isinstance(payload, dict):
+        raise ValueError("stortingsperioder payload is not a JSON object")
+    listed = payload.get(PERIODER_LIST_KEY)
+    if not isinstance(listed, list) or not listed:
+        raise ValueError("stortingsperioder payload printed no periods")
+    out = []
+    for item in listed:
+        if isinstance(item, dict):
+            out.append(entity_from_periode(item))
+    if not out:
+        raise ValueError("stortingsperioder payload printed no period objects")
+    return out
+
+
+def shape_from_perioder(
+    periods: list[dict[str, Any]],
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    ids = [
+        {"value_code": item["subject_code"], "value_label": item["subject_label"]}
+        for item in periods
+    ]
+    fields = [
+        {
+            "field_code": "id",
+            "field_label": "id",
+            "field_role": "key",
+            "values": ids,
+        },
+        {
+            "field_code": "fra",
+            "field_label": "fra",
+            "field_role": "period",
+            "values": [],
+        },
+        {
+            "field_code": "til",
+            "field_label": "til",
+            "field_role": "period",
+            "values": [],
+        },
+    ]
+    keys = [
+        {
+            "scheme": PERIODER_SCHEME,
+            "field_code": "id",
+            "coverage_count": len(periods),
+        }
+    ]
+    return fields, keys
+
+
+def selected_periode_ids(select: dict[str, list[str]] | None) -> list[str] | None:
+    if not select:
+        return None
+    unknown = sorted(key for key in select if key != "id")
+    if unknown:
+        raise ValueError(
+            f"select names field(s) {unknown} that a stortingsperioder fetch "
+            "does not filter on; only id is accepted, or omit select for the full list"
+        )
+    wanted = select.get("id") or []
+    wanted = [wanted] if isinstance(wanted, str) else [str(item) for item in wanted]
+    if not wanted:
+        raise ValueError("select id is empty")
+    return wanted
+
+
+def _period_id(value: Any) -> str | None:
+    if isinstance(value, str) and value.strip():
+        return value.strip()
+    return None

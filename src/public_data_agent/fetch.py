@@ -422,8 +422,13 @@ from public_data_agent.sources.nvegis import (
     nvegis_table_id,
 )
 from public_data_agent.sources.stortinget import (
+    PERIODER_SCHEME,
     cells_from_stortinget,
     is_stortinget_url,
+    is_stortingsperioder_url,
+    periods_from_payload,
+    selected_periode_ids,
+    shape_from_perioder,
     stortinget_table_id,
 )
 from public_data_agent.sources.strepresent import (
@@ -1495,6 +1500,8 @@ def fetch_observations(
         return _fetch_stskrift(registry, dataset, http=http, select=select)
     if is_dagensrepresentanter_url(access_path):
         return _fetch_dagensrepresentanter(registry, dataset, http=http, select=select)
+    if is_stortingsperioder_url(access_path):
+        return _fetch_stortingsperioder(registry, dataset, http=http, select=select)
     if is_stortinget_url(access_path):
         return _fetch_stortinget(registry, dataset, http=http)
     if is_histyles_url(access_path):
@@ -13362,6 +13369,138 @@ def _fetch_dagensrepresentanter(
     )
 
 
+def _fetch_stortingsperioder(
+    registry: Registry,
+    dataset: dict[str, Any],
+    *,
+    http: JsonHttp | None = None,
+    select: dict[str, list[str]] | None = None,
+) -> FetchResult:
+    """Fetch parliamentary periods as lookup entities, not id observations.
+
+    Default is the complete published list (21 periods). ``select={"id":
+    ["2025-2029"]}`` returns that one period. An unknown id is an error.
+    """
+
+    access_path = dataset.get("access_path") or ""
+    table_id = stortinget_table_id(access_path)
+    wanted = selected_periode_ids(select)
+    client = http or HttpClient(timeout=60.0, max_retries=4)
+    started = utc_now()
+    run_id = registry.start_fetch_run(
+        dataset_id=dataset["id"],
+        table_id=table_id,
+        request_url=access_path,
+        request_method="GET",
+        started_at=started,
+    )
+    counts = HarvestCounts()
+    status = "failed"
+    http_status = 0
+    sample: list[dict[str, Any]] = []
+    touched: list[str] = []
+    try:
+        got = client.get_json_response(access_path)
+        http_status = got.status
+        registry.set_fetch_request(
+            run_id, request_url=access_path, request_body={"method": "GET", "select": select}
+        )
+        periods = periods_from_payload(got.body)
+        if wanted is not None:
+            by_id = {item["subject_code"]: item for item in periods}
+            missing = [code for code in wanted if code not in by_id]
+            if missing:
+                raise ValueError(
+                    f"periode id {missing} not in stortingsperioder; "
+                    "the catalog does not print that id"
+                )
+            periods = [by_id[code] for code in wanted]
+        retrieved_at = utc_now()
+        for entity in periods:
+            record_id = f"entity:{dataset['id']}:{entity['subject_code']}"
+            action = registry.upsert_record(
+                {
+                    "id": record_id,
+                    "dataset_id": dataset["id"],
+                    "kind": "entity",
+                    "series": "stortinget:stortingsperioder",
+                    "subject_scheme": entity["subject_scheme"],
+                    "subject_code": entity["subject_code"],
+                    "subject_label": entity["subject_label"],
+                    "period": None,
+                    "measure": None,
+                    "value": None,
+                    "attributes": entity["attributes"],
+                    "retrieved_at": retrieved_at,
+                    "request_url": access_path,
+                    "http_status": http_status,
+                    "publisher_name": dataset.get("publisher_name"),
+                    "license": dataset.get("license"),
+                },
+                run_id,
+            )
+            counts.listed += 1
+            if action == "inserted":
+                counts.inserted += 1
+            elif action == "updated":
+                counts.updated += 1
+            else:
+                counts.unchanged += 1
+            touched.append(record_id)
+            if len(sample) < 3:
+                sample.append(
+                    {
+                        "kind": "entity",
+                        "subject_scheme": PERIODER_SCHEME,
+                        "subject_code": entity["subject_code"],
+                        "subject_label": entity["subject_label"],
+                        "attributes": {
+                            key: entity["attributes"][key]
+                            for key in ("id", "fra", "til")
+                            if key in entity["attributes"]
+                        },
+                    }
+                )
+        if not periods:
+            raise ValueError(
+                f"stortingsperioder returned no periods for {access_path}; nothing was stored"
+            )
+        fields, keys = shape_from_perioder(periods)
+        registry.set_resource_shape(dataset["id"], fields, keys=keys)
+        registry.set_capability(
+            dataset["id"],
+            {
+                "capability": CAPABILITY_LOOKUP,
+                "record_kind": "entity",
+                "endpoint": access_path,
+                "request_method": "GET",
+                "subject_scheme": PERIODER_SCHEME,
+                "verified_at": retrieved_at,
+                "verified_sample_count": counts.listed,
+                "notes": (
+                    f"{counts.listed} parliamentary-period lookup entit(y/ies); "
+                    "ids are labels, not observation values"
+                ),
+            },
+        )
+        status = "completed"
+    except Exception as exc:
+        counts.failed += 1
+        counts.errors.append({"error": str(exc), "url": access_path})
+        raise
+    finally:
+        registry.finish_fetch_run(run_id, counts, status=status, http_status=http_status)
+    return FetchResult(
+        dataset_id=dataset["id"],
+        table_id=table_id,
+        request_url=access_path,
+        http_status=http_status,
+        counts=counts,
+        sample=sample,
+        observation_ids=touched,
+    )
+
+
 def _fetch_stortinget(
     registry: Registry,
     dataset: dict[str, Any],
@@ -14175,6 +14314,14 @@ def classify_access_path(access_path: str | None) -> dict[str, Any]:
             "reason": (
                 "Stortinget partier; session party list as lookup entities "
                 "addressed by printed id"
+            ),
+        }
+    if is_stortingsperioder_url(access_path):
+        return {
+            "kind": CAPABILITY_LOOKUP,
+            "reason": (
+                "Stortinget stortingsperioder; parliamentary-period list as "
+                "lookup entities addressed by printed id"
             ),
         }
     if is_stkomiteer_url(access_path):

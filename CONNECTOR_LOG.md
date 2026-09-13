@@ -1259,10 +1259,41 @@ unknown id is refused. Eighteen is the whole published list for the session.
 - The session list includes special committees whose printed names mention
   earlier sessions (e.g. `KOR`, `EOS`). Those names are stored as printed.
 
-**Open question for the query side.** `stperioder` is the remaining leftover
-name-as-observation vocabulary.
+**Open question for the query side.** `stortinget:stortingsperioder` is now a
+lookup list; see that entry. `stperioder:*` still stores historical
+representative names as observations if fetched.
 
 Proof: `data/stkomiteer_lookup_proof.json`.
+
+## stortinget:stortingsperioder — 2026-09-14 — promoted (lookup)
+
+**Endpoint(s).** `GET https://data.stortinget.no/eksport/stortingsperioder?format=json`.
+Already harvested as `stortinget:stortingsperioder`. This is the 21-member
+period catalog, not `stperioder:*` (historical representatives per period).
+
+**Shape.** `entity` with capability `lookup`. Subject scheme
+`stortinget:periode_id` (printed `id`, e.g. `2025-2029`). Label is the printed
+id. `fra` / `til` are stored as the publisher's `/Date(...)/` strings.
+`innevaerende_stortingsperiode` is a nested object and was not copied as a
+second subject. Licence is `null`. Publisher count is 21.
+
+**Capability recorded.** `lookup`. Live GET 2026-09-14: HTTP 200, 21 period
+records inserted, zero observation rows. Sample: `2025-2029`, `2021-2025`.
+`select={"id": ["2025-2029"]}` fetches one; an unknown id is refused.
+
+**Surprises.**
+- The previous fetch stored each period `id` as an observation. Dispatch now
+  writes lookup entities. `cells_from_stortinget` still copies ids for other
+  leftover `/eksport/` lists and for unit tests.
+- `stperioder:2025-2029` is a different resource: ~169 historical members for
+  that period. It still uses the name-as-observation decoder.
+
+**Open question for the query side.** `stperioder:*` representatives should
+become person entities like `dagensrepresentanter`, bounded by id or a page
+of ten, not a dump of every period.
+
+Proof: `data/stperioder_lookup_proof.json`.
+
 
 
 
