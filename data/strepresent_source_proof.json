@@ -1,0 +1,17 @@
+{
+  "dataset": "stortinget:dagensrepresentanter",
+  "request_url": "https://data.stortinget.no/eksport/dagensrepresentanter?format=json",
+  "http_status": 200,
+  "listed": 168,
+  "inserted": 168,
+  "observations": 0,
+  "sample": [
+    {
+      "id": "MARNIL",
+      "label": "Marius Arion Nilsen",
+      "parti": "FrP",
+      "fylke": "Aust-Agder"
+    }
+  ],
+  "note": "Complete current roster as person entities. Not a historical dump."
+}

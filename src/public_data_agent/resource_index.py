@@ -323,6 +323,7 @@ def index_dataset(
     from public_data_agent.sources.anadrom import is_anadrom_url, shape_from_layer as shape_from_anadrom_layer
     from public_data_agent.sources.friluft import is_friluft_url, shape_from_layer as shape_from_friluft_layer
     from public_data_agent.sources.naturvern import is_naturvern_url, shape_from_layer as shape_from_naturvern_layer
+    from public_data_agent.sources.strepresent import is_dagensrepresentanter_url
     from public_data_agent.sources.fhi import is_fhi_table_url, printed_table_data_url, split_table_url
 
     dataset = registry.get_dataset(dataset_id)
@@ -423,6 +424,17 @@ def index_dataset(
         fields, keys = shape_from_friluft_layer(meta.body or {})
         endpoint, method = layer_url, "GET"
         record_kind = "feature"
+    elif is_dagensrepresentanter_url(access_path):
+        from public_data_agent.sources.strepresent import (
+            representanter_from_payload,
+            shape_from_representanter,
+        )
+
+        meta = client.get_json_response(access_path)
+        members = representanter_from_payload(meta.body or {})
+        fields, keys = shape_from_representanter(members)
+        endpoint, method = access_path, "GET"
+        record_kind = "entity"
     else:
         raise ValueError(f"no metadata reader for {dataset_id} ({access_path or 'no access_path'})")
 

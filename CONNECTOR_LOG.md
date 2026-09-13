@@ -1055,5 +1055,39 @@ not copied onto the ArcGIS JSON.
 
 Proof: `data/friluft_source_proof.json`.
 
+## stortinget:dagensrepresentanter — 2026-09-13 — promoted
+
+**Endpoint(s).** `GET https://data.stortinget.no/eksport/dagensrepresentanter?format=json`.
+The collection is already harvested as `stortinget:dagensrepresentanter`. Other
+`/eksport/` lists (periods, sessions, parties) still use the generic Stortinget
+observation decoder and were not changed.
+
+**Shape.** `entity`. Subject scheme `stortinget:representant_id` (printed `id`,
+e.g. `MARNIL`). Label is printed `fornavn` + `etternavn`. Nested `parti` and
+`fylke` are flattened to `parti.id` / `parti.navn` and `fylke.id` /
+`fylke.navn`. Committee arrays are skipped. Microsoft `/Date(...)/` timestamps
+are stored as printed. Licence is `null`.
+
+**Capability recorded.** `entities`. Live GET 2026-09-13: HTTP 200, **168**
+member records inserted, zero observation rows. Sample: `MARNIL` Marius Arion
+Nilsen, FrP, Aust-Agder. `select={"id": ["MARNIL"]}` fetches one; an unknown id
+is refused. The published roster is the complete current Stortinget, not a
+historical dump.
+
+**Surprises.**
+- The generic Stortinget fetch would have stored each name as an observation
+  (`measure=navn`). Dispatch checks this URL first.
+- Search for `stortingsrepresentanter` still ranks SSB election tables first;
+  the harvested title is the printed operation id `dagensrepresentanter`.
+
+**Open question for the query side.** Session questions
+(`/eksport/sporretimesporsmal?sesjonid=2025-2026`, 524 items) are still
+catalogued per-session by `stsporre` and would be stored as name observations
+if fetched. They should become documents addressed by printed question id, not
+another observation dump.
+
+Proof: `data/strepresent_source_proof.json`.
+
+
 
 
