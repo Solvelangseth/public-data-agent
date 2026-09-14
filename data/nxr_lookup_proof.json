@@ -1,0 +1,65 @@
+{
+  "catalogs": [
+    {
+      "dataset": "nxr:fylkedata",
+      "title": "Hent liste med fylkedata",
+      "request_url": "https://data-nxr-fellestjeneste.udir.no/api/v2/fylkedata",
+      "http_status": 200,
+      "listed_one": 1,
+      "listed_all": 69,
+      "observations": 0,
+      "license": "https://data.norge.no/nlod/no",
+      "capability": "lookup",
+      "subject_scheme": "nxr:fylkedataid",
+      "sample": {
+        "id": "FYLKE_01_1900_01_01",
+        "navn": "Smaalenenes amt"
+      },
+      "all_sample": [
+        {
+          "id": "FYLKE_01_1900_01_01",
+          "navn": "Smaalenenes amt"
+        },
+        {
+          "id": "FYLKE_01_1919_01_01",
+          "navn": "Østfold"
+        },
+        {
+          "id": "FYLKE_02_1900_01_01",
+          "navn": "Akershus amt"
+        }
+      ]
+    },
+    {
+      "dataset": "nxr:bydeldata",
+      "title": "Hent liste med bydeldata",
+      "request_url": "https://data-nxr-fellestjeneste.udir.no/api/v2/bydeldata",
+      "http_status": 200,
+      "listed_one": 1,
+      "listed_all": 83,
+      "observations": 0,
+      "license": "https://data.norge.no/nlod/no",
+      "capability": "lookup",
+      "subject_scheme": "nxr:bydeldataid",
+      "sample": {
+        "id": "BYDEL_030101_2002_01_01",
+        "navn": "Bygdøy-Frogner"
+      },
+      "all_sample": [
+        {
+          "id": "BYDEL_030101_2002_01_01",
+          "navn": "Bygdøy-Frogner"
+        },
+        {
+          "id": "BYDEL_030101_2004_01_01",
+          "navn": "Gamle Oslo"
+        },
+        {
+          "id": "BYDEL_030102_2002_01_01",
+          "navn": "Uranienborg-Majorstuen"
+        }
+      ]
+    }
+  ],
+  "note": "Lookup entities, not name observations. Unique key is FylkeDataId/BydelDataId (Fylkesnummer repeats historically). kommunedata (1781) not fetched. No Klass key claimed."
+}

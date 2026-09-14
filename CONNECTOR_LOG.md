@@ -1488,10 +1488,42 @@ utgaattyper 7, skolefritidsordningskategorier 3 (`0` Ingen verdi).
 
 **Open question for the query side.** Unit registers (`nor:enheter`,
 `npr:enheter`, `nfr:enheter`, `nbr:enheter`, `udir:enheter`) still store
-names as observations. Do not dump them. NXR bydel/kommune endpoints may
-need a bounded read.
+names as observations. Do not dump them. NXR fylke/bydel catalogs are now
+lookups; see the following entry. `nxr:kommunedata` (1,781 historical
+municipalities) was not fetched.
 
 Proof: `data/nor_npr_nfr_lookup_proof.json`.
+
+## nxr fylkedata / bydeldata — 2026-09-14 — promoted (lookup)
+
+**Endpoint(s).** Already harvested collection GETs:
+`https://data-nxr-fellestjeneste.udir.no/api/v2/fylkedata` (69),
+`/api/v2/bydeldata` (83). Licence is harvested NLOD
+(`https://data.norge.no/nlod/no`). `kommunedata` (1,781) and `*med*`
+query-filter paths were not fetched as catalogs.
+
+**Shape.** `entity` with capability `lookup`. Subject schemes
+`nxr:fylkedataid` (printed `FylkeDataId`) and `nxr:bydeldataid`
+(`BydelDataId`). Labels are printed `Fylkesnavn` / `Bydelnavn`. Nested
+lists and coordinate objects are skipped. Historical `Fylkesnummer`
+repeats across versions, so it is an attribute, not the key. No Klass
+key is claimed from the number.
+
+**Capability recorded.** `lookup`. Live GET 2026-09-14: HTTP 200, complete
+published lists, zero observation rows. Samples: `FYLKE_01_1900_01_01`
+Smaalenenes amt; `BYDEL_030101_2002_01_01` Bygdøy-Frogner.
+
+**Surprises.**
+- The previous fetch stored each `Fylkesnavn` as an observation. Dispatch
+  now writes lookup entities. `cells_from_nxr` remains for `kommunedata`.
+- Current Finnmark is `FYLKE_56_2024_01_01` / Fylkesnummer `56`. That is
+  not Klass 30 (current fylke codes).
+
+**Open question for the query side.** `nxr:kommunedata` is 1,781 historical
+municipalities; do not dump it. Udir-family unit registers still store
+names as observations.
+
+Proof: `data/nxr_lookup_proof.json`.
 
 
 

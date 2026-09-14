@@ -340,6 +340,7 @@ def index_dataset(
     from public_data_agent.sources.nor import is_nor_lookup_url
     from public_data_agent.sources.npr import is_npr_lookup_url
     from public_data_agent.sources.nfr import is_nfr_lookup_url
+    from public_data_agent.sources.nxr import is_nxr_lookup_url
     from public_data_agent.sources.nbr import is_nbr_lookup_url
     from public_data_agent.sources.fhi import is_fhi_table_url, printed_table_data_url, split_table_url
 
@@ -627,6 +628,19 @@ def index_dataset(
         meta = client.get_json_response(access_path)
         members = nfr_lookups_from_payload(meta.body or {}, spec)
         fields, keys = shape_from_nfr_lookups(members, spec)
+        endpoint, method = access_path, "GET"
+        record_kind = "entity"
+    elif is_nxr_lookup_url(access_path):
+        from public_data_agent.sources.nxr import (
+            lookup_catalog as nxr_lookup_catalog,
+            lookups_from_payload as nxr_lookups_from_payload,
+            shape_from_lookups as shape_from_nxr_lookups,
+        )
+
+        spec = nxr_lookup_catalog(access_path)
+        meta = client.get_json_response(access_path)
+        members = nxr_lookups_from_payload(meta.body or [], spec)
+        fields, keys = shape_from_nxr_lookups(members, spec)
         endpoint, method = access_path, "GET"
         record_kind = "entity"
     else:

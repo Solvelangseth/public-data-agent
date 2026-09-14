@@ -1011,8 +1011,13 @@ from public_data_agent.sources.npr import (
 )
 from public_data_agent.sources.nxr import (
     cells_from_nxr,
+    is_nxr_lookup_url,
     is_nxr_url,
+    lookup_catalog as nxr_lookup_catalog,
+    lookups_from_payload as nxr_lookups_from_payload,
     nxr_table_id,
+    selected_lookup_ids as nxr_selected_lookup_ids,
+    shape_from_lookups as shape_from_nxr_lookups,
 )
 from public_data_agent.sources.fdkorg import (
     cells_from_fdkorg,
@@ -1364,6 +1369,8 @@ def fetch_observations(
         return _fetch_nfr_lookup(registry, dataset, http=http, select=select)
     if is_nfr_url(access_path):
         return _fetch_nfr(registry, dataset, http=http)
+    if is_nxr_lookup_url(access_path):
+        return _fetch_nxr_lookup(registry, dataset, http=http, select=select)
     if is_nxr_url(access_path):
         return _fetch_nxr(registry, dataset, http=http)
     if is_baf_url(access_path):
@@ -5840,6 +5847,71 @@ def _fetch_nfr(
         counts=counts,
         sample=sample,
     )
+
+
+def _fetch_nxr_lookup(
+    registry: Registry,
+    dataset: dict[str, Any],
+    *,
+    http: JsonHttp | None = None,
+    select: dict[str, list[str]] | None = None,
+) -> FetchResult:
+    access_path = dataset.get("access_path") or ""
+    spec = nxr_lookup_catalog(access_path)
+    table_id = nxr_table_id(access_path)
+    wanted = nxr_selected_lookup_ids(select)
+    client = http or HttpClient(timeout=60.0, max_retries=4)
+    started = utc_now()
+    run_id = registry.start_fetch_run(
+        dataset_id=dataset["id"],
+        table_id=table_id,
+        request_url=access_path,
+        request_method="GET",
+        started_at=started,
+    )
+    status = "failed"
+    http_status = 0
+    try:
+        got = client.get_json_response(access_path)
+        http_status = got.status
+        registry.set_fetch_request(
+            run_id, request_url=access_path, request_body={"method": "GET", "select": select}
+        )
+        members = nxr_lookups_from_payload(got.body, spec)
+        if wanted is not None:
+            by_id = {item["subject_code"]: item for item in members}
+            missing = [code for code in wanted if code not in by_id]
+            if missing:
+                raise ValueError(
+                    f"id {missing} not in nxr:{table_id}; the catalog does not print that id"
+                )
+            members = [by_id[code] for code in wanted]
+        retrieved_at = utc_now()
+        result = _fetch_named_lookup(
+            registry,
+            dataset,
+            http=http,
+            select=select,
+            prefix="nxr",
+            spec=spec,
+            table_id=table_id,
+            members=members,
+            access_path=access_path,
+            request_url=access_path,
+            http_status=http_status,
+            run_id=run_id,
+            retrieved_at=retrieved_at,
+            shape_fn=shape_from_nxr_lookups,
+        )
+        status = "completed"
+        registry.finish_fetch_run(run_id, result.counts, status=status, http_status=http_status)
+        return result
+    except Exception as exc:
+        counts = HarvestCounts()
+        counts.failed += 1
+        counts.errors.append({"error": str(exc), "url": access_path})
+        registry.finish_fetch_run(run_id, counts, status=status, http_status=http_status)
+        raise
 
 
 def _fetch_nxr(
@@ -15244,6 +15316,15 @@ def classify_access_path(access_path: str | None) -> dict[str, Any]:
             "kind": CAPABILITY_LOOKUP,
             "reason": (
                 f"NFR {nfr_table_id(access_path)}; printed catalog as "
+                f"lookup entities under {spec['scheme']}"
+            ),
+        }
+    if is_nxr_lookup_url(access_path):
+        spec = nxr_lookup_catalog(access_path)
+        return {
+            "kind": CAPABILITY_LOOKUP,
+            "reason": (
+                f"NXR {nxr_table_id(access_path)}; printed catalog as "
                 f"lookup entities under {spec['scheme']}"
             ),
         }

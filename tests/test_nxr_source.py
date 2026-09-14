@@ -5,14 +5,16 @@ from pathlib import Path
 
 import pytest
 
-from public_data_agent.fetch import fetch_observations
+from public_data_agent.fetch import classify_access_path, fetch_observations
 from public_data_agent.harvest import harvest
 from public_data_agent.http_util import JsonResponse
 from public_data_agent.registry import Registry
 from public_data_agent.sources import SOURCE_IDS, build_source
+from public_data_agent.resource_index import index_dataset
 from public_data_agent.sources.nxr import (
     NxrSource,
     cells_from_nxr,
+    is_nxr_lookup_url,
     is_nxr_url,
     nxr_table_id,
     printed_endpoint_url,
@@ -21,6 +23,7 @@ from public_data_agent.sources.nxr import (
 
 OPENAPI_URL = "https://data-nxr-fellestjeneste.udir.no/swagger/v2/swagger.json"
 FYLKEDATA_URL = "https://data-nxr-fellestjeneste.udir.no/api/v2/fylkedata"
+BYDELDATA_URL = "https://data-nxr-fellestjeneste.udir.no/api/v2/bydeldata"
 KOMMUNEDATA_URL = "https://data-nxr-fellestjeneste.udir.no/api/v2/kommunedata"
 NLOD_URL = "https://data.norge.no/nlod/no"
 DATASET_ID = "nxr:fylkedata"
@@ -134,32 +137,45 @@ def test_harvest_writes_printed_id_license_and_null_publisher(tmp_path: Path) ->
     registry.close()
 
 
-def test_fetch_gets_printed_fylkedata(tmp_path: Path) -> None:
+def test_url_is_lookup_not_name_observations() -> None:
+    assert is_nxr_lookup_url(FYLKEDATA_URL)
+    assert is_nxr_lookup_url(BYDELDATA_URL)
+    assert classify_access_path(FYLKEDATA_URL)["kind"] == "lookup"
+    assert not is_nxr_lookup_url(KOMMUNEDATA_URL)
+
+
+def test_fetch_stores_lookup_entities_not_name_observations(tmp_path: Path) -> None:
     source = NxrSource(http=CatalogHttp())
     registry = Registry(tmp_path / "registry.sqlite")
     harvest(registry, source)
+    indexed = index_dataset(registry, DATASET_ID, http=FetchHttp(), catalogues={})
+    assert indexed["fields"] >= 1
     result = fetch_observations(
         registry,
         DATASET_ID,
         table_id="ignored",
+        select={"id": ["FYLKE_01_1900_01_01"]},
         http=FetchHttp(),
     )
     assert result.request_url == FYLKEDATA_URL
     assert result.table_id == "fylkedata"
     assert result.http_status == 200
-    assert result.counts.listed == 2
-    rows = registry.list_observations(DATASET_ID)
-    values = [json.loads(row["value_json"]) for row in rows]
-    assert values == ["Smaalenenes amt", "Kristiania"]
-    assert all(row["measure"] == "Fylkesnavn" for row in rows)
-    by_name = {json.loads(row["value_json"]): row for row in rows}
-    dims = json.loads(by_name["Smaalenenes amt"]["dimensions_json"])
-    assert dims["Fylkesnummer"] == "01"
-    assert "nested" not in dims
-    assert "ForloeperFylkeDataIdListe" not in dims
-    assert all(row["publisher_name"] is None for row in rows)
-    assert all(row["license"] == NLOD_URL for row in rows)
-    assert all(row["access_path"] == FYLKEDATA_URL for row in rows)
+    assert result.counts.listed == 1
+    assert result.sample[0]["kind"] == "entity"
+    assert result.sample[0]["subject_code"] == "FYLKE_01_1900_01_01"
+    assert result.sample[0]["subject_label"] == "Smaalenenes amt"
+    assert registry.list_observations(DATASET_ID) == []
+    cap = registry.get_capability(DATASET_ID)
+    assert cap["capability"] == "lookup"
+    assert cap["subject_scheme"] == "nxr:fylkedataid"
+    with pytest.raises(ValueError, match="not in nxr:fylkedata"):
+        fetch_observations(
+            registry,
+            DATASET_ID,
+            table_id="ignored",
+            select={"id": ["NOPE"]},
+            http=FetchHttp(),
+        )
     registry.close()
 
 
