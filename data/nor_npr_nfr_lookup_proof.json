@@ -1,0 +1,26 @@
+{
+  "http_status": 200,
+  "observations": 0,
+  "nor": {
+    "maalformer": 2,
+    "organisasjonsformer": 45,
+    "relasjonstyper": 5,
+    "utgaattyper": 7
+  },
+  "npr": {
+    "maalformer": 2,
+    "naeringskoder": 1,
+    "organisasjonsformer": 45,
+    "relasjonstyper": 6,
+    "utgaattyper": 7
+  },
+  "nfr": {
+    "maalformer": 2,
+    "naeringskoder": 1,
+    "organisasjonsformer": 45,
+    "relasjonstyper": 5,
+    "utgaattyper": 7,
+    "skolefritidsordningskategorier": 3
+  },
+  "note": "Complete published small catalogs. enheter were not fetched. Empty ids skipped."
+}

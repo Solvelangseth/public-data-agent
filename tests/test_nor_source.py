@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from public_data_agent.fetch import fetch_observations
+from public_data_agent.fetch import classify_access_path, fetch_observations
 from public_data_agent.harvest import harvest
 from public_data_agent.http_util import JsonResponse
 from public_data_agent.registry import Registry
@@ -142,7 +142,12 @@ def test_harvest_writes_printed_id_license_and_null_publisher(tmp_path: Path) ->
     registry.close()
 
 
-def test_fetch_gets_printed_maalformer(tmp_path: Path) -> None:
+def test_maalformer_catalog_is_lookup() -> None:
+    assert classify_access_path(MAALFORMER_URL)["kind"] == "lookup"
+    assert classify_access_path(ENHETER_URL)["kind"] != "lookup"
+
+
+def test_fetch_stores_maalformer_lookups_not_name_observations(tmp_path: Path) -> None:
     source = NorSource(http=CatalogHttp())
     registry = Registry(tmp_path / "registry.sqlite")
     harvest(registry, source)
@@ -150,23 +155,19 @@ def test_fetch_gets_printed_maalformer(tmp_path: Path) -> None:
         registry,
         DATASET_ID,
         table_id="ignored",
+        select={"id": ["B"]},
         http=FetchHttp(),
     )
     assert result.request_url == MAALFORMER_URL
     assert result.table_id == "maalformer"
     assert result.http_status == 200
-    assert result.counts.listed == 2
-    rows = registry.list_observations(DATASET_ID)
-    values = [json.loads(row["value_json"]) for row in rows]
-    assert values == ["Bokmål", "Nynorsk"]
-    assert all(row["measure"] == "Navn" for row in rows)
-    by_name = {json.loads(row["value_json"]): row for row in rows}
-    dims = json.loads(by_name["Bokmål"]["dimensions_json"])
-    assert dims["Id"] == "B"
-    assert "nested" not in dims
-    assert all(row["publisher_name"] is None for row in rows)
-    assert all(row["license"] == NLOD_URL for row in rows)
-    assert all(row["access_path"] == MAALFORMER_URL for row in rows)
+    assert result.counts.listed == 1
+    assert result.sample[0]["kind"] == "entity"
+    assert result.sample[0]["subject_code"] == "B"
+    assert result.sample[0]["subject_label"] == "Bokmål"
+    assert registry.list_observations(DATASET_ID) == []
+    cap = registry.get_capability(DATASET_ID)
+    assert cap["capability"] == "lookup"
     registry.close()
 
 

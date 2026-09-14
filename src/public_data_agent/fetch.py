@@ -981,18 +981,33 @@ from public_data_agent.sources.baf import (
 )
 from public_data_agent.sources.nfr import (
     cells_from_nfr,
+    is_nfr_lookup_url,
     is_nfr_url,
+    lookup_catalog as nfr_lookup_catalog,
+    lookups_from_payload as nfr_lookups_from_payload,
     nfr_table_id,
+    selected_lookup_ids as nfr_selected_lookup_ids,
+    shape_from_lookups as shape_from_nfr_lookups,
 )
 from public_data_agent.sources.nor import (
     cells_from_nor,
+    is_nor_lookup_url,
     is_nor_url,
+    lookup_catalog as nor_lookup_catalog,
+    lookups_from_payload as nor_lookups_from_payload,
     nor_table_id,
+    selected_lookup_ids as nor_selected_lookup_ids,
+    shape_from_lookups as shape_from_nor_lookups,
 )
 from public_data_agent.sources.npr import (
     cells_from_npr,
+    is_npr_lookup_url,
     is_npr_url,
+    lookup_catalog as npr_lookup_catalog,
+    lookups_from_payload as npr_lookups_from_payload,
     npr_table_id,
+    selected_lookup_ids as npr_selected_lookup_ids,
+    shape_from_lookups as shape_from_npr_lookups,
 )
 from public_data_agent.sources.nxr import (
     cells_from_nxr,
@@ -1337,10 +1352,16 @@ def fetch_observations(
         return _fetch_nbr_lookup(registry, dataset, http=http, select=select)
     if is_nbr_url(access_path):
         return _fetch_nbr(registry, dataset, http=http)
+    if is_nor_lookup_url(access_path):
+        return _fetch_nor_lookup(registry, dataset, http=http, select=select)
     if is_nor_url(access_path):
         return _fetch_nor(registry, dataset, http=http)
+    if is_npr_lookup_url(access_path):
+        return _fetch_npr_lookup(registry, dataset, http=http, select=select)
     if is_npr_url(access_path):
         return _fetch_npr(registry, dataset, http=http)
+    if is_nfr_lookup_url(access_path):
+        return _fetch_nfr_lookup(registry, dataset, http=http, select=select)
     if is_nfr_url(access_path):
         return _fetch_nfr(registry, dataset, http=http)
     if is_nxr_url(access_path):
@@ -5310,6 +5331,295 @@ def _fetch_nbr_lookup(
         sample=sample,
         observation_ids=touched,
     )
+
+
+def _fetch_named_lookup(
+    registry: Registry,
+    dataset: dict[str, Any],
+    *,
+    http: JsonHttp | None,
+    select: dict[str, list[str]] | None,
+    prefix: str,
+    spec: dict[str, str],
+    table_id: str,
+    members: list[dict[str, Any]],
+    access_path: str,
+    request_url: str,
+    http_status: int,
+    run_id: int,
+    retrieved_at: str,
+    shape_fn,
+) -> FetchResult:
+    counts = HarvestCounts()
+    sample: list[dict[str, Any]] = []
+    touched: list[str] = []
+    for entity in members:
+        record_id = f"entity:{dataset['id']}:{entity['subject_code']}"
+        action = registry.upsert_record(
+            {
+                "id": record_id,
+                "dataset_id": dataset["id"],
+                "kind": "entity",
+                "series": f"{prefix}:{table_id}",
+                "subject_scheme": entity["subject_scheme"],
+                "subject_code": entity["subject_code"],
+                "subject_label": entity["subject_label"],
+                "period": None,
+                "measure": None,
+                "value": None,
+                "attributes": entity["attributes"],
+                "retrieved_at": retrieved_at,
+                "request_url": request_url,
+                "http_status": http_status,
+                "publisher_name": dataset.get("publisher_name"),
+                "license": dataset.get("license"),
+            },
+            run_id,
+        )
+        counts.listed += 1
+        if action == "inserted":
+            counts.inserted += 1
+        elif action == "updated":
+            counts.updated += 1
+        else:
+            counts.unchanged += 1
+        touched.append(record_id)
+        if len(sample) < 3:
+            sample.append(
+                {
+                    "kind": "entity",
+                    "subject_scheme": entity["subject_scheme"],
+                    "subject_code": entity["subject_code"],
+                    "subject_label": entity["subject_label"],
+                }
+            )
+    if not members:
+        raise ValueError(
+            f"{prefix}:{table_id} returned no members for {access_path}; nothing was stored"
+        )
+    fields, keys = shape_fn(members, spec)
+    registry.set_resource_shape(dataset["id"], fields, keys=keys)
+    registry.set_capability(
+        dataset["id"],
+        {
+            "capability": CAPABILITY_LOOKUP,
+            "record_kind": "entity",
+            "endpoint": access_path,
+            "request_method": "GET",
+            "subject_scheme": spec["scheme"],
+            "verified_at": retrieved_at,
+            "verified_sample_count": counts.listed,
+            "notes": (
+                f"{counts.listed} lookup record(s) from {prefix}:{table_id}; "
+                "names are labels, not observation values"
+            ),
+        },
+    )
+    return FetchResult(
+        dataset_id=dataset["id"],
+        table_id=table_id,
+        request_url=request_url,
+        http_status=http_status,
+        counts=counts,
+        sample=sample,
+        observation_ids=touched,
+    )
+
+
+def _fetch_nor_lookup(
+    registry: Registry,
+    dataset: dict[str, Any],
+    *,
+    http: JsonHttp | None = None,
+    select: dict[str, list[str]] | None = None,
+) -> FetchResult:
+    access_path = dataset.get("access_path") or ""
+    spec = nor_lookup_catalog(access_path)
+    table_id = nor_table_id(access_path)
+    wanted = nor_selected_lookup_ids(select)
+    client = http or HttpClient(timeout=60.0, max_retries=4)
+    started = utc_now()
+    run_id = registry.start_fetch_run(
+        dataset_id=dataset["id"],
+        table_id=table_id,
+        request_url=access_path,
+        request_method="GET",
+        started_at=started,
+    )
+    status = "failed"
+    http_status = 0
+    result: FetchResult | None = None
+    try:
+        got = client.get_json_response(access_path)
+        http_status = got.status
+        registry.set_fetch_request(
+            run_id, request_url=access_path, request_body={"method": "GET", "select": select}
+        )
+        members = nor_lookups_from_payload(got.body, spec)
+        if wanted is not None:
+            by_id = {item["subject_code"]: item for item in members}
+            missing = [code for code in wanted if code not in by_id]
+            if missing:
+                raise ValueError(
+                    f"id {missing} not in nor:{table_id}; the catalog does not print that id"
+                )
+            members = [by_id[code] for code in wanted]
+        retrieved_at = utc_now()
+        result = _fetch_named_lookup(
+            registry,
+            dataset,
+            http=http,
+            select=select,
+            prefix="nor",
+            spec=spec,
+            table_id=table_id,
+            members=members,
+            access_path=access_path,
+            request_url=access_path,
+            http_status=http_status,
+            run_id=run_id,
+            retrieved_at=retrieved_at,
+            shape_fn=shape_from_nor_lookups,
+        )
+        status = "completed"
+        registry.finish_fetch_run(run_id, result.counts, status=status, http_status=http_status)
+        return result
+    except Exception as exc:
+        counts = HarvestCounts()
+        counts.failed += 1
+        counts.errors.append({"error": str(exc), "url": access_path})
+        registry.finish_fetch_run(run_id, counts, status=status, http_status=http_status)
+        raise
+
+
+def _fetch_npr_lookup(
+    registry: Registry,
+    dataset: dict[str, Any],
+    *,
+    http: JsonHttp | None = None,
+    select: dict[str, list[str]] | None = None,
+) -> FetchResult:
+    access_path = dataset.get("access_path") or ""
+    spec = npr_lookup_catalog(access_path)
+    table_id = npr_table_id(access_path)
+    wanted = npr_selected_lookup_ids(select)
+    client = http or HttpClient(timeout=60.0, max_retries=4)
+    started = utc_now()
+    run_id = registry.start_fetch_run(
+        dataset_id=dataset["id"],
+        table_id=table_id,
+        request_url=access_path,
+        request_method="GET",
+        started_at=started,
+    )
+    status = "failed"
+    http_status = 0
+    try:
+        got = client.get_json_response(access_path)
+        http_status = got.status
+        registry.set_fetch_request(
+            run_id, request_url=access_path, request_body={"method": "GET", "select": select}
+        )
+        members = npr_lookups_from_payload(got.body, spec)
+        if wanted is not None:
+            by_id = {item["subject_code"]: item for item in members}
+            missing = [code for code in wanted if code not in by_id]
+            if missing:
+                raise ValueError(
+                    f"id {missing} not in npr:{table_id}; the catalog does not print that id"
+                )
+            members = [by_id[code] for code in wanted]
+        retrieved_at = utc_now()
+        result = _fetch_named_lookup(
+            registry,
+            dataset,
+            http=http,
+            select=select,
+            prefix="npr",
+            spec=spec,
+            table_id=table_id,
+            members=members,
+            access_path=access_path,
+            request_url=access_path,
+            http_status=http_status,
+            run_id=run_id,
+            retrieved_at=retrieved_at,
+            shape_fn=shape_from_npr_lookups,
+        )
+        status = "completed"
+        registry.finish_fetch_run(run_id, result.counts, status=status, http_status=http_status)
+        return result
+    except Exception as exc:
+        counts = HarvestCounts()
+        counts.failed += 1
+        counts.errors.append({"error": str(exc), "url": access_path})
+        registry.finish_fetch_run(run_id, counts, status=status, http_status=http_status)
+        raise
+
+
+def _fetch_nfr_lookup(
+    registry: Registry,
+    dataset: dict[str, Any],
+    *,
+    http: JsonHttp | None = None,
+    select: dict[str, list[str]] | None = None,
+) -> FetchResult:
+    access_path = dataset.get("access_path") or ""
+    spec = nfr_lookup_catalog(access_path)
+    table_id = nfr_table_id(access_path)
+    wanted = nfr_selected_lookup_ids(select)
+    client = http or HttpClient(timeout=60.0, max_retries=4)
+    started = utc_now()
+    run_id = registry.start_fetch_run(
+        dataset_id=dataset["id"],
+        table_id=table_id,
+        request_url=access_path,
+        request_method="GET",
+        started_at=started,
+    )
+    status = "failed"
+    http_status = 0
+    try:
+        got = client.get_json_response(access_path)
+        http_status = got.status
+        registry.set_fetch_request(
+            run_id, request_url=access_path, request_body={"method": "GET", "select": select}
+        )
+        members = nfr_lookups_from_payload(got.body, spec)
+        if wanted is not None:
+            by_id = {item["subject_code"]: item for item in members}
+            missing = [code for code in wanted if code not in by_id]
+            if missing:
+                raise ValueError(
+                    f"id {missing} not in nfr:{table_id}; the catalog does not print that id"
+                )
+            members = [by_id[code] for code in wanted]
+        retrieved_at = utc_now()
+        result = _fetch_named_lookup(
+            registry,
+            dataset,
+            http=http,
+            select=select,
+            prefix="nfr",
+            spec=spec,
+            table_id=table_id,
+            members=members,
+            access_path=access_path,
+            request_url=access_path,
+            http_status=http_status,
+            run_id=run_id,
+            retrieved_at=retrieved_at,
+            shape_fn=shape_from_nfr_lookups,
+        )
+        status = "completed"
+        registry.finish_fetch_run(run_id, result.counts, status=status, http_status=http_status)
+        return result
+    except Exception as exc:
+        counts = HarvestCounts()
+        counts.failed += 1
+        counts.errors.append({"error": str(exc), "url": access_path})
+        registry.finish_fetch_run(run_id, counts, status=status, http_status=http_status)
+        raise
 
 
 def _fetch_nbr(
@@ -14907,6 +15217,33 @@ def classify_access_path(access_path: str | None) -> dict[str, Any]:
             "kind": CAPABILITY_LOOKUP,
             "reason": (
                 f"NBR {nbr_table_id(access_path)}; printed catalog as "
+                f"lookup entities under {spec['scheme']}"
+            ),
+        }
+    if is_nor_lookup_url(access_path):
+        spec = nor_lookup_catalog(access_path)
+        return {
+            "kind": CAPABILITY_LOOKUP,
+            "reason": (
+                f"NOR {nor_table_id(access_path)}; printed catalog as "
+                f"lookup entities under {spec['scheme']}"
+            ),
+        }
+    if is_npr_lookup_url(access_path):
+        spec = npr_lookup_catalog(access_path)
+        return {
+            "kind": CAPABILITY_LOOKUP,
+            "reason": (
+                f"NPR {npr_table_id(access_path)}; printed catalog as "
+                f"lookup entities under {spec['scheme']}"
+            ),
+        }
+    if is_nfr_lookup_url(access_path):
+        spec = nfr_lookup_catalog(access_path)
+        return {
+            "kind": CAPABILITY_LOOKUP,
+            "reason": (
+                f"NFR {nfr_table_id(access_path)}; printed catalog as "
                 f"lookup entities under {spec['scheme']}"
             ),
         }

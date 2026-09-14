@@ -1457,11 +1457,42 @@ utgåttype `S` Slettet; relasjonstype `6` Eierstruktur.
 - `organisasjonsformer` prints an empty-Id "Ingen enhetstype"; skipped.
   `barnehagekategorier` Id `0` "Ingen verdi" is a printed code and is stored.
 
-**Open question for the query side.** `nbr:enheter` (kindergartens) still
-uses the name-as-observation decoder. Do not dump it. NOR/NPR leftover
-vocabs may be the same shape.
+**Open question for the query side.** `nbr:enheter` still uses the
+name-as-observation decoder. Do not dump it. NOR/NPR/NFR small catalogs are
+now lookups; see the following entry.
 
 Proof: `data/nbr_lookup_proof.json`.
+
+## NOR/NPR/NFR small catalogs — 2026-09-14 — promoted (lookup)
+
+**Endpoint(s).** Already harvested collection GETs on
+`data-nor.udir.no/v4`, `data-npr.udir.no/v4`, `data-nfr.udir.no/v4`.
+`enheter` / `endretetter` were not fetched.
+
+**Shape.** `entity` with capability `lookup`. Codes from printed `Id` or
+`Kode`, labels from printed `Navn`. Empty ids skipped. Payloads may be a
+bare array or a `*Liste` wrapper.
+
+**Capability recorded.** `lookup`. Live GET 2026-09-14, zero observation
+rows. NOR: maalformer 2 (`B` Bokmål), organisasjonsformer 45, relasjonstyper
+5, utgaattyper 7. NPR: maalformer 2, naeringskoder 1 (`85.691`),
+organisasjonsformer 45, relasjonstyper 6, utgaattyper 7. NFR: maalformer 2,
+naeringskoder 1 (`88.910`), organisasjonsformer 45, relasjonstyper 5,
+utgaattyper 7, skolefritidsordningskategorier 3 (`0` Ingen verdi).
+
+**Surprises.**
+- Same leftover name-as-observation decoder as NBR. `cells_from_nor` /
+  `npr` / `nfr` remain for `enheter`.
+- NOR/NPR/NFR organisasjonsformer share printed codes (e.g. `ADOS`) but
+  record ids stay dataset-scoped.
+
+**Open question for the query side.** Unit registers (`nor:enheter`,
+`npr:enheter`, `nfr:enheter`, `nbr:enheter`, `udir:enheter`) still store
+names as observations. Do not dump them. NXR bydel/kommune endpoints may
+need a bounded read.
+
+Proof: `data/nor_npr_nfr_lookup_proof.json`.
+
 
 
 

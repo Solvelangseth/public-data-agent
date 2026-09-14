@@ -337,6 +337,9 @@ def index_dataset(
     from public_data_agent.sources.stperioder import is_stperioder_url
     from public_data_agent.sources.mattilsynet import is_mattilsynet_preparat_url
     from public_data_agent.sources.udir import is_udir_lookup_url
+    from public_data_agent.sources.nor import is_nor_lookup_url
+    from public_data_agent.sources.npr import is_npr_lookup_url
+    from public_data_agent.sources.nfr import is_nfr_lookup_url
     from public_data_agent.sources.nbr import is_nbr_lookup_url
     from public_data_agent.sources.fhi import is_fhi_table_url, printed_table_data_url, split_table_url
 
@@ -585,6 +588,45 @@ def index_dataset(
         meta = client.get_json_response(access_path)
         members = nbr_lookups_from_payload(meta.body or [], spec)
         fields, keys = shape_from_nbr_lookups(members, spec)
+        endpoint, method = access_path, "GET"
+        record_kind = "entity"
+    elif is_nor_lookup_url(access_path):
+        from public_data_agent.sources.nor import (
+            lookup_catalog as nor_lookup_catalog,
+            lookups_from_payload as nor_lookups_from_payload,
+            shape_from_lookups as shape_from_nor_lookups,
+        )
+
+        spec = nor_lookup_catalog(access_path)
+        meta = client.get_json_response(access_path)
+        members = nor_lookups_from_payload(meta.body or {}, spec)
+        fields, keys = shape_from_nor_lookups(members, spec)
+        endpoint, method = access_path, "GET"
+        record_kind = "entity"
+    elif is_npr_lookup_url(access_path):
+        from public_data_agent.sources.npr import (
+            lookup_catalog as npr_lookup_catalog,
+            lookups_from_payload as npr_lookups_from_payload,
+            shape_from_lookups as shape_from_npr_lookups,
+        )
+
+        spec = npr_lookup_catalog(access_path)
+        meta = client.get_json_response(access_path)
+        members = npr_lookups_from_payload(meta.body or {}, spec)
+        fields, keys = shape_from_npr_lookups(members, spec)
+        endpoint, method = access_path, "GET"
+        record_kind = "entity"
+    elif is_nfr_lookup_url(access_path):
+        from public_data_agent.sources.nfr import (
+            lookup_catalog as nfr_lookup_catalog,
+            lookups_from_payload as nfr_lookups_from_payload,
+            shape_from_lookups as shape_from_nfr_lookups,
+        )
+
+        spec = nfr_lookup_catalog(access_path)
+        meta = client.get_json_response(access_path)
+        members = nfr_lookups_from_payload(meta.body or {}, spec)
+        fields, keys = shape_from_nfr_lookups(members, spec)
         endpoint, method = access_path, "GET"
         record_kind = "entity"
     else:

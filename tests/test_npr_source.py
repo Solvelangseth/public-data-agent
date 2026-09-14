@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from public_data_agent.fetch import fetch_observations
+from public_data_agent.fetch import classify_access_path, fetch_observations
 from public_data_agent.harvest import harvest
 from public_data_agent.http_util import JsonResponse
 from public_data_agent.registry import Registry
@@ -140,7 +140,12 @@ def test_harvest_writes_printed_id_license_and_null_publisher(tmp_path: Path) ->
     registry.close()
 
 
-def test_fetch_gets_printed_naeringskoder(tmp_path: Path) -> None:
+def test_naeringskoder_catalog_is_lookup() -> None:
+    assert classify_access_path(NAERINGSKODER_URL)["kind"] == "lookup"
+    assert classify_access_path(ENHETER_URL)["kind"] != "lookup"
+
+
+def test_fetch_stores_naeringskoder_lookups_not_name_observations(tmp_path: Path) -> None:
     source = NprSource(http=CatalogHttp())
     registry = Registry(tmp_path / "registry.sqlite")
     harvest(registry, source)
@@ -148,23 +153,19 @@ def test_fetch_gets_printed_naeringskoder(tmp_path: Path) -> None:
         registry,
         DATASET_ID,
         table_id="ignored",
+        select={"id": ["85.691"]},
         http=FetchHttp(),
     )
     assert result.request_url == NAERINGSKODER_URL
     assert result.table_id == "naeringskoder"
     assert result.http_status == 200
     assert result.counts.listed == 1
-    rows = registry.list_observations(DATASET_ID)
-    values = [json.loads(row["value_json"]) for row in rows]
-    assert values == ["Pedagogisk-psykologisk rådgivningstjeneste"]
-    assert all(row["measure"] == "Navn" for row in rows)
-    dims = json.loads(rows[0]["dimensions_json"])
-    assert dims["Kode"] == "85.691"
-    assert dims["Versjon"] == "2025"
-    assert "nested" not in dims
-    assert all(row["publisher_name"] is None for row in rows)
-    assert all(row["license"] == NLOD_URL for row in rows)
-    assert all(row["access_path"] == NAERINGSKODER_URL for row in rows)
+    assert result.sample[0]["kind"] == "entity"
+    assert result.sample[0]["subject_code"] == "85.691"
+    assert result.sample[0]["subject_label"] == "Pedagogisk-psykologisk rådgivningstjeneste"
+    assert registry.list_observations(DATASET_ID) == []
+    cap = registry.get_capability(DATASET_ID)
+    assert cap["capability"] == "lookup"
     registry.close()
 
 
