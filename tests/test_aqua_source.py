@@ -13,12 +13,15 @@ from public_data_agent.http_util import JsonResponse
 from public_data_agent.registry import Registry
 from public_data_agent.sources import SOURCE_IDS, build_source
 from public_data_agent.sources.aqua import (
+    FISH_CODE_SCHEME,
     AquaSource,
     aqua_table_id,
     cells_from_aqua,
     cells_from_aqua_overview,
+    is_aqua_fish_codes_url,
     is_aqua_overview_url,
     is_aqua_url,
+    lookups_from_aqua_fish_codes,
     printed_endpoint_url,
     printed_license_url,
 )
@@ -28,6 +31,8 @@ AREAS_URL = "https://api.fiskeridir.no/pub-aqua/api/v1/areas"
 SITES_URL = "https://api.fiskeridir.no/pub-aqua/api/v1/sites"
 OVERVIEW_URL = "https://api.fiskeridir.no/pub-aqua/api/v1/licenses-overview"
 OVERVIEW_ID = "aqua:licenses-overview"
+FISH_CODES_URL = "https://api.fiskeridir.no/pub-aqua/api/v1/fish-codes"
+FISH_CODES_ID = "aqua:fish-codes"
 LICENSE_URL = "https://www.fiskeridir.no/Tall-og-analyse/Lisens-for-bruk-av-Fiskeridirektoratets-data"
 DATASET_ID = "aqua:areas"
 
@@ -54,6 +59,23 @@ OVERVIEW_BODY = [
     }
 ]
 
+FISH_CODES_BODY = [
+    {
+        "code": "010901",
+        "latinName": "Perca fluviatilis",
+        "nbNoName": "Abbor",
+        "nnNoName": "Abbor",
+        "enGbName": "European perch",
+        "faoAlpha3Code": "FPE",
+        "nested": {"skip": True},
+    },
+    {
+        "code": "010902",
+        "latinName": "Sander lucioperca",
+        "nbNoName": None,
+        "faoAlpha3Code": "FPI",
+    },
+]
 AREAS_BODY = [
     {
         "id": 1000,
@@ -95,6 +117,8 @@ class FetchHttp:
             return JsonResponse(status=200, url=url, body=body)
         if url == AREAS_URL:
             return JsonResponse(status=200, url=url, body=AREAS_BODY)
+        if url == FISH_CODES_URL:
+            return JsonResponse(status=200, url=url, body=FISH_CODES_BODY)
         raise AssertionError(f"unexpected GET {url}")
 
     def post_json_response(self, url: str, body, *, headers=None) -> JsonResponse:
@@ -178,6 +202,9 @@ def test_overview_url_is_observations() -> None:
     assert not is_aqua_overview_url(AREAS_URL)
     assert classify_access_path(OVERVIEW_URL)["kind"] == "observations"
     assert classify_access_path(AREAS_URL)["kind"] == "none"
+    assert is_aqua_fish_codes_url(FISH_CODES_URL)
+    assert not is_aqua_fish_codes_url(OVERVIEW_URL)
+    assert classify_access_path(FISH_CODES_URL)["kind"] == "lookup"
 
 
 def test_fetch_gets_printed_license_capacity(tmp_path: Path) -> None:
@@ -232,6 +259,47 @@ def test_fetch_refuses_unfiltered_license_overview(tmp_path: Path) -> None:
             http=FetchHttp(),
         )
     registry.close()
+
+
+def test_fetch_stores_fish_codes_as_lookup(tmp_path: Path) -> None:
+    registry = Registry(tmp_path / "registry.sqlite")
+    registry.ensure_observation_dataset(
+        dataset_id=FISH_CODES_ID,
+        title="Hent alle fiskekoder",
+        publisher_name=None,
+        access_path=FISH_CODES_URL,
+        license=LICENSE_URL,
+    )
+    registry.conn.commit()
+    result = fetch_observations(
+        registry,
+        FISH_CODES_ID,
+        table_id="ignored",
+        http=FetchHttp(),
+    )
+    assert result.http_status == 200
+    assert result.counts.listed == 2
+    assert registry.list_observations(FISH_CODES_ID) == []
+    rows = registry.list_records(FISH_CODES_ID, kind="entity")
+    by_code = {row["subject_code"]: row for row in rows}
+    assert by_code["010901"]["subject_label"] == "Abbor"
+    assert by_code["010901"]["subject_scheme"] == FISH_CODE_SCHEME
+    assert by_code["010902"]["subject_label"] == "Sander lucioperca"
+    assert all(row["license"] == LICENSE_URL for row in rows)
+    attrs = json.loads(by_code["010901"]["attributes_json"])
+    assert attrs["faoAlpha3Code"] == "FPE"
+    assert "nested" not in attrs
+    cap = registry.get_capability(FISH_CODES_ID)
+    assert cap["capability"] == "lookup"
+    registry.close()
+
+
+def test_lookups_copy_printed_fish_codes() -> None:
+    members = lookups_from_aqua_fish_codes(FISH_CODES_BODY)
+    assert members[0]["subject_code"] == "010901"
+    assert members[0]["subject_label"] == "Abbor"
+    assert members[1]["subject_label"] == "Sander lucioperca"
+    assert "nested" not in members[0]["attributes"]
 
 
 def test_cells_copy_printed_capacity() -> None:

@@ -1,0 +1,23 @@
+{
+  "dataset": "aqua:fish-codes",
+  "request_url": "https://api.fiskeridir.no/pub-aqua/api/v1/fish-codes",
+  "http_status": 200,
+  "listed": 540,
+  "inserted": 540,
+  "license": "https://www.fiskeridir.no/Tall-og-analyse/Lisens-for-bruk-av-Fiskeridirektoratets-data",
+  "sample": [
+    {
+      "kind": "entity",
+      "subject_scheme": "aqua:fish-code",
+      "subject_code": "010901",
+      "subject_label": "Abbor"
+    },
+    {
+      "kind": "entity",
+      "subject_scheme": "aqua:fish-code",
+      "subject_code": "614102",
+      "subject_label": "Acanthochromis polyacanthus**"
+    }
+  ],
+  "note": "Printed fish-code lookup entities keyed by code. License/site name catalogs were not dumped. Leftover decoder would have stored nbNoName as an observation measure."
+}

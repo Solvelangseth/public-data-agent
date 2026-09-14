@@ -57,11 +57,14 @@ from public_data_agent.sources.entur import (
 )
 from public_data_agent.sources.aqua import (
     AQUA_MAX_CELLS,
+    FISH_CODE_SCHEME,
     aqua_overview_request_url,
     aqua_table_id,
     cells_from_aqua_overview,
+    is_aqua_fish_codes_url,
     is_aqua_overview_url,
     is_aqua_url,
+    lookups_from_aqua_fish_codes,
     selected_license_nr,
 )
 from public_data_agent.sources.buyer import (
@@ -4288,19 +4291,23 @@ def _fetch_aqua(
     http: JsonHttp | None = None,
     select: dict[str, list[str]] | None = None,
 ) -> FetchResult:
-    """Fetch one printed aquaculture license's capacity cells.
+    """Fetch one printed aquaculture license's capacity cells, or fish-codes.
 
     Measures are printed ``capacity.current`` and ``capacity.accumulated``.
-    Unfiltered overview defaults to range 0-9 and is refused. Area and
-    site catalogs store names and are refused.
+    Unfiltered overview defaults to range 0-9 and is refused. Fish-codes
+    are lookup entities keyed by printed ``code``. Area and site catalogs
+    store names and are refused.
     """
 
     access_path = dataset.get("access_path") or ""
     table_id = aqua_table_id(access_path)
+    if is_aqua_fish_codes_url(access_path):
+        return _fetch_aqua_fish_codes(registry, dataset, http=http)
     if not is_aqua_overview_url(access_path):
         raise ValueError(
             "Akvakulturregisteret name catalog is not a capacity observation "
-            "fetch; use licenses-overview with select license-nr"
+            "fetch; use licenses-overview with select license-nr, or "
+            "fish-codes for the printed species catalog"
         )
     license_nr = selected_license_nr(select)
     request_url = aqua_overview_request_url(access_path, license_nr)
@@ -4384,6 +4391,108 @@ def _fetch_aqua(
         dataset_id=dataset["id"],
         table_id=table_id,
         request_url=request_url,
+        http_status=http_status,
+        counts=counts,
+        sample=sample,
+    )
+
+
+def _fetch_aqua_fish_codes(
+    registry: Registry,
+    dataset: dict[str, Any],
+    *,
+    http: JsonHttp | None = None,
+) -> FetchResult:
+    """Fetch Akvakulturregisteret fish-codes as lookup entities."""
+
+    access_path = dataset.get("access_path") or ""
+    table_id = aqua_table_id(access_path)
+    client = http or HttpClient(timeout=60.0, max_retries=4)
+    started = utc_now()
+    run_id = registry.start_fetch_run(
+        dataset_id=dataset["id"],
+        table_id=table_id,
+        request_url=access_path,
+        request_method="GET",
+        started_at=started,
+    )
+    counts = HarvestCounts()
+    status = "failed"
+    http_status = 0
+    sample: list[dict[str, Any]] = []
+    try:
+        got = client.get_json_response(access_path)
+        http_status = got.status
+        registry.set_fetch_request(run_id, request_url=access_path, request_body={"method": "GET"})
+        members = lookups_from_aqua_fish_codes(got.body)
+        retrieved_at = utc_now()
+        for entity in members:
+            record_id = f"entity:{dataset['id']}:{entity['subject_code']}"
+            action = registry.upsert_record(
+                {
+                    "id": record_id,
+                    "dataset_id": dataset["id"],
+                    "kind": "entity",
+                    "series": "aqua:fish-codes",
+                    "subject_scheme": entity["subject_scheme"],
+                    "subject_code": entity["subject_code"],
+                    "subject_label": entity["subject_label"],
+                    "period": None,
+                    "measure": None,
+                    "value": None,
+                    "attributes": entity["attributes"],
+                    "retrieved_at": retrieved_at,
+                    "request_url": access_path,
+                    "http_status": http_status,
+                    "publisher_name": dataset.get("publisher_name"),
+                    "license": dataset.get("license"),
+                },
+                run_id,
+            )
+            counts.listed += 1
+            if action == "inserted":
+                counts.inserted += 1
+            elif action == "updated":
+                counts.updated += 1
+            else:
+                counts.unchanged += 1
+            if len(sample) < 3:
+                sample.append(
+                    {
+                        "kind": "entity",
+                        "subject_scheme": entity["subject_scheme"],
+                        "subject_code": entity["subject_code"],
+                        "subject_label": entity["subject_label"],
+                    }
+                )
+        registry.set_capability(
+            dataset["id"],
+            {
+                "capability": CAPABILITY_LOOKUP,
+                "record_kind": "lookup",
+                "endpoint": access_path,
+                "request_method": "GET",
+                "subject_scheme": FISH_CODE_SCHEME,
+                "subject_count": counts.listed,
+                "verified_at": retrieved_at,
+                "verified_sample_count": counts.listed,
+                "notes": (
+                    f"{counts.listed} printed fish-code lookup entit"
+                    f"{'y' if counts.listed == 1 else 'ies'} under {FISH_CODE_SCHEME}"
+                ),
+            },
+        )
+        status = "completed"
+    except Exception as exc:
+        counts.failed += 1
+        counts.errors.append({"error": str(exc), "url": access_path})
+        raise
+    finally:
+        registry.finish_fetch_run(run_id, counts, status=status, http_status=http_status)
+    return FetchResult(
+        dataset_id=dataset["id"],
+        table_id=table_id,
+        request_url=access_path,
         http_status=http_status,
         counts=counts,
         sample=sample,
@@ -16284,6 +16393,14 @@ def classify_access_path(access_path: str | None) -> dict[str, Any]:
                 "current and accumulated for one printed license-nr"
             ),
         }
+    if is_aqua_fish_codes_url(access_path):
+        return {
+            "kind": CAPABILITY_LOOKUP,
+            "reason": (
+                "Akvakulturregisteret fish-codes; printed species catalog as "
+                f"lookup entities under {FISH_CODE_SCHEME}"
+            ),
+        }
     if is_hoydedata_lookup_url(access_path):
         scheme = (
             DATAKILDE_SCHEME
@@ -16642,7 +16759,8 @@ def classify_access_path(access_path: str | None) -> dict[str, Any]:
             "kind": CAPABILITY_NONE,
             "reason": (
                 "Akvakulturregisteret name catalog; capacity cells are "
-                "licenses-overview with select license-nr"
+                "licenses-overview with select license-nr; species codes "
+                "are fish-codes"
             ),
         }
     if is_hoydedata_url(access_path):

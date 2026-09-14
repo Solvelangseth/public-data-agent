@@ -2356,6 +2356,32 @@ entities addressed by printed `kommunenummer`, not a kindergarten dump.
 
 Proof: `data/baf_fylker_proof.json`.
 
+## aqua:fish-codes — 2026-09-14 — promoted (lookup)
+
+**Endpoint(s).** `GET https://api.fiskeridir.no/pub-aqua/api/v1/fish-codes`.
+Already harvested. License/site dumps were not fetched. Licence is the
+printed OpenAPI URL
+`https://www.fiskeridir.no/Tall-og-analyse/Lisens-for-bruk-av-Fiskeridirektoratets-data`.
+
+**Shape.** `lookup` entities under `aqua:fish-code`. Key is printed
+`code`. Label is printed `nbNoName` (else `latinName`). Other scalars
+stay attributes. Nested objects are not copied.
+
+**Capability recorded.** `lookup`. Live GET 2026-09-14: HTTP 200, 540
+entities. Sample: `010901` Abbor (`Perca fluviatilis`, FAO `FPE`).
+Sites/licenses/entities catalogs classify `none`.
+
+**Surprises.**
+- The leftover decoder stored `nbNoName` as an observation measure.
+- 540 unique printed codes; duplicates would have been skipped.
+
+**Open question for the query side.** `aqua:intentions` is 10 printed
+purpose ids. `kystverket` counties is 17 printed `countyno`.
+`miljodir:Public_GetUnitList` is 114 printed `UnitID`.
+
+Proof: `data/aqua_fish_codes_proof.json`.
+
+
 
 
 

@@ -20,6 +20,8 @@ AQUA_BURST = 4
 HOST = "api.fiskeridir.no"
 PATH_PREFIX = "/pub-aqua/"
 OVERVIEW_PATH = "/pub-aqua/api/v1/licenses-overview"
+FISH_CODES_PATH = "/pub-aqua/api/v1/fish-codes"
+FISH_CODE_SCHEME = "aqua:fish-code"
 CAPACITY_MEASURES = ("current", "accumulated")
 AQUA_MAX_CELLS = 100
 ALLOWED_SELECT = frozenset({"license-nr"})
@@ -201,6 +203,59 @@ def is_aqua_overview_url(access_path: str | None) -> bool:
         return False
     path = urlsplit(access_path).path.rstrip("/").casefold()
     return path == OVERVIEW_PATH
+
+
+def is_aqua_fish_codes_url(access_path: str | None) -> bool:
+    """Fish-code catalog. License/site dumps are different paths."""
+
+    if not is_aqua_url(access_path):
+        return False
+    path = urlsplit(access_path).path.rstrip("/").casefold()
+    return path == FISH_CODES_PATH
+
+
+def lookups_from_aqua_fish_codes(payload: Any) -> list[dict[str, Any]]:
+    """Copy printed aquaculture fish codes into lookup entities.
+
+    Each member is keyed by printed ``code``. Label is printed ``nbNoName``
+    when present. Nested objects are not copied. Empty keys are skipped.
+    """
+
+    if not isinstance(payload, list):
+        raise ValueError("aqua fish-codes payload is not a JSON array")
+    out: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    for item in payload:
+        if not isinstance(item, dict):
+            continue
+        code = item.get("code")
+        if not isinstance(code, (str, int)) or isinstance(code, bool):
+            continue
+        code = str(code).strip()
+        if not code or code in seen:
+            continue
+        seen.add(code)
+        label = item.get("nbNoName")
+        if not isinstance(label, str) or not label.strip():
+            label = item.get("latinName")
+        if not isinstance(label, str) or not label.strip():
+            label = code
+        attributes = {
+            key: value
+            for key, value in item.items()
+            if key != "code" and _is_scalar(value) and value is not None
+        }
+        out.append(
+            {
+                "subject_scheme": FISH_CODE_SCHEME,
+                "subject_code": code,
+                "subject_label": label.strip(),
+                "attributes": attributes,
+            }
+        )
+    if not out:
+        raise ValueError("aqua fish-codes payload printed no code")
+    return out
 
 
 def selected_license_nr(select: dict[str, list[str]] | None) -> str:
