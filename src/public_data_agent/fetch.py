@@ -975,8 +975,11 @@ from public_data_agent.sources.kystverket import (
     lookups_from_kystverket_counties,
 )
 from public_data_agent.sources.miljodir import (
+    UNIT_SCHEME,
     cells_from_miljodir,
+    is_miljodir_unit_list_url,
     is_miljodir_url,
+    lookups_from_miljodir_units,
     miljodir_table_id,
 )
 from public_data_agent.sources.trondheim import (
@@ -16027,7 +16030,15 @@ def _fetch_miljodir(
     *,
     http: JsonHttp | None = None,
 ) -> FetchResult:
+    """Fetch the printed unit catalog, or leftover Vannmiljø name lists.
+
+    Units are lookup entities keyed by printed ``UnitID``. Other leftover
+    catalogs still copy a printed name field as an observation measure.
+    """
+
     access_path = dataset.get("access_path") or ""
+    if is_miljodir_unit_list_url(access_path):
+        return _fetch_miljodir_units(registry, dataset, http=http)
     client = http or HttpClient(timeout=60.0, max_retries=4)
     table_id = miljodir_table_id(access_path)
     started = utc_now()
@@ -16058,6 +16069,108 @@ def _fetch_miljodir(
             request_url=access_path,
             http_status=http_status,
             counts=counts,
+        )
+        status = "completed"
+    except Exception as exc:
+        counts.failed += 1
+        counts.errors.append({"error": str(exc), "url": access_path})
+        raise
+    finally:
+        registry.finish_fetch_run(run_id, counts, status=status, http_status=http_status)
+    return FetchResult(
+        dataset_id=dataset["id"],
+        table_id=table_id,
+        request_url=access_path,
+        http_status=http_status,
+        counts=counts,
+        sample=sample,
+    )
+
+
+def _fetch_miljodir_units(
+    registry: Registry,
+    dataset: dict[str, Any],
+    *,
+    http: JsonHttp | None = None,
+) -> FetchResult:
+    """Fetch Vannmiljø units as lookup entities."""
+
+    access_path = dataset.get("access_path") or ""
+    table_id = miljodir_table_id(access_path)
+    client = http or HttpClient(timeout=60.0, max_retries=4)
+    started = utc_now()
+    run_id = registry.start_fetch_run(
+        dataset_id=dataset["id"],
+        table_id=table_id,
+        request_url=access_path,
+        request_method="GET",
+        started_at=started,
+    )
+    counts = HarvestCounts()
+    status = "failed"
+    http_status = 0
+    sample: list[dict[str, Any]] = []
+    try:
+        got = client.get_json_response(access_path)
+        http_status = got.status
+        registry.set_fetch_request(run_id, request_url=access_path, request_body={"method": "GET"})
+        members = lookups_from_miljodir_units(got.body)
+        retrieved_at = utc_now()
+        for entity in members:
+            record_id = f"entity:{dataset['id']}:{entity['subject_code']}"
+            action = registry.upsert_record(
+                {
+                    "id": record_id,
+                    "dataset_id": dataset["id"],
+                    "kind": "entity",
+                    "series": "miljodir:units",
+                    "subject_scheme": entity["subject_scheme"],
+                    "subject_code": entity["subject_code"],
+                    "subject_label": entity["subject_label"],
+                    "period": None,
+                    "measure": None,
+                    "value": None,
+                    "attributes": entity["attributes"],
+                    "retrieved_at": retrieved_at,
+                    "request_url": access_path,
+                    "http_status": http_status,
+                    "publisher_name": dataset.get("publisher_name"),
+                    "license": dataset.get("license"),
+                },
+                run_id,
+            )
+            counts.listed += 1
+            if action == "inserted":
+                counts.inserted += 1
+            elif action == "updated":
+                counts.updated += 1
+            else:
+                counts.unchanged += 1
+            if len(sample) < 3:
+                sample.append(
+                    {
+                        "kind": "entity",
+                        "subject_scheme": entity["subject_scheme"],
+                        "subject_code": entity["subject_code"],
+                        "subject_label": entity["subject_label"],
+                    }
+                )
+        registry.set_capability(
+            dataset["id"],
+            {
+                "capability": CAPABILITY_LOOKUP,
+                "record_kind": "lookup",
+                "endpoint": access_path,
+                "request_method": "GET",
+                "subject_scheme": UNIT_SCHEME,
+                "subject_count": counts.listed,
+                "verified_at": retrieved_at,
+                "verified_sample_count": counts.listed,
+                "notes": (
+                    f"{counts.listed} printed unit lookup entit"
+                    f"{'y' if counts.listed == 1 else 'ies'} under {UNIT_SCHEME}"
+                ),
+            },
         )
         status = "completed"
     except Exception as exc:
@@ -16565,6 +16678,14 @@ def classify_access_path(access_path: str | None) -> dict[str, Any]:
             "reason": (
                 "Kystdatahuset location/counties; printed county catalog as "
                 f"lookup entities under {COUNTY_SCHEME}"
+            ),
+        }
+    if is_miljodir_unit_list_url(access_path):
+        return {
+            "kind": CAPABILITY_LOOKUP,
+            "reason": (
+                "Vannmiljø GetUnitList; printed unit catalog as lookup "
+                f"entities under {UNIT_SCHEME}"
             ),
         }
     if is_norgesbank_observations_url(access_path):

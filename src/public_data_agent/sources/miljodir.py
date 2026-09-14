@@ -19,6 +19,8 @@ MILJODIR_RPS = 2.0
 MILJODIR_BURST = 4
 HOST = "vannmiljoapi.miljodirektoratet.no"
 PATH_PREFIX = "/api/"
+UNIT_LIST_PATH = "/api/public/getunitlist"
+UNIT_SCHEME = "miljodir:UnitID"
 NAME_FIELDS = ("Name", "name", "title", "MediumID", "id")
 
 
@@ -174,6 +176,57 @@ def is_miljodir_url(access_path: str | None) -> bool:
         return False
     parsed = urlsplit(access_path)
     return parsed.netloc.lower() == HOST and parsed.path.startswith(PATH_PREFIX)
+
+
+def is_miljodir_unit_list_url(access_path: str | None) -> bool:
+    """Unit catalog. Medium and other leftover name lists are other paths."""
+
+    if not is_miljodir_url(access_path):
+        return False
+    path = urlsplit(access_path).path.rstrip("/").casefold()
+    return path == UNIT_LIST_PATH
+
+
+def lookups_from_miljodir_units(payload: Any) -> list[dict[str, Any]]:
+    """Copy printed Vannmiljø units into lookup entities.
+
+    Each member is keyed by printed ``UnitID``. Label is printed ``Name``.
+    Nested objects are not copied. Empty keys are skipped.
+    """
+
+    if not isinstance(payload, list):
+        raise ValueError("miljodir unit-list payload is not a JSON array")
+    out: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    for item in payload:
+        if not isinstance(item, dict):
+            continue
+        code = item.get("UnitID")
+        if not isinstance(code, (str, int)) or isinstance(code, bool):
+            continue
+        code = str(code).strip()
+        if not code or code in seen:
+            continue
+        seen.add(code)
+        label = item.get("Name")
+        if not isinstance(label, str) or not label.strip():
+            label = code
+        attributes = {
+            key: value
+            for key, value in item.items()
+            if key != "UnitID" and _is_scalar(value) and value is not None
+        }
+        out.append(
+            {
+                "subject_scheme": UNIT_SCHEME,
+                "subject_code": code,
+                "subject_label": label.strip(),
+                "attributes": attributes,
+            }
+        )
+    if not out:
+        raise ValueError("miljodir unit-list payload printed no UnitID")
+    return out
 
 
 def miljodir_table_id(access_path: str) -> str:

@@ -2426,6 +2426,50 @@ printed code list. Location/all is a voyage dump and should stay refused.
 
 Proof: `data/kystverket_counties_proof.json`.
 
+## miljodir:Public_GetUnitList — 2026-09-14 — promoted (lookup)
+
+**Endpoint(s).** `GET https://vannmiljoapi.miljodirektoratet.no/api/Public/GetUnitList`.
+Already harvested. Licence is `null`.
+
+**Shape.** `lookup` entities under `miljodir:UnitID`. Key is printed
+`UnitID`. Label is printed `Name`. Nested objects are not copied.
+Empty keys skipped.
+
+**Capability recorded.** `lookup`. Live GET 2026-09-14: HTTP 200, 114
+entities. Sample: `1` %, `8` µg/l, `43` mg/l. Other leftover name
+lists still copy `Name` as an observation measure.
+
+**Surprises.**
+- Printed `UnitID` is an integer in JSON; stored as `"1"`.
+- Live `SortOrder` is null and is skipped, not stored as empty.
+- The leftover decoder stored `Name` as an observation measure.
+- Printed ids are not 1–114 sequential; last printed is `219`.
+
+**Open question for the query side.** `GetMediumList` is 54 printed
+`MediumID`. `kystverket:api/maps/kommune/list` is dead (SQL 42601).
+`kystverket:api/maps/fvpomr/list` is 3 printed `area_id`.
+
+Proof: `data/miljodir_units_proof.json`.
+
+## kystverket:api/maps/kommune/list — 2026-09-14 — dead
+
+**Endpoint(s).** `GET https://kystdatahuset.no/ws/api/maps/kommune/list`.
+Already harvested. Location/all and GeoJSON were not fetched.
+
+**Shape.** Not a code list. Live GET 2026-09-14: HTTP 200 JSON
+`success=false`, `data={}`, `msg` starts `42601: syntax error at or
+near "||"`. No kommune codes printed.
+
+**Capability recorded.** `none`. Fetch stays refused. Counties remain
+the printed county catalog.
+
+**Surprises.** The OpenAPI lists this as a collection GET, but the
+live SQL behind it is broken.
+
+**Open question for the query side.** `maps/fvpomr/list` prints 3
+`area_id` / `area_name` and is a leftover lookup.
+
+
 
 
 

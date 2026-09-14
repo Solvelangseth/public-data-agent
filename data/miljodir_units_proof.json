@@ -1,0 +1,15 @@
+{
+  "dataset": "miljodir:Public_GetUnitList",
+  "request_url": "https://vannmiljoapi.miljodirektoratet.no/api/Public/GetUnitList",
+  "http_status": 200,
+  "listed": 114,
+  "inserted": 114,
+  "scheme": "miljodir:UnitID",
+  "license": null,
+  "sample": [
+    {"subject_code": "1", "subject_label": "%"},
+    {"subject_code": "8", "subject_label": "µg/l"},
+    {"subject_code": "43", "subject_label": "mg/l"}
+  ],
+  "note": "Printed UnitID as lookup keys from the JSON array. Leftover name catalogs were not converted. Klass is not claimed."
+}

@@ -5,15 +5,18 @@ from pathlib import Path
 
 import pytest
 
-from public_data_agent.fetch import fetch_observations
+from public_data_agent.fetch import classify_access_path, fetch_observations
 from public_data_agent.harvest import harvest
 from public_data_agent.http_util import JsonResponse
 from public_data_agent.registry import Registry
 from public_data_agent.sources import SOURCE_IDS, build_source
 from public_data_agent.sources.miljodir import (
+    UNIT_SCHEME,
     MiljodirVannmiljoSource,
     cells_from_miljodir,
+    is_miljodir_unit_list_url,
     is_miljodir_url,
+    lookups_from_miljodir_units,
     miljodir_table_id,
     printed_endpoint_url,
     printed_operation_id,
@@ -23,6 +26,7 @@ OPENAPI_URL = "https://vannmiljoapi.miljodirektoratet.no/swagger/docs/v1"
 MEDIUM_URL = "https://vannmiljoapi.miljodirektoratet.no/api/Public/GetMediumList"
 UNIT_URL = "https://vannmiljoapi.miljodirektoratet.no/api/Public/GetUnitList"
 DATASET_ID = "miljodir:Public_GetMediumList"
+UNIT_ID = "miljodir:Public_GetUnitList"
 
 OPENAPI = {
     "swagger": "2.0",
@@ -70,6 +74,16 @@ MEDIUM_BODY = [
         "IsWaterRelated": True,
     },
 ]
+UNIT_BODY = [
+    {
+        "UnitID": 1,
+        "Name": "%",
+        "Description": "prosent",
+        "SortOrder": None,
+        "nested": {"skip": True},
+    },
+    {"UnitID": 2, "Name": "% v.v.", "Description": "prosent på våtvektbasis"},
+]
 
 
 class CatalogHttp:
@@ -87,6 +101,8 @@ class FetchHttp:
     def get_json_response(self, url: str, *, headers=None) -> JsonResponse:
         if url == MEDIUM_URL:
             return JsonResponse(status=200, url=url, body=MEDIUM_BODY)
+        if url == UNIT_URL:
+            return JsonResponse(status=200, url=url, body=UNIT_BODY)
         raise AssertionError(f"unexpected GET {url}")
 
     def post_json_response(self, url: str, body, *, headers=None) -> JsonResponse:
@@ -185,6 +201,52 @@ def test_fetch_gets_printed_medium_list(tmp_path: Path) -> None:
     assert all(row["license"] is None for row in rows)
     assert all(row["access_path"] == MEDIUM_URL for row in rows)
     registry.close()
+
+
+def test_unit_list_url_is_lookup() -> None:
+    assert is_miljodir_unit_list_url(UNIT_URL)
+    assert not is_miljodir_unit_list_url(MEDIUM_URL)
+    assert classify_access_path(UNIT_URL)["kind"] == "lookup"
+
+
+def test_fetch_stores_units_as_lookup(tmp_path: Path) -> None:
+    source = MiljodirVannmiljoSource(http=CatalogHttp())
+    registry = Registry(tmp_path / "registry.sqlite")
+    harvest(registry, source)
+    result = fetch_observations(
+        registry,
+        UNIT_ID,
+        table_id="GetUnitList",
+        http=FetchHttp(),
+    )
+    assert result.http_status == 200
+    assert result.counts.listed == 2
+    assert registry.list_observations(UNIT_ID) == []
+    rows = registry.list_records(UNIT_ID, kind="entity")
+    by_code = {row["subject_code"]: row for row in rows}
+    assert by_code["1"]["subject_label"] == "%"
+    assert by_code["1"]["subject_scheme"] == UNIT_SCHEME
+    assert by_code["2"]["subject_label"] == "% v.v."
+    attrs = json.loads(by_code["1"]["attributes_json"])
+    assert attrs["Description"] == "prosent"
+    assert "SortOrder" not in attrs
+    assert "nested" not in attrs
+    cap = registry.get_capability(UNIT_ID)
+    assert cap["capability"] == "lookup"
+    registry.close()
+
+
+def test_lookups_copy_printed_unit_id() -> None:
+    members = lookups_from_miljodir_units(UNIT_BODY)
+    assert members[0]["subject_code"] == "1"
+    assert members[0]["subject_scheme"] == UNIT_SCHEME
+    assert members[0]["subject_label"] == "%"
+    assert members[1]["subject_label"] == "% v.v."
+    assert "nested" not in members[0]["attributes"]
+    with pytest.raises(ValueError, match="JSON array"):
+        lookups_from_miljodir_units({"UnitID": 1})
+    with pytest.raises(ValueError, match="printed no UnitID"):
+        lookups_from_miljodir_units([])
 
 
 def test_cells_copy_printed_medium_name() -> None:
