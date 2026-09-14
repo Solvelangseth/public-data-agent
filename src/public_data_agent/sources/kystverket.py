@@ -19,6 +19,8 @@ KYSTVERKET_RPS = 2.0
 KYSTVERKET_BURST = 4
 HOST = "kystdatahuset.no"
 PATH_PREFIX = "/ws/api/"
+VESSELS_BY_TYPE_PATH = "/ws/api/ais/realtime/vessels-by-type"
+KYSTVERKET_MAX_CELLS = 100
 NAME_FIELDS = ("countyname", "label", "area_name", "name", "title", "code")
 
 
@@ -176,9 +178,37 @@ def is_kystverket_url(access_path: str | None) -> bool:
     return parsed.netloc.lower() == HOST and parsed.path.startswith(PATH_PREFIX)
 
 
+def is_kystverket_vessels_by_type_url(access_path: str | None) -> bool:
+    """Realtime ship counts by type. County and GeoJSON catalogs are other paths."""
+
+    if not is_kystverket_url(access_path):
+        return False
+    path = urlsplit(access_path).path.rstrip("/").casefold()
+    return path == VESSELS_BY_TYPE_PATH
+
+
 def kystverket_table_id(access_path: str) -> str:
     segment = urlsplit(access_path).path.rstrip("/").split("/")[-1]
     return segment or "kystverket"
+
+
+def cells_from_kystverket_vessels(payload: Any) -> list[tuple[str, Any, dict[str, str]]]:
+    """Copy printed AIS ship-type counts into observation cells.
+
+    Measure is the printed key ``number_of_ships``. Other scalars stay as
+    dimensions. Nested objects are not copied. Records without a numeric
+    count are skipped. Nothing is invented.
+    """
+
+    records = _records(payload)
+    cells: list[tuple[str, Any, dict[str, str]]] = []
+    for item in records:
+        if not isinstance(item, dict):
+            continue
+        cells.extend(_vessel_cells_from_record(item))
+    if not cells:
+        raise ValueError("kystverket vessels-by-type payload printed no numeric number_of_ships")
+    return cells
 
 
 def cells_from_kystverket(payload: Any) -> list[tuple[str, Any, dict[str, str]]]:
@@ -232,6 +262,18 @@ def _records(payload: Any) -> list[Any]:
     if isinstance(payload, list):
         return payload
     raise ValueError("kystverket payload is not a JSON array or data collection")
+
+
+def _vessel_cells_from_record(item: dict[str, Any]) -> list[tuple[str, Any, dict[str, str]]]:
+    count = item.get("number_of_ships")
+    if isinstance(count, bool) or not isinstance(count, (int, float)):
+        return []
+    dims = {
+        key: _as_dim(value)
+        for key, value in item.items()
+        if key != "number_of_ships" and _is_scalar(value)
+    }
+    return [("number_of_ships", count, dims)]
 
 
 def _cells_from_record(item: dict[str, Any]) -> list[tuple[str, Any, dict[str, str]]]:

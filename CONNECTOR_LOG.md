@@ -1800,6 +1800,38 @@ required `codes?type=` path, as lookup entities, not this search dump.
 
 Proof: `data/omregning_factor_proof.json`.
 
+## kystverket:api/ais/realtime/vessels-by-type — 2026-09-14 — promoted (observations)
+
+**Endpoint(s).** `GET https://kystdatahuset.no/ws/api/ais/realtime/vessels-by-type`.
+Already harvested. County lists, location catalogs, and realtime GeoJSON
+were not fetched. Licence is harvested NLOD
+(`https://data.norge.no/nlod/en/1.0`).
+
+**Shape.** `observation`. Measure is the printed key `number_of_ships`.
+Dimension is printed `ship_type`. Nested objects are not copied.
+
+**Capability recorded.** `observations`. Live GET 2026-09-14: HTTP 200, 43
+cells. Sample: Cargo `1186`, Fishing `2092`, Passenger `478`. More than
+100 cells is refused, not truncated. Other Kystdatahuset catalogs
+classify `none` and fetch is refused.
+
+**Surprises.**
+- The leftover decoder preferred `ship_type` as the measure and stored
+  the count as a dimension. Fetch now copies the printed numeric
+  `number_of_ships`.
+- Counts move with the last-minute AIS window; they are copied as printed.
+- `utdanning:tidsserie` prints `antall_ansatte` / `antall_aarsverk` but
+  hydra lists 4171 rows; `endring_arbeidsmarked` is 2.3 million. Those
+  were not dumped. `GOVT_PRIMARY_MARKET` lastN=5 is 7648 cells and stays
+  unverified.
+
+**Open question for the query side.** County lists could become lookup
+entities addressed by printed `countyno`. Do not dump location/all or
+realtime GeoJSON.
+
+Proof: `data/kystverket_vessels_proof.json`.
+
+
 
 
 

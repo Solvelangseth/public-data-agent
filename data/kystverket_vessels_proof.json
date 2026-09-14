@@ -1,0 +1,32 @@
+{
+  "dataset": "kystverket:api/ais/realtime/vessels-by-type",
+  "request_url": "https://kystdatahuset.no/ws/api/ais/realtime/vessels-by-type",
+  "http_status": 200,
+  "listed": 43,
+  "inserted": 43,
+  "license": "https://data.norge.no/nlod/en/1.0",
+  "sample": [
+    {
+      "measure": "number_of_ships",
+      "value": 478,
+      "dimensions": {
+        "ship_type": "Passenger"
+      }
+    },
+    {
+      "measure": "number_of_ships",
+      "value": 2092,
+      "dimensions": {
+        "ship_type": "Fishing"
+      }
+    },
+    {
+      "measure": "number_of_ships",
+      "value": 1186,
+      "dimensions": {
+        "ship_type": "Cargo"
+      }
+    }
+  ],
+  "note": "Printed number_of_ships by printed ship_type. County names, location catalogs, and realtime GeoJSON were not fetched. Leftover decoder used to store ship_type as the measure."
+}

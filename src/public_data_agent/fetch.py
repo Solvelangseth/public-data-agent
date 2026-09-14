@@ -939,8 +939,10 @@ from public_data_agent.sources.kommuneinfo import (
     kommuneinfo_table_id,
 )
 from public_data_agent.sources.kystverket import (
-    cells_from_kystverket,
+    KYSTVERKET_MAX_CELLS,
+    cells_from_kystverket_vessels,
     is_kystverket_url,
+    is_kystverket_vessels_by_type_url,
     kystverket_table_id,
 )
 from public_data_agent.sources.miljodir import (
@@ -15090,9 +15092,21 @@ def _fetch_kystverket(
     *,
     http: JsonHttp | None = None,
 ) -> FetchResult:
+    """Fetch printed AIS ship counts by type.
+
+    Measure is the printed key ``number_of_ships``. County lists, location
+    catalogs, and realtime GeoJSON dump names or geometry and are refused.
+    More than KYSTVERKET_MAX_CELLS is refused, not truncated.
+    """
+
     access_path = dataset.get("access_path") or ""
-    client = http or HttpClient(timeout=60.0, max_retries=4)
     table_id = kystverket_table_id(access_path)
+    if not is_kystverket_vessels_by_type_url(access_path):
+        raise ValueError(
+            "Kystdatahuset county, location, and GeoJSON catalogs are not a "
+            "bounded observation fetch; use vessels-by-type"
+        )
+    client = http or HttpClient(timeout=60.0, max_retries=4)
     started = utc_now()
     run_id = registry.start_fetch_run(
         dataset_id=dataset["id"],
@@ -15109,18 +15123,48 @@ def _fetch_kystverket(
         got = client.get_json_response(access_path)
         http_status = got.status
         registry.set_fetch_request(run_id, request_url=access_path, request_body={"method": "GET"})
-        cells = cells_from_kystverket(got.body)
+        cells = cells_from_kystverket_vessels(got.body)
+        if len(cells) > KYSTVERKET_MAX_CELLS:
+            raise SelectionTooLarge(
+                table_id,
+                len(cells),
+                KYSTVERKET_MAX_CELLS,
+                [
+                    {
+                        "code": "vessels-by-type",
+                        "text": "AIS ship-type cells",
+                        "selected": len(cells),
+                        "available": KYSTVERKET_MAX_CELLS,
+                    }
+                ],
+            )
         counts.listed = len(cells)
+        retrieved_at = utc_now()
         sample = _store_cells(
             registry,
             dataset,
             run_id,
             table_id=table_id,
             cells=cells,
-            retrieved_at=utc_now(),
+            retrieved_at=retrieved_at,
             request_url=access_path,
             http_status=http_status,
             counts=counts,
+        )
+        registry.set_capability(
+            dataset["id"],
+            {
+                "capability": CAPABILITY_OBSERVATIONS,
+                "record_kind": "observation",
+                "endpoint": access_path,
+                "request_method": "GET",
+                "verified_at": retrieved_at,
+                "verified_sample_count": counts.listed,
+                "notes": (
+                    f"{counts.listed} AIS ship-type cell(s); measure is printed "
+                    "number_of_ships"
+                ),
+            },
         )
         status = "completed"
     except Exception as exc:
@@ -15648,6 +15692,14 @@ def classify_access_path(access_path: str | None) -> dict[str, Any]:
                 "cells for one printed fish code"
             ),
         }
+    if is_kystverket_vessels_by_type_url(access_path):
+        return {
+            "kind": CAPABILITY_OBSERVATIONS,
+            "reason": (
+                "Kystdatahuset AIS vessels-by-type; printed number_of_ships "
+                "cells by ship_type"
+            ),
+        }
     if is_norgesbank_observations_url(access_path):
         return {
             "kind": CAPABILITY_OBSERVATIONS,
@@ -15946,6 +15998,14 @@ def classify_access_path(access_path: str | None) -> dict[str, Any]:
             "reason": (
                 "SSB PxWebApi 2 tables catalog; lists table ids, does not "
                 "return json-stat cells"
+            ),
+        }
+    if is_kystverket_url(access_path):
+        return {
+            "kind": CAPABILITY_NONE,
+            "reason": (
+                "Kystdatahuset county, location, or GeoJSON catalog; ship "
+                "counts are vessels-by-type"
             ),
         }
     if can_fetch_access_path(access_path):

@@ -5,15 +5,18 @@ from pathlib import Path
 
 import pytest
 
-from public_data_agent.fetch import fetch_observations
+from public_data_agent.fetch import SelectionTooLarge, classify_access_path, fetch_observations
 from public_data_agent.harvest import harvest
 from public_data_agent.http_util import JsonResponse
 from public_data_agent.registry import Registry
 from public_data_agent.sources import SOURCE_IDS, build_source
 from public_data_agent.sources.kystverket import (
+    KYSTVERKET_MAX_CELLS,
     KystverketSource,
     cells_from_kystverket,
+    cells_from_kystverket_vessels,
     is_kystverket_url,
+    is_kystverket_vessels_by_type_url,
     kystverket_table_id,
     printed_endpoint_url,
     printed_license_url,
@@ -23,8 +26,10 @@ from public_data_agent.sources.kystverket import (
 OPENAPI_URL = "https://kystdatahuset.no/ws/swagger/v1/swagger.json"
 COUNTIES_URL = "https://kystdatahuset.no/ws/api/location/counties"
 GEOJSON_URL = "https://kystdatahuset.no/ws/api/ais/realtime/geojson"
+VESSELS_URL = "https://kystdatahuset.no/ws/api/ais/realtime/vessels-by-type"
 LICENSE_URL = "https://data.norge.no/nlod/en/1.0"
-DATASET_ID = "kystverket:api/location/counties"
+DATASET_ID = "kystverket:api/ais/realtime/vessels-by-type"
+COUNTIES_ID = "kystverket:api/location/counties"
 
 OPENAPI = {
     "openapi": "3.0.1",
@@ -41,6 +46,9 @@ OPENAPI = {
     "paths": {
         "/api/ais/realtime/geojson": {
             "get": {"summary": "Return GeoJSON for all ships in real time"},
+        },
+        "/api/ais/realtime/vessels-by-type": {
+            "get": {"summary": "Return number of ships by type in real time"},
         },
         "/api/location/{id}": {
             "get": {"summary": "templated"},
@@ -69,6 +77,16 @@ COUNTIES_BODY = {
     "metadata": {},
     "time": 4,
 }
+VESSELS_BODY = {
+    "success": True,
+    "msg": "",
+    "data": [
+        {"ship_type": "Cargo", "number_of_ships": 1170},
+        {"ship_type": "Fishing", "number_of_ships": 412},
+    ],
+    "metadata": {},
+    "time": 4,
+}
 
 
 class CatalogHttp:
@@ -84,8 +102,8 @@ class CatalogHttp:
 
 class FetchHttp:
     def get_json_response(self, url: str, *, headers=None) -> JsonResponse:
-        if url == COUNTIES_URL:
-            return JsonResponse(status=200, url=url, body=COUNTIES_BODY)
+        if url == VESSELS_URL:
+            return JsonResponse(status=200, url=url, body=VESSELS_BODY)
         raise AssertionError(f"unexpected GET {url}")
 
     def post_json_response(self, url: str, body, *, headers=None) -> JsonResponse:
@@ -97,12 +115,14 @@ def test_printed_refs_skip_templated_paths() -> None:
     refs = source.list_dataset_refs()
     assert [ref.source_native_id for ref in refs] == [
         "api/ais/realtime/geojson",
+        "api/ais/realtime/vessels-by-type",
         "api/location/counties",
         "api/ship/combined/download",
         "api/vocabulary",
     ]
     assert [ref.source_native_uri for ref in refs] == [
         GEOJSON_URL,
+        VESSELS_URL,
         COUNTIES_URL,
         "https://kystdatahuset.no/ws/api/ship/combined/download",
         "https://kystdatahuset.no/ws/api/vocabulary",
@@ -145,13 +165,13 @@ def test_harvest_writes_printed_id_and_license(tmp_path: Path) -> None:
     source = KystverketSource(http=CatalogHttp())
     registry = Registry(tmp_path / "registry.sqlite")
     counts = harvest(registry, source)
-    assert counts.inserted == 4
+    assert counts.inserted == 5
     row = registry.get_dataset(DATASET_ID)
     assert row is not None
     assert row["source_id"] == "kystverket"
     assert row["id"] == DATASET_ID
-    assert row["access_path"] == COUNTIES_URL
-    assert row["title"] == "Get all counties from NewShipRep location table"
+    assert row["access_path"] == VESSELS_URL
+    assert row["title"] == "Return number of ships by type in real time"
     assert row["publisher_name"] is None
     assert row["license"] == LICENSE_URL
     assert not str(row["id"]).startswith("datanorge:")
@@ -161,13 +181,16 @@ def test_harvest_writes_printed_id_and_license(tmp_path: Path) -> None:
             (DATASET_ID,),
         ).fetchone()["payload_json"]
     )
-    assert payload["kystverket_openapi_path"] == "/api/location/counties"
+    assert payload["kystverket_openapi_path"] == "/api/ais/realtime/vessels-by-type"
     assert payload["license"] == LICENSE_URL
     assert payload["publisher"] is None
+    counties = registry.get_dataset(COUNTIES_ID)
+    assert counties is not None
+    assert counties["access_path"] == COUNTIES_URL
     registry.close()
 
 
-def test_fetch_gets_printed_counties(tmp_path: Path) -> None:
+def test_fetch_gets_printed_ship_counts(tmp_path: Path) -> None:
     source = KystverketSource(http=CatalogHttp())
     registry = Registry(tmp_path / "registry.sqlite")
     harvest(registry, source)
@@ -177,21 +200,97 @@ def test_fetch_gets_printed_counties(tmp_path: Path) -> None:
         table_id="ignored",
         http=FetchHttp(),
     )
-    assert result.request_url == COUNTIES_URL
-    assert result.table_id == "counties"
+    assert result.request_url == VESSELS_URL
+    assert result.table_id == "vessels-by-type"
     assert result.http_status == 200
     assert result.counts.listed == 2
     rows = registry.list_observations(DATASET_ID)
-    values = [json.loads(row["value_json"]) for row in rows]
-    assert values == ["Agder", "Oslo"] or values == ["Oslo", "Agder"]
-    assert all(row["measure"] == "countyname" for row in rows)
-    by_name = {json.loads(row["value_json"]): row for row in rows}
-    dims = json.loads(by_name["Oslo"]["dimensions_json"])
-    assert dims["countyno"] == "03"
+    assert len(rows) == 2
+    assert all(row["measure"] == "number_of_ships" for row in rows)
+    by_type = {
+        json.loads(row["dimensions_json"])["ship_type"]: json.loads(row["value_json"])
+        for row in rows
+    }
+    assert by_type == {"Cargo": 1170, "Fishing": 412}
     assert all(row["publisher_name"] is None for row in rows)
     assert all(row["license"] == LICENSE_URL for row in rows)
-    assert all(row["access_path"] == COUNTIES_URL for row in rows)
+    assert all(row["access_path"] == VESSELS_URL for row in rows)
+    cap = registry.get_capability(DATASET_ID)
+    assert cap["capability"] == "observations"
     registry.close()
+
+
+def test_vessels_by_type_url_is_observations() -> None:
+    assert is_kystverket_vessels_by_type_url(VESSELS_URL)
+    assert not is_kystverket_vessels_by_type_url(COUNTIES_URL)
+    assert not is_kystverket_vessels_by_type_url(GEOJSON_URL)
+    assert classify_access_path(VESSELS_URL)["kind"] == "observations"
+    assert classify_access_path(COUNTIES_URL)["kind"] == "none"
+    assert classify_access_path(GEOJSON_URL)["kind"] == "none"
+
+
+def test_fetch_refuses_county_name_catalog(tmp_path: Path) -> None:
+    source = KystverketSource(http=CatalogHttp())
+    registry = Registry(tmp_path / "registry.sqlite")
+    harvest(registry, source)
+    with pytest.raises(ValueError, match="vessels-by-type"):
+        fetch_observations(
+            registry,
+            COUNTIES_ID,
+            table_id="counties",
+            http=FetchHttp(),
+        )
+    registry.close()
+
+
+def test_fetch_refuses_more_than_vessel_cell_cap(tmp_path: Path) -> None:
+    huge = {
+        "success": True,
+        "data": [
+            {"ship_type": f"type-{i}", "number_of_ships": i}
+            for i in range(KYSTVERKET_MAX_CELLS + 1)
+        ],
+    }
+
+    class HugeHttp:
+        def get_json_response(self, url: str, *, headers=None) -> JsonResponse:
+            return JsonResponse(status=200, url=url, body=huge)
+
+        def post_json_response(self, url: str, body, *, headers=None) -> JsonResponse:
+            raise AssertionError(f"unexpected POST {url}")
+
+    registry = Registry(tmp_path / "registry.sqlite")
+    registry.ensure_observation_dataset(
+        dataset_id=DATASET_ID,
+        title="Return number of ships by type in real time",
+        publisher_name=None,
+        access_path=VESSELS_URL,
+        license=LICENSE_URL,
+    )
+    registry.conn.commit()
+    with pytest.raises(SelectionTooLarge):
+        fetch_observations(
+            registry,
+            DATASET_ID,
+            table_id="vessels-by-type",
+            http=HugeHttp(),
+        )
+    registry.close()
+
+
+def test_cells_copy_printed_ship_counts() -> None:
+    cells = cells_from_kystverket_vessels(VESSELS_BODY)
+    assert cells[0][0] == "number_of_ships"
+    assert cells[0][1] == 1170
+    assert cells[0][2]["ship_type"] == "Cargo"
+    assert "nested" not in cells[0][2]
+    assert cells_from_kystverket_vessels(
+        [{"ship_type": "Tug", "number_of_ships": 3, "nested": {"skip": True}}]
+    ) == [("number_of_ships", 3, {"ship_type": "Tug"})]
+    with pytest.raises(ValueError, match="numeric number_of_ships"):
+        cells_from_kystverket_vessels({"success": True, "data": []})
+    with pytest.raises(ValueError, match="data collection"):
+        cells_from_kystverket_vessels({"success": True, "data": {}})
 
 
 def test_cells_copy_printed_county_name() -> None:
@@ -210,7 +309,9 @@ def test_cells_copy_printed_county_name() -> None:
 def test_is_kystverket_url_accepts_only_kystdatahuset_api() -> None:
     assert is_kystverket_url(COUNTIES_URL)
     assert is_kystverket_url(GEOJSON_URL)
+    assert is_kystverket_url(VESSELS_URL)
     assert kystverket_table_id(COUNTIES_URL) == "counties"
+    assert kystverket_table_id(VESSELS_URL) == "vessels-by-type"
     assert not is_kystverket_url(OPENAPI_URL)
     assert not is_kystverket_url("https://api.kystverket.no/data/navigationwarnings/coastal/")
     assert not is_kystverket_url("https://api.met.no/weatherapi/metalerts/2.0/locations")
@@ -224,4 +325,4 @@ def test_limit_and_offset_slice_printed_paths() -> None:
         "api/ais/realtime/geojson"
     ]
     nxt = source.list_dataset_refs(limit=1, offset=1)
-    assert [ref.source_native_id for ref in nxt] == ["api/location/counties"]
+    assert [ref.source_native_id for ref in nxt] == ["api/ais/realtime/vessels-by-type"]
