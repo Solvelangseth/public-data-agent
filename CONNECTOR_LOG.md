@@ -2048,6 +2048,60 @@ the same pattern.
 
 Proof: `data/vannkraft_fetch_disabled_proof.json`.
 
+## leftover ssbv2 remaining default slices — 2026-09-14 — promoted (observations)
+
+**Endpoint(s).** GET json-stat2 data hrefs already harvested:
+`14714` (9), `14715` (9), `05111` (24), `14077` (15), `14090` (20).
+Licence is `null`.
+
+**Shape.** `observation`. Measure is the printed json-stat ContentsCode
+label (`Personer (1 000 personer)`). Dimensions are printed `Alder`,
+`Tid`, and either `Kjonn` or `UtdStatus`. Publisher default slices; no
+period is invented.
+
+**Capability recorded.** `observations`. Live GET 2026-09-14: HTTP 200
+for each. Samples: `14714` Personer 1673 (Menn, 20-64 år, 2026K2);
+`14715` 1729 (Menn, 20-66 år, 2025); `05111` 2330 (Menn, 15-89 år,
+2025); `14077` 3513 (Ikke under utdanning, 15-74 år, 2026K2); `14090`
+1021 (Verken under utdanning eller nyutdannet, 40-54 år, 2025). More
+than 100 cells is refused.
+
+**Surprises.** Default slices differ by table (`Kjonn` vs `UtdStatus`).
+Harvested leftover v2 data hrefs are now all stored.
+
+**Open question for the query side.** None of these leftover v2 hrefs
+remain unstored.
+
+Proofs: `data/ssbv2_14714_proof.json`, `data/ssbv2_14715_proof.json`,
+`data/ssbv2_05111_proof.json`, `data/ssbv2_14077_proof.json`,
+`data/ssbv2_14090_proof.json`.
+
+## vindkraft:GetWindPowerPlantsInOperation — 2026-09-14 — blocked (none)
+
+**Endpoint(s).** `GET https://api.nve.no/web/WindPowerplant/GetWindPowerPlantsInOperation`.
+Already harvested with `GetWindPowerPlants`. Live collection is 65
+plants. Licence is `null`.
+
+**Shape.** Not observations. The leftover decoder copies printed `Navn`.
+Plants print unique `VindkraftAnleggId` and numeric
+`InstallertEffekt_MW`, `NormalAArsproduksjon_GWh`. Those were not stored
+here.
+
+**Capability recorded.** `none`. Fetch is refused before HTTP so leftover
+`Navn` cells are not written. Classify is `none` for both harvested
+paths.
+
+**Surprises.**
+- 65 unique `VindkraftAnleggId` and 65 unique `Navn`.
+- Same leftover name-as-observation decoder as vannkraft.
+
+**Open question for the query side.** A later slice can fetch one printed
+`VindkraftAnleggId` as an entity, or its printed `InstallertEffekt_MW`
+as observations, without dumping 65 names.
+
+Proof: `data/vindkraft_fetch_disabled_proof.json`.
+
+
 
 
 

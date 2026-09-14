@@ -1,0 +1,10 @@
+{
+  "dataset": "vindkraft:GetWindPowerPlantsInOperation",
+  "request_url": "https://api.nve.no/web/WindPowerplant/GetWindPowerPlantsInOperation",
+  "refused": true,
+  "error": "NVE Vindkraftdatabase collection is 65 plant names; do not fetch Navn as observations. A later slice can address one printed VindkraftAnleggId",
+  "live_count": 65,
+  "unique_printed_id": "VindkraftAnleggId",
+  "leftover_measure": "Navn",
+  "note": "Live GET 2026-09-14 listed 65 unique VindkraftAnleggId and printed InstallertEffekt_MW. Fetch is refused so leftover Navn cells are not stored. GetWindPowerPlants is the same catalog."
+}

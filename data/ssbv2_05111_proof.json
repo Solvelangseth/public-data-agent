@@ -1,0 +1,20 @@
+{
+  "dataset": "ssbv2:05111",
+  "request_url": "https://data.ssb.no/api/pxwebapi/v2/tables/05111/data?lang=no&outputFormat=json-stat2",
+  "http_status": 200,
+  "listed": 24,
+  "inserted": 24,
+  "license": null,
+  "sample": [
+    {
+      "measure": "Personer (1 000 personer)",
+      "value": 2330,
+      "dimensions": {
+        "Alder": "15-89 år",
+        "Kjonn": "Menn",
+        "Tid": "2025"
+      }
+    }
+  ],
+  "note": "Printed json-stat2 default slice. Neighbour leftover v2 data hrefs classify the same way; remaining leftover slices were stored this turn if under the 100-cell cap."
+}
