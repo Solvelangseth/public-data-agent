@@ -19,8 +19,10 @@ from public_data_agent.http_util import HttpClient, JsonResponse, RateLimiter
 from public_data_agent.models import HarvestCounts
 from public_data_agent.registry import Registry, utc_now
 from public_data_agent.sources.nve import (
+    MAGASIN_MAX_CELLS,
     cells_from_nve,
     is_nve_magasin_url,
+    is_nve_siste_uke_url,
     nve_table_id,
     requestable_url,
 )
@@ -3547,11 +3549,25 @@ def _fetch_nve_magasin(
     *,
     http: JsonHttp | None = None,
 ) -> FetchResult:
+    """Fetch last-week NVE Magasinstatistikk cells.
+
+    Measures are the printed float keys (fyllingsgrad, fylling_TWh, …).
+    HentOffentligData is the 1995–present weekly dump, MinMaxMedian is
+    twenty-year extrema, and HentOmråder is area names — those are
+    refused, not stored. More than MAGASIN_MAX_CELLS is refused, not
+    truncated.
+    """
+
     access_path = dataset.get("access_path") or ""
+    table_id = nve_table_id(access_path)
+    if not is_nve_siste_uke_url(access_path):
+        raise ValueError(
+            "NVE Magasinstatistikk full dump, MinMaxMedian, and area catalog "
+            "are not a bounded observation fetch; use HentOffentligDataSisteUke"
+        )
     request_url = requestable_url(access_path)
     client = http or HttpClient(timeout=60.0, max_retries=4)
     started = utc_now()
-    table_id = nve_table_id(access_path)
     run_id = registry.start_fetch_run(
         dataset_id=dataset["id"],
         table_id=table_id,
@@ -3571,17 +3587,47 @@ def _fetch_nve_magasin(
         table_id = nve_table_id(access_path)
         registry.set_fetch_request(run_id, request_url=request_url, request_body={"method": "GET"})
         cells = cells_from_nve(got.body)
+        if len(cells) > MAGASIN_MAX_CELLS:
+            raise SelectionTooLarge(
+                table_id,
+                len(cells),
+                MAGASIN_MAX_CELLS,
+                [
+                    {
+                        "code": "HentOffentligDataSisteUke",
+                        "text": "last-week reservoir cells",
+                        "selected": len(cells),
+                        "available": MAGASIN_MAX_CELLS,
+                    }
+                ],
+            )
         counts.listed = len(cells)
+        retrieved_at = utc_now()
         sample = _store_cells(
             registry,
             dataset,
             run_id,
             table_id=table_id,
             cells=cells,
-            retrieved_at=utc_now(),
+            retrieved_at=retrieved_at,
             request_url=request_url,
             http_status=http_status,
             counts=counts,
+        )
+        registry.set_capability(
+            dataset["id"],
+            {
+                "capability": CAPABILITY_OBSERVATIONS,
+                "record_kind": "observation",
+                "endpoint": access_path,
+                "request_method": "GET",
+                "verified_at": retrieved_at,
+                "verified_sample_count": counts.listed,
+                "notes": (
+                    f"{counts.listed} last-week magasin cell(s); measures are "
+                    "printed float keys"
+                ),
+            },
         )
         status = "completed"
     except Exception as exc:
@@ -15421,6 +15467,14 @@ def classify_access_path(access_path: str | None) -> dict[str, Any]:
                 "printed StartPointUTC and PeriodTickMs"
             ),
         }
+    if is_nve_siste_uke_url(access_path):
+        return {
+            "kind": CAPABILITY_OBSERVATIONS,
+            "reason": (
+                "NVE Magasinstatistikk last-week cells; printed fyllingsgrad "
+                "and TWh measures by area"
+            ),
+        }
     if is_mattilsynet_preparat_url(access_path):
         return {
             "kind": CAPABILITY_ENTITIES,
@@ -15688,6 +15742,14 @@ def classify_access_path(access_path: str | None) -> dict[str, Any]:
         return {
             "kind": CAPABILITY_NONE,
             "reason": "map/tile service (WMS/WFS/OGC); returns imagery or geometry, not numeric cells",
+        }
+    if is_nve_magasin_url(access_path):
+        return {
+            "kind": CAPABILITY_NONE,
+            "reason": (
+                "NVE Magasinstatistikk full weekly dump, MinMaxMedian, or area "
+                "catalog; last-week cells are HentOffentligDataSisteUke"
+            ),
         }
     if can_fetch_access_path(access_path):
         return {

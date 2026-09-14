@@ -1,0 +1,36 @@
+{
+  "dataset": "nve:HentOffentligDataSisteUke",
+  "request_url": "https://biapi.nve.no/magasinstatistikk/api/Magasinstatistikk/HentOffentligDataSisteUke",
+  "http_status": 200,
+  "listed": 45,
+  "inserted": 45,
+  "source_records": 9,
+  "license": null,
+  "sample": [
+    {
+      "measure": "fyllingsgrad",
+      "value": 0.72504455,
+      "dimensions": {
+        "omrType": "EL",
+        "omrnr": "1",
+        "iso_aar": "2026",
+        "iso_uke": "36",
+        "dato_Id": "2026-09-06"
+      }
+    },
+    {
+      "measure": "fyllingsgrad",
+      "value": 0.6360544,
+      "dimensions": {
+        "omrType": "NO",
+        "omrnr": "0",
+        "iso_aar": "2026",
+        "iso_uke": "36",
+        "dato_Id": "2026-09-06",
+        "fylling_TWh": "55.615055",
+        "kapasitet_TWh": "87.43758"
+      }
+    }
+  ],
+  "note": "Printed float keys as measures. Nine last-week area rows. HentOffentligData (14877 weeks from 1995) and HentOmråder names were not fetched."
+}

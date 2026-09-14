@@ -1604,6 +1604,39 @@ id the collection does not provide.
 
 Proof: `data/statnett_frequency_proof.json`.
 
+## nve:HentOffentligDataSisteUke — 2026-09-14 — promoted (observations)
+
+**Endpoint(s).** `GET https://biapi.nve.no/magasinstatistikk/api/Magasinstatistikk/HentOffentligDataSisteUke`.
+Already harvested. `HentOffentligData` is the 1995–present weekly dump
+(14877 rows live). `HentOffentligDataMinMaxMedian` is 477 twenty-year
+extrema rows. `HentOmråder` is nested area names. Those were not fetched.
+Licence is `null`.
+
+**Shape.** `observation`. Measures are the printed float keys
+`fyllingsgrad`, `kapasitet_TWh`, `fylling_TWh`,
+`fyllingsgrad_forrige_uke`, and `endring_fyllingsgrad`. Dimensions are
+printed `omrType`, `omrnr`, `iso_aar`, `iso_uke`, and `dato_Id`.
+
+**Capability recorded.** `observations`. Live GET 2026-09-14: HTTP 200,
+9 area rows, 45 cells. Sample: EL omrnr 1 fyllingsgrad 0.72504455 and
+NO omrnr 0 fyllingsgrad 0.6360544 (fylling_TWh 55.615055 of kapasitet_TWh
+87.43758) for iso_uke 36 / dato_Id 2026-09-06. More than 100 cells is
+refused, not truncated. The full dump, MinMaxMedian, and area catalog
+classify `none` and fetch is refused.
+
+**Surprises.**
+- Classify had left every Magasinstatistikk URL `unverified` even though
+  the leftover decoder already copied printed float keys. Last-week is
+  now `observations`; the dump is not.
+- Other floats on the same row become dimensions of each measure. That is
+  the existing leftover decoder, not a new invention.
+
+**Open question for the query side.** `HentOmråder` could become lookup
+entities addressed by printed `omrType`+`omrnr`. A bounded `iso_aar`/
+`iso_uke` select on the full dump is a later slice, not a 14877-row load.
+
+Proof: `data/nve_siste_uke_proof.json`.
+
 
 
 

@@ -20,6 +20,8 @@ NVE_RPS = 2.0
 NVE_BURST = 4
 NVE_HOST = "biapi.nve.no"
 NVE_PATH_MARK = "/magasinstatistikk/"
+SISTE_UKE_PATH = "/magasinstatistikk/api/magasinstatistikk/hentoffentligdatasisteuke"
+MAGASIN_MAX_CELLS = 100
 
 
 class NveMagasinSource(SourceBase):
@@ -146,6 +148,15 @@ def is_nve_magasin_url(access_path: str | None) -> bool:
         return False
     parsed = urlsplit(access_path)
     return parsed.netloc == NVE_HOST and NVE_PATH_MARK in parsed.path
+
+
+def is_nve_siste_uke_url(access_path: str | None) -> bool:
+    """Last-week reservoir cells. The full weekly dump is a different path."""
+
+    if not is_nve_magasin_url(access_path):
+        return False
+    path = urlsplit(access_path).path.rstrip("/").casefold()
+    return path == SISTE_UKE_PATH
 
 
 def requestable_url(url: str) -> str:

@@ -3,15 +3,19 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from public_data_agent.fetch import fetch_observations
+import pytest
+
+from public_data_agent.fetch import SelectionTooLarge, classify_access_path, fetch_observations
 from public_data_agent.harvest import harvest
 from public_data_agent.http_util import JsonResponse
 from public_data_agent.registry import Registry
 from public_data_agent.sources import SOURCE_IDS, build_source
 from public_data_agent.sources.nve import (
+    MAGASIN_MAX_CELLS,
     NveMagasinSource,
     cells_from_nve,
     is_nve_magasin_url,
+    is_nve_siste_uke_url,
     printed_endpoint_url,
     printed_operation_id,
     printed_publisher,
@@ -196,4 +200,79 @@ def test_fetch_uses_printed_nve_url(tmp_path: Path) -> None:
     assert all(row["publisher_name"] == "Norges vassdrags- og energidirektorat (NVE)" for row in rows)
     assert all(row["license"] is None for row in rows)
     assert all(row["access_path"] == SISTE_UKE for row in rows)
+    cap = registry.get_capability("nve:HentOffentligDataSisteUke")
+    assert cap["capability"] == "observations"
+    registry.close()
+
+
+def test_siste_uke_url_is_observations() -> None:
+    assert is_nve_siste_uke_url(SISTE_UKE)
+    assert not is_nve_siste_uke_url(
+        "https://biapi.nve.no/magasinstatistikk/api/Magasinstatistikk/HentOffentligData"
+    )
+    assert classify_access_path(SISTE_UKE)["kind"] == "observations"
+    assert (
+        classify_access_path(
+            "https://biapi.nve.no/magasinstatistikk/api/Magasinstatistikk/HentOffentligData"
+        )["kind"]
+        == "none"
+    )
+    assert (
+        classify_access_path(
+            "https://biapi.nve.no/magasinstatistikk/api/Magasinstatistikk/HentOmråder"
+        )["kind"]
+        == "none"
+    )
+
+
+def test_fetch_refuses_full_magasin_dump(tmp_path: Path) -> None:
+    registry = Registry(tmp_path / "registry.sqlite")
+    registry.ensure_observation_dataset(
+        dataset_id="nve:HentOffentligData",
+        title="Henter magasinstatistikk",
+        publisher_name=None,
+        access_path="https://biapi.nve.no/magasinstatistikk/api/Magasinstatistikk/HentOffentligData",
+        license=None,
+    )
+    registry.conn.commit()
+    with pytest.raises(ValueError, match="HentOffentligDataSisteUke"):
+        fetch_observations(
+            registry,
+            "nve:HentOffentligData",
+            table_id="HentOffentligData",
+            http=FetchHttp(),
+        )
+    registry.close()
+
+
+def test_fetch_refuses_more_than_magasin_cell_cap(tmp_path: Path) -> None:
+    huge = []
+    while True:
+        huge.append(SISTE_UKE_ROWS[0])
+        if sum(1 for row in huge for value in row.values() if isinstance(value, float)) > MAGASIN_MAX_CELLS:
+            break
+
+    class HugeHttp:
+        def get_json_response(self, url: str, *, headers=None) -> JsonResponse:
+            return JsonResponse(status=200, url=url, body=huge)
+
+        def post_json_response(self, url: str, body, *, headers=None) -> JsonResponse:
+            raise AssertionError(f"unexpected POST {url}")
+
+    registry = Registry(tmp_path / "registry.sqlite")
+    registry.ensure_observation_dataset(
+        dataset_id="nve:HentOffentligDataSisteUke",
+        title="Henter magasinstatistikk siste uke",
+        publisher_name=None,
+        access_path=SISTE_UKE,
+        license=None,
+    )
+    registry.conn.commit()
+    with pytest.raises(SelectionTooLarge):
+        fetch_observations(
+            registry,
+            "nve:HentOffentligDataSisteUke",
+            table_id="HentOffentligDataSisteUke",
+            http=HugeHttp(),
+        )
     registry.close()
