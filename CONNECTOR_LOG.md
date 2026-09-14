@@ -1916,6 +1916,33 @@ dumped this slice.
 
 Proof: `data/ssbv2_14483_proof.json`.
 
+## elcert:GetSummaryValues — 2026-09-14 — promoted (observations)
+
+**Endpoint(s).** `GET https://api.nve.no/web/ElCert/GetSummaryValues?year=2025&month=1`.
+Already harvested. Without Year/Month the publisher returns HTTP 404.
+`GetApplications` (914 plant names) was not fetched. Licence is `null`.
+
+**Shape.** `observation`. Measures are the printed keys `IMaalet` and
+`IOvergangsordningen`. Dimensions are printed `Year` and `Month`.
+
+**Capability recorded.** `observations`. Live GET 2026-09-14: HTTP 200, 2
+cells. Sample: IMaalet 1585.5099999999948 and IOvergangsordningen
+175.48300000000017 for Year 2025 Month 1 (JSON numbers as printed).
+Missing Year/Month is refused before the 404. GetApplications classifies
+`none` and fetch is refused.
+
+**Surprises.**
+- The leftover decoder would have stored `KraftverksNavn` if
+  GetApplications were fetched. That path is now refused.
+- Query keys `year`/`month` (lowercase) are what the live API accepts;
+  `Year`/`Month` also worked. Select uses Year/Month like the quarterly
+  endpoint.
+
+**Open question for the query side.** GetApplications still has no unique
+printed plant id. Do not dump 914 names.
+
+Proof: `data/elcert_summary_proof.json`.
+
 
 
 

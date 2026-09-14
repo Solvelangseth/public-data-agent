@@ -10,12 +10,16 @@ from public_data_agent.harvest import harvest
 from public_data_agent.http_util import JsonResponse
 from public_data_agent.registry import Registry
 from public_data_agent.sources import SOURCE_IDS, build_source
+from urllib.parse import parse_qs, urlsplit
+
 from public_data_agent.sources.elcert import (
     ElcertSource,
     cells_from_elcert,
     cells_from_elcert_quarter,
+    cells_from_elcert_summary,
     elcert_table_id,
     is_elcert_quarter_url,
+    is_elcert_summary_url,
     is_elcert_url,
     printed_base_url,
     printed_endpoint_url,
@@ -84,6 +88,8 @@ QUARTER_BODY = [
         "Quarter": 3,
     },
 ]
+SUMMARY_BODY = {"IMaalet": 1585.51, "IOvergangsordningen": 175.483}
+
 APPLICATIONS_BODY = [
     {
         "Status": "Godkjent",
@@ -115,6 +121,12 @@ class CatalogHttp:
 
 class FetchHttp:
     def get_json_response(self, url: str, *, headers=None) -> JsonResponse:
+        parts = urlsplit(url)
+        if parts.path.rstrip("/") == urlsplit(SUMMARY_URL).path.rstrip("/"):
+            query = parse_qs(parts.query)
+            if query.get("year") == ["2025"] and query.get("month") == ["1"]:
+                return JsonResponse(status=200, url=url, body=SUMMARY_BODY)
+            return JsonResponse(status=200, url=url, body={})
         if url == APPLICATIONS_URL:
             return JsonResponse(status=200, url=url, body=APPLICATIONS_BODY)
         if url == QUARTER_URL:
@@ -202,31 +214,17 @@ def test_harvest_writes_printed_id_and_null_license(tmp_path: Path) -> None:
     registry.close()
 
 
-def test_fetch_gets_printed_plant_names(tmp_path: Path) -> None:
+def test_fetch_refuses_plant_name_catalog(tmp_path: Path) -> None:
     source = ElcertSource(http=CatalogHttp())
     registry = Registry(tmp_path / "registry.sqlite")
     harvest(registry, source)
-    result = fetch_observations(
-        registry,
-        DATASET_ID,
-        table_id="ignored",
-        http=FetchHttp(),
-    )
-    assert result.request_url == APPLICATIONS_URL
-    assert result.table_id == "GetApplications"
-    assert result.http_status == 200
-    assert result.counts.listed == 2
-    rows = registry.list_observations(DATASET_ID)
-    by_value = {json.loads(row["value_json"]): row for row in rows}
-    assert set(by_value) == {"Myrbekk", "Vaage"}
-    assert all(row["measure"] == "KraftverksNavn" for row in rows)
-    dims = json.loads(by_value["Myrbekk"]["dimensions_json"])
-    assert dims["Status"] == "Godkjent"
-    assert dims["Fylke"] == "Rogaland"
-    assert "Eiere" not in dims
-    assert all(row["publisher_name"] is None for row in rows)
-    assert all(row["license"] is None for row in rows)
-    assert all(row["access_path"] == APPLICATIONS_URL for row in rows)
+    with pytest.raises(ValueError, match="GetSummaryValues"):
+        fetch_observations(
+            registry,
+            DATASET_ID,
+            table_id="ignored",
+            http=FetchHttp(),
+        )
     registry.close()
 
 
@@ -234,6 +232,58 @@ def test_quarter_url_is_observations_not_plant_names() -> None:
     assert is_elcert_quarter_url(QUARTER_URL)
     assert classify_access_path(QUARTER_URL)["kind"] == "observations"
     assert not is_elcert_quarter_url(APPLICATIONS_URL)
+    assert is_elcert_summary_url(SUMMARY_URL)
+    assert classify_access_path(SUMMARY_URL)["kind"] == "observations"
+    assert classify_access_path(APPLICATIONS_URL)["kind"] == "none"
+
+
+def test_fetch_summary_stores_printed_monthly_cells(tmp_path: Path) -> None:
+    source = ElcertSource(http=CatalogHttp())
+    registry = Registry(tmp_path / "registry.sqlite")
+    harvest(registry, source)
+    result = fetch_observations(
+        registry,
+        "elcert:GetSummaryValues",
+        table_id="ignored",
+        select={"Year": ["2025"], "Month": ["1"]},
+        http=FetchHttp(),
+    )
+    assert "year=2025" in result.request_url
+    assert "month=1" in result.request_url
+    assert result.http_status == 200
+    assert result.counts.listed == 2
+    rows = registry.list_observations("elcert:GetSummaryValues")
+    by_measure = {row["measure"]: json.loads(row["value_json"]) for row in rows}
+    assert by_measure["IMaalet"] == 1585.51
+    assert by_measure["IOvergangsordningen"] == 175.483
+    dims = json.loads(rows[0]["dimensions_json"])
+    assert dims["Year"] == "2025"
+    assert dims["Month"] == "1"
+    cap = registry.get_capability("elcert:GetSummaryValues")
+    assert cap["capability"] == "observations"
+    registry.close()
+
+
+def test_fetch_summary_refuses_missing_year_month(tmp_path: Path) -> None:
+    source = ElcertSource(http=CatalogHttp())
+    registry = Registry(tmp_path / "registry.sqlite")
+    harvest(registry, source)
+    with pytest.raises(ValueError, match="Year and Month"):
+        fetch_observations(
+            registry,
+            "elcert:GetSummaryValues",
+            table_id="GetSummaryValues",
+            http=FetchHttp(),
+        )
+    registry.close()
+
+
+def test_cells_from_summary_copy_printed_values() -> None:
+    cells = cells_from_elcert_summary(SUMMARY_BODY, year="2025", month="1")
+    assert cells == [
+        ("IMaalet", 1585.51, {"Year": "2025", "Month": "1"}),
+        ("IOvergangsordningen", 175.483, {"Year": "2025", "Month": "1"}),
+    ]
 
 
 def test_cells_from_quarter_copy_printed_values() -> None:

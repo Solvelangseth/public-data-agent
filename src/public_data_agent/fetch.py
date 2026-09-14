@@ -746,13 +746,17 @@ from public_data_agent.sources.vegogc import (
     vegogc_table_id,
 )
 from public_data_agent.sources.elcert import (
-    cells_from_elcert,
+    ELCERT_MAX_CELLS,
     cells_from_elcert_quarter,
+    cells_from_elcert_summary,
+    elcert_summary_request_url,
     elcert_table_id,
     filter_quarter_rows as elcert_filter_quarter_rows,
     is_elcert_quarter_url,
+    is_elcert_summary_url,
     is_elcert_url,
     selected_quarters as elcert_selected_quarters,
+    selected_year_month as elcert_selected_year_month,
 )
 from public_data_agent.sources.frivillig import (
     cells_from_frivillig,
@@ -10686,14 +10690,30 @@ def _fetch_elcert(
     http: JsonHttp | None = None,
     select: dict[str, list[str]] | None = None,
 ) -> FetchResult:
+    """Fetch NVE Elsertifikater summary cells.
+
+    Quarterly and monthly totals copy printed IMaalet / IOvergangsordningen.
+    GetApplications is a 914-name catalog and is refused.
+    """
+
     access_path = dataset.get("access_path") or ""
-    client = http or HttpClient(timeout=120.0, max_retries=4)
     table_id = elcert_table_id(access_path)
+    if not is_elcert_quarter_url(access_path) and not is_elcert_summary_url(access_path):
+        raise ValueError(
+            "NVE Elsertifikater GetApplications is a plant-name catalog; "
+            "use GetSummaryValues or GetSummaryValuesPerQuarter"
+        )
+    request_url = access_path
+    year = month = None
+    if is_elcert_summary_url(access_path):
+        year, month = elcert_selected_year_month(select)
+        request_url = elcert_summary_request_url(access_path, year, month)
+    client = http or HttpClient(timeout=120.0, max_retries=4)
     started = utc_now()
     run_id = registry.start_fetch_run(
         dataset_id=dataset["id"],
         table_id=table_id,
-        request_url=access_path,
+        request_url=request_url,
         request_method="GET",
         started_at=started,
     )
@@ -10702,10 +10722,10 @@ def _fetch_elcert(
     http_status = 0
     sample: list[dict[str, Any]] = []
     try:
-        got = client.get_json_response(access_path)
+        got = client.get_json_response(request_url)
         http_status = got.status
         registry.set_fetch_request(
-            run_id, request_url=access_path, request_body={"method": "GET", "select": select}
+            run_id, request_url=request_url, request_body={"method": "GET", "select": select}
         )
         if is_elcert_quarter_url(access_path):
             wanted = elcert_selected_quarters(select)
@@ -10717,35 +10737,49 @@ def _fetch_elcert(
                 )
             cells = cells_from_elcert_quarter(rows)
         else:
-            cells = cells_from_elcert(got.body)
+            cells = cells_from_elcert_summary(got.body, year=year, month=month)
+        if len(cells) > ELCERT_MAX_CELLS:
+            raise SelectionTooLarge(
+                table_id,
+                len(cells),
+                ELCERT_MAX_CELLS,
+                [
+                    {
+                        "code": table_id,
+                        "text": "elsertifikat cells",
+                        "selected": len(cells),
+                        "available": ELCERT_MAX_CELLS,
+                    }
+                ],
+            )
         counts.listed = len(cells)
+        retrieved_at = utc_now()
         sample = _store_cells(
             registry,
             dataset,
             run_id,
             table_id=table_id,
             cells=cells,
-            retrieved_at=utc_now(),
-            request_url=access_path,
+            retrieved_at=retrieved_at,
+            request_url=request_url,
             http_status=http_status,
             counts=counts,
         )
-        if is_elcert_quarter_url(access_path):
-            registry.set_capability(
-                dataset["id"],
-                {
-                    "capability": CAPABILITY_OBSERVATIONS,
-                    "record_kind": "observation",
-                    "endpoint": access_path,
-                    "request_method": "GET",
-                    "verified_at": utc_now(),
-                    "verified_sample_count": counts.listed,
-                    "notes": (
-                        f"{counts.listed} quarterly elsertifikat cell(s); "
-                        "measures are printed Values keys"
-                    ),
-                },
-            )
+        registry.set_capability(
+            dataset["id"],
+            {
+                "capability": CAPABILITY_OBSERVATIONS,
+                "record_kind": "observation",
+                "endpoint": access_path,
+                "request_method": "GET",
+                "verified_at": retrieved_at,
+                "verified_sample_count": counts.listed,
+                "notes": (
+                    f"{counts.listed} elsertifikat cell(s); measures are "
+                    "printed IMaalet and IOvergangsordningen"
+                ),
+            },
+        )
         status = "completed"
     except Exception as exc:
         counts.failed += 1
@@ -10756,7 +10790,7 @@ def _fetch_elcert(
     return FetchResult(
         dataset_id=dataset["id"],
         table_id=table_id,
-        request_url=access_path,
+        request_url=request_url,
         http_status=http_status,
         counts=counts,
         sample=sample,
@@ -15745,6 +15779,14 @@ def classify_access_path(access_path: str | None) -> dict[str, Any]:
                 "IMaalet and IOvergangsordningen cells by Year and Quarter"
             ),
         }
+    if is_elcert_summary_url(access_path):
+        return {
+            "kind": CAPABILITY_OBSERVATIONS,
+            "reason": (
+                "NVE Elsertifikater GetSummaryValues; printed IMaalet and "
+                "IOvergangsordningen cells for one printed Year and Month"
+            ),
+        }
     if is_statnett_frequency_url(access_path):
         return {
             "kind": CAPABILITY_OBSERVATIONS,
@@ -16115,6 +16157,14 @@ def classify_access_path(access_path: str | None) -> dict[str, Any]:
             "reason": (
                 "Utdanning.no name catalog or hydra listing; employment "
                 "cells are tidsserie with select kommune"
+            ),
+        }
+    if is_elcert_url(access_path):
+        return {
+            "kind": CAPABILITY_NONE,
+            "reason": (
+                "NVE Elsertifikater GetApplications plant-name catalog; "
+                "numeric cells are GetSummaryValues or GetSummaryValuesPerQuarter"
             ),
         }
     if can_fetch_access_path(access_path):

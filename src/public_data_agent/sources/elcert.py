@@ -3,7 +3,7 @@ from __future__ import annotations
 import html as html_lib
 import re
 from typing import Any
-from urllib.parse import urlsplit, urlunsplit
+from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
 from public_data_agent.http_util import HttpClient, RateLimiter
 from public_data_agent.models import DatasetRef, HarvestedRecord, SourceError
@@ -22,6 +22,8 @@ ELCERT_BURST = 4
 HOST = "api.nve.no"
 PATH_PREFIX = "/web/ElCert/"
 QUARTER_PATH = "/web/ElCert/GetSummaryValuesPerQuarter"
+SUMMARY_PATH = "/web/ElCert/GetSummaryValues"
+ELCERT_MAX_CELLS = 100
 NAME_FIELDS = ("KraftverksNavn", "Status", "TypeAnlegg")
 GET_RE = re.compile(
     r'opblock-summary-method">GET</span>\s*'
@@ -193,6 +195,14 @@ def is_elcert_quarter_url(access_path: str | None) -> bool:
     return urlsplit(access_path).path.rstrip("/") == QUARTER_PATH
 
 
+def is_elcert_summary_url(access_path: str | None) -> bool:
+    """Monthly totals. GetApplications plant names are a different path."""
+
+    if not is_elcert_url(access_path):
+        return False
+    return urlsplit(access_path).path.rstrip("/") == SUMMARY_PATH
+
+
 def elcert_table_id(access_path: str) -> str:
     path = urlsplit(access_path).path
     if path.startswith(PATH_PREFIX):
@@ -201,6 +211,66 @@ def elcert_table_id(access_path: str) -> str:
             return ident
     ident = path.rstrip("/").split("/")[-1]
     return ident or "elcert"
+
+
+def selected_year_month(select: dict[str, list[str]] | None) -> tuple[str, str]:
+    """Copy printed Year and Month query values from select."""
+
+    select = {str(key): value for key, value in (select or {}).items()}
+    allowed = {"Year", "Month"}
+    unknown = sorted(key for key in select if key not in allowed)
+    if unknown:
+        raise ValueError(
+            f"select names field(s) {unknown} that a GetSummaryValues fetch "
+            f"does not filter on; accepted: {sorted(allowed)}"
+        )
+    out: dict[str, str] = {}
+    for key in ("Year", "Month"):
+        wanted = select.get(key)
+        if not wanted:
+            raise ValueError(
+                "GetSummaryValues without Year and Month is HTTP 404; "
+                "select printed Year and Month"
+            )
+        values = [wanted] if isinstance(wanted, str) else [str(item) for item in wanted]
+        if len(values) != 1 or not values[0].strip():
+            raise ValueError(f"select {key} accepts exactly one printed value")
+        out[key] = values[0].strip()
+    return out["Year"], out["Month"]
+
+
+def elcert_summary_request_url(access_path: str, year: str, month: str) -> str:
+    parts = urlsplit(access_path)
+    query = dict(parse_qsl(parts.query, keep_blank_values=True))
+    query["year"] = year
+    query["month"] = month
+    return urlunsplit(
+        (parts.scheme, parts.netloc, parts.path, urlencode(query), parts.fragment)
+    )
+
+
+def cells_from_elcert_summary(
+    payload: Any, *, year: str, month: str
+) -> list[tuple[str, Any, dict[str, str]]]:
+    """Copy printed monthly IMaalet / IOvergangsordningen into cells.
+
+    The payload is one object of named floats. Dimensions are the printed
+    Year and Month used in the request. Nothing is invented.
+    """
+
+    if not isinstance(payload, dict):
+        raise ValueError("elcert summary payload is not a JSON object")
+    dims = {"Year": year, "Month": month}
+    cells: list[tuple[str, Any, dict[str, str]]] = []
+    for measure, value in payload.items():
+        if not isinstance(measure, str) or not measure.strip():
+            continue
+        if isinstance(value, bool) or not isinstance(value, (int, float)):
+            continue
+        cells.append((measure, value, dict(dims)))
+    if not cells:
+        raise ValueError("elcert summary payload printed no numeric members")
+    return cells
 
 
 def cells_from_elcert_quarter(payload: Any) -> list[tuple[str, Any, dict[str, str]]]:

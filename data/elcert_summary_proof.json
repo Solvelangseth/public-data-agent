@@ -1,0 +1,21 @@
+{
+  "dataset": "elcert:GetSummaryValues",
+  "request_url": "https://api.nve.no/web/ElCert/GetSummaryValues?year=2025&month=1",
+  "http_status": 200,
+  "listed": 2,
+  "inserted": 2,
+  "license": null,
+  "sample": [
+    {
+      "measure": "IMaalet",
+      "value": 1585.5099999999948,
+      "dimensions": {"Year": "2025", "Month": "1"}
+    },
+    {
+      "measure": "IOvergangsordningen",
+      "value": 175.48300000000017,
+      "dimensions": {"Year": "2025", "Month": "1"}
+    }
+  ],
+  "note": "Printed IMaalet and IOvergangsordningen for printed year=2025 month=1. GetSummaryValues without Year/Month is HTTP 404. GetApplications (914 plant names) was not dumped."
+}
