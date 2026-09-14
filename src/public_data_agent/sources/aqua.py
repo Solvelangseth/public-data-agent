@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from typing import Any
-from urllib.parse import urljoin, urlsplit
+from urllib.parse import parse_qsl, urlencode, urljoin, urlsplit, urlunsplit
 
 from public_data_agent.http_util import HttpClient, RateLimiter
 from public_data_agent.models import DatasetRef, HarvestedRecord, SourceError
@@ -19,6 +19,10 @@ AQUA_RPS = 2.0
 AQUA_BURST = 4
 HOST = "api.fiskeridir.no"
 PATH_PREFIX = "/pub-aqua/"
+OVERVIEW_PATH = "/pub-aqua/api/v1/licenses-overview"
+CAPACITY_MEASURES = ("current", "accumulated")
+AQUA_MAX_CELLS = 100
+ALLOWED_SELECT = frozenset({"license-nr"})
 NAME_FIELDS = (
     "name",
     "defaultName",
@@ -188,6 +192,83 @@ def is_aqua_url(access_path: str | None) -> bool:
 def aqua_table_id(access_path: str) -> str:
     segment = urlsplit(access_path).path.rstrip("/").split("/")[-1]
     return segment or "aqua"
+
+
+def is_aqua_overview_url(access_path: str | None) -> bool:
+    """License overview with printed capacity. Area/site catalogs are different paths."""
+
+    if not is_aqua_url(access_path):
+        return False
+    path = urlsplit(access_path).path.rstrip("/").casefold()
+    return path == OVERVIEW_PATH
+
+
+def selected_license_nr(select: dict[str, list[str]] | None) -> str:
+    """Copy the printed OpenAPI `license-nr` query parameter from select."""
+
+    select = {str(key): value for key, value in (select or {}).items()}
+    unknown = sorted(key for key in select if key not in ALLOWED_SELECT)
+    if unknown:
+        raise ValueError(
+            f"select names field(s) {unknown} that a licenses-overview fetch "
+            f"does not filter on; accepted: {sorted(ALLOWED_SELECT)}"
+        )
+    wanted = select.get("license-nr")
+    if not wanted:
+        raise ValueError(
+            "unfiltered licenses-overview defaults to range 0-9 of the register; "
+            "select a printed license-nr"
+        )
+    values = [wanted] if isinstance(wanted, str) else [str(item) for item in wanted]
+    if len(values) != 1 or not values[0].strip():
+        raise ValueError("select license-nr to a single printed license number")
+    return values[0].strip()
+
+
+def aqua_overview_request_url(access_path: str, license_nr: str) -> str:
+    parts = urlsplit(access_path)
+    query = dict(parse_qsl(parts.query, keep_blank_values=True))
+    query["license-nr"] = license_nr
+    return urlunsplit(
+        (parts.scheme, parts.netloc, parts.path, urlencode(query), parts.fragment)
+    )
+
+
+def cells_from_aqua_overview(payload: Any) -> list[tuple[str, Any, dict[str, str]]]:
+    """Copy printed license capacity into observation cells.
+
+    Measures are the printed ``capacity`` keys ``current`` and
+    ``accumulated``. Other scalars on the license and capacity object stay
+    as dimensions. Nested objects besides ``capacity`` are not copied.
+    """
+
+    if not isinstance(payload, list):
+        raise ValueError("aqua overview payload is not a JSON array")
+    cells: list[tuple[str, Any, dict[str, str]]] = []
+    for item in payload:
+        if not isinstance(item, dict):
+            continue
+        capacity = item.get("capacity")
+        if not isinstance(capacity, dict):
+            continue
+        dims = {
+            key: _as_dim(value)
+            for key, value in item.items()
+            if key != "capacity" and _is_scalar(value)
+        }
+        for key, value in capacity.items():
+            if key in CAPACITY_MEASURES:
+                continue
+            if _is_scalar(value):
+                dims[key] = _as_dim(value)
+        for measure in CAPACITY_MEASURES:
+            value = capacity.get(measure)
+            if isinstance(value, bool) or not isinstance(value, (int, float)):
+                continue
+            cells.append((measure, value, dict(dims)))
+    if not cells:
+        raise ValueError("aqua overview payload printed no capacity cells")
+    return cells
 
 
 def cells_from_aqua(payload: Any) -> list[tuple[str, Any, dict[str, str]]]:

@@ -2156,6 +2156,35 @@ alt, Alder i alt `722326`; Bydel Gamle Oslo, Alder i alt `64565`. Full
 
 Proof: `data/oslo_bef005_proof.json`.
 
+## aqua:licenses-overview — 2026-09-14 — promoted (observations)
+
+**Endpoint(s).** `GET https://api.fiskeridir.no/pub-aqua/api/v1/licenses-overview?license-nr=A-A-0001`.
+Already harvested. OpenAPI prints optional `license-nr` and default
+`range` `0-9`. Unfiltered overview is a truncated page of the register
+and was not fetched. Licence is the printed OpenAPI URL
+`https://www.fiskeridir.no/Tall-og-analyse/Lisens-for-bruk-av-Fiskeridirektoratets-data`.
+
+**Shape.** `observation`. Measures are the printed `capacity` keys
+`current` and `accumulated`. Dimensions include printed `licenseNr`,
+`unit`, `type`, and `legalEntityName`. Nested objects besides `capacity`
+are not copied.
+
+**Capability recorded.** `observations`. Live GET 2026-09-14: HTTP 200, 2
+cells. Sample: current `1.0` and accumulated `1.0` (unit `TN`, type
+`MTK`) for license-nr `A-A-0001` (NMBU). Unfiltered overview is refused.
+Area, site, and fish-code catalogs classify `none`.
+
+**Surprises.**
+- The leftover decoder copies `name` / `defaultName` and skips nested
+  `capacity`. Overview now reads the printed numeric capacity keys.
+- Default `range=0-9` returns 10 licenses without saying it is a page.
+
+**Open question for the query side.** Sites and licenses collections are
+registers. Address one printed `licenseNr` or `siteNr`; do not dump
+names.
+
+Proof: `data/aqua_overview_proof.json`.
+
 
 
 

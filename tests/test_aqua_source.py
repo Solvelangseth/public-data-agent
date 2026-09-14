@@ -5,7 +5,9 @@ from pathlib import Path
 
 import pytest
 
-from public_data_agent.fetch import fetch_observations
+from urllib.parse import parse_qs, urlsplit
+
+from public_data_agent.fetch import classify_access_path, fetch_observations
 from public_data_agent.harvest import harvest
 from public_data_agent.http_util import JsonResponse
 from public_data_agent.registry import Registry
@@ -14,6 +16,8 @@ from public_data_agent.sources.aqua import (
     AquaSource,
     aqua_table_id,
     cells_from_aqua,
+    cells_from_aqua_overview,
+    is_aqua_overview_url,
     is_aqua_url,
     printed_endpoint_url,
     printed_license_url,
@@ -22,6 +26,8 @@ from public_data_agent.sources.aqua import (
 OPENAPI_URL = "https://api.fiskeridir.no/pub-aqua/api/api-docs"
 AREAS_URL = "https://api.fiskeridir.no/pub-aqua/api/v1/areas"
 SITES_URL = "https://api.fiskeridir.no/pub-aqua/api/v1/sites"
+OVERVIEW_URL = "https://api.fiskeridir.no/pub-aqua/api/v1/licenses-overview"
+OVERVIEW_ID = "aqua:licenses-overview"
 LICENSE_URL = "https://www.fiskeridir.no/Tall-og-analyse/Lisens-for-bruk-av-Fiskeridirektoratets-data"
 DATASET_ID = "aqua:areas"
 
@@ -39,6 +45,15 @@ OPENAPI = {
         "/api/v1/areas": {"get": {"summary": "Henter en liste av områder"}},
     },
 }
+OVERVIEW_BODY = [
+    {
+        "licenseNr": "A-A-0001",
+        "legalEntityName": "NORGES MILJØ- OG BIOVITENSKAPELIGE UNIVERSITET (NMBU)",
+        "capacity": {"accumulated": 1.0, "current": 1.0, "unit": "TN", "type": "MTK"},
+        "nested": {"skip": True},
+    }
+]
+
 AREAS_BODY = [
     {
         "id": 1000,
@@ -73,6 +88,11 @@ class CatalogHttp:
 
 class FetchHttp:
     def get_json_response(self, url: str, *, headers=None) -> JsonResponse:
+        parts = urlsplit(url)
+        if parts.path.rstrip("/") == urlsplit(OVERVIEW_URL).path.rstrip("/"):
+            nr = parse_qs(parts.query).get("license-nr", [None])[0]
+            body = OVERVIEW_BODY if nr == "A-A-0001" else []
+            return JsonResponse(status=200, url=url, body=body)
         if url == AREAS_URL:
             return JsonResponse(status=200, url=url, body=AREAS_BODY)
         raise AssertionError(f"unexpected GET {url}")
@@ -139,34 +159,89 @@ def test_harvest_writes_printed_id_license_and_null_publisher(tmp_path: Path) ->
     registry.close()
 
 
-def test_fetch_gets_printed_areas(tmp_path: Path) -> None:
+def test_fetch_refuses_area_name_catalog(tmp_path: Path) -> None:
     source = AquaSource(http=CatalogHttp())
     registry = Registry(tmp_path / "registry.sqlite")
     harvest(registry, source)
+    with pytest.raises(ValueError, match="licenses-overview"):
+        fetch_observations(
+            registry,
+            DATASET_ID,
+            table_id="ignored",
+            http=FetchHttp(),
+        )
+    registry.close()
+
+
+def test_overview_url_is_observations() -> None:
+    assert is_aqua_overview_url(OVERVIEW_URL)
+    assert not is_aqua_overview_url(AREAS_URL)
+    assert classify_access_path(OVERVIEW_URL)["kind"] == "observations"
+    assert classify_access_path(AREAS_URL)["kind"] == "none"
+
+
+def test_fetch_gets_printed_license_capacity(tmp_path: Path) -> None:
+    registry = Registry(tmp_path / "registry.sqlite")
+    registry.ensure_observation_dataset(
+        dataset_id=OVERVIEW_ID,
+        title="Hent alle tillatelser",
+        publisher_name=None,
+        access_path=OVERVIEW_URL,
+        license=LICENSE_URL,
+    )
+    registry.conn.commit()
     result = fetch_observations(
         registry,
-        DATASET_ID,
+        OVERVIEW_ID,
         table_id="ignored",
         http=FetchHttp(),
+        select={"license-nr": ["A-A-0001"]},
     )
-    assert result.request_url == AREAS_URL
-    assert result.table_id == "areas"
+    assert "license-nr=A-A-0001" in result.request_url
     assert result.http_status == 200
     assert result.counts.listed == 2
-    rows = registry.list_observations(DATASET_ID)
-    by_value = {json.loads(row["value_json"]): row for row in rows}
-    assert set(by_value) == {"ARUBA", "AFGHANISTAN"}
-    assert by_value["ARUBA"]["measure"] == "name"
-    assert by_value["AFGHANISTAN"]["measure"] == "defaultName"
-    dims = json.loads(by_value["ARUBA"]["dimensions_json"])
-    assert dims["id"] == "1000"
-    assert dims["type"] == "COUNTRY"
-    assert dims["defaultCode"] == "ABW"
+    rows = registry.list_observations(OVERVIEW_ID)
+    by_measure = {row["measure"]: json.loads(row["value_json"]) for row in rows}
+    assert by_measure["current"] == 1.0
+    assert by_measure["accumulated"] == 1.0
+    dims = json.loads(rows[0]["dimensions_json"])
+    assert dims["licenseNr"] == "A-A-0001"
+    assert dims["unit"] == "TN"
     assert "nested" not in dims
-    assert all(row["publisher_name"] is None for row in rows)
     assert all(row["license"] == LICENSE_URL for row in rows)
-    assert all(row["access_path"] == AREAS_URL for row in rows)
+    cap = registry.get_capability(OVERVIEW_ID)
+    assert cap["capability"] == "observations"
     registry.close()
+
+
+def test_fetch_refuses_unfiltered_license_overview(tmp_path: Path) -> None:
+    registry = Registry(tmp_path / "registry.sqlite")
+    registry.ensure_observation_dataset(
+        dataset_id=OVERVIEW_ID,
+        title="overview",
+        publisher_name=None,
+        access_path=OVERVIEW_URL,
+        license=None,
+    )
+    registry.conn.commit()
+    with pytest.raises(ValueError, match="printed license-nr"):
+        fetch_observations(
+            registry,
+            OVERVIEW_ID,
+            table_id="licenses-overview",
+            http=FetchHttp(),
+        )
+    registry.close()
+
+
+def test_cells_copy_printed_capacity() -> None:
+    cells = cells_from_aqua_overview(OVERVIEW_BODY)
+    assert cells[0][0] == "current"
+    assert cells[0][1] == 1.0
+    assert cells[0][2]["licenseNr"] == "A-A-0001"
+    assert cells[0][2]["unit"] == "TN"
+    assert "nested" not in cells[0][2]
+    assert cells[1] == ("accumulated", 1.0, cells[0][2])
 
 
 def test_cells_copy_printed_name_or_default_name() -> None:

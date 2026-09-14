@@ -1,0 +1,30 @@
+{
+  "dataset": "aqua:licenses-overview",
+  "request_url": "https://api.fiskeridir.no/pub-aqua/api/v1/licenses-overview?license-nr=A-A-0001",
+  "http_status": 200,
+  "listed": 2,
+  "inserted": 2,
+  "license": "https://www.fiskeridir.no/Tall-og-analyse/Lisens-for-bruk-av-Fiskeridirektoratets-data",
+  "sample": [
+    {
+      "measure": "current",
+      "value": 1.0,
+      "dimensions": {
+        "licenseNr": "A-A-0001",
+        "unit": "TN",
+        "type": "MTK",
+        "legalEntityName": "NORGES MILJØ- OG BIOVITENSKAPELIGE UNIVERSITET (NMBU)"
+      }
+    },
+    {
+      "measure": "accumulated",
+      "value": 1.0,
+      "dimensions": {
+        "licenseNr": "A-A-0001",
+        "unit": "TN",
+        "type": "MTK"
+      }
+    }
+  ],
+  "note": "Printed capacity.current and capacity.accumulated for printed license-nr A-A-0001. Unfiltered overview defaults to range 0-9 and was not fetched. Area/site/fish-code name catalogs refused."
+}

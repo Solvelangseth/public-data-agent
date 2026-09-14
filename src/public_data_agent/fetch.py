@@ -50,9 +50,13 @@ from public_data_agent.sources.entur import (
     printed_feed_url,
 )
 from public_data_agent.sources.aqua import (
+    AQUA_MAX_CELLS,
+    aqua_overview_request_url,
     aqua_table_id,
-    cells_from_aqua,
+    cells_from_aqua_overview,
+    is_aqua_overview_url,
     is_aqua_url,
+    selected_license_nr,
 )
 from public_data_agent.sources.buyer import (
     buyer_table_id,
@@ -1426,7 +1430,7 @@ def fetch_observations(
     if is_nytek_url(access_path):
         return _fetch_nytek(registry, dataset, http=http)
     if is_aqua_url(access_path):
-        return _fetch_aqua(registry, dataset, http=http)
+        return _fetch_aqua(registry, dataset, http=http, select=select)
     if is_research_url(access_path):
         return _fetch_research(registry, dataset, http=http)
     if is_portal_url(access_path):
@@ -4051,15 +4055,30 @@ def _fetch_aqua(
     dataset: dict[str, Any],
     *,
     http: JsonHttp | None = None,
+    select: dict[str, list[str]] | None = None,
 ) -> FetchResult:
+    """Fetch one printed aquaculture license's capacity cells.
+
+    Measures are printed ``capacity.current`` and ``capacity.accumulated``.
+    Unfiltered overview defaults to range 0-9 and is refused. Area and
+    site catalogs store names and are refused.
+    """
+
     access_path = dataset.get("access_path") or ""
-    client = http or HttpClient(timeout=60.0, max_retries=4)
     table_id = aqua_table_id(access_path)
+    if not is_aqua_overview_url(access_path):
+        raise ValueError(
+            "Akvakulturregisteret name catalog is not a capacity observation "
+            "fetch; use licenses-overview with select license-nr"
+        )
+    license_nr = selected_license_nr(select)
+    request_url = aqua_overview_request_url(access_path, license_nr)
+    client = http or HttpClient(timeout=60.0, max_retries=4)
     started = utc_now()
     run_id = registry.start_fetch_run(
         dataset_id=dataset["id"],
         table_id=table_id,
-        request_url=access_path,
+        request_url=request_url,
         request_method="GET",
         started_at=started,
     )
@@ -4068,21 +4087,60 @@ def _fetch_aqua(
     http_status = 0
     sample: list[dict[str, Any]] = []
     try:
-        got = client.get_json_response(access_path)
+        got = client.get_json_response(request_url)
         http_status = got.status
-        registry.set_fetch_request(run_id, request_url=access_path, request_body={"method": "GET"})
-        cells = cells_from_aqua(got.body)
+        registry.set_fetch_request(
+            run_id,
+            request_url=request_url,
+            request_body={"method": "GET", "select": select},
+        )
+        if isinstance(got.body, list) and not got.body:
+            raise ValueError(
+                f"licenses-overview has no row matching license-nr={license_nr!r}; "
+                "license-nr must be a printed license number"
+            )
+        cells = cells_from_aqua_overview(got.body)
+        if len(cells) > AQUA_MAX_CELLS:
+            raise SelectionTooLarge(
+                table_id,
+                len(cells),
+                AQUA_MAX_CELLS,
+                [
+                    {
+                        "code": "license-nr",
+                        "text": "capacity cells",
+                        "selected": len(cells),
+                        "available": AQUA_MAX_CELLS,
+                    }
+                ],
+            )
         counts.listed = len(cells)
+        retrieved_at = utc_now()
         sample = _store_cells(
             registry,
             dataset,
             run_id,
             table_id=table_id,
             cells=cells,
-            retrieved_at=utc_now(),
-            request_url=access_path,
+            retrieved_at=retrieved_at,
+            request_url=request_url,
             http_status=http_status,
             counts=counts,
+        )
+        registry.set_capability(
+            dataset["id"],
+            {
+                "capability": CAPABILITY_OBSERVATIONS,
+                "record_kind": "observation",
+                "endpoint": access_path,
+                "request_method": "GET",
+                "verified_at": retrieved_at,
+                "verified_sample_count": counts.listed,
+                "notes": (
+                    f"{counts.listed} license capacity cell(s); measures are "
+                    "printed capacity current and accumulated"
+                ),
+            },
         )
         status = "completed"
     except Exception as exc:
@@ -4094,7 +4152,7 @@ def _fetch_aqua(
     return FetchResult(
         dataset_id=dataset["id"],
         table_id=table_id,
-        request_url=access_path,
+        request_url=request_url,
         http_status=http_status,
         counts=counts,
         sample=sample,
@@ -15763,6 +15821,14 @@ def classify_access_path(access_path: str | None) -> dict[str, Any]:
                 "antall_aarsverk for one printed kommune"
             ),
         }
+    if is_aqua_overview_url(access_path):
+        return {
+            "kind": CAPABILITY_OBSERVATIONS,
+            "reason": (
+                "Akvakulturregisteret licenses-overview; printed capacity "
+                "current and accumulated for one printed license-nr"
+            ),
+        }
     if is_kystverket_vessels_by_type_url(access_path):
         return {
             "kind": CAPABILITY_OBSERVATIONS,
@@ -16101,6 +16167,14 @@ def classify_access_path(access_path: str | None) -> dict[str, Any]:
             "reason": (
                 "NVE Vannkraftdatabase plant-name catalog; leftover decoder "
                 "copies Navn. Do not dump 1863 plants"
+            ),
+        }
+    if is_aqua_url(access_path):
+        return {
+            "kind": CAPABILITY_NONE,
+            "reason": (
+                "Akvakulturregisteret name catalog; capacity cells are "
+                "licenses-overview with select license-nr"
             ),
         }
     if is_vindkraft_url(access_path):
