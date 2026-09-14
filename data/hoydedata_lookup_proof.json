@@ -1,0 +1,27 @@
+{
+  "datakilder": {
+    "dataset": "hoydedata:datakilder",
+    "request_url": "https://ws.geonorge.no/hoydedata/v1/datakilder",
+    "http_status": 200,
+    "listed": 5,
+    "inserted": 5,
+    "scheme": "hoydedata:datakilde",
+    "sample": [
+      {"subject_code": "dtm1", "subject_label": "Digital terrengmodell med 1 meters oppløsning."},
+      {"subject_code": "dom1", "subject_label": "Digital overflatemodell med 1 meters oppløsning."}
+    ]
+  },
+  "terrengtyper": {
+    "dataset": "hoydedata:terrengtyper",
+    "request_url": "https://ws.geonorge.no/hoydedata/v1/terrengtyper",
+    "http_status": 200,
+    "listed": 23,
+    "inserted": 23,
+    "scheme": "hoydedata:terreng",
+    "sample": [
+      {"subject_code": "ÅpentOmråde", "subject_label": "ÅpentOmråde"}
+    ]
+  },
+  "license": null,
+  "note": "Printed catalog ids as lookup entities. Empty terreng skipped. Punkt was not fetched (needs coordinates; none invented)."
+}

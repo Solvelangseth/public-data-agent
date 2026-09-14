@@ -2185,6 +2185,32 @@ names.
 
 Proof: `data/aqua_overview_proof.json`.
 
+## hoydedata:datakilder — 2026-09-14 — promoted (lookup)
+
+**Endpoint(s).** `GET https://ws.geonorge.no/hoydedata/v1/datakilder` and
+`GET https://ws.geonorge.no/hoydedata/v1/terrengtyper`. Already harvested.
+`/punkt` needs coordinates and was not fetched. Licence is `null`.
+
+**Shape.** `lookup` entities. `datakilder` keyed by printed `datakilde`
+under `hoydedata:datakilde`. `terrengtyper` keyed by printed `terreng`
+under `hoydedata:terreng`. Empty terreng skipped. Nested objects not copied.
+
+**Capability recorded.** `lookup`. Live GET 2026-09-14: datakilder HTTP 200,
+5 entities (`dtm1` Digital terrengmodell med 1 meters oppløsning.).
+terrengtyper HTTP 200, 23 entities (`ÅpentOmråde`). Punkt classifies
+`none` and fetch is refused.
+
+**Surprises.**
+- The leftover decoder stored `datakilde` as an observation measure.
+  These are catalogs, not height cells.
+- Live terrengtyper prints 24 rows including one null `terreng`; that
+  row is skipped, not stored under a blank key.
+
+**Open question for the query side.** A later slice can GET `/punkt` with
+printed coordinates from a question. Do not invent lat/lon.
+
+Proof: `data/hoydedata_lookup_proof.json`.
+
 
 
 

@@ -916,9 +916,13 @@ from public_data_agent.sources.fiskeridir import (
     is_fiskeridir_vessel_url,
 )
 from public_data_agent.sources.hoydedata import (
-    cells_from_hoydedata,
+    DATAKILDE_SCHEME,
+    TERRENG_SCHEME,
     hoydedata_table_id,
+    is_hoydedata_datakilder_url,
+    is_hoydedata_lookup_url,
     is_hoydedata_url,
+    lookups_from_hoydedata,
 )
 from public_data_agent.sources.transformering import (
     cells_from_transformering,
@@ -6751,9 +6755,22 @@ def _fetch_hoydedata(
     *,
     http: JsonHttp | None = None,
 ) -> FetchResult:
+    """Fetch Høydedata datakilder/terrengtyper as lookup entities.
+
+    Punkt needs printed coordinates and is refused. Leftover name cells
+    are not stored.
+    """
+
     access_path = dataset.get("access_path") or ""
-    client = http or HttpClient(timeout=60.0, max_retries=4)
     table_id = hoydedata_table_id(access_path)
+    if not is_hoydedata_lookup_url(access_path):
+        raise ValueError(
+            "Kartverket Høydedata punkt needs printed coordinates; "
+            "do not invent lat/lon. Fetch datakilder or terrengtyper"
+        )
+    kind = "datakilder" if is_hoydedata_datakilder_url(access_path) else "terrengtyper"
+    scheme = DATAKILDE_SCHEME if kind == "datakilder" else TERRENG_SCHEME
+    client = http or HttpClient(timeout=60.0, max_retries=4)
     started = utc_now()
     run_id = registry.start_fetch_run(
         dataset_id=dataset["id"],
@@ -6770,18 +6787,63 @@ def _fetch_hoydedata(
         got = client.get_json_response(access_path)
         http_status = got.status
         registry.set_fetch_request(run_id, request_url=access_path, request_body={"method": "GET"})
-        cells = cells_from_hoydedata(got.body)
-        counts.listed = len(cells)
-        sample = _store_cells(
-            registry,
-            dataset,
-            run_id,
-            table_id=table_id,
-            cells=cells,
-            retrieved_at=utc_now(),
-            request_url=access_path,
-            http_status=http_status,
-            counts=counts,
+        members = lookups_from_hoydedata(got.body, kind=kind)
+        retrieved_at = utc_now()
+        for entity in members:
+            record_id = f"entity:{dataset['id']}:{entity['subject_code']}"
+            action = registry.upsert_record(
+                {
+                    "id": record_id,
+                    "dataset_id": dataset["id"],
+                    "kind": "entity",
+                    "series": f"hoydedata:{kind}",
+                    "subject_scheme": entity["subject_scheme"],
+                    "subject_code": entity["subject_code"],
+                    "subject_label": entity["subject_label"],
+                    "period": None,
+                    "measure": None,
+                    "value": None,
+                    "attributes": entity["attributes"],
+                    "retrieved_at": retrieved_at,
+                    "request_url": access_path,
+                    "http_status": http_status,
+                    "publisher_name": dataset.get("publisher_name"),
+                    "license": dataset.get("license"),
+                },
+                run_id,
+            )
+            counts.listed += 1
+            if action == "inserted":
+                counts.inserted += 1
+            elif action == "updated":
+                counts.updated += 1
+            else:
+                counts.unchanged += 1
+            if len(sample) < 3:
+                sample.append(
+                    {
+                        "kind": "entity",
+                        "subject_scheme": entity["subject_scheme"],
+                        "subject_code": entity["subject_code"],
+                        "subject_label": entity["subject_label"],
+                    }
+                )
+        registry.set_capability(
+            dataset["id"],
+            {
+                "capability": CAPABILITY_LOOKUP,
+                "record_kind": "lookup",
+                "endpoint": access_path,
+                "request_method": "GET",
+                "subject_scheme": scheme,
+                "subject_count": counts.listed,
+                "verified_at": retrieved_at,
+                "verified_sample_count": counts.listed,
+                "notes": (
+                    f"{counts.listed} printed {kind} lookup entit"
+                    f"{'y' if counts.listed == 1 else 'ies'} under {scheme}"
+                ),
+            },
         )
         status = "completed"
     except Exception as exc:
@@ -15829,6 +15891,18 @@ def classify_access_path(access_path: str | None) -> dict[str, Any]:
                 "current and accumulated for one printed license-nr"
             ),
         }
+    if is_hoydedata_lookup_url(access_path):
+        scheme = (
+            DATAKILDE_SCHEME
+            if is_hoydedata_datakilder_url(access_path)
+            else TERRENG_SCHEME
+        )
+        return {
+            "kind": CAPABILITY_LOOKUP,
+            "reason": (
+                f"Kartverket Høydedata catalog as lookup entities under {scheme}"
+            ),
+        }
     if is_kystverket_vessels_by_type_url(access_path):
         return {
             "kind": CAPABILITY_OBSERVATIONS,
@@ -16175,6 +16249,14 @@ def classify_access_path(access_path: str | None) -> dict[str, Any]:
             "reason": (
                 "Akvakulturregisteret name catalog; capacity cells are "
                 "licenses-overview with select license-nr"
+            ),
+        }
+    if is_hoydedata_url(access_path):
+        return {
+            "kind": CAPABILITY_NONE,
+            "reason": (
+                "Kartverket Høydedata punkt needs printed coordinates; "
+                "do not invent lat/lon. Catalogs are datakilder/terrengtyper"
             ),
         }
     if is_vindkraft_url(access_path):

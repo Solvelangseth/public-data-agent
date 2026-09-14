@@ -19,6 +19,10 @@ HOYDEDATA_RPS = 2.0
 HOYDEDATA_BURST = 4
 HOST = "ws.geonorge.no"
 PATH_PREFIX = "/hoydedata/v1/"
+DATAKILDER_PATH = "/hoydedata/v1/datakilder"
+TERRENGTYPER_PATH = "/hoydedata/v1/terrengtyper"
+DATAKILDE_SCHEME = "hoydedata:datakilde"
+TERRENG_SCHEME = "hoydedata:terreng"
 NAME_FIELDS = ("datakilde", "terreng", "kortbeskrivelse", "navn", "name", "title")
 
 
@@ -191,6 +195,71 @@ def is_hoydedata_url(access_path: str | None) -> bool:
 def hoydedata_table_id(access_path: str) -> str:
     segment = urlsplit(access_path).path.rstrip("/").split("/")[-1]
     return segment or "hoydedata"
+
+
+def is_hoydedata_datakilder_url(access_path: str | None) -> bool:
+    if not is_hoydedata_url(access_path):
+        return False
+    return urlsplit(access_path).path.rstrip("/").casefold() == DATAKILDER_PATH
+
+
+def is_hoydedata_terrengtyper_url(access_path: str | None) -> bool:
+    if not is_hoydedata_url(access_path):
+        return False
+    return urlsplit(access_path).path.rstrip("/").casefold() == TERRENGTYPER_PATH
+
+
+def is_hoydedata_lookup_url(access_path: str | None) -> bool:
+    return is_hoydedata_datakilder_url(access_path) or is_hoydedata_terrengtyper_url(
+        access_path
+    )
+
+
+def lookups_from_hoydedata(payload: Any, *, kind: str) -> list[dict[str, Any]]:
+    """Copy printed Høydedata catalog members into lookup entities.
+
+    ``datakilder`` is keyed by printed ``datakilde``. ``terrengtyper`` is
+    keyed by printed ``terreng``. Empty keys are skipped. Nested objects
+    are not copied.
+    """
+
+    if not isinstance(payload, list):
+        raise ValueError("hoydedata payload is not a JSON array")
+    if kind == "datakilder":
+        key, scheme = "datakilde", DATAKILDE_SCHEME
+        label_key = "kortbeskrivelse"
+    elif kind == "terrengtyper":
+        key, scheme = "terreng", TERRENG_SCHEME
+        label_key = "terreng"
+    else:
+        raise ValueError(f"unknown hoydedata catalog {kind}")
+    out: list[dict[str, Any]] = []
+    for item in payload:
+        if not isinstance(item, dict):
+            continue
+        code = item.get(key)
+        if not isinstance(code, str) or not code.strip():
+            continue
+        code = code.strip()
+        label = item.get(label_key)
+        if not isinstance(label, str) or not label.strip():
+            label = code
+        attributes = {
+            other: value
+            for other, value in item.items()
+            if other != key and _is_scalar(value) and value is not None
+        }
+        out.append(
+            {
+                "subject_scheme": scheme,
+                "subject_code": code,
+                "subject_label": label.strip(),
+                "attributes": attributes,
+            }
+        )
+    if not out:
+        raise ValueError("hoydedata payload printed no catalog members")
+    return out
 
 
 def cells_from_hoydedata(payload: Any) -> list[tuple[str, Any, dict[str, str]]]:

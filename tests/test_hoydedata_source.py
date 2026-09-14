@@ -5,16 +5,19 @@ from pathlib import Path
 
 import pytest
 
-from public_data_agent.fetch import fetch_observations
+from public_data_agent.fetch import classify_access_path, fetch_observations
 from public_data_agent.harvest import harvest
 from public_data_agent.http_util import JsonResponse
 from public_data_agent.registry import Registry
 from public_data_agent.sources import SOURCE_IDS, build_source
 from public_data_agent.sources.hoydedata import (
+    DATAKILDE_SCHEME,
     HoydedataSource,
     cells_from_hoydedata,
     hoydedata_table_id,
+    is_hoydedata_datakilder_url,
     is_hoydedata_url,
+    lookups_from_hoydedata,
     printed_endpoint_url,
     printed_license_url,
     printed_operation_id,
@@ -149,7 +152,7 @@ def test_harvest_writes_printed_id_null_license_and_publisher(tmp_path: Path) ->
     registry.close()
 
 
-def test_fetch_gets_printed_datakilde_names(tmp_path: Path) -> None:
+def test_fetch_stores_datakilder_as_lookup(tmp_path: Path) -> None:
     source = HoydedataSource(http=CatalogHttp())
     registry = Registry(tmp_path / "registry.sqlite")
     harvest(registry, source)
@@ -163,17 +166,50 @@ def test_fetch_gets_printed_datakilde_names(tmp_path: Path) -> None:
     assert result.table_id == "datakilder"
     assert result.http_status == 200
     assert result.counts.listed == 2
-    rows = registry.list_observations(DATASET_ID)
-    by_value = {json.loads(row["value_json"]): row for row in rows}
-    assert set(by_value) == {"dtm1", "dom1"}
-    assert all(row["measure"] == "datakilde" for row in rows)
-    dims = json.loads(by_value["dtm1"]["dimensions_json"])
-    assert dims["kortbeskrivelse"] == "Digital terrengmodell med 1 meters oppløsning."
-    assert "nested" not in dims
-    assert all(row["publisher_name"] is None for row in rows)
-    assert all(row["license"] is None for row in rows)
-    assert all(row["access_path"] == DATAKILDER_URL for row in rows)
+    assert registry.list_observations(DATASET_ID) == []
+    rows = registry.list_records(DATASET_ID, kind="entity")
+    codes = {row["subject_code"] for row in rows}
+    assert codes == {"dtm1", "dom1"}
+    assert all(row["subject_scheme"] == DATAKILDE_SCHEME for row in rows)
+    dtm1 = next(row for row in rows if row["subject_code"] == "dtm1")
+    assert dtm1["subject_label"] == "Digital terrengmodell med 1 meters oppløsning."
+    cap = registry.get_capability(DATASET_ID)
+    assert cap["capability"] == "lookup"
     registry.close()
+
+
+def test_datakilder_url_is_lookup() -> None:
+    assert is_hoydedata_datakilder_url(DATAKILDER_URL)
+    assert classify_access_path(DATAKILDER_URL)["kind"] == "lookup"
+    assert classify_access_path(TERRENGTYPER_URL)["kind"] == "lookup"
+    assert classify_access_path(PUNKT_URL)["kind"] == "none"
+
+
+def test_fetch_refuses_punkt_without_coordinates(tmp_path: Path) -> None:
+    registry = Registry(tmp_path / "registry.sqlite")
+    registry.ensure_observation_dataset(
+        dataset_id="hoydedata:punkt",
+        title="punkt",
+        publisher_name=None,
+        access_path=PUNKT_URL,
+        license=None,
+    )
+    registry.conn.commit()
+    with pytest.raises(ValueError, match="coordinates"):
+        fetch_observations(
+            registry,
+            "hoydedata:punkt",
+            table_id="punkt",
+            http=FetchHttp(),
+        )
+    registry.close()
+
+
+def test_lookups_copy_printed_datakilde() -> None:
+    members = lookups_from_hoydedata(DATAKILDER_BODY, kind="datakilder")
+    assert members[0]["subject_code"] == "dtm1"
+    assert members[0]["subject_scheme"] == DATAKILDE_SCHEME
+    assert "nested" not in members[0]["attributes"]
 
 
 def test_cells_copy_printed_datakilde_and_skip_nested() -> None:
