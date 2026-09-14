@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from public_data_agent.fetch import fetch_observations
+from public_data_agent.fetch import classify_access_path, fetch_observations
 from public_data_agent.harvest import harvest
 from public_data_agent.http_util import JsonResponse
 from public_data_agent.registry import Registry
@@ -13,6 +13,8 @@ from public_data_agent.sources import SOURCE_IDS, build_source
 from public_data_agent.sources.statnett import (
     StatnettDriftsdataSource,
     cells_from_statnett,
+    cells_from_statnett_frequency,
+    is_statnett_frequency_url,
     is_statnett_url,
     printed_endpoint_url,
     printed_operation_id,
@@ -241,3 +243,63 @@ def test_limit_and_offset_slice_printed_paths() -> None:
     assert [ref.source_native_id for ref in nxt] == [
         "ElspotPowerSituation_GetPowerSituations"
     ]
+
+
+FREQUENCY_URL = "https://driftsdata.statnett.no/RestApi/Frequency/BySecond"
+FREQUENCY_BODY = {
+    "StartPointUTC": 1000.0,
+    "EndPointUTC": 3000.0,
+    "PeriodTickMs": 1000,
+    "Measurements": [50.0, 50.1, 49.9],
+}
+
+
+class FrequencyHttp:
+    def get_json_response(self, url: str, *, headers=None) -> JsonResponse:
+        if url == FREQUENCY_URL:
+            return JsonResponse(status=200, url=url, body=FREQUENCY_BODY)
+        raise AssertionError(url)
+
+
+def test_frequency_url_is_observations() -> None:
+    assert is_statnett_frequency_url(FREQUENCY_URL)
+    assert not is_statnett_frequency_url(SITUATIONS_URL)
+    assert classify_access_path(FREQUENCY_URL)["kind"] == "observations"
+
+
+def test_frequency_cells_time_from_printed_start_and_period() -> None:
+    cells = cells_from_statnett_frequency(FREQUENCY_BODY)
+    assert cells == [
+        ("Measurements", 50.0, {"StartPointUTC": "1000.0", "PeriodTickMs": "1000"}),
+        ("Measurements", 50.1, {"StartPointUTC": "2000.0", "PeriodTickMs": "1000"}),
+        ("Measurements", 49.9, {"StartPointUTC": "3000.0", "PeriodTickMs": "1000"}),
+    ]
+    with pytest.raises(ValueError, match="no numeric Measurements"):
+        cells_from_statnett_frequency(
+            {"StartPointUTC": 1, "PeriodTickMs": 1, "Measurements": []}
+        )
+
+
+def test_fetch_stores_frequency_hz_not_names(tmp_path: Path) -> None:
+    registry = Registry(tmp_path / "registry.sqlite")
+    registry.ensure_observation_dataset(
+        dataset_id="statnett:Frequency_BySecond",
+        title="Frequency BySecond",
+        publisher_name=None,
+        access_path=FREQUENCY_URL,
+        license=None,
+    )
+    registry.conn.commit()
+    result = fetch_observations(
+        registry,
+        "statnett:Frequency_BySecond",
+        table_id="BySecond",
+        http=FrequencyHttp(),
+    )
+    assert result.counts.listed == 3
+    assert result.sample[0]["measure"] == "Measurements"
+    assert result.sample[0]["value"] == 50.0
+    cap = registry.get_capability("statnett:Frequency_BySecond")
+    assert cap["capability"] == "observations"
+    registry.close()
+

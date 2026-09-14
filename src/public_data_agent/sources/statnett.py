@@ -179,6 +179,56 @@ def statnett_table_id(access_path: str) -> str:
     return segment or "statnett"
 
 
+FREQUENCY_PATHS = frozenset({
+    "/restapi/frequency/byminute",
+    "/restapi/frequency/bysecond",
+})
+FREQUENCY_MAX_CELLS = 100
+
+
+def is_statnett_frequency_url(access_path: str | None) -> bool:
+    if not is_statnett_url(access_path):
+        return False
+    path = urlsplit(access_path).path.rstrip("/").casefold()
+    return path in FREQUENCY_PATHS
+
+
+def cells_from_statnett_frequency(payload: Any) -> list[tuple[str, Any, dict[str, str]]]:
+    """Copy printed Frequency Measurements into observation cells.
+
+    The envelope prints ``StartPointUTC``, ``PeriodTickMs``, and a
+    ``Measurements`` array of Hz values. Each cell's time is
+    StartPointUTC + i * PeriodTickMs from those printed fields, the same
+    reconstruction json-stat does from a printed index. Measure name is the
+    printed key ``Measurements``. An empty array is an error, not a zero.
+    """
+
+    if not isinstance(payload, dict):
+        raise ValueError("statnett frequency payload is not a JSON object")
+    measurements = payload.get("Measurements")
+    if not isinstance(measurements, list):
+        raise ValueError("statnett frequency payload printed no Measurements array")
+    start = payload.get("StartPointUTC")
+    period = payload.get("PeriodTickMs")
+    if not isinstance(start, (int, float)) or isinstance(start, bool):
+        raise ValueError("statnett frequency payload printed no numeric StartPointUTC")
+    if not isinstance(period, (int, float)) or isinstance(period, bool):
+        raise ValueError("statnett frequency payload printed no numeric PeriodTickMs")
+    cells: list[tuple[str, Any, dict[str, str]]] = []
+    for i, value in enumerate(measurements):
+        if isinstance(value, bool) or not isinstance(value, (int, float)):
+            continue
+        tick = start + i * period
+        dims = {
+            "StartPointUTC": _as_dim(tick),
+            "PeriodTickMs": _as_dim(period),
+        }
+        cells.append(("Measurements", value, dims))
+    if not cells:
+        raise ValueError("statnett frequency payload printed no numeric Measurements")
+    return cells
+
+
 def cells_from_statnett(payload: Any) -> list[tuple[str, Any, dict[str, str]]]:
     """Copy printed Statnett JSON records into observation cells.
 

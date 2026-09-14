@@ -1573,6 +1573,38 @@ entities addressed by a printed plant id, bounded, not a 914-name dump.
 
 Proof: `data/elcert_quarter_proof.json`.
 
+## statnett:Frequency_BySecond — 2026-09-14 — promoted (observations)
+
+**Endpoint(s).** `GET https://driftsdata.statnett.no/RestApi/Frequency/BySecond`.
+Already harvested. `Frequency_ByMinute` without parameters returns an empty
+`Measurements` array and was not fetched. `PhysicalFlow_GetData` prints
+unlabeled number lists and was not promoted. Licence is `null`.
+
+**Shape.** `observation`. Measure is the printed key `Measurements` (Hz).
+Each cell's `StartPointUTC` is the printed envelope start plus `i *
+PeriodTickMs` from the printed period, the same reconstruction json-stat
+uses from a printed index. `PeriodTickMs` is stored as a dimension.
+
+**Capability recorded.** `observations`. Live GET 2026-09-14: HTTP 200, 61
+cells (the publisher's default window). Sample: 50.002 Hz at
+StartPointUTC 1789357277000.0, PeriodTickMs 1000. More than 100 samples
+is refused, not truncated. An empty Measurements array is an error.
+
+**Surprises.**
+- The leftover decoder required a JSON array of objects with `elspotId`.
+  Frequency is an envelope object plus a float array. Dispatch now reads
+  that envelope.
+- `ByMinute` with no query is empty; no time range was invented to fill it.
+- `GetApplications` still has no unique printed plant id (850 unique names
+  of 914). Do not dump it as entities keyed by name.
+
+**Open question for the query side.** `PhysicalFlow_GetData` still has
+unlabeled floats. Do not invent series names. Elcert plants need a printed
+id the collection does not provide.
+
+Proof: `data/statnett_frequency_proof.json`.
+
+
 
 
 

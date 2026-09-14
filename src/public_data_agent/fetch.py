@@ -949,7 +949,10 @@ from public_data_agent.sources.met import (
     met_table_id,
 )
 from public_data_agent.sources.statnett import (
+    FREQUENCY_MAX_CELLS,
     cells_from_statnett,
+    cells_from_statnett_frequency,
+    is_statnett_frequency_url,
     is_statnett_url,
     statnett_table_id,
 )
@@ -1680,6 +1683,8 @@ def fetch_observations(
         return _fetch_entur(registry, dataset, http=http)
     if is_fiskeridir_vessel_url(access_path):
         return _fetch_fiskeridir(registry, dataset, http=http)
+    if is_statnett_frequency_url(access_path):
+        return _fetch_statnett_frequency(registry, dataset, http=http)
     if is_statnett_url(access_path):
         return _fetch_statnett(registry, dataset, http=http)
     if is_utdanning_url(access_path):
@@ -7103,6 +7108,98 @@ def _fetch_fiskeridir(
             request_url=access_path,
             http_status=http_status,
             counts=counts,
+        )
+        status = "completed"
+    except Exception as exc:
+        counts.failed += 1
+        counts.errors.append({"error": str(exc), "url": access_path})
+        raise
+    finally:
+        registry.finish_fetch_run(run_id, counts, status=status, http_status=http_status)
+    return FetchResult(
+        dataset_id=dataset["id"],
+        table_id=table_id,
+        request_url=access_path,
+        http_status=http_status,
+        counts=counts,
+        sample=sample,
+    )
+
+
+def _fetch_statnett_frequency(
+    registry: Registry,
+    dataset: dict[str, Any],
+    *,
+    http: JsonHttp | None = None,
+) -> FetchResult:
+    """Fetch Statnett Frequency Measurements as Hz observations.
+
+    Time for the i-th printed value is StartPointUTC + i * PeriodTickMs.
+    An empty Measurements array is an error. More than FREQUENCY_MAX_CELLS
+    is refused, not truncated.
+    """
+
+    access_path = dataset.get("access_path") or ""
+    table_id = statnett_table_id(access_path)
+    client = http or HttpClient(timeout=60.0, max_retries=4)
+    started = utc_now()
+    run_id = registry.start_fetch_run(
+        dataset_id=dataset["id"],
+        table_id=table_id,
+        request_url=access_path,
+        request_method="GET",
+        started_at=started,
+    )
+    counts = HarvestCounts()
+    status = "failed"
+    http_status = 0
+    sample: list[dict[str, Any]] = []
+    try:
+        got = client.get_json_response(access_path)
+        http_status = got.status
+        registry.set_fetch_request(run_id, request_url=access_path, request_body={"method": "GET"})
+        cells = cells_from_statnett_frequency(got.body)
+        if len(cells) > FREQUENCY_MAX_CELLS:
+            raise SelectionTooLarge(
+                table_id,
+                len(cells),
+                FREQUENCY_MAX_CELLS,
+                [
+                    {
+                        "code": "Measurements",
+                        "text": "frequency samples",
+                        "selected": len(cells),
+                        "available": FREQUENCY_MAX_CELLS,
+                    }
+                ],
+            )
+        counts.listed = len(cells)
+        retrieved_at = utc_now()
+        sample = _store_cells(
+            registry,
+            dataset,
+            run_id,
+            table_id=table_id,
+            cells=cells,
+            retrieved_at=retrieved_at,
+            request_url=access_path,
+            http_status=http_status,
+            counts=counts,
+        )
+        registry.set_capability(
+            dataset["id"],
+            {
+                "capability": CAPABILITY_OBSERVATIONS,
+                "record_kind": "observation",
+                "endpoint": access_path,
+                "request_method": "GET",
+                "verified_at": retrieved_at,
+                "verified_sample_count": counts.listed,
+                "notes": (
+                    f"{counts.listed} frequency Measurement(s); time is "
+                    "StartPointUTC + i * PeriodTickMs"
+                ),
+            },
         )
         status = "completed"
     except Exception as exc:
@@ -15314,6 +15411,14 @@ def classify_access_path(access_path: str | None) -> dict[str, Any]:
             "reason": (
                 "NVE Elsertifikater GetSummaryValuesPerQuarter; printed "
                 "IMaalet and IOvergangsordningen cells by Year and Quarter"
+            ),
+        }
+    if is_statnett_frequency_url(access_path):
+        return {
+            "kind": CAPABILITY_OBSERVATIONS,
+            "reason": (
+                "Statnett Frequency Measurements; Hz values timed from "
+                "printed StartPointUTC and PeriodTickMs"
             ),
         }
     if is_mattilsynet_preparat_url(access_path):

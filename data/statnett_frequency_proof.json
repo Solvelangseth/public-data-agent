@@ -1,0 +1,15 @@
+{
+  "dataset": "statnett:Frequency_BySecond",
+  "request_url": "https://driftsdata.statnett.no/RestApi/Frequency/BySecond",
+  "http_status": 200,
+  "listed": 61,
+  "inserted": 61,
+  "sample": [
+    {
+      "measure": "Measurements",
+      "value": 50.002,
+      "dimensions": {"StartPointUTC": "1789357277000.0", "PeriodTickMs": "1000"}
+    }
+  ],
+  "note": "Hz from printed Measurements. Time is StartPointUTC + i * PeriodTickMs. Default publisher window; ByMinute empty was not fetched."
+}
