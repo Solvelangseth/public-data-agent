@@ -1773,6 +1773,22 @@ def fetch_observations(
             counts=counts,
             touched=touched,
         )
+        if is_oslo_statbank_url(access_path) and cells:
+            registry.set_capability(
+                dataset["id"],
+                {
+                    "capability": CAPABILITY_OBSERVATIONS,
+                    "record_kind": "observation",
+                    "endpoint": request_url,
+                    "request_method": "POST",
+                    "verified_at": retrieved_at,
+                    "verified_sample_count": counts.listed,
+                    "notes": (
+                        f"{counts.listed} Oslo PxWeb cell(s); measures are "
+                        "printed json-stat labels"
+                    ),
+                },
+            )
         status = "completed"
     except Exception as exc:
         counts.failed += 1

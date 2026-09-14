@@ -1861,6 +1861,36 @@ entities addressed by printed `fylkenr`. Do not dump
 
 Proof: `data/utdanning_tidsserie_proof.json`.
 
+## oslo:OK-BEF008.px — 2026-09-14 — promoted (observations)
+
+**Endpoint(s).** `POST https://statistikkbanken.oslo.kommune.no/statbank/api/v1/no/db1/Befolkning/Folkemengde/OK-BEF008.px`
+with printed year `2025`. Already harvested leftover PxWeb tables.
+Neighbour leftover Oslo tables classify the same way and were not dumped.
+Licence is `null`.
+
+**Shape.** `observation`. Measures are the printed json-stat labels
+`Folkemengden i alt (antall personer)` and `Årlig endring (antall
+personer)`. Dimensions are printed `geografisk område` and `år`.
+
+**Capability recorded.** `observations`. Live POST 2026-09-14: HTTP 200, 4
+cells for year 2025. Sample: Oslo (Kristiania og Aker) i alt
+`Folkemengden i alt` `724290`, `Årlig endring` `6580`. The full
+1801–2026 table was not fetched. Unknown years still error through
+PxWeb time_codes.
+
+**Surprises.**
+- Classify already reported `observations` from the PxWeb URL; fetch had
+  never written `resource_capability` or stored cells.
+- Default leftover PxWeb query without a year would cover 1801–2026.
+  This slice named printed `2025`.
+
+**Open question for the query side.** Leftover Oslo tables share the SSB
+PxWeb POST path. Neighbour leftover tables (BEF001–BEF010) classify the
+same way; they were not dumped this slice.
+
+Proof: `data/oslo_bef008_proof.json`.
+
+
 
 
 

@@ -218,6 +218,8 @@ def test_fetch_posts_printed_oslo_table_url(tmp_path: Path) -> None:
     assert all(row["publisher_name"] is None for row in registry.list_observations(DATASET_ID))
     assert all(row["license"] is None for row in registry.list_observations(DATASET_ID))
     assert all(row["access_path"] == TABLE_URL for row in registry.list_observations(DATASET_ID))
+    cap = registry.get_capability(DATASET_ID)
+    assert cap["capability"] == "observations"
     registry.close()
 
 

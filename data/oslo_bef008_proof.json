@@ -1,0 +1,29 @@
+{
+  "dataset": "oslo:OK-BEF008.px",
+  "request_url": "https://statistikkbanken.oslo.kommune.no/statbank/api/v1/no/db1/Befolkning/Folkemengde/OK-BEF008.px",
+  "http_status": 200,
+  "listed": 4,
+  "inserted": 0,
+  "license": null,
+  "from_year": 2025,
+  "to_year": 2025,
+  "sample": [
+    {
+      "measure": "Årlig endring (antall personer)",
+      "value": 6580,
+      "dimensions": {
+        "geografisk område": "Oslo (Kristiania og Aker) i alt",
+        "år": "2025"
+      }
+    },
+    {
+      "measure": "Folkemengden i alt (antall personer)",
+      "value": 724290,
+      "dimensions": {
+        "geografisk område": "Oslo (Kristiania og Aker) i alt",
+        "år": "2025"
+      }
+    }
+  ],
+  "note": "Printed PxWeb json-stat cells for Oslo BEF008, year 2025 only. Full 1801-2026 table was not fetched. Neighbour leftover Oslo tables classify the same way and were not dumped."
+}
