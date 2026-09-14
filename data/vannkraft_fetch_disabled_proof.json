@@ -1,0 +1,10 @@
+{
+  "dataset": "vannkraft:GetHydroPowerPlantsInOperation",
+  "request_url": "https://api.nve.no/web/Powerplant/GetHydroPowerPlantsInOperation",
+  "refused": true,
+  "error": "NVE Vannkraftdatabase collection is 1863 plant names; do not fetch Navn as observations. A later slice can address one printed VannKraftverkID",
+  "live_count": 1863,
+  "unique_printed_id": "VannKraftverkID",
+  "leftover_measure": "Navn",
+  "note": "Live GET 2026-09-14 listed 1863 unique VannKraftverkID and printed MaksYtelse. Fetch is refused so leftover Navn cells are not stored. GetHydroPowerPlants is the same catalog."
+}

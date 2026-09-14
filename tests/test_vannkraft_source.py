@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from public_data_agent.fetch import fetch_observations
+from public_data_agent.fetch import classify_access_path, fetch_observations
 from public_data_agent.harvest import harvest
 from public_data_agent.http_util import JsonResponse
 from public_data_agent.registry import Registry
@@ -157,33 +157,24 @@ def test_harvest_writes_printed_id_and_null_license(tmp_path: Path) -> None:
     registry.close()
 
 
-def test_fetch_gets_printed_plant_names(tmp_path: Path) -> None:
+def test_fetch_refuses_plant_name_catalog(tmp_path: Path) -> None:
     source = VannkraftSource(http=CatalogHttp())
     registry = Registry(tmp_path / "registry.sqlite")
     harvest(registry, source)
-    result = fetch_observations(
-        registry,
-        DATASET_ID,
-        table_id="ignored",
-        http=FetchHttp(),
-    )
-    assert result.request_url == IN_OPERATION_URL
-    assert result.table_id == "GetHydroPowerPlantsInOperation"
-    assert result.http_status == 200
-    assert result.counts.listed == 2
-    rows = registry.list_observations(DATASET_ID)
-    values = [json.loads(row["value_json"]) for row in rows]
-    assert values == ["Adamselv", "Alta"]
-    assert all(row["measure"] == "Navn" for row in rows)
-    dims = json.loads(rows[0]["dimensions_json"])
-    assert dims["VannKraftverkID"] == "2"
-    assert dims["Fylke"] == "Finnmark"
-    assert "Eiere" not in dims
-    assert "Konsesjoner" not in dims
-    assert all(row["publisher_name"] is None for row in rows)
-    assert all(row["license"] is None for row in rows)
-    assert all(row["access_path"] == IN_OPERATION_URL for row in rows)
+    with pytest.raises(ValueError, match="1863 plant names"):
+        fetch_observations(
+            registry,
+            DATASET_ID,
+            table_id="ignored",
+            http=FetchHttp(),
+        )
     registry.close()
+
+
+def test_vannkraft_url_is_not_observations() -> None:
+    assert is_vannkraft_url(IN_OPERATION_URL)
+    assert classify_access_path(IN_OPERATION_URL)["kind"] == "none"
+    assert classify_access_path(ALL_URL)["kind"] == "none"
 
 
 def test_cells_copy_printed_navn() -> None:

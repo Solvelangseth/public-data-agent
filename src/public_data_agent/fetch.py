@@ -731,9 +731,7 @@ from public_data_agent.sources.aviationforecast import (
     is_aviationforecast_url,
 )
 from public_data_agent.sources.vannkraft import (
-    cells_from_vannkraft,
     is_vannkraft_url,
-    vannkraft_table_id,
 )
 from public_data_agent.sources.vindkraft import (
     cells_from_vindkraft,
@@ -12202,52 +12200,19 @@ def _fetch_vannkraft(
     *,
     http: JsonHttp | None = None,
 ) -> FetchResult:
-    access_path = dataset.get("access_path") or ""
-    client = http or HttpClient(timeout=60.0, max_retries=4)
-    table_id = vannkraft_table_id(access_path)
-    started = utc_now()
-    run_id = registry.start_fetch_run(
-        dataset_id=dataset["id"],
-        table_id=table_id,
-        request_url=access_path,
-        request_method="GET",
-        started_at=started,
-    )
-    counts = HarvestCounts()
-    status = "failed"
-    http_status = 0
-    sample: list[dict[str, Any]] = []
-    try:
-        got = client.get_json_response(access_path)
-        http_status = got.status
-        registry.set_fetch_request(run_id, request_url=access_path, request_body={"method": "GET"})
-        cells = cells_from_vannkraft(got.body)
-        counts.listed = len(cells)
-        sample = _store_cells(
-            registry,
-            dataset,
-            run_id,
-            table_id=table_id,
-            cells=cells,
-            retrieved_at=utc_now(),
-            request_url=access_path,
-            http_status=http_status,
-            counts=counts,
-        )
-        status = "completed"
-    except Exception as exc:
-        counts.failed += 1
-        counts.errors.append({"error": str(exc), "url": access_path})
-        raise
-    finally:
-        registry.finish_fetch_run(run_id, counts, status=status, http_status=http_status)
-    return FetchResult(
-        dataset_id=dataset["id"],
-        table_id=table_id,
-        request_url=access_path,
-        http_status=http_status,
-        counts=counts,
-        sample=sample,
+    """Refuse the hydropower plant-name catalog.
+
+    Live GetHydroPowerPlantsInOperation is 1863 plants. The leftover
+    decoder copies printed ``Navn``. That is not a bounded observation
+    fetch. Plants have printed ``VannKraftverkID`` and ``MaksYtelse`` for
+    a later entity or single-plant slice.
+    """
+
+    del registry, dataset, http
+    raise ValueError(
+        "NVE Vannkraftdatabase collection is 1863 plant names; "
+        "do not fetch Navn as observations. A later slice can address "
+        "one printed VannKraftverkID"
     )
 
 
@@ -16165,6 +16130,14 @@ def classify_access_path(access_path: str | None) -> dict[str, Any]:
             "reason": (
                 "NVE Elsertifikater GetApplications plant-name catalog; "
                 "numeric cells are GetSummaryValues or GetSummaryValuesPerQuarter"
+            ),
+        }
+    if is_vannkraft_url(access_path):
+        return {
+            "kind": CAPABILITY_NONE,
+            "reason": (
+                "NVE Vannkraftdatabase plant-name catalog; leftover decoder "
+                "copies Navn. Do not dump 1863 plants"
             ),
         }
     if can_fetch_access_path(access_path):

@@ -2022,6 +2022,32 @@ leftover v2 default slices before storing.
 
 Proof: `data/ssbv2_05110_proof.json`.
 
+## vannkraft:GetHydroPowerPlantsInOperation — 2026-09-14 — blocked (none)
+
+**Endpoint(s).** `GET https://api.nve.no/web/Powerplant/GetHydroPowerPlantsInOperation`.
+Already harvested with `GetHydroPowerPlants`. Live collection is 1863
+plants. Licence is `null`.
+
+**Shape.** Not observations. The leftover decoder copies printed `Navn`.
+Plants print unique `VannKraftverkID` and numeric `MaksYtelse`,
+`MidProd_91_20`, `BruttoFallhoyde_M`. Those were not stored here.
+
+**Capability recorded.** `none`. Fetch is refused before HTTP so leftover
+`Navn` cells are not written. Classify is `none` for both harvested
+paths.
+
+**Surprises.**
+- 1863 unique `VannKraftverkID`; 1798 unique `Navn` (names are not a
+  key).
+- There is no printed single-plant GET in the untemplated docs list.
+
+**Open question for the query side.** A later slice can fetch one printed
+`VannKraftverkID` as an entity, or its printed `MaksYtelse` as
+observations, without dumping 1863 names. `vindkraft` leftover `Navn` is
+the same pattern.
+
+Proof: `data/vannkraft_fetch_disabled_proof.json`.
+
 
 
 
