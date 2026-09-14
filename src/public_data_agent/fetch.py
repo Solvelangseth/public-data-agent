@@ -969,8 +969,13 @@ from public_data_agent.sources.statnett import (
     statnett_table_id,
 )
 from public_data_agent.sources.utdanning import (
-    cells_from_utdanning,
+    UTDANNING_MAX_CELLS,
+    cells_from_utdanning_tidsserie,
+    is_utdanning_tidsserie_url,
     is_utdanning_url,
+    selected_kommune,
+    tidsserie_request_url,
+    tidsserie_total_items,
     utdanning_table_id,
 )
 from public_data_agent.sources.hi import (
@@ -1701,7 +1706,7 @@ def fetch_observations(
     if is_statnett_url(access_path):
         return _fetch_statnett(registry, dataset, http=http)
     if is_utdanning_url(access_path):
-        return _fetch_utdanning(registry, dataset, http=http)
+        return _fetch_utdanning(registry, dataset, http=http, select=select)
     if is_met_metalerts_url(access_path):
         return _fetch_met(registry, dataset, http=http)
     if is_hi_url(access_path):
@@ -7389,15 +7394,30 @@ def _fetch_utdanning(
     dataset: dict[str, Any],
     *,
     http: JsonHttp | None = None,
+    select: dict[str, list[str]] | None = None,
 ) -> FetchResult:
+    """Fetch Utdanning.no tidsserie employment cells for one kommune.
+
+    Measures are printed ``antall_ansatte`` and ``antall_aarsverk``.
+    Unfiltered hydra (4171 rows) and name catalogs are refused. A page
+    shorter than hydra:totalItems is refused, not truncated.
+    """
+
     access_path = dataset.get("access_path") or ""
-    client = http or HttpClient(timeout=60.0, max_retries=4)
     table_id = utdanning_table_id(access_path)
+    if not is_utdanning_tidsserie_url(access_path):
+        raise ValueError(
+            "Utdanning.no name catalog is not an employment observation fetch; "
+            "use tidsserie with select kommune"
+        )
+    kommune = selected_kommune(select)
+    request_url = tidsserie_request_url(access_path, kommune)
+    client = http or HttpClient(timeout=90.0, max_retries=4)
     started = utc_now()
     run_id = registry.start_fetch_run(
         dataset_id=dataset["id"],
         table_id=table_id,
-        request_url=access_path,
+        request_url=request_url,
         request_method="GET",
         started_at=started,
     )
@@ -7406,21 +7426,78 @@ def _fetch_utdanning(
     http_status = 0
     sample: list[dict[str, Any]] = []
     try:
-        got = client.get_json_response(access_path)
+        got = client.get_json_response(request_url)
         http_status = got.status
-        registry.set_fetch_request(run_id, request_url=access_path, request_body={"method": "GET"})
-        cells = cells_from_utdanning(got.body)
+        registry.set_fetch_request(
+            run_id,
+            request_url=request_url,
+            request_body={"method": "GET", "select": select},
+        )
+        if not isinstance(got.body, dict):
+            raise ValueError("utdanning tidsserie response is not a JSON object")
+        members = got.body.get("hydra:member")
+        if not isinstance(members, list) or not members:
+            raise ValueError(
+                f"tidsserie has no row matching kommune={kommune!r}; "
+                "kommune must be a printed municipality code"
+            )
+        total = tidsserie_total_items(got.body)
+        if total is not None and total > len(members):
+            raise SelectionTooLarge(
+                table_id,
+                total,
+                len(members),
+                [
+                    {
+                        "code": "kommune",
+                        "text": "tidsserie hydra members",
+                        "selected": total,
+                        "available": len(members),
+                    }
+                ],
+            )
+        cells = cells_from_utdanning_tidsserie(got.body)
+        if len(cells) > UTDANNING_MAX_CELLS:
+            raise SelectionTooLarge(
+                table_id,
+                len(cells),
+                UTDANNING_MAX_CELLS,
+                [
+                    {
+                        "code": "kommune",
+                        "text": "tidsserie cells",
+                        "selected": len(cells),
+                        "available": UTDANNING_MAX_CELLS,
+                    }
+                ],
+            )
         counts.listed = len(cells)
+        retrieved_at = utc_now()
         sample = _store_cells(
             registry,
             dataset,
             run_id,
             table_id=table_id,
             cells=cells,
-            retrieved_at=utc_now(),
-            request_url=access_path,
+            retrieved_at=retrieved_at,
+            request_url=request_url,
             http_status=http_status,
             counts=counts,
+        )
+        registry.set_capability(
+            dataset["id"],
+            {
+                "capability": CAPABILITY_OBSERVATIONS,
+                "record_kind": "observation",
+                "endpoint": access_path,
+                "request_method": "GET",
+                "verified_at": retrieved_at,
+                "verified_sample_count": counts.listed,
+                "notes": (
+                    f"{counts.listed} tidsserie cell(s); measures are printed "
+                    "antall_ansatte and antall_aarsverk"
+                ),
+            },
         )
         status = "completed"
     except Exception as exc:
@@ -7432,7 +7509,7 @@ def _fetch_utdanning(
     return FetchResult(
         dataset_id=dataset["id"],
         table_id=table_id,
-        request_url=access_path,
+        request_url=request_url,
         http_status=http_status,
         counts=counts,
         sample=sample,
@@ -15692,6 +15769,14 @@ def classify_access_path(access_path: str | None) -> dict[str, Any]:
                 "cells for one printed fish code"
             ),
         }
+    if is_utdanning_tidsserie_url(access_path):
+        return {
+            "kind": CAPABILITY_OBSERVATIONS,
+            "reason": (
+                "Utdanning.no tidsserie; printed antall_ansatte and "
+                "antall_aarsverk for one printed kommune"
+            ),
+        }
     if is_kystverket_vessels_by_type_url(access_path):
         return {
             "kind": CAPABILITY_OBSERVATIONS,
@@ -16006,6 +16091,14 @@ def classify_access_path(access_path: str | None) -> dict[str, Any]:
             "reason": (
                 "Kystdatahuset county, location, or GeoJSON catalog; ship "
                 "counts are vessels-by-type"
+            ),
+        }
+    if is_utdanning_url(access_path):
+        return {
+            "kind": CAPABILITY_NONE,
+            "reason": (
+                "Utdanning.no name catalog or hydra listing; employment "
+                "cells are tidsserie with select kommune"
             ),
         }
     if can_fetch_access_path(access_path):

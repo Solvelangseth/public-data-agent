@@ -1831,6 +1831,36 @@ realtime GeoJSON.
 
 Proof: `data/kystverket_vessels_proof.json`.
 
+## utdanning:tidsserie — 2026-09-14 — promoted (observations)
+
+**Endpoint(s).** `GET https://api.utdanning.no/arbeidsmarkedskart/tidsserie?kommune=0301&page=1&itemsPerPage=100`.
+Already harvested. OpenAPI prints optional `kommune` plus default
+`page=1` and `itemsPerPage=100`. Unfiltered hydra is 4171 rows and was
+not fetched. `endring_arbeidsmarked` is millions of rows and was not
+fetched. Licence is `null`.
+
+**Shape.** `observation`. Measures are the printed keys `antall_ansatte`
+and `antall_aarsverk`. Dimensions are printed `dato`, `kommunenr`,
+`kommunenavn`, `fylkenr`, `fylkenavn`, `region`, and `id`.
+
+**Capability recorded.** `observations`. Live GET 2026-09-14: HTTP 200,
+11 hydra members, 22 cells. Sample: Oslo (`0301`) `antall_ansatte`
+756403 (2025-10-14) and 777452 (2026-08-14). Unfiltered tidsserie is
+refused. A hydra page shorter than `hydra:totalItems` is refused, not
+truncated. Stedsvelger and other name catalogs classify `none`.
+
+**Surprises.**
+- The leftover decoder preferred `fylkenavn` / `tittel` as the measure.
+  Tidsserie now copies the printed numeric employee counts.
+- Bare `?kommune=0301` timed out; the printed OpenAPI defaults
+  `page=1&itemsPerPage=100` with `kommune` returned in seconds.
+
+**Open question for the query side.** `stedsvelger` could become lookup
+entities addressed by printed `fylkenr`. Do not dump
+`endring_arbeidsmarked`.
+
+Proof: `data/utdanning_tidsserie_proof.json`.
+
 
 
 

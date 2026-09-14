@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from typing import Any
-from urllib.parse import urljoin, urlsplit
+from urllib.parse import parse_qsl, urlencode, urljoin, urlsplit, urlunsplit
 
 from public_data_agent.http_util import HttpClient, RateLimiter
 from public_data_agent.models import DatasetRef, HarvestedRecord, SourceError
@@ -19,6 +19,14 @@ UTDANNING_RPS = 2.0
 UTDANNING_BURST = 4
 HOST = "api.utdanning.no"
 NAME_FIELDS = ("fylkenavn", "tittel", "name", "navn", "yrke_navn")
+TIDSSERIE_PATH = "/arbeidsmarkedskart/tidsserie"
+TIDSSERIE_MEASURES = ("antall_ansatte", "antall_aarsverk")
+UTDANNING_MAX_CELLS = 100
+ALLOWED_SELECT = frozenset({"kommune"})
+# Printed OpenAPI defaults. Sending them keeps the request on the
+# working query shape; unfiltered hydra is 4171 rows.
+TIDSSERIE_PAGE = "1"
+TIDSSERIE_PAGE_SIZE = "100"
 
 
 class UtdanningSource(SourceBase):
@@ -170,6 +178,90 @@ def is_utdanning_url(access_path: str | None) -> bool:
 def utdanning_table_id(access_path: str) -> str:
     segment = urlsplit(access_path).path.rstrip("/").split("/")[-1]
     return segment or "utdanning"
+
+
+def is_utdanning_tidsserie_url(access_path: str | None) -> bool:
+    """Employment time series. Stedsvelger and other catalogs are different paths."""
+
+    if not is_utdanning_url(access_path):
+        return False
+    path = urlsplit(access_path).path.rstrip("/").casefold()
+    return path == TIDSSERIE_PATH
+
+
+def selected_kommune(select: dict[str, list[str]] | None) -> str:
+    """Copy the printed OpenAPI `kommune` query parameter from select."""
+
+    select = {str(key): value for key, value in (select or {}).items()}
+    unknown = sorted(key for key in select if key not in ALLOWED_SELECT)
+    if unknown:
+        raise ValueError(
+            f"select names field(s) {unknown} that a tidsserie fetch does not "
+            f"filter on; accepted: {sorted(ALLOWED_SELECT)}"
+        )
+    wanted = select.get("kommune")
+    if not wanted:
+        raise ValueError(
+            "unfiltered tidsserie is 4171 hydra rows; select a printed kommune code"
+        )
+    values = [wanted] if isinstance(wanted, str) else [str(item) for item in wanted]
+    if len(values) != 1 or not values[0].strip():
+        raise ValueError("select kommune to a single printed municipality code")
+    code = values[0].strip()
+    if not code.isdigit():
+        raise ValueError(
+            f"select[kommune]={code!r} is not a printed municipality id; "
+            "kommune must be digits"
+        )
+    return code
+
+
+def tidsserie_request_url(access_path: str, kommune: str) -> str:
+    parts = urlsplit(access_path)
+    query = dict(parse_qsl(parts.query, keep_blank_values=True))
+    query["kommune"] = kommune
+    query["page"] = TIDSSERIE_PAGE
+    query["itemsPerPage"] = TIDSSERIE_PAGE_SIZE
+    return urlunsplit(
+        (parts.scheme, parts.netloc, parts.path, urlencode(query), parts.fragment)
+    )
+
+
+def cells_from_utdanning_tidsserie(payload: Any) -> list[tuple[str, Any, dict[str, str]]]:
+    """Copy printed tidsserie hydra members into observation cells.
+
+    Measures are the printed keys ``antall_ansatte`` and ``antall_aarsverk``.
+    Other scalars stay as dimensions. Nested objects are not copied.
+    """
+
+    if not isinstance(payload, dict) or not isinstance(payload.get("hydra:member"), list):
+        raise ValueError("utdanning tidsserie payload is not a hydra collection")
+    cells: list[tuple[str, Any, dict[str, str]]] = []
+    for item in payload["hydra:member"]:
+        if not isinstance(item, dict):
+            continue
+        dims = {
+            key: _as_dim(value)
+            for key, value in item.items()
+            if key not in TIDSSERIE_MEASURES and _is_scalar(value)
+        }
+        for measure in TIDSSERIE_MEASURES:
+            value = item.get(measure)
+            if isinstance(value, bool) or not isinstance(value, (int, float)):
+                continue
+            cells.append((measure, value, dict(dims)))
+    if not cells:
+        raise ValueError("utdanning tidsserie payload printed no antall cells")
+    return cells
+
+
+def tidsserie_total_items(payload: Any) -> int | None:
+    if not isinstance(payload, dict):
+        return None
+    total = payload.get("hydra:totalItems")
+    if isinstance(total, int) and not isinstance(total, bool):
+        return total
+    return None
 
 
 def cells_from_utdanning(payload: Any) -> list[tuple[str, Any, dict[str, str]]]:

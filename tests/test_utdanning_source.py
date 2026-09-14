@@ -5,7 +5,9 @@ from pathlib import Path
 
 import pytest
 
-from public_data_agent.fetch import fetch_observations
+from urllib.parse import parse_qs, urlsplit
+
+from public_data_agent.fetch import classify_access_path, fetch_observations
 from public_data_agent.harvest import harvest
 from public_data_agent.http_util import JsonResponse
 from public_data_agent.registry import Registry
@@ -13,6 +15,8 @@ from public_data_agent.sources import SOURCE_IDS, build_source
 from public_data_agent.sources.utdanning import (
     UtdanningSource,
     cells_from_utdanning,
+    cells_from_utdanning_tidsserie,
+    is_utdanning_tidsserie_url,
     is_utdanning_url,
     printed_endpoint_url,
     printed_license_url,
@@ -22,7 +26,9 @@ from public_data_agent.sources.utdanning import (
 OPENAPI_URL = "https://api.utdanning.no/openapi.json"
 STEDSVELGER_URL = "https://api.utdanning.no/arbeidsmarkedskart/stedsvelger"
 CAMPUS_URL = "https://api.utdanning.no/arbeidsmarkedskart/campus_yrke"
+TIDSSERIE_URL = "https://api.utdanning.no/arbeidsmarkedskart/tidsserie"
 DATASET_ID = "utdanning:stedsvelger"
+TIDSSERIE_ID = "utdanning:tidsserie"
 
 OPENAPI = {
     "info": {
@@ -64,6 +70,33 @@ STEDSVELGER_BODY = [
         "region": "Østlandet",
     },
 ]
+TIDSSERIE_BODY = {
+    "hydra:member": [
+        {
+            "id": "tidsserie_0301_2016-10-14",
+            "dato": "2016-10-14",
+            "antall_ansatte": 640739,
+            "antall_aarsverk": 523385,
+            "kommunenr": "0301",
+            "kommunenavn": "Oslo",
+            "fylkenr": "03",
+            "fylkenavn": "Oslo",
+            "region": "kommune",
+        },
+        {
+            "id": "tidsserie_0301_2017-10-14",
+            "dato": "2017-10-14",
+            "antall_ansatte": 650000,
+            "antall_aarsverk": 530000,
+            "kommunenr": "0301",
+            "kommunenavn": "Oslo",
+            "fylkenr": "03",
+            "fylkenavn": "Oslo",
+            "region": "kommune",
+        },
+    ],
+    "hydra:totalItems": 2,
+}
 
 
 class CatalogHttp:
@@ -79,6 +112,13 @@ class CatalogHttp:
 
 class FetchHttp:
     def get_json_response(self, url: str, *, headers=None) -> JsonResponse:
+        parts = urlsplit(url)
+        if parts.path.rstrip("/") == urlsplit(TIDSSERIE_URL).path.rstrip("/"):
+            kommune = parse_qs(parts.query).get("kommune", [None])[0]
+            body = dict(TIDSSERIE_BODY)
+            if kommune and kommune != "0301":
+                body = {"hydra:member": [], "hydra:totalItems": 0}
+            return JsonResponse(status=200, url=url, body=body)
         if url == STEDSVELGER_URL:
             return JsonResponse(status=200, url=url, body=STEDSVELGER_BODY)
         raise AssertionError(f"unexpected GET {url}")
@@ -149,33 +189,96 @@ def test_harvest_writes_printed_id_and_null_license(tmp_path: Path) -> None:
     registry.close()
 
 
-def test_fetch_gets_printed_stedsvelger(tmp_path: Path) -> None:
+def test_fetch_refuses_stedsvelger_name_catalog(tmp_path: Path) -> None:
     source = UtdanningSource(http=CatalogHttp())
     registry = Registry(tmp_path / "registry.sqlite")
     harvest(registry, source)
+    with pytest.raises(ValueError, match="tidsserie"):
+        fetch_observations(
+            registry,
+            DATASET_ID,
+            table_id="ignored",
+            http=FetchHttp(),
+        )
+    registry.close()
+
+
+def test_tidsserie_url_is_observations() -> None:
+    assert is_utdanning_tidsserie_url(TIDSSERIE_URL)
+    assert not is_utdanning_tidsserie_url(STEDSVELGER_URL)
+    assert classify_access_path(TIDSSERIE_URL)["kind"] == "observations"
+    assert classify_access_path(STEDSVELGER_URL)["kind"] == "none"
+
+
+def test_fetch_gets_printed_tidsserie_counts(tmp_path: Path) -> None:
+    registry = Registry(tmp_path / "registry.sqlite")
+    registry.ensure_observation_dataset(
+        dataset_id=TIDSSERIE_ID,
+        title="Retrieves the collection of Tidsserie resources.",
+        publisher_name=None,
+        access_path=TIDSSERIE_URL,
+        license=None,
+    )
+    registry.conn.commit()
     result = fetch_observations(
         registry,
-        DATASET_ID,
+        TIDSSERIE_ID,
         table_id="ignored",
         http=FetchHttp(),
+        select={"kommune": ["0301"]},
     )
-    assert result.request_url == STEDSVELGER_URL
-    assert result.table_id == "stedsvelger"
+    assert "kommune=0301" in result.request_url
+    assert "itemsPerPage=100" in result.request_url
+    assert result.table_id == "tidsserie"
     assert result.http_status == 200
-    assert result.counts.listed == 2
-    rows = registry.list_observations(DATASET_ID)
-    assert [json.loads(row["value_json"]) for row in rows] == ["Jan Mayen", "Oslo"]
-    assert all(row["measure"] == "fylkenavn" for row in rows)
-    dims = json.loads(rows[0]["dimensions_json"])
-    assert dims["fylkenr"] == "22"
-    assert dims["fylketype"] == "EXTRA"
-    assert dims["har_bedrifter"] == "True"
-    assert dims["region"] == ""
-    assert "kommuner" not in dims
-    assert all(row["publisher_name"] is None for row in rows)
+    assert result.counts.listed == 4
+    rows = registry.list_observations(TIDSSERIE_ID)
+    ansatte = [
+        json.loads(row["value_json"])
+        for row in rows
+        if row["measure"] == "antall_ansatte"
+    ]
+    assert sorted(ansatte) == [640739, 650000]
+    dims = json.loads(
+        next(row["dimensions_json"] for row in rows if row["measure"] == "antall_ansatte")
+    )
+    assert dims["kommunenr"] == "0301"
+    assert dims["dato"] in {"2016-10-14", "2017-10-14"}
     assert all(row["license"] is None for row in rows)
-    assert all(row["access_path"] == STEDSVELGER_URL for row in rows)
+    cap = registry.get_capability(TIDSSERIE_ID)
+    assert cap["capability"] == "observations"
     registry.close()
+
+
+def test_fetch_refuses_unfiltered_tidsserie(tmp_path: Path) -> None:
+    registry = Registry(tmp_path / "registry.sqlite")
+    registry.ensure_observation_dataset(
+        dataset_id=TIDSSERIE_ID,
+        title="Tidsserie",
+        publisher_name=None,
+        access_path=TIDSSERIE_URL,
+        license=None,
+    )
+    registry.conn.commit()
+    with pytest.raises(ValueError, match="printed kommune"):
+        fetch_observations(
+            registry,
+            TIDSSERIE_ID,
+            table_id="tidsserie",
+            http=FetchHttp(),
+        )
+    registry.close()
+
+
+def test_cells_copy_printed_tidsserie_counts() -> None:
+    cells = cells_from_utdanning_tidsserie(TIDSSERIE_BODY)
+    assert cells[0][0] == "antall_ansatte"
+    assert cells[0][1] == 640739
+    assert cells[0][2]["kommunenr"] == "0301"
+    assert cells[1][0] == "antall_aarsverk"
+    assert cells[1][1] == 523385
+    with pytest.raises(ValueError, match="hydra collection"):
+        cells_from_utdanning_tidsserie([])
 
 
 def test_cells_copy_printed_fylkenavn_and_hydra() -> None:

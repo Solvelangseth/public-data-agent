@@ -1,0 +1,29 @@
+{
+  "dataset": "utdanning:tidsserie",
+  "request_url": "https://api.utdanning.no/arbeidsmarkedskart/tidsserie?kommune=0301&page=1&itemsPerPage=100",
+  "http_status": 200,
+  "listed": 22,
+  "inserted": 22,
+  "license": null,
+  "sample": [
+    {
+      "measure": "antall_ansatte",
+      "value": 756403,
+      "dimensions": {
+        "dato": "2025-10-14",
+        "kommunenr": "0301",
+        "kommunenavn": "Oslo"
+      }
+    },
+    {
+      "measure": "antall_ansatte",
+      "value": 777452,
+      "dimensions": {
+        "dato": "2026-08-14",
+        "kommunenr": "0301",
+        "kommunenavn": "Oslo"
+      }
+    }
+  ],
+  "note": "Printed antall_ansatte and antall_aarsverk for printed kommune 0301 (11 dates, 22 cells). Unfiltered hydra (4171 rows) was not fetched. Stedsvelger name catalog refused."
+}
