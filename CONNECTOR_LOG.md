@@ -2494,6 +2494,52 @@ and should not be dumped as observations.
 
 Proof: `data/kystverket_fvpomr_proof.json`.
 
+## miljodir:Public_GetMediumList — 2026-09-14 — promoted (lookup)
+
+**Endpoint(s).** `GET https://vannmiljoapi.miljodirektoratet.no/api/Public/GetMediumList`.
+Already harvested. Licence is `null`.
+
+**Shape.** `lookup` entities under `miljodir:MediumID`. Key is printed
+`MediumID`. Label is printed `Name`. Nested objects are not copied.
+Empty keys skipped.
+
+**Capability recorded.** `lookup`. Live GET 2026-09-14: HTTP 200, 55
+entities. Sample: `BB` Biota bløtdeler, `BH` Biota helkropp, `BL`
+Biota lever. Units stay lookup. Other leftover name lists still copy
+`Name` as an observation measure.
+
+**Surprises.**
+- The leftover decoder stored `Name` as an observation measure.
+- Live `SortOrder` is null and is skipped.
+- Earlier source proof counted 54 rows; live now prints 55, last
+  `BDF` Biota gonader (hunn).
+
+**Open question for the query side.** `GetParameterList` is another
+printed leftover catalog. Species lists should not be dumped.
+
+Proof: `data/miljodir_mediums_proof.json`.
+
+## resource index — Oslo PxWeb and SSB PxWebApi 2 — 2026-09-14
+
+The leftover-connector hourly loop was cancelled. Next work is the
+resource index on banks that already return cells.
+
+**Oslo.** `index_dataset` now reads Oslo PxWeb the same way as SSB v0.
+`pda shape --source oslo`: 10/10 indexed. Period span is from printed
+year *labels* when the codes are positional (`0`/`1` → 1801–2026 on
+BEF008). Geography is not Klass kommune or bydel (Oslo uses 1, 2, 3 and
+GO names). Keys stay empty.
+
+**SSB v2.** Shape from printed `/tables/{id}/metadata` json-stat2.
+`pda shape --source ssbv2`: 10/10 indexed. `role.time` / `role.metric`
+name period and measure. These labour-force tables have no Region, so no
+Klass key.
+
+`pda shape --source` is the caller `index_dataset` did not have outside
+tests.
+
+Proof: `data/shape_oslo_ssbv2_proof.json`.
+
 
 
 

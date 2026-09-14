@@ -11,11 +11,14 @@ from public_data_agent.http_util import JsonResponse
 from public_data_agent.registry import Registry
 from public_data_agent.sources import SOURCE_IDS, build_source
 from public_data_agent.sources.miljodir import (
+    MEDIUM_SCHEME,
     UNIT_SCHEME,
     MiljodirVannmiljoSource,
     cells_from_miljodir,
+    is_miljodir_medium_list_url,
     is_miljodir_unit_list_url,
     is_miljodir_url,
+    lookups_from_miljodir_mediums,
     lookups_from_miljodir_units,
     miljodir_table_id,
     printed_endpoint_url,
@@ -172,7 +175,7 @@ def test_harvest_writes_printed_id_and_null_license_publisher(tmp_path: Path) ->
     registry.close()
 
 
-def test_fetch_gets_printed_medium_list(tmp_path: Path) -> None:
+def test_fetch_stores_mediums_as_lookup(tmp_path: Path) -> None:
     source = MiljodirVannmiljoSource(http=CatalogHttp())
     registry = Registry(tmp_path / "registry.sqlite")
     harvest(registry, source)
@@ -186,27 +189,36 @@ def test_fetch_gets_printed_medium_list(tmp_path: Path) -> None:
     assert result.table_id == "GetMediumList"
     assert result.http_status == 200
     assert result.counts.listed == 2
-    rows = registry.list_observations(DATASET_ID)
-    values = [json.loads(row["value_json"]) for row in rows]
-    assert values == ["Biota bløtdeler", "Sediment"] or values == [
-        "Sediment",
-        "Biota bløtdeler",
-    ]
-    assert all(row["measure"] == "Name" for row in rows)
-    by_name = {json.loads(row["value_json"]): row for row in rows}
-    dims = json.loads(by_name["Sediment"]["dimensions_json"])
-    assert dims["MediumID"] == "SE"
-    assert dims["EUcode"] == "Sediment"
-    assert all(row["publisher_name"] is None for row in rows)
-    assert all(row["license"] is None for row in rows)
-    assert all(row["access_path"] == MEDIUM_URL for row in rows)
+    assert registry.list_observations(DATASET_ID) == []
+    rows = registry.list_records(DATASET_ID, kind="entity")
+    by_code = {row["subject_code"]: row for row in rows}
+    assert by_code["BB"]["subject_label"] == "Biota bløtdeler"
+    assert by_code["BB"]["subject_scheme"] == MEDIUM_SCHEME
+    assert by_code["SE"]["subject_label"] == "Sediment"
+    attrs = json.loads(by_code["SE"]["attributes_json"])
+    assert attrs["EUcode"] == "Sediment"
+    assert attrs["IsWaterRelated"] is True
+    cap = registry.get_capability(DATASET_ID)
+    assert cap["capability"] == "lookup"
     registry.close()
+
+
+def test_lookups_copy_printed_medium_id() -> None:
+    members = lookups_from_miljodir_mediums(MEDIUM_BODY)
+    assert members[0]["subject_code"] == "BB"
+    assert members[0]["subject_scheme"] == MEDIUM_SCHEME
+    assert members[0]["subject_label"] == "Biota bløtdeler"
+    with pytest.raises(ValueError, match="printed no MediumID"):
+        lookups_from_miljodir_mediums([])
 
 
 def test_unit_list_url_is_lookup() -> None:
     assert is_miljodir_unit_list_url(UNIT_URL)
     assert not is_miljodir_unit_list_url(MEDIUM_URL)
     assert classify_access_path(UNIT_URL)["kind"] == "lookup"
+    assert is_miljodir_medium_list_url(MEDIUM_URL)
+    assert not is_miljodir_medium_list_url(UNIT_URL)
+    assert classify_access_path(MEDIUM_URL)["kind"] == "lookup"
 
 
 def test_fetch_stores_units_as_lookup(tmp_path: Path) -> None:

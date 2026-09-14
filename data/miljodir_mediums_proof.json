@@ -1,0 +1,15 @@
+{
+  "dataset": "miljodir:Public_GetMediumList",
+  "request_url": "https://vannmiljoapi.miljodirektoratet.no/api/Public/GetMediumList",
+  "http_status": 200,
+  "listed": 55,
+  "inserted": 55,
+  "scheme": "miljodir:MediumID",
+  "license": null,
+  "sample": [
+    {"subject_code": "BB", "subject_label": "Biota bløtdeler"},
+    {"subject_code": "BH", "subject_label": "Biota helkropp"},
+    {"subject_code": "BL", "subject_label": "Biota lever"}
+  ],
+  "note": "Printed MediumID as lookup keys from the JSON array. Leftover name catalogs besides units and media were not converted."
+}

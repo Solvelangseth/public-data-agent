@@ -978,10 +978,13 @@ from public_data_agent.sources.kystverket import (
     lookups_from_kystverket_fvpomr,
 )
 from public_data_agent.sources.miljodir import (
+    MEDIUM_SCHEME,
     UNIT_SCHEME,
     cells_from_miljodir,
+    is_miljodir_medium_list_url,
     is_miljodir_unit_list_url,
     is_miljodir_url,
+    lookups_from_miljodir_mediums,
     lookups_from_miljodir_units,
     miljodir_table_id,
 )
@@ -16056,15 +16059,34 @@ def _fetch_miljodir(
     *,
     http: JsonHttp | None = None,
 ) -> FetchResult:
-    """Fetch the printed unit catalog, or leftover Vannmiljø name lists.
+    """Fetch printed unit/medium catalogs, or leftover Vannmiljø name lists.
 
-    Units are lookup entities keyed by printed ``UnitID``. Other leftover
-    catalogs still copy a printed name field as an observation measure.
+    Units and media are lookup entities keyed by printed ``UnitID`` /
+    ``MediumID``. Other leftover catalogs still copy a printed name
+    field as an observation measure.
     """
 
     access_path = dataset.get("access_path") or ""
     if is_miljodir_unit_list_url(access_path):
-        return _fetch_miljodir_units(registry, dataset, http=http)
+        return _fetch_miljodir_lookup(
+            registry,
+            dataset,
+            http=http,
+            members_fn=lookups_from_miljodir_units,
+            scheme=UNIT_SCHEME,
+            series="miljodir:units",
+            notes_kind="unit",
+        )
+    if is_miljodir_medium_list_url(access_path):
+        return _fetch_miljodir_lookup(
+            registry,
+            dataset,
+            http=http,
+            members_fn=lookups_from_miljodir_mediums,
+            scheme=MEDIUM_SCHEME,
+            series="miljodir:mediums",
+            notes_kind="medium",
+        )
     client = http or HttpClient(timeout=60.0, max_retries=4)
     table_id = miljodir_table_id(access_path)
     started = utc_now()
@@ -16113,13 +16135,17 @@ def _fetch_miljodir(
     )
 
 
-def _fetch_miljodir_units(
+def _fetch_miljodir_lookup(
     registry: Registry,
     dataset: dict[str, Any],
     *,
     http: JsonHttp | None = None,
+    members_fn,
+    scheme: str,
+    series: str,
+    notes_kind: str,
 ) -> FetchResult:
-    """Fetch Vannmiljø units as lookup entities."""
+    """Fetch a printed Vannmiljø catalog as lookup entities."""
 
     access_path = dataset.get("access_path") or ""
     table_id = miljodir_table_id(access_path)
@@ -16140,7 +16166,7 @@ def _fetch_miljodir_units(
         got = client.get_json_response(access_path)
         http_status = got.status
         registry.set_fetch_request(run_id, request_url=access_path, request_body={"method": "GET"})
-        members = lookups_from_miljodir_units(got.body)
+        members = members_fn(got.body)
         retrieved_at = utc_now()
         for entity in members:
             record_id = f"entity:{dataset['id']}:{entity['subject_code']}"
@@ -16149,7 +16175,7 @@ def _fetch_miljodir_units(
                     "id": record_id,
                     "dataset_id": dataset["id"],
                     "kind": "entity",
-                    "series": "miljodir:units",
+                    "series": series,
                     "subject_scheme": entity["subject_scheme"],
                     "subject_code": entity["subject_code"],
                     "subject_label": entity["subject_label"],
@@ -16188,13 +16214,13 @@ def _fetch_miljodir_units(
                 "record_kind": "lookup",
                 "endpoint": access_path,
                 "request_method": "GET",
-                "subject_scheme": UNIT_SCHEME,
+                "subject_scheme": scheme,
                 "subject_count": counts.listed,
                 "verified_at": retrieved_at,
                 "verified_sample_count": counts.listed,
                 "notes": (
-                    f"{counts.listed} printed unit lookup entit"
-                    f"{'y' if counts.listed == 1 else 'ies'} under {UNIT_SCHEME}"
+                    f"{counts.listed} printed {notes_kind} lookup entit"
+                    f"{'y' if counts.listed == 1 else 'ies'} under {scheme}"
                 ),
             },
         )
@@ -16720,6 +16746,14 @@ def classify_access_path(access_path: str | None) -> dict[str, Any]:
             "reason": (
                 "Vannmiljø GetUnitList; printed unit catalog as lookup "
                 f"entities under {UNIT_SCHEME}"
+            ),
+        }
+    if is_miljodir_medium_list_url(access_path):
+        return {
+            "kind": CAPABILITY_LOOKUP,
+            "reason": (
+                "Vannmiljø GetMediumList; printed medium catalog as lookup "
+                f"entities under {MEDIUM_SCHEME}"
             ),
         }
     if is_norgesbank_observations_url(access_path):
