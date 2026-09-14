@@ -1701,6 +1701,46 @@ way; they were not dumped this slice.
 
 Proof: `data/ssbv2_13760_proof.json`.
 
+## norgesbank:IR — 2026-09-14 — promoted (observations)
+
+**Endpoint(s).** `GET https://data.norges-bank.no/api/data/IR?format=sdmx-json&lastNObservations=5`.
+Already harvested with 23 neighbour SDMX dataflows. `CBC_CALENDAR` prints
+ISINs as both measure and value and was not fetched. `MONEY_MARKET`
+answers lastN=1 with ~34906 cells and was not fetched. Licence is `null`;
+the SDMX message prints none.
+
+**Shape.** `observation`. Measure is the printed SDMX structure name
+(`Styringsrente`). Dimensions are printed `FREQ`, `INSTRUMENT_TYPE`,
+`TENOR`, `UNIT_MEASURE`, and `TIME_PERIOD`. Values are the first printed
+observation array element, copied as printed (strings such as `"0.08"`).
+No period is invented.
+
+**Capability recorded.** `observations` for leftover SDMX dataflows whose
+decoder copies printed observation values: IR, EXR, SHORT_RATES,
+ANN_KPRA, GOVT_GENERIC_RATES, GOVT_IRS, GOVT_ZEROCOUPON,
+FINANCIAL_INDICATORS. Live GET 2026-09-14: HTTP 200, 45 cells. Sample:
+Styringsrente `"0.08"` (Annual, Key policy rate, Policy rate, Rate, 2021),
+`"1.33"` (2022). More than 2000 cells is refused, not truncated. lastN is
+capped at 100 (default 5). Calendars and wide dumps stay `unverified`.
+
+**Surprises.**
+- The leftover decoder already copied printed SDMX observation values.
+  Classify had left every `/api/data/{id}` URL `unverified`, so MCP search
+  would not offer a flow as observations until a live fetch wrote
+  `resource_capability`.
+- `CBC_CALENDAR` lastN=5 stores 70 cells whose measure and value are both
+  the printed ISIN. That is not a measure; it stays unverified.
+- Indexing a calendar still writes `unverified`. Indexing must not promote
+  a shape-only read to observations.
+
+**Open question for the query side.** A wide flow (MONEY_MARKET,
+LIQUIDITY_FORECAST) still needs a printed series-key select. URL classify
+does not claim those. Neighbour observation flows classify the same way;
+they were not dumped this slice.
+
+Proof: `data/norgesbank_ir_proof.json`.
+
+
 
 
 

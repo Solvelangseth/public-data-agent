@@ -1,0 +1,34 @@
+{
+  "dataset": "norgesbank:IR",
+  "title": "Styringsrente",
+  "request_url": "https://data.norges-bank.no/api/data/IR?format=sdmx-json&lastNObservations=5",
+  "http_status": 200,
+  "listed": 45,
+  "inserted": 36,
+  "license": null,
+  "sample": [
+    {
+      "measure": "Styringsrente",
+      "value": "0.08",
+      "dimensions": {
+        "FREQ": "Annual",
+        "INSTRUMENT_TYPE": "Key policy rate",
+        "TENOR": "Policy rate",
+        "UNIT_MEASURE": "Rate",
+        "TIME_PERIOD": "2021"
+      }
+    },
+    {
+      "measure": "Styringsrente",
+      "value": "1.33",
+      "dimensions": {
+        "FREQ": "Annual",
+        "INSTRUMENT_TYPE": "Key policy rate",
+        "TENOR": "Policy rate",
+        "UNIT_MEASURE": "Rate",
+        "TIME_PERIOD": "2022"
+      }
+    }
+  ],
+  "note": "Bounded lastNObservations=5. Measure is the printed SDMX structure name. CBC_CALENDAR (ISINs, not measures) and MONEY_MARKET (too wide) were not fetched. No period was invented."
+}

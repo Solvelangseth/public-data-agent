@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from public_data_agent.fetch import fetch_observations
+from public_data_agent.fetch import classify_access_path, fetch_observations
 from public_data_agent.harvest import harvest
 from public_data_agent.http_util import JsonResponse
 from public_data_agent.registry import Registry
@@ -14,6 +14,7 @@ from public_data_agent.sources.norgesbank import (
     LIST_URL,
     NorgesBankSource,
     cells_from_norgesbank,
+    is_norgesbank_observations_url,
     is_norgesbank_url,
     norgesbank_table_id,
     printed_data_url,
@@ -21,6 +22,9 @@ from public_data_agent.sources.norgesbank import (
 
 ANN_KPRA_URL = "https://data.norges-bank.no/api/data/ANN_KPRA?format=sdmx-json"
 EXR_URL = "https://data.norges-bank.no/api/data/EXR?format=sdmx-json"
+IR_URL = "https://data.norges-bank.no/api/data/IR?format=sdmx-json"
+CBC_CALENDAR_URL = "https://data.norges-bank.no/api/data/CBC_CALENDAR?format=sdmx-json"
+MONEY_MARKET_URL = "https://data.norges-bank.no/api/data/MONEY_MARKET?format=sdmx-json"
 DATASET_ID = "norgesbank:ANN_KPRA"
 
 CATALOG = {
@@ -247,6 +251,25 @@ def test_is_norgesbank_url_accepts_only_data_paths() -> None:
     assert not is_norgesbank_url("https://www.norges-bank.no/api/data/ANN_KPRA")
     assert not is_norgesbank_url("https://data-nbr.udir.no/v3/barnehagekategorier")
     assert not is_norgesbank_url(None)
+
+
+def test_observation_flows_classify_as_observations() -> None:
+    assert is_norgesbank_observations_url(ANN_KPRA_URL)
+    assert is_norgesbank_observations_url(EXR_URL)
+    assert is_norgesbank_observations_url(IR_URL)
+    assert classify_access_path(ANN_KPRA_URL)["kind"] == "observations"
+    assert classify_access_path(EXR_URL)["kind"] == "observations"
+    assert classify_access_path(IR_URL)["kind"] == "observations"
+
+
+def test_calendars_and_wide_dumps_stay_unverified() -> None:
+    assert is_norgesbank_url(CBC_CALENDAR_URL)
+    assert is_norgesbank_url(MONEY_MARKET_URL)
+    assert not is_norgesbank_observations_url(CBC_CALENDAR_URL)
+    assert not is_norgesbank_observations_url(MONEY_MARKET_URL)
+    assert not is_norgesbank_observations_url(LIST_URL)
+    assert classify_access_path(CBC_CALENDAR_URL)["kind"] == "unverified"
+    assert classify_access_path(MONEY_MARKET_URL)["kind"] == "unverified"
 
 
 def test_limit_and_offset_slice_printed_dataflows() -> None:

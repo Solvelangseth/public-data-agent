@@ -1,8 +1,10 @@
 """Prove what each Norges Bank dataflow returns, one bounded request each.
 
-A dataflow classifies as `unverified` from its URL, which keeps it out of the
-fetchable lane and is the right default. This discharges that by reading one
-period from each flow and recording the capability from what came back.
+Observation flows (IR, EXR, SHORT_RATES, and the other leftover SDMX
+series that print measure names) classify as `observations` from the URL.
+Calendars and wide dumps stay `unverified` until a bounded fetch records
+cells. This script still reads one period from each flow and records the
+capability from what came back.
 
 Every flow's series dimensions are indexed first, from `detail=serieskeysonly`,
 which lists the codes that occur without any observations. That is what makes a

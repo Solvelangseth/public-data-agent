@@ -1049,6 +1049,7 @@ from public_data_agent.sources.nbconcept import (
 )
 from public_data_agent.sources.norgesbank import (
     cells_from_norgesbank,
+    is_norgesbank_observations_url,
     is_norgesbank_url,
     norgesbank_table_id,
 )
@@ -6625,10 +6626,9 @@ def _fetch_norgesbank(
             counts=counts,
         )
         if cells:
-            # The dataflow classifies as `unverified` from its URL alone, which
-            # is the honest default and is what keeps it out of the fetchable
-            # lane. Having just read numeric cells from it, say so: a capability
-            # is claimed from records actually seen.
+            # Observation flows classify as observations from the URL.
+            # Calendars and wide dumps stay unverified until a bounded fetch
+            # actually returns cells. Having just read numeric cells, say so.
             registry.set_capability(
                 dataset["id"],
                 {
@@ -15579,6 +15579,14 @@ def classify_access_path(access_path: str | None) -> dict[str, Any]:
             "reason": (
                 "SSB PxWebApi 2 json-stat2 data href; printed ContentsCode "
                 "cells for the publisher's default slice"
+            ),
+        }
+    if is_norgesbank_observations_url(access_path):
+        return {
+            "kind": CAPABILITY_OBSERVATIONS,
+            "reason": (
+                "Norges Bank SDMX dataflow; printed observation values "
+                "bounded by lastNObservations and a series key"
             ),
         }
     if is_mattilsynet_preparat_url(access_path):

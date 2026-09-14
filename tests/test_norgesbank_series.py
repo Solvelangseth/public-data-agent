@@ -259,15 +259,27 @@ def test_indexing_asks_for_series_keys_and_keeps_a_proven_capability(tmp_path: P
 def test_indexing_an_unproven_flow_does_not_claim_it_works(tmp_path: Path) -> None:
     from public_data_agent.resource_index import index_dataset
 
+    calendar_id = "norgesbank:CBC_CALENDAR"
+    calendar_url = "https://data.norges-bank.no/api/data/CBC_CALENDAR?format=sdmx-json"
+
     class ShapeHttp:
         def get_json_response(self, url: str, *, headers=None) -> JsonResponse:
             return JsonResponse(status=200, url=url, body=SERIESKEYS)
 
-    registry = _registry(tmp_path, shaped=False)
+    registry = Registry(tmp_path / "registry.sqlite")
+    registry.ensure_observation_dataset(
+        dataset_id=calendar_id,
+        title="CBC calendar",
+        publisher_name="Norges Bank",
+        access_path=calendar_url,
+        license=None,
+    )
+    registry.conn.commit()
     try:
-        index_dataset(registry, DATASET_ID, http=ShapeHttp())
-        capability = registry.get_capability(DATASET_ID)
-        # A shape says what a flow claims to hold, not that reading it works.
+        index_dataset(registry, calendar_id, http=ShapeHttp())
+        capability = registry.get_capability(calendar_id)
+        # A calendar prints identifiers, not measures. A shape still does not
+        # prove a fetch, so indexing must not promote it to observations.
         assert capability["capability"] == "unverified"
         assert capability["verified_at"] is None
     finally:

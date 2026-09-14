@@ -20,6 +20,22 @@ INGEST_REASON = (
 NORGESBANK_RPS = 2.0
 NORGESBANK_BURST = 4
 HOST = "data.norges-bank.no"
+# SDMX dataflows whose leftover decoder copies printed observation values.
+# Calendars and instrument lists print identifiers, not measures, and stay
+# unverified. Wide dumps (MONEY_MARKET, LIQUIDITY_FORECAST) stay unverified
+# until a narrowed fetch claims capability from cells actually seen.
+OBSERVATION_FLOWS = frozenset(
+    {
+        "IR",
+        "EXR",
+        "SHORT_RATES",
+        "ANN_KPRA",
+        "GOVT_GENERIC_RATES",
+        "GOVT_IRS",
+        "GOVT_ZEROCOUPON",
+        "FINANCIAL_INDICATORS",
+    }
+)
 
 
 class NorgesBankSource(SourceBase):
@@ -204,6 +220,12 @@ def is_norgesbank_url(access_path: str | None) -> bool:
 def norgesbank_table_id(access_path: str) -> str:
     segment = urlsplit(access_path).path.rstrip("/").split("/")[-1]
     return segment or "norgesbank"
+
+
+def is_norgesbank_observations_url(access_path: str | None) -> bool:
+    if not is_norgesbank_url(access_path):
+        return False
+    return norgesbank_table_id(access_path or "") in OBSERVATION_FLOWS
 
 
 def cells_from_norgesbank(payload: Any) -> list[tuple[str, Any, dict[str, str]]]:
