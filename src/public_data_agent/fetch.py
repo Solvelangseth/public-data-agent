@@ -373,9 +373,13 @@ from public_data_agent.sources.cristin import (
     is_cristin_url,
 )
 from public_data_agent.sources.omregning import (
+    OMREGNING_MAX_CELLS,
     cells_from_omregning,
+    is_omregning_search_url,
     is_omregning_url,
+    omregning_request_url,
     omregning_table_id,
+    selected_fish,
 )
 from public_data_agent.sources.hicoverages import (
     cells_from_hicoverages,
@@ -1555,7 +1559,7 @@ def fetch_observations(
     if is_cristin_url(access_path):
         return _fetch_cristin(registry, dataset, http=http)
     if is_omregning_url(access_path):
-        return _fetch_omregning(registry, dataset, http=http)
+        return _fetch_omregning(registry, dataset, http=http, select=select)
     if is_hicoverages_url(access_path):
         return _fetch_hicoverages(registry, dataset, http=http)
     if is_envreportreg_url(access_path):
@@ -13220,15 +13224,31 @@ def _fetch_omregning(
     dataset: dict[str, Any],
     *,
     http: JsonHttp | None = None,
+    select: dict[str, list[str]] | None = None,
 ) -> FetchResult:
+    """Fetch one printed fish code's conversion factor.
+
+    Measure is the printed key ``factor``. The unfiltered search is the
+    full catalog and is refused. More than OMREGNING_MAX_CELLS is refused,
+    not truncated. Unknown fish codes error after the publisher returns
+    no row; no fish code is invented.
+    """
+
     access_path = dataset.get("access_path") or ""
-    client = http or HttpClient(timeout=60.0, max_retries=4)
     table_id = omregning_table_id(access_path)
+    if not is_omregning_search_url(access_path):
+        raise ValueError(
+            "Omregningsfaktorer OpenAPI/codes paths are not a conversion-factor "
+            "observation fetch; use conversionfactors/search with select fish"
+        )
+    fish = selected_fish(select)
+    request_url = omregning_request_url(access_path, fish)
+    client = http or HttpClient(timeout=60.0, max_retries=4)
     started = utc_now()
     run_id = registry.start_fetch_run(
         dataset_id=dataset["id"],
         table_id=table_id,
-        request_url=access_path,
+        request_url=request_url,
         request_method="GET",
         started_at=started,
     )
@@ -13237,21 +13257,60 @@ def _fetch_omregning(
     http_status = 0
     sample: list[dict[str, Any]] = []
     try:
-        got = client.get_json_response(access_path)
+        got = client.get_json_response(request_url)
         http_status = got.status
-        registry.set_fetch_request(run_id, request_url=access_path, request_body={"method": "GET"})
+        registry.set_fetch_request(
+            run_id,
+            request_url=request_url,
+            request_body={"method": "GET", "select": select},
+        )
+        if isinstance(got.body, list) and not got.body:
+            raise ValueError(
+                f"conversion-factor search has no row matching fish={fish!r}; "
+                "fish must be a printed code"
+            )
         cells = cells_from_omregning(got.body)
+        if len(cells) > OMREGNING_MAX_CELLS:
+            raise SelectionTooLarge(
+                table_id,
+                len(cells),
+                OMREGNING_MAX_CELLS,
+                [
+                    {
+                        "code": "fish",
+                        "text": "conversion-factor cells",
+                        "selected": len(cells),
+                        "available": OMREGNING_MAX_CELLS,
+                    }
+                ],
+            )
         counts.listed = len(cells)
+        retrieved_at = utc_now()
         sample = _store_cells(
             registry,
             dataset,
             run_id,
             table_id=table_id,
             cells=cells,
-            retrieved_at=utc_now(),
-            request_url=access_path,
+            retrieved_at=retrieved_at,
+            request_url=request_url,
             http_status=http_status,
             counts=counts,
+        )
+        registry.set_capability(
+            dataset["id"],
+            {
+                "capability": CAPABILITY_OBSERVATIONS,
+                "record_kind": "observation",
+                "endpoint": access_path,
+                "request_method": "GET",
+                "verified_at": retrieved_at,
+                "verified_sample_count": counts.listed,
+                "notes": (
+                    f"{counts.listed} conversion-factor cell(s); measure is "
+                    "printed factor"
+                ),
+            },
         )
         status = "completed"
     except Exception as exc:
@@ -13263,7 +13322,7 @@ def _fetch_omregning(
     return FetchResult(
         dataset_id=dataset["id"],
         table_id=table_id,
-        request_url=access_path,
+        request_url=request_url,
         http_status=http_status,
         counts=counts,
         sample=sample,
@@ -15579,6 +15638,14 @@ def classify_access_path(access_path: str | None) -> dict[str, Any]:
             "reason": (
                 "SSB PxWebApi 2 json-stat2 data href; printed ContentsCode "
                 "cells for the publisher's default slice"
+            ),
+        }
+    if is_omregning_search_url(access_path):
+        return {
+            "kind": CAPABILITY_OBSERVATIONS,
+            "reason": (
+                "Fiskeridirektoratet conversion-factor search; printed factor "
+                "cells for one printed fish code"
             ),
         }
     if is_norgesbank_observations_url(access_path):

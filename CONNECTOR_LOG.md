@@ -1772,6 +1772,34 @@ series-key select. `LENDINGSURVEY` 404s as before.
 
 Proof: `data/norgesbank_settlement_proof.json`.
 
+## omregning:search — 2026-09-14 — promoted (observations)
+
+**Endpoint(s).** `GET https://api.fiskeridir.no/conversion-factor-api/api/v1/conversionfactors/search?fish=0102`.
+Already harvested. The OpenAPI prints optional query `fish`. Unfiltered
+search is 1950 rows and was not fetched. Templated `{id}` and required
+`codes?type=` were never ingested. Licence is `null`.
+
+**Shape.** `observation`. Measure is the printed key `factor`. Dimensions
+are printed `fish`, `condition`, `preservation`, `validityPeriodStart`,
+and `validityPeriodEnd`. Nested objects are not copied.
+
+**Capability recorded.** `observations`. Live GET 2026-09-14: HTTP 200, 1
+cell. Sample: factor `1` for fish `0102`, condition `110`, preservation
+`99`. Unfiltered search is refused. Unknown `fish` that returns no row is
+an error. More than 100 cells is refused, not truncated.
+
+**Surprises.**
+- The leftover decoder preferred `fish` as the measure and stored factor
+  as a dimension. Fetch now copies the printed numeric `factor`.
+- `airquality:values` is a parameter catalog; `airquality:met` 400s
+  without a station. `tidalwater:available` is an XML catalog. Those were
+  not promoted. No station or lat/lon was invented.
+
+**Open question for the query side.** A fish-code lookup could be the
+required `codes?type=` path, as lookup entities, not this search dump.
+
+Proof: `data/omregning_factor_proof.json`.
+
 
 
 

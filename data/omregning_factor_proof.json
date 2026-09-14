@@ -1,0 +1,22 @@
+{
+  "dataset": "omregning:search",
+  "request_url": "https://api.fiskeridir.no/conversion-factor-api/api/v1/conversionfactors/search?fish=0102",
+  "http_status": 200,
+  "listed": 1,
+  "inserted": 1,
+  "license": null,
+  "sample": [
+    {
+      "measure": "factor",
+      "value": 1,
+      "dimensions": {
+        "fish": "0102",
+        "condition": "110",
+        "preservation": "99",
+        "validityPeriodStart": "1976-12-31T23:00:00Z",
+        "validityPeriodEnd": "9999-12-30T23:00:00Z"
+      }
+    }
+  ],
+  "note": "Printed factor for printed fish=0102. Unfiltered search (1950 rows) was not fetched. Leftover decoder used to store fish codes as measures."
+}

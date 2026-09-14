@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from typing import Any
-from urllib.parse import urljoin, urlsplit
+from urllib.parse import parse_qsl, urlencode, urljoin, urlsplit, urlunsplit
 
 from public_data_agent.http_util import HttpClient, RateLimiter
 from public_data_agent.models import DatasetRef, HarvestedRecord, SourceError
@@ -19,7 +19,10 @@ OMREGNING_RPS = 2.0
 OMREGNING_BURST = 4
 HOST = "api.fiskeridir.no"
 PATH_PREFIX = "/conversion-factor-api/"
+SEARCH_PATH = "/conversion-factor-api/api/v1/conversionfactors/search"
 NAME_FIELDS = ("fish", "factor", "condition", "preservation")
+OMREGNING_MAX_CELLS = 100
+ALLOWED_SELECT = frozenset({"fish"})
 
 
 class OmregningSource(SourceBase):
@@ -205,35 +208,72 @@ def is_omregning_url(access_path: str | None) -> bool:
     return parsed.netloc.lower() == HOST and parsed.path.startswith(PATH_PREFIX)
 
 
+def is_omregning_search_url(access_path: str | None) -> bool:
+    """Conversion-factor search. The OpenAPI document is a different path."""
+
+    if not is_omregning_url(access_path):
+        return False
+    path = urlsplit(access_path).path.rstrip("/").casefold()
+    return path == SEARCH_PATH
+
+
 def omregning_table_id(access_path: str) -> str:
     segment = urlsplit(access_path).path.rstrip("/").split("/")[-1]
     return segment or "omregning"
 
 
-def cells_from_omregning(payload: Any) -> list[tuple[str, Any, dict[str, str]]]:
-    """Copy printed Omregningsfaktorer JSON records into observation cells.
+def selected_fish(select: dict[str, list[str]] | None) -> str:
+    """Copy the printed OpenAPI `fish` query parameter from select."""
 
-    A printed JSON array keeps each object record. Each record keeps printed
-    `fish` when present, otherwise `factor`, `condition`, or `preservation`.
-    Other scalars stay as dimensions. Nested objects and arrays are not
-    copied. Nothing is invented.
+    select = {str(key): value for key, value in (select or {}).items()}
+    unknown = sorted(key for key in select if key not in ALLOWED_SELECT)
+    if unknown:
+        raise ValueError(
+            f"select names field(s) {unknown} that an omregning fetch does not "
+            f"filter on; accepted: {sorted(ALLOWED_SELECT)}"
+        )
+    wanted = select.get("fish")
+    if not wanted:
+        raise ValueError(
+            "unfiltered conversion-factor search is the full catalog; "
+            "select a printed fish code"
+        )
+    values = [wanted] if isinstance(wanted, str) else [str(item) for item in wanted]
+    if len(values) != 1 or not values[0].strip():
+        raise ValueError("select fish to a single printed fish code")
+    return values[0]
+
+
+def omregning_request_url(access_path: str, fish: str) -> str:
+    parts = urlsplit(access_path)
+    query = dict(parse_qsl(parts.query, keep_blank_values=True))
+    query["fish"] = fish
+    return urlunsplit(
+        (parts.scheme, parts.netloc, parts.path, urlencode(query), parts.fragment)
+    )
+
+
+def cells_from_omregning(payload: Any) -> list[tuple[str, Any, dict[str, str]]]:
+    """Copy printed conversion-factor JSON into observation cells.
+
+    Measure is the printed key ``factor``. Other scalars stay as dimensions.
+    Nested objects are not copied. Records without a numeric factor are
+    skipped. Nothing is invented.
     """
 
-    cells: list[tuple[str, Any, dict[str, str]]] = []
     if isinstance(payload, list):
-        for item in payload:
-            if isinstance(item, dict):
-                cells.extend(_cells_from_record(item))
-            elif _is_scalar(item) and item is not None:
-                cells.append(("value", item, {"value": _as_dim(item)}))
+        records = payload
     elif isinstance(payload, dict):
-        cells.extend(_cells_from_record(payload))
-    elif _is_scalar(payload) and payload is not None:
-        cells.append(("value", payload, {"value": _as_dim(payload)}))
+        records = [payload]
     else:
-        raise ValueError("omregning payload is not a JSON object, array, or scalar")
+        raise ValueError("omregning payload is not a JSON object or array")
+    cells: list[tuple[str, Any, dict[str, str]]] = []
+    for item in records:
+        if not isinstance(item, dict):
+            continue
+        cells.extend(_cells_from_record(item))
     if not cells:
-        raise ValueError("omregning payload printed no collection members")
+        raise ValueError("omregning payload printed no numeric factor")
     return cells
 
 
@@ -282,24 +322,15 @@ def _path_for_ref(spec: dict[str, Any], ref: DatasetRef) -> tuple[str, dict[str,
 
 
 def _cells_from_record(item: dict[str, Any]) -> list[tuple[str, Any, dict[str, str]]]:
-    scalars = {key: value for key, value in item.items() if _is_scalar(value)}
-    if not scalars:
+    factor = item.get("factor")
+    if isinstance(factor, bool) or not isinstance(factor, (int, float)):
         return []
-    measure = None
-    value: Any = None
-    for field in NAME_FIELDS:
-        printed = scalars.get(field)
-        if printed is None:
-            continue
-        if isinstance(printed, str) and not printed.strip():
-            continue
-        measure = field
-        value = printed
-        break
-    if measure is None:
-        measure, value = next(iter(scalars.items()))
-    dims = {key: _as_dim(other) for key, other in scalars.items() if key != measure}
-    return [(measure, value, dims)]
+    dims = {
+        key: _as_dim(value)
+        for key, value in item.items()
+        if key != "factor" and _is_scalar(value)
+    }
+    return [("factor", factor, dims)]
 
 
 def _is_scalar(value: Any) -> bool:

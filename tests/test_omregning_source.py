@@ -5,7 +5,9 @@ from pathlib import Path
 
 import pytest
 
-from public_data_agent.fetch import fetch_observations
+from urllib.parse import parse_qs, urlsplit
+
+from public_data_agent.fetch import classify_access_path, fetch_observations
 from public_data_agent.harvest import harvest
 from public_data_agent.http_util import JsonResponse
 from public_data_agent.registry import Registry
@@ -13,6 +15,7 @@ from public_data_agent.sources import SOURCE_IDS, build_source
 from public_data_agent.sources.omregning import (
     OmregningSource,
     cells_from_omregning,
+    is_omregning_search_url,
     is_omregning_url,
     omregning_table_id,
     printed_endpoint_url,
@@ -102,9 +105,12 @@ class CatalogHttp:
 
 class FetchHttp:
     def get_json_response(self, url: str, *, headers=None) -> JsonResponse:
-        if url == SEARCH_URL:
-            return JsonResponse(status=200, url=url, body=SEARCH_BODY)
-        raise AssertionError(f"unexpected GET {url}")
+        parts = urlsplit(url)
+        if parts.path.rstrip("/") != urlsplit(SEARCH_URL).path.rstrip("/"):
+            raise AssertionError(f"unexpected GET {url}")
+        fish = parse_qs(parts.query).get("fish", [None])[0]
+        body = SEARCH_BODY if fish is None else [row for row in SEARCH_BODY if row["fish"] == fish]
+        return JsonResponse(status=200, url=url, body=body)
 
     def post_json_response(self, url: str, body, *, headers=None) -> JsonResponse:
         raise AssertionError(f"omregning fetch must GET, not POST {url}")
@@ -192,38 +198,60 @@ def test_fetch_gets_printed_conversion_factors(tmp_path: Path) -> None:
         DATASET_ID,
         table_id="ignored",
         http=FetchHttp(),
+        select={"fish": ["0102"]},
     )
-    assert result.request_url == SEARCH_URL
+    assert result.request_url == f"{SEARCH_URL}?fish=0102"
     assert result.table_id == "search"
     assert result.http_status == 200
-    assert result.counts.listed == 2
+    assert result.counts.listed == 1
     rows = registry.list_observations(DATASET_ID)
-    by_value = {json.loads(row["value_json"]): row for row in rows}
-    assert set(by_value) == {"0102", "0108"}
-    assert by_value["0102"]["measure"] == "fish"
-    dims = json.loads(by_value["0102"]["dimensions_json"])
-    assert dims["factor"] == "1"
+    assert len(rows) == 1
+    assert rows[0]["measure"] == "factor"
+    assert json.loads(rows[0]["value_json"]) == 1
+    dims = json.loads(rows[0]["dimensions_json"])
+    assert dims["fish"] == "0102"
     assert dims["condition"] == "110"
     assert "nested" not in dims
     assert all(row["publisher_name"] is None for row in rows)
     assert all(row["license"] is None for row in rows)
     assert all(row["access_path"] == SEARCH_URL for row in rows)
+    cap = registry.get_capability(DATASET_ID)
+    assert cap["capability"] == "observations"
     registry.close()
 
 
-def test_cells_copy_printed_fish_or_factor() -> None:
+def test_search_url_is_observations() -> None:
+    assert is_omregning_search_url(SEARCH_URL)
+    assert not is_omregning_search_url(OPENAPI_URL)
+    assert classify_access_path(SEARCH_URL)["kind"] == "observations"
+
+
+def test_fetch_refuses_unfiltered_conversion_catalog(tmp_path: Path) -> None:
+    source = OmregningSource(http=CatalogHttp())
+    registry = Registry(tmp_path / "registry.sqlite")
+    harvest(registry, source)
+    with pytest.raises(ValueError, match="printed fish code"):
+        fetch_observations(
+            registry,
+            DATASET_ID,
+            table_id="search",
+            http=FetchHttp(),
+        )
+    registry.close()
+
+
+def test_cells_copy_printed_factor() -> None:
     cells = cells_from_omregning(SEARCH_BODY)
-    assert cells[0][0] == "fish"
-    assert cells[0][1] == "0102"
-    assert cells[0][2]["factor"] == "1"
+    assert cells[0][0] == "factor"
+    assert cells[0][1] == 1
+    assert cells[0][2]["fish"] == "0102"
     assert "nested" not in cells[0][2]
     assert cells_from_omregning({"factor": 1.5, "condition": "110"}) == [
         ("factor", 1.5, {"condition": "110"})
     ]
-    assert cells_from_omregning("0102") == [("value", "0102", {"value": "0102"})]
-    with pytest.raises(ValueError, match="JSON object"):
+    with pytest.raises(ValueError, match="JSON object or array"):
         cells_from_omregning(None)
-    with pytest.raises(ValueError, match="collection members"):
+    with pytest.raises(ValueError, match="numeric factor"):
         cells_from_omregning([])
 
 
