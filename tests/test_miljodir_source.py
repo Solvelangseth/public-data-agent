@@ -11,13 +11,16 @@ from public_data_agent.http_util import JsonResponse
 from public_data_agent.registry import Registry
 from public_data_agent.sources import SOURCE_IDS, build_source
 from public_data_agent.sources.miljodir import (
+    ACTIVITY_SCHEME,
     MEDIUM_SCHEME,
     UNIT_SCHEME,
     MiljodirVannmiljoSource,
     cells_from_miljodir,
+    is_miljodir_activity_list_url,
     is_miljodir_medium_list_url,
     is_miljodir_unit_list_url,
     is_miljodir_url,
+    lookups_from_miljodir_activities,
     lookups_from_miljodir_mediums,
     lookups_from_miljodir_units,
     miljodir_table_id,
@@ -28,8 +31,12 @@ from public_data_agent.sources.miljodir import (
 OPENAPI_URL = "https://vannmiljoapi.miljodirektoratet.no/swagger/docs/v1"
 MEDIUM_URL = "https://vannmiljoapi.miljodirektoratet.no/api/Public/GetMediumList"
 UNIT_URL = "https://vannmiljoapi.miljodirektoratet.no/api/Public/GetUnitList"
+ACTIVITY_URL = "https://vannmiljoapi.miljodirektoratet.no/api/Public/GetActivityList"
+PARAMETER_URL = "https://vannmiljoapi.miljodirektoratet.no/api/Public/GetParameterList"
+PMS_URL = "https://vannmiljoapi.miljodirektoratet.no/api/Public/GetPMSList"
 DATASET_ID = "miljodir:Public_GetMediumList"
 UNIT_ID = "miljodir:Public_GetUnitList"
+ACTIVITY_ID = "miljodir:Public_GetActivityList"
 
 OPENAPI = {
     "swagger": "2.0",
@@ -87,6 +94,14 @@ UNIT_BODY = [
     },
     {"UnitID": 2, "Name": "% v.v.", "Description": "prosent på våtvektbasis"},
 ]
+ACTIVITY_BODY = [
+    {
+        "ActivityID": "ANLA",
+        "Name": "Overvåking av anadrom laksefisk",
+        "nested": {"skip": True},
+    },
+    {"ActivityID": "ELVE", "Name": "Elveovervåking"},
+]
 
 
 class CatalogHttp:
@@ -106,6 +121,8 @@ class FetchHttp:
             return JsonResponse(status=200, url=url, body=MEDIUM_BODY)
         if url == UNIT_URL:
             return JsonResponse(status=200, url=url, body=UNIT_BODY)
+        if url == ACTIVITY_URL:
+            return JsonResponse(status=200, url=url, body=ACTIVITY_BODY)
         raise AssertionError(f"unexpected GET {url}")
 
     def post_json_response(self, url: str, body, *, headers=None) -> JsonResponse:
@@ -219,6 +236,11 @@ def test_unit_list_url_is_lookup() -> None:
     assert is_miljodir_medium_list_url(MEDIUM_URL)
     assert not is_miljodir_medium_list_url(UNIT_URL)
     assert classify_access_path(MEDIUM_URL)["kind"] == "lookup"
+    assert is_miljodir_activity_list_url(ACTIVITY_URL)
+    assert not is_miljodir_activity_list_url(MEDIUM_URL)
+    assert classify_access_path(ACTIVITY_URL)["kind"] == "lookup"
+    assert classify_access_path(PARAMETER_URL)["kind"] == "none"
+    assert classify_access_path(PMS_URL)["kind"] == "none"
 
 
 def test_fetch_stores_units_as_lookup(tmp_path: Path) -> None:
@@ -245,6 +267,66 @@ def test_fetch_stores_units_as_lookup(tmp_path: Path) -> None:
     assert "nested" not in attrs
     cap = registry.get_capability(UNIT_ID)
     assert cap["capability"] == "lookup"
+    registry.close()
+
+
+def test_fetch_stores_activities_as_lookup(tmp_path: Path) -> None:
+    registry = Registry(tmp_path / "registry.sqlite")
+    registry.ensure_observation_dataset(
+        dataset_id=ACTIVITY_ID,
+        title="Returnerer en liste av Aktivitet objekter.",
+        publisher_name=None,
+        access_path=ACTIVITY_URL,
+        license=None,
+    )
+    registry.conn.commit()
+    result = fetch_observations(
+        registry,
+        ACTIVITY_ID,
+        table_id="GetActivityList",
+        http=FetchHttp(),
+    )
+    assert result.http_status == 200
+    assert result.counts.listed == 2
+    assert registry.list_observations(ACTIVITY_ID) == []
+    rows = registry.list_records(ACTIVITY_ID, kind="entity")
+    by_code = {row["subject_code"]: row for row in rows}
+    assert by_code["ANLA"]["subject_label"] == "Overvåking av anadrom laksefisk"
+    assert by_code["ANLA"]["subject_scheme"] == ACTIVITY_SCHEME
+    assert by_code["ELVE"]["subject_label"] == "Elveovervåking"
+    attrs = json.loads(by_code["ANLA"]["attributes_json"])
+    assert attrs["Name"] == "Overvåking av anadrom laksefisk"
+    assert "nested" not in attrs
+    cap = registry.get_capability(ACTIVITY_ID)
+    assert cap["capability"] == "lookup"
+    registry.close()
+
+
+def test_lookups_copy_printed_activity_id() -> None:
+    members = lookups_from_miljodir_activities(ACTIVITY_BODY)
+    assert members[0]["subject_code"] == "ANLA"
+    assert members[0]["subject_scheme"] == ACTIVITY_SCHEME
+    with pytest.raises(ValueError, match="printed no ActivityID"):
+        lookups_from_miljodir_activities([])
+
+
+def test_fetch_refuses_leftover_parameter_name_catalog(tmp_path: Path) -> None:
+    registry = Registry(tmp_path / "registry.sqlite")
+    registry.ensure_observation_dataset(
+        dataset_id="miljodir:Public_GetParameterList",
+        title="parameters",
+        publisher_name=None,
+        access_path=PARAMETER_URL,
+        license=None,
+    )
+    registry.conn.commit()
+    with pytest.raises(ValueError, match="leftover name catalog"):
+        fetch_observations(
+            registry,
+            "miljodir:Public_GetParameterList",
+            table_id="GetParameterList",
+            http=FetchHttp(),
+        )
     registry.close()
 
 

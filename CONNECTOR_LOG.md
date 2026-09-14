@@ -2519,6 +2519,47 @@ printed leftover catalog. Species lists should not be dumped.
 
 Proof: `data/miljodir_mediums_proof.json`.
 
+## miljodir:Public_GetActivityList — 2026-09-14 — promoted (lookup)
+
+**Endpoint(s).** `GET https://vannmiljoapi.miljodirektoratet.no/api/Public/GetActivityList`.
+Already harvested. Licence is `null`.
+
+**Shape.** `lookup` entities under `miljodir:ActivityID`. Key is printed
+`ActivityID`. Label is printed `Name`. Nested objects are not copied.
+Empty keys skipped.
+
+**Capability recorded.** `lookup`. Live GET 2026-09-14: HTTP 200, 75
+entities. Sample: `ANLA` Overvåking av anadrom laksefisk, `YOFJ`
+Overvåking av Ytre Oslofjord. Units and media stay lookup. Other
+leftover name lists now classify `none` and fetch is refused.
+
+**Surprises.**
+- The leftover decoder stored `Name` as an observation measure.
+- `GetParameterList` is 3180 printed `ParameterID` names and was not
+  dumped.
+- `GetPMSList` is HTTP 404.
+
+**Open question for the query side.** `GetSamplingMethodList` is 143
+printed `SamplingMethodID`. `GetAnalysisMethodList` is 309 printed
+`AnalysisMethodID`. Species lists should not be dumped.
+
+Proof: `data/miljodir_activities_proof.json`.
+
+## miljodir:Public_GetPMSList — 2026-09-14 — dead
+
+**Endpoint(s).** `GET https://vannmiljoapi.miljodirektoratet.no/api/Public/GetPMSList`.
+Already harvested from swagger.
+
+**Shape.** No payload. Live GET 2026-09-14: HTTP 404.
+
+**Capability recorded.** `none`. Fetch is refused with the other leftover
+Vannmiljø name catalogs.
+
+**Surprises.** The swagger lists this as a collection GET.
+
+**Open question for the query side.** None.
+
+
 ## resource index — Oslo PxWeb and SSB PxWebApi 2 — 2026-09-14
 
 The leftover-connector hourly loop was cancelled. Next work is the

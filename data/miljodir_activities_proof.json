@@ -1,0 +1,15 @@
+{
+  "dataset": "miljodir:Public_GetActivityList",
+  "request_url": "https://vannmiljoapi.miljodirektoratet.no/api/Public/GetActivityList",
+  "http_status": 200,
+  "listed": 75,
+  "inserted": 75,
+  "scheme": "miljodir:ActivityID",
+  "license": null,
+  "sample": [
+    {"subject_code": "ANLA", "subject_label": "Overvåking av anadrom laksefisk"},
+    {"subject_code": "ANNE", "subject_label": "Annet"},
+    {"subject_code": "YOFJ", "subject_label": "Overvåking av Ytre Oslofjord"}
+  ],
+  "note": "Printed ActivityID as lookup keys from the JSON array. GetParameterList (3180 names) and GetPMSList (HTTP 404) were not fetched."
+}

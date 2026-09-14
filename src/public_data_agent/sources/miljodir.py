@@ -23,6 +23,8 @@ UNIT_LIST_PATH = "/api/public/getunitlist"
 UNIT_SCHEME = "miljodir:UnitID"
 MEDIUM_LIST_PATH = "/api/public/getmediumlist"
 MEDIUM_SCHEME = "miljodir:MediumID"
+ACTIVITY_LIST_PATH = "/api/public/getactivitylist"
+ACTIVITY_SCHEME = "miljodir:ActivityID"
 NAME_FIELDS = ("Name", "name", "title", "MediumID", "id")
 
 
@@ -279,6 +281,57 @@ def lookups_from_miljodir_mediums(payload: Any) -> list[dict[str, Any]]:
         )
     if not out:
         raise ValueError("miljodir medium-list payload printed no MediumID")
+    return out
+
+
+def is_miljodir_activity_list_url(access_path: str | None) -> bool:
+    """Activity catalog. Unit, medium, and leftover name lists are other paths."""
+
+    if not is_miljodir_url(access_path):
+        return False
+    path = urlsplit(access_path).path.rstrip("/").casefold()
+    return path == ACTIVITY_LIST_PATH
+
+
+def lookups_from_miljodir_activities(payload: Any) -> list[dict[str, Any]]:
+    """Copy printed Vannmiljø activities into lookup entities.
+
+    Each member is keyed by printed ``ActivityID``. Label is printed ``Name``.
+    Nested objects are not copied. Empty keys are skipped.
+    """
+
+    if not isinstance(payload, list):
+        raise ValueError("miljodir activity-list payload is not a JSON array")
+    out: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    for item in payload:
+        if not isinstance(item, dict):
+            continue
+        code = item.get("ActivityID")
+        if not isinstance(code, (str, int)) or isinstance(code, bool):
+            continue
+        code = str(code).strip()
+        if not code or code in seen:
+            continue
+        seen.add(code)
+        label = item.get("Name")
+        if not isinstance(label, str) or not label.strip():
+            label = code
+        attributes = {
+            key: value
+            for key, value in item.items()
+            if key != "ActivityID" and _is_scalar(value) and value is not None
+        }
+        out.append(
+            {
+                "subject_scheme": ACTIVITY_SCHEME,
+                "subject_code": code,
+                "subject_label": label.strip(),
+                "attributes": attributes,
+            }
+        )
+    if not out:
+        raise ValueError("miljodir activity-list payload printed no ActivityID")
     return out
 
 
