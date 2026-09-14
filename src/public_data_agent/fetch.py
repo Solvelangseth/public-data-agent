@@ -1019,9 +1019,11 @@ from public_data_agent.sources.nbr import (
     shape_from_lookups as shape_from_nbr_lookups,
 )
 from public_data_agent.sources.baf import (
+    FYLKE_SCHEME,
     baf_table_id,
-    cells_from_baf,
+    is_baf_fylker_url,
     is_baf_url,
+    lookups_from_baf_fylker,
 )
 from public_data_agent.sources.nfr import (
     cells_from_nfr,
@@ -6356,9 +6358,20 @@ def _fetch_baf(
     *,
     http: JsonHttp | None = None,
 ) -> FetchResult:
+    """Fetch Barnehagefakta Fylker as lookup entities.
+
+    Location is every kindergarten and is refused. Nested kommuner are
+    not stored as separate entities.
+    """
+
     access_path = dataset.get("access_path") or ""
-    client = http or HttpClient(timeout=60.0, max_retries=4)
     table_id = baf_table_id(access_path)
+    if not is_baf_fylker_url(access_path):
+        raise ValueError(
+            "Barnehagefakta Location is every kindergarten; "
+            "use Fylker for the printed county catalog"
+        )
+    client = http or HttpClient(timeout=60.0, max_retries=4)
     started = utc_now()
     run_id = registry.start_fetch_run(
         dataset_id=dataset["id"],
@@ -6375,18 +6388,63 @@ def _fetch_baf(
         got = client.get_json_response(access_path)
         http_status = got.status
         registry.set_fetch_request(run_id, request_url=access_path, request_body={"method": "GET"})
-        cells = cells_from_baf(got.body)
-        counts.listed = len(cells)
-        sample = _store_cells(
-            registry,
-            dataset,
-            run_id,
-            table_id=table_id,
-            cells=cells,
-            retrieved_at=utc_now(),
-            request_url=access_path,
-            http_status=http_status,
-            counts=counts,
+        members = lookups_from_baf_fylker(got.body)
+        retrieved_at = utc_now()
+        for entity in members:
+            record_id = f"entity:{dataset['id']}:{entity['subject_code']}"
+            action = registry.upsert_record(
+                {
+                    "id": record_id,
+                    "dataset_id": dataset["id"],
+                    "kind": "entity",
+                    "series": "baf:Fylker",
+                    "subject_scheme": entity["subject_scheme"],
+                    "subject_code": entity["subject_code"],
+                    "subject_label": entity["subject_label"],
+                    "period": None,
+                    "measure": None,
+                    "value": None,
+                    "attributes": entity["attributes"],
+                    "retrieved_at": retrieved_at,
+                    "request_url": access_path,
+                    "http_status": http_status,
+                    "publisher_name": dataset.get("publisher_name"),
+                    "license": dataset.get("license"),
+                },
+                run_id,
+            )
+            counts.listed += 1
+            if action == "inserted":
+                counts.inserted += 1
+            elif action == "updated":
+                counts.updated += 1
+            else:
+                counts.unchanged += 1
+            if len(sample) < 3:
+                sample.append(
+                    {
+                        "kind": "entity",
+                        "subject_scheme": entity["subject_scheme"],
+                        "subject_code": entity["subject_code"],
+                        "subject_label": entity["subject_label"],
+                    }
+                )
+        registry.set_capability(
+            dataset["id"],
+            {
+                "capability": CAPABILITY_LOOKUP,
+                "record_kind": "lookup",
+                "endpoint": access_path,
+                "request_method": "GET",
+                "subject_scheme": FYLKE_SCHEME,
+                "subject_count": counts.listed,
+                "verified_at": retrieved_at,
+                "verified_sample_count": counts.listed,
+                "notes": (
+                    f"{counts.listed} printed fylke lookup entit"
+                    f"{'y' if counts.listed == 1 else 'ies'} under {FYLKE_SCHEME}"
+                ),
+            },
         )
         status = "completed"
     except Exception as exc:
@@ -16170,6 +16228,14 @@ def classify_access_path(access_path: str | None) -> dict[str, Any]:
                 f"lookup entities under {OMRADE_SCHEME}"
             ),
         }
+    if is_baf_fylker_url(access_path):
+        return {
+            "kind": CAPABILITY_LOOKUP,
+            "reason": (
+                "Barnehagefakta Fylker; printed county catalog as lookup "
+                f"entities under {FYLKE_SCHEME}"
+            ),
+        }
     if is_nve_minmax_url(access_path):
         return {
             "kind": CAPABILITY_OBSERVATIONS,
@@ -16585,6 +16651,14 @@ def classify_access_path(access_path: str | None) -> dict[str, Any]:
             "reason": (
                 "Kartverket Høydedata punkt needs printed coordinates; "
                 "do not invent lat/lon. Catalogs are datakilder/terrengtyper"
+            ),
+        }
+    if is_baf_url(access_path):
+        return {
+            "kind": CAPABILITY_NONE,
+            "reason": (
+                "Barnehagefakta Location is every kindergarten; county "
+                "catalog is Fylker"
             ),
         }
     if is_vindkraft_plants_url(access_path):

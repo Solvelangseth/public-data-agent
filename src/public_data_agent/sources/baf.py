@@ -19,6 +19,8 @@ BAF_RPS = 2.0
 BAF_BURST = 4
 HOSTS = frozenset({"www.barnehagefakta.no", "barnehagefakta.no"})
 NAME_FIELDS = ("fylkesnavn", "kommunenavn", "navn", "orgnr")
+FYLKER_PATH = "/api/fylker"
+FYLKE_SCHEME = "baf:fylkesnummer"
 
 
 class BafSource(SourceBase):
@@ -188,6 +190,53 @@ def is_baf_url(access_path: str | None) -> bool:
 def baf_table_id(access_path: str) -> str:
     segment = urlsplit(access_path).path.rstrip("/").split("/")[-1]
     return segment or "baf"
+
+
+def is_baf_fylker_url(access_path: str | None) -> bool:
+    """County catalog. Location is every kindergarten and is a different path."""
+
+    if not is_baf_url(access_path):
+        return False
+    return urlsplit(access_path).path.rstrip("/").casefold() == FYLKER_PATH
+
+
+def lookups_from_baf_fylker(payload: Any) -> list[dict[str, Any]]:
+    """Copy printed BAF fylker into lookup entities.
+
+    Each member is keyed by printed ``fylkesnummer``. Nested ``kommuner``
+    arrays are not copied. Empty keys are skipped.
+    """
+
+    records = _printed_records(payload)
+    out: list[dict[str, Any]] = []
+    for item in records:
+        if not isinstance(item, dict):
+            continue
+        code = item.get("fylkesnummer")
+        if not isinstance(code, (str, int)) or isinstance(code, bool):
+            continue
+        code = str(code).strip()
+        if not code:
+            continue
+        label = item.get("fylkesnavn")
+        if not isinstance(label, str) or not label.strip():
+            label = code
+        attributes = {
+            key: value
+            for key, value in item.items()
+            if key != "fylkesnummer" and _is_scalar(value) and value is not None
+        }
+        out.append(
+            {
+                "subject_scheme": FYLKE_SCHEME,
+                "subject_code": code,
+                "subject_label": label.strip(),
+                "attributes": attributes,
+            }
+        )
+    if not out:
+        raise ValueError("baf fylker payload printed no fylkesnummer")
+    return out
 
 
 def cells_from_baf(payload: Any) -> list[tuple[str, Any, dict[str, str]]]:

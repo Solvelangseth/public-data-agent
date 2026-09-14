@@ -2332,6 +2332,30 @@ without a time range; do not invent `from`/`to`.
 
 Proof: `data/nve_minmax_proof.json`.
 
+## baf:Fylker — 2026-09-14 — promoted (lookup)
+
+**Endpoint(s).** `GET https://www.barnehagefakta.no/api/Fylker`.
+Already harvested. `Location` is every kindergarten and was not fetched.
+Licence is `null`.
+
+**Shape.** `lookup` entities under `baf:fylkesnummer`. Key is printed
+`fylkesnummer`. Label is printed `fylkesnavn`. Nested `kommuner` arrays
+are not copied.
+
+**Capability recorded.** `lookup`. Live GET 2026-09-14: HTTP 200, 16
+entities. Sample: `03` Oslo, `42` Agder, `21` Svalbard. Location
+classifies `none` and fetch is refused.
+
+**Surprises.**
+- The leftover decoder stored `fylkesnavn` as an observation measure.
+- Printed names include Sámi forms (`Nordland - Nordlánnda`).
+- Klass fylkesnummer is not claimed; these are BAF's printed codes.
+
+**Open question for the query side.** Nested kommuner could become lookup
+entities addressed by printed `kommunenummer`, not a kindergarten dump.
+
+Proof: `data/baf_fylker_proof.json`.
+
 
 
 

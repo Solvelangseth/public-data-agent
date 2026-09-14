@@ -5,16 +5,19 @@ from pathlib import Path
 
 import pytest
 
-from public_data_agent.fetch import fetch_observations
+from public_data_agent.fetch import classify_access_path, fetch_observations
 from public_data_agent.harvest import harvest
 from public_data_agent.http_util import JsonResponse
 from public_data_agent.registry import Registry
 from public_data_agent.sources import SOURCE_IDS, build_source
 from public_data_agent.sources.baf import (
+    FYLKE_SCHEME,
     BafSource,
     cells_from_baf,
+    is_baf_fylker_url,
     is_baf_url,
     baf_table_id,
+    lookups_from_baf_fylker,
     printed_endpoint_url,
     printed_license_url,
 )
@@ -130,7 +133,7 @@ def test_harvest_writes_printed_id_and_null_license_publisher(tmp_path: Path) ->
     registry.close()
 
 
-def test_fetch_gets_printed_fylker(tmp_path: Path) -> None:
+def test_fetch_stores_fylker_as_lookup(tmp_path: Path) -> None:
     source = BafSource(http=CatalogHttp())
     registry = Registry(tmp_path / "registry.sqlite")
     harvest(registry, source)
@@ -144,18 +147,49 @@ def test_fetch_gets_printed_fylker(tmp_path: Path) -> None:
     assert result.table_id == "Fylker"
     assert result.http_status == 200
     assert result.counts.listed == 2
-    rows = registry.list_observations(DATASET_ID)
-    values = {json.loads(row["value_json"]) for row in rows}
-    assert values == {"Oslo", "Rogaland"}
-    assert all(row["measure"] == "fylkesnavn" for row in rows)
-    by_name = {json.loads(row["value_json"]): row for row in rows}
-    dims = json.loads(by_name["Oslo"]["dimensions_json"])
-    assert dims["fylkesnummer"] == "03"
-    assert "kommuner" not in dims
-    assert all(row["publisher_name"] is None for row in rows)
-    assert all(row["license"] is None for row in rows)
-    assert all(row["access_path"] == FYLKER_URL for row in rows)
+    assert registry.list_observations(DATASET_ID) == []
+    rows = registry.list_records(DATASET_ID, kind="entity")
+    codes = {row["subject_code"] for row in rows}
+    assert codes == {"03", "11"}
+    assert all(row["subject_scheme"] == FYLKE_SCHEME for row in rows)
+    oslo = next(row for row in rows if row["subject_code"] == "03")
+    assert oslo["subject_label"] == "Oslo"
+    cap = registry.get_capability(DATASET_ID)
+    assert cap["capability"] == "lookup"
     registry.close()
+
+
+def test_fylker_url_is_lookup() -> None:
+    assert is_baf_fylker_url(FYLKER_URL)
+    assert classify_access_path(FYLKER_URL)["kind"] == "lookup"
+    assert classify_access_path(LOCATION_URL)["kind"] == "none"
+
+
+def test_fetch_refuses_location_kindergarten_dump(tmp_path: Path) -> None:
+    registry = Registry(tmp_path / "registry.sqlite")
+    registry.ensure_observation_dataset(
+        dataset_id="baf:Location",
+        title="Returnerer alle barnehager",
+        publisher_name=None,
+        access_path=LOCATION_URL,
+        license=None,
+    )
+    registry.conn.commit()
+    with pytest.raises(ValueError, match="Fylker"):
+        fetch_observations(
+            registry,
+            "baf:Location",
+            table_id="Location",
+            http=FetchHttp(),
+        )
+    registry.close()
+
+
+def test_lookups_copy_printed_fylkesnummer() -> None:
+    members = lookups_from_baf_fylker(FYLKER_BODY)
+    assert members[0]["subject_code"] == "03"
+    assert members[0]["subject_scheme"] == FYLKE_SCHEME
+    assert "kommuner" not in members[0]["attributes"]
 
 
 def test_cells_copy_printed_fylker_and_location_navn() -> None:

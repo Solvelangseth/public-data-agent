@@ -1,0 +1,15 @@
+{
+  "dataset": "baf:Fylker",
+  "request_url": "https://www.barnehagefakta.no/api/Fylker",
+  "http_status": 200,
+  "listed": 16,
+  "inserted": 16,
+  "scheme": "baf:fylkesnummer",
+  "license": null,
+  "sample": [
+    {"subject_code": "03", "subject_label": "Oslo"},
+    {"subject_code": "42", "subject_label": "Agder"},
+    {"subject_code": "21", "subject_label": "Svalbard"}
+  ],
+  "note": "Printed fylkesnummer as lookup keys. Nested kommuner not stored. Location (every kindergarten) was not fetched. Klass fylkesnummer is not claimed."
+}
