@@ -1970,6 +1970,33 @@ slice.
 
 Proof: `data/ssbv2_13618_proof.json`.
 
+## ssbv2:13619 — 2026-09-14 — promoted (observations)
+
+**Endpoint(s).** `GET https://data.ssb.no/api/pxwebapi/v2/tables/13619/data?lang=no&outputFormat=json-stat2`.
+Already harvested leftover v2 data href. Neighbour leftover data hrefs
+classify the same way and were not dumped. Licence is `null`.
+
+**Shape.** `observation`. Measure is the printed json-stat ContentsCode
+label (`Personer (1000 personer)` on the default slice). Dimensions are
+printed `Alder`, `Kjonn`, and `Tid`. The default slice is the
+publisher's; no period is invented.
+
+**Capability recorded.** `observations`. Live GET 2026-09-14: HTTP 200, 15
+cells. Sample: Personer 4186 (15-74 år, Begge kjønn, 2026K2). More than
+100 cells is refused, not truncated.
+
+**Surprises.**
+- Same leftover decoder as `13618`. Quarterly default slice (`2026K2`)
+  against `13618`'s annual `2025`.
+- Neighbour leftover v2 hrefs (`05110`, …) classify the same way; they
+  were not dumped this slice.
+
+**Open question for the query side.** Remaining leftover v2 data hrefs
+still need a live default-slice check against the 100-cell cap.
+
+Proof: `data/ssbv2_13619_proof.json`.
+
+
 
 
 
