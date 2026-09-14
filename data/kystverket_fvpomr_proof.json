@@ -1,0 +1,15 @@
+{
+  "dataset": "kystverket:api/maps/fvpomr/list",
+  "request_url": "https://kystdatahuset.no/ws/api/maps/fvpomr/list",
+  "http_status": 200,
+  "listed": 3,
+  "inserted": 3,
+  "scheme": "kystverket:area_id",
+  "license": "https://data.norge.no/nlod/en/1.0",
+  "sample": [
+    {"subject_code": "1", "subject_label": "Barentshavet-Lofoten"},
+    {"subject_code": "2", "subject_label": "Nordsjøen-Skagerrak"},
+    {"subject_code": "3", "subject_label": "Norskehavet"}
+  ],
+  "note": "Printed area_id as lookup keys from the data array. maps/kommune/list is dead. Location/all and GeoJSON dumps were not fetched."
+}

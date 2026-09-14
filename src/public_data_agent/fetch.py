@@ -965,14 +965,17 @@ from public_data_agent.sources.kommuneinfo import (
     kommuneinfo_table_id,
 )
 from public_data_agent.sources.kystverket import (
+    AREA_SCHEME,
     COUNTY_SCHEME,
     KYSTVERKET_MAX_CELLS,
     cells_from_kystverket_vessels,
     is_kystverket_counties_url,
+    is_kystverket_fvpomr_url,
     is_kystverket_url,
     is_kystverket_vessels_by_type_url,
     kystverket_table_id,
     lookups_from_kystverket_counties,
+    lookups_from_kystverket_fvpomr,
 )
 from public_data_agent.sources.miljodir import (
     UNIT_SCHEME,
@@ -15773,22 +15776,41 @@ def _fetch_kystverket(
     *,
     http: JsonHttp | None = None,
 ) -> FetchResult:
-    """Fetch printed AIS ship counts by type, or the county catalog.
+    """Fetch printed AIS ship counts by type, or printed area catalogs.
 
-    Measure is the printed key ``number_of_ships``. Counties are lookup
-    entities keyed by printed ``countyno``. Location dumps and realtime
-    GeoJSON are refused. More than KYSTVERKET_MAX_CELLS is refused, not
-    truncated.
+    Measure is the printed key ``number_of_ships``. Counties and
+    forvaltningsplan areas are lookup entities. Location dumps and
+    realtime GeoJSON are refused. More than KYSTVERKET_MAX_CELLS is
+    refused, not truncated.
     """
 
     access_path = dataset.get("access_path") or ""
     table_id = kystverket_table_id(access_path)
     if is_kystverket_counties_url(access_path):
-        return _fetch_kystverket_counties(registry, dataset, http=http)
+        return _fetch_kystverket_lookup(
+            registry,
+            dataset,
+            http=http,
+            members_fn=lookups_from_kystverket_counties,
+            scheme=COUNTY_SCHEME,
+            series="kystverket:counties",
+            notes_kind="county",
+        )
+    if is_kystverket_fvpomr_url(access_path):
+        return _fetch_kystverket_lookup(
+            registry,
+            dataset,
+            http=http,
+            members_fn=lookups_from_kystverket_fvpomr,
+            scheme=AREA_SCHEME,
+            series="kystverket:fvpomr",
+            notes_kind="forvaltningsplan area",
+        )
     if not is_kystverket_vessels_by_type_url(access_path):
         raise ValueError(
             "Kystdatahuset location and GeoJSON catalogs are not a bounded "
-            "observation fetch; use vessels-by-type or location/counties"
+            "observation fetch; use vessels-by-type, location/counties, or "
+            "maps/fvpomr/list"
         )
     client = http or HttpClient(timeout=60.0, max_retries=4)
     started = utc_now()
@@ -15867,13 +15889,17 @@ def _fetch_kystverket(
     )
 
 
-def _fetch_kystverket_counties(
+def _fetch_kystverket_lookup(
     registry: Registry,
     dataset: dict[str, Any],
     *,
     http: JsonHttp | None = None,
+    members_fn,
+    scheme: str,
+    series: str,
+    notes_kind: str,
 ) -> FetchResult:
-    """Fetch Kystdatahuset counties as lookup entities."""
+    """Fetch a printed Kystdatahuset catalog as lookup entities."""
 
     access_path = dataset.get("access_path") or ""
     table_id = kystverket_table_id(access_path)
@@ -15894,7 +15920,7 @@ def _fetch_kystverket_counties(
         got = client.get_json_response(access_path)
         http_status = got.status
         registry.set_fetch_request(run_id, request_url=access_path, request_body={"method": "GET"})
-        members = lookups_from_kystverket_counties(got.body)
+        members = members_fn(got.body)
         retrieved_at = utc_now()
         for entity in members:
             record_id = f"entity:{dataset['id']}:{entity['subject_code']}"
@@ -15903,7 +15929,7 @@ def _fetch_kystverket_counties(
                     "id": record_id,
                     "dataset_id": dataset["id"],
                     "kind": "entity",
-                    "series": "kystverket:counties",
+                    "series": series,
                     "subject_scheme": entity["subject_scheme"],
                     "subject_code": entity["subject_code"],
                     "subject_label": entity["subject_label"],
@@ -15942,13 +15968,13 @@ def _fetch_kystverket_counties(
                 "record_kind": "lookup",
                 "endpoint": access_path,
                 "request_method": "GET",
-                "subject_scheme": COUNTY_SCHEME,
+                "subject_scheme": scheme,
                 "subject_count": counts.listed,
                 "verified_at": retrieved_at,
                 "verified_sample_count": counts.listed,
                 "notes": (
-                    f"{counts.listed} printed county lookup entit"
-                    f"{'y' if counts.listed == 1 else 'ies'} under {COUNTY_SCHEME}"
+                    f"{counts.listed} printed {notes_kind} lookup entit"
+                    f"{'y' if counts.listed == 1 else 'ies'} under {scheme}"
                 ),
             },
         )
@@ -16678,6 +16704,14 @@ def classify_access_path(access_path: str | None) -> dict[str, Any]:
             "reason": (
                 "Kystdatahuset location/counties; printed county catalog as "
                 f"lookup entities under {COUNTY_SCHEME}"
+            ),
+        }
+    if is_kystverket_fvpomr_url(access_path):
+        return {
+            "kind": CAPABILITY_LOOKUP,
+            "reason": (
+                "Kystdatahuset maps/fvpomr/list; printed forvaltningsplan "
+                f"area catalog as lookup entities under {AREA_SCHEME}"
             ),
         }
     if is_miljodir_unit_list_url(access_path):

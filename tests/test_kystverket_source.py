@@ -11,16 +11,19 @@ from public_data_agent.http_util import JsonResponse
 from public_data_agent.registry import Registry
 from public_data_agent.sources import SOURCE_IDS, build_source
 from public_data_agent.sources.kystverket import (
+    AREA_SCHEME,
     COUNTY_SCHEME,
     KYSTVERKET_MAX_CELLS,
     KystverketSource,
     cells_from_kystverket,
     cells_from_kystverket_vessels,
     is_kystverket_counties_url,
+    is_kystverket_fvpomr_url,
     is_kystverket_url,
     is_kystverket_vessels_by_type_url,
     kystverket_table_id,
     lookups_from_kystverket_counties,
+    lookups_from_kystverket_fvpomr,
     printed_endpoint_url,
     printed_license_url,
     printed_operation_id,
@@ -28,11 +31,14 @@ from public_data_agent.sources.kystverket import (
 
 OPENAPI_URL = "https://kystdatahuset.no/ws/swagger/v1/swagger.json"
 COUNTIES_URL = "https://kystdatahuset.no/ws/api/location/counties"
+FVPOMR_URL = "https://kystdatahuset.no/ws/api/maps/fvpomr/list"
+KOMMUNE_LIST_URL = "https://kystdatahuset.no/ws/api/maps/kommune/list"
 GEOJSON_URL = "https://kystdatahuset.no/ws/api/ais/realtime/geojson"
 VESSELS_URL = "https://kystdatahuset.no/ws/api/ais/realtime/vessels-by-type"
 LICENSE_URL = "https://data.norge.no/nlod/en/1.0"
 DATASET_ID = "kystverket:api/ais/realtime/vessels-by-type"
 COUNTIES_ID = "kystverket:api/location/counties"
+FVPOMR_ID = "kystverket:api/maps/fvpomr/list"
 
 OPENAPI = {
     "openapi": "3.0.1",
@@ -80,6 +86,16 @@ COUNTIES_BODY = {
     "metadata": {},
     "time": 4,
 }
+FVPOMR_BODY = {
+    "success": True,
+    "msg": "",
+    "data": [
+        {"area_id": "1", "area_name": "Barentshavet-Lofoten", "nested": {"skip": True}},
+        {"area_id": "3", "area_name": "Norskehavet"},
+    ],
+    "metadata": {},
+    "time": 1,
+}
 VESSELS_BODY = {
     "success": True,
     "msg": "",
@@ -109,6 +125,8 @@ class FetchHttp:
             return JsonResponse(status=200, url=url, body=VESSELS_BODY)
         if url == COUNTIES_URL:
             return JsonResponse(status=200, url=url, body=COUNTIES_BODY)
+        if url == FVPOMR_URL:
+            return JsonResponse(status=200, url=url, body=FVPOMR_BODY)
         raise AssertionError(f"unexpected GET {url}")
 
     def post_json_response(self, url: str, body, *, headers=None) -> JsonResponse:
@@ -231,8 +249,12 @@ def test_vessels_by_type_url_is_observations() -> None:
     assert not is_kystverket_vessels_by_type_url(GEOJSON_URL)
     assert classify_access_path(VESSELS_URL)["kind"] == "observations"
     assert classify_access_path(COUNTIES_URL)["kind"] == "lookup"
+    assert classify_access_path(FVPOMR_URL)["kind"] == "lookup"
     assert classify_access_path(GEOJSON_URL)["kind"] == "none"
+    assert classify_access_path(KOMMUNE_LIST_URL)["kind"] == "none"
     assert is_kystverket_counties_url(COUNTIES_URL)
+    assert is_kystverket_fvpomr_url(FVPOMR_URL)
+    assert not is_kystverket_fvpomr_url(COUNTIES_URL)
 
 
 def test_fetch_stores_counties_as_lookup(tmp_path: Path) -> None:
@@ -263,6 +285,48 @@ def test_lookups_copy_printed_countyno() -> None:
     members = lookups_from_kystverket_counties(COUNTIES_BODY)
     assert members[0]["subject_code"] == "42"
     assert members[0]["subject_scheme"] == COUNTY_SCHEME
+
+
+def test_fetch_stores_fvpomr_as_lookup(tmp_path: Path) -> None:
+    registry = Registry(tmp_path / "registry.sqlite")
+    registry.ensure_observation_dataset(
+        dataset_id=FVPOMR_ID,
+        title="Get forvaltningsplan areas",
+        publisher_name=None,
+        access_path=FVPOMR_URL,
+        license=LICENSE_URL,
+    )
+    registry.conn.commit()
+    result = fetch_observations(
+        registry,
+        FVPOMR_ID,
+        table_id="list",
+        http=FetchHttp(),
+    )
+    assert result.http_status == 200
+    assert result.counts.listed == 2
+    assert registry.list_observations(FVPOMR_ID) == []
+    rows = registry.list_records(FVPOMR_ID, kind="entity")
+    by_code = {row["subject_code"]: row for row in rows}
+    assert by_code["1"]["subject_label"] == "Barentshavet-Lofoten"
+    assert by_code["1"]["subject_scheme"] == AREA_SCHEME
+    assert by_code["3"]["subject_label"] == "Norskehavet"
+    attrs = json.loads(by_code["1"]["attributes_json"])
+    assert attrs["area_name"] == "Barentshavet-Lofoten"
+    assert "nested" not in attrs
+    cap = registry.get_capability(FVPOMR_ID)
+    assert cap["capability"] == "lookup"
+    registry.close()
+
+
+def test_lookups_copy_printed_area_id() -> None:
+    members = lookups_from_kystverket_fvpomr(FVPOMR_BODY)
+    assert members[0]["subject_code"] == "1"
+    assert members[0]["subject_scheme"] == AREA_SCHEME
+    assert members[0]["subject_label"] == "Barentshavet-Lofoten"
+    assert "nested" not in members[0]["attributes"]
+    with pytest.raises(ValueError, match="printed no area_id"):
+        lookups_from_kystverket_fvpomr({"success": True, "data": []})
 
 
 def test_fetch_refuses_more_than_vessel_cell_cap(tmp_path: Path) -> None:

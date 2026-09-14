@@ -22,6 +22,8 @@ PATH_PREFIX = "/ws/api/"
 VESSELS_BY_TYPE_PATH = "/ws/api/ais/realtime/vessels-by-type"
 COUNTIES_PATH = "/ws/api/location/counties"
 COUNTY_SCHEME = "kystverket:countyno"
+FVPOMR_PATH = "/ws/api/maps/fvpomr/list"
+AREA_SCHEME = "kystverket:area_id"
 KYSTVERKET_MAX_CELLS = 100
 NAME_FIELDS = ("countyname", "label", "area_name", "name", "title", "code")
 
@@ -234,6 +236,56 @@ def lookups_from_kystverket_counties(payload: Any) -> list[dict[str, Any]]:
         )
     if not out:
         raise ValueError("kystverket counties payload printed no countyno")
+    return out
+
+
+def is_kystverket_fvpomr_url(access_path: str | None) -> bool:
+    """Forvaltningsplan area catalog. County, location, and GeoJSON are other paths."""
+
+    if not is_kystverket_url(access_path):
+        return False
+    path = urlsplit(access_path).path.rstrip("/").casefold()
+    return path == FVPOMR_PATH
+
+
+def lookups_from_kystverket_fvpomr(payload: Any) -> list[dict[str, Any]]:
+    """Copy printed forvaltningsplan areas into lookup entities.
+
+    Each data row is keyed by printed ``area_id``. Empty keys are skipped.
+    Nested objects are not copied.
+    """
+
+    records = _records(payload)
+    out: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    for item in records:
+        if not isinstance(item, dict):
+            continue
+        code = item.get("area_id")
+        if not isinstance(code, (str, int)) or isinstance(code, bool):
+            continue
+        code = str(code).strip()
+        if not code or code in seen:
+            continue
+        seen.add(code)
+        label = item.get("area_name")
+        if not isinstance(label, str) or not label.strip():
+            label = code
+        attributes = {
+            key: value
+            for key, value in item.items()
+            if key != "area_id" and _is_scalar(value) and value is not None
+        }
+        out.append(
+            {
+                "subject_scheme": AREA_SCHEME,
+                "subject_code": code,
+                "subject_label": label.strip(),
+                "attributes": attributes,
+            }
+        )
+    if not out:
+        raise ValueError("kystverket fvpomr payload printed no area_id")
     return out
 
 

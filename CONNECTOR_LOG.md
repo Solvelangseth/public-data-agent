@@ -2469,6 +2469,31 @@ live SQL behind it is broken.
 **Open question for the query side.** `maps/fvpomr/list` prints 3
 `area_id` / `area_name` and is a leftover lookup.
 
+## kystverket:api/maps/fvpomr/list — 2026-09-14 — promoted (lookup)
+
+**Endpoint(s).** `GET https://kystdatahuset.no/ws/api/maps/fvpomr/list`.
+Already harvested. Location/all and GeoJSON were not fetched. Licence
+is harvested NLOD `https://data.norge.no/nlod/en/1.0`.
+
+**Shape.** `lookup` entities under `kystverket:area_id`. Key is printed
+`area_id`. Label is printed `area_name`. Wrapper `data` array is
+unwrapped. Nested objects are not copied.
+
+**Capability recorded.** `lookup`. Live GET 2026-09-14: HTTP 200, 3
+entities. Sample: `1` Barentshavet-Lofoten, `2` Nordsjøen-Skagerrak,
+`3` Norskehavet. GeoJSON, location/all, and `maps/kommune/list` stay
+`none`. AIS vessels-by-type stays `observations`.
+
+**Surprises.**
+- The leftover decoder stored `area_name` as an observation measure.
+- Printed ids are `"1"` / `"2"` / `"3"` strings, not integers.
+
+**Open question for the query side.** `miljodir:Public_GetMediumList`
+is 54 printed `MediumID`. Anchorage/areas is 330 printed `id` labels
+and should not be dumped as observations.
+
+Proof: `data/kystverket_fvpomr_proof.json`.
+
 
 
 
