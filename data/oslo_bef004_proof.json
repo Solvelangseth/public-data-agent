@@ -1,0 +1,33 @@
+{
+  "dataset": "oslo:OK-BEF004.px",
+  "request_url": "https://statistikkbanken.oslo.kommune.no/statbank/api/v1/no/db1/Befolkning/Folkemengde/OK-BEF004.px",
+  "http_status": 200,
+  "listed": 320,
+  "inserted": 320,
+  "license": null,
+  "from_year": 2019,
+  "to_year": 2019,
+  "sample": [
+    {
+      "measure": "Folkemengden etter administrativ bydel og alder 2008-2019",
+      "value": 678730,
+      "dimensions": {
+        "År": "2019",
+        "Geografi": "Oslo i alt",
+        "Aldersgrupper": "Alder i alt",
+        "Måltall": "Personer"
+      }
+    },
+    {
+      "measure": "Folkemengden etter administrativ bydel og alder 2008-2019",
+      "value": 55739,
+      "dimensions": {
+        "År": "2019",
+        "Geografi": "Bydel Gamle Oslo",
+        "Aldersgrupper": "Alder i alt",
+        "Måltall": "Personer"
+      }
+    }
+  ],
+  "note": "Printed PxWeb json-stat cells for Oslo BEF004, year 2019 only. Full 2008-2019 table was not fetched. Neighbour leftover Oslo wide tables were not dumped."
+}

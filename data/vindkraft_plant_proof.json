@@ -1,0 +1,30 @@
+{
+  "dataset": "vindkraft:GetWindPowerPlants",
+  "request_url": "https://api.nve.no/web/WindPowerplant/GetWindPowerPlants",
+  "http_status": 200,
+  "listed": 6,
+  "inserted": 6,
+  "license": null,
+  "select": {"VindkraftAnleggId": ["20"]},
+  "sample": [
+    {
+      "measure": "InstallertEffekt_MW",
+      "value": 57.5,
+      "dimensions": {
+        "VindkraftAnleggId": "20",
+        "Navn": "Bessakerfjellet",
+        "Kommune": "Åfjord"
+      }
+    },
+    {
+      "measure": "NormalAArsproduksjon_GWh",
+      "value": 152.9,
+      "dimensions": {
+        "VindkraftAnleggId": "20",
+        "Navn": "Bessakerfjellet",
+        "Kommune": "Åfjord"
+      }
+    }
+  ],
+  "note": "Printed float cells for one VindkraftAnleggId (Bessakerfjellet). Unfiltered collection is 72 plants / 404 cells and was not stored. Live /GetWindPowerPlants/{id} returns the same catalog as the collection, so the request is the collection GET filtered to the printed id. GetWindPowerPlantsInOperation (65 names) stays refused."
+}

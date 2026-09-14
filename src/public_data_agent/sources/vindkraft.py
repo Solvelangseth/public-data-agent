@@ -21,6 +21,9 @@ VINDKRAFT_RPS = 2.0
 VINDKRAFT_BURST = 4
 HOST = "api.nve.no"
 PATH_PREFIX = "/web/WindPowerplant/"
+PLANTS_PATH = "/web/windpowerplant/getwindpowerplants"
+VINDKRAFT_MAX_CELLS = 100
+ALLOWED_SELECT = frozenset({"VindkraftAnleggId"})
 NAME_FIELDS = ("Navn", "VindkraftAnleggId", "AnleggsNr")
 GET_RE = re.compile(
     r'opblock-summary-method">GET</span>\s*'
@@ -187,6 +190,66 @@ def is_vindkraft_url(access_path: str | None) -> bool:
     return parsed.netloc.lower() == HOST and parsed.path.startswith(PATH_PREFIX)
 
 
+def is_vindkraft_plants_url(access_path: str | None) -> bool:
+    """GetWindPowerPlants collection. InOperation is a different path.
+
+    The documentation also prints ``/GetWindPowerPlants/{id}``, but a live
+    GET of that path returns the same catalog as the untemplated
+    collection. Address one plant by filtering printed
+    ``VindkraftAnleggId`` after the collection GET.
+    """
+
+    if not is_vindkraft_url(access_path):
+        return False
+    path = urlsplit(access_path).path.rstrip("/").casefold()
+    return path == PLANTS_PATH
+
+
+def selected_vindkraft_id(select: dict[str, list[str]] | None) -> str:
+    """Copy the printed ``VindkraftAnleggId`` for the templated plant GET."""
+
+    select = {str(key): value for key, value in (select or {}).items()}
+    unknown = sorted(key for key in select if key not in ALLOWED_SELECT)
+    if unknown:
+        raise ValueError(
+            f"select names field(s) {unknown} that a wind-plant fetch "
+            f"does not filter on; accepted: {sorted(ALLOWED_SELECT)}"
+        )
+    wanted = select.get("VindkraftAnleggId")
+    if not wanted:
+        raise ValueError(
+            "unfiltered GetWindPowerPlants is the plant-name catalog; "
+            "select a printed VindkraftAnleggId"
+        )
+    values = [wanted] if isinstance(wanted, str) else [str(item) for item in wanted]
+    if len(values) != 1 or not values[0].strip():
+        raise ValueError("select VindkraftAnleggId to a single printed plant id")
+    return values[0].strip()
+
+
+def plants_matching_id(payload: Any, plant_id: str) -> list[dict[str, Any]]:
+    """Keep collection rows whose printed VindkraftAnleggId matches."""
+
+    if not isinstance(payload, list):
+        raise ValueError("vindkraft plant payload is not a JSON array")
+    matched: list[dict[str, Any]] = []
+    for item in payload:
+        if not isinstance(item, dict):
+            continue
+        printed = item.get("VindkraftAnleggId")
+        if printed is None:
+            continue
+        if str(printed) == plant_id:
+            matched.append(item)
+    if not matched:
+        raise ValueError(
+            f"GetWindPowerPlants has no row matching "
+            f"VindkraftAnleggId={plant_id!r}; VindkraftAnleggId must be "
+            "a printed plant id"
+        )
+    return matched
+
+
 def vindkraft_table_id(access_path: str) -> str:
     path = urlsplit(access_path).path
     if path.startswith(PATH_PREFIX):
@@ -195,6 +258,45 @@ def vindkraft_table_id(access_path: str) -> str:
             return ident
     ident = path.rstrip("/").split("/")[-1]
     return ident or "vindkraft"
+
+
+def cells_from_vindkraft_power(payload: Any) -> list[tuple[str, Any, dict[str, str]]]:
+    """Copy printed plant floats into observation cells.
+
+    Measures are printed JSON float keys (``InstallertEffekt_MW``,
+    ``NormalAArsproduksjon_GWh``, …). Other scalars stay as dimensions.
+    Nested objects and arrays such as ``Turbiner`` are not copied.
+    Integer ids such as ``VindkraftAnleggId`` are not measures. An empty
+    float set is an error, not a ``Navn`` cell.
+    """
+
+    if isinstance(payload, list):
+        records = payload
+    elif isinstance(payload, dict):
+        records = [payload]
+    else:
+        raise ValueError("vindkraft plant payload is not a JSON object or array")
+    cells: list[tuple[str, Any, dict[str, str]]] = []
+    for item in records:
+        if not isinstance(item, dict):
+            continue
+        floats = [
+            (key, value)
+            for key, value in item.items()
+            if isinstance(value, float) and not isinstance(value, bool)
+        ]
+        if not floats:
+            continue
+        for key, value in floats:
+            dims = {
+                other: _as_dim(other_value)
+                for other, other_value in item.items()
+                if other != key and _is_scalar(other_value)
+            }
+            cells.append((key, value, dims))
+    if not cells:
+        raise ValueError("vindkraft plant payload printed no numeric cells")
+    return cells
 
 
 def cells_from_vindkraft(payload: Any) -> list[tuple[str, Any, dict[str, str]]]:

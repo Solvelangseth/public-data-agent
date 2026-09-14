@@ -737,7 +737,15 @@ from public_data_agent.sources.aviationforecast import (
 from public_data_agent.sources.vannkraft import (
     is_vannkraft_url,
 )
-from public_data_agent.sources.vindkraft import is_vindkraft_url
+from public_data_agent.sources.vindkraft import (
+    VINDKRAFT_MAX_CELLS,
+    cells_from_vindkraft_power,
+    is_vindkraft_plants_url,
+    is_vindkraft_url,
+    plants_matching_id,
+    selected_vindkraft_id,
+    vindkraft_table_id,
+)
 from public_data_agent.sources.vegogc import (
     cells_from_vegogc,
     is_vegogc_url,
@@ -1672,7 +1680,7 @@ def fetch_observations(
     if is_vannkraft_url(access_path):
         return _fetch_vannkraft(registry, dataset, http=http)
     if is_vindkraft_url(access_path):
-        return _fetch_vindkraft(registry, dataset, http=http)
+        return _fetch_vindkraft(registry, dataset, http=http, select=select)
     if is_vegogc_url(access_path):
         return _fetch_vegogc(registry, dataset, http=http)
     if is_elcert_url(access_path):
@@ -10527,20 +10535,106 @@ def _fetch_vindkraft(
     dataset: dict[str, Any],
     *,
     http: JsonHttp | None = None,
+    select: dict[str, list[str]] | None = None,
 ) -> FetchResult:
-    """Refuse the wind-power plant-name catalog.
+    """Fetch one printed wind plant's float cells.
 
-    Live GetWindPowerPlantsInOperation is 65 plants. The leftover decoder
-    copies printed ``Navn``. That is not a bounded observation fetch.
-    Plants have printed ``VindkraftAnleggId`` and ``InstallertEffekt_MW``
-    for a later entity or single-plant slice.
+    Measures are printed JSON float keys. Unfiltered GetWindPowerPlants
+    and GetWindPowerPlantsInOperation copy ``Navn`` and are refused.
+    Live ``/GetWindPowerPlants/{id}`` returns the same catalog as the
+    collection, so the request is the collection GET and rows are
+    filtered to the printed ``VindkraftAnleggId``.
     """
 
-    del registry, dataset, http
-    raise ValueError(
-        "NVE Vindkraftdatabase collection is 65 plant names; "
-        "do not fetch Navn as observations. A later slice can address "
-        "one printed VindkraftAnleggId"
+    access_path = dataset.get("access_path") or ""
+    table_id = vindkraft_table_id(access_path)
+    if not is_vindkraft_plants_url(access_path):
+        raise ValueError(
+            "NVE Vindkraftdatabase collection is 65 plant names; "
+            "do not fetch Navn as observations. Use GetWindPowerPlants "
+            "with select VindkraftAnleggId"
+        )
+    plant_id = selected_vindkraft_id(select)
+    request_url = access_path
+    client = http or HttpClient(timeout=60.0, max_retries=4)
+    started = utc_now()
+    run_id = registry.start_fetch_run(
+        dataset_id=dataset["id"],
+        table_id=table_id,
+        request_url=request_url,
+        request_method="GET",
+        started_at=started,
+    )
+    counts = HarvestCounts()
+    status = "failed"
+    http_status = 0
+    sample: list[dict[str, Any]] = []
+    try:
+        got = client.get_json_response(request_url)
+        http_status = got.status
+        registry.set_fetch_request(
+            run_id,
+            request_url=request_url,
+            request_body={"method": "GET", "select": select},
+        )
+        matched = plants_matching_id(got.body, plant_id)
+        cells = cells_from_vindkraft_power(matched)
+        if len(cells) > VINDKRAFT_MAX_CELLS:
+            raise SelectionTooLarge(
+                table_id,
+                len(cells),
+                VINDKRAFT_MAX_CELLS,
+                [
+                    {
+                        "code": "VindkraftAnleggId",
+                        "text": "plant float cells",
+                        "selected": len(cells),
+                        "available": VINDKRAFT_MAX_CELLS,
+                    }
+                ],
+            )
+        counts.listed = len(cells)
+        retrieved_at = utc_now()
+        sample = _store_cells(
+            registry,
+            dataset,
+            run_id,
+            table_id=table_id,
+            cells=cells,
+            retrieved_at=retrieved_at,
+            request_url=request_url,
+            http_status=http_status,
+            counts=counts,
+        )
+        registry.set_capability(
+            dataset["id"],
+            {
+                "capability": CAPABILITY_OBSERVATIONS,
+                "record_kind": "observation",
+                "endpoint": access_path,
+                "request_method": "GET",
+                "verified_at": retrieved_at,
+                "verified_sample_count": counts.listed,
+                "notes": (
+                    f"{counts.listed} wind-plant cell(s); measures are "
+                    "printed JSON float keys"
+                ),
+            },
+        )
+        status = "completed"
+    except Exception as exc:
+        counts.failed += 1
+        counts.errors.append({"error": str(exc), "url": access_path})
+        raise
+    finally:
+        registry.finish_fetch_run(run_id, counts, status=status, http_status=http_status)
+    return FetchResult(
+        dataset_id=dataset["id"],
+        table_id=table_id,
+        request_url=request_url,
+        http_status=http_status,
+        counts=counts,
+        sample=sample,
     )
 
 
@@ -16259,12 +16353,22 @@ def classify_access_path(access_path: str | None) -> dict[str, Any]:
                 "do not invent lat/lon. Catalogs are datakilder/terrengtyper"
             ),
         }
+    if is_vindkraft_plants_url(access_path):
+        return {
+            "kind": CAPABILITY_OBSERVATIONS,
+            "reason": (
+                "NVE Vindkraftdatabase GetWindPowerPlants; printed "
+                "InstallertEffekt_MW and other float cells for one printed "
+                "VindkraftAnleggId"
+            ),
+        }
     if is_vindkraft_url(access_path):
         return {
             "kind": CAPABILITY_NONE,
             "reason": (
                 "NVE Vindkraftdatabase plant-name catalog; leftover decoder "
-                "copies Navn. Do not dump 65 plants"
+                "copies Navn. Do not dump 65 plants. Numeric cells are "
+                "GetWindPowerPlants with select VindkraftAnleggId"
             ),
         }
     if can_fetch_access_path(access_path):

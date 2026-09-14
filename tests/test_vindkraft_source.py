@@ -14,8 +14,12 @@ from public_data_agent.sources.vindkraft import (
     DOCS_URL,
     VindkraftSource,
     cells_from_vindkraft,
+    cells_from_vindkraft_power,
+    is_vindkraft_plants_url,
     is_vindkraft_url,
+    plants_matching_id,
     printed_get_paths,
+    selected_vindkraft_id,
     vindkraft_table_id,
 )
 
@@ -51,10 +55,12 @@ PLANTS = [
         "Navn": "Bessakerfjellet",
         "AnleggsNr": 10413,
         "InstallertEffekt_MW": 57.5,
+        "NormalAArsproduksjon_GWh": 152.9,
         "nested": {"skip": True},
     },
     {"VindkraftAnleggId": 21, "Navn": "Ytre Vikna", "AnleggsNr": 10414},
 ]
+
 
 
 class CatalogHttp:
@@ -149,6 +155,26 @@ def test_fetch_refuses_plant_name_catalog(tmp_path: Path) -> None:
     with pytest.raises(ValueError, match="65 plant names"):
         fetch_observations(
             registry,
+            "vindkraft:GetWindPowerPlantsInOperation",
+            table_id="ignored",
+            http=FetchHttp(),
+        )
+    registry.close()
+
+
+def test_fetch_refuses_unfiltered_plants(tmp_path: Path) -> None:
+    registry = Registry(tmp_path / "registry.sqlite")
+    registry.ensure_observation_dataset(
+        dataset_id=DATASET_ID,
+        title="Henter alle vindkraftverk",
+        publisher_name=None,
+        access_path=PLANTS_URL,
+        license=None,
+    )
+    registry.conn.commit()
+    with pytest.raises(ValueError, match="printed VindkraftAnleggId"):
+        fetch_observations(
+            registry,
             DATASET_ID,
             table_id="ignored",
             http=FetchHttp(),
@@ -156,10 +182,75 @@ def test_fetch_refuses_plant_name_catalog(tmp_path: Path) -> None:
     registry.close()
 
 
-def test_vindkraft_url_is_not_observations() -> None:
-    assert is_vindkraft_url(PLANTS_URL)
-    assert classify_access_path(PLANTS_URL)["kind"] == "none"
+def test_vindkraft_plants_url_is_observations() -> None:
+    assert is_vindkraft_plants_url(PLANTS_URL)
+    assert not is_vindkraft_plants_url(INOP_URL)
+    assert classify_access_path(PLANTS_URL)["kind"] == "observations"
     assert classify_access_path(INOP_URL)["kind"] == "none"
+
+
+def test_fetch_gets_printed_plant_floats(tmp_path: Path) -> None:
+    registry = Registry(tmp_path / "registry.sqlite")
+    registry.ensure_observation_dataset(
+        dataset_id=DATASET_ID,
+        title="Henter alle vindkraftverk",
+        publisher_name=None,
+        access_path=PLANTS_URL,
+        license=None,
+    )
+    registry.conn.commit()
+    result = fetch_observations(
+        registry,
+        DATASET_ID,
+        table_id="ignored",
+        http=FetchHttp(),
+        select={"VindkraftAnleggId": ["20"]},
+    )
+    assert result.request_url == PLANTS_URL
+    assert result.http_status == 200
+    assert result.counts.listed == 2
+    rows = registry.list_observations(DATASET_ID)
+    by_measure = {row["measure"]: json.loads(row["value_json"]) for row in rows}
+    assert by_measure["InstallertEffekt_MW"] == 57.5
+    assert by_measure["NormalAArsproduksjon_GWh"] == 152.9
+    dims = json.loads(rows[0]["dimensions_json"])
+    assert dims["VindkraftAnleggId"] == "20"
+    assert dims["Navn"] == "Bessakerfjellet"
+    assert "nested" not in dims
+    assert all(row["license"] is None for row in rows)
+    cap = registry.get_capability(DATASET_ID)
+    assert cap["capability"] == "observations"
+    registry.close()
+
+
+def test_fetch_refuses_unknown_plant_id(tmp_path: Path) -> None:
+    registry = Registry(tmp_path / "registry.sqlite")
+    registry.ensure_observation_dataset(
+        dataset_id=DATASET_ID,
+        title="Henter alle vindkraftverk",
+        publisher_name=None,
+        access_path=PLANTS_URL,
+        license=None,
+    )
+    registry.conn.commit()
+    with pytest.raises(ValueError, match="printed plant id"):
+        fetch_observations(
+            registry,
+            DATASET_ID,
+            table_id="ignored",
+            http=FetchHttp(),
+            select={"VindkraftAnleggId": ["missing"]},
+        )
+    registry.close()
+
+
+def test_selected_vindkraft_id_rejects_unknown_fields() -> None:
+    with pytest.raises(ValueError, match="Navn"):
+        selected_vindkraft_id({"Navn": ["Bessakerfjellet"]})
+    assert selected_vindkraft_id({"VindkraftAnleggId": ["20"]}) == "20"
+    assert plants_matching_id(PLANTS, "20") == [PLANTS[0]]
+    with pytest.raises(ValueError, match="printed plant id"):
+        plants_matching_id(PLANTS, "missing")
 
 
 def test_cells_copy_printed_name() -> None:
@@ -170,6 +261,16 @@ def test_cells_copy_printed_name() -> None:
     assert value == "Bessakerfjellet"
     assert dims["VindkraftAnleggId"] == "20"
     assert "nested" not in dims
+
+
+def test_cells_copy_printed_floats() -> None:
+    cells = cells_from_vindkraft_power([PLANTS[0]])
+    by_measure = {measure: value for measure, value, _dims in cells}
+    assert by_measure == {
+        "InstallertEffekt_MW": 57.5,
+        "NormalAArsproduksjon_GWh": 152.9,
+    }
+    assert all("nested" not in dims for _measure, _value, dims in cells)
 
 
 def test_is_vindkraft_url_accepts_only_windpowerplant_path() -> None:

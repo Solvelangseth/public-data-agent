@@ -2211,6 +2211,72 @@ printed coordinates from a question. Do not invent lat/lon.
 
 Proof: `data/hoydedata_lookup_proof.json`.
 
+## oslo:OK-BEF004.px — 2026-09-14 — promoted (observations)
+
+**Endpoint(s).** `POST https://statistikkbanken.oslo.kommune.no/statbank/api/v1/no/db1/Befolkning/Folkemengde/OK-BEF004.px`
+with printed year `2019` (last printed time label). Already harvested
+leftover PxWeb. Neighbour leftover Oslo wide tables classify the same
+way and were not dumped. Licence is `null`.
+
+**Shape.** `observation`. Measure is the printed json-stat table label
+`Folkemengden etter administrativ bydel og alder 2008-2019`. Dimensions
+are printed `År`, `Geografi`, `Aldersgrupper`, and `Måltall`
+(`Personer`). json-stat does not mark `Måltall` as metric.
+
+**Capability recorded.** `observations`. Live POST 2026-09-14: HTTP 200,
+320 cells for year 2019 (16 Geografi × 20 Aldersgrupper). Sample: Oslo
+i alt, Alder i alt `678730`; Bydel Gamle Oslo, Alder i alt `55739`.
+Full 2008–2019 (3840 cells) was not fetched.
+
+**Surprises.**
+- Year codes are `0`–`11`; `from_year=2019` matches the printed label
+  `2019` and selects code `11`.
+- Same leftover measure-as-table-label as BEF005 (`statistikkvariabel`
+  / `Måltall` stay dimensions).
+
+**Open question for the query side.** A later slice can name one printed
+`Geografi` if 320 cells is too wide. Leftover Oslo `BEF001`/`BEF002`/
+`BEF003`/`BEF006`/`BEF007`/`BEF025` stay wide and should not be dumped.
+`statnett:ElspotPowerSituation_GetPowerSituations` prints
+`powerSituation` strings (`Normal`), not numeric cells.
+
+Proof: `data/oslo_bef004_proof.json`.
+
+## vindkraft:GetWindPowerPlants — 2026-09-14 — promoted (observations)
+
+**Endpoint(s).** `GET https://api.nve.no/web/WindPowerplant/GetWindPowerPlants`
+with select `VindkraftAnleggId=20` (Bessakerfjellet). Already harvested.
+Unfiltered collection is 72 plants / 404 float cells and was not stored.
+`GetWindPowerPlantsInOperation` (65 names) stays refused. Licence is
+`null`.
+
+**Shape.** `observation`. Measures are printed JSON float keys
+`InstallertEffekt_MW`, `NormalAArsproduksjon_GWh`,
+`GjsnittGeneratorytelse`, `GjsnittNavhoeyde`, `GjsnittRotordiameter`,
+and `EnergiPerSveiptAreal`. Other scalars stay dimensions. Nested
+`Turbiner` is not copied. Integer ids are not measures.
+
+**Capability recorded.** `observations`. Live GET 2026-09-14: HTTP 200, 6
+cells. Sample: InstallertEffekt_MW `57.5` and NormalAArsproduksjon_GWh
+`152.9` for VindkraftAnleggId `20` (Åfjord). Unfiltered fetch is refused
+before HTTP. InOperation classifies `none`.
+
+**Surprises.**
+- Documentation prints `/GetWindPowerPlants/{id}`, but a live GET of
+  `/GetWindPowerPlants/20` returns the same 72-plant catalog as the
+  collection. The request URL is therefore the collection; rows are
+  filtered to the printed id after GET.
+- `HovedEierOrgNr` is a printed nine-digit string. It is stored as a
+  dimension, not claimed as `brreg:orgnr`.
+
+**Open question for the query side.** Do not GET the vannkraft collection
+(1863 plants) to filter one id. `statnett:ElspotPowerSituation_GetPowerSituations`
+prints `powerSituation` strings (`Normal`), not numeric cells.
+
+Proof: `data/vindkraft_plant_proof.json`.
+
+
+
 
 
 
