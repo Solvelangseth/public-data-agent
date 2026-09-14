@@ -965,11 +965,14 @@ from public_data_agent.sources.kommuneinfo import (
     kommuneinfo_table_id,
 )
 from public_data_agent.sources.kystverket import (
+    COUNTY_SCHEME,
     KYSTVERKET_MAX_CELLS,
     cells_from_kystverket_vessels,
+    is_kystverket_counties_url,
     is_kystverket_url,
     is_kystverket_vessels_by_type_url,
     kystverket_table_id,
+    lookups_from_kystverket_counties,
 )
 from public_data_agent.sources.miljodir import (
     cells_from_miljodir,
@@ -15767,19 +15770,22 @@ def _fetch_kystverket(
     *,
     http: JsonHttp | None = None,
 ) -> FetchResult:
-    """Fetch printed AIS ship counts by type.
+    """Fetch printed AIS ship counts by type, or the county catalog.
 
-    Measure is the printed key ``number_of_ships``. County lists, location
-    catalogs, and realtime GeoJSON dump names or geometry and are refused.
-    More than KYSTVERKET_MAX_CELLS is refused, not truncated.
+    Measure is the printed key ``number_of_ships``. Counties are lookup
+    entities keyed by printed ``countyno``. Location dumps and realtime
+    GeoJSON are refused. More than KYSTVERKET_MAX_CELLS is refused, not
+    truncated.
     """
 
     access_path = dataset.get("access_path") or ""
     table_id = kystverket_table_id(access_path)
+    if is_kystverket_counties_url(access_path):
+        return _fetch_kystverket_counties(registry, dataset, http=http)
     if not is_kystverket_vessels_by_type_url(access_path):
         raise ValueError(
-            "Kystdatahuset county, location, and GeoJSON catalogs are not a "
-            "bounded observation fetch; use vessels-by-type"
+            "Kystdatahuset location and GeoJSON catalogs are not a bounded "
+            "observation fetch; use vessels-by-type or location/counties"
         )
     client = http or HttpClient(timeout=60.0, max_retries=4)
     started = utc_now()
@@ -15838,6 +15844,108 @@ def _fetch_kystverket(
                 "notes": (
                     f"{counts.listed} AIS ship-type cell(s); measure is printed "
                     "number_of_ships"
+                ),
+            },
+        )
+        status = "completed"
+    except Exception as exc:
+        counts.failed += 1
+        counts.errors.append({"error": str(exc), "url": access_path})
+        raise
+    finally:
+        registry.finish_fetch_run(run_id, counts, status=status, http_status=http_status)
+    return FetchResult(
+        dataset_id=dataset["id"],
+        table_id=table_id,
+        request_url=access_path,
+        http_status=http_status,
+        counts=counts,
+        sample=sample,
+    )
+
+
+def _fetch_kystverket_counties(
+    registry: Registry,
+    dataset: dict[str, Any],
+    *,
+    http: JsonHttp | None = None,
+) -> FetchResult:
+    """Fetch Kystdatahuset counties as lookup entities."""
+
+    access_path = dataset.get("access_path") or ""
+    table_id = kystverket_table_id(access_path)
+    client = http or HttpClient(timeout=60.0, max_retries=4)
+    started = utc_now()
+    run_id = registry.start_fetch_run(
+        dataset_id=dataset["id"],
+        table_id=table_id,
+        request_url=access_path,
+        request_method="GET",
+        started_at=started,
+    )
+    counts = HarvestCounts()
+    status = "failed"
+    http_status = 0
+    sample: list[dict[str, Any]] = []
+    try:
+        got = client.get_json_response(access_path)
+        http_status = got.status
+        registry.set_fetch_request(run_id, request_url=access_path, request_body={"method": "GET"})
+        members = lookups_from_kystverket_counties(got.body)
+        retrieved_at = utc_now()
+        for entity in members:
+            record_id = f"entity:{dataset['id']}:{entity['subject_code']}"
+            action = registry.upsert_record(
+                {
+                    "id": record_id,
+                    "dataset_id": dataset["id"],
+                    "kind": "entity",
+                    "series": "kystverket:counties",
+                    "subject_scheme": entity["subject_scheme"],
+                    "subject_code": entity["subject_code"],
+                    "subject_label": entity["subject_label"],
+                    "period": None,
+                    "measure": None,
+                    "value": None,
+                    "attributes": entity["attributes"],
+                    "retrieved_at": retrieved_at,
+                    "request_url": access_path,
+                    "http_status": http_status,
+                    "publisher_name": dataset.get("publisher_name"),
+                    "license": dataset.get("license"),
+                },
+                run_id,
+            )
+            counts.listed += 1
+            if action == "inserted":
+                counts.inserted += 1
+            elif action == "updated":
+                counts.updated += 1
+            else:
+                counts.unchanged += 1
+            if len(sample) < 3:
+                sample.append(
+                    {
+                        "kind": "entity",
+                        "subject_scheme": entity["subject_scheme"],
+                        "subject_code": entity["subject_code"],
+                        "subject_label": entity["subject_label"],
+                    }
+                )
+        registry.set_capability(
+            dataset["id"],
+            {
+                "capability": CAPABILITY_LOOKUP,
+                "record_kind": "lookup",
+                "endpoint": access_path,
+                "request_method": "GET",
+                "subject_scheme": COUNTY_SCHEME,
+                "subject_count": counts.listed,
+                "verified_at": retrieved_at,
+                "verified_sample_count": counts.listed,
+                "notes": (
+                    f"{counts.listed} printed county lookup entit"
+                    f"{'y' if counts.listed == 1 else 'ies'} under {COUNTY_SCHEME}"
                 ),
             },
         )
@@ -16449,6 +16557,14 @@ def classify_access_path(access_path: str | None) -> dict[str, Any]:
             "reason": (
                 "Kystdatahuset AIS vessels-by-type; printed number_of_ships "
                 "cells by ship_type"
+            ),
+        }
+    if is_kystverket_counties_url(access_path):
+        return {
+            "kind": CAPABILITY_LOOKUP,
+            "reason": (
+                "Kystdatahuset location/counties; printed county catalog as "
+                f"lookup entities under {COUNTY_SCHEME}"
             ),
         }
     if is_norgesbank_observations_url(access_path):

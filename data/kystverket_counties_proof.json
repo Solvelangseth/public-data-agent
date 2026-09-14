@@ -1,0 +1,15 @@
+{
+  "dataset": "kystverket:api/location/counties",
+  "request_url": "https://kystdatahuset.no/ws/api/location/counties",
+  "http_status": 200,
+  "listed": 17,
+  "inserted": 17,
+  "scheme": "kystverket:countyno",
+  "license": "https://data.norge.no/nlod/en/1.0",
+  "sample": [
+    {"subject_code": "03", "subject_label": "Oslo"},
+    {"subject_code": "42", "subject_label": "Agder"},
+    {"subject_code": "22", "subject_label": "Jan Mayen"}
+  ],
+  "note": "Printed countyno as lookup keys from the data array. Location/all and GeoJSON dumps were not fetched. Klass fylkesnummer is not claimed."
+}

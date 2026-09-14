@@ -20,6 +20,8 @@ KYSTVERKET_BURST = 4
 HOST = "kystdatahuset.no"
 PATH_PREFIX = "/ws/api/"
 VESSELS_BY_TYPE_PATH = "/ws/api/ais/realtime/vessels-by-type"
+COUNTIES_PATH = "/ws/api/location/counties"
+COUNTY_SCHEME = "kystverket:countyno"
 KYSTVERKET_MAX_CELLS = 100
 NAME_FIELDS = ("countyname", "label", "area_name", "name", "title", "code")
 
@@ -185,6 +187,54 @@ def is_kystverket_vessels_by_type_url(access_path: str | None) -> bool:
         return False
     path = urlsplit(access_path).path.rstrip("/").casefold()
     return path == VESSELS_BY_TYPE_PATH
+
+
+def is_kystverket_counties_url(access_path: str | None) -> bool:
+    """County catalog. Ship counts and GeoJSON dumps are other paths."""
+
+    if not is_kystverket_url(access_path):
+        return False
+    path = urlsplit(access_path).path.rstrip("/").casefold()
+    return path == COUNTIES_PATH
+
+
+def lookups_from_kystverket_counties(payload: Any) -> list[dict[str, Any]]:
+    """Copy printed county catalog members into lookup entities.
+
+    Each data row is keyed by printed ``countyno``. Empty keys are skipped.
+    Nested objects are not copied.
+    """
+
+    records = _records(payload)
+    out: list[dict[str, Any]] = []
+    for item in records:
+        if not isinstance(item, dict):
+            continue
+        code = item.get("countyno")
+        if not isinstance(code, (str, int)) or isinstance(code, bool):
+            continue
+        code = str(code).strip()
+        if not code:
+            continue
+        label = item.get("countyname")
+        if not isinstance(label, str) or not label.strip():
+            label = code
+        attributes = {
+            key: value
+            for key, value in item.items()
+            if key != "countyno" and _is_scalar(value) and value is not None
+        }
+        out.append(
+            {
+                "subject_scheme": COUNTY_SCHEME,
+                "subject_code": code,
+                "subject_label": label.strip(),
+                "attributes": attributes,
+            }
+        )
+    if not out:
+        raise ValueError("kystverket counties payload printed no countyno")
+    return out
 
 
 def kystverket_table_id(access_path: str) -> str:

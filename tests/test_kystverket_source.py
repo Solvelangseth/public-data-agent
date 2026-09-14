@@ -11,13 +11,16 @@ from public_data_agent.http_util import JsonResponse
 from public_data_agent.registry import Registry
 from public_data_agent.sources import SOURCE_IDS, build_source
 from public_data_agent.sources.kystverket import (
+    COUNTY_SCHEME,
     KYSTVERKET_MAX_CELLS,
     KystverketSource,
     cells_from_kystverket,
     cells_from_kystverket_vessels,
+    is_kystverket_counties_url,
     is_kystverket_url,
     is_kystverket_vessels_by_type_url,
     kystverket_table_id,
+    lookups_from_kystverket_counties,
     printed_endpoint_url,
     printed_license_url,
     printed_operation_id,
@@ -104,6 +107,8 @@ class FetchHttp:
     def get_json_response(self, url: str, *, headers=None) -> JsonResponse:
         if url == VESSELS_URL:
             return JsonResponse(status=200, url=url, body=VESSELS_BODY)
+        if url == COUNTIES_URL:
+            return JsonResponse(status=200, url=url, body=COUNTIES_BODY)
         raise AssertionError(f"unexpected GET {url}")
 
     def post_json_response(self, url: str, body, *, headers=None) -> JsonResponse:
@@ -225,22 +230,39 @@ def test_vessels_by_type_url_is_observations() -> None:
     assert not is_kystverket_vessels_by_type_url(COUNTIES_URL)
     assert not is_kystverket_vessels_by_type_url(GEOJSON_URL)
     assert classify_access_path(VESSELS_URL)["kind"] == "observations"
-    assert classify_access_path(COUNTIES_URL)["kind"] == "none"
+    assert classify_access_path(COUNTIES_URL)["kind"] == "lookup"
     assert classify_access_path(GEOJSON_URL)["kind"] == "none"
+    assert is_kystverket_counties_url(COUNTIES_URL)
 
 
-def test_fetch_refuses_county_name_catalog(tmp_path: Path) -> None:
+def test_fetch_stores_counties_as_lookup(tmp_path: Path) -> None:
     source = KystverketSource(http=CatalogHttp())
     registry = Registry(tmp_path / "registry.sqlite")
     harvest(registry, source)
-    with pytest.raises(ValueError, match="vessels-by-type"):
-        fetch_observations(
-            registry,
-            COUNTIES_ID,
-            table_id="counties",
-            http=FetchHttp(),
-        )
+    result = fetch_observations(
+        registry,
+        COUNTIES_ID,
+        table_id="counties",
+        http=FetchHttp(),
+    )
+    assert result.http_status == 200
+    assert result.counts.listed == 2
+    assert registry.list_observations(COUNTIES_ID) == []
+    rows = registry.list_records(COUNTIES_ID, kind="entity")
+    codes = {row["subject_code"] for row in rows}
+    assert codes == {"42", "03"}
+    assert all(row["subject_scheme"] == COUNTY_SCHEME for row in rows)
+    oslo = next(row for row in rows if row["subject_code"] == "03")
+    assert oslo["subject_label"] == "Oslo"
+    cap = registry.get_capability(COUNTIES_ID)
+    assert cap["capability"] == "lookup"
     registry.close()
+
+
+def test_lookups_copy_printed_countyno() -> None:
+    members = lookups_from_kystverket_counties(COUNTIES_BODY)
+    assert members[0]["subject_code"] == "42"
+    assert members[0]["subject_scheme"] == COUNTY_SCHEME
 
 
 def test_fetch_refuses_more_than_vessel_cell_cap(tmp_path: Path) -> None:

@@ -2402,6 +2402,30 @@ dumps stay `none`.
 
 Proof: `data/aqua_intentions_proof.json`.
 
+## kystverket:api/location/counties — 2026-09-14 — promoted (lookup)
+
+**Endpoint(s).** `GET https://kystdatahuset.no/ws/api/location/counties`.
+Already harvested. Location/all and realtime GeoJSON were not fetched.
+Licence is harvested NLOD `https://data.norge.no/nlod/en/1.0`.
+
+**Shape.** `lookup` entities under `kystverket:countyno`. Key is printed
+`countyno`. Label is printed `countyname`. Wrapper `data` array is
+unwrapped. Nested objects are not copied.
+
+**Capability recorded.** `lookup`. Live GET 2026-09-14: HTTP 200, 17
+entities. Sample: `03` Oslo, `42` Agder, `22` Jan Mayen. GeoJSON and
+location/all stay `none`. AIS vessels-by-type stays `observations`.
+
+**Surprises.**
+- The leftover decoder stored `countyname` as an observation measure.
+- Includes Jan Mayen (`22`) and Svalbard (`21`). Klass fylkesnummer is
+  not claimed.
+
+**Open question for the query side.** `maps/kommune/list` is another
+printed code list. Location/all is a voyage dump and should stay refused.
+
+Proof: `data/kystverket_counties_proof.json`.
+
 
 
 
