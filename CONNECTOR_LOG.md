@@ -1890,6 +1890,33 @@ same way; they were not dumped this slice.
 
 Proof: `data/oslo_bef008_proof.json`.
 
+## ssbv2:14483 — 2026-09-14 — promoted (observations)
+
+**Endpoint(s).** `GET https://data.ssb.no/api/pxwebapi/v2/tables/14483/data?lang=no&outputFormat=json-stat2`.
+Already harvested leftover v2 data href. Neighbour leftover data hrefs
+classify the same way and were not dumped. Licence is `null`.
+
+**Shape.** `observation`. Measure is the printed json-stat ContentsCode
+label (`Arbeidsstyrken (1000 personer)` on the default slice). Dimensions
+are printed `Justering`, `Tid`, and `Alder`. The default slice is the
+publisher's; no period is invented.
+
+**Capability recorded.** `observations`. Live GET 2026-09-14: HTTP 200, 21
+cells. Sample: Arbeidsstyrken 3062 (Trend, 2026K2, 15-74 år). More than
+100 cells is refused, not truncated.
+
+**Surprises.**
+- Same leftover decoder and classify as `ssbv2:13760`. This slice is
+  another leftover harvested data href that had no stored cells.
+- Some default-slice values can be json-stat `null`; they stay printed.
+
+**Open question for the query side.** Remaining leftover v2 data hrefs
+(`13618`, `13619`, `05110`, …) classify the same way; they were not
+dumped this slice.
+
+Proof: `data/ssbv2_14483_proof.json`.
+
+
 
 
 
