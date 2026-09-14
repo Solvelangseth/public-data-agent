@@ -31,9 +31,14 @@ from public_data_agent.sources.fhi import (
     is_fhi_url,
 )
 from public_data_agent.sources.mattilsynet import (
-    cells_from_mattilsynet,
+    MAX_LIMIT as MATTILSYNET_MAX_LIMIT,
+    SUBJECT_SCHEME as MATTILSYNET_SCHEME,
+    is_mattilsynet_preparat_url,
     is_mattilsynet_url,
     mattilsynet_table_id,
+    products_from_payload as mattilsynet_products_from_payload,
+    selected_product as mattilsynet_selected_product,
+    shape_from_preparater as shape_from_mattilsynet,
 )
 from public_data_agent.sources.entur import (
     VEHICLE_TYPES_FEED,
@@ -1313,7 +1318,7 @@ def fetch_observations(
     if is_fhi_url(access_path):
         return _fetch_fhi(registry, dataset, http=http)
     if is_mattilsynet_url(access_path):
-        return _fetch_mattilsynet(registry, dataset, http=http)
+        return _fetch_mattilsynet(registry, dataset, http=http, select=select)
     if is_udir_nsr_url(access_path):
         return _fetch_udir(registry, dataset, http=http)
     if is_nbr_url(access_path):
@@ -3651,10 +3656,33 @@ def _fetch_mattilsynet(
     dataset: dict[str, Any],
     *,
     http: JsonHttp | None = None,
+    select: dict[str, list[str]] | None = None,
 ) -> FetchResult:
+    """Fetch plantevernmidler as product entities, not name observations.
+
+    Default is a page of ten. ``select={"id": ["4572"]}`` returns that one
+    product. ``antall`` raises the page size up to a hard cap. An unknown
+    id is an error. Collection sizes vary; they are not all ingested.
+    """
+
     access_path = dataset.get("access_path") or ""
-    client = http or HttpClient(timeout=60.0, max_retries=4)
     table_id = mattilsynet_table_id(access_path)
+    wanted, limit = mattilsynet_selected_product(select)
+    if wanted is None and limit > MATTILSYNET_MAX_LIMIT:
+        raise SelectionTooLarge(
+            table_id,
+            limit,
+            MATTILSYNET_MAX_LIMIT,
+            [
+                {
+                    "code": "antall",
+                    "text": "products per request",
+                    "selected": limit,
+                    "available": MATTILSYNET_MAX_LIMIT,
+                }
+            ],
+        )
+    client = http or HttpClient(timeout=60.0, max_retries=4)
     started = utc_now()
     run_id = registry.start_fetch_run(
         dataset_id=dataset["id"],
@@ -3667,22 +3695,92 @@ def _fetch_mattilsynet(
     status = "failed"
     http_status = 0
     sample: list[dict[str, Any]] = []
+    touched: list[str] = []
     try:
         got = client.get_json_response(access_path)
         http_status = got.status
-        registry.set_fetch_request(run_id, request_url=access_path, request_body={"method": "GET"})
-        cells = cells_from_mattilsynet(got.body)
-        counts.listed = len(cells)
-        sample = _store_cells(
-            registry,
-            dataset,
-            run_id,
-            table_id=table_id,
-            cells=cells,
-            retrieved_at=utc_now(),
-            request_url=access_path,
-            http_status=http_status,
-            counts=counts,
+        registry.set_fetch_request(
+            run_id, request_url=access_path, request_body={"method": "GET", "select": select}
+        )
+        products = mattilsynet_products_from_payload(got.body)
+        if wanted is not None:
+            by_id = {item["subject_code"]: item for item in products}
+            missing = [code for code in wanted if code not in by_id]
+            if missing:
+                raise ValueError(
+                    f"preparat id {missing} not in {table_id}; "
+                    "the collection does not print that id"
+                )
+            products = [by_id[code] for code in wanted]
+        else:
+            products = products[:limit]
+        retrieved_at = utc_now()
+        for entity in products:
+            record_id = f"entity:{dataset['id']}:{entity['subject_code']}"
+            action = registry.upsert_record(
+                {
+                    "id": record_id,
+                    "dataset_id": dataset["id"],
+                    "kind": "entity",
+                    "series": f"mattilsynet:{table_id}",
+                    "subject_scheme": entity["subject_scheme"],
+                    "subject_code": entity["subject_code"],
+                    "subject_label": entity["subject_label"],
+                    "period": None,
+                    "measure": None,
+                    "value": None,
+                    "attributes": entity["attributes"],
+                    "retrieved_at": retrieved_at,
+                    "request_url": access_path,
+                    "http_status": http_status,
+                    "publisher_name": dataset.get("publisher_name"),
+                    "license": dataset.get("license"),
+                },
+                run_id,
+            )
+            counts.listed += 1
+            if action == "inserted":
+                counts.inserted += 1
+            elif action == "updated":
+                counts.updated += 1
+            else:
+                counts.unchanged += 1
+            touched.append(record_id)
+            if len(sample) < 3:
+                sample.append(
+                    {
+                        "kind": "entity",
+                        "subject_scheme": MATTILSYNET_SCHEME,
+                        "subject_code": entity["subject_code"],
+                        "subject_label": entity["subject_label"],
+                        "attributes": {
+                            key: entity["attributes"][key]
+                            for key in ("id", "navn", "registreringsnummer", "status", "form")
+                            if key in entity["attributes"]
+                        },
+                    }
+                )
+        if not products:
+            raise ValueError(
+                f"plantevernmidler returned no products for {access_path}; nothing was stored"
+            )
+        fields, keys = shape_from_mattilsynet(products)
+        registry.set_resource_shape(dataset["id"], fields, keys=keys)
+        registry.set_capability(
+            dataset["id"],
+            {
+                "capability": CAPABILITY_ENTITIES,
+                "record_kind": "entity",
+                "endpoint": access_path,
+                "request_method": "GET",
+                "subject_scheme": MATTILSYNET_SCHEME,
+                "verified_at": retrieved_at,
+                "verified_sample_count": counts.listed,
+                "notes": (
+                    f"{counts.listed} product record(s) from {table_id}; "
+                    "names are labels, not observation values"
+                ),
+            },
         )
         status = "completed"
     except Exception as exc:
@@ -3698,6 +3796,7 @@ def _fetch_mattilsynet(
         http_status=http_status,
         counts=counts,
         sample=sample,
+        observation_ids=touched,
     )
 
 
@@ -14523,6 +14622,14 @@ def classify_access_path(access_path: str | None) -> dict[str, Any]:
             "reason": (
                 "Landbruksdirektoratet dairy-delivery CSV; national litre totals "
                 "or one farm by organisasjonsnummer"
+            ),
+        }
+    if is_mattilsynet_preparat_url(access_path):
+        return {
+            "kind": CAPABILITY_ENTITIES,
+            "reason": (
+                "Mattilsynet plantevernmidler collection; products as entities "
+                "addressed by printed id, fetched a bounded page at a time"
             ),
         }
     if is_naturvern_url(access_path):

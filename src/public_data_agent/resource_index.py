@@ -335,6 +335,7 @@ def index_dataset(
     from public_data_agent.sources.stpartier import is_stpartier_url
     from public_data_agent.sources.stkomiteer import is_stkomiteer_url
     from public_data_agent.sources.stperioder import is_stperioder_url
+    from public_data_agent.sources.mattilsynet import is_mattilsynet_preparat_url
     from public_data_agent.sources.fhi import is_fhi_table_url, printed_table_data_url, split_table_url
 
     dataset = registry.get_dataset(dataset_id)
@@ -545,6 +546,17 @@ def index_dataset(
         meta = client.get_json_response(access_path)
         members = stperioder_from_payload(meta.body or {})
         fields, keys = shape_from_stperioder(members)
+        endpoint, method = access_path, "GET"
+        record_kind = "entity"
+    elif is_mattilsynet_preparat_url(access_path):
+        from public_data_agent.sources.mattilsynet import (
+            products_from_payload as mattilsynet_products_from_payload,
+            shape_from_preparater as shape_from_mattilsynet,
+        )
+
+        meta = client.get_json_response(access_path)
+        products = mattilsynet_products_from_payload(meta.body or {})
+        fields, keys = shape_from_mattilsynet(products)
         endpoint, method = access_path, "GET"
         record_kind = "entity"
     else:

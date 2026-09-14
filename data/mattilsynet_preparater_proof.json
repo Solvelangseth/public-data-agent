@@ -1,0 +1,41 @@
+{
+  "dataset": "mattilsynet:hobby_preparater",
+  "title": "Alle godkjente preparater for hobbybruk.",
+  "request_url": "https://api.plantevernmidler.mattilsynet.io/hobby_preparater",
+  "http_status": 200,
+  "listed": 1,
+  "page_listed": 10,
+  "publisher_count": 54,
+  "license": "https://data.norge.no/nlod/no/2.0",
+  "sample": {
+    "id": "4572",
+    "navn": "ANDERcontrol",
+    "registreringsnummer": "2024.2",
+    "status": "Godkjent",
+    "form": "Rovmidd"
+  },
+  "page_sample": [
+    {
+      "id": "4572",
+      "navn": "ANDERcontrol",
+      "registreringsnummer": "2024.2",
+      "status": "Godkjent",
+      "form": "Rovmidd"
+    },
+    {
+      "id": "4282",
+      "navn": "Beloukha Garden",
+      "registreringsnummer": "2025.19",
+      "status": "Godkjent",
+      "form": "Emulsjonskonsentrat"
+    },
+    {
+      "id": "4280",
+      "navn": "Beloukha Garden RTU",
+      "registreringsnummer": "2025.20",
+      "status": "Godkjent",
+      "form": "Andre væsker til ufortynnet bruk"
+    }
+  ],
+  "note": "Product entities, not name observations. One id plus a page of 10 stored. 54 hobby products exist; they were not all ingested. Other plantevern collections were not fetched."
+}

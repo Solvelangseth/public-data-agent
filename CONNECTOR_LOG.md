@@ -1360,6 +1360,41 @@ as observations.
 
 Proof: `data/stortinget_lookup_proof.json`.
 
+## mattilsynet:hobby_preparater — 2026-09-14 — promoted (entities)
+
+**Endpoint(s).** `GET https://api.plantevernmidler.mattilsynet.io/hobby_preparater`.
+Already harvested. OpenAPI lists other collections on the same host
+(`godkjente_kjemiske_mikrobiologiske_preparater`, 268 products). Those were
+not fetched. Templated `/preparat/{id}` paths were never harvested.
+
+**Shape.** `entity`. Subject scheme `mattilsynet:preparat_id` (printed `id`,
+e.g. `4572`). Label is printed `navn`. Nested lists (`virksommeStoffer`,
+`importoerer`) are skipped. Licence is the harvested OpenAPI NLOD 2.0 URL
+(`https://data.norge.no/nlod/no/2.0`). Publisher count for hobby products is
+54.
+
+**Capability recorded.** `entities`. Live GET 2026-09-14: HTTP 200, one
+product by `select={"id": ["4572"]}` then a page of ten. Zero observation
+rows. Sample: `4572` ANDERcontrol, registreringsnummer `2024.2`, status
+Godkjent, form Rovmidd. Default page is 10, hard cap 100; an unknown id is
+refused. The 54 hobby products were not all ingested.
+
+**Surprises.**
+- The previous fetch stored each `navn` as an observation. Dispatch now
+  writes product entities. `cells_from_mattilsynet` still copies names for
+  unit tests and is unused by fetch.
+- Live OpenAPI has no `/preparater` collection (HTTP 404). The test fixture
+  still names that leftover path; harvest skips it if the spec no longer
+  prints it.
+- Leftover WMS (`--source mattilsyn`) is a different host and was not
+  changed. WMS/WFS stays imagery, not products.
+
+**Open question for the query side.** Other plantevern collections on this
+host share the same `preparater` list shape if fetched. Interpellasjoner
+have no registered source.
+
+Proof: `data/mattilsynet_preparater_proof.json`.
+
 
 
 

@@ -19,6 +19,11 @@ INGEST_REASON = (
 MATTILSYNET_RPS = 2.0
 MATTILSYNET_BURST = 4
 HOST = "api.plantevernmidler.mattilsynet.io"
+SUBJECT_SCHEME = "mattilsynet:preparat_id"
+LIST_KEY = "preparater"
+DEFAULT_LIMIT = 10
+MAX_LIMIT = 100
+_SKIP_KEYS = set()
 
 
 class MattilsynetPlantevernSource(SourceBase):
@@ -163,6 +168,19 @@ def is_mattilsynet_url(access_path: str | None) -> bool:
     return urlsplit(access_path).netloc == HOST
 
 
+def is_mattilsynet_preparat_url(access_path: str | None) -> bool:
+    """Collection GETs that print a ``preparater`` list, not OpenAPI or etikett PDFs."""
+
+    if not is_mattilsynet_url(access_path):
+        return False
+    path = urlsplit(access_path).path.rstrip("/")
+    if path in {"", "/json"}:
+        return False
+    if path.startswith("/etikett") or path.startswith("/preparat/"):
+        return False
+    return True
+
+
 def mattilsynet_table_id(access_path: str) -> str:
     segment = urlsplit(access_path).path.rstrip("/").split("/")[-1]
     return segment or "mattilsynet"
@@ -255,3 +273,129 @@ def _as_dim(value: Any) -> str:
     if value is None:
         return ""
     return str(value)
+
+
+def entity_from_preparat(item: dict[str, Any]) -> dict[str, Any]:
+    code = _id_code(item.get("id"))
+    if not code:
+        raise ValueError("Mattilsynet preparat printed no id")
+    label = _string(item.get("navn")) or code
+    attributes: dict[str, Any] = {}
+    for key, value in item.items():
+        if key in _SKIP_KEYS:
+            continue
+        if isinstance(value, (dict, list)) or value is None:
+            continue
+        if key == "id":
+            attributes[key] = code
+            continue
+        attributes[key] = value
+    return {
+        "subject_scheme": SUBJECT_SCHEME,
+        "subject_code": code,
+        "subject_label": label,
+        "attributes": attributes,
+    }
+
+
+def products_from_payload(payload: Any) -> list[dict[str, Any]]:
+    if not isinstance(payload, dict):
+        raise ValueError("mattilsynet payload is not a JSON object")
+    listed = payload.get(LIST_KEY)
+    if not isinstance(listed, list) or not listed:
+        raise ValueError("mattilsynet payload printed no preparater")
+    out = []
+    for item in listed:
+        if isinstance(item, dict):
+            out.append(entity_from_preparat(item))
+    if not out:
+        raise ValueError("mattilsynet payload printed no preparat objects")
+    return out
+
+
+def shape_from_preparater(
+    products: list[dict[str, Any]],
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    ids = [
+        {"value_code": item["subject_code"], "value_label": item["subject_label"]}
+        for item in products[:20]
+    ]
+    fields = [
+        {
+            "field_code": "id",
+            "field_label": "id",
+            "field_role": "key",
+            "values": ids,
+        },
+        {
+            "field_code": "navn",
+            "field_label": "navn",
+            "field_role": "attribute",
+            "values": [],
+        },
+        {
+            "field_code": "registreringsnummer",
+            "field_label": "registreringsnummer",
+            "field_role": "attribute",
+            "values": [],
+        },
+        {
+            "field_code": "status",
+            "field_label": "status",
+            "field_role": "attribute",
+            "values": [],
+        },
+    ]
+    keys = [
+        {
+            "scheme": SUBJECT_SCHEME,
+            "field_code": "id",
+            "coverage_count": len(products),
+        }
+    ]
+    return fields, keys
+
+
+def selected_product(
+    select: dict[str, list[str]] | None,
+) -> tuple[list[str] | None, int]:
+    select = {str(k): v for k, v in (select or {}).items()}
+    allowed = {"id", "antall"}
+    unknown = sorted(key for key in select if key not in allowed)
+    if unknown:
+        raise ValueError(
+            f"select names field(s) {unknown} that a plantevernmidler fetch "
+            f"does not filter on; accepted: {sorted(allowed)}"
+        )
+    limit = DEFAULT_LIMIT
+    if "antall" in select:
+        wanted = select["antall"]
+        wanted = [wanted] if isinstance(wanted, str) else list(wanted)
+        try:
+            limit = int(str(wanted[0]))
+        except (ValueError, IndexError) as exc:
+            raise ValueError(f"select[antall]={select['antall']!r} is not a number") from exc
+        if limit < 1:
+            raise ValueError(f"select[antall]={limit} must be at least 1")
+    if "id" not in select:
+        return None, limit
+    values = select["id"]
+    values = [values] if isinstance(values, str) else [str(v) for v in values]
+    if len(values) != 1:
+        raise ValueError("select id accepts exactly one preparat id")
+    return values, 1
+
+
+def _id_code(value: Any) -> str | None:
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, int):
+        return str(value)
+    if isinstance(value, str) and value.strip():
+        return value.strip()
+    return None
+
+
+def _string(value: Any) -> str | None:
+    return value if isinstance(value, str) and value.strip() else None
+

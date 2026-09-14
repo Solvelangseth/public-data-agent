@@ -5,14 +5,18 @@ from pathlib import Path
 
 import pytest
 
-from public_data_agent.fetch import fetch_observations
+from public_data_agent.fetch import SelectionTooLarge, classify_access_path, fetch_observations
 from public_data_agent.harvest import harvest
 from public_data_agent.http_util import JsonResponse
 from public_data_agent.registry import Registry
 from public_data_agent.sources import SOURCE_IDS, build_source
+from public_data_agent.resource_index import index_dataset
 from public_data_agent.sources.mattilsynet import (
+    MAX_LIMIT,
     MattilsynetPlantevernSource,
     cells_from_mattilsynet,
+    entity_from_preparat,
+    is_mattilsynet_preparat_url,
     is_mattilsynet_url,
     mattilsynet_table_id,
     printed_publisher,
@@ -130,35 +134,69 @@ def test_harvest_writes_printed_access_path_license_and_publisher(tmp_path: Path
     registry.close()
 
 
-def test_fetch_writes_observations_and_provenance(tmp_path: Path) -> None:
+def test_url_is_entities_not_name_observations() -> None:
+    assert is_mattilsynet_preparat_url(HOBBY_URL)
+    assert classify_access_path(HOBBY_URL)["kind"] == "entities"
+    assert not is_mattilsynet_preparat_url(OPENAPI_URL)
+
+
+def test_entity_uses_printed_id() -> None:
+    entity = entity_from_preparat(HOBBY_BODY["preparater"][0])
+    assert entity["subject_code"] == "4572"
+    assert entity["subject_label"] == "ANDERcontrol"
+    assert entity["subject_scheme"] == "mattilsynet:preparat_id"
+    assert entity["attributes"]["form"] == "Rovmidd"
+    assert "merknader" not in entity["attributes"]
+    assert "detaljer" not in entity["attributes"]
+
+
+def test_fetch_stores_products_not_name_observations(tmp_path: Path) -> None:
     source = MattilsynetPlantevernSource(http=CatalogHttp())
     registry = Registry(tmp_path / "registry.sqlite")
     harvest(registry, source)
+    indexed = index_dataset(registry, DATASET_ID, http=FetchHttp(), catalogues={})
+    assert indexed["fields"] >= 1
     result = fetch_observations(
         registry,
         DATASET_ID,
         table_id="ignored",
+        select={"id": ["4572"]},
         http=FetchHttp(),
     )
     assert result.request_url == HOBBY_URL
     assert result.table_id == "hobby_preparater"
     assert result.http_status == 200
-    assert result.counts.listed == 2
-    rows = registry.list_observations(DATASET_ID)
-    assert sorted(json.loads(row["value_json"]) for row in rows) == [
-        "ANDERcontrol",
-        "Annet middel",
-    ]
-    assert all(row["measure"] == "navn" for row in rows)
-    ander = next(row for row in rows if json.loads(row["value_json"]) == "ANDERcontrol")
-    dims = json.loads(ander["dimensions_json"])
-    assert dims["id"] == "4572"
-    assert dims["form"] == "Rovmidd"
-    assert "merknader" not in dims
-    assert "detaljer" not in dims
-    assert all(row["publisher_name"] == "Mattilsynet" for row in rows)
-    assert all(row["license"] == NLOD_URL for row in rows)
-    assert all(row["access_path"] == HOBBY_URL for row in rows)
+    assert result.counts.listed == 1
+    assert result.sample[0]["kind"] == "entity"
+    assert result.sample[0]["subject_code"] == "4572"
+    assert registry.list_observations(DATASET_ID) == []
+    cap = registry.get_capability(DATASET_ID)
+    assert cap["capability"] == "entities"
+    assert cap["verified_sample_count"] == 1
+    assert cap["subject_scheme"] == "mattilsynet:preparat_id"
+    with pytest.raises(ValueError, match="not in hobby_preparater"):
+        fetch_observations(
+            registry,
+            DATASET_ID,
+            table_id="ignored",
+            select={"id": ["NOPE"]},
+            http=FetchHttp(),
+        )
+    registry.close()
+
+
+def test_page_above_the_cap_is_refused(tmp_path: Path) -> None:
+    source = MattilsynetPlantevernSource(http=CatalogHttp())
+    registry = Registry(tmp_path / "registry.sqlite")
+    harvest(registry, source)
+    with pytest.raises(SelectionTooLarge):
+        fetch_observations(
+            registry,
+            DATASET_ID,
+            table_id="ignored",
+            select={"antall": [str(MAX_LIMIT + 1)]},
+            http=FetchHttp(),
+        )
     registry.close()
 
 
