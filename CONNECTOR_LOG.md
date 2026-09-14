@@ -2128,6 +2128,35 @@ printed `bosted` and `år`.
 
 Proof: `data/oslo_bef010_proof.json`.
 
+## oslo:OK-BEF005.px — 2026-09-14 — promoted (observations)
+
+**Endpoint(s).** `POST https://statistikkbanken.oslo.kommune.no/statbank/api/v1/no/db1/Befolkning/Folkemengde/OK-BEF005.px`
+with printed year `2025`. Already harvested leftover PxWeb. Neighbour
+leftover Oslo tables classify the same way and were not dumped. Licence
+is `null`.
+
+**Shape.** `observation`. Measure is the printed json-stat table label
+`BEF005`. Dimensions are printed `bosted`, `aldersgruppe`,
+`statistikkvariabel`, and `år`.
+
+**Capability recorded.** `observations`. Live POST 2026-09-14: HTTP 200,
+336 cells for year 2025 (16 bosted × 21 aldersgruppe). Sample: Oslo i
+alt, Alder i alt `722326`; Bydel Gamle Oslo, Alder i alt `64565`. Full
+2017–2026 was not fetched.
+
+**Surprises.**
+- Year 2025 still expands to every printed bydel and age group (336
+  cells). `BEF001` year 2025 would be ~6038 cells and was not fetched.
+- `statistikkvariabel` prints `antall`; the stored measure is the table
+  label `BEF005`.
+
+**Open question for the query side.** A later slice can name one printed
+`bosted` if 336 cells is too wide. Neighbour leftover Oslo tables
+(BEF002/003/006/007/025) are wider and were not dumped.
+
+Proof: `data/oslo_bef005_proof.json`.
+
+
 
 
 

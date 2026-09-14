@@ -1,0 +1,33 @@
+{
+  "dataset": "oslo:OK-BEF005.px",
+  "request_url": "https://statistikkbanken.oslo.kommune.no/statbank/api/v1/no/db1/Befolkning/Folkemengde/OK-BEF005.px",
+  "http_status": 200,
+  "listed": 336,
+  "inserted": 336,
+  "license": null,
+  "from_year": 2025,
+  "to_year": 2025,
+  "sample": [
+    {
+      "measure": "BEF005",
+      "value": 722326,
+      "dimensions": {
+        "aldersgruppe": "Alder i alt",
+        "bosted": "Oslo i alt",
+        "statistikkvariabel": "antall",
+        "år": "2025"
+      }
+    },
+    {
+      "measure": "BEF005",
+      "value": 64565,
+      "dimensions": {
+        "aldersgruppe": "Alder i alt",
+        "bosted": "Bydel Gamle Oslo",
+        "statistikkvariabel": "antall",
+        "år": "2025"
+      }
+    }
+  ],
+  "note": "Printed PxWeb json-stat cells for Oslo BEF005, year 2025 only. Full 2017-2026 table was not fetched. Neighbour leftover Oslo tables were not dumped."
+}
