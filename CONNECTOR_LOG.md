@@ -1390,10 +1390,43 @@ refused. The 54 hobby products were not all ingested.
   changed. WMS/WFS stays imagery, not products.
 
 **Open question for the query side.** Other plantevern collections on this
-host share the same `preparater` list shape if fetched. Interpellasjoner
-have no registered source.
+host share the same decoder if fetched — do not bulk the 268 professional
+products. Udir NSR small catalogs are now lookups; see the following entry.
 
 Proof: `data/mattilsynet_preparater_proof.json`.
+
+## udir NSR small catalogs — 2026-09-14 — promoted (lookup)
+
+**Endpoint(s).** Already harvested NSR collection GETs:
+`https://data-nsr.udir.no/fylker` (36), `/skoletyper` (16), `/nacekoder` (14),
+`/relasjonstyper` (4). Licence on the harvested rows is NLOD 2.0 from the
+OpenAPI `info.license.url`.
+
+**Shape.** `entity` with capability `lookup`. Subject schemes `udir:fylkesnr`
+(printed `Fylkesnr`), `udir:skoletype` (`Id`), `udir:nacekode` (`Kode`),
+`udir:relasjonstype` (`Id`). Label is printed `Navn`. Nested objects are
+skipped. Members with an empty code are skipped.
+
+**Capability recorded.** `lookup` on all four. Live GET 2026-09-14: HTTP 200,
+complete published lists, zero observation rows. Samples: fylke `42` Agder;
+skoletype `1` Grunnskole; nacekode `85.201` Ordinær grunnskoleundervisning;
+relasjonstype `1` Eierstruktur.
+
+**Surprises.**
+- The previous fetch stored each `Navn` as an observation. Dispatch now
+  writes lookup entities. `cells_from_udir` remains for `enheter` /
+  `kommuner` (1,179 kommuner including closed) until those get a bounded
+  entity fetch.
+- Fylkesnr `42` is Agder in this register. No Klass key is claimed from the
+  number alone.
+
+**Open question for the query side.** `udir:enheter` (schools) and
+`udir:kommuner` (1,179) and NBR `enheter` (kindergartens) still use the
+name-as-observation decoder. Do not dump them. NBR small vocabs
+(`barnehagekategorier`) are next.
+
+Proof: `data/udir_lookup_proof.json`.
+
 
 
 

@@ -238,3 +238,141 @@ def _as_dim(value: Any) -> str:
     if value is None:
         return ""
     return str(value)
+
+
+# Small complete NSR catalogs. `enheter` and `kommuner` are large registers
+# and stay on the observation decoder until they get a bounded entity fetch.
+LOOKUP_CATALOGS: dict[str, dict[str, str]] = {
+    "fylker": {
+        "code_field": "Fylkesnr",
+        "label_field": "Navn",
+        "scheme": "udir:fylkesnr",
+    },
+    "skoletyper": {
+        "code_field": "Id",
+        "label_field": "Navn",
+        "scheme": "udir:skoletype",
+    },
+    "nacekoder": {
+        "code_field": "Kode",
+        "label_field": "Navn",
+        "scheme": "udir:nacekode",
+    },
+    "relasjonstyper": {
+        "code_field": "Id",
+        "label_field": "Navn",
+        "scheme": "udir:relasjonstype",
+    },
+}
+_LOOKUP_SKIP = set()
+
+
+def is_udir_lookup_url(access_path: str | None) -> bool:
+    if not is_udir_nsr_url(access_path):
+        return False
+    return udir_table_id(access_path or "") in LOOKUP_CATALOGS
+
+
+def lookup_catalog(access_path: str) -> dict[str, str]:
+    ident = udir_table_id(access_path)
+    spec = LOOKUP_CATALOGS.get(ident)
+    if spec is None:
+        raise ValueError(f"not a Udir NSR lookup catalog: {access_path}")
+    return spec
+
+
+def entity_from_udir_item(item: dict[str, Any], spec: dict[str, str]) -> dict[str, Any]:
+    code = _lookup_id(item.get(spec["code_field"]))
+    if not code:
+        raise ValueError(f"Udir {spec['scheme']} member printed no {spec['code_field']}")
+    raw = item.get(spec["label_field"])
+    label = raw.strip() if isinstance(raw, str) and raw.strip() else code
+    attributes: dict[str, Any] = {}
+    for key, value in item.items():
+        if key in _LOOKUP_SKIP:
+            continue
+        if isinstance(value, (dict, list)) or value is None:
+            continue
+        if key == spec["code_field"]:
+            attributes[key] = code
+            continue
+        attributes[key] = value
+    return {
+        "subject_scheme": spec["scheme"],
+        "subject_code": code,
+        "subject_label": label,
+        "attributes": attributes,
+    }
+
+
+def lookups_from_payload(payload: Any, spec: dict[str, str]) -> list[dict[str, Any]]:
+    if not isinstance(payload, list):
+        raise ValueError("udir lookup payload is not a JSON array")
+    out = []
+    for item in payload:
+        if not isinstance(item, dict):
+            continue
+        if not _lookup_id(item.get(spec["code_field"])):
+            continue
+        out.append(entity_from_udir_item(item, spec))
+    if not out:
+        raise ValueError("udir lookup payload printed no members with an id")
+    return out
+
+
+def shape_from_lookups(
+    members: list[dict[str, Any]], spec: dict[str, str]
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    ids = [
+        {"value_code": item["subject_code"], "value_label": item["subject_label"]}
+        for item in members
+    ]
+    fields = [
+        {
+            "field_code": spec["code_field"],
+            "field_label": spec["code_field"],
+            "field_role": "key",
+            "values": ids,
+        },
+        {
+            "field_code": spec["label_field"],
+            "field_label": spec["label_field"],
+            "field_role": "attribute",
+            "values": [],
+        },
+    ]
+    keys = [
+        {
+            "scheme": spec["scheme"],
+            "field_code": spec["code_field"],
+            "coverage_count": len(members),
+        }
+    ]
+    return fields, keys
+
+
+def selected_lookup_ids(select: dict[str, list[str]] | None) -> list[str] | None:
+    if not select:
+        return None
+    unknown = sorted(key for key in select if key != "id")
+    if unknown:
+        raise ValueError(
+            f"select names field(s) {unknown} that a Udir lookup fetch "
+            "does not filter on; only id is accepted, or omit select for the full list"
+        )
+    wanted = select.get("id") or []
+    wanted = [wanted] if isinstance(wanted, str) else [str(item) for item in wanted]
+    if not wanted:
+        raise ValueError("select id is empty")
+    return wanted
+
+
+def _lookup_id(value: Any) -> str | None:
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, int):
+        return str(value)
+    if isinstance(value, str) and value.strip():
+        return value.strip()
+    return None
+

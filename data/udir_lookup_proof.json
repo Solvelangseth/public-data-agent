@@ -1,0 +1,11 @@
+{
+  "http_status": 200,
+  "observations": 0,
+  "catalogs": {
+    "udir:fylker": {"listed": 36, "sample_id": "42", "sample_label": "Agder"},
+    "udir:skoletyper": {"listed": 16, "sample_id": "1", "sample_label": "Grunnskole"},
+    "udir:nacekoder": {"listed": 14, "sample_id": "85.201", "sample_label": "Ordinær grunnskoleundervisning"},
+    "udir:relasjonstyper": {"listed": 4, "sample_id": "1", "sample_label": "Eierstruktur"}
+  },
+  "note": "Complete published small NSR catalogs as lookup entities. enheter and kommuner were not fetched."
+}

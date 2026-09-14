@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from public_data_agent.fetch import fetch_observations
+from public_data_agent.fetch import classify_access_path, fetch_observations
 from public_data_agent.harvest import harvest
 from public_data_agent.http_util import JsonResponse
 from public_data_agent.registry import Registry
@@ -13,6 +13,7 @@ from public_data_agent.sources import SOURCE_IDS, build_source
 from public_data_agent.sources.udir import (
     UdirNsrSource,
     cells_from_udir,
+    is_udir_lookup_url,
     is_udir_nsr_url,
     printed_endpoint_url,
     printed_license_url,
@@ -136,7 +137,13 @@ def test_harvest_writes_printed_id_license_and_null_publisher(tmp_path: Path) ->
     registry.close()
 
 
-def test_fetch_gets_printed_skoletyper(tmp_path: Path) -> None:
+def test_skoletyper_catalog_is_lookup() -> None:
+    assert is_udir_lookup_url(SKOLETYPER_URL)
+    assert classify_access_path(SKOLETYPER_URL)["kind"] == "lookup"
+    assert not is_udir_lookup_url(ENHETER_URL)
+
+
+def test_fetch_stores_skoletyper_lookups_not_name_observations(tmp_path: Path) -> None:
     source = UdirNsrSource(http=CatalogHttp())
     registry = Registry(tmp_path / "registry.sqlite")
     harvest(registry, source)
@@ -144,26 +151,20 @@ def test_fetch_gets_printed_skoletyper(tmp_path: Path) -> None:
         registry,
         DATASET_ID,
         table_id="ignored",
+        select={"id": ["1"]},
         http=FetchHttp(),
     )
     assert result.request_url == SKOLETYPER_URL
     assert result.table_id == "skoletyper"
     assert result.http_status == 200
-    assert result.counts.listed == 2
-    rows = registry.list_observations(DATASET_ID)
-    assert [json.loads(row["value_json"]) for row in rows] == [
-        "Grunnskole",
-        "Videregående skole",
-    ]
-    assert all(row["measure"] == "Navn" for row in rows)
-    dims = json.loads(rows[0]["dimensions_json"])
-    assert dims["Id"] == "1"
-    assert dims["ErSystemType"] == "True"
-    assert dims["NavnTekst"] == ""
-    assert "nested" not in dims
-    assert all(row["publisher_name"] is None for row in rows)
-    assert all(row["license"] == NLOD_URL for row in rows)
-    assert all(row["access_path"] == SKOLETYPER_URL for row in rows)
+    assert result.counts.listed == 1
+    assert result.sample[0]["kind"] == "entity"
+    assert result.sample[0]["subject_code"] == "1"
+    assert result.sample[0]["subject_label"] == "Grunnskole"
+    assert registry.list_observations(DATASET_ID) == []
+    cap = registry.get_capability(DATASET_ID)
+    assert cap["capability"] == "lookup"
+    assert cap["verified_sample_count"] == 1
     registry.close()
 
 

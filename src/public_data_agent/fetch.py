@@ -1037,7 +1037,12 @@ from public_data_agent.sources.sikt import (
 )
 from public_data_agent.sources.udir import (
     cells_from_udir,
+    is_udir_lookup_url,
     is_udir_nsr_url,
+    lookup_catalog as udir_lookup_catalog,
+    lookups_from_payload as udir_lookups_from_payload,
+    selected_lookup_ids as udir_selected_lookup_ids,
+    shape_from_lookups as shape_from_udir_lookups,
     udir_table_id,
 )
 from public_data_agent.sources.valg import (
@@ -1319,6 +1324,8 @@ def fetch_observations(
         return _fetch_fhi(registry, dataset, http=http)
     if is_mattilsynet_url(access_path):
         return _fetch_mattilsynet(registry, dataset, http=http, select=select)
+    if is_udir_lookup_url(access_path):
+        return _fetch_udir_lookup(registry, dataset, http=http, select=select)
     if is_udir_nsr_url(access_path):
         return _fetch_udir(registry, dataset, http=http)
     if is_nbr_url(access_path):
@@ -6292,6 +6299,129 @@ def _fetch_stedsnavn(
         http_status=http_status,
         counts=counts,
         sample=sample,
+    )
+
+
+def _fetch_udir_lookup(
+    registry: Registry,
+    dataset: dict[str, Any],
+    *,
+    http: JsonHttp | None = None,
+    select: dict[str, list[str]] | None = None,
+) -> FetchResult:
+    """Fetch a small NSR catalog as lookup entities, not name observations."""
+
+    access_path = dataset.get("access_path") or ""
+    spec = udir_lookup_catalog(access_path)
+    table_id = udir_table_id(access_path)
+    wanted = udir_selected_lookup_ids(select)
+    client = http or HttpClient(timeout=60.0, max_retries=4)
+    started = utc_now()
+    run_id = registry.start_fetch_run(
+        dataset_id=dataset["id"],
+        table_id=table_id,
+        request_url=access_path,
+        request_method="GET",
+        started_at=started,
+    )
+    counts = HarvestCounts()
+    status = "failed"
+    http_status = 0
+    sample: list[dict[str, Any]] = []
+    touched: list[str] = []
+    try:
+        got = client.get_json_response(access_path)
+        http_status = got.status
+        registry.set_fetch_request(
+            run_id, request_url=access_path, request_body={"method": "GET", "select": select}
+        )
+        members = udir_lookups_from_payload(got.body, spec)
+        if wanted is not None:
+            by_id = {item["subject_code"]: item for item in members}
+            missing = [code for code in wanted if code not in by_id]
+            if missing:
+                raise ValueError(
+                    f"id {missing} not in udir:{table_id}; the catalog does not print that id"
+                )
+            members = [by_id[code] for code in wanted]
+        retrieved_at = utc_now()
+        for entity in members:
+            record_id = f"entity:{dataset['id']}:{entity['subject_code']}"
+            action = registry.upsert_record(
+                {
+                    "id": record_id,
+                    "dataset_id": dataset["id"],
+                    "kind": "entity",
+                    "series": f"udir:{table_id}",
+                    "subject_scheme": entity["subject_scheme"],
+                    "subject_code": entity["subject_code"],
+                    "subject_label": entity["subject_label"],
+                    "period": None,
+                    "measure": None,
+                    "value": None,
+                    "attributes": entity["attributes"],
+                    "retrieved_at": retrieved_at,
+                    "request_url": access_path,
+                    "http_status": http_status,
+                    "publisher_name": dataset.get("publisher_name"),
+                    "license": dataset.get("license"),
+                },
+                run_id,
+            )
+            counts.listed += 1
+            if action == "inserted":
+                counts.inserted += 1
+            elif action == "updated":
+                counts.updated += 1
+            else:
+                counts.unchanged += 1
+            touched.append(record_id)
+            if len(sample) < 3:
+                sample.append(
+                    {
+                        "kind": "entity",
+                        "subject_scheme": entity["subject_scheme"],
+                        "subject_code": entity["subject_code"],
+                        "subject_label": entity["subject_label"],
+                    }
+                )
+        if not members:
+            raise ValueError(
+                f"udir:{table_id} returned no members for {access_path}; nothing was stored"
+            )
+        fields, keys = shape_from_udir_lookups(members, spec)
+        registry.set_resource_shape(dataset["id"], fields, keys=keys)
+        registry.set_capability(
+            dataset["id"],
+            {
+                "capability": CAPABILITY_LOOKUP,
+                "record_kind": "entity",
+                "endpoint": access_path,
+                "request_method": "GET",
+                "subject_scheme": spec["scheme"],
+                "verified_at": retrieved_at,
+                "verified_sample_count": counts.listed,
+                "notes": (
+                    f"{counts.listed} lookup entit(y/ies) from udir:{table_id}; "
+                    "names are labels, not observation values"
+                ),
+            },
+        )
+        status = "completed"
+    except Exception as exc:
+        counts.failed += 1
+        counts.errors.append({"error": str(exc), "url": access_path})
+        raise
+    finally:
+        registry.finish_fetch_run(run_id, counts, status=status, http_status=http_status)
+    return FetchResult(
+        dataset_id=dataset["id"],
+        table_id=table_id,
+        request_url=access_path,
+        http_status=http_status,
+        counts=counts,
+        sample=sample,
+        observation_ids=touched,
     )
 
 
@@ -14630,6 +14760,15 @@ def classify_access_path(access_path: str | None) -> dict[str, Any]:
             "reason": (
                 "Mattilsynet plantevernmidler collection; products as entities "
                 "addressed by printed id, fetched a bounded page at a time"
+            ),
+        }
+    if is_udir_lookup_url(access_path):
+        spec = udir_lookup_catalog(access_path)
+        return {
+            "kind": CAPABILITY_LOOKUP,
+            "reason": (
+                f"Udir NSR {udir_table_id(access_path)}; printed catalog as "
+                f"lookup entities under {spec['scheme']}"
             ),
         }
     if is_naturvern_url(access_path):
