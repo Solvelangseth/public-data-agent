@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from public_data_agent.fetch import fetch_observations
+from public_data_agent.fetch import classify_access_path, fetch_observations
 from public_data_agent.harvest import harvest
 from public_data_agent.http_util import JsonResponse
 from public_data_agent.registry import Registry
@@ -13,6 +13,7 @@ from public_data_agent.sources import SOURCE_IDS, build_source
 from public_data_agent.sources.ssbv2 import (
     Ssbv2Source,
     cells_from_ssbv2,
+    is_ssbv2_data_url,
     is_ssbv2_url,
     printed_data_url,
     printed_tables,
@@ -193,6 +194,35 @@ def test_fetch_gets_printed_jsonstat_cells(tmp_path: Path) -> None:
     assert all(row["publisher_name"] == "Statistisk sentralbyrå" for row in rows)
     assert all(row["license"] is None for row in rows)
     assert all(row["access_path"] == TABLE_13760_URL for row in rows)
+    cap = registry.get_capability(DATASET_ID)
+    assert cap["capability"] == "observations"
+    registry.close()
+
+
+def test_ssbv2_data_url_is_observations() -> None:
+    assert is_ssbv2_data_url(TABLE_13760_URL)
+    assert not is_ssbv2_data_url(LIST_URL)
+    assert classify_access_path(TABLE_13760_URL)["kind"] == "observations"
+    assert classify_access_path(LIST_URL)["kind"] == "none"
+
+
+def test_fetch_refuses_ssbv2_tables_catalog(tmp_path: Path) -> None:
+    registry = Registry(tmp_path / "registry.sqlite")
+    registry.ensure_observation_dataset(
+        dataset_id="ssbv2:tables",
+        title="PxWebApi 2 tables",
+        publisher_name=None,
+        access_path=LIST_URL,
+        license=None,
+    )
+    registry.conn.commit()
+    with pytest.raises(ValueError, match="/tables/\\{id\\}/data"):
+        fetch_observations(
+            registry,
+            "ssbv2:tables",
+            table_id="tables",
+            http=FetchHttp(),
+        )
     registry.close()
 
 

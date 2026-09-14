@@ -20,6 +20,7 @@ SSBV2_BURST = 4
 HOST = "data.ssb.no"
 PATH_MARK = "/api/pxwebapi/v2/tables"
 DATA_REL = "data"
+SSBV2_MAX_CELLS = 100
 
 
 class Ssbv2Source(SourceBase):
@@ -177,6 +178,15 @@ def is_ssbv2_url(access_path: str | None) -> bool:
         return False
     parsed = urlsplit(access_path)
     return parsed.netloc.lower() == HOST and PATH_MARK in parsed.path
+
+
+def is_ssbv2_data_url(access_path: str | None) -> bool:
+    """A table's json-stat2 data href. The tables catalog is a different path."""
+
+    if not is_ssbv2_url(access_path):
+        return False
+    path = urlsplit(access_path).path.rstrip("/").casefold()
+    return "/tables/" in path and path.endswith("/data")
 
 
 def ssbv2_table_id(access_path: str) -> str:

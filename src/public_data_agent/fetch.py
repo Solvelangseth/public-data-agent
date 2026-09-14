@@ -562,7 +562,9 @@ from public_data_agent.sources.ssbfritid import (
     ssbfritid_table_id,
 )
 from public_data_agent.sources.ssbv2 import (
+    SSBV2_MAX_CELLS,
     cells_from_ssbv2,
+    is_ssbv2_data_url,
     is_ssbv2_url,
     ssbv2_table_id,
 )
@@ -10833,9 +10835,22 @@ def _fetch_ssbv2(
     *,
     http: JsonHttp | None = None,
 ) -> FetchResult:
+    """Fetch SSB PxWebApi 2 json-stat2 cells from a printed data href.
+
+    Measure names are the printed ContentsCode labels. The tables catalog
+    lists table ids and is refused. More than SSBV2_MAX_CELLS is refused,
+    not truncated. The default slice is the publisher's; no period is
+    invented.
+    """
+
     access_path = dataset.get("access_path") or ""
-    client = http or HttpClient(timeout=60.0, max_retries=4)
     table_id = ssbv2_table_id(access_path)
+    if not is_ssbv2_data_url(access_path):
+        raise ValueError(
+            "SSB PxWebApi 2 tables catalog is not a json-stat2 observation "
+            "fetch; use a printed /tables/{id}/data href"
+        )
+    client = http or HttpClient(timeout=60.0, max_retries=4)
     started = utc_now()
     run_id = registry.start_fetch_run(
         dataset_id=dataset["id"],
@@ -10853,17 +10868,47 @@ def _fetch_ssbv2(
         http_status = got.status
         registry.set_fetch_request(run_id, request_url=access_path, request_body={"method": "GET"})
         cells = cells_from_ssbv2(got.body)
+        if len(cells) > SSBV2_MAX_CELLS:
+            raise SelectionTooLarge(
+                table_id,
+                len(cells),
+                SSBV2_MAX_CELLS,
+                [
+                    {
+                        "code": table_id,
+                        "text": "json-stat2 cells",
+                        "selected": len(cells),
+                        "available": SSBV2_MAX_CELLS,
+                    }
+                ],
+            )
         counts.listed = len(cells)
+        retrieved_at = utc_now()
         sample = _store_cells(
             registry,
             dataset,
             run_id,
             table_id=table_id,
             cells=cells,
-            retrieved_at=utc_now(),
+            retrieved_at=retrieved_at,
             request_url=access_path,
             http_status=http_status,
             counts=counts,
+        )
+        registry.set_capability(
+            dataset["id"],
+            {
+                "capability": CAPABILITY_OBSERVATIONS,
+                "record_kind": "observation",
+                "endpoint": access_path,
+                "request_method": "GET",
+                "verified_at": retrieved_at,
+                "verified_sample_count": counts.listed,
+                "notes": (
+                    f"{counts.listed} json-stat2 cell(s); measures are printed "
+                    "ContentsCode labels"
+                ),
+            },
         )
         status = "completed"
     except Exception as exc:
@@ -15528,6 +15573,14 @@ def classify_access_path(access_path: str | None) -> dict[str, Any]:
                 "counts by scenario code and year"
             ),
         }
+    if is_ssbv2_data_url(access_path):
+        return {
+            "kind": CAPABILITY_OBSERVATIONS,
+            "reason": (
+                "SSB PxWebApi 2 json-stat2 data href; printed ContentsCode "
+                "cells for the publisher's default slice"
+            ),
+        }
     if is_mattilsynet_preparat_url(access_path):
         return {
             "kind": CAPABILITY_ENTITIES,
@@ -15810,6 +15863,14 @@ def classify_access_path(access_path: str | None) -> dict[str, Any]:
             "reason": (
                 "Kartverket Stormflo alle_kommuner dump; national totals are "
                 "national.json"
+            ),
+        }
+    if is_ssbv2_url(access_path):
+        return {
+            "kind": CAPABILITY_NONE,
+            "reason": (
+                "SSB PxWebApi 2 tables catalog; lists table ids, does not "
+                "return json-stat cells"
             ),
         }
     if can_fetch_access_path(access_path):

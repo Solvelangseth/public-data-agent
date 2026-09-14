@@ -1,0 +1,20 @@
+{
+  "dataset": "ssbv2:13760",
+  "request_url": "https://data.ssb.no/api/pxwebapi/v2/tables/13760/data?lang=no&outputFormat=json-stat2",
+  "http_status": 200,
+  "listed": 12,
+  "inserted": 12,
+  "license": null,
+  "sample": [
+    {
+      "measure": "Arbeidsstyrken (1000 personer)",
+      "value": 3067,
+      "dimensions": {
+        "Justering": "Trend",
+        "Tid": "2026M07",
+        "Alder": "15-74 år"
+      }
+    }
+  ],
+  "note": "Publisher default json-stat2 slice (size [4,1,1,3]). Measure is the printed ContentsCode label. Tables catalog was not fetched. No period was invented."
+}

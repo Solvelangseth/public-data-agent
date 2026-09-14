@@ -1670,6 +1670,37 @@ slice, not the 232-row dump.
 
 Proof: `data/stormflo_national_proof.json`.
 
+## ssbv2:13760 — 2026-09-14 — promoted (observations)
+
+**Endpoint(s).** `GET https://data.ssb.no/api/pxwebapi/v2/tables/13760/data?lang=no&outputFormat=json-stat2`.
+Already harvested with nine neighbour v2 data hrefs. The tables catalog
+`/api/pxwebapi/v2/tables` lists table ids and was not fetched. Licence is
+`null`; the v2 message prints none.
+
+**Shape.** `observation`. Measure is the printed json-stat ContentsCode
+label (`Arbeidsstyrken (1000 personer)` on the default slice). Dimensions
+are printed `Justering`, `Tid`, and `Alder`. The default slice is the
+publisher's (`size` [4, 1, 1, 3], Tid `2026M07`); no period is invented.
+
+**Capability recorded.** `observations` for printed `/tables/{id}/data`
+hrefs. Live GET 2026-09-14: HTTP 200, 12 cells. Sample: Arbeidsstyrken
+3067 (Trend, 2026M07, 15-74 år). More than 100 cells is refused, not
+truncated. The tables catalog classifies `none` and fetch is refused.
+
+**Surprises.**
+- The leftover decoder already used `cells_from_jsonstat_coded`. Classify
+  had left every v2 URL `unverified`, including the catalog that would
+  store table labels as cells.
+- Some default-slice values are json-stat `null` (seasonally adjusted
+  3-month average). They are stored as printed, not filled.
+
+**Open question for the query side.** A v2 table whose publisher default
+exceeds 100 cells needs a printed dimension select, the same as PxWeb v0.
+The nine harvested neighbour data hrefs classify `observations` the same
+way; they were not dumped this slice.
+
+Proof: `data/ssbv2_13760_proof.json`.
+
 
 
 
