@@ -2275,6 +2275,32 @@ prints `powerSituation` strings (`Normal`), not numeric cells.
 
 Proof: `data/vindkraft_plant_proof.json`.
 
+## nve:HentOmråder — 2026-09-14 — promoted (lookup)
+
+**Endpoint(s).** `GET https://biapi.nve.no/magasinstatistikk/api/Magasinstatistikk/HentOmråder`.
+Already harvested. Last-week cells stay `observations`. The weekly dump
+and MinMaxMedian stay refused. Licence is `null`.
+
+**Shape.** `lookup` entities under `nve:magasin_omrade`. Key is printed
+`omrType` and `omrnr` joined with `:`. Label is printed `navn`. Nested
+`land` / `elspot` / `vassdrag` arrays are unwrapped. Empty keys skipped.
+
+**Capability recorded.** `lookup`. Live GET 2026-09-14: HTTP 200, 10
+entities. Sample: `NO:0` Norge, `EL:1` NO 1, `VASS:1` VASS1. Codes
+EL:1–5, NO:0, VASS:1–4. Fylkesnummer is not claimed.
+
+**Surprises.**
+- Live payload is a one-element JSON array wrapping the three groups.
+  A bare object is also accepted.
+- Leftover decoder would have stored nested `navn` as observation
+  measures.
+
+**Open question for the query side.** Last-week `fyllingsgrad` cells
+already use printed `omrType`/`omrnr` as dimensions. This catalog is the
+label side of that key.
+
+Proof: `data/nve_omrader_proof.json`.
+
 
 
 

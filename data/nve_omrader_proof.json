@@ -1,0 +1,16 @@
+{
+  "dataset": "nve:HentOmråder",
+  "request_url": "https://biapi.nve.no/magasinstatistikk/api/Magasinstatistikk/HentOmr%C3%A5der",
+  "http_status": 200,
+  "listed": 10,
+  "inserted": 10,
+  "scheme": "nve:magasin_omrade",
+  "license": null,
+  "sample": [
+    {"subject_code": "NO:0", "subject_label": "Norge"},
+    {"subject_code": "EL:1", "subject_label": "NO 1"},
+    {"subject_code": "VASS:1", "subject_label": "VASS1"}
+  ],
+  "codes": ["EL:1", "EL:2", "EL:3", "EL:4", "EL:5", "NO:0", "VASS:1", "VASS:2", "VASS:3", "VASS:4"],
+  "note": "Printed omrType:omrnr as lookup keys. Live payload is a one-element array wrapping land/elspot/vassdrag. Fylkesnummer is not claimed. Weekly dump was not fetched."
+}

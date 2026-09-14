@@ -10,12 +10,17 @@ from public_data_agent.harvest import harvest
 from public_data_agent.http_util import JsonResponse
 from public_data_agent.registry import Registry
 from public_data_agent.sources import SOURCE_IDS, build_source
+from urllib.parse import unquote, urlsplit
+
 from public_data_agent.sources.nve import (
     MAGASIN_MAX_CELLS,
+    OMRADE_SCHEME,
     NveMagasinSource,
     cells_from_nve,
     is_nve_magasin_url,
+    is_nve_omrader_url,
     is_nve_siste_uke_url,
+    lookups_from_nve_omrader,
     printed_endpoint_url,
     printed_operation_id,
     printed_publisher,
@@ -26,6 +31,10 @@ OPENAPI_URL = "https://biapi.nve.no/magasinstatistikk/swagger/v1/swagger.json"
 SISTE_UKE = (
     "https://biapi.nve.no/magasinstatistikk/api/Magasinstatistikk/HentOffentligDataSisteUke"
 )
+OMRADER_URL = (
+    "https://biapi.nve.no/magasinstatistikk/api/Magasinstatistikk/HentOmråder"
+)
+OMRADER_ID = "nve:HentOmråder"
 OPENAPI = {
     "info": {
         "title": "Magasinstatistikk",
@@ -86,10 +95,29 @@ class CatalogHttp:
         raise AssertionError(f"unexpected GET {url}")
 
 
+OMRADER_BODY = {
+    "land": [
+        {
+            "navn": "Norge",
+            "navn_langt": "Norge",
+            "beskrivelse": "Hele landet",
+            "omrType": "NO",
+            "omrnr": 0,
+        }
+    ],
+    "elspot": [{"navn": "NO 1", "omrType": "EL", "omrnr": 1}],
+    "vassdrag": [{"navn": "Østlandet", "omrType": "VASS", "omrnr": 1}],
+}
+
+
 class FetchHttp:
     def get_json_response(self, url: str, *, headers=None) -> JsonResponse:
-        assert url == SISTE_UKE
-        return JsonResponse(status=200, url=url, body=SISTE_UKE_ROWS)
+        if url == SISTE_UKE:
+            return JsonResponse(status=200, url=url, body=SISTE_UKE_ROWS)
+        path = unquote(urlsplit(url).path)
+        if path.rstrip("/").endswith("HentOmråder"):
+            return JsonResponse(status=200, url=url, body=OMRADER_BODY)
+        raise AssertionError(f"unexpected GET {url}")
 
     def post_json_response(self, url: str, body, *, headers=None) -> JsonResponse:
         raise AssertionError(f"unexpected POST {url}")
@@ -217,12 +245,48 @@ def test_siste_uke_url_is_observations() -> None:
         )["kind"]
         == "none"
     )
-    assert (
-        classify_access_path(
-            "https://biapi.nve.no/magasinstatistikk/api/Magasinstatistikk/HentOmråder"
-        )["kind"]
-        == "none"
+    assert classify_access_path(OMRADER_URL)["kind"] == "lookup"
+    assert is_nve_omrader_url(OMRADER_URL)
+
+
+def test_fetch_stores_omrader_as_lookup(tmp_path: Path) -> None:
+    registry = Registry(tmp_path / "registry.sqlite")
+    registry.ensure_observation_dataset(
+        dataset_id=OMRADER_ID,
+        title="Henter områder for magasinstatistikk",
+        publisher_name="Norges vassdrags- og energidirektorat (NVE)",
+        access_path=OMRADER_URL,
+        license=None,
     )
+    registry.conn.commit()
+    result = fetch_observations(
+        registry,
+        OMRADER_ID,
+        table_id="ignored",
+        http=FetchHttp(),
+    )
+    assert result.http_status == 200
+    assert result.counts.listed == 3
+    assert registry.list_observations(OMRADER_ID) == []
+    rows = registry.list_records(OMRADER_ID, kind="entity")
+    codes = {row["subject_code"] for row in rows}
+    assert codes == {"NO:0", "EL:1", "VASS:1"}
+    assert all(row["subject_scheme"] == OMRADE_SCHEME for row in rows)
+    norge = next(row for row in rows if row["subject_code"] == "NO:0")
+    assert norge["subject_label"] == "Norge"
+    cap = registry.get_capability(OMRADER_ID)
+    assert cap["capability"] == "lookup"
+    registry.close()
+
+
+def test_lookups_copy_printed_omrade_keys() -> None:
+    members = lookups_from_nve_omrader(OMRADER_BODY)
+    assert members[0]["subject_code"] == "NO:0"
+    assert members[0]["subject_scheme"] == OMRADE_SCHEME
+    wrapped = lookups_from_nve_omrader([OMRADER_BODY])
+    assert [item["subject_code"] for item in wrapped] == [
+        item["subject_code"] for item in members
+    ]
 
 
 def test_fetch_refuses_full_magasin_dump(tmp_path: Path) -> None:

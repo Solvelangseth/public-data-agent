@@ -20,9 +20,12 @@ from public_data_agent.models import HarvestCounts
 from public_data_agent.registry import Registry, utc_now
 from public_data_agent.sources.nve import (
     MAGASIN_MAX_CELLS,
+    OMRADE_SCHEME,
     cells_from_nve,
     is_nve_magasin_url,
+    is_nve_omrader_url,
     is_nve_siste_uke_url,
+    lookups_from_nve_omrader,
     nve_table_id,
     requestable_url,
 )
@@ -3595,21 +3598,23 @@ def _fetch_nve_magasin(
     *,
     http: JsonHttp | None = None,
 ) -> FetchResult:
-    """Fetch last-week NVE Magasinstatistikk cells.
+    """Fetch last-week NVE Magasinstatistikk cells, or the area catalog.
 
     Measures are the printed float keys (fyllingsgrad, fylling_TWh, …).
-    HentOffentligData is the 1995–present weekly dump, MinMaxMedian is
-    twenty-year extrema, and HentOmråder is area names — those are
-    refused, not stored. More than MAGASIN_MAX_CELLS is refused, not
-    truncated.
+    HentOmråder is lookup entities keyed by printed omrType and omrnr.
+    HentOffentligData is the 1995–present weekly dump and MinMaxMedian is
+    twenty-year extrema — those are refused, not stored. More than
+    MAGASIN_MAX_CELLS is refused, not truncated.
     """
 
     access_path = dataset.get("access_path") or ""
     table_id = nve_table_id(access_path)
+    if is_nve_omrader_url(access_path):
+        return _fetch_nve_omrader(registry, dataset, http=http)
     if not is_nve_siste_uke_url(access_path):
         raise ValueError(
-            "NVE Magasinstatistikk full dump, MinMaxMedian, and area catalog "
-            "are not a bounded observation fetch; use HentOffentligDataSisteUke"
+            "NVE Magasinstatistikk full dump and MinMaxMedian are not a "
+            "bounded observation fetch; use HentOffentligDataSisteUke"
         )
     request_url = requestable_url(access_path)
     client = http or HttpClient(timeout=60.0, max_retries=4)
@@ -3672,6 +3677,109 @@ def _fetch_nve_magasin(
                 "notes": (
                     f"{counts.listed} last-week magasin cell(s); measures are "
                     "printed float keys"
+                ),
+            },
+        )
+        status = "completed"
+    except Exception as exc:
+        counts.failed += 1
+        counts.errors.append({"error": str(exc), "url": request_url})
+        raise
+    finally:
+        registry.finish_fetch_run(run_id, counts, status=status, http_status=http_status)
+    return FetchResult(
+        dataset_id=dataset["id"],
+        table_id=table_id,
+        request_url=request_url,
+        http_status=http_status,
+        counts=counts,
+        sample=sample,
+    )
+
+
+def _fetch_nve_omrader(
+    registry: Registry,
+    dataset: dict[str, Any],
+    *,
+    http: JsonHttp | None = None,
+) -> FetchResult:
+    """Fetch NVE magasin area catalog as lookup entities."""
+
+    access_path = dataset.get("access_path") or ""
+    table_id = nve_table_id(access_path)
+    request_url = requestable_url(access_path)
+    client = http or HttpClient(timeout=60.0, max_retries=4)
+    started = utc_now()
+    run_id = registry.start_fetch_run(
+        dataset_id=dataset["id"],
+        table_id=table_id,
+        request_url=request_url,
+        request_method="GET",
+        started_at=started,
+    )
+    counts = HarvestCounts()
+    status = "failed"
+    http_status = 0
+    sample: list[dict[str, Any]] = []
+    try:
+        got = client.get_json_response(request_url)
+        http_status = got.status
+        registry.set_fetch_request(run_id, request_url=request_url, request_body={"method": "GET"})
+        members = lookups_from_nve_omrader(got.body)
+        retrieved_at = utc_now()
+        for entity in members:
+            record_id = f"entity:{dataset['id']}:{entity['subject_code']}"
+            action = registry.upsert_record(
+                {
+                    "id": record_id,
+                    "dataset_id": dataset["id"],
+                    "kind": "entity",
+                    "series": "nve:omrader",
+                    "subject_scheme": entity["subject_scheme"],
+                    "subject_code": entity["subject_code"],
+                    "subject_label": entity["subject_label"],
+                    "period": None,
+                    "measure": None,
+                    "value": None,
+                    "attributes": entity["attributes"],
+                    "retrieved_at": retrieved_at,
+                    "request_url": request_url,
+                    "http_status": http_status,
+                    "publisher_name": dataset.get("publisher_name"),
+                    "license": dataset.get("license"),
+                },
+                run_id,
+            )
+            counts.listed += 1
+            if action == "inserted":
+                counts.inserted += 1
+            elif action == "updated":
+                counts.updated += 1
+            else:
+                counts.unchanged += 1
+            if len(sample) < 3:
+                sample.append(
+                    {
+                        "kind": "entity",
+                        "subject_scheme": entity["subject_scheme"],
+                        "subject_code": entity["subject_code"],
+                        "subject_label": entity["subject_label"],
+                    }
+                )
+        registry.set_capability(
+            dataset["id"],
+            {
+                "capability": CAPABILITY_LOOKUP,
+                "record_kind": "lookup",
+                "endpoint": access_path,
+                "request_method": "GET",
+                "subject_scheme": OMRADE_SCHEME,
+                "subject_count": counts.listed,
+                "verified_at": retrieved_at,
+                "verified_sample_count": counts.listed,
+                "notes": (
+                    f"{counts.listed} printed magasin area lookup entit"
+                    f"{'y' if counts.listed == 1 else 'ies'} under {OMRADE_SCHEME}"
                 ),
             },
         )
@@ -15943,6 +16051,14 @@ def classify_access_path(access_path: str | None) -> dict[str, Any]:
             "reason": (
                 "NVE Magasinstatistikk last-week cells; printed fyllingsgrad "
                 "and TWh measures by area"
+            ),
+        }
+    if is_nve_omrader_url(access_path):
+        return {
+            "kind": CAPABILITY_LOOKUP,
+            "reason": (
+                "NVE Magasinstatistikk HentOmråder; printed area catalog as "
+                f"lookup entities under {OMRADE_SCHEME}"
             ),
         }
     if is_stormflo_national_url(access_path):

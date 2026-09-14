@@ -21,7 +21,10 @@ NVE_BURST = 4
 NVE_HOST = "biapi.nve.no"
 NVE_PATH_MARK = "/magasinstatistikk/"
 SISTE_UKE_PATH = "/magasinstatistikk/api/magasinstatistikk/hentoffentligdatasisteuke"
+OMRADER_PATH = "/magasinstatistikk/api/magasinstatistikk/hentområder"
 MAGASIN_MAX_CELLS = 100
+OMRADE_SCHEME = "nve:magasin_omrade"
+OMRADE_GROUPS = ("land", "elspot", "vassdrag")
 
 
 class NveMagasinSource(SourceBase):
@@ -157,6 +160,71 @@ def is_nve_siste_uke_url(access_path: str | None) -> bool:
         return False
     path = urlsplit(access_path).path.rstrip("/").casefold()
     return path == SISTE_UKE_PATH
+
+
+def is_nve_omrader_url(access_path: str | None) -> bool:
+    """Area catalog. Last-week cells and the weekly dump are different paths."""
+
+    if not is_nve_magasin_url(access_path):
+        return False
+    path = urlsplit(access_path).path.rstrip("/").casefold()
+    return path == OMRADER_PATH
+
+
+def lookups_from_nve_omrader(payload: Any) -> list[dict[str, Any]]:
+    """Copy printed magasin areas into lookup entities.
+
+    Each nested land/elspot/vassdrag member is keyed by printed
+    ``omrType`` and ``omrnr`` joined with ``:``. Empty keys are skipped.
+    Nested objects besides those arrays are not copied.
+    """
+
+    if isinstance(payload, list):
+        if len(payload) == 1 and isinstance(payload[0], dict):
+            payload = payload[0]
+        else:
+            raise ValueError("nve områder payload is not a JSON object")
+    if not isinstance(payload, dict):
+        raise ValueError("nve områder payload is not a JSON object")
+    out: list[dict[str, Any]] = []
+    for group in OMRADE_GROUPS:
+        rows = payload.get(group)
+        if not isinstance(rows, list):
+            continue
+        for item in rows:
+            if not isinstance(item, dict):
+                continue
+            omr_type = item.get("omrType")
+            omrnr = item.get("omrnr")
+            if not isinstance(omr_type, str) or not omr_type.strip():
+                continue
+            if omrnr is None or isinstance(omrnr, bool):
+                continue
+            if not isinstance(omrnr, (str, int, float)):
+                continue
+            code = f"{omr_type.strip()}:{omrnr}"
+            label = item.get("navn")
+            if not isinstance(label, str) or not label.strip():
+                label = item.get("navn_langt")
+            if not isinstance(label, str) or not label.strip():
+                label = code
+            attributes = {
+                key: value
+                for key, value in item.items()
+                if key not in {"omrType", "omrnr"} and _is_scalar(value) and value is not None
+            }
+            attributes["group"] = group
+            out.append(
+                {
+                    "subject_scheme": OMRADE_SCHEME,
+                    "subject_code": code,
+                    "subject_label": label.strip(),
+                    "attributes": attributes,
+                }
+            )
+    if not out:
+        raise ValueError("nve områder payload printed no area members")
+    return out
 
 
 def requestable_url(url: str) -> str:
