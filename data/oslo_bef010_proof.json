@@ -1,0 +1,23 @@
+{
+  "dataset": "oslo:OK-BEF010.px",
+  "request_url": "https://statistikkbanken.oslo.kommune.no/statbank/api/v1/no/db1/Befolkning/F%C3%B8dte%2C%20d%C3%B8de%20og%20forventet%20levealder/OK-BEF010.px",
+  "http_status": 200,
+  "listed": 335,
+  "inserted": 335,
+  "license": null,
+  "from_year": 2025,
+  "to_year": 2025,
+  "sample": [
+    {
+      "measure": "BEF010: Antall fødte barn etter bosted (GO), 2017-2025",
+      "value": 30,
+      "dimensions": {"bosted": "Grønland 1", "år": "2025"}
+    },
+    {
+      "measure": "BEF010: Antall fødte barn etter bosted (GO), 2017-2025",
+      "value": 23,
+      "dimensions": {"bosted": "Grønland 2", "år": "2025"}
+    }
+  ],
+  "note": "Printed PxWeb json-stat cells for Oslo BEF010, year 2025 only (335 printed GO bosted). Full 2017-2025 was not fetched. Neighbour leftover Oslo tables were not dumped."
+}

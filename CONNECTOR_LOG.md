@@ -2101,6 +2101,33 @@ as observations, without dumping 65 names.
 
 Proof: `data/vindkraft_fetch_disabled_proof.json`.
 
+## oslo:OK-BEF010.px — 2026-09-14 — promoted (observations)
+
+**Endpoint(s).** `POST https://statistikkbanken.oslo.kommune.no/statbank/api/v1/no/db1/Befolkning/Fødte, døde og forventet levealder/OK-BEF010.px`
+with printed year `2025`. Already harvested leftover PxWeb.
+Neighbour leftover Oslo tables classify the same way and were not dumped.
+Licence is `null`.
+
+**Shape.** `observation`. Measure is the printed json-stat table label
+`BEF010: Antall fødte barn etter bosted (GO), 2017-2025`. Dimensions are
+printed `bosted` and `år`.
+
+**Capability recorded.** `observations`. Live POST 2026-09-14: HTTP 200,
+335 cells for year 2025 (one per printed GO bosted). Sample: Grønland 1
+`30`, Grønland 2 `23`. Full 2017–2025 was not fetched.
+
+**Surprises.**
+- Classify already reported `observations`. Fetch had never stored cells.
+- Year 2025 still expands to every printed GO. That is 335 cells, over
+  the leftover JSON 100-cell cap, but one printed year rather than nine.
+  There is no Oslo-i-alt row on this table.
+
+**Open question for the query side.** A later slice can name one printed
+`bosted` if 335 GO cells is too wide. Neighbour leftover Oslo tables
+(BEF001–BEF007, BEF025) classify the same way; they were not dumped.
+
+Proof: `data/oslo_bef010_proof.json`.
+
 
 
 
