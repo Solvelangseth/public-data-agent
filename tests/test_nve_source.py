@@ -18,6 +18,7 @@ from public_data_agent.sources.nve import (
     NveMagasinSource,
     cells_from_nve,
     is_nve_magasin_url,
+    is_nve_minmax_url,
     is_nve_omrader_url,
     is_nve_siste_uke_url,
     lookups_from_nve_omrader,
@@ -25,6 +26,8 @@ from public_data_agent.sources.nve import (
     printed_operation_id,
     printed_publisher,
     requestable_url,
+    rows_matching_iso_uke,
+    selected_nve_iso_uke,
 )
 
 OPENAPI_URL = "https://biapi.nve.no/magasinstatistikk/swagger/v1/swagger.json"
@@ -35,6 +38,11 @@ OMRADER_URL = (
     "https://biapi.nve.no/magasinstatistikk/api/Magasinstatistikk/HentOmråder"
 )
 OMRADER_ID = "nve:HentOmråder"
+MINMAX_URL = (
+    "https://biapi.nve.no/magasinstatistikk/api/Magasinstatistikk/"
+    "HentOffentligDataMinMaxMedian"
+)
+MINMAX_ID = "nve:HentOffentligDataMinMaxMedian"
 OPENAPI = {
     "info": {
         "title": "Magasinstatistikk",
@@ -82,6 +90,41 @@ SISTE_UKE_ROWS = [
         "endring_fyllingsgrad": 0.01,
     },
 ]
+MINMAX_ROWS = [
+    {
+        "omrType": "EL",
+        "omrnr": 1,
+        "iso_uke": 1,
+        "minFyllingsgrad": 0.4569424,
+        "minFyllingTWH": 2.7431457,
+        "medianFyllingsGrad": 0.6194726,
+        "medianFylling_TWH": 3.7188573,
+        "maxFyllingsgrad": 0.7595958,
+        "maxFyllingTWH": 4.560054,
+    },
+    {
+        "omrType": "NO",
+        "omrnr": 0,
+        "iso_uke": 1,
+        "minFyllingsgrad": 0.4268934,
+        "minFyllingTWH": 37.326527,
+        "medianFyllingsGrad": 0.6663519,
+        "medianFylling_TWH": 58.2642,
+        "maxFyllingsgrad": 0.7877036,
+        "maxFyllingTWH": 68.87489,
+    },
+    {
+        "omrType": "EL",
+        "omrnr": 1,
+        "iso_uke": 2,
+        "minFyllingsgrad": 0.5,
+        "minFyllingTWH": 3.0,
+        "medianFyllingsGrad": 0.6,
+        "medianFylling_TWH": 3.6,
+        "maxFyllingsgrad": 0.7,
+        "maxFyllingTWH": 4.2,
+    },
+]
 
 
 class CatalogHttp:
@@ -114,6 +157,8 @@ class FetchHttp:
     def get_json_response(self, url: str, *, headers=None) -> JsonResponse:
         if url == SISTE_UKE:
             return JsonResponse(status=200, url=url, body=SISTE_UKE_ROWS)
+        if url == MINMAX_URL:
+            return JsonResponse(status=200, url=url, body=MINMAX_ROWS)
         path = unquote(urlsplit(url).path)
         if path.rstrip("/").endswith("HentOmråder"):
             return JsonResponse(status=200, url=url, body=OMRADER_BODY)
@@ -247,6 +292,9 @@ def test_siste_uke_url_is_observations() -> None:
     )
     assert classify_access_path(OMRADER_URL)["kind"] == "lookup"
     assert is_nve_omrader_url(OMRADER_URL)
+    assert is_nve_minmax_url(MINMAX_URL)
+    assert not is_nve_minmax_url(SISTE_UKE)
+    assert classify_access_path(MINMAX_URL)["kind"] == "observations"
 
 
 def test_fetch_stores_omrader_as_lookup(tmp_path: Path) -> None:
@@ -287,6 +335,71 @@ def test_lookups_copy_printed_omrade_keys() -> None:
     assert [item["subject_code"] for item in wrapped] == [
         item["subject_code"] for item in members
     ]
+
+
+def test_fetch_gets_printed_minmax_iso_uke(tmp_path: Path) -> None:
+    registry = Registry(tmp_path / "registry.sqlite")
+    registry.ensure_observation_dataset(
+        dataset_id=MINMAX_ID,
+        title="Henter magasinstatistikk for Min, Max, og Median",
+        publisher_name="Norges vassdrags- og energidirektorat (NVE)",
+        access_path=MINMAX_URL,
+        license=None,
+    )
+    registry.conn.commit()
+    result = fetch_observations(
+        registry,
+        MINMAX_ID,
+        table_id="ignored",
+        http=FetchHttp(),
+        select={"iso_uke": ["1"]},
+    )
+    assert result.request_url == MINMAX_URL
+    assert result.http_status == 200
+    assert result.counts.listed == 12
+    rows = registry.list_observations(MINMAX_ID)
+    by_key = {
+        (row["measure"], json.loads(row["dimensions_json"])["omrType"]): json.loads(
+            row["value_json"]
+        )
+        for row in rows
+    }
+    assert by_key[("minFyllingsgrad", "EL")] == 0.4569424
+    assert by_key[("minFyllingsgrad", "NO")] == 0.4268934
+    assert all(json.loads(row["dimensions_json"])["iso_uke"] == "1" for row in rows)
+    assert all(row["license"] is None for row in rows)
+    cap = registry.get_capability(MINMAX_ID)
+    assert cap["capability"] == "observations"
+    registry.close()
+
+
+def test_fetch_refuses_unfiltered_minmax(tmp_path: Path) -> None:
+    registry = Registry(tmp_path / "registry.sqlite")
+    registry.ensure_observation_dataset(
+        dataset_id=MINMAX_ID,
+        title="minmax",
+        publisher_name=None,
+        access_path=MINMAX_URL,
+        license=None,
+    )
+    registry.conn.commit()
+    with pytest.raises(ValueError, match="printed iso_uke"):
+        fetch_observations(
+            registry,
+            MINMAX_ID,
+            table_id="ignored",
+            http=FetchHttp(),
+        )
+    registry.close()
+
+
+def test_selected_iso_uke_rejects_unknown_fields() -> None:
+    with pytest.raises(ValueError, match="omrType"):
+        selected_nve_iso_uke({"omrType": ["NO"]})
+    assert selected_nve_iso_uke({"iso_uke": ["1"]}) == "1"
+    assert [row["iso_uke"] for row in rows_matching_iso_uke(MINMAX_ROWS, "1")] == [1, 1]
+    with pytest.raises(ValueError, match="printed ISO week"):
+        rows_matching_iso_uke(MINMAX_ROWS, "99")
 
 
 def test_fetch_refuses_full_magasin_dump(tmp_path: Path) -> None:

@@ -23,11 +23,14 @@ from public_data_agent.sources.nve import (
     OMRADE_SCHEME,
     cells_from_nve,
     is_nve_magasin_url,
+    is_nve_minmax_url,
     is_nve_omrader_url,
     is_nve_siste_uke_url,
     lookups_from_nve_omrader,
     nve_table_id,
     requestable_url,
+    rows_matching_iso_uke,
+    selected_nve_iso_uke,
 )
 from public_data_agent.sources.fhi import (
     cells_from_fhi,
@@ -1346,7 +1349,7 @@ def fetch_observations(
     if is_geonorge_rest_url(access_path):
         return _fetch_geonorge_rest(registry, dataset, http=http)
     if is_nve_magasin_url(access_path):
-        return _fetch_nve_magasin(registry, dataset, http=http)
+        return _fetch_nve_magasin(registry, dataset, http=http, select=select)
     if is_nvdb_object_url(access_path) or is_nvdb_collection_url(access_path):
         return _fetch_nvdb(registry, dataset, http=http, select=select)
     if is_ldirmelk_url(access_path):
@@ -3597,24 +3600,28 @@ def _fetch_nve_magasin(
     dataset: dict[str, Any],
     *,
     http: JsonHttp | None = None,
+    select: dict[str, list[str]] | None = None,
 ) -> FetchResult:
-    """Fetch last-week NVE Magasinstatistikk cells, or the area catalog.
+    """Fetch last-week NVE Magasinstatistikk cells, extrema, or the area catalog.
 
     Measures are the printed float keys (fyllingsgrad, fylling_TWh, …).
     HentOmråder is lookup entities keyed by printed omrType and omrnr.
-    HentOffentligData is the 1995–present weekly dump and MinMaxMedian is
-    twenty-year extrema — those are refused, not stored. More than
-    MAGASIN_MAX_CELLS is refused, not truncated.
+    MinMaxMedian is twenty-year extrema for one printed iso_uke.
+    HentOffentligData is the 1995–present weekly dump and is refused.
+    More than MAGASIN_MAX_CELLS is refused, not truncated.
     """
 
     access_path = dataset.get("access_path") or ""
     table_id = nve_table_id(access_path)
     if is_nve_omrader_url(access_path):
         return _fetch_nve_omrader(registry, dataset, http=http)
+    if is_nve_minmax_url(access_path):
+        return _fetch_nve_minmax(registry, dataset, http=http, select=select)
     if not is_nve_siste_uke_url(access_path):
         raise ValueError(
-            "NVE Magasinstatistikk full dump and MinMaxMedian are not a "
-            "bounded observation fetch; use HentOffentligDataSisteUke"
+            "NVE Magasinstatistikk full dump is not a bounded observation "
+            "fetch; use HentOffentligDataSisteUke or MinMaxMedian with "
+            "select iso_uke"
         )
     request_url = requestable_url(access_path)
     client = http or HttpClient(timeout=60.0, max_retries=4)
@@ -3677,6 +3684,108 @@ def _fetch_nve_magasin(
                 "notes": (
                     f"{counts.listed} last-week magasin cell(s); measures are "
                     "printed float keys"
+                ),
+            },
+        )
+        status = "completed"
+    except Exception as exc:
+        counts.failed += 1
+        counts.errors.append({"error": str(exc), "url": request_url})
+        raise
+    finally:
+        registry.finish_fetch_run(run_id, counts, status=status, http_status=http_status)
+    return FetchResult(
+        dataset_id=dataset["id"],
+        table_id=table_id,
+        request_url=request_url,
+        http_status=http_status,
+        counts=counts,
+        sample=sample,
+    )
+
+
+def _fetch_nve_minmax(
+    registry: Registry,
+    dataset: dict[str, Any],
+    *,
+    http: JsonHttp | None = None,
+    select: dict[str, list[str]] | None = None,
+) -> FetchResult:
+    """Fetch one printed ISO week's twenty-year magasin extrema.
+
+    Measures are printed min/median/max float keys. Unfiltered MinMaxMedian
+    is 477 rows / 2862 cells and is refused. The request is the collection
+    GET; rows are filtered to the printed ``iso_uke``.
+    """
+
+    access_path = dataset.get("access_path") or ""
+    table_id = nve_table_id(access_path)
+    iso_uke = selected_nve_iso_uke(select)
+    request_url = requestable_url(access_path)
+    client = http or HttpClient(timeout=60.0, max_retries=4)
+    started = utc_now()
+    run_id = registry.start_fetch_run(
+        dataset_id=dataset["id"],
+        table_id=table_id,
+        request_url=request_url,
+        request_method="GET",
+        started_at=started,
+    )
+    counts = HarvestCounts()
+    status = "failed"
+    http_status = 0
+    sample: list[dict[str, Any]] = []
+    try:
+        got = client.get_json_response(request_url)
+        http_status = got.status
+        if not isinstance(got.body, (list, dict)):
+            raise ValueError("NVE Magasinstatistikk response is not JSON")
+        registry.set_fetch_request(
+            run_id,
+            request_url=request_url,
+            request_body={"method": "GET", "select": select},
+        )
+        matched = rows_matching_iso_uke(got.body, iso_uke)
+        cells = cells_from_nve(matched)
+        if len(cells) > MAGASIN_MAX_CELLS:
+            raise SelectionTooLarge(
+                table_id,
+                len(cells),
+                MAGASIN_MAX_CELLS,
+                [
+                    {
+                        "code": "iso_uke",
+                        "text": "MinMaxMedian extrema cells",
+                        "selected": len(cells),
+                        "available": MAGASIN_MAX_CELLS,
+                    }
+                ],
+            )
+        counts.listed = len(cells)
+        retrieved_at = utc_now()
+        sample = _store_cells(
+            registry,
+            dataset,
+            run_id,
+            table_id=table_id,
+            cells=cells,
+            retrieved_at=retrieved_at,
+            request_url=request_url,
+            http_status=http_status,
+            counts=counts,
+        )
+        registry.set_capability(
+            dataset["id"],
+            {
+                "capability": CAPABILITY_OBSERVATIONS,
+                "record_kind": "observation",
+                "endpoint": access_path,
+                "request_method": "GET",
+                "verified_at": retrieved_at,
+                "verified_sample_count": counts.listed,
+                "notes": (
+                    f"{counts.listed} MinMaxMedian cell(s) for iso_uke="
+                    f"{iso_uke}; measures are printed min/median/max floats"
                 ),
             },
         )
@@ -16061,6 +16170,14 @@ def classify_access_path(access_path: str | None) -> dict[str, Any]:
                 f"lookup entities under {OMRADE_SCHEME}"
             ),
         }
+    if is_nve_minmax_url(access_path):
+        return {
+            "kind": CAPABILITY_OBSERVATIONS,
+            "reason": (
+                "NVE Magasinstatistikk MinMaxMedian; printed min/median/max "
+                "fyllingsgrad and TWh cells for one printed iso_uke"
+            ),
+        }
     if is_stormflo_national_url(access_path):
         return {
             "kind": CAPABILITY_OBSERVATIONS,
@@ -16401,8 +16518,9 @@ def classify_access_path(access_path: str | None) -> dict[str, Any]:
         return {
             "kind": CAPABILITY_NONE,
             "reason": (
-                "NVE Magasinstatistikk full weekly dump, MinMaxMedian, or area "
-                "catalog; last-week cells are HentOffentligDataSisteUke"
+                "NVE Magasinstatistikk full weekly dump; last-week cells are "
+                "HentOffentligDataSisteUke; extrema are MinMaxMedian with "
+                "select iso_uke"
             ),
         }
     if is_stormflo_url(access_path):

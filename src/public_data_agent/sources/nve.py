@@ -22,9 +22,13 @@ NVE_HOST = "biapi.nve.no"
 NVE_PATH_MARK = "/magasinstatistikk/"
 SISTE_UKE_PATH = "/magasinstatistikk/api/magasinstatistikk/hentoffentligdatasisteuke"
 OMRADER_PATH = "/magasinstatistikk/api/magasinstatistikk/hentområder"
+MINMAX_PATH = (
+    "/magasinstatistikk/api/magasinstatistikk/hentoffentligdataminmaxmedian"
+)
 MAGASIN_MAX_CELLS = 100
 OMRADE_SCHEME = "nve:magasin_omrade"
 OMRADE_GROUPS = ("land", "elspot", "vassdrag")
+ALLOWED_MINMAX_SELECT = frozenset({"iso_uke"})
 
 
 class NveMagasinSource(SourceBase):
@@ -169,6 +173,59 @@ def is_nve_omrader_url(access_path: str | None) -> bool:
         return False
     path = urlsplit(access_path).path.rstrip("/").casefold()
     return path == OMRADER_PATH
+
+
+def is_nve_minmax_url(access_path: str | None) -> bool:
+    """Twenty-year extrema. Last-week cells and the weekly dump differ."""
+
+    if not is_nve_magasin_url(access_path):
+        return False
+    path = urlsplit(access_path).path.rstrip("/").casefold()
+    return path == MINMAX_PATH
+
+
+def selected_nve_iso_uke(select: dict[str, list[str]] | None) -> str:
+    """Copy the printed ``iso_uke`` for a MinMaxMedian slice."""
+
+    select = {str(key): value for key, value in (select or {}).items()}
+    unknown = sorted(key for key in select if key not in ALLOWED_MINMAX_SELECT)
+    if unknown:
+        raise ValueError(
+            f"select names field(s) {unknown} that a MinMaxMedian fetch "
+            f"does not filter on; accepted: {sorted(ALLOWED_MINMAX_SELECT)}"
+        )
+    wanted = select.get("iso_uke")
+    if not wanted:
+        raise ValueError(
+            "unfiltered HentOffentligDataMinMaxMedian is 477 twenty-year "
+            "extrema rows; select a printed iso_uke"
+        )
+    values = [wanted] if isinstance(wanted, str) else [str(item) for item in wanted]
+    if len(values) != 1 or not values[0].strip():
+        raise ValueError("select iso_uke to a single printed ISO week")
+    return values[0].strip()
+
+
+def rows_matching_iso_uke(payload: Any, iso_uke: str) -> list[dict[str, Any]]:
+    """Keep MinMaxMedian rows whose printed iso_uke matches."""
+
+    if not isinstance(payload, list):
+        raise ValueError("nve MinMaxMedian payload is not a JSON array")
+    matched: list[dict[str, Any]] = []
+    for item in payload:
+        if not isinstance(item, dict):
+            continue
+        printed = item.get("iso_uke")
+        if printed is None:
+            continue
+        if str(printed) == iso_uke:
+            matched.append(item)
+    if not matched:
+        raise ValueError(
+            f"HentOffentligDataMinMaxMedian has no row matching "
+            f"iso_uke={iso_uke!r}; iso_uke must be a printed ISO week"
+        )
+    return matched
 
 
 def lookups_from_nve_omrader(payload: Any) -> list[dict[str, Any]]:

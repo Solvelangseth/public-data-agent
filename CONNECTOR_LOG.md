@@ -2301,6 +2301,38 @@ label side of that key.
 
 Proof: `data/nve_omrader_proof.json`.
 
+## nve:HentOffentligDataMinMaxMedian — 2026-09-14 — promoted (observations)
+
+**Endpoint(s).** `GET https://biapi.nve.no/magasinstatistikk/api/Magasinstatistikk/HentOffentligDataMinMaxMedian`
+with select `iso_uke=1` (printed). Already harvested. Unfiltered extrema
+are 477 rows / 2862 cells and were not stored. The 1995–present weekly
+dump stays refused. Licence is `null`.
+
+**Shape.** `observation`. Measures are the printed float keys
+`minFyllingsgrad`, `minFyllingTWH`, `medianFyllingsGrad`,
+`medianFylling_TWH`, `maxFyllingsgrad`, and `maxFyllingTWH`. Dimensions
+are printed `omrType`, `omrnr`, and `iso_uke`. Other floats on the same
+row stay dimensions of each measure.
+
+**Capability recorded.** `observations`. Live GET 2026-09-14: HTTP 200,
+54 cells for iso_uke 1 (9 areas × 6 measures). Sample: EL omrnr 1
+minFyllingsgrad `0.4569424`; NO omrnr 0 minFyllingsgrad `0.4268934`.
+Unfiltered fetch is refused before HTTP. One area all weeks is 318 cells
+and stays over the 100-cell cap.
+
+**Surprises.**
+- OpenAPI prints no query filter. The request is the collection GET;
+  rows are filtered to the printed `iso_uke` after GET.
+- `iso_uke` runs 1–53. Week 1 is the first printed week, not invented.
+
+**Open question for the query side.** A later slice can name printed
+`omrType`+`omrnr` together with `iso_uke` if 54 cells is too wide.
+`statnett:Frequency_ByMinute` still returns an empty Measurements array
+without a time range; do not invent `from`/`to`.
+
+Proof: `data/nve_minmax_proof.json`.
+
+
 
 
 

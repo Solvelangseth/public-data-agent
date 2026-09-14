@@ -1,0 +1,30 @@
+{
+  "dataset": "nve:HentOffentligDataMinMaxMedian",
+  "request_url": "https://biapi.nve.no/magasinstatistikk/api/Magasinstatistikk/HentOffentligDataMinMaxMedian",
+  "http_status": 200,
+  "listed": 54,
+  "inserted": 54,
+  "license": null,
+  "select": {"iso_uke": ["1"]},
+  "sample": [
+    {
+      "measure": "minFyllingsgrad",
+      "value": 0.4569424,
+      "dimensions": {
+        "omrType": "EL",
+        "omrnr": "1",
+        "iso_uke": "1"
+      }
+    },
+    {
+      "measure": "minFyllingsgrad",
+      "value": 0.4268934,
+      "dimensions": {
+        "omrType": "NO",
+        "omrnr": "0",
+        "iso_uke": "1"
+      }
+    }
+  ],
+  "note": "Printed min/median/max float cells for iso_uke 1 (9 areas). Unfiltered MinMaxMedian is 477 rows / 2862 cells and was not stored. The 1995-present weekly dump stays refused."
+}
