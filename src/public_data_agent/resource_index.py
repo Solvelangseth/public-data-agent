@@ -1241,3 +1241,152 @@ def subject_url(registry: Registry, dataset_id: str, subject: str) -> str:
             f"{capability.get('subject_count') or 'many'} records and is not a fetch."
         )
     return template.replace("{subject}", str(subject).strip())
+
+
+# A caller names a published scheme, not the table's field code. Region vs GEO
+# vs geografisk område is the table's problem; klass:131:kommune is the subject's.
+SUBJECT_ALIASES = {
+    "kommune": "klass:131:kommune",
+    "klass:131": "klass:131:kommune",
+    "klass:131:kommune": "klass:131:kommune",
+    "fylke": "klass:104:fylke",
+    "klass:104": "klass:104:fylke",
+    "klass:104:fylke": "klass:104:fylke",
+    "bydel": "klass:103:bydel",
+    "klass:103": "klass:103:bydel",
+    "klass:103:bydel": "klass:103:bydel",
+}
+
+
+def _as_value_list(value: str | list[str]) -> list[str]:
+    if isinstance(value, str):
+        return [value] if value.strip() else []
+    return [str(item) for item in value if str(item).strip()]
+
+
+def _key_field(registry: Registry, dataset_id: str, scheme: str) -> str | None:
+    row = registry.conn.execute(
+        "SELECT field_code FROM resource_keys WHERE dataset_id = ? AND scheme = ?",
+        (dataset_id, scheme),
+    ).fetchone()
+    return str(row["field_code"]) if row and row["field_code"] else None
+
+
+def _measure_code(
+    registry: Registry, dataset_id: str, wanted: str
+) -> tuple[str, str]:
+    """Resolve a printed measure name or code to (field_code, value_code)."""
+
+    fields = [
+        field
+        for field in registry.resource_fields(dataset_id)
+        if field.get("field_role") == "measure"
+    ]
+    if not fields:
+        raise ValueError(
+            f"{dataset_id} has no measure field in its recorded shape, "
+            "so a measure cannot be addressed"
+        )
+    needle = wanted.casefold().strip()
+    for field in fields:
+        code = field["field_code"]
+        rows = registry.conn.execute(
+            "SELECT value_code, value_label FROM resource_field_values "
+            "WHERE dataset_id = ? AND field_code = ?",
+            (dataset_id, code),
+        ).fetchall()
+        for row in rows:
+            value_code = str(row["value_code"])
+            label = str(row["value_label"] or "")
+            if needle == value_code.casefold() or (label and needle == label.casefold()):
+                return code, value_code
+    raise ValueError(
+        f"measure {wanted!r} is not a printed value of {dataset_id}; "
+        "inspect lists the measure field's codes and labels"
+    )
+
+
+def select_from_subjects(
+    registry: Registry,
+    dataset_id: str,
+    *,
+    select: dict[str, list[str] | str] | None = None,
+    kommune: str | None = None,
+    fylke: str | None = None,
+    bydel: str | None = None,
+    measure: str | None = None,
+) -> dict[str, list[str]] | None:
+    """Turn published-scheme subjects into this table's field-code select.
+
+    A caller names Klass kommune 0301, not Region vs GEO. Field codes already
+    in ``select`` pass through. ``kommune`` on a leftover connector that is
+    not a Klass table stays a query parameter. Nothing is invented: missing
+    keys and unpublished measure names are errors.
+    """
+
+    merged: dict[str, list[str] | str] = dict(select or {})
+    if kommune:
+        merged["kommune"] = kommune
+    if fylke:
+        merged["fylke"] = fylke
+    if bydel:
+        merged["bydel"] = bydel
+    if measure:
+        merged["measure"] = measure
+    if not merged:
+        return None
+    fields = registry.resource_fields(dataset_id)
+    field_codes = {field["field_code"] for field in fields}
+    out: dict[str, list[str]] = {}
+
+    def _add(field: str, values: list[str]) -> None:
+        bucket = out.setdefault(field, [])
+        for item in values:
+            if item not in bucket:
+                bucket.append(item)
+
+    for key, raw in merged.items():
+        values = _as_value_list(raw)
+        if not values:
+            continue
+        scheme = SUBJECT_ALIASES.get(key)
+        if scheme:
+            field = _key_field(registry, dataset_id, scheme)
+            if field:
+                _add(field, values)
+            elif fields:
+                keys = [
+                    row["scheme"]
+                    for row in registry.conn.execute(
+                        "SELECT scheme FROM resource_keys WHERE dataset_id = ?",
+                        (dataset_id,),
+                    )
+                ]
+                raise ValueError(
+                    f"{dataset_id} has no {scheme} field, so {key} cannot address "
+                    f"it; recorded keys are {keys or 'none'}"
+                )
+            else:
+                _add(key, values)
+            continue
+        if key == "measure":
+            if not fields:
+                raise ValueError(
+                    f"{dataset_id} has no recorded shape, so a measure cannot "
+                    "be addressed; run pda shape first"
+                )
+            for item in values:
+                field, code = _measure_code(registry, dataset_id, item)
+                _add(field, [code])
+            continue
+        if key not in field_codes and fields and key.startswith("klass:"):
+            field = _key_field(registry, dataset_id, key)
+            if not field:
+                raise ValueError(
+                    f"{dataset_id} has no {key} field; recorded keys are listed by inspect"
+                )
+            _add(field, values)
+            continue
+        _add(key, values)
+    return out or None
+

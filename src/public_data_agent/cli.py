@@ -166,11 +166,15 @@ def main(argv: list[str] | None = None) -> int:
     bench.add_argument("--quiet", action="store_true", help="Do not print progress on stderr")
 
     fetch_cmd = sub.add_parser("fetch", help="Retrieve observation rows from a dataset API")
-    fetch_cmd.add_argument("--dataset", default=DEFAULT_OSLO_DATASET)
-    fetch_cmd.add_argument("--table", default=DEFAULT_OSLO_TABLE)
+    fetch_cmd.add_argument("--dataset", required=True)
+    fetch_cmd.add_argument("--table", default=None)
     fetch_cmd.add_argument("--db", type=Path, default=DEFAULT_DB)
     fetch_cmd.add_argument("--from-year", type=int, default=None)
     fetch_cmd.add_argument("--to-year", type=int, default=None)
+    fetch_cmd.add_argument("--kommune", default=None, help="Klass kommune code (e.g. 0301)")
+    fetch_cmd.add_argument("--fylke", default=None, help="Klass fylke code")
+    fetch_cmd.add_argument("--bydel", default=None, help="Klass bydel code")
+    fetch_cmd.add_argument("--measure", default=None, help="Printed measure code or label")
 
     join_cmd = sub.add_parser("join", help="Join Klass bydel codes to an SSB befolkning table")
     join_cmd.add_argument("--dataset", default=DEFAULT_KLASS_DATASET, help="Klass dataset id")
@@ -656,9 +660,13 @@ def _fetch(args: argparse.Namespace) -> int:
         result = fetch_observations(
             registry,
             args.dataset,
-            table_id=args.table,
+            table_id=args.table or "",
             from_year=args.from_year,
             to_year=args.to_year,
+            kommune=args.kommune,
+            fylke=args.fylke,
+            bydel=args.bydel,
+            measure=args.measure,
         )
         print(
             json.dumps(

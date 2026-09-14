@@ -7,7 +7,7 @@ from typing import Any, Callable
 from public_data_agent.ask import DEMO_QUESTION, ask, ask_proof_payload
 from public_data_agent.analysis import describe_observations, stored_records, run_analysis
 from public_data_agent.artifacts import export_csv, export_json, plot_values
-from public_data_agent.fetch import DEFAULT_OSLO_DATASET, DEFAULT_OSLO_TABLE, fetch_observations
+from public_data_agent.fetch import fetch_observations
 from public_data_agent.fetch import (
     SelectionTooLarge,
     can_fetch_access_path,
@@ -315,12 +315,16 @@ def _too_large_suggestion(access_path: str | None) -> str:
 
 
 def tool_fetch(
-    dataset: str = DEFAULT_OSLO_DATASET,
+    dataset: str,
     table: str | None = None,
     db: str = DEFAULT_DB,
     from_year: int | None = None,
     to_year: int | None = None,
     year: int | None = None,
+    kommune: str | None = None,
+    fylke: str | None = None,
+    bydel: str | None = None,
+    measure: str | None = None,
     join: bool = False,
     join_key: str | None = None,
     series: str | None = None,
@@ -407,6 +411,10 @@ def tool_fetch(
                 from_year=from_year,
                 to_year=to_year,
                 select=select,
+                kommune=kommune,
+                fylke=fylke,
+                bydel=bydel,
+                measure=measure,
             )
         except SelectionTooLarge as exc:
             # Asking for every value of every dimension is refused by the source

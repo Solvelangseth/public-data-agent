@@ -1326,10 +1326,25 @@ def fetch_observations(
     to_year: int | None = None,
     http: JsonHttp | None = None,
     select: dict[str, list[str]] | None = None,
+    kommune: str | None = None,
+    fylke: str | None = None,
+    bydel: str | None = None,
+    measure: str | None = None,
 ) -> FetchResult:
     dataset = registry.get_dataset(dataset_id)
     if dataset is None:
         raise ValueError(f"unknown dataset {dataset_id}")
+    from public_data_agent.resource_index import select_from_subjects
+
+    select = select_from_subjects(
+        registry,
+        dataset_id,
+        select=select,
+        kommune=kommune,
+        fylke=fylke,
+        bydel=bydel,
+        measure=measure,
+    )
     access_path = dataset.get("access_path") or ""
     # GetCapabilities / WMS / WFS catalogs are not data. Fetching them stored
     # layer names as observations. Classify already reports `none`; refuse
@@ -1815,22 +1830,27 @@ def fetch_observations(
             counts=counts,
             touched=touched,
         )
-        if is_oslo_statbank_url(access_path) and cells:
-            registry.set_capability(
-                dataset["id"],
-                {
-                    "capability": CAPABILITY_OBSERVATIONS,
-                    "record_kind": "observation",
-                    "endpoint": request_url,
-                    "request_method": "POST",
-                    "verified_at": retrieved_at,
-                    "verified_sample_count": counts.listed,
-                    "notes": (
-                        f"{counts.listed} Oslo PxWeb cell(s); measures are "
-                        "printed json-stat labels"
-                    ),
-                },
-            )
+        existing = registry.get_capability(dataset["id"]) or {}
+        registry.set_capability(
+            dataset["id"],
+            {
+                "capability": CAPABILITY_OBSERVATIONS,
+                "record_kind": "observation",
+                "endpoint": request_url,
+                "request_method": "POST",
+                "period_start": existing.get("period_start"),
+                "period_end": existing.get("period_end"),
+                "verified_at": retrieved_at,
+                "verified_sample_count": counts.listed,
+                "subject_scheme": existing.get("subject_scheme"),
+                "subject_template": existing.get("subject_template"),
+                "subject_count": existing.get("subject_count"),
+                "notes": (
+                    f"{counts.listed} PxWeb cell(s); measures are printed "
+                    "json-stat labels"
+                ),
+            },
+        )
         status = "completed"
     except Exception as exc:
         counts.failed += 1

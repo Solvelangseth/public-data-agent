@@ -18,6 +18,7 @@ from public_data_agent.resource_index import (
     field_role,
     index_dataset,
     matches_subject,
+    select_from_subjects,
     split_title,
     period_span,
     search_resources,
@@ -691,4 +692,27 @@ def test_index_dataset_reads_ssbv2_jsonstat_metadata(tmp_path: Path) -> None:
     cap = registry.get_capability("ssbv2:13760")
     assert cap["period_start"] == "2006M01"
     assert cap["period_end"] == "2026M07"
+    registry.close()
+
+
+def test_select_maps_klass_kommune_to_region_field(tmp_path: Path) -> None:
+    registry = _indexed(tmp_path)
+    select = select_from_subjects(registry, "ssbtable:08651", kommune="0301")
+    assert select == {"Region": ["0301"]}
+    select = select_from_subjects(
+        registry, "ssbtable:08651", measure="Byggekostnadsindeks"
+    )
+    assert select == {"ContentsCode": ["Byggindeks"]}
+    select = select_from_subjects(
+        registry, "ssbtable:08651", select={"klass:131:kommune": ["1103"]}
+    )
+    assert select == {"Region": ["1103"]}
+    with pytest.raises(ValueError, match="klass:103:bydel"):
+        select_from_subjects(registry, "ssbtable:08651", bydel="030101")
+    with pytest.raises(ValueError, match="not a printed value"):
+        select_from_subjects(registry, "ssbtable:08651", measure="not-a-measure")
+    leftover = select_from_subjects(
+        registry, "ssbtable:99999", kommune="0301"
+    )
+    assert leftover == {"kommune": ["0301"]}
     registry.close()

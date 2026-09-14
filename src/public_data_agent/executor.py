@@ -99,6 +99,11 @@ def _run_fetch(registry: Registry, step: PlanStep, *, http: JsonHttp | None) -> 
             from_year=from_year,
             to_year=to_year,
             http=http,
+            select=step.parameters.get("select"),
+            kommune=step.parameters.get("kommune"),
+            fylke=step.parameters.get("fylke"),
+            bydel=step.parameters.get("bydel"),
+            measure=step.parameters.get("measure"),
         )
     except SelectionTooLarge as exc:
         # Refused before the request, and recoverable: say what to narrow.

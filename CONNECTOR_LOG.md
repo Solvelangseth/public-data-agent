@@ -2581,6 +2581,24 @@ tests.
 
 Proof: `data/shape_oslo_ssbv2_proof.json`.
 
+## subject-addressed fetch — 2026-09-14
+
+A fetch names Klass kommune / fylke / bydel and a printed measure, not the
+table's field codes. `select_from_subjects` maps `kommune=0301` onto the
+field that carries `klass:131:kommune` (Region vs GEO vs KOMMUNE). A table
+without that key errors instead of guessing. Leftover connectors that use
+`kommune` as a query parameter and have no recorded Klass key keep the
+parameter.
+
+`pda fetch --dataset` is required; it no longer defaults to an Oslo PxWeb
+table. MCP `fetch` likewise requires `dataset`. PxWeb capability is written
+for every PxWeb bank fetch, not only Oslo.
+
+Live: `ssbtable:08039` kommune `0301` year 2024 measure `Bedrifter` → HTTP
+200, 9 cells. Sample: 169 overnattingsvirksomhet bedrifter in Oslo 2024.
+
+Proof: `data/subject_fetch_proof.json`.
+
 
 
 

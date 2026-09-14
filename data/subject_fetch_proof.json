@@ -1,0 +1,24 @@
+{
+  "dataset": "ssbtable:08039",
+  "request": {
+    "kommune": "0301",
+    "from_year": 2024,
+    "to_year": 2024,
+    "measure": "Bedrifter"
+  },
+  "resolved_select": {"Region": ["0301"], "ContentsCode": ["Bedrifter"]},
+  "http_status": 200,
+  "listed": 9,
+  "sample": [
+    {
+      "measure": "Bedrifter",
+      "value": 169,
+      "dimensions": {
+        "Region": "Oslo - Oslove",
+        "NACE2007": "Overnattingsvirksomhet",
+        "Tid": "2024"
+      }
+    }
+  ],
+  "note": "kommune 0301 mapped to Region via klass:131:kommune. measure Bedrifter mapped to ContentsCode. pda fetch no longer defaults to an Oslo table."
+}
