@@ -1264,6 +1264,15 @@ def fetch_observations(
     if dataset is None:
         raise ValueError(f"unknown dataset {dataset_id}")
     access_path = dataset.get("access_path") or ""
+    # GetCapabilities / WMS / WFS catalogs are not data. Fetching them stored
+    # layer names as observations. Classify already reports `none`; refuse
+    # before a leftover WMS dispatcher can write those cells.
+    lowered = access_path.casefold()
+    if any(mark in lowered for mark in _MAP_SERVICE_MARKS):
+        raise ValueError(
+            "access_path is a map/tile service (WMS/WFS/OGC); "
+            "it returns imagery or geometry, not numeric cells"
+        )
     if is_ssbfam_url(access_path):
         return _fetch_ssbfam(registry, dataset, http=http)
     if is_ssbsec_url(access_path):

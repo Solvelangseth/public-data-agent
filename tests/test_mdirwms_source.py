@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from public_data_agent.fetch import fetch_observations
+from public_data_agent.fetch import classify_access_path, fetch_observations
 from public_data_agent.harvest import harvest
 from public_data_agent.http_util import JsonResponse
 from public_data_agent.registry import Registry
@@ -344,26 +344,14 @@ def test_fetch_copies_layer_name_cells(tmp_path: Path) -> None:
     source = MdirwmsSource(http=CatalogHttp())
     registry = Registry(tmp_path / "registry.sqlite")
     harvest(registry, source)
-    result = fetch_observations(
-        registry,
-        DATASET_ID,
-        table_id="ignored",
-        http=FetchHttp(),
-    )
-    assert result.request_url == INDUSTRI_URL
-    assert result.table_id == "industri"
-    assert result.http_status == 200
-    assert result.counts.listed == 2
-    rows = registry.list_observations(DATASET_ID)
-    by_value = {json.loads(row["value_json"]): row for row in rows}
-    assert set(by_value) == {"industri", "Utslipp"}
-    assert by_value["Utslipp"]["measure"] == "Name"
-    dims = json.loads(by_value["Utslipp"]["dimensions_json"])
-    assert dims["Title"] == "Utslipp til luft"
-    assert "Abstract" not in dims
-    assert all(row["publisher_name"] is None for row in rows)
-    assert all(row["license"] is None for row in rows)
-    assert all(row["access_path"] == INDUSTRI_URL for row in rows)
+    with pytest.raises(ValueError, match="map/tile service"):
+        fetch_observations(
+            registry,
+            DATASET_ID,
+            table_id="ignored",
+            http=FetchHttp(),
+        )
+    assert registry.list_observations(DATASET_ID) == []
     registry.close()
 
 

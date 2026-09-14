@@ -1,0 +1,9 @@
+{
+  "gate": "fetch_observations refuses access_path matching /wms /wfs /ows /geoserver/ service=wms service=wfs",
+  "error": "access_path is a map/tile service (WMS/WFS/OGC); it returns imagery or geometry, not numeric cells",
+  "sources": [
+    "vegwms", "mdirwms", "ldirwms", "fdirwms", "hiwms",
+    "nibiowms", "nguwms", "kvwms", "rawms", "kystwms"
+  ],
+  "note": "GetCapabilities is not data. Layer names are not observations."
+}

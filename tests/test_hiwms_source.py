@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from public_data_agent.fetch import fetch_observations
+from public_data_agent.fetch import classify_access_path, fetch_observations
 from public_data_agent.harvest import harvest
 from public_data_agent.http_util import JsonResponse
 from public_data_agent.registry import Registry
@@ -419,31 +419,20 @@ def test_harvest_writes_printed_id_null_license_and_publisher(tmp_path: Path) ->
     registry.close()
 
 
-def test_fetch_copies_printed_layer_names(tmp_path: Path) -> None:
+def test_a_map_service_is_not_fetched_as_observations(tmp_path: Path) -> None:
     source = HiwmsSource(http=CatalogHttp())
     registry = Registry(tmp_path / "registry.sqlite")
     harvest(registry, source)
     dataset = registry.get_dataset(DATASET_ID)
     assert dataset is not None
-    result = fetch_observations(
-        registry,
-        DATASET_ID,
-        table_id="ignored",
-        http=FetchHttp(),
-    )
-    assert result.http_status == 200
-    assert result.request_url == WMS_URL
-    assert result.table_id == "fraraadning_ows"
-    assert result.counts.listed == 2
-    rows = registry.list_observations(DATASET_ID)
-    by_value = {json.loads(row["value_json"]): row for row in rows}
-    assert set(by_value) == {"Raadgivning_2024", "Raadgivning_2025"}
-    assert by_value["Raadgivning_2025"]["measure"] == "Name"
-    dims = json.loads(by_value["Raadgivning_2025"]["dimensions_json"])
-    assert dims["Title"] == "Raadgivning_2025"
-    assert all(row["publisher_name"] is None for row in rows)
-    assert all(row["license"] is None for row in rows)
-    assert all(row["access_path"] == WMS_URL for row in rows)
+    with pytest.raises(ValueError, match="map/tile service"):
+        fetch_observations(
+            registry,
+            DATASET_ID,
+            table_id="ignored",
+            http=FetchHttp(),
+        )
+    assert registry.list_observations(DATASET_ID) == []
     registry.close()
 
 

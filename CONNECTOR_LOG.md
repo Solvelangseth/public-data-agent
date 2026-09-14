@@ -1525,6 +1525,27 @@ names as observations.
 
 Proof: `data/nxr_lookup_proof.json`.
 
+## leftover WMS/WFS GetCapabilities — 2026-09-14 — fetch disabled
+
+**Endpoint(s).** Harvested leftover map services whose `access_path` contains
+`/wms`, `/wfs`, `/ows`, `/geoserver/`, `service=wms`, or `service=wfs`
+(vegwms, mdirwms, ldirwms, fdirwms, hiwms, nibiowms, nguwms, kvwms, rawms,
+kystwms). Classify already reported `none` for those URLs.
+
+**What changed.** `fetch_observations` now refuses those paths **before**
+leftover WMS dispatchers can run. Fetching GetCapabilities stored each
+layer/`FeatureType` `Name` as an observation. Tests that pinned that are
+replaced by one asserting a map-service fetch writes no observations.
+`cells_from_*wms` parsers remain for unit tests. Harvest of leftover WMS
+rows is unchanged.
+
+**Open question for the query side.** A real WFS GetFeature by id is still
+the way to get features from these services, the same pattern as
+`naturvern`. Do not re-enable GetCapabilities fetch to fake coverage.
+
+Proof: `data/wms_fetch_disabled_proof.json`.
+
+
 
 
 
