@@ -58,13 +58,16 @@ from public_data_agent.sources.entur import (
 from public_data_agent.sources.aqua import (
     AQUA_MAX_CELLS,
     FISH_CODE_SCHEME,
+    INTENTION_SCHEME,
     aqua_overview_request_url,
     aqua_table_id,
     cells_from_aqua_overview,
     is_aqua_fish_codes_url,
+    is_aqua_intentions_url,
     is_aqua_overview_url,
     is_aqua_url,
     lookups_from_aqua_fish_codes,
+    lookups_from_aqua_intentions,
     selected_license_nr,
 )
 from public_data_agent.sources.buyer import (
@@ -4302,7 +4305,23 @@ def _fetch_aqua(
     access_path = dataset.get("access_path") or ""
     table_id = aqua_table_id(access_path)
     if is_aqua_fish_codes_url(access_path):
-        return _fetch_aqua_fish_codes(registry, dataset, http=http)
+        return _fetch_aqua_lookup(
+            registry,
+            dataset,
+            http=http,
+            members_fn=lookups_from_aqua_fish_codes,
+            scheme=FISH_CODE_SCHEME,
+            series="aqua:fish-codes",
+        )
+    if is_aqua_intentions_url(access_path):
+        return _fetch_aqua_lookup(
+            registry,
+            dataset,
+            http=http,
+            members_fn=lookups_from_aqua_intentions,
+            scheme=INTENTION_SCHEME,
+            series="aqua:intentions",
+        )
     if not is_aqua_overview_url(access_path):
         raise ValueError(
             "Akvakulturregisteret name catalog is not a capacity observation "
@@ -4397,13 +4416,16 @@ def _fetch_aqua(
     )
 
 
-def _fetch_aqua_fish_codes(
+def _fetch_aqua_lookup(
     registry: Registry,
     dataset: dict[str, Any],
     *,
     http: JsonHttp | None = None,
+    members_fn,
+    scheme: str,
+    series: str,
 ) -> FetchResult:
-    """Fetch Akvakulturregisteret fish-codes as lookup entities."""
+    """Fetch a printed Akvakulturregisteret catalog as lookup entities."""
 
     access_path = dataset.get("access_path") or ""
     table_id = aqua_table_id(access_path)
@@ -4424,7 +4446,7 @@ def _fetch_aqua_fish_codes(
         got = client.get_json_response(access_path)
         http_status = got.status
         registry.set_fetch_request(run_id, request_url=access_path, request_body={"method": "GET"})
-        members = lookups_from_aqua_fish_codes(got.body)
+        members = members_fn(got.body)
         retrieved_at = utc_now()
         for entity in members:
             record_id = f"entity:{dataset['id']}:{entity['subject_code']}"
@@ -4433,7 +4455,7 @@ def _fetch_aqua_fish_codes(
                     "id": record_id,
                     "dataset_id": dataset["id"],
                     "kind": "entity",
-                    "series": "aqua:fish-codes",
+                    "series": series,
                     "subject_scheme": entity["subject_scheme"],
                     "subject_code": entity["subject_code"],
                     "subject_label": entity["subject_label"],
@@ -4472,13 +4494,13 @@ def _fetch_aqua_fish_codes(
                 "record_kind": "lookup",
                 "endpoint": access_path,
                 "request_method": "GET",
-                "subject_scheme": FISH_CODE_SCHEME,
+                "subject_scheme": scheme,
                 "subject_count": counts.listed,
                 "verified_at": retrieved_at,
                 "verified_sample_count": counts.listed,
                 "notes": (
-                    f"{counts.listed} printed fish-code lookup entit"
-                    f"{'y' if counts.listed == 1 else 'ies'} under {FISH_CODE_SCHEME}"
+                    f"{counts.listed} printed lookup entit"
+                    f"{'y' if counts.listed == 1 else 'ies'} under {scheme}"
                 ),
             },
         )
@@ -16399,6 +16421,14 @@ def classify_access_path(access_path: str | None) -> dict[str, Any]:
             "reason": (
                 "Akvakulturregisteret fish-codes; printed species catalog as "
                 f"lookup entities under {FISH_CODE_SCHEME}"
+            ),
+        }
+    if is_aqua_intentions_url(access_path):
+        return {
+            "kind": CAPABILITY_LOOKUP,
+            "reason": (
+                "Akvakulturregisteret license-types/intentions; printed "
+                f"purpose catalog as lookup entities under {INTENTION_SCHEME}"
             ),
         }
     if is_hoydedata_lookup_url(access_path):

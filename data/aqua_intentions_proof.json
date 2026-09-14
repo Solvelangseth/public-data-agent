@@ -1,0 +1,23 @@
+{
+  "dataset": "aqua:intentions",
+  "request_url": "https://api.fiskeridir.no/pub-aqua/api/v1/license-types/intentions",
+  "http_status": 200,
+  "listed": 10,
+  "inserted": 10,
+  "license": "https://www.fiskeridir.no/Tall-og-analyse/Lisens-for-bruk-av-Fiskeridirektoratets-data",
+  "sample": [
+    {
+      "kind": "entity",
+      "subject_scheme": "aqua:intention",
+      "subject_code": "1",
+      "subject_label": "Slakteri/Slaktemerd"
+    },
+    {
+      "kind": "entity",
+      "subject_scheme": "aqua:intention",
+      "subject_code": "2",
+      "subject_label": "KOMMERSIELL"
+    }
+  ],
+  "note": "Printed license-purpose lookup entities keyed by id. License/site dumps were not fetched."
+}

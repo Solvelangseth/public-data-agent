@@ -22,6 +22,8 @@ PATH_PREFIX = "/pub-aqua/"
 OVERVIEW_PATH = "/pub-aqua/api/v1/licenses-overview"
 FISH_CODES_PATH = "/pub-aqua/api/v1/fish-codes"
 FISH_CODE_SCHEME = "aqua:fish-code"
+INTENTIONS_PATH = "/pub-aqua/api/v1/license-types/intentions"
+INTENTION_SCHEME = "aqua:intention"
 CAPACITY_MEASURES = ("current", "accumulated")
 AQUA_MAX_CELLS = 100
 ALLOWED_SELECT = frozenset({"license-nr"})
@@ -255,6 +257,60 @@ def lookups_from_aqua_fish_codes(payload: Any) -> list[dict[str, Any]]:
         )
     if not out:
         raise ValueError("aqua fish-codes payload printed no code")
+    return out
+
+
+def is_aqua_intentions_url(access_path: str | None) -> bool:
+    """License-purpose catalog. License/site dumps are different paths."""
+
+    if not is_aqua_url(access_path):
+        return False
+    path = urlsplit(access_path).path.rstrip("/").casefold()
+    return path == INTENTIONS_PATH
+
+
+def lookups_from_aqua_intentions(payload: Any) -> list[dict[str, Any]]:
+    """Copy printed license-purpose ids into lookup entities.
+
+    Each member is keyed by printed ``id``. Label is printed
+    ``regulationName`` when present, else ``value``. Nested objects are
+    not copied. Empty keys are skipped.
+    """
+
+    if not isinstance(payload, list):
+        raise ValueError("aqua intentions payload is not a JSON array")
+    out: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    for item in payload:
+        if not isinstance(item, dict):
+            continue
+        code = item.get("id")
+        if not isinstance(code, (str, int)) or isinstance(code, bool):
+            continue
+        code = str(code).strip()
+        if not code or code in seen:
+            continue
+        seen.add(code)
+        label = item.get("regulationName")
+        if not isinstance(label, str) or not label.strip():
+            label = item.get("value")
+        if not isinstance(label, str) or not label.strip():
+            label = code
+        attributes = {
+            key: value
+            for key, value in item.items()
+            if key != "id" and _is_scalar(value) and value is not None
+        }
+        out.append(
+            {
+                "subject_scheme": INTENTION_SCHEME,
+                "subject_code": code,
+                "subject_label": label.strip(),
+                "attributes": attributes,
+            }
+        )
+    if not out:
+        raise ValueError("aqua intentions payload printed no id")
     return out
 
 

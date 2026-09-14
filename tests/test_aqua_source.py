@@ -14,14 +14,17 @@ from public_data_agent.registry import Registry
 from public_data_agent.sources import SOURCE_IDS, build_source
 from public_data_agent.sources.aqua import (
     FISH_CODE_SCHEME,
+    INTENTION_SCHEME,
     AquaSource,
     aqua_table_id,
     cells_from_aqua,
     cells_from_aqua_overview,
     is_aqua_fish_codes_url,
+    is_aqua_intentions_url,
     is_aqua_overview_url,
     is_aqua_url,
     lookups_from_aqua_fish_codes,
+    lookups_from_aqua_intentions,
     printed_endpoint_url,
     printed_license_url,
 )
@@ -33,6 +36,8 @@ OVERVIEW_URL = "https://api.fiskeridir.no/pub-aqua/api/v1/licenses-overview"
 OVERVIEW_ID = "aqua:licenses-overview"
 FISH_CODES_URL = "https://api.fiskeridir.no/pub-aqua/api/v1/fish-codes"
 FISH_CODES_ID = "aqua:fish-codes"
+INTENTIONS_URL = "https://api.fiskeridir.no/pub-aqua/api/v1/license-types/intentions"
+INTENTIONS_ID = "aqua:intentions"
 LICENSE_URL = "https://www.fiskeridir.no/Tall-og-analyse/Lisens-for-bruk-av-Fiskeridirektoratets-data"
 DATASET_ID = "aqua:areas"
 
@@ -59,6 +64,16 @@ OVERVIEW_BODY = [
     }
 ]
 
+INTENTIONS_BODY = [
+    {
+        "id": 1,
+        "value": "SLAKTEMERD",
+        "localizedValue": None,
+        "regulationName": "Slakteri/Slaktemerd",
+        "nested": {"skip": True},
+    },
+    {"id": 2, "value": "MATFISK", "regulationName": None},
+]
 FISH_CODES_BODY = [
     {
         "code": "010901",
@@ -119,6 +134,8 @@ class FetchHttp:
             return JsonResponse(status=200, url=url, body=AREAS_BODY)
         if url == FISH_CODES_URL:
             return JsonResponse(status=200, url=url, body=FISH_CODES_BODY)
+        if url == INTENTIONS_URL:
+            return JsonResponse(status=200, url=url, body=INTENTIONS_BODY)
         raise AssertionError(f"unexpected GET {url}")
 
     def post_json_response(self, url: str, body, *, headers=None) -> JsonResponse:
@@ -205,6 +222,9 @@ def test_overview_url_is_observations() -> None:
     assert is_aqua_fish_codes_url(FISH_CODES_URL)
     assert not is_aqua_fish_codes_url(OVERVIEW_URL)
     assert classify_access_path(FISH_CODES_URL)["kind"] == "lookup"
+    assert is_aqua_intentions_url(INTENTIONS_URL)
+    assert not is_aqua_intentions_url(FISH_CODES_URL)
+    assert classify_access_path(INTENTIONS_URL)["kind"] == "lookup"
 
 
 def test_fetch_gets_printed_license_capacity(tmp_path: Path) -> None:
@@ -292,6 +312,45 @@ def test_fetch_stores_fish_codes_as_lookup(tmp_path: Path) -> None:
     cap = registry.get_capability(FISH_CODES_ID)
     assert cap["capability"] == "lookup"
     registry.close()
+
+
+def test_fetch_stores_intentions_as_lookup(tmp_path: Path) -> None:
+    registry = Registry(tmp_path / "registry.sqlite")
+    registry.ensure_observation_dataset(
+        dataset_id=INTENTIONS_ID,
+        title="Hent en liste av formål",
+        publisher_name=None,
+        access_path=INTENTIONS_URL,
+        license=LICENSE_URL,
+    )
+    registry.conn.commit()
+    result = fetch_observations(
+        registry,
+        INTENTIONS_ID,
+        table_id="ignored",
+        http=FetchHttp(),
+    )
+    assert result.http_status == 200
+    assert result.counts.listed == 2
+    rows = registry.list_records(INTENTIONS_ID, kind="entity")
+    by_code = {row["subject_code"]: row for row in rows}
+    assert by_code["1"]["subject_label"] == "Slakteri/Slaktemerd"
+    assert by_code["1"]["subject_scheme"] == INTENTION_SCHEME
+    assert by_code["2"]["subject_label"] == "MATFISK"
+    assert all(row["license"] == LICENSE_URL for row in rows)
+    attrs = json.loads(by_code["1"]["attributes_json"])
+    assert attrs["value"] == "SLAKTEMERD"
+    assert "nested" not in attrs
+    cap = registry.get_capability(INTENTIONS_ID)
+    assert cap["capability"] == "lookup"
+    registry.close()
+
+
+def test_lookups_copy_printed_intentions() -> None:
+    members = lookups_from_aqua_intentions(INTENTIONS_BODY)
+    assert members[0]["subject_code"] == "1"
+    assert members[0]["subject_label"] == "Slakteri/Slaktemerd"
+    assert members[1]["subject_label"] == "MATFISK"
 
 
 def test_lookups_copy_printed_fish_codes() -> None:

@@ -2381,6 +2381,28 @@ purpose ids. `kystverket` counties is 17 printed `countyno`.
 
 Proof: `data/aqua_fish_codes_proof.json`.
 
+## aqua:intentions — 2026-09-14 — promoted (lookup)
+
+**Endpoint(s).** `GET https://api.fiskeridir.no/pub-aqua/api/v1/license-types/intentions`.
+Already harvested. Licence is the printed OpenAPI URL
+`https://www.fiskeridir.no/Tall-og-analyse/Lisens-for-bruk-av-Fiskeridirektoratets-data`.
+
+**Shape.** `lookup` entities under `aqua:intention`. Key is printed `id`.
+Label is printed `regulationName` (else `value`). Nested objects not
+copied. Empty `localizedValue` skipped.
+
+**Capability recorded.** `lookup`. Live GET 2026-09-14: HTTP 200, 10
+entities. Sample: `1` Slakteri/Slaktemerd, `2` KOMMERSIELL. License/site
+dumps stay `none`.
+
+**Surprises.** Printed `id` is an integer in JSON; stored as `"1"`.
+
+**Open question for the query side.** `kystverket` counties is 17 printed
+`countyno`. `miljodir:Public_GetUnitList` is 114 printed `UnitID`.
+
+Proof: `data/aqua_intentions_proof.json`.
+
+
 
 
 
