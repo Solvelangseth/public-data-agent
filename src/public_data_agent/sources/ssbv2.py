@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from typing import Any
-from urllib.parse import urlsplit
+from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
 from public_data_agent.http_util import HttpClient, RateLimiter
 from public_data_agent.models import DatasetRef, HarvestedRecord, SourceError
@@ -187,6 +187,20 @@ def is_ssbv2_data_url(access_path: str | None) -> bool:
         return False
     path = urlsplit(access_path).path.rstrip("/").casefold()
     return "/tables/" in path and path.endswith("/data")
+
+
+def ssbv2_metadata_url(access_path: str) -> str:
+    """The printed table's metadata href. Do not invent a format."""
+
+    parts = urlsplit(access_path)
+    path = parts.path.rstrip("/")
+    if path.casefold().endswith("/data"):
+        path = path[: -len("/data")] + "/metadata"
+    query = dict(parse_qsl(parts.query, keep_blank_values=True))
+    query.pop("outputFormat", None)
+    if "lang" not in query:
+        query["lang"] = "no"
+    return urlunsplit((parts.scheme, parts.netloc, path, urlencode(query), ""))
 
 
 def ssbv2_table_id(access_path: str) -> str:

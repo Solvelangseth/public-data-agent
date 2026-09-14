@@ -1,0 +1,34 @@
+{
+  "oslo": {
+    "indexed": 10,
+    "sample": {
+      "dataset": "oslo:OK-BEF008.px",
+      "period_start": "1801",
+      "period_end": "2026",
+      "fields": {
+        "år": "period",
+        "Statistikkvariabel": "measure",
+        "geografisk område": "attribute"
+      },
+      "keys": []
+    },
+    "note": "Oslo PxWeb numbers years 0,1,2; period span is from printed valueTexts. Geography codes are not Klass kommune/bydel."
+  },
+  "ssbv2": {
+    "indexed": 10,
+    "sample": {
+      "dataset": "ssbv2:13760",
+      "period_start": "2006M01",
+      "period_end": "2026M07",
+      "fields": {
+        "Tid": "period",
+        "ContentsCode": "measure",
+        "Kjonn": "attribute",
+        "Alder": "attribute",
+        "Justering": "attribute"
+      },
+      "keys": []
+    },
+    "note": "Shape from printed /tables/{id}/metadata json-stat2. These labour-force tables have no Klass Region."
+  }
+}

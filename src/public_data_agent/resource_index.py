@@ -237,6 +237,63 @@ def shape_from_fhi(
     return fields, keys
 
 
+def shape_from_jsonstat2(
+    payload: dict[str, Any], catalogues: dict[str, dict[str, set[str]]] | None = None
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    """Read a json-stat2 metadata document into fields and key schemes.
+
+    Dimension order is the printed ``id`` array. ``role.time`` and
+    ``role.metric`` name period and measure when the publisher prints them.
+    """
+
+    dimension = payload.get("dimension")
+    ids = payload.get("id")
+    if not isinstance(dimension, dict) or not isinstance(ids, list):
+        raise ValueError("json-stat2 payload printed no dimension id list")
+    roles = payload.get("role") if isinstance(payload.get("role"), dict) else {}
+    time_ids = {str(item) for item in (roles.get("time") or [])}
+    metric_ids = {str(item) for item in (roles.get("metric") or [])}
+    fields: list[dict[str, Any]] = []
+    keys: list[dict[str, Any]] = []
+    for position, dim_id in enumerate(ids):
+        code = str(dim_id)
+        dim = dimension.get(code)
+        if not isinstance(dim, dict):
+            continue
+        category = dim.get("category") if isinstance(dim.get("category"), dict) else {}
+        index = category.get("index")
+        labels = category.get("label") if isinstance(category.get("label"), dict) else {}
+        if isinstance(index, dict):
+            codes = list(index)
+        elif isinstance(index, list):
+            codes = [str(item) for item in index]
+        else:
+            codes = list(labels)
+        values = [(c, str(labels.get(c, c))) for c in codes]
+        if code in time_ids:
+            role = "period"
+        elif code in metric_ids:
+            role = "measure"
+        else:
+            role = field_role(code, values, catalogues)
+        kept = values[:MAX_VALUES_PER_FIELD]
+        fields.append(
+            {
+                "field_code": code,
+                "field_label": dim.get("label") or code,
+                "field_role": role,
+                "value_count": len(values),
+                "values": [{"value_code": c, "value_label": t} for c, t in kept],
+                "position": position,
+            }
+        )
+        for found in _schemes_for(values, catalogues):
+            keys.append({**found, "field_code": code})
+    if not fields:
+        raise ValueError("json-stat2 payload printed no dimensions")
+    return fields, keys
+
+
 def shape_from_sdmx_serieskeys(payload: Any) -> list[dict[str, Any]]:
     """A dataflow's series dimensions, in key order, from `detail=serieskeysonly`.
 
@@ -282,14 +339,24 @@ def shape_from_sdmx_serieskeys(payload: Any) -> list[dict[str, Any]]:
 
 
 def period_span(fields: list[dict[str, Any]]) -> tuple[str | None, str | None]:
-    """Earliest and latest period a resource publishes, from its period field."""
+    """Earliest and latest period a resource publishes, from its period field.
+
+    Some PxWeb tables (Oslo) number years 0, 1, 2 and put 1801, 1815 in the
+    labels. Prefer codes that look like periods; otherwise labels that do.
+    Never invent a year from the count of values.
+    """
 
     for field in fields:
         if field.get("field_role") != "period":
             continue
-        codes = sorted(v["value_code"] for v in field.get("values") or [])
-        if codes:
-            return codes[0], codes[-1]
+        codes = [v["value_code"] for v in field.get("values") or []]
+        labels = [v.get("value_label") or "" for v in field.get("values") or []]
+        periodish = [code for code in codes if PERIOD_VALUE.match(str(code))]
+        if not periodish:
+            periodish = [label for label in labels if PERIOD_VALUE.match(str(label))]
+        if periodish:
+            ordered = sorted(periodish)
+            return ordered[0], ordered[-1]
     return None, None
 
 
@@ -308,6 +375,7 @@ def index_dataset(
     """
 
     from public_data_agent.fetch import _is_ssb_table_url, classify_access_path
+    from public_data_agent.sources.oslo import is_oslo_statbank_url
     from public_data_agent.sources.brenheter import is_brenheter_url, shape_from_brenheter
     from public_data_agent.sources.brunder import is_brunder_url, shape_from_brunder
     from public_data_agent.sources.brorgform import is_brorgform_url, shape_from_brorgform
@@ -319,6 +387,7 @@ def index_dataset(
     from public_data_agent.sources.brrepresent import is_brrepresent_url, shape_from_brrepresent
     from public_data_agent.sources.brrolletype import is_brrolletype_url, shape_from_brrolletype
     from public_data_agent.sources.fdirpx import is_fdirpx_url
+    from public_data_agent.sources.ssbv2 import is_ssbv2_data_url, ssbv2_metadata_url
     from public_data_agent.sources.ldirmelk import is_ldirmelk_url, shape_from_ldirmelk
     from public_data_agent.sources.anadrom import is_anadrom_url, shape_from_layer as shape_from_anadrom_layer
     from public_data_agent.sources.friluft import is_friluft_url, shape_from_layer as shape_from_friluft_layer
@@ -374,10 +443,20 @@ def index_dataset(
         fields, keys = shape_from_fhi((meta.body or {}).get("dimensions") or [], catalogues)
         endpoint, method = f"{base}/data", "POST"
         record_kind = "observation"
-    elif _is_ssb_table_url(access_path) or is_fdirpx_url(access_path):
+    elif (
+        _is_ssb_table_url(access_path)
+        or is_fdirpx_url(access_path)
+        or is_oslo_statbank_url(access_path)
+    ):
         meta = client.get_json_response(access_path.rstrip("/"))
         fields, keys = shape_from_pxweb(meta.body or {}, catalogues)
         endpoint, method = access_path.rstrip("/"), "POST"
+        record_kind = "observation"
+    elif is_ssbv2_data_url(access_path):
+        meta_url = ssbv2_metadata_url(access_path)
+        meta = client.get_json_response(meta_url)
+        fields, keys = shape_from_jsonstat2(meta.body or {}, catalogues)
+        endpoint, method = access_path, "GET"
         record_kind = "observation"
     elif is_brenheter_url(access_path):
         # Shape comes from the printed enhet itself. Capability stays whatever

@@ -92,6 +92,15 @@ def main(argv: list[str] | None = None) -> int:
     )
     index_cmd.add_argument("--db", type=Path, default=DEFAULT_DB)
 
+    shape_cmd = sub.add_parser(
+        "shape",
+        help="Read published table metadata into the resource index",
+    )
+    shape_cmd.add_argument("--db", type=Path, default=DEFAULT_DB)
+    shape_cmd.add_argument("--source", default=None, help="Only datasets from this source_id")
+    shape_cmd.add_argument("--dataset", default=None, help="One dataset id")
+    shape_cmd.add_argument("--limit", type=int, default=None)
+
     status = sub.add_parser("status", help="Show registry counts and recent harvest runs")
     status.add_argument("--db", type=Path, default=DEFAULT_DB)
 
@@ -283,6 +292,8 @@ def main(argv: list[str] | None = None) -> int:
             registry.close()
         print(json.dumps(result, ensure_ascii=False))
         return 0
+    if args.command == "shape":
+        return _shape(args)
     if args.command == "status":
         return _status(args)
     if args.command == "stats":
@@ -401,6 +412,60 @@ def _ingest(args: argparse.Namespace) -> int:
         )
     )
     return 1 if counts.failed else 0
+
+
+def _shape(args: argparse.Namespace) -> int:
+    """Read published metadata into resource_fields / resource_keys."""
+
+    from public_data_agent.resource_index import index_dataset, load_classifications
+
+    if not Path(args.db).exists() and str(args.db) != ":memory:":
+        print(f"no registry at {args.db}", file=sys.stderr)
+        return 1
+    registry = Registry(args.db)
+    try:
+        if args.dataset:
+            ids = [args.dataset]
+        else:
+            sql = "SELECT id FROM datasets"
+            params: list[Any] = []
+            if args.source:
+                sql += " WHERE source_id = ?"
+                params.append(args.source)
+            sql += " ORDER BY id"
+            if args.limit is not None:
+                sql += " LIMIT ?"
+                params.append(args.limit)
+            ids = [row[0] for row in registry.conn.execute(sql, params)]
+        catalogues = load_classifications()
+        indexed = 0
+        skipped = 0
+        failed: list[dict[str, str]] = []
+        for dataset_id in ids:
+            try:
+                index_dataset(registry, dataset_id, catalogues=catalogues)
+                indexed += 1
+            except ValueError as exc:
+                if str(exc).startswith("no metadata reader"):
+                    skipped += 1
+                else:
+                    failed.append({"id": dataset_id, "error": str(exc)})
+            except Exception as exc:
+                failed.append({"id": dataset_id, "error": str(exc)})
+        registry.conn.commit()
+        print(
+            json.dumps(
+                {
+                    "indexed": indexed,
+                    "skipped": skipped,
+                    "failed": failed,
+                },
+                ensure_ascii=False,
+            )
+        )
+        return 1 if failed else 0
+    finally:
+        registry.close()
 
 
 def _status(args: argparse.Namespace) -> int:

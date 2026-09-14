@@ -11,15 +11,18 @@ from pathlib import Path
 
 import pytest
 
+from public_data_agent.http_util import JsonResponse
 from public_data_agent.registry import Registry
 from public_data_agent.resource_index import (
     demote_breakdown_only,
     field_role,
+    index_dataset,
     matches_subject,
     split_title,
     period_span,
     search_resources,
     shape_from_fhi,
+    shape_from_jsonstat2,
     shape_from_pxweb,
 )
 
@@ -525,4 +528,167 @@ def test_a_register_refuses_an_empty_subject(tmp_path: Path) -> None:
     registry.set_capability("ssbtable:99999", {"capability": "observations"})
     with pytest.raises(ValueError, match="not a register"):
         subject_url(registry, "ssbtable:99999", "923609016")
+    registry.close()
+
+
+def test_period_span_uses_year_labels_when_codes_are_positional() -> None:
+    """Oslo PxWeb numbers years 0, 1, 2 and prints 1801 in the labels."""
+
+    start, end = period_span(
+        [
+            {
+                "field_code": "år",
+                "field_role": "period",
+                "values": [
+                    {"value_code": "0", "value_label": "1801"},
+                    {"value_code": "1", "value_label": "2026"},
+                ],
+            }
+        ]
+    )
+    assert start == "1801"
+    assert end == "2026"
+
+
+def test_jsonstat2_metadata_becomes_fields_and_roles() -> None:
+    fields, keys = shape_from_jsonstat2(
+        {
+            "id": ["Tid", "ContentsCode", "Region"],
+            "role": {"time": ["Tid"], "metric": ["ContentsCode"]},
+            "dimension": {
+                "Tid": {
+                    "label": "måned",
+                    "category": {
+                        "index": {"2026M07": 0},
+                        "label": {"2026M07": "2026M07"},
+                    },
+                },
+                "ContentsCode": {
+                    "label": "statistikkvariabel",
+                    "category": {
+                        "index": {"Arbeidsstyrken": 0},
+                        "label": {"Arbeidsstyrken": "Arbeidsstyrken (1000 personer)"},
+                    },
+                },
+                "Region": {
+                    "label": "region",
+                    "category": {
+                        "index": {"0301": 0, "1103": 1, "4601": 2, "5001": 3},
+                        "label": {
+                            "0301": "Oslo",
+                            "1103": "Stavanger",
+                            "4601": "Bergen",
+                            "5001": "Trondheim",
+                        },
+                    },
+                },
+            },
+        },
+        CATALOGUES,
+    )
+    by_code = {field["field_code"]: field for field in fields}
+    assert by_code["Tid"]["field_role"] == "period"
+    assert by_code["ContentsCode"]["field_role"] == "measure"
+    assert by_code["Region"]["field_role"] == "key"
+    assert [key["scheme"] for key in keys] == ["klass:131:kommune"]
+
+
+def test_index_dataset_reads_oslo_pxweb_metadata(tmp_path: Path) -> None:
+    oslo_url = (
+        "https://statistikkbanken.oslo.kommune.no/statbank/api/v1/no/db1/"
+        "Befolkning/Folkemengde/OK-BEF008.px"
+    )
+    meta = {
+        "title": "BEF008: Folkemengden i Oslo",
+        "variables": [
+            {
+                "code": "år",
+                "text": "år",
+                "values": ["0", "1"],
+                "valueTexts": ["1801", "2026"],
+            },
+            {
+                "code": "Statistikkvariabel",
+                "text": "statistikkvariabel",
+                "values": ["0"],
+                "valueTexts": ["Folkemengden i alt (antall personer)"],
+            },
+        ],
+    }
+
+    class OsloHttp:
+        def get_json_response(self, url: str, *, headers=None) -> JsonResponse:
+            if url.rstrip("/") == oslo_url:
+                return JsonResponse(status=200, url=url, body=meta)
+            raise AssertionError(url)
+
+    registry = Registry(tmp_path / "r.sqlite")
+    registry.ensure_observation_dataset(
+        dataset_id="oslo:OK-BEF008.px",
+        title="BEF008",
+        publisher_name="Oslo kommune",
+        access_path=oslo_url,
+        license=None,
+    )
+    registry.conn.commit()
+    indexed = index_dataset(
+        registry, "oslo:OK-BEF008.px", http=OsloHttp(), catalogues=CATALOGUES
+    )
+    fields = {row["field_code"]: row for row in registry.resource_fields("oslo:OK-BEF008.px")}
+    assert fields["år"]["field_role"] == "period"
+    cap = registry.get_capability("oslo:OK-BEF008.px")
+    assert cap["period_start"] == "1801"
+    assert cap["period_end"] == "2026"
+    assert indexed["fields"] >= 2
+    registry.close()
+
+
+def test_index_dataset_reads_ssbv2_jsonstat_metadata(tmp_path: Path) -> None:
+    data_url = (
+        "https://data.ssb.no/api/pxwebapi/v2/tables/13760/data"
+        "?lang=no&outputFormat=json-stat2"
+    )
+    meta = {
+        "id": ["Tid", "ContentsCode"],
+        "role": {"time": ["Tid"], "metric": ["ContentsCode"]},
+        "dimension": {
+            "Tid": {
+                "label": "måned",
+                "category": {
+                    "index": {"2006M01": 0, "2026M07": 1},
+                    "label": {"2006M01": "2006M01", "2026M07": "2026M07"},
+                },
+            },
+            "ContentsCode": {
+                "label": "statistikkvariabel",
+                "category": {
+                    "index": {"Arbeidsstyrken": 0},
+                    "label": {"Arbeidsstyrken": "Arbeidsstyrken (1000 personer)"},
+                },
+            },
+        },
+    }
+
+    class V2Http:
+        def get_json_response(self, url: str, *, headers=None) -> JsonResponse:
+            if "/metadata" in url:
+                return JsonResponse(status=200, url=url, body=meta)
+            raise AssertionError(url)
+
+    registry = Registry(tmp_path / "r.sqlite")
+    registry.ensure_observation_dataset(
+        dataset_id="ssbv2:13760",
+        title="13760",
+        publisher_name="Statistisk sentralbyrå",
+        access_path=data_url,
+        license=None,
+    )
+    registry.conn.commit()
+    index_dataset(registry, "ssbv2:13760", http=V2Http(), catalogues={})
+    fields = {row["field_code"]: row for row in registry.resource_fields("ssbv2:13760")}
+    assert fields["Tid"]["field_role"] == "period"
+    assert fields["ContentsCode"]["field_role"] == "measure"
+    cap = registry.get_capability("ssbv2:13760")
+    assert cap["period_start"] == "2006M01"
+    assert cap["period_end"] == "2026M07"
     registry.close()
