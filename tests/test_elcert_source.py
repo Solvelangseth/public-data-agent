@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from public_data_agent.fetch import fetch_observations
+from public_data_agent.fetch import classify_access_path, fetch_observations
 from public_data_agent.harvest import harvest
 from public_data_agent.http_util import JsonResponse
 from public_data_agent.registry import Registry
@@ -13,7 +13,9 @@ from public_data_agent.sources import SOURCE_IDS, build_source
 from public_data_agent.sources.elcert import (
     ElcertSource,
     cells_from_elcert,
+    cells_from_elcert_quarter,
     elcert_table_id,
+    is_elcert_quarter_url,
     is_elcert_url,
     printed_base_url,
     printed_endpoint_url,
@@ -70,6 +72,18 @@ DOCS_HTML = """
 </div>
 """
 
+QUARTER_BODY = [
+    {
+        "Values": {"IMaalet": 0.0, "IOvergangsordningen": 8.842},
+        "Year": 2012,
+        "Quarter": 1,
+    },
+    {
+        "Values": {"IMaalet": 1094.94, "IOvergangsordningen": 150.511},
+        "Year": 2026,
+        "Quarter": 3,
+    },
+]
 APPLICATIONS_BODY = [
     {
         "Status": "Godkjent",
@@ -103,6 +117,8 @@ class FetchHttp:
     def get_json_response(self, url: str, *, headers=None) -> JsonResponse:
         if url == APPLICATIONS_URL:
             return JsonResponse(status=200, url=url, body=APPLICATIONS_BODY)
+        if url == QUARTER_URL:
+            return JsonResponse(status=200, url=url, body=QUARTER_BODY)
         raise AssertionError(f"unexpected GET {url}")
 
     def post_json_response(self, url: str, body, *, headers=None) -> JsonResponse:
@@ -211,6 +227,48 @@ def test_fetch_gets_printed_plant_names(tmp_path: Path) -> None:
     assert all(row["publisher_name"] is None for row in rows)
     assert all(row["license"] is None for row in rows)
     assert all(row["access_path"] == APPLICATIONS_URL for row in rows)
+    registry.close()
+
+
+def test_quarter_url_is_observations_not_plant_names() -> None:
+    assert is_elcert_quarter_url(QUARTER_URL)
+    assert classify_access_path(QUARTER_URL)["kind"] == "observations"
+    assert not is_elcert_quarter_url(APPLICATIONS_URL)
+
+
+def test_cells_from_quarter_copy_printed_values() -> None:
+    cells = cells_from_elcert_quarter(QUARTER_BODY)
+    assert cells == [
+        ("IMaalet", 0.0, {"Year": "2012", "Quarter": "1"}),
+        ("IOvergangsordningen", 8.842, {"Year": "2012", "Quarter": "1"}),
+        ("IMaalet", 1094.94, {"Year": "2026", "Quarter": "3"}),
+        ("IOvergangsordningen", 150.511, {"Year": "2026", "Quarter": "3"}),
+    ]
+
+
+def test_fetch_quarter_stores_numeric_cells(tmp_path: Path) -> None:
+    source = ElcertSource(http=CatalogHttp())
+    registry = Registry(tmp_path / "registry.sqlite")
+    harvest(registry, source)
+    result = fetch_observations(
+        registry,
+        "elcert:GetSummaryValuesPerQuarter",
+        table_id="ignored",
+        select={"Year": ["2026"], "Quarter": ["3"]},
+        http=FetchHttp(),
+    )
+    assert result.request_url == QUARTER_URL
+    assert result.http_status == 200
+    assert result.counts.listed == 2
+    rows = registry.list_observations("elcert:GetSummaryValuesPerQuarter")
+    by_measure = {row["measure"]: json.loads(row["value_json"]) for row in rows}
+    assert by_measure["IMaalet"] == 1094.94
+    assert by_measure["IOvergangsordningen"] == 150.511
+    dims = json.loads(rows[0]["dimensions_json"])
+    assert dims["Year"] == "2026"
+    assert dims["Quarter"] == "3"
+    cap = registry.get_capability("elcert:GetSummaryValuesPerQuarter")
+    assert cap["capability"] == "observations"
     registry.close()
 
 

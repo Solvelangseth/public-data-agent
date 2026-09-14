@@ -1545,6 +1545,34 @@ the way to get features from these services, the same pattern as
 
 Proof: `data/wms_fetch_disabled_proof.json`.
 
+## elcert:GetSummaryValuesPerQuarter — 2026-09-14 — promoted (observations)
+
+**Endpoint(s).** `GET https://api.nve.no/web/ElCert/GetSummaryValuesPerQuarter`.
+Already harvested. The documentation also lists `GetApplications` (914 plant
+names) and `GetSummaryValues` (HTTP 404 without year/month). Those were not
+fetched here. Licence is `null`; the docs print none.
+
+**Shape.** `observation`. Measures are the printed `Values` keys
+`IMaalet` and `IOvergangsordningen`. Dimensions are printed `Year` and
+`Quarter`. Publisher count is 59 quarters (2012-1 through 2026-3).
+
+**Capability recorded.** `observations`. Live GET 2026-09-14: HTTP 200,
+`select={"Year": ["2026"], "Quarter": ["3"]}` stored two cells:
+`IMaalet` 1094.9400000000023 and `IOvergangsordningen` 150.5109999999986
+(JSON numbers as printed). Unknown Year/Quarter is refused.
+
+**Surprises.**
+- The leftover decoder would have skipped nested `Values` and treated
+  `Year` as a name. Dispatch now reads the printed `Values` object.
+- `GetApplications` still stores `KraftverksNavn` if fetched. Do not dump
+  914 plants. `GetSummaryValues` without year/month stays 404; no year is
+  invented.
+
+**Open question for the query side.** Plant applications could become
+entities addressed by a printed plant id, bounded, not a 914-name dump.
+
+Proof: `data/elcert_quarter_proof.json`.
+
 
 
 

@@ -739,8 +739,12 @@ from public_data_agent.sources.vegogc import (
 )
 from public_data_agent.sources.elcert import (
     cells_from_elcert,
+    cells_from_elcert_quarter,
     elcert_table_id,
+    filter_quarter_rows as elcert_filter_quarter_rows,
+    is_elcert_quarter_url,
     is_elcert_url,
+    selected_quarters as elcert_selected_quarters,
 )
 from public_data_agent.sources.frivillig import (
     cells_from_frivillig,
@@ -1645,7 +1649,7 @@ def fetch_observations(
     if is_vegogc_url(access_path):
         return _fetch_vegogc(registry, dataset, http=http)
     if is_elcert_url(access_path):
-        return _fetch_elcert(registry, dataset, http=http)
+        return _fetch_elcert(registry, dataset, http=http, select=select)
     if is_kystwms_url(access_path):
         return _fetch_kystwms(registry, dataset, http=http)
     if is_kystnav_url(access_path):
@@ -10434,9 +10438,10 @@ def _fetch_elcert(
     dataset: dict[str, Any],
     *,
     http: JsonHttp | None = None,
+    select: dict[str, list[str]] | None = None,
 ) -> FetchResult:
     access_path = dataset.get("access_path") or ""
-    client = http or HttpClient(timeout=60.0, max_retries=4)
+    client = http or HttpClient(timeout=120.0, max_retries=4)
     table_id = elcert_table_id(access_path)
     started = utc_now()
     run_id = registry.start_fetch_run(
@@ -10453,8 +10458,20 @@ def _fetch_elcert(
     try:
         got = client.get_json_response(access_path)
         http_status = got.status
-        registry.set_fetch_request(run_id, request_url=access_path, request_body={"method": "GET"})
-        cells = cells_from_elcert(got.body)
+        registry.set_fetch_request(
+            run_id, request_url=access_path, request_body={"method": "GET", "select": select}
+        )
+        if is_elcert_quarter_url(access_path):
+            wanted = elcert_selected_quarters(select)
+            rows = elcert_filter_quarter_rows(got.body, wanted)
+            if wanted and not rows:
+                raise ValueError(
+                    f"GetSummaryValuesPerQuarter has no row matching {wanted}; "
+                    "Year/Quarter must be printed values"
+                )
+            cells = cells_from_elcert_quarter(rows)
+        else:
+            cells = cells_from_elcert(got.body)
         counts.listed = len(cells)
         sample = _store_cells(
             registry,
@@ -10467,6 +10484,22 @@ def _fetch_elcert(
             http_status=http_status,
             counts=counts,
         )
+        if is_elcert_quarter_url(access_path):
+            registry.set_capability(
+                dataset["id"],
+                {
+                    "capability": CAPABILITY_OBSERVATIONS,
+                    "record_kind": "observation",
+                    "endpoint": access_path,
+                    "request_method": "GET",
+                    "verified_at": utc_now(),
+                    "verified_sample_count": counts.listed,
+                    "notes": (
+                        f"{counts.listed} quarterly elsertifikat cell(s); "
+                        "measures are printed Values keys"
+                    ),
+                },
+            )
         status = "completed"
     except Exception as exc:
         counts.failed += 1
@@ -15273,6 +15306,14 @@ def classify_access_path(access_path: str | None) -> dict[str, Any]:
             "reason": (
                 "Landbruksdirektoratet dairy-delivery CSV; national litre totals "
                 "or one farm by organisasjonsnummer"
+            ),
+        }
+    if is_elcert_quarter_url(access_path):
+        return {
+            "kind": CAPABILITY_OBSERVATIONS,
+            "reason": (
+                "NVE Elsertifikater GetSummaryValuesPerQuarter; printed "
+                "IMaalet and IOvergangsordningen cells by Year and Quarter"
             ),
         }
     if is_mattilsynet_preparat_url(access_path):

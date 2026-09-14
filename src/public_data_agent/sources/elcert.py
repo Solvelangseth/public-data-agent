@@ -21,6 +21,7 @@ ELCERT_RPS = 2.0
 ELCERT_BURST = 4
 HOST = "api.nve.no"
 PATH_PREFIX = "/web/ElCert/"
+QUARTER_PATH = "/web/ElCert/GetSummaryValuesPerQuarter"
 NAME_FIELDS = ("KraftverksNavn", "Status", "TypeAnlegg")
 GET_RE = re.compile(
     r'opblock-summary-method">GET</span>\s*'
@@ -186,6 +187,12 @@ def is_elcert_url(access_path: str | None) -> bool:
     return parsed.netloc.lower() == HOST and parsed.path.startswith(PATH_PREFIX)
 
 
+def is_elcert_quarter_url(access_path: str | None) -> bool:
+    if not is_elcert_url(access_path):
+        return False
+    return urlsplit(access_path).path.rstrip("/") == QUARTER_PATH
+
+
 def elcert_table_id(access_path: str) -> str:
     path = urlsplit(access_path).path
     if path.startswith(PATH_PREFIX):
@@ -194,6 +201,83 @@ def elcert_table_id(access_path: str) -> str:
             return ident
     ident = path.rstrip("/").split("/")[-1]
     return ident or "elcert"
+
+
+def cells_from_elcert_quarter(payload: Any) -> list[tuple[str, Any, dict[str, str]]]:
+    """Copy printed quarterly summary Values into observation cells.
+
+    Each row prints ``Year``, ``Quarter``, and a ``Values`` object of named
+    floats (``IMaalet``, ``IOvergangsordningen``). Nested objects besides
+    ``Values`` are skipped. Measure names are the printed keys. Nothing is
+    invented.
+    """
+
+    if not isinstance(payload, list):
+        raise ValueError("elcert quarter payload is not a JSON array")
+    cells: list[tuple[str, Any, dict[str, str]]] = []
+    for item in payload:
+        if not isinstance(item, dict):
+            continue
+        values = item.get("Values")
+        if not isinstance(values, dict):
+            continue
+        year = item.get("Year")
+        quarter = item.get("Quarter")
+        dims = {
+            "Year": _as_dim(year),
+            "Quarter": _as_dim(quarter),
+        }
+        for measure, value in values.items():
+            if not isinstance(measure, str) or not measure.strip():
+                continue
+            if isinstance(value, bool) or not isinstance(value, (int, float)):
+                continue
+            cells.append((measure, value, dict(dims)))
+    if not cells:
+        raise ValueError("elcert quarter payload printed no Values members")
+    return cells
+
+
+def selected_quarters(
+    select: dict[str, list[str]] | None,
+) -> dict[str, str] | None:
+    if not select:
+        return None
+    allowed = {"Year", "Quarter"}
+    unknown = sorted(key for key in select if key not in allowed)
+    if unknown:
+        raise ValueError(
+            f"select names field(s) {unknown} that a GetSummaryValuesPerQuarter fetch "
+            f"does not filter on; accepted: {sorted(allowed)}"
+        )
+    out: dict[str, str] = {}
+    for key in ("Year", "Quarter"):
+        if key not in select:
+            continue
+        values = select[key]
+        values = [values] if isinstance(values, str) else [str(v) for v in values]
+        if len(values) != 1:
+            raise ValueError(f"select {key} accepts exactly one value")
+        out[key] = values[0]
+    return out or None
+
+
+def filter_quarter_rows(
+    payload: Any, wanted: dict[str, str] | None
+) -> list[dict[str, Any]]:
+    if not isinstance(payload, list):
+        raise ValueError("elcert quarter payload is not a JSON array")
+    rows = [item for item in payload if isinstance(item, dict)]
+    if not wanted:
+        return rows
+    out = []
+    for item in rows:
+        if "Year" in wanted and _as_dim(item.get("Year")) != wanted["Year"]:
+            continue
+        if "Quarter" in wanted and _as_dim(item.get("Quarter")) != wanted["Quarter"]:
+            continue
+        out.append(item)
+    return out
 
 
 def cells_from_elcert(payload: Any) -> list[tuple[str, Any, dict[str, str]]]:

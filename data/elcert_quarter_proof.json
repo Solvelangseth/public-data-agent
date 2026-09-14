@@ -1,0 +1,28 @@
+{
+  "dataset": "elcert:GetSummaryValuesPerQuarter",
+  "title": "Hent summerte verdier per kvartal siden elsertifikatordningen startet",
+  "request_url": "https://api.nve.no/web/ElCert/GetSummaryValuesPerQuarter",
+  "http_status": 200,
+  "listed": 2,
+  "publisher_count_quarters": 59,
+  "license": null,
+  "sample": [
+    {
+      "measure": "IMaalet",
+      "value": 1094.9400000000023,
+      "dimensions": {
+        "Quarter": "3",
+        "Year": "2026"
+      }
+    },
+    {
+      "measure": "IOvergangsordningen",
+      "value": 150.5109999999986,
+      "dimensions": {
+        "Quarter": "3",
+        "Year": "2026"
+      }
+    }
+  ],
+  "note": "Printed Values.IMaalet and Values.IOvergangsordningen for Year=2026 Quarter=3. GetApplications (914 plant names) was not dumped. GetSummaryValues without year/month is 404."
+}
