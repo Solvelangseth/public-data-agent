@@ -1943,6 +1943,34 @@ printed plant id. Do not dump 914 names.
 
 Proof: `data/elcert_summary_proof.json`.
 
+## ssbv2:13618 — 2026-09-14 — promoted (observations)
+
+**Endpoint(s).** `GET https://data.ssb.no/api/pxwebapi/v2/tables/13618/data?lang=no&outputFormat=json-stat2`.
+Already harvested leftover v2 data href. Neighbour leftover data hrefs
+classify the same way and were not dumped. Licence is `null`.
+
+**Shape.** `observation`. Measure is the printed json-stat ContentsCode
+label (`Personer (1000 personer)` on the default slice). Dimensions are
+printed `Alder`, `Kjonn`, and `Tid`. The default slice is the
+publisher's; no period is invented.
+
+**Capability recorded.** `observations`. Live GET 2026-09-14: HTTP 200, 15
+cells. Sample: Personer 4170 (15-74 år, Begge kjønn, 2025). More than
+100 cells is refused, not truncated.
+
+**Surprises.**
+- Same leftover decoder and classify as `ssbv2:13760` / `14483`. This
+  leftover harvested data href had no stored cells.
+- Title prints arbeidsstyrkestatus; the default slice's ContentsCode
+  label is `Personer (1000 personer)`.
+
+**Open question for the query side.** Remaining leftover v2 data hrefs
+(`13619`, `05110`, …) classify the same way; they were not dumped this
+slice.
+
+Proof: `data/ssbv2_13618_proof.json`.
+
+
 
 
 
