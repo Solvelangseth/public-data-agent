@@ -5,15 +5,19 @@ from pathlib import Path
 
 import pytest
 
-from public_data_agent.fetch import fetch_observations
+from public_data_agent.fetch import classify_access_path, fetch_observations
 from public_data_agent.harvest import harvest
 from public_data_agent.http_util import JsonResponse
 from public_data_agent.registry import Registry
 from public_data_agent.sources import SOURCE_IDS, build_source
+from public_data_agent.resource_index import index_dataset
 from public_data_agent.sources.nbr import (
     NbrSource,
     cells_from_nbr,
+    is_nbr_lookup_url,
     is_nbr_url,
+    lookups_from_payload,
+    lookup_catalog,
     nbr_table_id,
     printed_endpoint_url,
     printed_license_url,
@@ -137,34 +141,60 @@ def test_harvest_writes_printed_id_license_and_null_publisher(tmp_path: Path) ->
     registry.close()
 
 
-def test_fetch_gets_printed_barnehagekategorier(tmp_path: Path) -> None:
+def test_url_is_lookup_not_name_observations() -> None:
+    assert is_nbr_lookup_url(KATEGORIER_URL)
+    assert is_nbr_lookup_url(MAALFORMER_URL)
+    assert classify_access_path(KATEGORIER_URL)["kind"] == "lookup"
+    assert not is_nbr_lookup_url(ENHETER_URL)
+
+
+def test_maalformer_skips_empty_id() -> None:
+    spec = lookup_catalog(MAALFORMER_URL)
+    members = lookups_from_payload(
+        [
+            {"Id": "", "Navn": "Udefinert"},
+            {"Id": "B", "Navn": "Bokmål"},
+            {"Id": "N", "Navn": "Nynorsk"},
+        ],
+        spec,
+    )
+    assert [item["subject_code"] for item in members] == ["B", "N"]
+    assert members[0]["subject_label"] == "Bokmål"
+
+
+def test_fetch_stores_lookup_entities_not_name_observations(tmp_path: Path) -> None:
     source = NbrSource(http=CatalogHttp())
     registry = Registry(tmp_path / "registry.sqlite")
     harvest(registry, source)
+    indexed = index_dataset(registry, DATASET_ID, http=FetchHttp(), catalogues={})
+    assert indexed["fields"] >= 1
     result = fetch_observations(
         registry,
         DATASET_ID,
         table_id="ignored",
+        select={"id": ["18"]},
         http=FetchHttp(),
     )
     assert result.request_url == KATEGORIER_URL
     assert result.table_id == "barnehagekategorier"
     assert result.http_status == 200
-    assert result.counts.listed == 2
-    rows = registry.list_observations(DATASET_ID)
-    values = [json.loads(row["value_json"]) for row in rows]
-    assert values == ["Offentlig barnehage", "Privat barnehage"] or values == [
-        "Privat barnehage",
-        "Offentlig barnehage",
-    ]
-    assert all(row["measure"] == "Navn" for row in rows)
-    by_name = {json.loads(row["value_json"]): row for row in rows}
-    dims = json.loads(by_name["Offentlig barnehage"]["dimensions_json"])
-    assert dims["Id"] == "18"
-    assert "nested" not in dims
-    assert all(row["publisher_name"] is None for row in rows)
-    assert all(row["license"] == NLOD_URL for row in rows)
-    assert all(row["access_path"] == KATEGORIER_URL for row in rows)
+    assert result.counts.listed == 1
+    assert result.sample[0]["kind"] == "entity"
+    assert result.sample[0]["subject_code"] == "18"
+    assert result.sample[0]["subject_label"] == "Offentlig barnehage"
+    assert registry.list_observations(DATASET_ID) == []
+    cap = registry.get_capability(DATASET_ID)
+    assert cap["capability"] == "lookup"
+    assert cap["subject_scheme"] == "nbr:barnehagekategori"
+    assert cap["verified_sample_count"] == 1
+    with pytest.raises(ValueError, match="not in nbr:barnehagekategorier"):
+        fetch_observations(
+            registry,
+            DATASET_ID,
+            table_id="ignored",
+            select={"id": ["NOPE"]},
+            http=FetchHttp(),
+        )
     registry.close()
 
 

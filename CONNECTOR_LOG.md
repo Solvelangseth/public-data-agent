@@ -1421,11 +1421,47 @@ relasjonstype `1` Eierstruktur.
   number alone.
 
 **Open question for the query side.** `udir:enheter` (schools) and
-`udir:kommuner` (1,179) and NBR `enheter` (kindergartens) still use the
-name-as-observation decoder. Do not dump them. NBR small vocabs
-(`barnehagekategorier`) are next.
+`udir:kommuner` (1,179) still use the name-as-observation decoder. Do not
+dump them. NBR small vocabs are now lookups; see the following entry.
 
 Proof: `data/udir_lookup_proof.json`.
+
+## nbr small catalogs — 2026-09-14 — promoted (lookup)
+
+**Endpoint(s).** Already harvested NBR collection GETs:
+`https://data-nbr.udir.no/v3/barnehagekategorier` (10), `/maalformer` (3
+printed, 2 stored), `/naeringskoder` (1), `/organisasjonsformer` (46 printed,
+45 stored), `/utgaattyper` (7), `/relasjonstyper` (6). Licence on the
+harvested rows is NLOD from the OpenAPI `info.license.url`
+(`https://data.norge.no/nlod/no`). `enheter` was not fetched.
+
+**Shape.** `entity` with capability `lookup`. Subject schemes
+`nbr:barnehagekategori` (printed `Id`), `nbr:maalform` (`Id`),
+`nbr:naeringskode` (`Kode`), `nbr:organisasjonsform` (`Id`),
+`nbr:utgaattype` (`Id`), `nbr:relasjonstype` (`Id`). Label is printed
+`Navn`. Nested objects are skipped. Members with an empty printed code are
+skipped.
+
+**Capability recorded.** `lookup` on all six. Live GET 2026-09-14: HTTP 200,
+complete published lists, zero observation rows. Samples: kategori `18`
+Offentlig barnehage; maalform `B` Bokmål; næringskode `85.100`
+Førskoleundervisning og drift av barnehager; orgform `AS` Aksjeselskap;
+utgåttype `S` Slettet; relasjonstype `6` Eierstruktur.
+
+**Surprises.**
+- The previous fetch stored each `Navn` as an observation. Dispatch now
+  writes lookup entities. `cells_from_nbr` remains for `enheter` until that
+  gets a bounded entity fetch.
+- `maalformer` prints `Id=""` / Navn Udefinert. That row is skipped, not
+  stored under a blank key. Bokmål and Nynorsk remain.
+- `organisasjonsformer` prints an empty-Id "Ingen enhetstype"; skipped.
+  `barnehagekategorier` Id `0` "Ingen verdi" is a printed code and is stored.
+
+**Open question for the query side.** `nbr:enheter` (kindergartens) still
+uses the name-as-observation decoder. Do not dump it. NOR/NPR leftover
+vocabs may be the same shape.
+
+Proof: `data/nbr_lookup_proof.json`.
 
 
 

@@ -238,3 +238,149 @@ def _as_dim(value: Any) -> str:
     if value is None:
         return ""
     return str(value)
+
+
+# Small complete NBR catalogs. `enheter` stays on the observation decoder
+# until it gets a bounded entity fetch. Members with an empty printed id
+# (maalformer "Udefinert") are skipped, not stored as a blank key.
+LOOKUP_CATALOGS: dict[str, dict[str, str]] = {
+    "barnehagekategorier": {
+        "code_field": "Id",
+        "label_field": "Navn",
+        "scheme": "nbr:barnehagekategori",
+    },
+    "maalformer": {
+        "code_field": "Id",
+        "label_field": "Navn",
+        "scheme": "nbr:maalform",
+    },
+    "naeringskoder": {
+        "code_field": "Kode",
+        "label_field": "Navn",
+        "scheme": "nbr:naeringskode",
+    },
+    "organisasjonsformer": {
+        "code_field": "Id",
+        "label_field": "Navn",
+        "scheme": "nbr:organisasjonsform",
+    },
+    "utgaattyper": {
+        "code_field": "Id",
+        "label_field": "Navn",
+        "scheme": "nbr:utgaattype",
+    },
+    "relasjonstyper": {
+        "code_field": "Id",
+        "label_field": "Navn",
+        "scheme": "nbr:relasjonstype",
+    },
+}
+
+
+def is_nbr_lookup_url(access_path: str | None) -> bool:
+    if not is_nbr_url(access_path):
+        return False
+    return nbr_table_id(access_path or "") in LOOKUP_CATALOGS
+
+
+def lookup_catalog(access_path: str) -> dict[str, str]:
+    ident = nbr_table_id(access_path)
+    spec = LOOKUP_CATALOGS.get(ident)
+    if spec is None:
+        raise ValueError(f"not an NBR lookup catalog: {access_path}")
+    return spec
+
+
+def entity_from_nbr_item(item: dict[str, Any], spec: dict[str, str]) -> dict[str, Any]:
+    code = _lookup_id(item.get(spec["code_field"]))
+    if not code:
+        raise ValueError(f"NBR {spec['scheme']} member printed no {spec['code_field']}")
+    raw = item.get(spec["label_field"])
+    label = raw.strip() if isinstance(raw, str) and raw.strip() else code
+    attributes: dict[str, Any] = {}
+    for key, value in item.items():
+        if isinstance(value, (dict, list)) or value is None:
+            continue
+        if key == spec["code_field"]:
+            attributes[key] = code
+            continue
+        attributes[key] = value
+    return {
+        "subject_scheme": spec["scheme"],
+        "subject_code": code,
+        "subject_label": label,
+        "attributes": attributes,
+    }
+
+
+def lookups_from_payload(payload: Any, spec: dict[str, str]) -> list[dict[str, Any]]:
+    if not isinstance(payload, list):
+        raise ValueError("nbr lookup payload is not a JSON array")
+    out = []
+    for item in payload:
+        if not isinstance(item, dict):
+            continue
+        if not _lookup_id(item.get(spec["code_field"])):
+            continue
+        out.append(entity_from_nbr_item(item, spec))
+    if not out:
+        raise ValueError("nbr lookup payload printed no members with an id")
+    return out
+
+
+def shape_from_lookups(
+    members: list[dict[str, Any]], spec: dict[str, str]
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    ids = [
+        {"value_code": item["subject_code"], "value_label": item["subject_label"]}
+        for item in members
+    ]
+    fields = [
+        {
+            "field_code": spec["code_field"],
+            "field_label": spec["code_field"],
+            "field_role": "key",
+            "values": ids,
+        },
+        {
+            "field_code": spec["label_field"],
+            "field_label": spec["label_field"],
+            "field_role": "attribute",
+            "values": [],
+        },
+    ]
+    keys = [
+        {
+            "scheme": spec["scheme"],
+            "field_code": spec["code_field"],
+            "coverage_count": len(members),
+        }
+    ]
+    return fields, keys
+
+
+def selected_lookup_ids(select: dict[str, list[str]] | None) -> list[str] | None:
+    if not select:
+        return None
+    unknown = sorted(key for key in select if key != "id")
+    if unknown:
+        raise ValueError(
+            f"select names field(s) {unknown} that an NBR lookup fetch "
+            "does not filter on; only id is accepted, or omit select for the full list"
+        )
+    wanted = select.get("id") or []
+    wanted = [wanted] if isinstance(wanted, str) else [str(item) for item in wanted]
+    if not wanted:
+        raise ValueError("select id is empty")
+    return wanted
+
+
+def _lookup_id(value: Any) -> str | None:
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, int):
+        return str(value)
+    if isinstance(value, str) and value.strip():
+        return value.strip()
+    return None
+

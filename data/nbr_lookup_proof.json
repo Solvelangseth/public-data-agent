@@ -1,0 +1,173 @@
+{
+  "catalogs": [
+    {
+      "dataset": "nbr:barnehagekategorier",
+      "title": "Alle barnehagekategorier",
+      "request_url": "https://data-nbr.udir.no/v3/barnehagekategorier",
+      "http_status": 200,
+      "listed_one": 1,
+      "listed_all": 10,
+      "observations": 0,
+      "license": "https://data.norge.no/nlod/no",
+      "capability": "lookup",
+      "subject_scheme": "nbr:barnehagekategori",
+      "sample": {
+        "id": "18",
+        "navn": "Offentlig barnehage"
+      },
+      "all_sample": [
+        {
+          "id": "0",
+          "navn": "Ingen verdi"
+        },
+        {
+          "id": "18",
+          "navn": "Offentlig barnehage"
+        },
+        {
+          "id": "19",
+          "navn": "Kommunal barnehage"
+        }
+      ]
+    },
+    {
+      "dataset": "nbr:maalformer",
+      "title": "Alle målformer",
+      "request_url": "https://data-nbr.udir.no/v3/maalformer",
+      "http_status": 200,
+      "listed_one": 1,
+      "listed_all": 2,
+      "observations": 0,
+      "license": "https://data.norge.no/nlod/no",
+      "capability": "lookup",
+      "subject_scheme": "nbr:maalform",
+      "sample": {
+        "id": "B",
+        "navn": "Bokmål"
+      },
+      "all_sample": [
+        {
+          "id": "B",
+          "navn": "Bokmål"
+        },
+        {
+          "id": "N",
+          "navn": "Nynorsk"
+        }
+      ]
+    },
+    {
+      "dataset": "nbr:naeringskoder",
+      "title": "Barnehage næringskoder",
+      "request_url": "https://data-nbr.udir.no/v3/naeringskoder",
+      "http_status": 200,
+      "listed_one": 1,
+      "listed_all": 1,
+      "observations": 0,
+      "license": "https://data.norge.no/nlod/no",
+      "capability": "lookup",
+      "subject_scheme": "nbr:naeringskode",
+      "sample": {
+        "id": "85.100",
+        "navn": "Førskoleundervisning og drift av barnehager"
+      },
+      "all_sample": [
+        {
+          "id": "85.100",
+          "navn": "Førskoleundervisning og drift av barnehager"
+        }
+      ]
+    },
+    {
+      "dataset": "nbr:organisasjonsformer",
+      "title": "Alle organisajonsformer",
+      "request_url": "https://data-nbr.udir.no/v3/organisasjonsformer",
+      "http_status": 200,
+      "listed_one": 1,
+      "listed_all": 45,
+      "observations": 0,
+      "license": "https://data.norge.no/nlod/no",
+      "capability": "lookup",
+      "subject_scheme": "nbr:organisasjonsform",
+      "sample": {
+        "id": "AS",
+        "navn": "Aksjeselskap"
+      },
+      "all_sample": [
+        {
+          "id": "ADOS",
+          "navn": "Administrativ enhet -offentlig sektor"
+        },
+        {
+          "id": "ANNA",
+          "navn": "Annen juridisk person"
+        },
+        {
+          "id": "ANS",
+          "navn": "Ansvarlig selskap med solidarisk ansvar"
+        }
+      ]
+    },
+    {
+      "dataset": "nbr:utgaattyper",
+      "title": "Alle utgått-typer",
+      "request_url": "https://data-nbr.udir.no/v3/utgaattyper",
+      "http_status": 200,
+      "listed_one": 1,
+      "listed_all": 7,
+      "observations": 0,
+      "license": "https://data.norge.no/nlod/no",
+      "capability": "lookup",
+      "subject_scheme": "nbr:utgaattype",
+      "sample": {
+        "id": "S",
+        "navn": "Slettet"
+      },
+      "all_sample": [
+        {
+          "id": "A",
+          "navn": "Ingen utgåttype"
+        },
+        {
+          "id": "D",
+          "navn": "Slettet for dublett"
+        },
+        {
+          "id": "F",
+          "navn": "Slettet for sammenslåing"
+        }
+      ]
+    },
+    {
+      "dataset": "nbr:relasjonstyper",
+      "title": "Relasjonstyper for barnehager",
+      "request_url": "https://data-nbr.udir.no/v3/relasjonstyper",
+      "http_status": 200,
+      "listed_one": 1,
+      "listed_all": 6,
+      "observations": 0,
+      "license": "https://data.norge.no/nlod/no",
+      "capability": "lookup",
+      "subject_scheme": "nbr:relasjonstype",
+      "sample": {
+        "id": "6",
+        "navn": "Eierstruktur"
+      },
+      "all_sample": [
+        {
+          "id": "0",
+          "navn": "Udefinert"
+        },
+        {
+          "id": "6",
+          "navn": "Eierstruktur"
+        },
+        {
+          "id": "7",
+          "navn": "Tilsynsstruktur"
+        }
+      ]
+    }
+  ],
+  "note": "Lookup entities, not name observations. Empty printed ids skipped (maalformer Udefinert). enheter not fetched."
+}

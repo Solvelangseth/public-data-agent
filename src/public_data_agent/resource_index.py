@@ -337,6 +337,7 @@ def index_dataset(
     from public_data_agent.sources.stperioder import is_stperioder_url
     from public_data_agent.sources.mattilsynet import is_mattilsynet_preparat_url
     from public_data_agent.sources.udir import is_udir_lookup_url
+    from public_data_agent.sources.nbr import is_nbr_lookup_url
     from public_data_agent.sources.fhi import is_fhi_table_url, printed_table_data_url, split_table_url
 
     dataset = registry.get_dataset(dataset_id)
@@ -571,6 +572,19 @@ def index_dataset(
         meta = client.get_json_response(access_path)
         members = udir_lookups_from_payload(meta.body or [], spec)
         fields, keys = shape_from_udir_lookups(members, spec)
+        endpoint, method = access_path, "GET"
+        record_kind = "entity"
+    elif is_nbr_lookup_url(access_path):
+        from public_data_agent.sources.nbr import (
+            lookup_catalog as nbr_lookup_catalog,
+            lookups_from_payload as nbr_lookups_from_payload,
+            shape_from_lookups as shape_from_nbr_lookups,
+        )
+
+        spec = nbr_lookup_catalog(access_path)
+        meta = client.get_json_response(access_path)
+        members = nbr_lookups_from_payload(meta.body or [], spec)
+        fields, keys = shape_from_nbr_lookups(members, spec)
         endpoint, method = access_path, "GET"
         record_kind = "entity"
     else:
