@@ -1,0 +1,26 @@
+{
+  "dataset": "stormflo:national.json",
+  "request_url": "https://stormflo-konsekvens.kartverket.no/public/api/v1/national.json",
+  "http_status": 200,
+  "listed": 168,
+  "inserted": 168,
+  "license": "https://www.apache.org/licenses/LICENSE-2.0.html",
+  "sample": [
+    {
+      "measure": "offentlige_bygg",
+      "value": 2118,
+      "dimensions": {"code": "1000ymax", "year": "2025"}
+    },
+    {
+      "measure": "offentlige_bygg",
+      "value": 582,
+      "dimensions": {"code": "mhw", "year": "2025"}
+    },
+    {
+      "measure": "offentlige_bygg",
+      "value": 4597,
+      "dimensions": {"code": "1000ymax", "year": "2100"}
+    }
+  ],
+  "note": "Printed integer keys as measures; printed scenario code and year as dimensions. alle_kommuner.json (232 kommuner, 38934 cells) was not fetched."
+}

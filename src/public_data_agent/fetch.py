@@ -826,7 +826,9 @@ from public_data_agent.sources.sandnes import (
     sandnes_table_id,
 )
 from public_data_agent.sources.stormflo import (
+    STORMFLO_MAX_CELLS,
     cells_from_stormflo,
+    is_stormflo_national_url,
     is_stormflo_url,
     stormflo_table_id,
 )
@@ -12691,9 +12693,22 @@ def _fetch_stormflo(
     *,
     http: JsonHttp | None = None,
 ) -> FetchResult:
+    """Fetch Kartverket national storm-surge consequence cells.
+
+    Measures are the printed integer keys (offentlige_bygg, areal_total, …).
+    Dimensions are printed scenario ``code`` and ``year``. alle_kommuner.json
+    is 232 municipalities and is refused, not stored. More than
+    STORMFLO_MAX_CELLS is refused, not truncated.
+    """
+
     access_path = dataset.get("access_path") or ""
-    client = http or HttpClient(timeout=60.0, max_retries=4)
     table_id = stormflo_table_id(access_path)
+    if not is_stormflo_national_url(access_path):
+        raise ValueError(
+            "Kartverket Stormflo alle_kommuner dump is not a bounded "
+            "observation fetch; use national.json"
+        )
+    client = http or HttpClient(timeout=60.0, max_retries=4)
     started = utc_now()
     run_id = registry.start_fetch_run(
         dataset_id=dataset["id"],
@@ -12711,17 +12726,47 @@ def _fetch_stormflo(
         http_status = got.status
         registry.set_fetch_request(run_id, request_url=access_path, request_body={"method": "GET"})
         cells = cells_from_stormflo(got.body)
+        if len(cells) > STORMFLO_MAX_CELLS:
+            raise SelectionTooLarge(
+                table_id,
+                len(cells),
+                STORMFLO_MAX_CELLS,
+                [
+                    {
+                        "code": "national.json",
+                        "text": "national storm-surge cells",
+                        "selected": len(cells),
+                        "available": STORMFLO_MAX_CELLS,
+                    }
+                ],
+            )
         counts.listed = len(cells)
+        retrieved_at = utc_now()
         sample = _store_cells(
             registry,
             dataset,
             run_id,
             table_id=table_id,
             cells=cells,
-            retrieved_at=utc_now(),
+            retrieved_at=retrieved_at,
             request_url=access_path,
             http_status=http_status,
             counts=counts,
+        )
+        registry.set_capability(
+            dataset["id"],
+            {
+                "capability": CAPABILITY_OBSERVATIONS,
+                "record_kind": "observation",
+                "endpoint": access_path,
+                "request_method": "GET",
+                "verified_at": retrieved_at,
+                "verified_sample_count": counts.listed,
+                "notes": (
+                    f"{counts.listed} national stormflo cell(s); measures are "
+                    "printed integer keys"
+                ),
+            },
         )
         status = "completed"
     except Exception as exc:
@@ -15475,6 +15520,14 @@ def classify_access_path(access_path: str | None) -> dict[str, Any]:
                 "and TWh measures by area"
             ),
         }
+    if is_stormflo_national_url(access_path):
+        return {
+            "kind": CAPABILITY_OBSERVATIONS,
+            "reason": (
+                "Kartverket Stormflo national.json; printed building and area "
+                "counts by scenario code and year"
+            ),
+        }
     if is_mattilsynet_preparat_url(access_path):
         return {
             "kind": CAPABILITY_ENTITIES,
@@ -15749,6 +15802,14 @@ def classify_access_path(access_path: str | None) -> dict[str, Any]:
             "reason": (
                 "NVE Magasinstatistikk full weekly dump, MinMaxMedian, or area "
                 "catalog; last-week cells are HentOffentligDataSisteUke"
+            ),
+        }
+    if is_stormflo_url(access_path):
+        return {
+            "kind": CAPABILITY_NONE,
+            "reason": (
+                "Kartverket Stormflo alle_kommuner dump; national totals are "
+                "national.json"
             ),
         }
     if can_fetch_access_path(access_path):

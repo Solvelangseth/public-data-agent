@@ -20,6 +20,8 @@ STORMFLO_RPS = 2.0
 STORMFLO_BURST = 4
 HOST = "stormflo-konsekvens.kartverket.no"
 PATH_PREFIX = "/public/api/v1/"
+NATIONAL_PATH = "/public/api/v1/national.json"
+STORMFLO_MAX_CELLS = 200
 _SERVER_RE = re.compile(r"^servers:\n  - url:\s*(\S+)", re.M)
 _TITLE_RE = re.compile(r"^  title:\s*(.+)$", re.M)
 _LICENSE_URL_RE = re.compile(r"^  license:\n    name:.*\n    url:\s*(\S+)", re.M)
@@ -210,6 +212,15 @@ def is_stormflo_url(access_path: str | None) -> bool:
         return False
     parsed = urlsplit(access_path)
     return parsed.netloc.lower() == HOST and parsed.path.startswith(PATH_PREFIX)
+
+
+def is_stormflo_national_url(access_path: str | None) -> bool:
+    """National storm-surge totals. alle_kommuner.json is a different path."""
+
+    if not is_stormflo_url(access_path):
+        return False
+    path = urlsplit(access_path).path.rstrip("/").casefold()
+    return path == NATIONAL_PATH
 
 
 def stormflo_table_id(access_path: str) -> str:

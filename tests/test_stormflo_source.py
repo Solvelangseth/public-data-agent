@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from public_data_agent.fetch import fetch_observations
+from public_data_agent.fetch import classify_access_path, fetch_observations
 from public_data_agent.harvest import harvest
 from public_data_agent.http_util import JsonResponse
 from public_data_agent.registry import Registry
@@ -13,6 +13,7 @@ from public_data_agent.sources import SOURCE_IDS, build_source
 from public_data_agent.sources.stormflo import (
     StormfloSource,
     cells_from_stormflo,
+    is_stormflo_national_url,
     is_stormflo_url,
     openapi_from_yaml,
     printed_endpoint_url,
@@ -216,6 +217,35 @@ def test_fetch_gets_printed_national_numbers(tmp_path: Path) -> None:
     assert all(row["publisher_name"] is None for row in rows)
     assert all(row["license"] == LICENSE_URL for row in rows)
     assert all(row["access_path"] == NATIONAL_URL for row in rows)
+    cap = registry.get_capability(DATASET_ID)
+    assert cap["capability"] == "observations"
+    registry.close()
+
+
+def test_national_url_is_observations() -> None:
+    assert is_stormflo_national_url(NATIONAL_URL)
+    assert not is_stormflo_national_url(ALLE_URL)
+    assert classify_access_path(NATIONAL_URL)["kind"] == "observations"
+    assert classify_access_path(ALLE_URL)["kind"] == "none"
+
+
+def test_fetch_refuses_alle_kommuner_dump(tmp_path: Path) -> None:
+    registry = Registry(tmp_path / "registry.sqlite")
+    registry.ensure_observation_dataset(
+        dataset_id="stormflo:alle_kommuner.json",
+        title="Statistikk for alle kommuner",
+        publisher_name=None,
+        access_path=ALLE_URL,
+        license=LICENSE_URL,
+    )
+    registry.conn.commit()
+    with pytest.raises(ValueError, match="national.json"):
+        fetch_observations(
+            registry,
+            "stormflo:alle_kommuner.json",
+            table_id="alle_kommuner.json",
+            http=FetchHttp(),
+        )
     registry.close()
 
 

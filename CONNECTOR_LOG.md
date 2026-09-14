@@ -1637,6 +1637,39 @@ entities addressed by printed `omrType`+`omrnr`. A bounded `iso_aar`/
 
 Proof: `data/nve_siste_uke_proof.json`.
 
+## stormflo:national.json — 2026-09-14 — promoted (observations)
+
+**Endpoint(s).** `GET https://stormflo-konsekvens.kartverket.no/public/api/v1/national.json`.
+Already harvested. `alle_kommuner.json` is 232 municipalities / 38934 cells
+live and was not fetched. Templated `{kommune}.json` was never ingested.
+Licence is the printed OpenAPI URL `https://www.apache.org/licenses/LICENSE-2.0.html`.
+
+**Shape.** `observation`. Measures are the printed integer keys
+`offentlige_bygg`, `privat_naering`, `private_bygninger`, `bygning_total`,
+`samfunnskritiske_bygg`, `annenbygning`, `veilengde_privat`,
+`veilengde_offentlig`, `veilengde_total`, `bebyggelse`, `natur`,
+`offentlige_anlegg`, `primarnaering`, `areal_total`. Dimensions are printed
+scenario `code` (`1000ymax`, `200ymax`, `20ymax`, `highendwl`, `mhw`) and
+`year` (`2025`, `2100`, `2150` where printed).
+
+**Capability recorded.** `observations`. Live GET 2026-09-14: HTTP 200, 168
+cells. Sample: `offentlige_bygg` 2118 (`1000ymax` 2025), 582 (`mhw` 2025),
+4597 (`1000ymax` 2100). More than 200 cells is refused, not truncated.
+`alle_kommuner.json` classifies `none` and fetch is refused.
+
+**Surprises.**
+- The leftover decoder already copied printed integers. Classify had left
+  both URLs `unverified`, so a fetch of `alle_kommuner.json` would have
+  stored 38934 cells.
+- `Frequency_BySecondWithXy` prints unlabeled `[time, Hz]` pairs. Do not
+  invent axis names; it was not promoted.
+
+**Open question for the query side.** A single kommune is a templated path
+the ingest skipped. A bounded fetch by printed kommunenummer is a later
+slice, not the 232-row dump.
+
+Proof: `data/stormflo_national_proof.json`.
+
 
 
 
