@@ -1,0 +1,21 @@
+{
+  "dataset": "norgesbank:SETTLEMENT_STATISTICS",
+  "title": "Statistikk fra oppgjørssystemet",
+  "request_url": "https://data.norges-bank.no/api/data/SETTLEMENT_STATISTICS?format=sdmx-json&lastNObservations=5",
+  "http_status": 200,
+  "listed": 90,
+  "inserted": 72,
+  "license": null,
+  "sample": [
+    {
+      "measure": "Statistikk fra oppgjørssystemet",
+      "value": "463",
+      "dimensions": {
+        "UNIT_MEASURE": "Unutilised borrowing facility in billions (NOK)",
+        "FREQ": "Business",
+        "TIME_PERIOD": "2026-09-11"
+      }
+    }
+  ],
+  "note": "Bounded lastNObservations=5. Measure is the printed SDMX structure name. UNIT_MEASURE is a printed dimension, not invented. CBC_CALENDAR, MONEY_MARKET, FAUCTION, and ANN_TEST were not fetched."
+}

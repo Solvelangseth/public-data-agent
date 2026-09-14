@@ -20,9 +20,10 @@ INGEST_REASON = (
 NORGESBANK_RPS = 2.0
 NORGESBANK_BURST = 4
 HOST = "data.norges-bank.no"
-# SDMX dataflows whose leftover decoder copies printed observation values.
-# Calendars and instrument lists print identifiers, not measures, and stay
-# unverified. Wide dumps (MONEY_MARKET, LIQUIDITY_FORECAST) stay unverified
+# SDMX dataflows whose leftover decoder copies printed observation values
+# and whose default lastN=5 stays under the 2000-cell ceiling. Calendars
+# and instrument lists print identifiers, not measures, and stay unverified.
+# Wide dumps (MONEY_MARKET, LIQUIDITY_FORECAST, FAUCTION) stay unverified
 # until a narrowed fetch claims capability from cells actually seen.
 OBSERVATION_FLOWS = frozenset(
     {
@@ -34,6 +35,13 @@ OBSERVATION_FLOWS = frozenset(
         "GOVT_IRS",
         "GOVT_ZEROCOUPON",
         "FINANCIAL_INDICATORS",
+        "GOVT_KEYFIGURES",
+        "SEC",
+        "LIQUIDITY_STATISTICS",
+        "SETTLEMENT_STATISTICS",
+        "REGNET",
+        "CBC_TRANSACTIONS",
+        "ANN_FX_SPU",
     }
 )
 

@@ -1740,6 +1740,39 @@ they were not dumped this slice.
 
 Proof: `data/norgesbank_ir_proof.json`.
 
+## norgesbank:SETTLEMENT_STATISTICS — 2026-09-14 — promoted (observations)
+
+**Endpoint(s).** `GET https://data.norges-bank.no/api/data/SETTLEMENT_STATISTICS?format=sdmx-json&lastNObservations=5`.
+Already harvested. Neighbour leftover SDMX flows that also copy printed
+numeric cells at lastN=5: `GOVT_KEYFIGURES` (846), `SEC` (900),
+`LIQUIDITY_STATISTICS` (195), `REGNET` (415), `CBC_TRANSACTIONS` (304),
+`ANN_FX_SPU` (5). They classify the same way and were not dumped this
+slice. `CBC_CALENDAR`, `MONEY_MARKET`, `FAUCTION`, `LIQUIDITY_FORECAST`,
+and `ANN_TEST` stay unverified. Licence is `null`.
+
+**Shape.** `observation`. Measure is the printed SDMX structure name
+(`Statistikk fra oppgjørssystemet`). Dimensions are printed `UNIT_MEASURE`,
+`FREQ`, and `TIME_PERIOD`. Values are the first printed observation array
+element, copied as printed (strings such as `"463"`). No period is invented.
+
+**Capability recorded.** `observations` for the leftover SDMX dataflows
+whose default lastN=5 stays under the 2000-cell ceiling. Live GET
+2026-09-14: HTTP 200, 90 cells. Sample: `"463"` (Unutilised borrowing
+facility in billions (NOK), Business, 2026-09-11). More than 2000 cells
+is refused, not truncated.
+
+**Surprises.**
+- lastN=1 on `GOVT_KEYFIGURES` already returns 846 cells; lastN=5 is the
+  same 846, so the extra periods are empty rather than a wider dump.
+- `CBC_TRANSACTIONS` keeps ISIN as a dimension, not a measure. The
+  calendar (`CBC_CALENDAR`) still prints ISINs as both and stays unverified.
+
+**Open question for the query side.** Wide flows still need a printed
+series-key select. `LENDINGSURVEY` 404s as before.
+
+Proof: `data/norgesbank_settlement_proof.json`.
+
+
 
 
 

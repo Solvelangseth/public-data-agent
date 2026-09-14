@@ -23,6 +23,9 @@ from public_data_agent.sources.norgesbank import (
 ANN_KPRA_URL = "https://data.norges-bank.no/api/data/ANN_KPRA?format=sdmx-json"
 EXR_URL = "https://data.norges-bank.no/api/data/EXR?format=sdmx-json"
 IR_URL = "https://data.norges-bank.no/api/data/IR?format=sdmx-json"
+SETTLEMENT_URL = (
+    "https://data.norges-bank.no/api/data/SETTLEMENT_STATISTICS?format=sdmx-json"
+)
 CBC_CALENDAR_URL = "https://data.norges-bank.no/api/data/CBC_CALENDAR?format=sdmx-json"
 MONEY_MARKET_URL = "https://data.norges-bank.no/api/data/MONEY_MARKET?format=sdmx-json"
 DATASET_ID = "norgesbank:ANN_KPRA"
@@ -257,9 +260,11 @@ def test_observation_flows_classify_as_observations() -> None:
     assert is_norgesbank_observations_url(ANN_KPRA_URL)
     assert is_norgesbank_observations_url(EXR_URL)
     assert is_norgesbank_observations_url(IR_URL)
+    assert is_norgesbank_observations_url(SETTLEMENT_URL)
     assert classify_access_path(ANN_KPRA_URL)["kind"] == "observations"
     assert classify_access_path(EXR_URL)["kind"] == "observations"
     assert classify_access_path(IR_URL)["kind"] == "observations"
+    assert classify_access_path(SETTLEMENT_URL)["kind"] == "observations"
 
 
 def test_calendars_and_wide_dumps_stay_unverified() -> None:
