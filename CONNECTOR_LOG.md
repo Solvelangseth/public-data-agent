@@ -2599,6 +2599,17 @@ Live: `ssbtable:08039` kommune `0301` year 2024 measure `Bedrifter` → HTTP
 
 Proof: `data/subject_fetch_proof.json`.
 
+## gold — dairy, naturvern, Oslo, Norges Bank — 2026-09-14
+
+`fetchable_gold.json` / `answerable_questions.json` grew from 88 to 100
+questions (a089–a100). Held-out h023/h041 dairy expected widened to all
+2013–2025 meieri year-cards of the same series. Ranking was not changed.
+
+Lexical recall@5 on the 12 new questions: 8/12. Held-out milk and
+naturvern all hit.
+
+Proof: `data/gold_oslo_norgesbank_proof.json`.
+
 
 
 

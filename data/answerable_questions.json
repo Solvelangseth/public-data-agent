@@ -528,6 +528,78 @@
       "query": "hvor mange representanter har hvert parti på Stortinget",
       "topic": "government",
       "style": "natural"
+    },
+    {
+      "id": "a089",
+      "query": "melkeproduksjon",
+      "topic": "primary",
+      "style": "keyword"
+    },
+    {
+      "id": "a090",
+      "query": "hvor mye melk leveres til meieri",
+      "topic": "primary",
+      "style": "natural"
+    },
+    {
+      "id": "a091",
+      "query": "naturvernområder",
+      "topic": "environment",
+      "style": "keyword"
+    },
+    {
+      "id": "a092",
+      "query": "hvor mange naturvernområder er det i Norge",
+      "topic": "environment",
+      "style": "natural"
+    },
+    {
+      "id": "a093",
+      "query": "folkemengden i Oslo",
+      "topic": "population",
+      "style": "keyword"
+    },
+    {
+      "id": "a094",
+      "query": "hvor mange bodde det i Oslo i 1801",
+      "topic": "population",
+      "style": "natural"
+    },
+    {
+      "id": "a095",
+      "query": "oslo bydel folkemengde",
+      "topic": "population",
+      "style": "keyword"
+    },
+    {
+      "id": "a096",
+      "query": "hvor mange bor i bydelene i Oslo",
+      "topic": "population",
+      "style": "natural"
+    },
+    {
+      "id": "a097",
+      "query": "styringsrente",
+      "topic": "finance",
+      "style": "keyword"
+    },
+    {
+      "id": "a098",
+      "query": "hva er styringsrenten",
+      "topic": "finance",
+      "style": "natural"
+    },
+    {
+      "id": "a099",
+      "query": "valutakurser",
+      "topic": "finance",
+      "style": "keyword"
+    },
+    {
+      "id": "a100",
+      "query": "hva er dollarkursen",
+      "topic": "finance",
+      "style": "natural"
     }
   ]
 }

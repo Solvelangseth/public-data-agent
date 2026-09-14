@@ -1,8 +1,9 @@
 """One entry point for finding data that can answer a question.
 
 Everything here is a measured choice against `data/fetchable_gold.json`, whose
-labels say which table actually answers each of 88 questions. The progression,
-recall@5 then MRR:
+labels say which table actually answers each of 100 questions (88 plus 12
+added 2026-09-14 for dairy, nature-protection areas, Oslo statbank, and
+Norges Bank). The progression below is the original 88, recall@5 then MRR:
 
     lexical alone            0.442   0.327
     + semantic ranking       0.709   0.577

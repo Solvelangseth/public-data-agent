@@ -1145,3 +1145,24 @@ which is right, and keeps `kollektivtransport` (`transport`, 14 titles) and `kon
 (`bo`, 1). But it equally refuses `sykepleiere` (`e`, 0), `vindkraftselskap`
 (`kraftselskap`, 0) and `konkursdebitor` (`debitor`, 0), which are the right words. The guard
 tracks whether a tail happens to be published, not whether the match is good.
+
+## Fetchable gold grew by 12 questions (dairy, nature areas, Oslo, Norges Bank)
+
+`data/fetchable_gold.json` was 88 questions. a089–a100 add dairy deliveries,
+nature-protection areas, Oslo kommune statbank population, and Norges Bank
+policy rate / exchange rates. Labels from published titles; 2025 dairy litres,
+naturvern features, Oslo BEF008, and Norges Bank IR/EXR were confirmed by live
+fetches. Dairy expected is every year-card of the same series (2013–2025), not
+only 2025.
+
+Held-out h023/h041 were widened the same way. That is a label correction from
+titles, not a ranking change. Scored held-out questions stay 42.
+
+Lexical `retrieval.find` on the 12 new questions, 2026-09-14: **8/12 = 0.667**
+recall@5. Hits: milk (both), naturvern (both), `folkemengden i Oslo`,
+styringsrente (both), valutakurser. Misses: Oslo 1801, Oslo bydel (keyword and
+natural), dollarkursen. Held-out h022/h023/h041 all hit after the dairy widen
+(h023 rank 2 on the 2022 year-card).
+
+The original 88-question 0.860 figure is not remeasured here. Comparing 0.860
+to a 100-question run would mix two instruments.

@@ -1,5 +1,5 @@
 {
-  "note": "Gold answers for the fetchable lane: for each question, table(s) that genuinely answer it. Unlike data/benchmark_questions.json, which scores ranking against Data.norge catalogue records, this scores whether the right *retrievable* resource is found -- the v1 goal. Candidates were pooled from every retrieval method (search_report, semantic, resource index) and then checked against the registry directly, so the labels are not bounded by what any one retriever surfaced; several answers here were found by searching titles after every retriever missed them. `expected` lists ids judged to answer the question; any one of them counts as a hit. `expected: []` means the registry holds no table that answers it -- a coverage finding, not a retrieval failure, and those questions are excluded from recall. Labels are author-judged from table titles, which is the main limitation: a title can mislead, and no cell was fetched to confirm. Labels for agriculture, fisheries, forestry and foreign trade were widened after an audit: the originals named niche cuts (organic-only, Sami-only, salmon export) while the plain subject tables were left out, so correct retrievals scored as misses. Widened because those tables answer the question, not because a retriever returned them -- the distinction matters, since adopting whatever was returned would make the benchmark circular.",
+  "note": "Gold answers for the fetchable lane: for each question, table(s) that genuinely answer it. Unlike data/benchmark_questions.json, which scores ranking against Data.norge catalogue records, this scores whether the right *retrievable* resource is found -- the v1 goal. Candidates were pooled from every retrieval method (search_report, semantic, resource index) and then checked against the registry directly, so the labels are not bounded by what any one retriever surfaced; several answers here were found by searching titles after every retriever missed them. `expected` lists ids judged to answer the question; any one of them counts as a hit. `expected: []` means the registry holds no table that answers it -- a coverage finding, not a retrieval failure, and those questions are excluded from recall. Labels are author-judged from table titles, which is the main limitation: a title can mislead, and no cell was fetched to confirm. Labels for agriculture, fisheries, forestry and foreign trade were widened after an audit: the originals named niche cuts (organic-only, Sami-only, salmon export) while the plain subject tables were left out, so correct retrievals scored as misses. Widened because those tables answer the question, not because a retriever returned them -- the distinction matters, since adopting whatever was returned would make the benchmark circular. ADDED 2026-09-14: a089–a099 cover dairy deliveries, nature-protection areas, Oslo kommune statbank population, and Norges Bank policy rate / exchange rates. Labels from published titles; dairy 2025, Oslo BEF008, Norges Bank IR/EXR, and naturvern layer were confirmed by live fetches. Dairy expected lists every year-card of the same Landbruksdirektoratet series (2013–2025), not only 2025 — each answers national milk delivered to dairies. Oslo questions name the Oslo statbank series, not SSB kommunetabeller that also contain Oslo as a region.",
   "questions": [
     {
       "id": "a001",
@@ -819,6 +819,118 @@
       "expected": [
         "ssbtable:01182",
         "ssbtable:09494"
+      ]
+    },
+    {
+      "id": "a089",
+      "query": "melkeproduksjon",
+      "expected": [
+        "datanorge:75955ffb-cafa-3035-a961-27534dfe2bce",
+        "datanorge:62bf5f95-9a85-333d-8804-df907ac7002e",
+        "datanorge:f01d3ba1-e889-37a6-9df8-fde185417c64",
+        "datanorge:26977a7c-07aa-3b46-8199-f2e2a14bab98",
+        "datanorge:8d8b5edb-c55f-3726-9ca6-89a4d1d103b3",
+        "datanorge:f944489c-0c96-3029-bcd9-a8d27c1ace58",
+        "datanorge:3d290166-aa08-3e88-b908-7fc2d9f8833a",
+        "datanorge:7d5387a3-acdc-39b3-b1d6-85705af8b21d",
+        "datanorge:3e6dea6e-f564-3407-831f-bc22589348e9",
+        "datanorge:11eb14ed-5bb4-3560-95c7-44dc3e277fb9",
+        "datanorge:0e4d84e5-7a44-3d7c-afb4-2b5cb21b8907",
+        "datanorge:abbac183-69c4-3ae3-868d-7dac1b5d1d7f",
+        "datanorge:ab9ed61d-0e4a-38d8-8fe1-5f47a02b9433"
+      ]
+    },
+    {
+      "id": "a090",
+      "query": "hvor mye melk leveres til meieri",
+      "expected": [
+        "datanorge:75955ffb-cafa-3035-a961-27534dfe2bce",
+        "datanorge:62bf5f95-9a85-333d-8804-df907ac7002e",
+        "datanorge:f01d3ba1-e889-37a6-9df8-fde185417c64",
+        "datanorge:26977a7c-07aa-3b46-8199-f2e2a14bab98",
+        "datanorge:8d8b5edb-c55f-3726-9ca6-89a4d1d103b3",
+        "datanorge:f944489c-0c96-3029-bcd9-a8d27c1ace58",
+        "datanorge:3d290166-aa08-3e88-b908-7fc2d9f8833a",
+        "datanorge:7d5387a3-acdc-39b3-b1d6-85705af8b21d",
+        "datanorge:3e6dea6e-f564-3407-831f-bc22589348e9",
+        "datanorge:11eb14ed-5bb4-3560-95c7-44dc3e277fb9",
+        "datanorge:0e4d84e5-7a44-3d7c-afb4-2b5cb21b8907",
+        "datanorge:abbac183-69c4-3ae3-868d-7dac1b5d1d7f",
+        "datanorge:ab9ed61d-0e4a-38d8-8fe1-5f47a02b9433"
+      ]
+    },
+    {
+      "id": "a091",
+      "query": "naturvernområder",
+      "expected": [
+        "naturvern:naturvern_omrade"
+      ]
+    },
+    {
+      "id": "a092",
+      "query": "hvor mange naturvernområder er det i Norge",
+      "expected": [
+        "naturvern:naturvern_omrade"
+      ]
+    },
+    {
+      "id": "a093",
+      "query": "folkemengden i Oslo",
+      "expected": [
+        "oslo:OK-BEF008.px"
+      ]
+    },
+    {
+      "id": "a094",
+      "query": "hvor mange bodde det i Oslo i 1801",
+      "expected": [
+        "oslo:OK-BEF008.px"
+      ]
+    },
+    {
+      "id": "a095",
+      "query": "oslo bydel folkemengde",
+      "expected": [
+        "oslo:OK-BEF005.px",
+        "oslo:OK-BEF004.px"
+      ]
+    },
+    {
+      "id": "a096",
+      "query": "hvor mange bor i bydelene i Oslo",
+      "expected": [
+        "oslo:OK-BEF005.px",
+        "oslo:OK-BEF004.px"
+      ]
+    },
+    {
+      "id": "a097",
+      "query": "styringsrente",
+      "expected": [
+        "norgesbank:IR",
+        "norgesbank:ANN_KPRA"
+      ]
+    },
+    {
+      "id": "a098",
+      "query": "hva er styringsrenten",
+      "expected": [
+        "norgesbank:IR",
+        "norgesbank:ANN_KPRA"
+      ]
+    },
+    {
+      "id": "a099",
+      "query": "valutakurser",
+      "expected": [
+        "norgesbank:EXR"
+      ]
+    },
+    {
+      "id": "a100",
+      "query": "hva er dollarkursen",
+      "expected": [
+        "norgesbank:EXR"
       ]
     }
   ]

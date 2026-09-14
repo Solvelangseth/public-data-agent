@@ -1,5 +1,5 @@
 {
-  "note": "HELD-OUT gold labels for data/heldout_questions.json. Same method as data/fetchable_gold.json: candidates pooled from every retriever, then checked against the registry directly, so labels are not bounded by what any one method surfaced. `expected: []` means the registry holds nothing that answers the question -- a coverage finding, excluded from recall. This set exists to be measured ONCE. The other set produced the routing rule and was then scored on it, so its number is optimistic by construction; this one is not. If it is ever used to choose or tune anything it stops being held out. Same limitation as the other: labels are author-judged from titles, and no cell was fetched to confirm. LABELS CORRECTED ONCE, after an audit of all 35 scored questions (not only the misses): four named a worse table than one that plainly answers the question -- cancer *deaths* for 'hvor mange får kreft', ownership status for 'hvor mange leier boligen sin'. Corrected on merit from titles. This is a change to the instrument after seeing results, so both the before and after numbers are recorded in GAPS.md. CORRECTED AGAIN 2026-09-09: h009 and h040 were recorded as having no answer in the registry. They do -- as *measures inside* tables rather than in any title. 11787 publishes 'Mengde kommunalt vann til husholdninger' and 08120/07371 publish 'Driftsresultat' and 'Driftsmargin'. The labels were written from titles, which is the systematic flaw in this set. This correction moves two questions from excluded to scored-and-failing, so it lowers the number rather than raising it. CORRECTED AGAIN 2026-09-11: h018 and h024 were recorded as having no answer in the registry. Both now have one, and both were verified by live one-cell fetches from the crawler lane rather than judged from a title -- ssbtable:08507 'Lufttransport. Passasjerar' returned 2,737,712 passengers for Oslo Gardermoen in 2026M07, and fdirpx:A06002a 'Matfisk. Salg av laks' returned 1,754,557 tonnes for 2025. The original labels were not wrong when written: 08507 was in the registry but unverified, and the Fiskeridirektoratet connector did not exist. This correction moves two questions from excluded to scored, so it can only lower the reported number, never raise it. Scored questions: 37 -> 39. CORRECTED AGAIN 2026-09-13: h023 and h041 (`melkeproduksjon`, `hvor mye melk produseres i Norge`) were recorded as having no answer. The Data.norge year cards already pointed at Landbruksdirektoratet's dairy-delivery CSVs; they were not fetchable. A live GET of `datanorge:ab9ed61d-0e4a-38d8-8fe1-5f47a02b9433` (2025) returned 1,528,922,792 litres of cow milk and 17,649,873 litres of goat milk delivered to dairies. This correction moves two questions from excluded to scored. Scored questions: 39 -> 41. CORRECTED AGAIN 2026-09-13: h022 (`naturvernområder`) was recorded as having no answer. The Data.norge card pointed at a Geonorge metadata page. The ArcGIS REST layer `naturvern:naturvern_omrade` returned live features (e.g. VV00003155 Blåfjell naturreservat) without the 61 MB national zip. Scored questions: 41 -> 42.",
+  "note": "HELD-OUT gold labels for data/heldout_questions.json. Same method as data/fetchable_gold.json: candidates pooled from every retriever, then checked against the registry directly, so labels are not bounded by what any one method surfaced. `expected: []` means the registry holds nothing that answers the question -- a coverage finding, excluded from recall. This set exists to be measured ONCE. The other set produced the routing rule and was then scored on it, so its number is optimistic by construction; this one is not. If it is ever used to choose or tune anything it stops being held out. Same limitation as the other: labels are author-judged from titles, and no cell was fetched to confirm. LABELS CORRECTED ONCE, after an audit of all 35 scored questions (not only the misses): four named a worse table than one that plainly answers the question -- cancer *deaths* for 'hvor mange får kreft', ownership status for 'hvor mange leier boligen sin'. Corrected on merit from titles. This is a change to the instrument after seeing results, so both the before and after numbers are recorded in GAPS.md. CORRECTED AGAIN 2026-09-09: h009 and h040 were recorded as having no answer in the registry. They do -- as *measures inside* tables rather than in any title. 11787 publishes 'Mengde kommunalt vann til husholdninger' and 08120/07371 publish 'Driftsresultat' and 'Driftsmargin'. The labels were written from titles, which is the systematic flaw in this set. This correction moves two questions from excluded to scored-and-failing, so it lowers the number rather than raising it. CORRECTED AGAIN 2026-09-11: h018 and h024 were recorded as having no answer in the registry. Both now have one, and both were verified by live one-cell fetches from the crawler lane rather than judged from a title -- ssbtable:08507 'Lufttransport. Passasjerar' returned 2,737,712 passengers for Oslo Gardermoen in 2026M07, and fdirpx:A06002a 'Matfisk. Salg av laks' returned 1,754,557 tonnes for 2025. The original labels were not wrong when written: 08507 was in the registry but unverified, and the Fiskeridirektoratet connector did not exist. This correction moves two questions from excluded to scored, so it can only lower the reported number, never raise it. Scored questions: 37 -> 39. CORRECTED AGAIN 2026-09-13: h023 and h041 (`melkeproduksjon`, `hvor mye melk produseres i Norge`) were recorded as having no answer. The Data.norge year cards already pointed at Landbruksdirektoratet's dairy-delivery CSVs; they were not fetchable. A live GET of `datanorge:ab9ed61d-0e4a-38d8-8fe1-5f47a02b9433` (2025) returned 1,528,922,792 litres of cow milk and 17,649,873 litres of goat milk delivered to dairies. This correction moves two questions from excluded to scored. Scored questions: 39 -> 41. CORRECTED AGAIN 2026-09-13: h022 (`naturvernområder`) was recorded as having no answer. The Data.norge card pointed at a Geonorge metadata page. The ArcGIS REST layer `naturvern:naturvern_omrade` returned live features (e.g. VV00003155 Blåfjell naturreservat) without the 61 MB national zip. Scored questions: 41 -> 42. CORRECTED AGAIN 2026-09-14: h023 and h041 named only the 2025 dairy-delivery card. Every year-card of the same Landbruksdirektoratet series (2013–2025) answers national milk delivered to dairies; expected was widened to that series. Titles, not retriever hits. Scored questions stay 42.",
   "questions": [
     {
       "id": "h001",
@@ -185,6 +185,18 @@
       "id": "h023",
       "query": "melkeproduksjon",
       "expected": [
+        "datanorge:75955ffb-cafa-3035-a961-27534dfe2bce",
+        "datanorge:62bf5f95-9a85-333d-8804-df907ac7002e",
+        "datanorge:f01d3ba1-e889-37a6-9df8-fde185417c64",
+        "datanorge:26977a7c-07aa-3b46-8199-f2e2a14bab98",
+        "datanorge:8d8b5edb-c55f-3726-9ca6-89a4d1d103b3",
+        "datanorge:f944489c-0c96-3029-bcd9-a8d27c1ace58",
+        "datanorge:3d290166-aa08-3e88-b908-7fc2d9f8833a",
+        "datanorge:7d5387a3-acdc-39b3-b1d6-85705af8b21d",
+        "datanorge:3e6dea6e-f564-3407-831f-bc22589348e9",
+        "datanorge:11eb14ed-5bb4-3560-95c7-44dc3e277fb9",
+        "datanorge:0e4d84e5-7a44-3d7c-afb4-2b5cb21b8907",
+        "datanorge:abbac183-69c4-3ae3-868d-7dac1b5d1d7f",
         "datanorge:ab9ed61d-0e4a-38d8-8fe1-5f47a02b9433"
       ]
     },
@@ -334,6 +346,18 @@
       "id": "h041",
       "query": "hvor mye melk produseres i Norge",
       "expected": [
+        "datanorge:75955ffb-cafa-3035-a961-27534dfe2bce",
+        "datanorge:62bf5f95-9a85-333d-8804-df907ac7002e",
+        "datanorge:f01d3ba1-e889-37a6-9df8-fde185417c64",
+        "datanorge:26977a7c-07aa-3b46-8199-f2e2a14bab98",
+        "datanorge:8d8b5edb-c55f-3726-9ca6-89a4d1d103b3",
+        "datanorge:f944489c-0c96-3029-bcd9-a8d27c1ace58",
+        "datanorge:3d290166-aa08-3e88-b908-7fc2d9f8833a",
+        "datanorge:7d5387a3-acdc-39b3-b1d6-85705af8b21d",
+        "datanorge:3e6dea6e-f564-3407-831f-bc22589348e9",
+        "datanorge:11eb14ed-5bb4-3560-95c7-44dc3e277fb9",
+        "datanorge:0e4d84e5-7a44-3d7c-afb4-2b5cb21b8907",
+        "datanorge:abbac183-69c4-3ae3-868d-7dac1b5d1d7f",
         "datanorge:ab9ed61d-0e4a-38d8-8fe1-5f47a02b9433"
       ]
     },
