@@ -79,6 +79,10 @@ class HarvestCounts:
     unchanged: int = 0
     failed: int = 0
     errors: list[dict[str, str]] = field(default_factory=list)
+    # Listed by the source but not harvested because they are endpoints an API
+    # exposes about itself -- health checks, status pages, OGC conformance --
+    # rather than data it publishes. Counted, not hidden.
+    ignored: int = 0
 
 
 class SourceError(Exception):

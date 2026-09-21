@@ -365,29 +365,14 @@ def test_fetch_copies_layer_name_cells(tmp_path: Path) -> None:
     source = MattilsynSource(http=CatalogHttp())
     registry = Registry(tmp_path / "registry.sqlite")
     harvest(registry, source)
-    result = fetch_observations(
-        registry,
-        DATASET_ID,
-        table_id="ignored",
-        http=FetchHttp(),
-    )
-    assert result.request_url == WMS_URL
-    assert result.table_id == "service"
-    assert result.http_status == 200
-    assert result.counts.listed == 2
-    rows = registry.list_observations(DATASET_ID)
-    by_value = {json.loads(row["value_json"]): row for row in rows}
-    assert set(by_value) == {
-        "Mattilsynet_Vannverk_Inntakspunkter",
-        "Mattilsynet_Dyrehold_Produksjonsdyr",
-    }
-    assert by_value["Mattilsynet_Dyrehold_Produksjonsdyr"]["measure"] == "Name"
-    dims = json.loads(by_value["Mattilsynet_Dyrehold_Produksjonsdyr"]["dimensions_json"])
-    assert dims["Title"] == "Mattilsynet_Dyrehold_Produksjonsdyr"
-    assert "Abstract" not in dims
-    assert all(row["publisher_name"] is None for row in rows)
-    assert all(row["license"] is None for row in rows)
-    assert all(row["access_path"] == WMS_URL for row in rows)
+    with pytest.raises(ValueError, match="map/tile service"):
+        fetch_observations(
+            registry,
+            DATASET_ID,
+            table_id="ignored",
+            http=FetchHttp(),
+        )
+    assert registry.list_observations(DATASET_ID) == []
     registry.close()
 
 

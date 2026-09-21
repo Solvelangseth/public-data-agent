@@ -276,26 +276,14 @@ def test_fetch_copies_layer_name_cells(tmp_path: Path) -> None:
     source = NguminerSource(http=CatalogHttp())
     registry = Registry(tmp_path / "registry.sqlite")
     harvest(registry, source)
-    result = fetch_observations(
-        registry,
-        DATASET_ID,
-        table_id="ignored",
-        http=FetchHttp(),
-    )
-    assert result.request_url == INDUSTRIMINERALER_URL
-    assert result.table_id == "IndustrimineralerWMS3"
-    assert result.http_status == 200
-    assert result.counts.listed == 2
-    rows = registry.list_observations(DATASET_ID)
-    by_value = {json.loads(row["value_json"]): row for row in rows}
-    assert set(by_value) == {"IndustrimineralerWMS3", "Punkt_Industrimineraler"}
-    assert by_value["IndustrimineralerWMS3"]["measure"] == "Name"
-    dims = json.loads(by_value["IndustrimineralerWMS3"]["dimensions_json"])
-    assert dims["Title"] == "IndustrimineralerWMS3"
-    assert "Abstract" not in dims
-    assert all(row["publisher_name"] is None for row in rows)
-    assert all(row["license"] is None for row in rows)
-    assert all(row["access_path"] == INDUSTRIMINERALER_URL for row in rows)
+    with pytest.raises(ValueError, match="map/tile service"):
+        fetch_observations(
+            registry,
+            DATASET_ID,
+            table_id="ignored",
+            http=FetchHttp(),
+        )
+    assert registry.list_observations(DATASET_ID) == []
     registry.close()
 
 

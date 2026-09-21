@@ -157,7 +157,8 @@ def test_harvest_writes_printed_id_and_license(tmp_path: Path) -> None:
     source = NowcastSource(http=CatalogHttp())
     registry = Registry(tmp_path / "registry.sqlite")
     counts = harvest(registry, source)
-    assert counts.inserted == 3
+    assert counts.inserted == 2
+    assert counts.ignored == 1
     row = registry.get_dataset(DATASET_ID)
     assert row is not None
     assert row["source_id"] == "nowcast"

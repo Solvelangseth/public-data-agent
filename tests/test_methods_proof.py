@@ -1208,16 +1208,14 @@ def _printed_stormflo_cells() -> dict[tuple[str, str, str], float]:
 
 
 def _stormflo_stored_rows() -> list[dict]:
-    if REGISTRY.exists():
-        from public_data_agent.registry import Registry
-
-        registry = Registry(REGISTRY)
-        try:
-            stored = registry.list_observations(STORMFLO_NATIONAL)
-        finally:
-            registry.close()
-        if stored:
-            return stored
+    # The committed store, not the live registry. The proof's printed cells were
+    # produced on 2026-08-28 alongside this store, so the two are one fetch.
+    # The live registry was re-fetched on 2026-09-14, after Kartverket revised
+    # 67 of the 168 cells (median 0.03%, at most 3.3%), and comparing a live
+    # store with an older proof fails on the publisher's revision rather than on
+    # the formula or lineage this test exists to check. A live comparison needs
+    # a proof from the same fetch; stormflo_national_proof.json carries only a
+    # sample, not all 168 printed cells.
     if not STORMFLO_STORE.is_file():
         pytest.skip("no stored stormflo:national.json rows")
     dump = json.loads(STORMFLO_STORE.read_text(encoding="utf-8"))

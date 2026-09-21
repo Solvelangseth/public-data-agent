@@ -197,7 +197,8 @@ def test_harvest_writes_printed_id_null_license_and_publisher(tmp_path: Path) ->
     source = ListerSource(http=CatalogHttp())
     registry = Registry(tmp_path / "registry.sqlite")
     counts = harvest(registry, source)
-    assert counts.inserted == 7
+    assert counts.inserted == 6
+    assert counts.ignored == 1
     row = registry.get_dataset(DATASET_ID)
     assert row is not None
     assert row["source_id"] == "lister"
@@ -205,8 +206,8 @@ def test_harvest_writes_printed_id_null_license_and_publisher(tmp_path: Path) ->
     assert row["access_path"] == NATURE_URL
     assert row["title"] == "odata/v1/NatureTypesAssessment2025"
     ping = registry.get_dataset("lister:test")
-    assert ping is not None
-    assert ping["title"] == "Ping"
+    # The API\'s own `test` endpoint is not a dataset; harvest sets it aside.
+    assert ping is None
     assert row["publisher_name"] is None
     assert row["license"] is None
     assert not str(row["id"]).startswith("datanorge:")

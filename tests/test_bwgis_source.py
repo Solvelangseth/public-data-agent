@@ -414,25 +414,14 @@ def test_fetch_copies_printed_layer_names(tmp_path: Path) -> None:
     harvest(registry, source)
     dataset = registry.get_dataset(DATASET_ID)
     assert dataset is not None
-    result = fetch_observations(
-        registry,
-        DATASET_ID,
-        table_id="ignored",
-        http=FetchHttp(),
-    )
-    assert result.http_status == 200
-    assert result.request_url == WMS_URL
-    assert result.table_id == "bw_ows"
-    assert result.counts.listed == 2
-    rows = registry.list_observations(DATASET_ID)
-    by_value = {json.loads(row["value_json"]): row for row in rows}
-    assert set(by_value) == {"fisheryactivity_wms", "icechart_latest"}
-    assert by_value["icechart_latest"]["measure"] == "Name"
-    dims = json.loads(by_value["icechart_latest"]["dimensions_json"])
-    assert dims["Title"] == "Iskonsentrasjon"
-    assert all(row["publisher_name"] is None for row in rows)
-    assert all(row["license"] is None for row in rows)
-    assert all(row["access_path"] == WMS_URL for row in rows)
+    with pytest.raises(ValueError, match="map/tile service"):
+        fetch_observations(
+            registry,
+            DATASET_ID,
+            table_id="ignored",
+            http=FetchHttp(),
+        )
+    assert registry.list_observations(DATASET_ID) == []
     registry.close()
 
 

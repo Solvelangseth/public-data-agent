@@ -144,7 +144,8 @@ def test_harvest_writes_printed_id_null_license_and_publisher(tmp_path: Path) ->
     source = HicoveragesSource(http=CatalogHttp())
     registry = Registry(tmp_path / "registry.sqlite")
     counts = harvest(registry, source)
-    assert counts.inserted == 2
+    assert counts.inserted == 1
+    assert counts.ignored == 1
     row = registry.get_dataset(DATASET_ID)
     assert row is not None
     assert row["source_id"] == "hicoverages"
@@ -152,8 +153,8 @@ def test_harvest_writes_printed_id_null_license_and_publisher(tmp_path: Path) ->
     assert row["access_path"] == COLLECTIONS_URL
     assert row["title"] == "collections"
     conformance = registry.get_dataset("hicoverages:conformance")
-    assert conformance is not None
-    assert conformance["access_path"] == CONFORMANCE_URL
+    # The API\'s own OGC conformance declaration is not a dataset; harvest sets it aside.
+    assert conformance is None
     assert row["publisher_name"] is None
     assert row["license"] is None
     assert not str(row["id"]).startswith("datanorge:")

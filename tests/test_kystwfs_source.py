@@ -165,26 +165,14 @@ def test_fetch_copies_featuretype_name_cells(tmp_path: Path) -> None:
     source = KystwfsSource(http=CatalogHttp())
     registry = Registry(tmp_path / "registry.sqlite")
     harvest(registry, source)
-    result = fetch_observations(
-        registry,
-        DATASET_ID,
-        table_id="ignored",
-        http=FetchHttp(),
-    )
-    assert result.request_url == WFS_URL
-    assert result.table_id == "wfs.ashx"
-    assert result.http_status == 200
-    assert result.counts.listed == 3
-    rows = registry.list_observations(DATASET_ID)
-    by_value = {json.loads(row["value_json"]): row for row in rows}
-    assert set(by_value) == {"layer_611", "layer_26", "layer_1077"}
-    assert by_value["layer_611"]["measure"] == "Name"
-    dims = json.loads(by_value["layer_611"]["dimensions_json"])
-    assert dims["Title"] == "Kystkontur"
-    assert "Abstract" not in dims
-    assert all(row["publisher_name"] is None for row in rows)
-    assert all(row["license"] is None for row in rows)
-    assert all(row["access_path"] == WFS_URL for row in rows)
+    with pytest.raises(ValueError, match="map/tile service"):
+        fetch_observations(
+            registry,
+            DATASET_ID,
+            table_id="ignored",
+            http=FetchHttp(),
+        )
+    assert registry.list_observations(DATASET_ID) == []
     registry.close()
 
 

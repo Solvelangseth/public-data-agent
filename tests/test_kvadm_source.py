@@ -232,26 +232,14 @@ def test_fetch_copies_layer_name_cells(tmp_path: Path) -> None:
     source = KvadmSource(http=CatalogHttp())
     registry = Registry(tmp_path / "registry.sqlite")
     harvest(registry, source)
-    result = fetch_observations(
-        registry,
-        DATASET_ID,
-        table_id="ignored",
-        http=FetchHttp(),
-    )
-    assert result.request_url == ADM_WMS_URL
-    assert result.table_id == "wms.adm_enheter2"
-    assert result.http_status == 200
-    assert result.counts.listed == 3
-    rows = registry.list_observations(DATASET_ID)
-    by_value = {json.loads(row["value_json"]): row for row in rows}
-    assert set(by_value) == {"adm_enheter_V2_WMS", "kommuner", "kommuner_gjel"}
-    assert by_value["kommuner"]["measure"] == "Name"
-    dims = json.loads(by_value["kommuner"]["dimensions_json"])
-    assert dims["Title"] == "Kommuner"
-    assert "Abstract" not in dims
-    assert all(row["publisher_name"] is None for row in rows)
-    assert all(row["license"] is None for row in rows)
-    assert all(row["access_path"] == ADM_WMS_URL for row in rows)
+    with pytest.raises(ValueError, match="map/tile service"):
+        fetch_observations(
+            registry,
+            DATASET_ID,
+            table_id="ignored",
+            http=FetchHttp(),
+        )
+    assert registry.list_observations(DATASET_ID) == []
     registry.close()
 
 

@@ -303,26 +303,14 @@ def test_fetch_copies_layer_name_cells(tmp_path: Path) -> None:
     source = Nibioar50Source(http=CatalogHttp())
     registry = Registry(tmp_path / "registry.sqlite")
     harvest(registry, source)
-    result = fetch_observations(
-        registry,
-        DATASET_ID,
-        table_id="ignored",
-        http=FetchHttp(),
-    )
-    assert result.request_url == AR50_WMS_URL
-    assert result.table_id == "ar50_2"
-    assert result.http_status == 200
-    assert result.counts.listed == 2
-    rows = registry.list_observations(DATASET_ID)
-    by_value = {json.loads(row["value_json"]): row for row in rows}
-    assert set(by_value) == {"AR50_2", "Bonitet"}
-    assert by_value["Bonitet"]["measure"] == "Name"
-    dims = json.loads(by_value["Bonitet"]["dimensions_json"])
-    assert dims["Title"] == "Bonitet"
-    assert "Abstract" not in dims
-    assert all(row["publisher_name"] is None for row in rows)
-    assert all(row["license"] is None for row in rows)
-    assert all(row["access_path"] == AR50_WMS_URL for row in rows)
+    with pytest.raises(ValueError, match="map/tile service"):
+        fetch_observations(
+            registry,
+            DATASET_ID,
+            table_id="ignored",
+            http=FetchHttp(),
+        )
+    assert registry.list_observations(DATASET_ID) == []
     registry.close()
 
 

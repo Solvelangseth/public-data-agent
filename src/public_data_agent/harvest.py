@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from urllib.parse import urlsplit
+
 import sys
 from collections.abc import Callable
 from typing import TextIO
@@ -10,6 +12,21 @@ from public_data_agent.registry import Registry, utc_now
 from public_data_agent.sources.base import CatalogSource
 
 ProgressFn = Callable[[str], None]
+
+
+# Final path segments that name an API's own plumbing, not a dataset. Harvesting
+# every path of an API spec catalogued 46 of these as datasets -- 30 `healthz`
+# endpoints across api.met.no alone, plus `status`, `ping`, `test` and OGC
+# `conformance` declarations. Against the 15,492-row registry these five
+# segments matched those 46 rows and nothing else, so the filter is exact on
+# the data it was measured against. It is checked on the native URI only; a
+# dataset merely *titled* "Test" is left alone.
+SERVICE_ENDPOINT_SEGMENTS = frozenset({"healthz", "ping", "status", "test", "conformance"})
+
+
+def is_service_endpoint(uri: str | None) -> bool:
+    path = urlsplit(uri or "").path.rstrip("/")
+    return path.rsplit("/", 1)[-1].casefold() in SERVICE_ENDPOINT_SEGMENTS
 
 
 def harvest(
@@ -43,6 +60,9 @@ def harvest(
     try:
         refs = source.list_dataset_refs(limit=limit, offset=offset)
         counts.listed = len(refs)
+        kept = [ref for ref in refs if not is_service_endpoint(ref.source_native_uri)]
+        counts.ignored = len(refs) - len(kept)
+        refs = kept
         to_fetch, skipped = _split_unchanged(registry, source.source_id, refs, refresh_all)
         now = utc_now()
         for ref in skipped:
@@ -51,7 +71,8 @@ def harvest(
         registry.checkpoint_run(run_id, counts)
         log(
             f"listed {counts.listed}: fetch {len(to_fetch)}, "
-            f"skip unchanged {len(skipped)}, batch {chunk}"
+            f"skip unchanged {len(skipped)}, ignore service endpoints {counts.ignored}, "
+            f"batch {chunk}"
         )
 
         done = 0

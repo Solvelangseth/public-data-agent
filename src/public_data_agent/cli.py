@@ -405,6 +405,7 @@ def _ingest(args: argparse.Namespace) -> int:
                 "db": str(args.db),
                 "source": args.source,
                 "listed": counts.listed,
+                "ignored": counts.ignored,
                 "inserted": counts.inserted,
                 "updated": counts.updated,
                 "unchanged": counts.unchanged,
