@@ -2637,3 +2637,44 @@ Proof: `data/gold_oslo_norgesbank_proof.json`.
 
 
 
+
+## source audit, broad harvest, plumbing removal — 2026-09-21
+
+Of 188 registered sources, 174 had never been harvested. A no-write
+pilot listed 173 of them: 168 answered, 436 sample refs, 35% of samples
+carried a licence. Two endpoint collisions, both brreg.
+
+The harvest on 2026-09-12 completed for 167 sources and inserted 1,033
+datasets. That total includes ssbvar's 10, from a slow retry with a
+420 s timeout. hiwms failed (run 67, closed). npolar, sodir, trondheim,
+valg and brreg were left out. The registry's `harvest_runs` table is
+the record; the scratchpad jsonl files no longer exist.
+
+Harvest now ignores refs whose last path segment is healthz, ping,
+status, test or conformance (`HarvestCounts.ignored`). The rule matched
+46 registry rows: 30 healthz, 6 conformance, 5 status, 3 test, 2 ping.
+None had capability, records, observations, fetch runs or embeddings.
+The rule matched nothing else. The rows were removed from `datasets`,
+`harvested_payloads` and `search_index`. Backup:
+`data/removed_service_endpoints_2026-09-21.json.gz`. The registry has
+15,446 datasets. The datanorge dataset titled "Test" is a real dataset
+and is kept, because its URI does not end in a plumbing segment.
+
+The suite had been red (23 failures) after the 09-13/14 commits:
+- 22 map-service fetch tests now follow c006815's refusal template;
+- the stormflo proof reads its committed store, because Kartverket
+  revised 67 of 168 cells (median 0.03%, max 3.3%) between 2026-08-28
+  and 2026-09-14.
+
+2153 tests pass.
+
+Fresh baseline at 60e62e2, full stack (text-embedding-3-small, OpenAI
+rewriting, reranking), measured before the removal:
+
+| set | scored | recall@5 | MRR |
+|---|---|---|---|
+| held-out | 42 | 0.905 | 0.761 |
+| tuned | 98 | 0.847 | 0.733 |
+
+Benchmark: 0.877 / 0.939, MRR 0.821. The removed rows are not in any
+gold set.

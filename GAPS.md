@@ -1166,3 +1166,11 @@ natural), dollarkursen. Held-out h022/h023/h041 all hit after the dairy widen
 
 The original 88-question 0.860 figure is not remeasured here. Comparing 0.860
 to a 100-question run would mix two instruments.
+
+## Sources never harvested, and one run stuck as "running"
+
+The 2026-09-12 broad harvest left out npolar, sodir, trondheim, valg
+and brreg, and hiwms failed. Each needs its own look at timeouts,
+paging and endpoint collisions; brreg shares endpoints with other
+sources. fdirpx run 16, started 2026-09-10, is still marked
+`running`. It was not closed, pending a decision about Codex's crawl.
