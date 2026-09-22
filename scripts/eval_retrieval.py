@@ -25,6 +25,8 @@ from pathlib import Path
 SETS = {
     "held-out": ("data/heldout_gold.json", "data/heldout_questions.json"),
     "tuned": ("data/fetchable_gold.json", "data/answerable_questions.json"),
+    # Registry-derived, so never used to tune: see the set's own note.
+    "coverage": ("data/coverage_gold.json", "data/coverage_questions.json"),
 }
 
 

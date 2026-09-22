@@ -2701,3 +2701,31 @@ change was not investigated, since that set is not tuned on.
 
 `pda status` now reports `without_embedding`, so the next harvest's gap
 is visible. Run `pda embed` after harvesting.
+
+## coverage set for the harvested sources — 2026-09-21
+
+The 2026-09-12 harvest was a sample, not a full crawl: 168 sources
+stopped at 10 datasets each (`limit_applied` was not recorded, but 133
+sources hold exactly 10 and the rest hold fewer than 10). Of the 987
+datasets traceable to that run, 85 carry a fetch capability; most of
+the rest are code lists (målformer, organisasjonsformer,
+relasjonstyper).
+
+The new questions could not go in `answerable_questions.json`, whose
+note records that it was written without consulting the registry.
+Questions written *from* harvested resources would break that
+provenance and inflate the tuned score. They are a third set instead:
+`data/coverage_questions.json` and `data/coverage_gold.json`, 11
+questions, reachable as `eval_retrieval.py --set coverage`. Its note
+says it must never be used to tune a ranking parameter.
+
+Each expected id was read before its question was written: the stored
+observations or records, not the title. Siblings without a capability
+were left out (vindkraft:GetWindPowerPlantsInOperation,
+statnett:Frequency_ByMinute).
+
+Full stack: recall@5 1.000, MRR 0.652 (11 scored). Embeddings alone:
+0.636. c010 was corrected first: it listed only the Oslo and SSB birth
+tables and scored as a miss, while the semantic ranking's own top hits
+were fhi:mfr:412 and fhi:mfr:413, births by mother's residence, which
+answer it directly. The label was incomplete, not the retrieval.

@@ -1,0 +1,71 @@
+{
+  "note": "COVERAGE SET -- derived from the registry, unlike data/answerable_questions.json and data/heldout_questions.json, which were written blind. Each question was written after reading a resource the 2026-09-12 harvest added, to check that newly harvested fetchable resources can be reached at all. That provenance is the whole limitation: the set encodes what the system already holds, so its recall is not comparable to the other sets and says nothing about coverage of what a person would actually ask. It must never be used to choose or tune a ranking parameter -- use the tuned set for that, and the held-out set to check it. Written 2026-09-21.",
+  "questions": [
+    {
+      "id": "c001",
+      "query": "hvor fulle er vannmagasinene",
+      "topic": "energy",
+      "style": "natural"
+    },
+    {
+      "id": "c002",
+      "query": "magasinstatistikk fyllingsgrad",
+      "topic": "energy",
+      "style": "keyword"
+    },
+    {
+      "id": "c003",
+      "query": "hvor mange vindkraftverk er det i Norge",
+      "topic": "energy",
+      "style": "natural"
+    },
+    {
+      "id": "c004",
+      "query": "hva er frekvensen i strømnettet",
+      "topic": "energy",
+      "style": "natural"
+    },
+    {
+      "id": "c005",
+      "query": "elsertifikater utstedt",
+      "topic": "energy",
+      "style": "keyword"
+    },
+    {
+      "id": "c006",
+      "query": "hvor mange skip er i norske farvann akkurat nå",
+      "topic": "maritime",
+      "style": "natural"
+    },
+    {
+      "id": "c007",
+      "query": "akvakulturtillatelser",
+      "topic": "fisheries",
+      "style": "keyword"
+    },
+    {
+      "id": "c008",
+      "query": "hvem sitter på Stortinget nå",
+      "topic": "politics",
+      "style": "natural"
+    },
+    {
+      "id": "c009",
+      "query": "plantevernmidler godkjent for hobbybruk",
+      "topic": "agriculture",
+      "style": "keyword"
+    },
+    {
+      "id": "c010",
+      "query": "hvor mange barn ble født i Oslo",
+      "topic": "demography",
+      "style": "natural"
+    },
+    {
+      "id": "c011",
+      "query": "innvandrere etter bydel i Oslo",
+      "topic": "demography",
+      "style": "keyword"
+    }
+  ]
+}

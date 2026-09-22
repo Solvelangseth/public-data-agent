@@ -1,0 +1,77 @@
+{
+  "note": "Gold answers for the coverage set. Each expected id carries a `resource_capability` row, and for the newly harvested resources that row was verified against a sample (45 observations for the reservoir statistics, 168 records for today's members of parliament, and so on); the observations or records it stores were read before the question was written. Three ids carry a capability declared from published metadata with no verified sample count -- ssbtable:04231, ssbtable:05752 and oslo:OK-BEF025.px -- and are listed because a statistical table answers the same question as the harvested resource: 04231 is municipality-level births, 05752 is immigrants by Oslo district. Siblings without any capability were left out even where the title fits (vindkraft:GetWindPowerPlantsInOperation, statnett:Frequency_ByMinute). `expected` lists ids judged to answer; any one counts. Correction 2026-09-21: c010 first listed only the Oslo and SSB tables and scored as a miss, but the semantic ranking's own top hits were the medical birth registry's tables by mother's residence. fhi:mfr:412 (Fodte per ar, mors bosted og kjonn) and fhi:mfr:413 (Fodsler per ar, mors bosted) answer births in Oslo directly, so both were added; the label was incomplete, the retrieval was not.",
+  "questions": [
+    {
+      "id": "c001",
+      "expected": [
+        "nve:HentOffentligDataSisteUke"
+      ]
+    },
+    {
+      "id": "c002",
+      "expected": [
+        "nve:HentOffentligDataSisteUke",
+        "nve:HentOffentligDataMinMaxMedian"
+      ]
+    },
+    {
+      "id": "c003",
+      "expected": [
+        "vindkraft:GetWindPowerPlants"
+      ]
+    },
+    {
+      "id": "c004",
+      "expected": [
+        "statnett:Frequency_BySecond"
+      ]
+    },
+    {
+      "id": "c005",
+      "expected": [
+        "elcert:GetSummaryValues",
+        "elcert:GetSummaryValuesPerQuarter"
+      ]
+    },
+    {
+      "id": "c006",
+      "expected": [
+        "kystverket:api/ais/realtime/vessels-by-type"
+      ]
+    },
+    {
+      "id": "c007",
+      "expected": [
+        "aqua:licenses-overview"
+      ]
+    },
+    {
+      "id": "c008",
+      "expected": [
+        "stortinget:dagensrepresentanter"
+      ]
+    },
+    {
+      "id": "c009",
+      "expected": [
+        "mattilsynet:hobby_preparater"
+      ]
+    },
+    {
+      "id": "c010",
+      "expected": [
+        "oslo:OK-BEF010.px",
+        "ssbtable:04231",
+        "fhi:mfr:412",
+        "fhi:mfr:413"
+      ]
+    },
+    {
+      "id": "c011",
+      "expected": [
+        "oslo:OK-BEF025.px",
+        "ssbtable:05752"
+      ]
+    }
+  ]
+}
