@@ -1169,11 +1169,15 @@ to a 100-question run would mix two instruments.
 
 ## Sources never harvested, and one run stuck as "running"
 
-The 2026-09-12 broad harvest left out npolar, sodir, trondheim, valg
-and brreg, and hiwms failed. Each needs its own look at timeouts,
-paging and endpoint collisions; brreg shares endpoints with other
-sources. fdirpx run 16, started 2026-09-10, is still marked
-`running`. It was not closed, pending a decision about Codex's crawl.
+Resolved 2026-09-22: brreg, npolar, sodir, valg and hiwms are
+harvested (63 datasets); see CONNECTOR_LOG. trondheim is retired
+upstream and cannot be harvested at all. fdirpx run 16, started
+2026-09-10, is still marked `running`. It was not closed, pending a
+decision about Codex's crawl.
+
+What remains is depth, not reach: the 2026-09-12 harvest stopped at 10
+datasets per source, and today's five were capped at 25. valg needs
+about a minute per dataset, so a full walk of it is a long job.
 
 ## Question routing re-measured: semantic alone still wins (2026-09-21)
 

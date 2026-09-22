@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import time
 from typing import Any
 from urllib.parse import urlsplit
 
@@ -20,6 +21,9 @@ NPOLAR_RPS = 2.0
 NPOLAR_BURST = 4
 HOST = "api.npolar.no"
 NAME_FIELDS = ("name", "title", "native", "code", "id")
+# One backend behind this URL prints entries stripped of their ids.
+CATALOG_ATTEMPTS = 4
+CATALOG_RETRY_SECONDS = 1.0
 
 
 class NpolarSource(SourceBase):
@@ -104,17 +108,37 @@ class NpolarSource(SourceBase):
         )
 
     def _catalog(self) -> list[dict[str, Any]]:
+        """List the catalog, asking again when a backend answers without ids.
+
+        The same URL is served by more than one backend. Measured over eight
+        requests on 2026-09-21: five printed five services with `id` and
+        `path`, two printed the same five with `path` but no `id` (the
+        response's own `feed.list.self` carries `fields-remove=id,_id`), and
+        one printed nothing. An entry without an id cannot be addressed, and a
+        native id is never derived from a path -- the same service would then
+        land twice under two ids. So an empty parse is retried rather than
+        accepted, and only a run of them is an error.
+        """
+
         if self._listed is not None:
             return self._listed
-        try:
-            body = self.http.get_json(self.list_url)
-        except Exception as exc:
-            raise SourceError(f"NPI service list failed for {self.list_url}: {exc}") from exc
-        listed = printed_service_entries(body)
-        if not listed:
-            raise SourceError(f"NPI service list printed no services: {self.list_url}")
-        self._listed = listed
-        return listed
+        last = ""
+        for attempt in range(CATALOG_ATTEMPTS):
+            if attempt:
+                time.sleep(CATALOG_RETRY_SECONDS)
+            try:
+                body = self.http.get_json(self.list_url)
+            except Exception as exc:
+                raise SourceError(f"NPI service list failed for {self.list_url}: {exc}") from exc
+            listed = printed_service_entries(body)
+            if listed:
+                self._listed = listed
+                return listed
+            last = _catalog_shape(body)
+        raise SourceError(
+            f"NPI service list printed no addressable services in {CATALOG_ATTEMPTS} "
+            f"attempts: {self.list_url} ({last})"
+        )
 
     def _catalog_item(self, ref: DatasetRef) -> dict[str, Any]:
         for item in self._catalog():
@@ -146,6 +170,17 @@ def printed_service_entries(body: Any) -> list[dict[str, Any]]:
             continue
         listed.append(item)
     return listed
+
+
+def _catalog_shape(body: Any) -> str:
+    """Describe what a listing printed, for an error a reader can act on."""
+
+    feed = body.get("feed") if isinstance(body, dict) else None
+    entries = feed.get("entries") if isinstance(feed, dict) else None
+    if not isinstance(entries, list) or not entries:
+        return "no entries printed"
+    with_path = sum(1 for e in entries if isinstance(e, dict) and e.get("path"))
+    return f"{len(entries)} entries printed, {with_path} with a path, none with an id"
 
 
 def printed_service_id(item: dict[str, Any]) -> str:

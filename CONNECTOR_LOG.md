@@ -2729,3 +2729,47 @@ Full stack: recall@5 1.000, MRR 0.652 (11 scored). Embeddings alone:
 tables and scored as a miss, while the semantic ranking's own top hits
 were fhi:mfr:412 and fhi:mfr:413, births by mother's residence, which
 answer it directly. The label was incomplete, not the retrieval.
+
+## the six sources the broad harvest left out — 2026-09-22
+
+A no-write listing pilot ran first. Five of the six listed; only the
+`hiwms` failure of run 67 was a timeout, and it was not the limit that
+had been assumed.
+
+| source | listed | inserted | note |
+|---|---|---|---|
+| brreg | 6 | 5 (+1 updated) | no endpoint collision of its own |
+| npolar | 5 | 5 | needed the retry below |
+| sodir | 25 | 25 | ArcGIS FeatureServer layers |
+| valg | 18 | 18 | slow: about 20 minutes for 18 |
+| hiwms | 10 | 10 | WMS/WFS capabilities endpoints |
+| trondheim | — | — | retired upstream |
+
+63 datasets, then `pda embed` embedded 64 rows (the 63 plus one whose
+text had changed). The registry holds 15,509 datasets, all embedded.
+
+`npolar` listing is served by more than one backend. Measured over
+eight requests to the one URL: five printed five services with `id` and
+`path`, two printed them with `path` but no `id` (the response's own
+`feed.list.self` carries `fields-remove=id,_id`), one printed nothing.
+Every entry of a stripped response was dropped, so harvest failed with
+"printed no services" on roughly a third of runs. `_catalog` now asks
+again, up to four times, and an error names what was printed. A native
+id is not derived from a path: the same service would land twice under
+two ids.
+
+`brreg`'s own endpoint collides with nothing. The collision the pilot
+found is a shared `openapi.json` across frivillig, brroller,
+broppdater and brorgformen, which does not affect harvesting brreg.
+
+`trondheim` is retired, not broken. `data.trondheim.kommune.no` is a
+CNAME to `trondheim.datapress.io` whose custom hostname is gone: the
+TLS handshake fails (alert 40) for curl and OpenSSL as well as for us,
+plain HTTP answers 409, and DataPress itself answers 404 "There's no
+site at this address". The adapter is kept as written against the
+documented API, with the finding in its docstring. Three Trondheim
+kommune datasets reach the registry through data.norge meanwhile.
+
+Of the 64 new rows only brreg:enheter carries a fetch capability; the
+rest are catalogue records. sodir's layers and hiwms's capabilities
+endpoints are pointers, not data, and a fetch of them stays refused.

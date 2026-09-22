@@ -29,6 +29,14 @@ class TrondheimOpenDataSource(SourceBase):
     not invent ids. Native ids are the printed catalog `id` values. access_path
     is the printed `/api/v3/dataset/:id` URL the catalog documents. This first
     slice stays inside that list and caps the walk.
+
+    Retired upstream, checked 2026-09-21: `data.trondheim.kommune.no` is a
+    CNAME to `trondheim.datapress.io` whose custom hostname is gone. HTTPS
+    fails the TLS handshake (alert 40) for curl and OpenSSL alike, plain HTTP
+    answers 409, and the DataPress host itself answers 404 "There's no site at
+    this address". Nothing here is broken, so the adapter is kept as written
+    against the documented API in case the portal returns. Three Trondheim
+    kommune datasets reach the registry through data.norge meanwhile.
     """
 
     source_id = SOURCE_ID
