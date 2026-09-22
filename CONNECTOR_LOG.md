@@ -2678,3 +2678,26 @@ rewriting, reranking), measured before the removal:
 
 Benchmark: 0.877 / 0.939, MRR 0.821. The removed rows are not in any
 gold set.
+
+## embedding coverage — 2026-09-21
+
+1,702 of 15,446 datasets had no text-embedding-3-small vector: nvdb
+423, ssbtable 241, and every source harvested since the index was last
+built. A question-style query is ranked by embedding alone, so a
+dataset without a vector cannot be returned for a question. The
+answers to five tuned gold questions were among these rows: naturvern,
+Oslo 1801, the two Oslo district questions, and the dollar rate.
+
+`pda embed` embedded 1,755 rows (the 1,702 plus 53 whose text had
+changed). Full stack, before → after:
+
+| set | recall@5 | MRR |
+|---|---|---|
+| tuned | 0.847 → 0.898 | 0.733 → 0.769 |
+| held-out | 0.905 → 0.905 | 0.761 → 0.746 |
+
+The benchmark is unchanged (0.877 / 0.939, MRR 0.821). The held-out MRR
+change was not investigated, since that set is not tuned on.
+
+`pda status` now reports `without_embedding`, so the next harvest's gap
+is visible. Run `pda embed` after harvesting.

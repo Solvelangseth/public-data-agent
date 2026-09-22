@@ -1192,6 +1192,18 @@ class Registry:
             params = (model,)
         return int(self.conn.execute(sql, params).fetchone()["n"])
 
+    def count_without_embedding(self, model: str) -> int:
+        """Datasets with no vector under `model`.
+
+        A question is ranked by embedding alone, so such a dataset cannot be
+        found by one until `pda embed` runs.
+        """
+        return int(self.conn.execute(
+            "SELECT COUNT(*) AS n FROM datasets d WHERE NOT EXISTS "
+            "(SELECT 1 FROM embeddings e WHERE e.dataset_id = d.id AND e.model = ?)",
+            (model,),
+        ).fetchone()["n"])
+
     def embedded_hashes(self, model: str | None = None) -> dict[str, str]:
         """dataset_id -> text_hash already embedded, so re-embedding is incremental.
 

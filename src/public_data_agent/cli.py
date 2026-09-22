@@ -28,6 +28,8 @@ from public_data_agent.search import load_prompt_pack, run_search_pack, search_r
 from public_data_agent.sources import ADDITIONAL_SOURCE_IDS, SOURCE_IDS, build_source
 
 DEFAULT_DB = Path("data/registry.sqlite")
+# The model `pda embed` builds and retrieval ranks with by default.
+EMBEDDING_MODEL = "text-embedding-3-small"
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -76,7 +78,7 @@ def main(argv: list[str] | None = None) -> int:
 
     embed_cmd = sub.add_parser("embed", help="Build or refresh the embedding index used for ranking")
     embed_cmd.add_argument("--db", type=Path, default=DEFAULT_DB)
-    embed_cmd.add_argument("--model", default="text-embedding-3-small")
+    embed_cmd.add_argument("--model", default=EMBEDDING_MODEL)
     embed_cmd.add_argument("--limit", type=int, default=None, help="Max rows this run")
     embed_cmd.add_argument("--dimensions", type=int, default=None,
                            help="Shorten the vector (text-embedding-3-* only), to trade "
@@ -482,7 +484,15 @@ def _status(args: argparse.Namespace) -> int:
         runs = registry.list_runs()
         print(
             json.dumps(
-                {"db": str(args.db), "datasets": registry.dataset_count(), "harvest_runs": runs},
+                {
+                    "db": str(args.db),
+                    "datasets": registry.dataset_count(),
+                    # Unembedded datasets are invisible to question-style search.
+                    "without_embedding": {
+                        EMBEDDING_MODEL: registry.count_without_embedding(EMBEDDING_MODEL)
+                    },
+                    "harvest_runs": runs,
+                },
                 ensure_ascii=False,
                 indent=2,
             )
