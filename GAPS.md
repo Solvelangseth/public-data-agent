@@ -1174,3 +1174,25 @@ and brreg, and hiwms failed. Each needs its own look at timeouts,
 paging and endpoint collisions; brreg shares endpoints with other
 sources. fdirpx run 16, started 2026-09-10, is still marked
 `running`. It was not closed, pending a decision about Codex's crawl.
+
+## Question routing re-measured: semantic alone still wins (2026-09-21)
+
+Question-style queries are ranked by embedding alone (8a0fc89,
+2026-09-06). That was re-measured on the tuned set with complete
+embeddings, embedding plus lexical only (no rewriting or reranking).
+There are 49 question-style queries:
+
+| variant | recall@5 | MRR |
+|---|---|---|
+| A semantic only (current) | 0.816 | 0.750 |
+| B RRF fusion with lexical | 0.776 | 0.582 |
+| C semantic top 2, then lexical top 3 | 0.857 | 0.721 |
+
+B loses on 18 of the 23 questions whose rank changed, for example
+"avfall per innbygger" 1 → 18. C lifts two questions into the top 5
+(studenter 10 → 3, boliger bygget 7 → 2) but pushes four rank-1
+answers down. Both gains come from the set being tuned on, so C was not
+adopted. Subject queries are unaffected by all three variants.
+Remaining question misses are semantic: the table's title does not say
+what the question asks about. Examples: "gjennomsnittsalder" is a
+column of 07459; Norway's area is a row of 11342.
