@@ -1200,3 +1200,33 @@ adopted. Subject queries are unaffected by all three variants.
 Remaining question misses are semantic: the table's title does not say
 what the question asks about. Examples: "gjennomsnittsalder" is a
 column of 07459; Norway's area is a row of 11342.
+
+## The ten remaining tuned misses are not a value-index problem (2026-09-23)
+
+What is left after embedding coverage was fixed: ten questions whose
+answer is a column, a row or a value inside a table rather than its
+title. Examples: "gjennomsnittsalderen i Tromsø" is a column of 07459,
+Norway's area is a row of 11342, "sykepleier" is a value in 11418's
+occupation dimension.
+
+The value index records exactly this, and for 6 of the 10 the query's
+distinctive word is recorded as a value of the expected table at low
+document frequency: bruttonasjonalprodukt 0.2%, organisasjonsform
+0.4%, sykepleier 1.1%, studenter 1.6%, gjenvinning 1.7%, ansatte 2.2%.
+Three cannot work that way at all: "frafall" is never a value,
+"kvadratkilometer" is a unit rather than a value, and "tromsø" sits in
+6.6% of indexed resources, which is the common-value failure that sank
+the first attempt.
+
+Feeding those hits into the ranking was measured twice and lost twice;
+the numbers are in the comment in `retrieval.find`. Ranked on its own,
+the value index puts the expected table at rank 2 for two of the ten
+and at 6, 12, 14, 23 and 42 for the rest, so it is not a ranking of how
+well a resource answers -- it is a filter for what a resource holds.
+
+What these questions actually need is a match against a resource's
+*columns and units*, not its values: "gjennomsnittsalder" and "areal"
+are field labels, "kvadratkilometer" is a unit. `search_resources`
+weights a field label at 2 against a value label at 6. Whether
+promoting field-label and unit matches fixes these ten without
+disturbing the other 88 has not been measured.

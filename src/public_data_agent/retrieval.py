@@ -172,6 +172,20 @@ def find(
     # hundreds of resources, so lifting everything that holds one scrambles a
     # good ranking. `rank_within_coverage` is kept for a caller that wants a
     # coverage filter, which is a different question from relevance.
+    #
+    # Tried again 2026-09-23, this time interleaving `search_resources` (which
+    # weights a value by how few resources carry it) rather than lifting every
+    # coverer, since 6 of the 10 remaining tuned misses do record the query's
+    # rare word as a value. Measured worse again. Embeddings only, tuned set:
+    # recall@5 0.867 at every lead of 1-3, against 0.867, and MRR 0.741 -> 0.692.
+    # Full stack, placing the hits below the head at position 5 or 8 so they
+    # cannot displace a good answer and the reranker still sees them: recall@5
+    # 0.898 unchanged in both, MRR 0.769 -> 0.756 and 0.761, one question gained
+    # (bruttonasjonalprodukt, absent -> 3) and one lost (Oslo bydeler, 5 -> 7).
+    # A value match says a resource *holds* the thing, which does not order
+    # resources by how well they answer; that is what the title lane already
+    # measures. The value index stays where it pays, in `search_resources` and
+    # the coverage filter.
 
     cache: dict[str, str] = {}
     observations = [d for d in ranked if is_retrievable(_capability(registry, d, cache))]
