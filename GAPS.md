@@ -1230,3 +1230,62 @@ are field labels, "kvadratkilometer" is a unit. `search_resources`
 weights a field label at 2 against a value label at 6. Whether
 promoting field-label and unit matches fixes these ten without
 disturbing the other 88 has not been measured.
+
+## A second vector built from a resource's fields: gained on the tuned set, gained nothing held out (2026-09-23)
+
+The ten remaining tuned misses need a resource's *columns*, not its title:
+11342 is titled "Areal og befolkning i kommuner" and measures "Areal
+(km²)"; 11418 measures "Månedslønn (kr)" and offers "Gjennomsnitt".
+Re-weighting `search_resources` cannot help, because `find` does not
+call it -- the ranking is the title lane. So the field text was put
+into the embedding instead. Three designs, all measured on the tuned
+set with embeddings only, against 0.867 recall@5 / 0.741 MRR:
+
+| design | recall@5 | MRR |
+|---|---|---|
+| field text appended to the embedded text, narrow fields | 0.837 | 0.670 |
+| the same, measure field only, 300 chars | 0.806 | 0.686 |
+| a second vector, ranked by max(title, 0.90 x fields) | 0.888 | 0.750 |
+
+Appending loses because the added vocabulary dilutes the title the
+ranking depends on: 8 losses to 3 gains for the first, 7 losses to 0
+for the second. Keeping the two representations separate and merging by
+the stronger score does better, and the discount is what makes it work
+-- undiscounted, a resource merely listing the query's words outranks
+one about them:
+
+| discount | recall@5 | MRR |
+|---|---|---|
+| 1.00 | 0.816 | 0.681 |
+| 0.95 | 0.867 | 0.752 |
+| 0.90 | 0.888 | 0.750 |
+| 0.85 | 0.878 | 0.746 |
+| 0.80 | 0.867 | 0.742 |
+
+That is a real curve with a peak, not a spike, and it was tempting. It
+does not survive the held-out set:
+
+| set and stack | base | with the field vector |
+|---|---|---|
+| tuned, embeddings only | 0.867 / 0.741 | 0.888 / 0.750 |
+| tuned, full stack | 0.898 / 0.769 | 0.898 / 0.766 |
+| held-out, embeddings only | 0.833 / 0.716 | 0.833 / 0.716 |
+| held-out, full stack | 0.905 / 0.746 | 0.881 / 0.735 |
+
+The tuned gain is two questions, neither of them one of the ten misses
+this was built for (measles vaccination 16 -> 1, exports 7 -> 2). Under
+the full stack the rewriter and reranker already recover them. Held
+out, the gain is exactly nothing, and the full stack loses a question.
+Reverted, and the index deleted: 4,697 vectors, about 29 MB.
+
+The field text rule is worth keeping on record, since building it again
+is the only cost: the values of every field with at most 60 of them,
+excluding period fields and fields whose values are numbers (years,
+ages), the resource's title first, capped at 1,500 characters (the
+median is 414 and 90% fit in 1,300). `embeddings.fields_text` in the
+reverted commit's parent has the implementation.
+
+What this says about the ten misses: three separate mechanisms for
+reaching a resource through its contents rather than its title have now
+been measured and none of them ranks better than the title lane. The
+next thing to try is not another ranking signal over the same index.
