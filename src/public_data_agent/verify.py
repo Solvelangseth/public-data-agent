@@ -71,14 +71,26 @@ def _is_too_large(message: str) -> bool:
     return "SelectionTooLarge" in message or "over the 800,000 limit" in message
 
 
-def latest_period_year(registry: Registry, dataset_id: str) -> int | None:
-    """The newest year the resource's own period field publishes.
+def latest_period_year(
+    registry: Registry, dataset_id: str, *, this_year: int | None = None
+) -> int | None:
+    """A year the resource's own period fields publish, preferring a past one.
 
     Read from the resource index rather than assumed, because a table that
     ended in 2010 answers a request for 2024 with nothing and that looks
     exactly like a capability that does not work.
+
+    The newest year is not always the right one to ask for. A projection table
+    carries two period fields -- fhi:nokkel:171 has a base year with one value
+    and 25 projection years out to 2050 -- and a fetch filters the base year,
+    so asking for 2050 is refused by a table that works. The newest year that
+    has actually happened is the one that exists in both.
     """
 
+    if this_year is None:
+        from datetime import datetime, timezone
+
+        this_year = datetime.now(timezone.utc).year
     years: list[int] = []
     for (label,) in registry.conn.execute(
         "SELECT v.value_label FROM resource_field_values v "
@@ -90,7 +102,12 @@ def latest_period_year(registry: Registry, dataset_id: str) -> int | None:
         found = YEAR.search(label or "")
         if found:
             years.append(int(found.group(0)))
-    return max(years) if years else None
+    if not years:
+        return None
+    past = [year for year in years if year <= this_year]
+    # A table that only holds future periods is still asked for its earliest,
+    # which is the one most likely to be populated.
+    return max(past) if past else min(years)
 
 
 def narrowing_measure(registry: Registry, dataset_id: str) -> str | None:

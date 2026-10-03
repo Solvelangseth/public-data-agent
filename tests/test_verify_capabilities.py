@@ -264,3 +264,36 @@ def test_a_combination_with_no_cell_is_retried_without_the_selection(
         assert calls == [{"Kjonn": ["0"]}, None]
     finally:
         registry.close()
+
+
+def test_a_projection_year_is_not_asked_for(tmp_path: Path) -> None:
+    registry = Registry(tmp_path / "r.sqlite")
+    try:
+        _dataset_with_period(registry, "fixture:prognose", ["2026"])
+        # fhi:nokkel:171 carries a base year with one value and 25 projection
+        # years out to 2050. A fetch filters the base year, so asking for 2050
+        # is refused by a table that works perfectly well.
+        registry.conn.execute(
+            "INSERT INTO resource_fields (dataset_id, field_code, field_label,"
+            " field_role, value_count, position)"
+            " VALUES ('fixture:prognose', 'PROGNOSEAAR', 'Prognoseår', 'period', 2, 1)"
+        )
+        for year in ("2049", "2050"):
+            registry.conn.execute(
+                "INSERT INTO resource_field_values (dataset_id, field_code, value_code,"
+                " value_label) VALUES ('fixture:prognose', 'PROGNOSEAAR', ?, ?)",
+                (year, year),
+            )
+        registry.conn.commit()
+        assert latest_period_year(registry, "fixture:prognose", this_year=2026) == 2026
+    finally:
+        registry.close()
+
+
+def test_a_table_with_only_future_periods_is_asked_for_its_earliest(tmp_path: Path) -> None:
+    registry = Registry(tmp_path / "r.sqlite")
+    try:
+        _dataset_with_period(registry, "fixture:future", ["2040", "2050"])
+        assert latest_period_year(registry, "fixture:future", this_year=2026) == 2040
+    finally:
+        registry.close()
