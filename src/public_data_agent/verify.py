@@ -44,7 +44,8 @@ class VerifyCounts:
     # combination needs.
     narrowed: int = 0
     retried_wide: int = 0
-    # Capabilities written because a discovery probe returned cells.
+    # Verifications written because a probe returned cells, either onto a
+    # capability that had none or as a new row in discovery mode.
     declared: int = 0
     errors: list[dict[str, str]] = field(default_factory=list)
 
@@ -57,7 +58,7 @@ class VerifyCounts:
             "probed_without_period": self.no_period,
             "narrowed": self.narrowed,
             "retried_without_selection": self.retried_wide,
-            "capabilities_declared": self.declared,
+            "evidence_recorded": self.declared,
             # Capped: a report is for reading, and one broken source would
             # otherwise bury every other line in it.
             "errors": self.errors[:20],
@@ -195,28 +196,41 @@ def discoverable(registry: Registry, *, source: str | None = None) -> list[tuple
     ]
 
 
-def record_discovered(registry: Registry, dataset_id: str, result: Any) -> bool:
-    """Write the capability a successful fetch just demonstrated.
+def record_evidence(registry: Registry, dataset_id: str, result: Any) -> bool:
+    """Write what a successful fetch demonstrated, if nothing has recorded it.
 
-    Some fetch branches store cells without recording a capability --
-    `_fetch_kikommuner` is one, and kikommuner:3419 held an observation and no
-    capability because of it. The evidence is the cells that came back, so the
-    count travels with the record and nothing is written when none did.
+    Not every fetch branch records a capability, and the ones that do not leave
+    a resource looking unfetchable after a fetch that worked.
+    `_fetch_kikommuner` is one, so kikommuner:3419 held an observation and no
+    capability; fhi's is another, so a pass that fetched 365 of 369 fhi tables
+    left every one of them `verified_at NULL`. The counter said verified and
+    the registry disagreed, and the registry is the record that matters.
+
+    The evidence is the cells that came back, so the count travels with the
+    record and nothing is written when none did. An existing verification is
+    never overwritten, and merging keeps the rest of the row: `set_capability`
+    replaces every column, so a partial write would erase the endpoint, the
+    record kind and any subject addressing.
     """
 
-    cells = getattr(result, "counts", None)
-    returned = getattr(cells, "listed", 0) or 0
+    returned = getattr(getattr(result, "counts", None), "listed", 0) or 0
     if returned <= 0:
         return False
-    if registry.get_capability(dataset_id):
+    existing = registry.get_capability(dataset_id)
+    if existing and existing["verified_at"]:
         return False
-    registry.set_capability(dataset_id, {
-        "capability": "observations",
-        "record_kind": "observation",
-        "endpoint": (registry.get_dataset(dataset_id) or {}).get("access_path"),
-        "verified_at": utc_now(),
-        "verified_sample_count": returned,
-    })
+    if existing:
+        merged = {key: existing[key] for key in existing.keys() if key != "dataset_id"}
+    else:
+        dataset = registry.get_dataset(dataset_id) or {}
+        merged = {
+            "capability": "observations",
+            "record_kind": "observation",
+            "endpoint": dataset.get("access_path"),
+        }
+    merged["verified_at"] = utc_now()
+    merged["verified_sample_count"] = returned
+    registry.set_capability(dataset_id, merged)
     return True
 
 
@@ -268,7 +282,7 @@ def verify_capabilities(
             counts.verified += 1
             if select:
                 counts.narrowed += 1
-            if discover and record_discovered(registry, dataset_id, result):
+            if record_evidence(registry, dataset_id, result):
                 counts.declared += 1
         except Exception as narrow_error:
             if select is None:
@@ -281,7 +295,7 @@ def verify_capabilities(
                     result = probe(None)
                     counts.verified += 1
                     counts.retried_wide += 1
-                    if discover and record_discovered(registry, dataset_id, result):
+                    if record_evidence(registry, dataset_id, result):
                         counts.declared += 1
                 except Exception as wide_error:
                     error = wide_error

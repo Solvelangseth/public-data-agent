@@ -2948,3 +2948,26 @@ overwritten. Tried on kikommuner: 3 probed, 3 fetched, 3 declared.
 
 Verified capabilities today: 578 this morning, 4,475 by the time the
 ssbtable pass was still running.
+
+### the counter said verified and the registry disagreed
+
+The full pass reported 365 of 369 fhi tables fetched and the registry
+still held `verified_at NULL` for every one of them. Verification was
+never written by the probe: it relied on the fetch branch to record it,
+and fhi's branch does not, the same gap kikommuner:3419 showed. A
+counter that disagrees with the registry is worth nothing, and the
+registry is the record.
+
+`record_evidence` now writes what a probe demonstrated, in both modes:
+the cells that came back as `verified_sample_count`, nothing at all
+when none came back, and never over an existing verification. It merges
+onto the existing row rather than replacing it, because
+`set_capability` writes every column and a partial write would erase
+the endpoint, the record kind and any subject addressing.
+
+Re-run on fhi: 369 probed, 366 fetched, 366 recorded. Capabilities
+verified across the registry: 578 this morning, 5,104 of 5,160 now.
+What is left is 56 rows: 32 ssbtable, 19 nvdb and the rest. The
+ssbtable residue is an HTTP 400 "Parameter error" on a run of
+consecutive tables (11083-11086 among them), where a pinned dimension
+code is one the table does not accept.

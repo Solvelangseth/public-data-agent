@@ -18,7 +18,7 @@ import pytest
 
 from public_data_agent.models import HarvestCounts
 from public_data_agent.registry import Registry
-from public_data_agent.verify import discoverable, record_discovered, verify_capabilities
+from public_data_agent.verify import discoverable, record_evidence, verify_capabilities
 
 
 @dataclass
@@ -75,7 +75,7 @@ def test_the_sample_count_recorded_is_the_cells_that_came_back(tmp_path: Path) -
         _dataset(registry, "fixture:got", FETCHABLE)
         counts = HarvestCounts()
         counts.listed = 7
-        assert record_discovered(registry, "fixture:got", _Result(counts)) is True
+        assert record_evidence(registry, "fixture:got", _Result(counts)) is True
         capability = registry.get_capability("fixture:got")
         assert capability["capability"] == "observations"
         assert capability["verified_sample_count"] == 7
@@ -89,7 +89,7 @@ def test_a_fetch_that_returned_nothing_declares_nothing(tmp_path: Path) -> None:
     try:
         _dataset(registry, "fixture:empty", FETCHABLE)
         # HTTP 200 and no cells is not evidence that a resource answers.
-        assert record_discovered(registry, "fixture:empty", _Result(HarvestCounts())) is False
+        assert record_evidence(registry, "fixture:empty", _Result(HarvestCounts())) is False
         assert registry.get_capability("fixture:empty") is None
     finally:
         registry.close()
@@ -106,7 +106,7 @@ def test_an_existing_capability_is_never_overwritten(tmp_path: Path) -> None:
         registry.conn.commit()
         counts = HarvestCounts()
         counts.listed = 99
-        assert record_discovered(registry, "fixture:has", _Result(counts)) is False
+        assert record_evidence(registry, "fixture:has", _Result(counts)) is False
         assert registry.get_capability("fixture:has")["capability"] == "lookup"
     finally:
         registry.close()
@@ -145,5 +145,47 @@ def test_without_discovery_an_undeclared_dataset_is_left_alone(
         got = verify_capabilities(registry)
         assert (got.probed, got.declared) == (0, 0)
         assert registry.get_capability("fixture:b") is None
+    finally:
+        registry.close()
+
+
+def test_a_capability_that_was_never_verified_gets_its_evidence(tmp_path: Path) -> None:
+    registry = Registry(tmp_path / "r.sqlite")
+    try:
+        _dataset(registry, "fixture:claimed", FETCHABLE)
+        registry.set_capability("fixture:claimed", {
+            "capability": "observations", "record_kind": "observation",
+            "endpoint": FETCHABLE, "subject_scheme": "kommune",
+            "subject_template": "https://example.invalid/{subject}",
+        })
+        registry.conn.commit()
+        counts = HarvestCounts()
+        counts.listed = 4
+        assert record_evidence(registry, "fixture:claimed", _Result(counts)) is True
+        capability = registry.get_capability("fixture:claimed")
+        assert capability["verified_sample_count"] == 4
+        # set_capability replaces every column, so the rest of the row has to
+        # survive the merge or the endpoint and addressing are erased.
+        assert capability["endpoint"] == FETCHABLE
+        assert capability["subject_scheme"] == "kommune"
+        assert capability["subject_template"] == "https://example.invalid/{subject}"
+        assert capability["record_kind"] == "observation"
+    finally:
+        registry.close()
+
+
+def test_a_lookup_capability_keeps_its_kind_when_verified(tmp_path: Path) -> None:
+    registry = Registry(tmp_path / "r.sqlite")
+    try:
+        _dataset(registry, "fixture:lookup", FETCHABLE)
+        registry.set_capability("fixture:lookup", {
+            "capability": "lookup", "record_kind": "entity", "endpoint": FETCHABLE,
+        })
+        registry.conn.commit()
+        counts = HarvestCounts()
+        counts.listed = 1
+        assert record_evidence(registry, "fixture:lookup", _Result(counts)) is True
+        capability = registry.get_capability("fixture:lookup")
+        assert (capability["capability"], capability["record_kind"]) == ("lookup", "entity")
     finally:
         registry.close()
