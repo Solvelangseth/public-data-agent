@@ -103,6 +103,20 @@ def main(argv: list[str] | None = None) -> int:
     shape_cmd.add_argument("--dataset", default=None, help="One dataset id")
     shape_cmd.add_argument("--limit", type=int, default=None)
 
+    verify_cmd = sub.add_parser(
+        "verify",
+        help="Fetch a bounded sample to check that declared capabilities really fetch",
+    )
+    verify_cmd.add_argument("--db", type=Path, default=DEFAULT_DB)
+    verify_cmd.add_argument("--source", default=None, help="Only datasets from this source_id")
+    verify_cmd.add_argument("--sample", type=int, default=None,
+                            help="Probe this many, chosen at random, instead of all")
+    verify_cmd.add_argument("--max-cells", dest="max_cells", type=int, default=None,
+                            help="Store nothing for a resource that answers with more "
+                                 "(default: public_data_agent.verify.DEFAULT_MAX_CELLS)")
+    verify_cmd.add_argument("--seed", type=int, default=0, help="Sample seed, so a run repeats")
+    verify_cmd.add_argument("--quiet", action="store_true")
+
     status = sub.add_parser("status", help="Show registry counts and recent harvest runs")
     status.add_argument("--db", type=Path, default=DEFAULT_DB)
 
@@ -302,6 +316,8 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.command == "shape":
         return _shape(args)
+    if args.command == "verify":
+        return _verify(args)
     if args.command == "status":
         return _status(args)
     if args.command == "stats":
@@ -475,6 +491,31 @@ def _shape(args: argparse.Namespace) -> int:
         return 1 if failed else 0
     finally:
         registry.close()
+
+
+def _verify(args: argparse.Namespace) -> int:
+    """Probe declared capabilities and report what fetched."""
+
+    from public_data_agent.verify import DEFAULT_MAX_CELLS, verify_capabilities
+
+    if not Path(args.db).exists() and str(args.db) != ":memory:":
+        print(f"no registry at {args.db}", file=sys.stderr)
+        return 1
+    registry = Registry(args.db)
+    try:
+        counts = verify_capabilities(
+            registry,
+            source=args.source,
+            sample=args.sample,
+            max_cells=args.max_cells if args.max_cells is not None else DEFAULT_MAX_CELLS,
+            seed=args.seed,
+            progress=None if args.quiet else (lambda line: print(line, file=sys.stderr)),
+        )
+    finally:
+        registry.close()
+    print(json.dumps({"db": str(args.db), "source": args.source, **counts.as_dict()},
+                     ensure_ascii=False, indent=2))
+    return 0
 
 
 def _status(args: argparse.Namespace) -> int:
