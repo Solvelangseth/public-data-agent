@@ -171,6 +171,8 @@ def main(argv: list[str] | None = None) -> int:
     fetch_cmd.add_argument("--dataset", required=True)
     fetch_cmd.add_argument("--table", default=None)
     fetch_cmd.add_argument("--db", type=Path, default=DEFAULT_DB)
+    fetch_cmd.add_argument("--max-cells", dest="max_cells", type=int, default=None,
+                           help="Store nothing if the response holds more cells than this")
     fetch_cmd.add_argument("--from-year", type=int, default=None)
     fetch_cmd.add_argument("--to-year", type=int, default=None)
     fetch_cmd.add_argument("--kommune", default=None, help="Klass kommune code (e.g. 0301)")
@@ -678,6 +680,7 @@ def _fetch(args: argparse.Namespace) -> int:
             fylke=args.fylke,
             bydel=args.bydel,
             measure=args.measure,
+            max_cells=args.max_cells,
         )
         print(
             json.dumps(

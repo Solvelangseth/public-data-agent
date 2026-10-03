@@ -2773,3 +2773,55 @@ kommune datasets reach the registry through data.norge meanwhile.
 Of the 64 new rows only brreg:enheter carries a fetch capability; the
 rest are catalogue records. sodir's layers and hiwms's capabilities
 endpoints are pointers, not data, and a fetch of them stays refused.
+
+## depth harvest, and what verifying a capability costs — 2026-10-03
+
+The 2026-09-12 run capped every source at 10 datasets. 59 sources sat
+at exactly 10 or 25. Re-harvested with a limit of 150 and a 600 s
+per-source wall clock: 58 completed, 2,004 datasets inserted, the
+registry 15,509 -> 17,513. `fdirwms` hit the wall clock twice and
+wrote nothing; its run is closed as failed. Run 16 (fdirpx, Codex's)
+is still `running` and was left alone.
+
+Biggest gains: fdkorg, kikommuner and opencom 140 each, hi 122, the
+seven Cristin sources 90 each. All 17,513 datasets are embedded and the
+lexical index is rebuilt.
+
+### Declared capabilities are real; probing them is what costs
+
+5,157 datasets declared a fetch capability and only 578 had ever been
+verified against a sample, so the rest were claims read from published
+metadata. A random sample of 122 of them was fetched for real:
+
+| source | probes | fetched |
+|---|---|---|
+| ssbtable | 40 | 40 |
+| fhi | 40 | 40 |
+| nvdb | 40 | 38 |
+| brreg, brenheter | 2 | 0 |
+
+118 of 122 succeeded. The four that did not are not broken
+capabilities: nvdb:927 and nvdb:532 are object types with no objects,
+and the two Enhetsregisteret collections are refused by the existing
+size guard, which is that guard working. 15 probes first failed with
+"no time codes in the requested year range" because the probe asked for
+2024 and those tables end earlier; re-probed with each table's own
+latest published period, all 15 fetched. Verified capabilities are now
+683.
+
+The probe's payload was deleted afterwards and the verification kept: a
+verification records that a real fetch succeeded at a time with a
+sample count, which stays true whether or not the cells are retained,
+and the registry stores pointers rather than payloads.
+
+That cleanup was necessary, which is the finding. Bounded only by a
+year, the 122 probes wrote 1.73 million cells and took the registry
+from 406 MB to 1.9 GB; `ssbtable:07091` alone inserted 792,990 and
+`fhi:nokkel:664` 530,064. A request that looks small is not. So
+`fetch_observations` now takes `max_cells` (`pda fetch --max-cells`),
+checked at `_store_cells`, the one point every connector's cells pass
+through. Over the budget nothing is stored and the error reports what
+the response held: storing the first N cells and reporting success
+would make a partial answer look complete. The per-connector caps
+(MAGASIN_MAX_CELLS and the rest) stay as they are for shapes whose size
+is known in advance.

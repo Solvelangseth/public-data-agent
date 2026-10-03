@@ -3,6 +3,8 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+from contextlib import contextmanager
+from contextvars import ContextVar
 from dataclasses import dataclass, field
 from typing import Any, Protocol
 from urllib.parse import urljoin, urlparse
@@ -1318,6 +1320,44 @@ def cells_from_jsonstat(payload: dict[str, Any]) -> list[tuple[str, Any, dict[st
 
 
 def fetch_observations(
+    registry: Registry,
+    dataset_id: str,
+    *,
+    table_id: str,
+    from_year: int | None = None,
+    to_year: int | None = None,
+    http: JsonHttp | None = None,
+    select: dict[str, list[str]] | None = None,
+    kommune: str | None = None,
+    fylke: str | None = None,
+    bydel: str | None = None,
+    measure: str | None = None,
+    max_cells: int | None = None,
+) -> FetchResult:
+    """Retrieve observation rows, optionally under a cell budget.
+
+    `max_cells` bounds what one request may store. Over it nothing is stored
+    and the error says what the response held, because a partial table
+    reported as success is worse than no answer. See `cell_budget`.
+    """
+
+    with cell_budget(max_cells):
+        return _fetch_observations(
+            registry,
+            dataset_id,
+            table_id=table_id,
+            from_year=from_year,
+            to_year=to_year,
+            http=http,
+            select=select,
+            kommune=kommune,
+            fylke=fylke,
+            bydel=bydel,
+            measure=measure,
+        )
+
+
+def _fetch_observations(
     registry: Registry,
     dataset_id: str,
     *,
@@ -16286,6 +16326,46 @@ def _fetch_trondheim(
     )
 
 
+# How many cells one request may store. Connectors carry their own caps
+# (MAGASIN_MAX_CELLS and the rest) for the shapes whose size is known in
+# advance; this is the caller's bound for any fetch, whatever the connector.
+#
+# It exists because verifying a capability is cheap to ask for and expensive to
+# store: probing 122 datasets on 2026-10-03 with only a year bound wrote 1.73
+# million cells and took the registry from 406 MB to 1.9 GB, one table
+# contributing 792,990 of them. The request looks small and the answer is not.
+_CELL_BUDGET: ContextVar[int | None] = ContextVar("pda_cell_budget", default=None)
+
+
+@contextmanager
+def cell_budget(max_cells: int | None):
+    """Limit how many cells the fetches inside this block may store."""
+
+    token = _CELL_BUDGET.set(max_cells)
+    try:
+        yield
+    finally:
+        _CELL_BUDGET.reset(token)
+
+
+def _check_cell_budget(dataset_id: str, table_id: str, count: int) -> None:
+    """Refuse an oversized response rather than storing part of it.
+
+    Storing the first N cells of a table and reporting success would make a
+    partial answer look complete, which is worse than no answer. The caller is
+    told what it would take and can narrow the selection instead.
+    """
+
+    cap = _CELL_BUDGET.get()
+    if cap is None or count <= cap:
+        return
+    raise ValueError(
+        f"{dataset_id} table {table_id} returned {count} cells, over the "
+        f"{cap}-cell budget for this request; nothing was stored. Narrow the "
+        f"selection (one year, one region, one measure) or raise the budget."
+    )
+
+
 def _store_cells(
     registry: Registry,
     dataset: dict[str, Any],
@@ -16304,6 +16384,7 @@ def _store_cells(
     # one dataset_id with different dimension names.  Tagging the projection
     # keeps them separable instead of blending into one unusable pool.
     series = series or f"fetch:{table_id}"
+    _check_cell_budget(dataset["id"], table_id, len(cells))
     sample: list[dict[str, Any]] = []
     with registry.deferred_commit():
         return _store_each(
