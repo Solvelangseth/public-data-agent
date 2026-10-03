@@ -2901,3 +2901,23 @@ fdkorg and kikommuner should be modelled as lookup entities -- records
 of a register addressed through its capability -- rather than as
 datasets, the way nxr:fylkedata and stortinget:fylker already are.
 Until then their harvest limit should stay where it is.
+
+### narrowing a probe by dimension makes verification affordable
+
+Size, not breakage, was what stopped verification: one measure of one
+year is still the cross-product of every other dimension. 11418 is sex
+x sector x occupation x working hours. Pinning one value of each
+dimension that is neither the period nor the measure brings that table
+from thousands of cells to seven. If the pinned combination holds no
+cell, the probe asks once more without the selection, because an empty
+combination is not a resource that cannot be fetched.
+
+| source | probed | verified | too large | failed | before (one measure only) |
+|---|---|---|---|---|---|
+| ssbtable | 50 | 47 | 0 | 3 | 35 of 60, 25 too large |
+| fhi | 50 | 50 | 0 | 0 | 13 of 60, 46 too large |
+
+Residual failures are about 3%: an HTTP 400 "Parameter error" from SSB
+for table 11090 among them, where a pinned code is one the table does
+not accept. Worth a look, but it is a handful of tables rather than a
+class.

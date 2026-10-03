@@ -39,6 +39,11 @@ class VerifyCounts:
     # field. NVDB road objects are not a time series and every one of a sample
     # of 100 was skipped while this counted as a reason not to probe.
     no_period: int = 0
+    # Verified with one value pinned per dimension, and verified only after
+    # dropping that selection, which a resource holding no cell for the
+    # combination needs.
+    narrowed: int = 0
+    retried_wide: int = 0
     errors: list[dict[str, str]] = field(default_factory=list)
 
     def as_dict(self) -> dict[str, Any]:
@@ -48,6 +53,8 @@ class VerifyCounts:
             "too_large": self.too_large,
             "failed": self.failed,
             "probed_without_period": self.no_period,
+            "narrowed": self.narrowed,
+            "retried_without_selection": self.retried_wide,
             # Capped: a report is for reading, and one broken source would
             # otherwise bury every other line in it.
             "errors": self.errors[:20],
@@ -105,6 +112,31 @@ def narrowing_measure(registry: Registry, dataset_id: str) -> str | None:
     return row[0] if row else None
 
 
+def narrowing_select(registry: Registry, dataset_id: str) -> dict[str, list[str]]:
+    """One value of every dimension that is neither the period nor the measure.
+
+    A probe of one measure in one year is still the whole cross-product of
+    everything else: 11418 is sex x sector x occupation x working hours, which
+    is thousands of cells. Pinning one value of each brings the same table to
+    seven, which is what makes verifying thousands of resources affordable.
+    """
+
+    select: dict[str, list[str]] = {}
+    for (code,) in registry.conn.execute(
+        "SELECT field_code FROM resource_fields WHERE dataset_id = ? "
+        "AND field_role NOT IN ('period', 'measure') ORDER BY position",
+        (dataset_id,),
+    ):
+        row = registry.conn.execute(
+            "SELECT value_code FROM resource_field_values "
+            "WHERE dataset_id = ? AND field_code = ? ORDER BY value_code LIMIT 1",
+            (dataset_id, code),
+        ).fetchone()
+        if row and row[0]:
+            select[code] = [row[0]]
+    return select
+
+
 def unverified(registry: Registry, *, source: str | None = None) -> list[tuple[str, str]]:
     """Datasets that declare a capability nothing has ever verified."""
 
@@ -143,16 +175,38 @@ def verify_capabilities(
             # Probe anyway: a resource without a period is not a resource
             # without data. The cell budget is what protects the disk.
             counts.no_period += 1
-        try:
+        measure = narrowing_measure(registry, dataset_id)
+        select = narrowing_select(registry, dataset_id) or None
+
+        def probe(selection: dict[str, list[str]] | None) -> None:
             fetch_observations(
                 registry, dataset_id, table_id="",
-                from_year=year, to_year=year,
-                measure=narrowing_measure(registry, dataset_id),
-                max_cells=max_cells,
+                from_year=year, to_year=year, measure=measure,
+                select=selection, max_cells=max_cells,
             )
+
+        error: Exception | None = None
+        try:
+            probe(select)
             counts.verified += 1
-        except Exception as exc:
-            message = f"{type(exc).__name__}: {exc}"
+            if select:
+                counts.narrowed += 1
+        except Exception as narrow_error:
+            if select is None:
+                error = narrow_error
+            else:
+                # One value of each dimension can be a combination the
+                # resource holds no cell for, which is not the same as a
+                # resource that cannot be fetched. Ask once more without it.
+                try:
+                    probe(None)
+                    counts.verified += 1
+                    counts.retried_wide += 1
+                except Exception as wide_error:
+                    error = wide_error
+
+        if error is not None:
+            message = f"{type(error).__name__}: {error}"
             # Two different sizes, neither a broken capability: more cells than
             # this probe will store, and more than the source itself will
             # serve in one request. Both mean "narrow the selection".

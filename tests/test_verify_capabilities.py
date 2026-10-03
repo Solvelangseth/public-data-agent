@@ -193,3 +193,74 @@ def test_a_sample_is_reproducible_for_a_seed(tmp_path: Path, monkeypatch: pytest
         assert len(probed[0]) == 3
     finally:
         registry.close()
+
+
+def _attribute_field(registry: Registry, dataset_id: str, code: str,
+                     values: list[str], position: int) -> None:
+    registry.conn.execute(
+        "INSERT INTO resource_fields (dataset_id, field_code, field_label, field_role,"
+        " value_count, position) VALUES (?, ?, ?, 'attribute', ?, ?)",
+        (dataset_id, code, code.lower(), len(values), position),
+    )
+    for value in values:
+        registry.conn.execute(
+            "INSERT INTO resource_field_values (dataset_id, field_code, value_code,"
+            " value_label) VALUES (?, ?, ?, ?)",
+            (dataset_id, code, value, f"{code} {value}"),
+        )
+    registry.conn.commit()
+
+
+def test_one_value_of_every_dimension_is_pinned(tmp_path: Path) -> None:
+    from public_data_agent.verify import narrowing_select
+
+    registry = Registry(tmp_path / "r.sqlite")
+    try:
+        _dataset_with_period(registry, "fixture:wide", ["2024"])
+        _attribute_field(registry, "fixture:wide", "Kjonn", ["0", "1", "2"], 1)
+        _attribute_field(registry, "fixture:wide", "Yrke", ["0-9", "1", "2"], 2)
+        # One measure of one year is still the cross-product of everything
+        # else; 11418 is thousands of cells whole and seven pinned this way.
+        assert narrowing_select(registry, "fixture:wide") == {
+            "Kjonn": ["0"], "Yrke": ["0-9"],
+        }
+    finally:
+        registry.close()
+
+
+def test_the_period_and_measure_are_not_pinned(tmp_path: Path) -> None:
+    from public_data_agent.verify import narrowing_select
+
+    registry = Registry(tmp_path / "r.sqlite")
+    try:
+        _dataset_with_period(registry, "fixture:plain", ["2023", "2024"])
+        # The period is bounded by from_year/to_year and the measure by
+        # `measure=`; pinning them here would fight those.
+        assert narrowing_select(registry, "fixture:plain") == {}
+    finally:
+        registry.close()
+
+
+def test_a_combination_with_no_cell_is_retried_without_the_selection(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    registry = Registry(tmp_path / "r.sqlite")
+    try:
+        _dataset_with_period(registry, "fixture:sparse", ["2024"])
+        _attribute_field(registry, "fixture:sparse", "Kjonn", ["0", "1"], 1)
+        calls: list[object] = []
+
+        def _empty_when_narrowed(_registry: object, _dataset_id: str, **kwargs: object) -> object:
+            calls.append(kwargs.get("select"))
+            if kwargs.get("select"):
+                raise ValueError("no data for the requested selection")
+            return object()
+
+        monkeypatch.setattr("public_data_agent.verify.fetch_observations", _empty_when_narrowed)
+        counts = verify_capabilities(registry)
+        # A combination the resource holds no cell for is not a resource that
+        # cannot be fetched.
+        assert (counts.verified, counts.failed, counts.retried_wide) == (1, 0, 1)
+        assert calls == [{"Kjonn": ["0"]}, None]
+    finally:
+        registry.close()
