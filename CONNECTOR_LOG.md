@@ -2861,3 +2861,43 @@ supports and the probe does not yet use.
 
 Verified capabilities: 578 before today, 827 now. The 7,351 sample
 cells these probes stored are kept: bounded, with provenance, 21 MB.
+
+### second depth pass, and a reference catalogue is not data
+
+Three sources were still at the 150 limit and SSB's table list was
+re-walked: fdkorg +830, kikommuner +207, opencom +210, ssbtable +62.
+SSB's catalogue was already nearly complete, which is worth knowing:
+3,000 listed, 62 new.
+
+Then a sample of what had arrived: fdkorg rows are organisations
+("Sparebank 1 gudbrandsdal", "Sogndal kommune under sletting fra
+01.01.2020") and kikommuner rows are municipalities ("Herøy",
+"Lunner"). Digdir's `/organizations` is a catalogue of publishers and
+Kartverket's kikommuner a list of municipalities; neither row carries a
+capability, so none can answer a question about data, while all of them
+compete for a position in the ranking.
+
+The measurement agreed. Full stack, through today:
+
+| state | datasets | tuned recall@5 | tuned MRR | held-out | benchmark MRR |
+|---|---|---|---|---|---|
+| before | 15,509 | 0.898 | 0.769 | 0.905 / 0.746 | 0.8205 |
+| after depth harvest | 17,513 | 0.888 | 0.758 | 0.905 / 0.746 | 0.8125 |
+| after second pass | 18,822 | 0.878 | 0.730 | 0.905 / 0.742 | 0.7732 |
+| entity rows removed | 17,505 | 0.878 | 0.760 | 0.905 / 0.746 | 0.8125 |
+
+So 1,317 reference-entity rows cost 0.030 of tuned MRR and 0.039 of
+benchmark MRR, and removing them gave it back. They were backed up to
+`data/removed_reference_entities_2026-10-03.json.gz` and deleted, the
+10-row sample each source already had kept. None had observations,
+records, capability or a fetch run.
+
+What the real catalogue growth cost is separate and small: +1,996
+datasets, 13% more, for two tuned questions (0.898 -> 0.878) and
+nothing held out (0.905 both ways, MRR 0.746 both ways). Coverage stays
+1.000. A bigger haystack is not free, and that is the price.
+
+fdkorg and kikommuner should be modelled as lookup entities -- records
+of a register addressed through its capability -- rather than as
+datasets, the way nxr:fylkedata and stortinget:fylker already are.
+Until then their harvest limit should stay where it is.
