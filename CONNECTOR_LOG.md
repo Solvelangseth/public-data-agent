@@ -2971,3 +2971,21 @@ What is left is 56 rows: 32 ssbtable, 19 nvdb and the rest. The
 ssbtable residue is an HTTP 400 "Parameter error" on a run of
 consecutive tables (11083-11086 among them), where a pinned dimension
 code is one the table does not accept.
+
+### what discovery is worth, measured
+
+A discovery pass over the 3,232 candidates is slow -- each probe is a
+real request and the failing ones spend their retries -- so it runs in
+the background and is incremental. With the first 770 capabilities
+discovered, full stack:
+
+| set | before discovery | with 770 discovered |
+|---|---|---|
+| tuned | 0.878 / 0.760 | 0.888 / 0.751 |
+| held-out | 0.905 / 0.746 | 0.905 / 0.746 |
+
+One more tuned question answered and held-out unchanged. That is the
+point of it: a resource the system can fetch but has not recorded a
+capability for is excluded from the lane that returns data, so it
+cannot answer anything no matter how well it ranks. Capabilities:
+5,160 before, 5,930 at this measurement.
