@@ -35,6 +35,9 @@ class VerifyCounts:
     verified: int = 0
     too_large: int = 0
     failed: int = 0
+    # Probed without a period bound, because the resource records no period
+    # field. NVDB road objects are not a time series and every one of a sample
+    # of 100 was skipped while this counted as a reason not to probe.
     no_period: int = 0
     errors: list[dict[str, str]] = field(default_factory=list)
 
@@ -44,11 +47,21 @@ class VerifyCounts:
             "verified": self.verified,
             "too_large": self.too_large,
             "failed": self.failed,
-            "no_period": self.no_period,
+            "probed_without_period": self.no_period,
             # Capped: a report is for reading, and one broken source would
             # otherwise bury every other line in it.
             "errors": self.errors[:20],
         }
+
+
+def _is_too_large(message: str) -> bool:
+    """Whether a failure says the answer is too big rather than unavailable."""
+
+    if "cell budget" in message and "over the" in message:
+        return True
+    # The source's own limit, e.g. SSB answering "selection is 174,636,000
+    # cells, over the 800,000 limit for table ...".
+    return "SelectionTooLarge" in message or "over the 800,000 limit" in message
 
 
 def latest_period_year(registry: Registry, dataset_id: str) -> int | None:
@@ -71,6 +84,25 @@ def latest_period_year(registry: Registry, dataset_id: str) -> int | None:
         if found:
             years.append(int(found.group(0)))
     return max(years) if years else None
+
+
+def narrowing_measure(registry: Registry, dataset_id: str) -> str | None:
+    """One measure code the resource publishes, to narrow a probe.
+
+    A period bound alone does not make a statistical table small: with a
+    200-cell budget, 52 of 100 single-year SSB probes still answered with more.
+    One measure of one year usually fits.
+    """
+
+    row = registry.conn.execute(
+        "SELECT v.value_code FROM resource_field_values v "
+        "JOIN resource_fields f ON f.dataset_id = v.dataset_id "
+        "AND f.field_code = v.field_code "
+        "WHERE v.dataset_id = ? AND f.field_role = 'measure' "
+        "ORDER BY v.value_code LIMIT 1",
+        (dataset_id,),
+    ).fetchone()
+    return row[0] if row else None
 
 
 def unverified(registry: Registry, *, source: str | None = None) -> list[tuple[str, str]]:
@@ -108,19 +140,23 @@ def verify_capabilities(
         counts.probed += 1
         year = latest_period_year(registry, dataset_id)
         if year is None:
+            # Probe anyway: a resource without a period is not a resource
+            # without data. The cell budget is what protects the disk.
             counts.no_period += 1
-            continue
         try:
             fetch_observations(
                 registry, dataset_id, table_id="",
-                from_year=year, to_year=year, max_cells=max_cells,
+                from_year=year, to_year=year,
+                measure=narrowing_measure(registry, dataset_id),
+                max_cells=max_cells,
             )
             counts.verified += 1
         except Exception as exc:
             message = f"{type(exc).__name__}: {exc}"
-            # Over the budget is not a broken capability: the resource answered,
-            # with more than this probe is willing to store.
-            if "over the" in message and "cell budget" in message:
+            # Two different sizes, neither a broken capability: more cells than
+            # this probe will store, and more than the source itself will
+            # serve in one request. Both mean "narrow the selection".
+            if _is_too_large(message):
                 counts.too_large += 1
             else:
                 counts.failed += 1

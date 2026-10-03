@@ -2825,3 +2825,39 @@ the response held: storing the first N cells and reporting success
 would make a partial answer look complete. The per-connector caps
 (MAGASIN_MAX_CELLS and the rest) stay as they are for shapes whose size
 is known in advance.
+
+### pda verify, and what three samples say
+
+`pda verify` probes unverified capabilities: one period, the latest the
+resource itself publishes, one measure, under a cell budget. Three
+things the first samples corrected in it:
+
+- SSB answering "selection is 174,636,000 cells, over the 800,000
+  limit for table 11087" was counted as a failure. It is a size answer,
+  like the budget's own, and now counts as too_large.
+- Requiring a recorded period skipped every NVDB road object: 100 of
+  100 in one sample. A resource without a period is not a resource
+  without data, so the probe now runs unbounded by period and lets the
+  cell budget protect the disk. 56 of 60 NVDB objects then verified.
+- A period bound alone does not make a statistical table small: 52 of
+  100 single-year SSB probes still answered with more than 200 cells.
+  The probe now also narrows to one measure.
+
+With those fixed, 180 probes at 200 cells each:
+
+| source | probed | verified | too large | failed |
+|---|---|---|---|---|
+| ssbtable | 60 | 35 | 25 | 0 |
+| fhi | 60 | 13 | 46 | 1 |
+| nvdb | 60 | 56 | 0 | 4 |
+
+No broken capability in ssbtable at all. fhi's one failure is an HTTP
+404; nvdb's four are object types with no objects and an HTTP 401. The
+dominant non-result is size, not breakage: 71 of 180 resources answer
+one measure of one year with more than 200 cells, because region x age
+x sex is large by nature. Verifying those needs a narrower selection
+still -- one region as well -- which `fetch_observations(select=...)`
+supports and the probe does not yet use.
+
+Verified capabilities: 578 before today, 827 now. The 7,351 sample
+cells these probes stored are kept: bounded, with provenance, 21 MB.

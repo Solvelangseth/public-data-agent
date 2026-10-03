@@ -64,21 +64,53 @@ def test_a_dataset_already_verified_is_not_probed_again(tmp_path: Path) -> None:
         registry.close()
 
 
-def test_a_resource_with_no_recorded_period_is_counted_apart(tmp_path: Path) -> None:
+def test_a_resource_with_no_recorded_period_is_probed_anyway(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     registry = Registry(tmp_path / "r.sqlite")
     try:
         registry.ensure_observation_dataset(
             dataset_id="fixture:bare", title="t", publisher_name="p",
-            access_path="https://example.invalid/x", license=None,
+            access_path="https://example.invalid/bare", license=None,
         )
         registry.set_capability("fixture:bare", {
-            "capability": "observations",
-            "record_kind": "observation", "endpoint": "https://example.invalid/x",
+            "capability": "observations", "record_kind": "observation",
+            "endpoint": "https://example.invalid/bare",
         })
         registry.conn.commit()
+        seen: dict[str, object] = {}
+
+        def _record(_registry: object, dataset_id: str, **kwargs: object) -> object:
+            seen.update(dataset=dataset_id, **kwargs)
+            return object()
+
+        monkeypatch.setattr("public_data_agent.verify.fetch_observations", _record)
         counts = verify_capabilities(registry)
-        # Not a failure: nothing was asked of the source.
-        assert (counts.probed, counts.no_period, counts.failed) == (1, 1, 0)
+        # NVDB road objects are not a time series; skipping them left a sample
+        # of 100 entirely unprobed. The cell budget is what protects the disk.
+        assert (counts.probed, counts.verified, counts.no_period) == (1, 1, 1)
+        assert seen["from_year"] is None and seen["to_year"] is None
+    finally:
+        registry.close()
+
+
+def test_the_sources_own_size_limit_is_not_a_broken_capability(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    registry = Registry(tmp_path / "r.sqlite")
+    try:
+        _dataset_with_period(registry, "fixture:huge", ["2024"])
+
+        def _selection_too_large(*_args: object, **_kwargs: object) -> object:
+            raise ValueError(
+                "SelectionTooLarge: selection is 174,636,000 cells, over the "
+                "800,000 limit for table 11087"
+            )
+
+        monkeypatch.setattr("public_data_agent.verify.fetch_observations", _selection_too_large)
+        counts = verify_capabilities(registry)
+        assert (counts.too_large, counts.failed) == (1, 0)
+        assert counts.errors == []
     finally:
         registry.close()
 
