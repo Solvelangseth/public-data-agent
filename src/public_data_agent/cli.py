@@ -115,6 +115,9 @@ def main(argv: list[str] | None = None) -> int:
                             help="Store nothing for a resource that answers with more "
                                  "(default: public_data_agent.verify.DEFAULT_MAX_CELLS)")
     verify_cmd.add_argument("--seed", type=int, default=0, help="Sample seed, so a run repeats")
+    verify_cmd.add_argument("--discover", action="store_true",
+                            help="Probe datasets that declare no capability at all, and "
+                                 "record the one a successful fetch demonstrates")
     verify_cmd.add_argument("--quiet", action="store_true")
 
     status = sub.add_parser("status", help="Show registry counts and recent harvest runs")
@@ -509,6 +512,7 @@ def _verify(args: argparse.Namespace) -> int:
             sample=args.sample,
             max_cells=args.max_cells if args.max_cells is not None else DEFAULT_MAX_CELLS,
             seed=args.seed,
+            discover=args.discover,
             progress=None if args.quiet else (lambda line: print(line, file=sys.stderr)),
         )
     finally:

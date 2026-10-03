@@ -2921,3 +2921,30 @@ Residual failures are about 3%: an HTTP 400 "Parameter error" from SSB
 for table 11090 among them, where a pinned code is one the table does
 not accept. Worth a look, but it is a handful of tables rather than a
 class.
+
+### discovering a capability nothing declared — 2026-10-03
+
+A different gap from verification: 12,348 datasets carry no capability
+row at all, and for 3,232 of them a connector already recognises the
+access_path. Nothing is wrong with those; no fetch has ever been tried,
+so the registry does not know they answer anything and the lane that
+returns data leaves them out.
+
+Two things were in the way. `_fetch_kikommuner` stores cells without
+recording a capability -- kikommuner:3419 held an observation and no
+capability for exactly that reason -- and it leaves
+`FetchResult.observation_ids` empty, which made a successful fetch look
+like it returned nothing. Across fetch.py, 45 of 204 `_fetch_*`
+branches call `set_capability`. In practice the gap is small: only 6
+datasets in the registry have stored observations and no capability
+(datanorge 3, ssb 2, kikommuner 1).
+
+`pda verify --discover` probes the 3,232 and writes the capability its
+own fetch demonstrated: kind observations, `verified_at` now,
+`verified_sample_count` the cells that came back. Nothing is written
+when none came back, because HTTP 200 with no cells is not evidence
+that a resource answers, and an existing capability is never
+overwritten. Tried on kikommuner: 3 probed, 3 fetched, 3 declared.
+
+Verified capabilities today: 578 this morning, 4,475 by the time the
+ssbtable pass was still running.

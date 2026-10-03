@@ -20,8 +20,8 @@ import re
 from dataclasses import dataclass, field
 from typing import Any
 
-from public_data_agent.fetch import fetch_observations
-from public_data_agent.registry import Registry
+from public_data_agent.fetch import can_fetch_access_path, fetch_observations
+from public_data_agent.registry import Registry, utc_now
 
 # Enough cells to prove a fetch returns data, small enough that verifying
 # thousands of resources does not fill a disk.
@@ -44,6 +44,8 @@ class VerifyCounts:
     # combination needs.
     narrowed: int = 0
     retried_wide: int = 0
+    # Capabilities written because a discovery probe returned cells.
+    declared: int = 0
     errors: list[dict[str, str]] = field(default_factory=list)
 
     def as_dict(self) -> dict[str, Any]:
@@ -55,6 +57,7 @@ class VerifyCounts:
             "probed_without_period": self.no_period,
             "narrowed": self.narrowed,
             "retried_without_selection": self.retried_wide,
+            "capabilities_declared": self.declared,
             # Capped: a report is for reading, and one broken source would
             # otherwise bury every other line in it.
             "errors": self.errors[:20],
@@ -169,6 +172,54 @@ def unverified(registry: Registry, *, source: str | None = None) -> list[tuple[s
     return [(row[0], row[1]) for row in registry.conn.execute(sql + " ORDER BY d.id", params)]
 
 
+def discoverable(registry: Registry, *, source: str | None = None) -> list[tuple[str, str]]:
+    """Datasets a connector can fetch that have never declared a capability.
+
+    3,232 of them on 2026-10-03. Nothing is wrong with these: no fetch has
+    been tried, so the registry does not know they answer anything, and the
+    lane that returns data leaves them out.
+    """
+
+    sql = (
+        "SELECT d.id, d.source_id, d.access_path FROM datasets d "
+        "WHERE NOT EXISTS (SELECT 1 FROM resource_capability c WHERE c.dataset_id = d.id)"
+    )
+    params: tuple[Any, ...] = ()
+    if source:
+        sql += " AND d.source_id = ?"
+        params = (source,)
+    return [
+        (row[0], row[1])
+        for row in registry.conn.execute(sql + " ORDER BY d.id", params)
+        if can_fetch_access_path(row[2])
+    ]
+
+
+def record_discovered(registry: Registry, dataset_id: str, result: Any) -> bool:
+    """Write the capability a successful fetch just demonstrated.
+
+    Some fetch branches store cells without recording a capability --
+    `_fetch_kikommuner` is one, and kikommuner:3419 held an observation and no
+    capability because of it. The evidence is the cells that came back, so the
+    count travels with the record and nothing is written when none did.
+    """
+
+    cells = getattr(result, "counts", None)
+    returned = getattr(cells, "listed", 0) or 0
+    if returned <= 0:
+        return False
+    if registry.get_capability(dataset_id):
+        return False
+    registry.set_capability(dataset_id, {
+        "capability": "observations",
+        "record_kind": "observation",
+        "endpoint": (registry.get_dataset(dataset_id) or {}).get("access_path"),
+        "verified_at": utc_now(),
+        "verified_sample_count": returned,
+    })
+    return True
+
+
 def verify_capabilities(
     registry: Registry,
     *,
@@ -176,11 +227,20 @@ def verify_capabilities(
     sample: int | None = None,
     max_cells: int = DEFAULT_MAX_CELLS,
     seed: int = 0,
+    discover: bool = False,
     progress: Any | None = None,
 ) -> VerifyCounts:
-    """Fetch a bounded sample for unverified capabilities and record what happened."""
+    """Fetch a bounded sample and record what happened.
 
-    candidates = unverified(registry, source=source)
+    By default this confirms capabilities that are declared but unverified.
+    With `discover`, it probes datasets a connector can fetch that declare no
+    capability at all, and writes the one a successful fetch demonstrates.
+    """
+
+    candidates = (
+        discoverable(registry, source=source) if discover
+        else unverified(registry, source=source)
+    )
     if sample is not None and sample < len(candidates):
         candidates = random.Random(seed).sample(candidates, sample)
         candidates.sort()
@@ -195,8 +255,8 @@ def verify_capabilities(
         measure = narrowing_measure(registry, dataset_id)
         select = narrowing_select(registry, dataset_id) or None
 
-        def probe(selection: dict[str, list[str]] | None) -> None:
-            fetch_observations(
+        def probe(selection: dict[str, list[str]] | None) -> Any:
+            return fetch_observations(
                 registry, dataset_id, table_id="",
                 from_year=year, to_year=year, measure=measure,
                 select=selection, max_cells=max_cells,
@@ -204,10 +264,12 @@ def verify_capabilities(
 
         error: Exception | None = None
         try:
-            probe(select)
+            result = probe(select)
             counts.verified += 1
             if select:
                 counts.narrowed += 1
+            if discover and record_discovered(registry, dataset_id, result):
+                counts.declared += 1
         except Exception as narrow_error:
             if select is None:
                 error = narrow_error
@@ -216,9 +278,11 @@ def verify_capabilities(
                 # resource holds no cell for, which is not the same as a
                 # resource that cannot be fetched. Ask once more without it.
                 try:
-                    probe(None)
+                    result = probe(None)
                     counts.verified += 1
                     counts.retried_wide += 1
+                    if discover and record_discovered(registry, dataset_id, result):
+                        counts.declared += 1
                 except Exception as wide_error:
                     error = wide_error
 
