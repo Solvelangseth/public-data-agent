@@ -199,10 +199,28 @@ def tool_search(query: str, db: str = DEFAULT_DB, limit: int = 10) -> dict[str, 
         for hit in ranked:
             path = (hit.get("access") or {}).get("access_path")
             capability = classify_access_path(path)
+            kind = capability["kind"]
+            reason = capability["reason"]
+            supported = can_fetch_access_path(path)
+            # A verified probe outranks a guess from the URL, the same rule
+            # `retrieval._capability` applies. Without this the lanes here
+            # disagreed with the ranking that filled them: 769 datasets whose
+            # fetch was demonstrated -- every Norges Bank series among them --
+            # read as `unverified` because a register's stored access path is
+            # its collection endpoint, and landed in the lane that says nothing
+            # can be fetched.
+            recorded = registry.get_capability(hit["id"]) or {}
+            if recorded.get("capability") and recorded.get("verified_at"):
+                kind = recorded["capability"]
+                supported = True
+                reason = (
+                    f"verified {recorded['verified_at']}: a fetch returned "
+                    f"{recorded.get('record_kind') or kind}"
+                )
             hit["connector"] = {
-                "fetch_supported": can_fetch_access_path(path),
-                "capability": capability["kind"],
-                "reason": capability["reason"],
+                "fetch_supported": supported,
+                "capability": kind,
+                "reason": reason,
             }
         # A candidate is only a candidate for a question it actually covers.
         # Offering the Oslo population connectors for "fiskeoppdrett" invites
