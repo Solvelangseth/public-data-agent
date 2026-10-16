@@ -196,6 +196,143 @@ def discoverable(registry: Registry, *, source: str | None = None) -> list[tuple
     ]
 
 
+# What `records.kind` means as a capability. The two vocabularies are separate
+# because one names a row and the other names a resource.
+_KIND_CAPABILITY = {
+    "observation": ("observations", "observation"),
+    "entity": ("entities", "entity"),
+    "feature": ("features", "feature"),
+    "document": ("documents", "document"),
+}
+
+# A publisher's way of writing "no value here". A cell that carries one is still
+# an observation, so an empty sample must not be read as a resource that
+# publishes labels.
+_EMPTY_VALUES = frozenset({"", ":", "..", ".", "-", "none", "null", "na"})
+
+# A code list addresses a code and returns its label, and that is the whole of
+# its shape. `Bydelsinndeling 2020` stores `Gamle Oslo` against
+# `{"code": "030101", "level": "1"}`: join keys, not facts.
+_CODE_LIST_DIMENSIONS = frozenset({
+    "code", "kode", "level", "nivaa", "nivå", "parent", "parentcode", "parent_code",
+    "shortname", "kortnavn", "name", "navn", "notes", "validfrom", "validto",
+    "valid_from", "valid_to", "gyldigfra", "gyldigtil",
+})
+# The measure a code list stores its label under when it has no classification
+# title to use. GREP files every curriculum code this way.
+_CODE_MEASURES = frozenset({"kode", "code", "codevalue", "kodeverdi"})
+
+# A feature is a thing in a place, so a coordinate or a feature id is what
+# separates one from a plain entity record.
+_GEOMETRY_DIMENSIONS = frozenset({
+    "lat", "latitude", "lon", "long", "longitude", "geometry", "geom", "wkt",
+    "fid", "objectid", "east", "north", "easting", "northing", "utm_east", "utm_north",
+})
+
+# How many stored rows to read before deciding. The question is what kind of
+# thing the resource returns, which the first rows answer as well as all of
+# them, and reading all of them is a full scan per probed dataset.
+_EVIDENCE_SAMPLE = 200
+
+
+def _is_number(value: Any) -> bool:
+    """Whether a stored value is a measurement rather than a label.
+
+    Numbers arrive as JSON strings often enough that type alone misreads them:
+    Norges Bank publishes the key policy rate as `"4.25"`, and reading that as a
+    label would file an interest-rate series as a list of things.
+    """
+
+    if isinstance(value, bool):
+        return False
+    if isinstance(value, (int, float)):
+        return True
+    if isinstance(value, str):
+        try:
+            float(value.strip().replace(",", ".").replace("\u00a0", "").replace(" ", ""))
+        except ValueError:
+            return False
+        return True
+    return False
+
+
+def _is_empty(value: Any) -> bool:
+    if value is None:
+        return True
+    return isinstance(value, str) and value.strip().casefold() in _EMPTY_VALUES
+
+
+def demonstrated_capability(
+    registry: Registry, dataset_id: str
+) -> tuple[str, str | None] | None:
+    """The capability the stored rows demonstrate, or None when nothing is stored.
+
+    `record_evidence` used to write `observations` for every discovered
+    resource, which recorded a claim no fetch had made. `crinst:1000` stores one
+    cell -- `institution_name = "AOF Haugaland"` -- and was filed as an
+    observation source, so an organisation's name card competed in the lane
+    whose job is answering numeric questions. The fix is to read what came back:
+    a resource returns what its rows are, not what the prober hoped for.
+
+    The order is evidence first, shape second. A `records` row states its own
+    kind, so it decides. Observation cells are judged by their values: one
+    number anywhere makes the resource a measurement source, an all-empty
+    sample stays one because a suppressed cell is still an observation, and a
+    resource whose cells are all labels is a code list, a feature set or an
+    entity record according to the dimensions it addresses them by.
+    """
+
+    kinds = registry.conn.execute(
+        "SELECT kind, COUNT(*) AS n FROM records WHERE dataset_id = ? "
+        "GROUP BY kind ORDER BY n DESC, kind",
+        (dataset_id,),
+    ).fetchall()
+    if kinds:
+        mapped = _KIND_CAPABILITY.get(kinds[0]["kind"])
+        if mapped is not None:
+            return mapped
+
+    rows = registry.conn.execute(
+        "SELECT measure, value_json, dimensions_json FROM observations "
+        "WHERE dataset_id = ? LIMIT ?",
+        (dataset_id, _EVIDENCE_SAMPLE),
+    ).fetchall()
+    if not rows:
+        return None
+
+    import json as _json
+
+    values: list[Any] = []
+    measures: set[str] = set()
+    dimensions: set[str] = set()
+    for row in rows:
+        raw = row["value_json"]
+        try:
+            values.append(_json.loads(raw) if raw is not None else None)
+        except ValueError:
+            values.append(raw)
+        if row["measure"]:
+            measures.add(str(row["measure"]).strip().casefold())
+        try:
+            parsed = _json.loads(row["dimensions_json"] or "{}")
+        except ValueError:
+            parsed = {}
+        if isinstance(parsed, dict):
+            dimensions.update(str(key).strip().casefold() for key in parsed)
+
+    if any(_is_number(value) for value in values):
+        return "observations", "observation"
+    if all(_is_empty(value) for value in values):
+        return "observations", "observation"
+    if measures and measures <= _CODE_MEASURES:
+        return "lookup", None
+    if dimensions and dimensions <= _CODE_LIST_DIMENSIONS:
+        return "lookup", None
+    if dimensions & _GEOMETRY_DIMENSIONS:
+        return "features", "feature"
+    return "entities", "entity"
+
+
 def record_evidence(registry: Registry, dataset_id: str, result: Any) -> bool:
     """Write what a successful fetch demonstrated, if nothing has recorded it.
 
@@ -211,6 +348,12 @@ def record_evidence(registry: Registry, dataset_id: str, result: Any) -> bool:
     never overwritten, and merging keeps the rest of the row: `set_capability`
     replaces every column, so a partial write would erase the endpoint, the
     record kind and any subject addressing.
+
+    In discovery mode there is no declared capability to confirm, so the one
+    written is read off the rows the fetch stored -- see
+    `demonstrated_capability`. This used to be hardcoded to `observations`,
+    which is how a Cristin institution came to be a verified observation
+    source.
     """
 
     returned = getattr(getattr(result, "counts", None), "listed", 0) or 0
@@ -223,9 +366,16 @@ def record_evidence(registry: Registry, dataset_id: str, result: Any) -> bool:
         merged = {key: existing[key] for key in existing.keys() if key != "dataset_id"}
     else:
         dataset = registry.get_dataset(dataset_id) or {}
+        demonstrated = demonstrated_capability(registry, dataset_id)
+        if demonstrated is None:
+            # The fetch reported rows and none are stored under this dataset, so
+            # there is nothing to read the capability off. Claiming one anyway is
+            # how the hardcoded `observations` got written in the first place.
+            return False
+        capability, record_kind = demonstrated
         merged = {
-            "capability": "observations",
-            "record_kind": "observation",
+            "capability": capability,
+            "record_kind": record_kind,
             "endpoint": dataset.get("access_path"),
         }
     merged["verified_at"] = utc_now()

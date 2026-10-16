@@ -1289,3 +1289,60 @@ What this says about the ten misses: three separate mechanisms for
 reaching a resource through its contents rather than its title have now
 been measured and none of them ranks better than the title lane. The
 next thing to try is not another ranking signal over the same index.
+
+## A verification pass was writing the claim it was built to check (2026-10-16)
+
+`record_evidence` wrote `capability = "observations"` for every resource
+`pda verify --discover` probed, whatever the probe returned. The count of
+cells was the evidence; the kind was a constant. So `crinst:1000`, whose one
+stored cell is `institution_name = "AOF Haugaland"`, was recorded as a
+verified observation source and competed in the lane that answers numeric
+questions. It is the project's own rule — metadata and entity records are not
+observations — broken by the code written to enforce it.
+
+`demonstrated_capability` now reads the label off the rows the fetch stored. A
+`records` row states its own kind and decides. Observation cells are judged by
+their values: one number anywhere makes it a measurement source, an all-empty
+sample stays one (a suppressed cell is still an observation), and an
+all-label sample is a code list, a feature set or an entity record by the
+dimensions it is addressed through. Numbers published as strings count as
+numbers, or Norges Bank's `"4.25"` key policy rate would read as a label.
+
+`scripts/relabel_capabilities.py` re-derived the labels already written:
+**754 of 4,952** verified `observations` rows were contradicted by their own
+stored rows — 714 to `entities`, 38 to `lookup`, 2 to `features` (crbio,
+crinst, crperson, crproj, crresult, crunit 100 each, entur 42, grep 31,
+fiskerigis 15). Rows a connector had declared itself are left alone: the
+connector knows what a cell shape cannot, and `brkommuner:0301` is declared
+`lookup` while storing an entity record, because BRREG's municipality
+endpoint returns a thing whose role is a join key.
+
+What it cost, measured on the same registry with the same caches, embeddings
+plus rewriting and no reranker, so the comparison isolates the labels:
+
+| set | before | after |
+| --- | --- | --- |
+| tuned, recall@5 / MRR | 0.878 / 0.719 | 0.878 / 0.720 |
+| held-out, recall@5 / MRR | 0.857 / 0.710 | 0.857 / 0.710 |
+
+With the reranker on top, tuned recall@5 reads 0.888 before and 0.878 after,
+and held-out is unchanged at 0.905. No gold answer in any of the three sets
+was relabelled (0 of 315), so the one tuned question that moved —
+`hvilken bydel i Oslo har flest innbyggere`, whose answers are untouched SSB
+tables — moved because 38 lookups left the lane and the reranker was handed a
+different shortlist. The labels are neutral; the reranker is sensitive to the
+list it reads.
+
+## 11,374 observation rows hold a label rather than a measurement (2026-10-16)
+
+Of 31,830 stored observation rows, 18,581 hold a number, 1,875 are empty or
+suppressed, and **11,374 hold a label**: `datanorge` code lists 7,527 (a
+bydel name against `{"code", "level"}`), cristin 913, entur 555 (`name` =
+`"SCOOTER"`), grep 534, hi 328, envreportreg 200, brreg 104. The capability
+labels now say what these resources return, so a caller is no longer told
+they answer numeric questions, but the rows are still in the wrong table:
+`records`, with its `kind` column, is where an entity or a feature belongs.
+
+This is connector work, not a ranking change, and it is not done. Until it
+is, `observations` is two things at once, and any count over that table is a
+count of cells plus name cards.

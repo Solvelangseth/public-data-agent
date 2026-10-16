@@ -18,7 +18,12 @@ import pytest
 
 from public_data_agent.models import HarvestCounts
 from public_data_agent.registry import Registry
-from public_data_agent.verify import discoverable, record_evidence, verify_capabilities
+from public_data_agent.verify import (
+    demonstrated_capability,
+    discoverable,
+    record_evidence,
+    verify_capabilities,
+)
 
 
 @dataclass
@@ -35,6 +40,36 @@ def _dataset(registry: Registry, dataset_id: str, access_path: str) -> None:
 
 
 FETCHABLE = "https://api.kartverket.no/kommuneinfo/v1/kommuner/3419"
+
+
+def _cell(
+    registry: Registry,
+    dataset_id: str,
+    *,
+    measure: str,
+    value: object,
+    dimensions: dict[str, object] | None = None,
+) -> None:
+    """Store one observation cell, the way a connector's fetch leaves it."""
+
+    run_id = registry.start_fetch_run(
+        dataset_id=dataset_id, table_id="t", request_url=FETCHABLE, request_method="TEST",
+    )
+    registry.upsert_observation(
+        {
+            "id": f"{dataset_id}:{measure}:{value}",
+            "dataset_id": dataset_id,
+            "table_id": "t",
+            "measure": measure,
+            "value": value,
+            "dimensions": dimensions or {},
+            "retrieved_at": "2026-10-16T00:00:00Z",
+            "request_url": FETCHABLE,
+            "http_status": 200,
+        },
+        run_id,
+    )
+    registry.conn.commit()
 
 
 def test_a_dataset_a_connector_can_fetch_is_discoverable(tmp_path: Path) -> None:
@@ -73,6 +108,7 @@ def test_the_sample_count_recorded_is_the_cells_that_came_back(tmp_path: Path) -
     registry = Registry(tmp_path / "r.sqlite")
     try:
         _dataset(registry, "fixture:got", FETCHABLE)
+        _cell(registry, "fixture:got", measure="befolkning", value=4215, dimensions={"år": "2025"})
         counts = HarvestCounts()
         counts.listed = 7
         assert record_evidence(registry, "fixture:got", _Result(counts)) is True
@@ -80,6 +116,24 @@ def test_the_sample_count_recorded_is_the_cells_that_came_back(tmp_path: Path) -
         assert capability["capability"] == "observations"
         assert capability["verified_sample_count"] == 7
         assert capability["verified_at"]
+    finally:
+        registry.close()
+
+
+def test_nothing_is_declared_when_no_row_was_stored_to_read_it_from(tmp_path: Path) -> None:
+    """A counter saying cells came back is not a capability.
+
+    Writing `observations` from the count alone is what filed a Cristin
+    institution as an observation source.
+    """
+
+    registry = Registry(tmp_path / "r.sqlite")
+    try:
+        _dataset(registry, "fixture:counted", FETCHABLE)
+        counts = HarvestCounts()
+        counts.listed = 7
+        assert record_evidence(registry, "fixture:counted", _Result(counts)) is False
+        assert registry.get_capability("fixture:counted") is None
     finally:
         registry.close()
 
@@ -120,6 +174,7 @@ def test_discovery_counts_what_it_declared(
         _dataset(registry, "fixture:a", FETCHABLE)
 
         def _one_cell(*_args: object, **_kwargs: object) -> _Result:
+            _cell(registry, "fixture:a", measure="antall", value=12, dimensions={"år": "2025"})
             counts = HarvestCounts()
             counts.listed = 1
             return _Result(counts)
@@ -187,5 +242,146 @@ def test_a_lookup_capability_keeps_its_kind_when_verified(tmp_path: Path) -> Non
         assert record_evidence(registry, "fixture:lookup", _Result(counts)) is True
         capability = registry.get_capability("fixture:lookup")
         assert (capability["capability"], capability["record_kind"]) == ("lookup", "entity")
+    finally:
+        registry.close()
+
+
+def test_a_resource_whose_cells_are_numbers_is_an_observation_source(tmp_path: Path) -> None:
+    registry = Registry(tmp_path / "r.sqlite")
+    try:
+        _dataset(registry, "fixture:num", FETCHABLE)
+        _cell(registry, "fixture:num", measure="antall", value=42, dimensions={"år": "2025"})
+        assert demonstrated_capability(registry, "fixture:num") == ("observations", "observation")
+    finally:
+        registry.close()
+
+
+def test_a_number_published_as_a_string_is_still_an_observation(tmp_path: Path) -> None:
+    """Norges Bank publishes the key policy rate as `"4.25"`.
+
+    Reading that as a label would file an interest-rate series as a list of
+    things.
+    """
+
+    registry = Registry(tmp_path / "r.sqlite")
+    try:
+        _dataset(registry, "fixture:str", FETCHABLE)
+        _cell(
+            registry, "fixture:str",
+            measure="Key policy rate", value="4.25", dimensions={"TIME_PERIOD": "2026-08-13"},
+        )
+        assert demonstrated_capability(registry, "fixture:str") == ("observations", "observation")
+    finally:
+        registry.close()
+
+
+def test_a_suppressed_cell_is_still_an_observation(tmp_path: Path) -> None:
+    registry = Registry(tmp_path / "r.sqlite")
+    try:
+        _dataset(registry, "fixture:supp", FETCHABLE)
+        _cell(registry, "fixture:supp", measure="årlig antall", value=":", dimensions={"år": "2024"})
+        assert demonstrated_capability(registry, "fixture:supp") == ("observations", "observation")
+    finally:
+        registry.close()
+
+
+def test_a_code_addressed_label_is_a_lookup(tmp_path: Path) -> None:
+    """`Bydelsinndeling 2020` returns `Gamle Oslo` for a code: a join key."""
+
+    registry = Registry(tmp_path / "r.sqlite")
+    try:
+        _dataset(registry, "fixture:klass", FETCHABLE)
+        _cell(
+            registry, "fixture:klass",
+            measure="Bydelsinndeling 2020", value="Gamle Oslo",
+            dimensions={"code": "030101", "level": "1"},
+        )
+        assert demonstrated_capability(registry, "fixture:klass") == ("lookup", None)
+    finally:
+        registry.close()
+
+
+def test_a_cell_measured_as_a_code_is_a_lookup(tmp_path: Path) -> None:
+    """GREP files every curriculum code under the measure `kode`."""
+
+    registry = Registry(tmp_path / "r.sqlite")
+    try:
+        _dataset(registry, "fixture:grep", FETCHABLE)
+        _cell(
+            registry, "fixture:grep",
+            measure="kode", value="aarstrinn1",
+            dimensions={"grep-type": "aarstrinn", "uri": "https://example.invalid/1"},
+        )
+        assert demonstrated_capability(registry, "fixture:grep") == ("lookup", None)
+    finally:
+        registry.close()
+
+
+def test_a_named_thing_is_an_entity(tmp_path: Path) -> None:
+    """crinst:1000 stores `institution_name = "AOF Haugaland"`, which is a thing."""
+
+    registry = Registry(tmp_path / "r.sqlite")
+    try:
+        _dataset(registry, "fixture:org", FETCHABLE)
+        _cell(
+            registry, "fixture:org",
+            measure="institution_name", value="AOF Haugaland",
+            dimensions={"acronym": "AOFHAUGALA", "country": "NO"},
+        )
+        assert demonstrated_capability(registry, "fixture:org") == ("entities", "entity")
+    finally:
+        registry.close()
+
+
+def test_a_named_thing_with_a_coordinate_is_a_feature(tmp_path: Path) -> None:
+    registry = Registry(tmp_path / "r.sqlite")
+    try:
+        _dataset(registry, "fixture:geo", FETCHABLE)
+        _cell(
+            registry, "fixture:geo",
+            measure="Description", value="Vestside av bukt",
+            dimensions={"Lat": "69.6", "Long": "18.9", "fid": "7", "Station": "Strandnot"},
+        )
+        assert demonstrated_capability(registry, "fixture:geo") == ("features", "feature")
+    finally:
+        registry.close()
+
+
+def test_a_records_row_states_its_own_kind(tmp_path: Path) -> None:
+    """A `records` row says what it is, so it decides and nothing is inferred."""
+
+    registry = Registry(tmp_path / "r.sqlite")
+    try:
+        _dataset(registry, "fixture:rec", FETCHABLE)
+        run_id = registry.start_fetch_run(
+            dataset_id="fixture:rec", table_id="t",
+            request_url=FETCHABLE, request_method="TEST",
+        )
+        registry.upsert_record(
+            {
+                "id": "fixture:rec:1",
+                "dataset_id": "fixture:rec",
+                "kind": "entity",
+                "subject_scheme": "brreg:orgnr",
+                "subject_code": "974760673",
+                "subject_label": "Universitetet i Oslo",
+                "attributes_json": "{}",
+                "retrieved_at": "2026-10-16T00:00:00Z",
+                "request_url": FETCHABLE,
+                "http_status": 200,
+            },
+            run_id,
+        )
+        registry.conn.commit()
+        assert demonstrated_capability(registry, "fixture:rec") == ("entities", "entity")
+    finally:
+        registry.close()
+
+
+def test_a_resource_with_nothing_stored_demonstrates_nothing(tmp_path: Path) -> None:
+    registry = Registry(tmp_path / "r.sqlite")
+    try:
+        _dataset(registry, "fixture:none", FETCHABLE)
+        assert demonstrated_capability(registry, "fixture:none") is None
     finally:
         registry.close()
