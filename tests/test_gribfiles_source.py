@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from public_data_agent.fetch import fetch_observations
+from public_data_agent.fetch import ServiceCatalogue, fetch_observations
 from public_data_agent.harvest import harvest
 from public_data_agent.http_util import JsonResponse
 from public_data_agent.registry import Registry
@@ -147,10 +147,18 @@ class CatalogHttp:
         raise AssertionError(f"unexpected GET {url}")
 
 
+FEATURES_BODY = [
+    {"id": "meps_weatherapi_scandinavia"},
+    {"id": "meps_weatherapi_oslofjord"},
+]
+
+
 class FetchHttp:
     def get_json_response(self, url: str, *, headers=None) -> JsonResponse:
         if url == LOCATIONS_URL:
             return JsonResponse(status=200, url=url, body=LOCATIONS_BODY)
+        if url == FEATURES_URL:
+            return JsonResponse(status=200, url=url, body=FEATURES_BODY)
         raise AssertionError(f"unexpected GET {url}")
 
     def post_json_response(self, url: str, body, *, headers=None) -> JsonResponse:
@@ -260,20 +268,23 @@ def test_fetch_gets_printed_locations(tmp_path: Path) -> None:
     assert result.table_id == "locations"
     assert result.http_status == 200
     assert result.counts.listed == 2
-    rows = registry.list_observations(DATASET_ID)
-    by_value = {json.loads(row["value_json"]): row for row in rows}
-    assert set(by_value) == {"N-NORTHSEA", "OSLOFJORD"}
-    assert by_value["N-NORTHSEA"]["measure"] == "name"
-    dims = json.loads(by_value["N-NORTHSEA"]["dimensions_json"])
-    assert dims["id"] == "n-northsea"
-    assert dims["title"] == "N-NORTHSEA"
-    assert "collection" not in dims
-    assert "geometry" not in dims
-    assert "resources" not in dims
-    assert by_value["OSLOFJORD"]["measure"] == "name"
+    # A forecast location is a place -- an airport under its ICAO code, a sea
+    # area under its handle -- not a forecast.
+    assert registry.observation_count() == 0
+    rows = registry.list_records(DATASET_ID, kind="entity")
+    by_label = {row["subject_label"]: row for row in rows}
+    assert set(by_label) == {"N-NORTHSEA", "OSLOFJORD"}
+    assert by_label["N-NORTHSEA"]["subject_code"] == "n-northsea"
+    assert all(row["measure"] is None and row["value_json"] is None for row in rows)
+    attributes = json.loads(by_label["N-NORTHSEA"]["attributes_json"])
+    assert attributes["title"] == "N-NORTHSEA"
+    assert "id" not in attributes
+    assert "collection" not in attributes
+    assert "geometry" not in attributes
+    assert "resources" not in attributes
     assert all(row["publisher_name"] is None for row in rows)
     assert all(row["license"] == LICENSE_URL for row in rows)
-    assert all(row["access_path"] == LOCATIONS_URL for row in rows)
+    assert all(row["request_url"] == LOCATIONS_URL for row in rows)
     registry.close()
 
 
@@ -327,3 +338,26 @@ def test_limit_and_offset_slice_printed_paths() -> None:
     ]
     nxt = source.list_dataset_refs(limit=1, offset=3)
     assert [ref.source_native_id for ref in nxt] == ["locations"]
+
+
+def test_the_product_listing_is_refused_not_stored(tmp_path: Path) -> None:
+    """The other half of the same connector.
+
+    `/features` is the set of products met.no serves -- `meps_weatherapi_
+    scandinavia` and the rest. Stored as an observation that made a product
+    name a published value, and marked the dataset verified. A product is
+    requested by id with its own parameters, which this fetch never does.
+    """
+
+    source = GribfilesSource(http=CatalogHttp())
+    registry = Registry(tmp_path / "registry.sqlite")
+    harvest(registry, source)
+    registry.conn.execute(
+        "UPDATE datasets SET access_path = ? WHERE id = ?", (FEATURES_URL, DATASET_ID)
+    )
+    registry.conn.commit()
+    with pytest.raises(ServiceCatalogue, match="products this service offers"):
+        fetch_observations(registry, DATASET_ID, table_id="ignored", http=FetchHttp())
+    assert registry.observation_count() == 0
+    assert registry.list_records(DATASET_ID) == []
+    registry.close()

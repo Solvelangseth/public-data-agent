@@ -22,6 +22,7 @@ from pathlib import Path
 
 from public_data_agent.entity_records import (
     AIRQUALITY_ID_FIELDS,
+    MET_ID_FIELDS,
     AIRQUALITY_LABEL_FIELDS,
     BRORGFORMEN_ID_FIELDS,
     BRREG_ID_FIELDS,
@@ -71,6 +72,8 @@ SHAPES = {
     "kikommuner": (KIKOMMUNER_ID_FIELDS, (), "kikommuner", "entity"),
     "buyer": (BUYER_ID_FIELDS, (), "buyer", "entity"),
     "georegister": (GEOREGISTER_ID_FIELDS, (), "georegister", "entity"),
+    "gribfiles": (MET_ID_FIELDS, (), "gribfiles", "entity"),
+    "aviationforecast": (MET_ID_FIELDS, (), "aviationforecast", "entity"),
 }
 
 # Sources where only some datasets are label-valued. Moving a dataset whose

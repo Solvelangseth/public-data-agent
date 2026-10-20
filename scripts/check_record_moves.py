@@ -31,6 +31,17 @@ BACKUPS = (
     "data/brreg_env_observations_backup.json.gz",
     "data/norgesbank_observations_backup.json.gz",
     "data/tail_observations_backup.json.gz",
+    "data/airquality_observations_backup.json.gz",
+    "data/met_locations_backup.json.gz",
+)
+
+# Rows that were deleted rather than converted, so a backup of them must not be
+# read as rows that should have records. Keeping the list here is what stops a
+# later run reporting 131 missing records and inviting someone to "repair" them
+# back into existence.
+DELETED = (
+    "data/service_catalogue_backup.json.gz",
+    "data/catalogue_backup_ogc_met.json.gz",
 )
 
 

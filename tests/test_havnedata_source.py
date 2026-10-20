@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from public_data_agent.fetch import fetch_observations
+from public_data_agent.fetch import ServiceCatalogue, fetch_observations
 from public_data_agent.harvest import harvest
 from public_data_agent.http_util import JsonResponse
 from public_data_agent.registry import Registry
@@ -251,31 +251,22 @@ def test_harvest_writes_printed_id_and_null_license(tmp_path: Path) -> None:
     registry.close()
 
 
-def test_fetch_gets_printed_collections(tmp_path: Path) -> None:
+def test_a_collections_listing_is_refused_not_stored(tmp_path: Path) -> None:
+    """What the service holds is not what the service is about.
+
+    Kartverket's OGC API prints its collections -- id, title, item count,
+    coordinate system -- and the connector stored each as an observation, so
+    `itemCount` became a published figure about harbours. The items live at
+    `<collection>/items`, which this connector has never asked for.
+    """
+
     source = HavnedataSource(http=CatalogHttp())
     registry = Registry(tmp_path / "registry.sqlite")
     harvest(registry, source)
-    result = fetch_observations(
-        registry,
-        DATASET_ID,
-        table_id="ignored",
-        http=FetchHttp(),
-    )
-    assert result.request_url == COLLECTIONS_URL
-    assert result.table_id == "collections"
-    assert result.http_status == 200
-    assert result.counts.listed == 2
-    rows = registry.list_observations(DATASET_ID)
-    by_value = {json.loads(row["value_json"]): row for row in rows}
-    assert set(by_value) == {"administrativthavneområde", "avfallspunkt"}
-    assert by_value["avfallspunkt"]["measure"] == "title"
-    dims = json.loads(by_value["avfallspunkt"]["dimensions_json"])
-    assert dims["id"] == "avfallspunkt"
-    assert dims["itemType"] == "feature"
-    assert "nested" not in dims
-    assert all(row["publisher_name"] is None for row in rows)
-    assert all(row["license"] is None for row in rows)
-    assert all(row["access_path"] == COLLECTIONS_URL for row in rows)
+    with pytest.raises(ServiceCatalogue, match="table of contents"):
+        fetch_observations(registry, DATASET_ID, table_id="ignored", http=FetchHttp())
+    assert registry.observation_count() == 0
+    assert registry.list_records(DATASET_ID) == []
     registry.close()
 
 

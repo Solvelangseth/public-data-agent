@@ -12,6 +12,7 @@ from urllib.parse import urljoin, urlparse
 from public_data_agent.brreg_hal import brreg_table_id, cells_from_brreg, is_brreg_url
 from public_data_agent.entity_records import (
     AIRQUALITY_ID_FIELDS,
+    MET_ID_FIELDS,
     AIRQUALITY_LABEL_FIELDS,
     BRORGFORMEN_ID_FIELDS,
     BRREG_ID_FIELDS,
@@ -9121,18 +9122,34 @@ def _fetch_gribfiles(
         got = client.get_json_response(access_path)
         http_status = got.status
         registry.set_fetch_request(run_id, request_url=access_path, request_body={"method": "GET"})
-        cells = cells_from_gribfiles(got.body)
-        counts.listed = len(cells)
-        sample = _store_cells(
+        # met.no serves two listings through one connector. `/features` is the
+        # set of products the service offers -- its own table of contents.
+        # `/locations` is a register of real places: OSLO/GARDERMOEN under
+        # ICAO ENGM is an airport, not a fact about the API.
+        if table_id == "features":
+            raise ServiceCatalogue(
+                f"{dataset['id']}: {access_path} printed the products this service "
+                f"offers, not a forecast. A product is requested by id with its own "
+                f"parameters; nothing was stored."
+            )
+        records = records_from_cells(
+            cells_from_gribfiles(got.body),
+            dataset_id=dataset["id"],
+            table_id=table_id,
+            id_fields=MET_ID_FIELDS,
+            prefix="gribfiles",
+        )
+        counts.listed = len(records)
+        sample = _store_records(
             registry,
             dataset,
             run_id,
-            table_id=table_id,
-            cells=cells,
+            records=records,
             retrieved_at=utc_now(),
             request_url=access_path,
             http_status=http_status,
             counts=counts,
+            series=f"fetch:{table_id}",
         )
         status = "completed"
     except Exception as exc:
@@ -10923,6 +10940,9 @@ def _fetch_havnedata(
         got = client.get_json_response(access_path)
         http_status = got.status
         registry.set_fetch_request(run_id, request_url=access_path, request_body={"method": "GET"})
+        _refuse_service_catalogue(
+            got.body, dataset_id=dataset["id"], url=access_path, what="collection"
+        )
         cells = cells_from_havnedata(got.body)
         counts.listed = len(cells)
         sample = _store_cells(
@@ -11144,18 +11164,34 @@ def _fetch_aviationforecast(
         got = client.get_json_response(access_path)
         http_status = got.status
         registry.set_fetch_request(run_id, request_url=access_path, request_body={"method": "GET"})
-        cells = cells_from_aviationforecast(got.body)
-        counts.listed = len(cells)
-        sample = _store_cells(
+        # met.no serves two listings through one connector. `/features` is the
+        # set of products the service offers -- its own table of contents.
+        # `/locations` is a register of real places: OSLO/GARDERMOEN under
+        # ICAO ENGM is an airport, not a fact about the API.
+        if table_id == "features":
+            raise ServiceCatalogue(
+                f"{dataset['id']}: {access_path} printed the products this service "
+                f"offers, not a forecast. A product is requested by id with its own "
+                f"parameters; nothing was stored."
+            )
+        records = records_from_cells(
+            cells_from_aviationforecast(got.body),
+            dataset_id=dataset["id"],
+            table_id=table_id,
+            id_fields=MET_ID_FIELDS,
+            prefix="aviationforecast",
+        )
+        counts.listed = len(records)
+        sample = _store_records(
             registry,
             dataset,
             run_id,
-            table_id=table_id,
-            cells=cells,
+            records=records,
             retrieved_at=utc_now(),
             request_url=access_path,
             http_status=http_status,
             counts=counts,
+            series=f"fetch:{table_id}",
         )
         status = "completed"
     except Exception as exc:
@@ -16729,19 +16765,39 @@ class ServiceCatalogue(ValueError):
     """
 
 
-def _refuse_service_catalogue(payload: Any, *, dataset_id: str, url: str) -> None:
-    """Stop an ArcGIS service description from being stored as data."""
+# What a service prints when it is describing itself. `layers` and `services`
+# are ArcGIS; `collections` is OGC API Features; `features` is how met.no lists
+# the products it serves, which is the same kind of list under another name.
+# `features` is deliberately absent from the GeoJSON sense -- a FeatureCollection
+# of real features is read by connectors that never call this.
+_CATALOGUE_KEYS = ("layers", "services", "collections")
+
+# A single OGC collection's own page: what the collection holds and how much of
+# it, with no item in sight.
+_COLLECTION_DESCRIPTION_KEYS = frozenset({"itemType", "storageCrs", "extent", "crs"})
+
+
+def _refuse_service_catalogue(
+    payload: Any, *, dataset_id: str, url: str, what: str = "layer"
+) -> None:
+    """Stop a service's description of itself from being stored as data."""
 
     if not isinstance(payload, dict):
         return
-    for key in ("layers", "services"):
+    for key in _CATALOGUE_KEYS:
         listed = payload.get(key)
         if isinstance(listed, list) and listed:
             raise ServiceCatalogue(
                 f"{dataset_id}: {url} printed {len(listed)} {key} -- the service's own "
-                f"table of contents, not data. Each layer has to be queried at "
-                f"<service>/<layer id>/query; nothing was stored."
+                f"table of contents, not data. Each {what} has to be requested in its "
+                f"own right; nothing was stored."
             )
+    if "features" not in payload and _COLLECTION_DESCRIPTION_KEYS & set(payload):
+        raise ServiceCatalogue(
+            f"{dataset_id}: {url} printed what the collection holds -- its item type, "
+            f"count and coordinate system -- and no item. The items are at "
+            f"{url.rstrip('/')}/items; nothing was stored."
+        )
 
 
 class SelectionTooLarge(ValueError):

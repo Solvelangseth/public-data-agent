@@ -58,6 +58,10 @@ KIKOMMUNER_ID_FIELDS = ("kommunenummer",)
 BUYER_ID_FIELDS = ("locationId", "id")
 GEOREGISTER_ID_FIELDS = ("Id", "id", "OrganizationNumber")
 
+# met.no addresses a forecast location by a short handle -- `ENGM` for
+# Gardermoen, `oslofjord` for the sea area -- with the name beside it.
+MET_ID_FIELDS = ("id",)
+
 # Norges Bank's SDMX flows print the security the row is about under `ISIN`.
 NORGESBANK_ID_FIELDS = ("ISIN",)
 

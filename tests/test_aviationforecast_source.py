@@ -272,19 +272,22 @@ def test_fetch_gets_printed_locations(tmp_path: Path) -> None:
     assert result.table_id == "locations"
     assert result.http_status == 200
     assert result.counts.listed == 2
-    rows = registry.list_observations(DATASET_ID)
-    by_value = {json.loads(row["value_json"]): row for row in rows}
-    assert set(by_value) == {"BERGEN/FLESLAND", "OSLO/GARDERMOEN"}
-    assert by_value["BERGEN/FLESLAND"]["measure"] == "name"
-    dims = json.loads(by_value["BERGEN/FLESLAND"]["dimensions_json"])
-    assert dims["id"] == "ENBR"
-    assert dims["title"] == "BERGEN/FLESLAND"
-    assert "geometry" not in dims
-    assert "resources" not in dims
-    assert by_value["OSLO/GARDERMOEN"]["measure"] == "name"
+    # A forecast location is a place -- an airport under its ICAO code, a sea
+    # area under its handle -- not a forecast.
+    assert registry.observation_count() == 0
+    rows = registry.list_records(DATASET_ID, kind="entity")
+    by_label = {row["subject_label"]: row for row in rows}
+    assert set(by_label) == {"BERGEN/FLESLAND", "OSLO/GARDERMOEN"}
+    assert by_label["BERGEN/FLESLAND"]["subject_code"] == "ENBR"
+    assert all(row["measure"] is None and row["value_json"] is None for row in rows)
+    attributes = json.loads(by_label["BERGEN/FLESLAND"]["attributes_json"])
+    assert attributes["title"] == "BERGEN/FLESLAND"
+    assert "id" not in attributes
+    assert "geometry" not in attributes
+    assert "resources" not in attributes
     assert all(row["publisher_name"] is None for row in rows)
     assert all(row["license"] == LICENSE_URL for row in rows)
-    assert all(row["access_path"] == LOCATIONS_URL for row in rows)
+    assert all(row["request_url"] == LOCATIONS_URL for row in rows)
     registry.close()
 
 
