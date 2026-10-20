@@ -167,18 +167,27 @@ def test_fetch_follows_printed_vehicle_types_feed(tmp_path: Path) -> None:
     assert result.table_id == "voistavanger"
     assert result.http_status == 200
     assert result.counts.listed == 2
-    rows = registry.list_observations(DATASET_ID)
-    by_name = {json.loads(row["value_json"]): row for row in rows}
+    # A vehicle type is a model of scooter, not a measurement of one.
+    assert registry.observation_count() == 0
+    rows = registry.list_records(DATASET_ID, kind="entity")
+    by_name = {row["subject_label"]: row for row in rows}
     assert set(by_name) == {"Voiager_5", "Voiager_4"}
-    assert all(row["measure"] == "name" for row in rows)
-    dims = json.loads(by_name["Voiager_5"]["dimensions_json"])
-    assert dims["make"] == "Ninebot"
-    assert dims["model"] == "Voiager_5"
-    assert dims["vehicle_type_id"] == "YVO:VehicleType:172ef7a6-ee84-4320-9337-86235f2f67ac"
-    assert "nested" not in dims
+    assert all(row["subject_scheme"] == "entur:vehicle_type" for row in rows)
+    assert all(row["measure"] is None and row["value_json"] is None for row in rows)
+    assert (
+        by_name["Voiager_5"]["subject_code"]
+        == "YVO:VehicleType:172ef7a6-ee84-4320-9337-86235f2f67ac"
+    )
+    attributes = json.loads(by_name["Voiager_5"]["attributes_json"])
+    assert attributes["make"] == "Ninebot"
+    assert attributes["model"] == "Voiager_5"
+    assert "vehicle_type_id" not in attributes
+    assert "nested" not in attributes
     assert all(row["publisher_name"] is None for row in rows)
     assert all(row["license"] is None for row in rows)
-    assert all(row["access_path"] == STAVANGER_URL for row in rows)
+    # The feed the rows actually came from, which is the one the connector
+    # followed, not the discovery URL it started at.
+    assert all(row["request_url"] == VEHICLE_TYPES_URL for row in rows)
     registry.close()
 
 

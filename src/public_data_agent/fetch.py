@@ -10,7 +10,12 @@ from typing import Any, Protocol
 from urllib.parse import urljoin, urlparse
 
 from public_data_agent.brreg_hal import brreg_table_id, cells_from_brreg, is_brreg_url
-from public_data_agent.cristin_records import records_from_cells
+from public_data_agent.entity_records import (
+    CRISTIN_ID_FIELDS,
+    ENTUR_ID_FIELDS,
+    GREP_ID_FIELDS,
+    records_from_cells,
+)
 from public_data_agent.geonorge_rest import (
     cells_from_geonorge,
     collection_request_url,
@@ -7727,18 +7732,25 @@ def _fetch_entur(
             got = client.get_json_response(feed_url)
             http_status = got.status
         registry.set_fetch_request(run_id, request_url=request_url, request_body={"method": "GET"})
-        cells = cells_from_entur(got.body)
-        counts.listed = len(cells)
-        sample = _store_cells(
+        # A GBFS vehicle type is a model of scooter or bike, not a count of them.
+        records = records_from_cells(
+            cells_from_entur(got.body),
+            dataset_id=dataset["id"],
+            table_id=table_id,
+            id_fields=ENTUR_ID_FIELDS,
+            prefix="entur",
+        )
+        counts.listed = len(records)
+        sample = _store_records(
             registry,
             dataset,
             run_id,
-            table_id=table_id,
-            cells=cells,
+            records=records,
             retrieved_at=utc_now(),
             request_url=request_url,
             http_status=http_status,
             counts=counts,
+            series=f"fetch:{table_id}",
         )
         status = "completed"
     except Exception as exc:
@@ -12845,18 +12857,27 @@ def _fetch_grep(
         got = client.get_json_response(access_path)
         http_status = got.status
         registry.set_fetch_request(run_id, request_url=access_path, request_body={"method": "GET"})
-        cells = cells_from_grep(got.body)
-        counts.listed = len(cells)
-        sample = _store_cells(
+        # A Udir curriculum code is a code, and the title it stands for is nested
+        # where the connector does not copy it; the record says the code and
+        # claims no name.
+        records = records_from_cells(
+            cells_from_grep(got.body),
+            dataset_id=dataset["id"],
+            table_id=table_id,
+            id_fields=GREP_ID_FIELDS,
+            prefix="grep",
+        )
+        counts.listed = len(records)
+        sample = _store_records(
             registry,
             dataset,
             run_id,
-            table_id=table_id,
-            cells=cells,
+            records=records,
             retrieved_at=utc_now(),
             request_url=access_path,
             http_status=http_status,
             counts=counts,
+            series=f"fetch:{table_id}",
         )
         status = "completed"
     except Exception as exc:

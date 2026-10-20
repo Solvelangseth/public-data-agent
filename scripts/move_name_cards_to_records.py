@@ -1,9 +1,9 @@
-"""Move Cristin name cards out of `observations` and into `records`.
+"""Move name cards out of `observations` and into `records`.
 
 The connectors now write entity records. These rows were written before that
-and still carry a name as the value of a measurement, which is what made 1,413
-institutions, people, projects, results, biobanks and units count as published
-statistics.
+and still carry a name as the value of a measurement, which is what made
+institutions, people, projects, biobanks, scooter models and curriculum codes
+count as published statistics.
 
 They are converted in place rather than re-fetched: the conversion reads the
 stored cell through the same `records_from_cells` the connector now calls, so
@@ -20,11 +20,30 @@ import json
 from collections import Counter
 from pathlib import Path
 
-from public_data_agent.cristin_records import records_from_cells
+from public_data_agent.entity_records import (
+    CRISTIN_ID_FIELDS,
+    ENTUR_ID_FIELDS,
+    GREP_ID_FIELDS,
+    records_from_cells,
+)
 from public_data_agent.registry import Registry
 from public_data_agent.verify import demonstrated_capability
 
-SOURCES = ("cristin", "crinst", "crunit", "crperson", "crproj", "crresult", "crbio")
+# Each source's identifier vocabulary, the same one its connector now passes.
+# A source converted with the wrong one would key its records differently from
+# what a re-fetch writes, which is the one thing this script must not do.
+SHAPES = {
+    "cristin": (CRISTIN_ID_FIELDS, "cristin"),
+    "crinst": (CRISTIN_ID_FIELDS, "cristin"),
+    "crunit": (CRISTIN_ID_FIELDS, "cristin"),
+    "crperson": (CRISTIN_ID_FIELDS, "cristin"),
+    "crproj": (CRISTIN_ID_FIELDS, "cristin"),
+    "crresult": (CRISTIN_ID_FIELDS, "cristin"),
+    "crbio": (CRISTIN_ID_FIELDS, "cristin"),
+    "entur": (ENTUR_ID_FIELDS, "entur"),
+    "grep": (GREP_ID_FIELDS, "grep"),
+}
+SOURCES = tuple(SHAPES)
 
 
 def main() -> int:
@@ -32,7 +51,7 @@ def main() -> int:
     parser.add_argument("--db", default="data/registry.sqlite")
     parser.add_argument("--sources", default=",".join(SOURCES))
     parser.add_argument("--apply", action="store_true")
-    parser.add_argument("--backup", default="data/cristin_observations_backup.json.gz")
+    parser.add_argument("--backup", default="data/name_card_observations_backup.json.gz")
     args = parser.parse_args()
 
     sources = [s.strip() for s in args.sources.split(",") if s.strip()]
@@ -46,7 +65,7 @@ def main() -> int:
             )
         )
     if not rows:
-        print("no cristin observation rows left to move")
+        print("no name-card observation rows left to move")
         return 0
 
     by_source = Counter(row["dataset_id"].split(":")[0] for row in rows)
@@ -71,8 +90,13 @@ def main() -> int:
                 json.loads(row["dimensions_json"] or "{}"),
             )
         ]
+        id_fields, prefix = SHAPES[row["dataset_id"].split(":")[0]]
         for record in records_from_cells(
-            cells, dataset_id=row["dataset_id"], table_id=row["table_id"]
+            cells,
+            dataset_id=row["dataset_id"],
+            table_id=row["table_id"],
+            id_fields=id_fields,
+            prefix=prefix,
         ):
             registry.upsert_record(
                 {

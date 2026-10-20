@@ -468,3 +468,45 @@ def test_a_code_and_a_label_and_nothing_else_is_a_lookup(tmp_path: Path) -> None
         assert demonstrated_capability(registry, "fixture:kommuner") == ("lookup", "entity")
     finally:
         registry.close()
+
+
+def test_codes_with_no_names_are_a_lookup(tmp_path: Path) -> None:
+    """Udir's curriculum vocabularies, and why attributes are not the test.
+
+    A GREP item carries a code, a status and a modified date, and its title
+    sits in a nested object the connector does not copy. Judged by its
+    attributes it would look like a register of things; judged by whether it
+    ever names one, it is a list of codes.
+    """
+
+    registry = Registry(tmp_path / "r.sqlite")
+    try:
+        _dataset(registry, "fixture:grep", FETCHABLE)
+        run_id = registry.start_fetch_run(
+            dataset_id="fixture:grep", table_id="aarstrinn",
+            request_url=FETCHABLE, request_method="TEST",
+        )
+        for code in ("aarstrinn1", "aarstrinn2"):
+            registry.upsert_record(
+                {
+                    "id": f"entity:fixture:grep:{code}",
+                    "dataset_id": "fixture:grep",
+                    "kind": "entity",
+                    "subject_scheme": "grep:aarstrinn",
+                    "subject_code": code,
+                    "subject_label": None,
+                    "attributes": {
+                        "status": "publisert",
+                        "sist-endret": "2024-06-24T08:27:16",
+                        "uri": f"http://psi.udir.no/laereplan/aarstrinn/{code}",
+                    },
+                    "retrieved_at": "2026-10-20T00:00:00Z",
+                    "request_url": FETCHABLE,
+                    "http_status": 200,
+                },
+                run_id,
+            )
+        registry.conn.commit()
+        assert demonstrated_capability(registry, "fixture:grep") == ("lookup", "entity")
+    finally:
+        registry.close()

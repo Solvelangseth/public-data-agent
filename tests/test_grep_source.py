@@ -193,18 +193,24 @@ def test_fetch_gets_printed_aarstrinn(tmp_path: Path) -> None:
     assert result.table_id == "aarstrinn"
     assert result.http_status == 200
     assert result.counts.listed == 2
-    rows = registry.list_observations(DATASET_ID)
-    by_value = {json.loads(row["value_json"]): row for row in rows}
-    assert set(by_value) == {"aarstrinn1", "aarstrinn2"}
-    assert by_value["aarstrinn1"]["measure"] == "kode"
-    dims = json.loads(by_value["aarstrinn1"]["dimensions_json"])
-    assert dims["id"] == "uuid:1"
-    assert dims["status"] == "publisert"
-    assert "tittel" not in dims
-    assert "nested" not in dims
+    # A curriculum code is a code. Udir prints its title in a nested object
+    # the connector does not copy, so the record claims no label rather than
+    # inventing one.
+    assert registry.observation_count() == 0
+    rows = registry.list_records(DATASET_ID, kind="entity")
+    by_code = {row["subject_code"]: row for row in rows}
+    assert set(by_code) == {"aarstrinn1", "aarstrinn2"}
+    assert all(row["subject_label"] is None for row in rows)
+    assert all(row["subject_scheme"] == "grep:aarstrinn" for row in rows)
+    assert all(row["measure"] is None and row["value_json"] is None for row in rows)
+    attributes = json.loads(by_code["aarstrinn1"]["attributes_json"])
+    assert attributes["id"] == "uuid:1"
+    assert attributes["status"] == "publisert"
+    assert "tittel" not in attributes
+    assert "nested" not in attributes
     assert all(row["publisher_name"] is None for row in rows)
     assert all(row["license"] == LICENSE_URL for row in rows)
-    assert all(row["access_path"] == AARSTRINN_URL for row in rows)
+    assert all(row["request_url"] == AARSTRINN_URL for row in rows)
     registry.close()
 
 

@@ -275,13 +275,21 @@ def _is_code_list(registry: Registry, dataset_id: str) -> bool:
     """
 
     rows = registry.conn.execute(
-        "SELECT subject_code, measure, value_json, attributes_json FROM records "
+        "SELECT subject_code, subject_label, measure, value_json, attributes_json FROM records "
         "WHERE dataset_id = ? AND kind = 'entity' LIMIT ?",
         (dataset_id, _EVIDENCE_SAMPLE),
     ).fetchall()
     if not rows:
         return False
     import json as _json
+
+    # A resource whose rows are all code and no name does not publish named
+    # things, whatever else it attaches to them. Udir's curriculum vocabularies
+    # are the case in point: every item carries a code, a status and a
+    # modified date, and the title that would make it a thing sits in a nested
+    # object the connector does not copy.
+    if all(row["subject_code"] and not row["subject_label"] for row in rows):
+        return True
 
     for row in rows:
         if not row["subject_code"] or row["measure"] or row["value_json"] is not None:
