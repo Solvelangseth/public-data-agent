@@ -593,6 +593,9 @@ def test_the_probe_reads_a_verdict_off_the_error_it_got() -> None:
     sys.path.insert(0, "scripts")
     from probe_unverified import _verdict
 
+    from public_data_agent.fetch import ServiceCatalogue
+
+    assert _verdict(ServiceCatalogue("... table of contents ...")) == "catalogue"
     assert _verdict(ValueError("HTTP 401 for https://nvdbapiles.../871")) == "restricted"
     assert _verdict(ValueError("NVDB returned no objects for ...")) == "empty"
     assert _verdict(ValueError('HTTP 404 ... "Vegobjekttype 562 ikke funnet"')) == "withdrawn"

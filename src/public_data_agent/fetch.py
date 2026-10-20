@@ -16971,6 +16971,13 @@ CAPABILITY_EMPTY = "empty"
 # real and the connector is right; what is missing is authorisation, which is
 # a different thing from the resource being broken or gone.
 CAPABILITY_RESTRICTED = "restricted"
+# The URL is reachable and it is the wrong door. An ArcGIS MapServer root, an
+# OGC collections listing and met.no's product list all answer with the
+# service describing itself; the data behind them needs a different request
+# that no connector makes yet. Distinct from `empty`, which is the right door
+# to an empty room, and it doubles as the work queue for making these
+# resources genuinely fetchable.
+CAPABILITY_CATALOGUE = "catalogue"
 CAPABILITY_NONE = "none"
 
 # Capabilities that can return data a question is answered from. Statistics were

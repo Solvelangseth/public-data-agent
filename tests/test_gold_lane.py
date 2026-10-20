@@ -74,3 +74,36 @@ def test_no_gold_answer_sits_outside_the_retrievable_lane() -> None:
         )
     finally:
         registry.close()
+
+
+def test_no_capability_row_is_unverified_without_saying_why() -> None:
+    """"Unverified" on its own is not a finding, it is an absence of one.
+
+    78 rows carry no verification and never will: the resource is withdrawn,
+    it is a service catalogue, it is empty, or it is behind authorisation.
+    Each of those is a decided answer with the probe date recorded. A row that
+    is merely unverified means nobody has looked, and this is what keeps that
+    distinction from quietly refilling.
+    """
+
+    if not REGISTRY.exists():
+        pytest.skip("no local registry.sqlite; the vocabulary is unit-tested elsewhere")
+    registry = Registry(REGISTRY)
+    try:
+        decided = {"withdrawn", "catalogue", "empty", "restricted"}
+        rows = registry.conn.execute(
+            "SELECT dataset_id, capability, notes FROM resource_capability "
+            "WHERE verified_at IS NULL"
+        ).fetchall()
+        undecided = [row["dataset_id"] for row in rows if row["capability"] not in decided]
+        silent = [row["dataset_id"] for row in rows if not row["notes"]]
+        assert undecided == [], (
+            f"{len(undecided)} capability rows are unverified with no verdict: "
+            + ", ".join(undecided[:10])
+        )
+        assert silent == [], (
+            f"{len(silent)} rows carry a verdict with no reason recorded: "
+            + ", ".join(silent[:10])
+        )
+    finally:
+        registry.close()

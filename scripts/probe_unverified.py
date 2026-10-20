@@ -5,6 +5,9 @@ source at a time turned up six different situations hiding under that one
 word, and they need different answers from the registry:
 
   verified    rows came back and the capability is read off them
+  catalogue   the endpoint answers with the service describing itself; the
+              data needs a different request, which is a wrong door rather
+              than an empty room
   empty       the endpoint answers correctly and holds nothing
   restricted  the endpoint answers HTTP 401; the data is real, we are not
               authorised, and that is not the resource being broken
@@ -25,9 +28,11 @@ from collections import Counter
 from pathlib import Path
 
 from public_data_agent.fetch import (
+    CAPABILITY_CATALOGUE,
     CAPABILITY_EMPTY,
     CAPABILITY_RESTRICTED,
     CAPABILITY_WITHDRAWN,
+    ServiceCatalogue,
     fetch_observations,
 )
 from public_data_agent.registry import Registry, utc_now
@@ -40,6 +45,10 @@ TOO_LARGE_MARKS = ("over the", "selection is", "cell budget")
 
 
 def _verdict(error: Exception) -> str:
+    # The catalogue case has its own exception type, so it is read from the
+    # type rather than from the wording of a message.
+    if isinstance(error, ServiceCatalogue):
+        return "catalogue"
     message = str(error).casefold()
     if "http 401" in message or "http 403" in message:
         return "restricted"
@@ -53,12 +62,17 @@ def _verdict(error: Exception) -> str:
 
 
 CAPABILITY_FOR = {
+    "catalogue": CAPABILITY_CATALOGUE,
     "empty": CAPABILITY_EMPTY,
     "restricted": CAPABILITY_RESTRICTED,
     "withdrawn": CAPABILITY_WITHDRAWN,
 }
 
 REASON = {
+    "catalogue": (
+        "the endpoint answered with the service describing itself; the data "
+        "behind it needs a request no connector makes yet"
+    ),
     "empty": "the endpoint answered and held no objects",
     "restricted": "the endpoint answered HTTP 401; the data is real and we are not authorised",
     "withdrawn": "the publisher reports this resource does not exist",
@@ -107,7 +121,7 @@ def main() -> int:
         named = " ".join(d for d, v in verdicts.items() if v == verdict)
         print(f"{verdict} ({count}): {named}")
     if not args.apply:
-        print("\ndry run; pass --apply to record the three decided verdicts.")
+        print("\ndry run; pass --apply to record the decided verdicts.")
         return 0
 
     written = 0
