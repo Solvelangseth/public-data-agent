@@ -151,19 +151,23 @@ def test_fetch_gets_printed_vessels(tmp_path: Path) -> None:
     assert result.table_id == "vessels"
     assert result.http_status == 200
     assert result.counts.listed == 2
-    rows = registry.list_observations(DATASET_ID)
-    assert [json.loads(row["value_json"]) for row in rows] == ["KVALVIK", "SVANHILD"]
-    assert all(row["measure"] == "name" for row in rows)
-    dims = json.loads(rows[0]["dimensions_json"])
-    assert dims["id"] == "2026127799"
-    assert dims["registrationMark"] == "N 0063Ø"
-    assert dims["radioCallSign"] == "LI6221"
-    assert dims["municipalityCode"] == "1868"
-    assert dims["tonnage"] == "0"
-    assert "owners" not in dims
+    # A vessel register. Build year and engine power describe a boat; they
+    # are not a published statistic about boats.
+    assert registry.observation_count() == 0
+    rows = registry.list_records(DATASET_ID, kind="entity")
+    assert [row["subject_label"] for row in rows] == ["KVALVIK", "SVANHILD"]
+    assert rows[0]["subject_code"] == "2026127799"
+    assert all(row["measure"] is None and row["value_json"] is None for row in rows)
+    attributes = json.loads(rows[0]["attributes_json"])
+    assert attributes["registrationMark"] == "N 0063Ø"
+    assert attributes["radioCallSign"] == "LI6221"
+    assert attributes["municipalityCode"] == "1868"
+    assert attributes["tonnage"] == "0"
+    assert "id" not in attributes
+    assert "owners" not in attributes
     assert all(row["publisher_name"] is None for row in rows)
     assert all(row["license"] == LICENSE_URL for row in rows)
-    assert all(row["access_path"] == VESSELS_URL for row in rows)
+    assert all(row["request_url"] == VESSELS_URL for row in rows)
     registry.close()
 
 

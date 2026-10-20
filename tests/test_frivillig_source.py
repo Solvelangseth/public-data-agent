@@ -201,18 +201,21 @@ def test_fetch_gets_printed_category_names(tmp_path: Path) -> None:
     assert result.table_id == "icnpo-kategorier"
     assert result.http_status == 200
     assert result.counts.listed == 2
-    rows = registry.list_observations(DATASET_ID)
-    by_value = {json.loads(row["value_json"]): row for row in rows}
-    assert set(by_value) == {"Kultur- og rekreasjon", "Idrett"}
-    assert by_value["Kultur- og rekreasjon"]["measure"] == "navn"
-    dims = json.loads(by_value["Kultur- og rekreasjon"]["dimensions_json"])
-    assert dims["icnpoNummer"] == "1"
-    assert dims["spraakkode"] == "NOB"
-    assert "_links" not in dims
-    assert "underkategorier" not in dims
+    # An ICNPO category is a code and the Norwegian for it.
+    assert registry.observation_count() == 0
+    rows = registry.list_records(DATASET_ID, kind="entity")
+    by_label = {row["subject_label"]: row for row in rows}
+    assert set(by_label) == {"Kultur- og rekreasjon", "Idrett"}
+    assert by_label["Kultur- og rekreasjon"]["subject_code"] == "1"
+    assert all(row["measure"] is None and row["value_json"] is None for row in rows)
+    attributes = json.loads(by_label["Kultur- og rekreasjon"]["attributes_json"])
+    assert attributes["spraakkode"] == "NOB"
+    assert "icnpoNummer" not in attributes
+    assert "_links" not in attributes
+    assert "underkategorier" not in attributes
     assert all(row["publisher_name"] is None for row in rows)
     assert all(row["license"] == LICENSE_URL for row in rows)
-    assert all(row["access_path"] == KATEGORIER_URL for row in rows)
+    assert all(row["request_url"] == KATEGORIER_URL for row in rows)
     registry.close()
 
 

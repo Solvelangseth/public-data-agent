@@ -42,6 +42,22 @@ ENTUR_ID_FIELDS = ("vehicle_type_id", "station_id", "bike_id", "region_id")
 # Udir's curriculum vocabularies print `kode` as the member's whole identity.
 GREP_ID_FIELDS = ("kode", "id", "uri")
 
+# The registers and vocabularies in the tail, each addressed by what its
+# publisher prints as the handle. Named rather than guessed per response,
+# because a register whose identifier is a number -- a buyer location id, an
+# organisation number -- is indistinguishable from a measurement by value
+# alone, and these resources publish no measurements at all.
+AIRQUALITY_ID_FIELDS = ("eoi", "id", "name")
+AIRQUALITY_LABEL_FIELDS = ("desc",)
+FRIVILLIG_ID_FIELDS = ("organisasjonsnummer", "icnpoNummer", "identifikator")
+FRIVILLIG_LABEL_FIELDS = ("navn",)
+BRORGFORMEN_ID_FIELDS = ("kode",)
+FISKERIDIR_ID_FIELDS = ("id", "vesselId", "registrationMark")
+FDKORG_ID_FIELDS = ("organizationId", "orgId", "id")
+KIKOMMUNER_ID_FIELDS = ("kommunenummer",)
+BUYER_ID_FIELDS = ("locationId", "id")
+GEOREGISTER_ID_FIELDS = ("Id", "id", "OrganizationNumber")
+
 # Norges Bank's SDMX flows print the security the row is about under `ISIN`.
 NORGESBANK_ID_FIELDS = ("ISIN",)
 
@@ -125,14 +141,34 @@ def records_from_cells(
             id_field: str | None = None
             subject_code: str | None = str(value)
             subject_label = None
-        elif measure in id_fields and value is not None:
-            id_field = None
-            subject_code = str(value)
-            subject_label = None
         else:
-            id_field = next((field for field in id_fields if dims.get(field)), None)
-            subject_code = str(dims[id_field]) if id_field is not None else None
-            subject_label = None if value is None else str(value)
+            # The identity can arrive either way -- as the field the connector
+            # picked for the measure, or as one of the dimensions -- and which
+            # one wins is `id_fields` order, not which side it came from.
+            # Udir prints `kode` as the measure and an `id` UUID as a
+            # dimension, and the curriculum is addressed by the code; air
+            # quality prints `name` as the measure and the station's `eoi` as
+            # a dimension, and the station is addressed by the eoi. Reading
+            # either side first gets one of them wrong.
+            from_dims = next((field for field in id_fields if dims.get(field)), None)
+            from_measure = measure if (measure in id_fields and value is not None) else None
+            picked = min(
+                (field for field in (from_dims, from_measure) if field is not None),
+                key=id_fields.index,
+                default=None,
+            )
+            if picked is None:
+                id_field = None
+                subject_code = None
+                subject_label = None if value is None else str(value)
+            elif picked == from_measure and picked != from_dims:
+                id_field = None
+                subject_code = str(value)
+                subject_label = None
+            else:
+                id_field = picked
+                subject_code = str(dims[picked])
+                subject_label = None if value is None else str(value)
         if label_field is not None:
             subject_label = str(dims[label_field])
         scheme = _scheme_for(

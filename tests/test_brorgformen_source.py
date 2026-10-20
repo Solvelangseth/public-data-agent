@@ -241,18 +241,20 @@ def test_fetch_gets_printed_beskrivelse(tmp_path: Path) -> None:
     assert result.table_id == "enheter"
     assert result.http_status == 200
     assert result.counts.listed == 2
-    rows = registry.list_observations(DATASET_ID)
-    by_kode = {json.loads(row["dimensions_json"])["kode"]: row for row in rows}
+    # A legal form is a code and the Norwegian for it.
+    assert registry.observation_count() == 0
+    rows = registry.list_records(DATASET_ID, kind="entity")
+    by_kode = {row["subject_code"]: row for row in rows}
     assert set(by_kode) == {"ADOS", "ANNA"}
-    assert json.loads(by_kode["ADOS"]["value_json"]) == "Administrativ enhet - offentlig sektor"
-    assert by_kode["ADOS"]["measure"] == "beskrivelse"
-    dims = json.loads(by_kode["ADOS"]["dimensions_json"])
-    assert dims["kode"] == "ADOS"
-    assert "_links" not in dims
-    assert "nested" not in dims
+    assert by_kode["ADOS"]["subject_label"] == "Administrativ enhet - offentlig sektor"
+    assert all(row["measure"] is None and row["value_json"] is None for row in rows)
+    attributes = json.loads(by_kode["ADOS"]["attributes_json"])
+    assert "kode" not in attributes
+    assert "_links" not in attributes
+    assert "nested" not in attributes
     assert all(row["publisher_name"] is None for row in rows)
     assert all(row["license"] == LICENSE_URL for row in rows)
-    assert all(row["access_path"] == ENHETER_URL for row in rows)
+    assert all(row["request_url"] == ENHETER_URL for row in rows)
     registry.close()
 
 

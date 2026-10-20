@@ -197,16 +197,18 @@ def test_fetch_gets_printed_name(tmp_path: Path) -> None:
     assert result.table_id == "961147867"
     assert result.http_status == 200
     assert result.counts.listed == 1
-    rows = registry.list_observations(DATASET_ID)
-    values = [json.loads(row["value_json"]) for row in rows]
-    assert values == ["BEIARN KOMMUNE"]
-    assert all(row["measure"] == "name" for row in rows)
-    dims = json.loads(rows[0]["dimensions_json"])
-    assert dims["organizationId"] == "961147867"
-    assert "prefLabel" not in dims
+    # An organisation register entry.
+    assert registry.observation_count() == 0
+    rows = registry.list_records(DATASET_ID, kind="entity")
+    assert [row["subject_label"] for row in rows] == ["BEIARN KOMMUNE"]
+    assert [row["subject_code"] for row in rows] == ["961147867"]
+    assert all(row["measure"] is None and row["value_json"] is None for row in rows)
+    attributes = json.loads(rows[0]["attributes_json"])
+    assert "organizationId" not in attributes
+    assert "prefLabel" not in attributes
     assert all(row["publisher_name"] is None for row in rows)
     assert all(row["license"] is None for row in rows)
-    assert all(row["access_path"] == BEIARN_URL for row in rows)
+    assert all(row["request_url"] == BEIARN_URL for row in rows)
     registry.close()
 
 

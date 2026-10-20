@@ -154,19 +154,24 @@ def test_fetch_gets_printed_locations(tmp_path: Path) -> None:
     assert result.table_id == "locations"
     assert result.http_status == 200
     assert result.counts.listed == 2
-    rows = registry.list_observations(DATASET_ID)
-    by_value = {json.loads(row["value_json"]): row for row in rows}
-    assert set(by_value) == {200092526, "TOR GUNNAR EKKILSØY"}
-    assert by_value[200092526]["measure"] == "locationId"
-    assert by_value["TOR GUNNAR EKKILSØY"]["measure"] == "name"
-    dims = json.loads(by_value[200092526]["dimensions_json"])
-    assert dims["parent"] == "200092518"
-    assert dims["locationType"] == "DOCK_SALESPERSON_T"
-    assert dims["mainLegalEntityId"] == "990264554"
-    assert "address" not in dims
+    # Where no name is printed the connector falls back to the location id,
+    # and a number that identifies is still not a number that measures: both
+    # rows are the same kind of thing.
+    assert registry.observation_count() == 0
+    rows = registry.list_records(DATASET_ID, kind="entity")
+    by_code = {row["subject_code"]: row for row in rows}
+    assert set(by_code) == {"200092526", "200092518"}
+    assert by_code["200092526"]["subject_label"] is None
+    assert by_code["200092518"]["subject_label"] == "TOR GUNNAR EKKILSØY"
+    assert all(row["measure"] is None and row["value_json"] is None for row in rows)
+    attributes = json.loads(by_code["200092526"]["attributes_json"])
+    assert attributes["parent"] == "200092518"
+    assert attributes["locationType"] == "DOCK_SALESPERSON_T"
+    assert attributes["mainLegalEntityId"] == "990264554"
+    assert "address" not in attributes
     assert all(row["publisher_name"] is None for row in rows)
     assert all(row["license"] == LICENSE_URL for row in rows)
-    assert all(row["access_path"] == LOCATIONS_URL for row in rows)
+    assert all(row["request_url"] == LOCATIONS_URL for row in rows)
     registry.close()
 
 

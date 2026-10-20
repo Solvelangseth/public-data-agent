@@ -189,26 +189,26 @@ def test_fetch_gets_printed_kommuner(tmp_path: Path) -> None:
     assert result.table_id == "kommuner"
     assert result.http_status == 200
     assert result.counts.listed == 2
-    rows = registry.list_observations(DATASET_ID)
-    values = [json.loads(row["value_json"]) for row in rows]
-    assert set(values) == {"Utsira kommune", "Askvoll kommune"}
-    assert all(row["measure"] == "Name" for row in rows)
+    # A register of organisations, addressed by organisation number.
+    assert registry.observation_count() == 0
+    rows = registry.list_records(DATASET_ID, kind="entity")
+    assert {row["subject_label"] for row in rows} == {"Utsira kommune", "Askvoll kommune"}
+    assert all(row["measure"] is None and row["value_json"] is None for row in rows)
     by_name = {
-        json.loads(row["value_json"]): json.loads(row["dimensions_json"]) for row in rows
+        row["subject_label"]: (row["subject_code"], json.loads(row["attributes_json"]))
+        for row in rows
     }
-    assert by_name["Utsira kommune"] == {
-        "OrganizationNumber": "964979901",
-        "OrganizationType": "municipality",
-        "MunicipalityCode": "1151",
-    }
-    assert by_name["Askvoll kommune"] == {
-        "OrganizationNumber": "838900802",
-        "OrganizationType": "municipality",
-        "MunicipalityCode": "4645",
-    }
+    assert by_name["Utsira kommune"] == (
+        "964979901",
+        {"OrganizationType": "municipality", "MunicipalityCode": "1151"},
+    )
+    assert by_name["Askvoll kommune"] == (
+        "838900802",
+        {"OrganizationType": "municipality", "MunicipalityCode": "4645"},
+    )
     assert all(row["publisher_name"] is None for row in rows)
     assert all(row["license"] is None for row in rows)
-    assert all(row["access_path"] == KOMMUNER_URL for row in rows)
+    assert all(row["request_url"] == KOMMUNER_URL for row in rows)
     registry.close()
 
 

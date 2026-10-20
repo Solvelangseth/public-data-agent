@@ -11,7 +11,17 @@ from urllib.parse import urljoin, urlparse
 
 from public_data_agent.brreg_hal import brreg_table_id, cells_from_brreg, is_brreg_url
 from public_data_agent.entity_records import (
+    AIRQUALITY_ID_FIELDS,
+    AIRQUALITY_LABEL_FIELDS,
+    BRORGFORMEN_ID_FIELDS,
     BRREG_ID_FIELDS,
+    BUYER_ID_FIELDS,
+    FDKORG_ID_FIELDS,
+    FISKERIDIR_ID_FIELDS,
+    FRIVILLIG_ID_FIELDS,
+    FRIVILLIG_LABEL_FIELDS,
+    GEOREGISTER_ID_FIELDS,
+    KIKOMMUNER_ID_FIELDS,
     NORGESBANK_ID_FIELDS,
     cells_are_labels,
     BRREG_LABEL_FIELDS,
@@ -2507,18 +2517,26 @@ def _fetch_brorgformen(
         got = client.get_json_response(access_path)
         http_status = got.status
         registry.set_fetch_request(run_id, request_url=access_path, request_body={"method": "GET"})
-        cells = cells_from_brorgformen(got.body)
-        counts.listed = len(cells)
-        sample = _store_cells(
+        # A legal form is a code and the Norwegian for it.
+        records = records_from_cells(
+            cells_from_brorgformen(got.body),
+            dataset_id=dataset["id"],
+            table_id=table_id,
+            id_fields=BRORGFORMEN_ID_FIELDS,
+            label_fields=(),
+            prefix="brorgformen",
+        )
+        counts.listed = len(records)
+        sample = _store_records(
             registry,
             dataset,
             run_id,
-            table_id=table_id,
-            cells=cells,
+            records=records,
             retrieved_at=utc_now(),
             request_url=access_path,
             http_status=http_status,
             counts=counts,
+            series=f"fetch:{table_id}",
         )
         status = "completed"
     except Exception as exc:
@@ -5743,18 +5761,28 @@ def _fetch_buyer(
         got = client.get_json_response(access_path)
         http_status = got.status
         registry.set_fetch_request(run_id, request_url=access_path, request_body={"method": "GET"})
-        cells = cells_from_buyer(got.body)
-        counts.listed = len(cells)
-        sample = _store_cells(
+        # A fish buyer's registered location. Where no name is printed the connector
+        # falls back to the location id, and a number that identifies is still not
+        # a number that measures.
+        records = records_from_cells(
+            cells_from_buyer(got.body),
+            dataset_id=dataset["id"],
+            table_id=table_id,
+            id_fields=BUYER_ID_FIELDS,
+            label_fields=(),
+            prefix="buyer",
+        )
+        counts.listed = len(records)
+        sample = _store_records(
             registry,
             dataset,
             run_id,
-            table_id=table_id,
-            cells=cells,
+            records=records,
             retrieved_at=utc_now(),
             request_url=access_path,
             http_status=http_status,
             counts=counts,
+            series=f"fetch:{table_id}",
         )
         status = "completed"
     except Exception as exc:
@@ -6771,18 +6799,26 @@ def _fetch_fdkorg(
         got = client.get_json_response(access_path)
         http_status = got.status
         registry.set_fetch_request(run_id, request_url=access_path, request_body={"method": "GET"})
-        cells = cells_from_fdkorg(got.body)
-        counts.listed = len(cells)
-        sample = _store_cells(
+        # Felles datakatalog's organisation register.
+        records = records_from_cells(
+            cells_from_fdkorg(got.body),
+            dataset_id=dataset["id"],
+            table_id=table_id,
+            id_fields=FDKORG_ID_FIELDS,
+            label_fields=(),
+            prefix="fdkorg",
+        )
+        counts.listed = len(records)
+        sample = _store_records(
             registry,
             dataset,
             run_id,
-            table_id=table_id,
-            cells=cells,
+            records=records,
             retrieved_at=utc_now(),
             request_url=access_path,
             http_status=http_status,
             counts=counts,
+            series=f"fetch:{table_id}",
         )
         status = "completed"
     except Exception as exc:
@@ -6826,18 +6862,26 @@ def _fetch_kikommuner(
         got = client.get_json_response(access_path)
         http_status = got.status
         registry.set_fetch_request(run_id, request_url=access_path, request_body={"method": "GET"})
-        cells = cells_from_kikommuner(got.body)
-        counts.listed = len(cells)
-        sample = _store_cells(
+        # A municipality addressed by its number, which is what makes it a join key.
+        records = records_from_cells(
+            cells_from_kikommuner(got.body),
+            dataset_id=dataset["id"],
+            table_id=table_id,
+            id_fields=KIKOMMUNER_ID_FIELDS,
+            label_fields=(),
+            prefix="kikommuner",
+        )
+        counts.listed = len(records)
+        sample = _store_records(
             registry,
             dataset,
             run_id,
-            table_id=table_id,
-            cells=cells,
+            records=records,
             retrieved_at=utc_now(),
             request_url=access_path,
             http_status=http_status,
             counts=counts,
+            series=f"fetch:{table_id}",
         )
         status = "completed"
     except Exception as exc:
@@ -7841,18 +7885,27 @@ def _fetch_fiskeridir(
         got = client.get_json_response(access_path)
         http_status = got.status
         registry.set_fetch_request(run_id, request_url=access_path, request_body={"method": "GET"})
-        cells = cells_from_fiskeridir(got.body)
-        counts.listed = len(cells)
-        sample = _store_cells(
+        # A fishing vessel register. Its build year and engine power describe a
+        # boat; they are not a published statistic about boats.
+        records = records_from_cells(
+            cells_from_fiskeridir(got.body),
+            dataset_id=dataset["id"],
+            table_id=table_id,
+            id_fields=FISKERIDIR_ID_FIELDS,
+            label_fields=(),
+            prefix="fiskeridir",
+        )
+        counts.listed = len(records)
+        sample = _store_records(
             registry,
             dataset,
             run_id,
-            table_id=table_id,
-            cells=cells,
+            records=records,
             retrieved_at=utc_now(),
             request_url=access_path,
             http_status=http_status,
             counts=counts,
+            series=f"fetch:{table_id}",
         )
         status = "completed"
     except Exception as exc:
@@ -8675,18 +8728,26 @@ def _fetch_airquality(
         got = client.get_json_response(access_path)
         http_status = got.status
         registry.set_fetch_request(run_id, request_url=access_path, request_body={"method": "GET"})
-        cells = cells_from_airquality(got.body)
-        counts.listed = len(cells)
-        sample = _store_cells(
+        # An area class and a measuring station are things, not air quality readings.
+        records = records_from_cells(
+            cells_from_airquality(got.body),
+            dataset_id=dataset["id"],
+            table_id=table_id,
+            id_fields=AIRQUALITY_ID_FIELDS,
+            label_fields=AIRQUALITY_LABEL_FIELDS,
+            prefix="airquality",
+        )
+        counts.listed = len(records)
+        sample = _store_records(
             registry,
             dataset,
             run_id,
-            table_id=table_id,
-            cells=cells,
+            records=records,
             retrieved_at=utc_now(),
             request_url=access_path,
             http_status=http_status,
             counts=counts,
+            series=f"fetch:{table_id}",
         )
         status = "completed"
     except Exception as exc:
@@ -9500,18 +9561,26 @@ def _fetch_georegister(
         got = client.get_json_response(access_path)
         http_status = got.status
         registry.set_fetch_request(run_id, request_url=access_path, request_body={"method": "GET"})
-        cells = cells_from_georegister(got.body)
-        counts.listed = len(cells)
-        sample = _store_cells(
+        # Geonorge's register of object type definitions.
+        records = records_from_cells(
+            cells_from_georegister(got.body),
+            dataset_id=dataset["id"],
+            table_id=table_id,
+            id_fields=GEOREGISTER_ID_FIELDS,
+            label_fields=(),
+            prefix="georegister",
+        )
+        counts.listed = len(records)
+        sample = _store_records(
             registry,
             dataset,
             run_id,
-            table_id=table_id,
-            cells=cells,
+            records=records,
             retrieved_at=utc_now(),
             request_url=access_path,
             http_status=http_status,
             counts=counts,
+            series=f"fetch:{table_id}",
         )
         status = "completed"
     except Exception as exc:
@@ -13511,18 +13580,27 @@ def _fetch_frivillig(
         got = client.get_json_response(access_path)
         http_status = got.status
         registry.set_fetch_request(run_id, request_url=access_path, request_body={"method": "GET"})
-        cells = cells_from_frivillig(got.body)
-        counts.listed = len(cells)
-        sample = _store_cells(
+        # The register of voluntary organisations, its category vocabulary and the
+        # list of information types are all registers of things.
+        records = records_from_cells(
+            cells_from_frivillig(got.body),
+            dataset_id=dataset["id"],
+            table_id=table_id,
+            id_fields=FRIVILLIG_ID_FIELDS,
+            label_fields=FRIVILLIG_LABEL_FIELDS,
+            prefix="frivillig",
+        )
+        counts.listed = len(records)
+        sample = _store_records(
             registry,
             dataset,
             run_id,
-            table_id=table_id,
-            cells=cells,
+            records=records,
             retrieved_at=utc_now(),
             request_url=access_path,
             http_status=http_status,
             counts=counts,
+            series=f"fetch:{table_id}",
         )
         status = "completed"
     except Exception as exc:

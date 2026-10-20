@@ -21,7 +21,17 @@ from collections import Counter
 from pathlib import Path
 
 from public_data_agent.entity_records import (
+    AIRQUALITY_ID_FIELDS,
+    AIRQUALITY_LABEL_FIELDS,
+    BRORGFORMEN_ID_FIELDS,
     BRREG_ID_FIELDS,
+    BUYER_ID_FIELDS,
+    FDKORG_ID_FIELDS,
+    FISKERIDIR_ID_FIELDS,
+    FRIVILLIG_ID_FIELDS,
+    FRIVILLIG_LABEL_FIELDS,
+    GEOREGISTER_ID_FIELDS,
+    KIKOMMUNER_ID_FIELDS,
     NORGESBANK_ID_FIELDS,
     cells_are_labels,
     BRREG_LABEL_FIELDS,
@@ -53,6 +63,14 @@ SHAPES = {
     "broppdater": (BRREG_ID_FIELDS, BRREG_LABEL_FIELDS, "broppdater", "entity"),
     "envreportreg": (ENVREPORT_ID_FIELDS, (), "envreportreg", "entity"),
     "norgesbank": (NORGESBANK_ID_FIELDS, (), "norgesbank", "entity"),
+    "airquality": (AIRQUALITY_ID_FIELDS, AIRQUALITY_LABEL_FIELDS, "airquality", "entity"),
+    "frivillig": (FRIVILLIG_ID_FIELDS, FRIVILLIG_LABEL_FIELDS, "frivillig", "entity"),
+    "brorgformen": (BRORGFORMEN_ID_FIELDS, (), "brorgformen", "entity"),
+    "fiskeridir": (FISKERIDIR_ID_FIELDS, (), "fiskeridir", "entity"),
+    "fdkorg": (FDKORG_ID_FIELDS, (), "fdkorg", "entity"),
+    "kikommuner": (KIKOMMUNER_ID_FIELDS, (), "kikommuner", "entity"),
+    "buyer": (BUYER_ID_FIELDS, (), "buyer", "entity"),
+    "georegister": (GEOREGISTER_ID_FIELDS, (), "georegister", "entity"),
 }
 
 # Sources where only some datasets are label-valued. Moving a dataset whose

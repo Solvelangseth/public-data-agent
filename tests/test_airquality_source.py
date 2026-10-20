@@ -207,17 +207,22 @@ def test_fetch_gets_printed_stations(tmp_path: Path) -> None:
     assert result.table_id == "stations"
     assert result.http_status == 200
     assert result.counts.listed == 2
-    rows = registry.list_observations(DATASET_ID)
-    by_value = {json.loads(row["value_json"]): row for row in rows}
-    assert set(by_value) == {"Alnabru", "Sofienbergparken"}
-    assert by_value["Alnabru"]["measure"] == "name"
-    dims = json.loads(by_value["Alnabru"]["dimensions_json"])
-    assert dims["eoi"] == "NO0057A"
-    assert "grunnkrets" not in dims
-    assert "kommune" not in dims
+    # A measuring station is a thing, not a reading from one, and it is
+    # addressed by its EOI code -- the handle the European network knows it
+    # by -- with the Norwegian name as the label.
+    assert registry.observation_count() == 0
+    rows = registry.list_records(DATASET_ID, kind="entity")
+    by_code = {row["subject_code"]: row for row in rows}
+    assert set(by_code) == {"NO0057A", "NO0074A"}
+    assert by_code["NO0057A"]["subject_label"] == "Alnabru"
+    assert all(row["measure"] is None and row["value_json"] is None for row in rows)
+    attributes = json.loads(by_code["NO0057A"]["attributes_json"])
+    assert "eoi" not in attributes
+    assert "grunnkrets" not in attributes
+    assert "kommune" not in attributes
     assert all(row["publisher_name"] is None for row in rows)
     assert all(row["license"] == LICENSE_URL for row in rows)
-    assert all(row["access_path"] == STATIONS_URL for row in rows)
+    assert all(row["request_url"] == STATIONS_URL for row in rows)
     registry.close()
 
 
