@@ -190,18 +190,25 @@ def test_fetch_gets_printed_strandnot_items(tmp_path: Path) -> None:
     assert result.table_id == "hi_basemap:Strandnot"
     assert result.http_status == 200
     assert result.counts.listed == 2
-    rows = registry.list_observations(DATASET_ID)
-    by_name = {json.loads(row["value_json"]): row for row in rows}
+    # A beach-seine station is a thing in a place. The geometry that says
+    # where is nested, and `cells_from_hi` does not copy it, so the record
+    # carries no geometry rather than a guessed one.
+    assert registry.observation_count() == 0
+    rows = registry.list_records(DATASET_ID, kind="feature")
+    by_name = {row["subject_label"]: row for row in rows}
     assert set(by_name) == {"Bergen", "Oslo"}
-    assert all(row["measure"] == "Description" for row in rows)
-    dims = json.loads(by_name["Bergen"]["dimensions_json"])
-    assert dims["Station"] == "BN-01"
-    assert dims["StationNumber"] == "12"
-    assert dims["fid"] == "Strandnot.1"
-    assert "geometry" not in dims
+    assert all(row["measure"] is None and row["value_json"] is None for row in rows)
+    assert all(row["geometry_json"] is None for row in rows)
+    assert by_name["Bergen"]["subject_code"] == "Strandnot.1"
+    assert all(row["subject_scheme"] == "hi:hi_basemap:Strandnot" for row in rows)
+    attributes = json.loads(by_name["Bergen"]["attributes_json"])
+    assert attributes["Station"] == "BN-01"
+    assert attributes["StationNumber"] == "12"
+    assert "fid" not in attributes
+    assert "geometry" not in attributes
     assert all(row["publisher_name"] is None for row in rows)
     assert all(row["license"] is None for row in rows)
-    assert all(row["access_path"] == STRANDNOT_URL for row in rows)
+    assert all(row["request_url"] == STRANDNOT_URL for row in rows)
     registry.close()
 
 

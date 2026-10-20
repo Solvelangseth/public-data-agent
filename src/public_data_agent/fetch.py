@@ -13,6 +13,7 @@ from public_data_agent.brreg_hal import brreg_table_id, cells_from_brreg, is_brr
 from public_data_agent.entity_records import (
     CRISTIN_ID_FIELDS,
     ENTUR_ID_FIELDS,
+    FEATURE_ID_FIELDS,
     GREP_ID_FIELDS,
     records_from_cells,
 )
@@ -7996,18 +7997,28 @@ def _fetch_hi(
         got = client.get_json_response(access_path)
         http_status = got.status
         registry.set_fetch_request(run_id, request_url=access_path, request_body={"method": "GET"})
-        cells = cells_from_hi(got.body)
-        counts.listed = len(cells)
-        sample = _store_cells(
+        # A spawning ground, a sampling station and a seismic advisory zone
+        # are things in places, and the collection they come from is an OGC
+        # features endpoint, not a table of measurements.
+        records = records_from_cells(
+            cells_from_hi(got.body),
+            dataset_id=dataset["id"],
+            table_id=table_id,
+            id_fields=FEATURE_ID_FIELDS,
+            prefix="hi",
+            kind="feature",
+        )
+        counts.listed = len(records)
+        sample = _store_records(
             registry,
             dataset,
             run_id,
-            table_id=table_id,
-            cells=cells,
+            records=records,
             retrieved_at=utc_now(),
             request_url=access_path,
             http_status=http_status,
             counts=counts,
+            series=f"fetch:{table_id}",
         )
         status = "completed"
     except Exception as exc:

@@ -23,25 +23,27 @@ from pathlib import Path
 from public_data_agent.entity_records import (
     CRISTIN_ID_FIELDS,
     ENTUR_ID_FIELDS,
+    FEATURE_ID_FIELDS,
     GREP_ID_FIELDS,
     records_from_cells,
 )
-from public_data_agent.registry import Registry
+from public_data_agent.registry import Registry, utc_now
 from public_data_agent.verify import demonstrated_capability
 
 # Each source's identifier vocabulary, the same one its connector now passes.
 # A source converted with the wrong one would key its records differently from
 # what a re-fetch writes, which is the one thing this script must not do.
 SHAPES = {
-    "cristin": (CRISTIN_ID_FIELDS, "cristin"),
-    "crinst": (CRISTIN_ID_FIELDS, "cristin"),
-    "crunit": (CRISTIN_ID_FIELDS, "cristin"),
-    "crperson": (CRISTIN_ID_FIELDS, "cristin"),
-    "crproj": (CRISTIN_ID_FIELDS, "cristin"),
-    "crresult": (CRISTIN_ID_FIELDS, "cristin"),
-    "crbio": (CRISTIN_ID_FIELDS, "cristin"),
-    "entur": (ENTUR_ID_FIELDS, "entur"),
-    "grep": (GREP_ID_FIELDS, "grep"),
+    "cristin": (CRISTIN_ID_FIELDS, "cristin", "entity"),
+    "crinst": (CRISTIN_ID_FIELDS, "cristin", "entity"),
+    "crunit": (CRISTIN_ID_FIELDS, "cristin", "entity"),
+    "crperson": (CRISTIN_ID_FIELDS, "cristin", "entity"),
+    "crproj": (CRISTIN_ID_FIELDS, "cristin", "entity"),
+    "crresult": (CRISTIN_ID_FIELDS, "cristin", "entity"),
+    "crbio": (CRISTIN_ID_FIELDS, "cristin", "entity"),
+    "entur": (ENTUR_ID_FIELDS, "entur", "entity"),
+    "grep": (GREP_ID_FIELDS, "grep", "entity"),
+    "hi": (FEATURE_ID_FIELDS, "hi", "feature"),
 }
 SOURCES = tuple(SHAPES)
 
@@ -81,27 +83,42 @@ def main() -> int:
         json.dump(rows, handle, ensure_ascii=False)
     print(f"backed up {len(rows)} rows to {args.backup}")
 
-    written = 0
+    # Converted a dataset at a time, not a row at a time. A member that printed
+    # no identifier is keyed by its position in the response, and one row at a
+    # time every such member is position zero and they overwrite each other.
+    by_dataset: dict[tuple[str, str], list[dict]] = {}
     for row in rows:
+        by_dataset.setdefault((row["dataset_id"], row["table_id"]), []).append(row)
+
+    written = 0
+    for (dataset_id, table_id), group in by_dataset.items():
         cells = [
             (
                 row["measure"],
                 json.loads(row["value_json"]) if row["value_json"] is not None else None,
                 json.loads(row["dimensions_json"] or "{}"),
             )
+            for row in group
         ]
-        id_fields, prefix = SHAPES[row["dataset_id"].split(":")[0]]
-        for record in records_from_cells(
+        id_fields, prefix, kind = SHAPES[dataset_id.split(":")[0]]
+        records = records_from_cells(
             cells,
-            dataset_id=row["dataset_id"],
-            table_id=row["table_id"],
+            dataset_id=dataset_id,
+            table_id=table_id,
             id_fields=id_fields,
             prefix=prefix,
-        ):
+            kind=kind,
+        )
+        if len(records) != len(group):
+            raise SystemExit(
+                f"{dataset_id}: {len(group)} cells became {len(records)} records; "
+                "the provenance of each row could not be carried across"
+            )
+        for record, row in zip(records, group):
             registry.upsert_record(
                 {
                     **record,
-                    "dataset_id": row["dataset_id"],
+                    "dataset_id": dataset_id,
                     "series": row["series"],
                     "retrieved_at": row["retrieved_at"],
                     "request_url": row["request_url"],
@@ -123,6 +140,9 @@ def main() -> int:
     registry.conn.commit()
     print(f"removed {deleted} observation cells")
 
+    # The rows these datasets are judged on have just changed table, so the
+    # capability is re-read from where they now live. What it was is appended
+    # to the notes rather than replaced, so the move stays auditable.
     changes: Counter[str] = Counter()
     for dataset_id in sorted({row["dataset_id"] for row in rows}):
         derived = demonstrated_capability(registry, dataset_id)
@@ -130,6 +150,23 @@ def main() -> int:
         was = existing["capability"] if existing else None
         now = derived[0] if derived else None
         changes[f"{was} -> {now}"] += 1
+        if derived is None or existing is None or was == now:
+            continue
+        merged = {key: existing[key] for key in existing.keys() if key != "dataset_id"}
+        stored = registry.conn.execute(
+            "SELECT COUNT(*) FROM records WHERE dataset_id = ?", (dataset_id,)
+        ).fetchone()[0]
+        note = f"re-read {utc_now()[:10]} after the rows moved to records: was {was}"
+        merged.update(
+            {
+                "capability": now,
+                "record_kind": derived[1],
+                "verified_sample_count": stored,
+                "notes": f"{existing['notes']}; {note}" if existing["notes"] else note,
+            }
+        )
+        registry.set_capability(dataset_id, merged)
+    registry.conn.commit()
     for change, count in changes.most_common():
         print(f"  capability {change}: {count}")
     registry.close()

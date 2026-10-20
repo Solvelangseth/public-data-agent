@@ -38,6 +38,10 @@ ENTUR_ID_FIELDS = ("vehicle_type_id", "station_id", "bike_id", "region_id")
 # Udir's curriculum vocabularies print `kode` as the member's whole identity.
 GREP_ID_FIELDS = ("kode", "id", "uri")
 
+# What an OGC API Features item is addressed by. Havforskningsinstituttet's
+# collections print `fid` on the 2025 advisory layers and `id` on the 2024 ones.
+FEATURE_ID_FIELDS = ("fid", "id", "objectid", "gid")
+
 
 def _scheme_for(id_field: str | None, *, prefix: str, table_id: str) -> str:
     """The vocabulary a subject code belongs to.
@@ -64,6 +68,7 @@ def records_from_cells(
     table_id: str,
     id_fields: tuple[str, ...] = CRISTIN_ID_FIELDS,
     prefix: str = "cristin",
+    kind: str = "entity",
 ) -> list[dict[str, Any]]:
     """Map cells to entity records, one per member.
 
@@ -73,6 +78,12 @@ def records_from_cells(
     list does, and every Udir curriculum code does -- the record carries the
     code and no label, because inventing a name for it is the failure this
     whole change is about.
+
+    `kind` is the caller's to state, because the shape of a cell cannot see it:
+    a spawning ground and a scooter model are written identically and one is a
+    thing in a place. The geometry that would prove it is nested where these
+    connectors do not copy it, so a feature record carries no `geometry_json`
+    until the connector learns to read it.
     """
 
     records: list[dict[str, Any]] = []
@@ -101,8 +112,8 @@ def records_from_cells(
         handle = subject_code if subject_code is not None else f"row{index}"
         records.append(
             {
-                "id": f"entity:{dataset_id}:{scheme}:{handle}",
-                "kind": "entity",
+                "id": f"{kind}:{dataset_id}:{scheme}:{handle}",
+                "kind": kind,
                 "subject_scheme": scheme,
                 "subject_code": subject_code,
                 "subject_label": subject_label,
