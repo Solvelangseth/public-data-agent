@@ -510,3 +510,71 @@ def test_codes_with_no_names_are_a_lookup(tmp_path: Path) -> None:
         assert demonstrated_capability(registry, "fixture:grep") == ("lookup", "entity")
     finally:
         registry.close()
+
+
+def test_a_fetch_records_its_own_evidence(tmp_path: Path) -> None:
+    """Whichever branch ran it, a fetch that stored rows is the evidence.
+
+    Only the branches that happened to remember were writing a capability. A
+    successful FHI fetch of 4,224 numeric cells left the resource reading
+    `verified_at NULL`: the counter said it worked and the registry said
+    nothing had, and the registry is the record that matters.
+    """
+
+    from public_data_agent.fetch import fetch_observations
+
+    registry = Registry(tmp_path / "r.sqlite")
+    try:
+        _dataset(registry, "fixture:cells", FETCHABLE)
+        registry.conn.commit()
+
+        class Stub:
+            def get_json_response(self, url, *, headers=None):
+                raise AssertionError("the stub fetcher is patched in, not called")
+
+        import public_data_agent.fetch as fetch_module
+
+        stored: dict[str, int] = {}
+
+        def fake_inner(reg, dataset_id, **kwargs):
+            run_id = reg.start_fetch_run(
+                dataset_id=dataset_id, table_id="t",
+                request_url=FETCHABLE, request_method="TEST",
+            )
+            reg.upsert_observation(
+                {
+                    "id": "fixture:cells:1",
+                    "dataset_id": dataset_id,
+                    "series": "fetch:t",
+                    "table_id": "t",
+                    "measure": "Antall",
+                    "value": 4633,
+                    "dimensions": {"år": "2024"},
+                    "retrieved_at": "2026-10-21T00:00:00Z",
+                    "request_url": FETCHABLE,
+                    "http_status": 200,
+                },
+                run_id,
+            )
+            reg.conn.commit()
+            stored["rows"] = 1
+            counts = type("Counts", (), {"listed": 1})()
+            return type("Result", (), {"counts": counts, "http_status": 200})()
+
+        original = fetch_module._fetch_observations
+        fetch_module._fetch_observations = fake_inner
+        try:
+            fetch_observations(registry, "fixture:cells", table_id="t", http=Stub())
+        finally:
+            fetch_module._fetch_observations = original
+
+        capability = registry.get_capability("fixture:cells")
+        assert capability is not None
+        assert (capability["capability"], capability["record_kind"]) == (
+            "observations",
+            "observation",
+        )
+        assert capability["verified_at"]
+        assert capability["verified_sample_count"] == 1
+    finally:
+        registry.close()

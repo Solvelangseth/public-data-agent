@@ -1365,7 +1365,7 @@ def fetch_observations(
     """
 
     with cell_budget(max_cells):
-        return _fetch_observations(
+        result = _fetch_observations(
             registry,
             dataset_id,
             table_id=table_id,
@@ -1378,6 +1378,16 @@ def fetch_observations(
             bydel=bydel,
             measure=measure,
         )
+    # A fetch that stored rows is the evidence, whichever branch ran it. Only
+    # the branches that happened to remember were writing a capability, so a
+    # successful FHI fetch of 4,224 numeric cells left the resource reading
+    # `verified_at NULL` -- the counter said it worked and the registry said
+    # nothing had. `record_evidence` never overwrites a verification already
+    # earned and writes nothing when no row was stored.
+    from public_data_agent.verify import record_evidence
+
+    record_evidence(registry, dataset_id, result)
+    return result
 
 
 def _fetch_observations(
