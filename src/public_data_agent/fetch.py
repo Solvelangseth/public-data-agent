@@ -12,6 +12,8 @@ from urllib.parse import urljoin, urlparse
 from public_data_agent.brreg_hal import brreg_table_id, cells_from_brreg, is_brreg_url
 from public_data_agent.entity_records import (
     BRREG_ID_FIELDS,
+    NORGESBANK_ID_FIELDS,
+    cells_are_labels,
     BRREG_LABEL_FIELDS,
     CRISTIN_ID_FIELDS,
     ENTUR_ID_FIELDS,
@@ -7210,26 +7212,55 @@ def _fetch_norgesbank(
             raise SelectionTooLarge(table_id, len(cells), NORGESBANK_MAX_CELLS, listed)
         counts.listed = len(cells)
         retrieved_at = utc_now()
-        sample = _store_cells(
-            registry,
-            dataset,
-            run_id,
-            table_id=table_id,
-            cells=cells,
-            retrieved_at=retrieved_at,
-            request_url=access_path,
-            http_status=http_status,
-            counts=counts,
-        )
+        # Norges Bank publishes both kinds of thing through one SDMX endpoint:
+        # interest-rate series, and auction calendars that print an ISIN per
+        # date. The response says which this is, so each one is routed by what
+        # came back rather than by a list of dataset ids kept somewhere.
+        labels_only = cells_are_labels(cells)
+        if labels_only:
+            records = records_from_cells(
+                cells,
+                dataset_id=dataset["id"],
+                table_id=table_id,
+                id_fields=NORGESBANK_ID_FIELDS,
+                prefix="norgesbank",
+            )
+            counts.listed = len(records)
+            sample = _store_records(
+                registry,
+                dataset,
+                run_id,
+                records=records,
+                retrieved_at=retrieved_at,
+                request_url=access_path,
+                http_status=http_status,
+                counts=counts,
+                series=f"fetch:{table_id}",
+            )
+        else:
+            sample = _store_cells(
+                registry,
+                dataset,
+                run_id,
+                table_id=table_id,
+                cells=cells,
+                retrieved_at=retrieved_at,
+                request_url=access_path,
+                http_status=http_status,
+                counts=counts,
+            )
         if cells:
             # Observation flows classify as observations from the URL.
             # Calendars and wide dumps stay unverified until a bounded fetch
-            # actually returns cells. Having just read numeric cells, say so.
+            # actually returns cells. This used to write `observations` for
+            # whatever came back -- the comment said "having just read numeric
+            # cells", but nothing had checked that they were numeric, and an
+            # auction calendar of ISINs was filed as a rate series.
             registry.set_capability(
                 dataset["id"],
                 {
-                    "capability": CAPABILITY_OBSERVATIONS,
-                    "record_kind": "observation",
+                    "capability": CAPABILITY_ENTITIES if labels_only else CAPABILITY_OBSERVATIONS,
+                    "record_kind": "entity" if labels_only else "observation",
                     "endpoint": dataset.get("access_path"),
                     "request_method": "GET",
                     "subject_scheme": NORGESBANK_SUBJECT_SCHEME,
@@ -7238,7 +7269,10 @@ def _fetch_norgesbank(
                     ),
                     "verified_at": retrieved_at,
                     "verified_sample_count": len(cells),
-                    "notes": f"{len(cells)} cell(s) read from a bounded request",
+                    "notes": (
+                        f"{len(cells)} row(s) read from a bounded request; "
+                        + ("every value is a label" if labels_only else "values are numeric")
+                    ),
                 },
             )
         status = "completed"

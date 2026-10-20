@@ -320,3 +320,115 @@ def test_the_number_of_periods_is_bounded(tmp_path: Path) -> None:
         assert "does not" in str(exc)
     else:
         raise AssertionError("an unknown filter should be refused, not ignored")
+
+
+CBC_CALENDAR_BODY = {
+    "meta": {"links": [{"rel": "self", "href": "/data/CBC_CALENDAR?format=sdmx-json"}]},
+    "data": {
+        "dataSets": [
+            {
+                "series": {
+                    "0": {"observations": {"0": ["NO0013741165", 0]}},
+                    "1": {"observations": {"0": ["NO0013741173", 0]}},
+                }
+            }
+        ],
+        "structure": {
+            "name": "Central bank certificates calendar",
+            "names": {
+                "en": "Central bank certificates calendar",
+                "no": "Sentralbanksertifikat kalender",
+            },
+            "dimensions": {
+                "series": [
+                    {
+                        "id": "ISIN",
+                        "name": "ISIN",
+                        "values": [
+                            {"id": "NO0013741165", "name": "NO0013741165"},
+                            {"id": "NO0013741173", "name": "NO0013741173"},
+                        ],
+                    }
+                ],
+                "observation": [
+                    {
+                        "id": "TIME_PERIOD",
+                        "name": "Date",
+                        "values": [{"id": "2026-07-28", "name": "2026-07-28"}],
+                    }
+                ],
+            },
+        },
+    },
+}
+
+
+class CalendarHttp:
+    def get_json_response(self, url: str, *, headers=None) -> JsonResponse:
+        if url.startswith(CBC_CALENDAR_URL) and "lastNObservations=" in url:
+            return JsonResponse(status=200, url=url, body=CBC_CALENDAR_BODY)
+        raise AssertionError(f"unexpected or unbounded GET {url}")
+
+    def post_json_response(self, url: str, body, *, headers=None) -> JsonResponse:
+        raise AssertionError(f"norgesbank fetch must GET, not POST {url}")
+
+
+def test_a_calendar_of_isins_is_not_a_rate_series(tmp_path: Path) -> None:
+    """One SDMX endpoint, two kinds of thing, routed by what came back.
+
+    `CBC_CALENDAR` prints an ISIN per date: the row says which certificate is
+    auctioned when, and measures nothing. It was stored as 44 observation
+    cells and the fetch then wrote `observations` for it unconditionally --
+    the comment there said "having just read numeric cells", but nothing had
+    checked that they were numeric.
+    """
+
+    registry = Registry(tmp_path / "registry.sqlite")
+    harvest(registry, NorgesBankSource(http=CatalogHttp()))
+    registry.conn.execute(
+        "UPDATE datasets SET access_path = ? WHERE id = ?",
+        (CBC_CALENDAR_URL, DATASET_ID),
+    )
+    registry.conn.commit()
+
+    result = fetch_observations(registry, DATASET_ID, table_id="ignored", http=CalendarHttp())
+    assert result.http_status == 200
+    assert result.counts.listed == 2
+    assert registry.observation_count() == 0
+
+    rows = registry.list_records(DATASET_ID, kind="entity")
+    assert {row["subject_code"] for row in rows} == {"NO0013741165", "NO0013741173"}
+    # The ISIN is printed as both the measure and the value, so it names the
+    # row rather than measuring it, and there is no label to claim.
+    assert all(row["subject_label"] is None for row in rows)
+    assert all(row["measure"] is None and row["value_json"] is None for row in rows)
+    assert json.loads(rows[0]["attributes_json"])["TIME_PERIOD"] == "2026-07-28"
+
+    capability = registry.get_capability(DATASET_ID)
+    assert capability["capability"] == "entities"
+    assert capability["record_kind"] == "entity"
+    assert capability["verified_at"]
+    assert "every value is a label" in capability["notes"]
+    registry.close()
+
+
+def test_a_rate_series_is_still_a_rate_series(tmp_path: Path) -> None:
+    """The other half of the same branch.
+
+    Norges Bank prints the key policy rate as the string "4.25", and reading a
+    quoted number as a label would file an interest-rate series as a list of
+    things -- the mirror of the bug above.
+    """
+
+    registry = Registry(tmp_path / "registry.sqlite")
+    harvest(registry, NorgesBankSource(http=CatalogHttp()))
+    fetch_observations(registry, DATASET_ID, table_id="ignored", http=FetchHttp())
+    assert registry.observation_count() == 2
+    assert registry.list_records(DATASET_ID) == []
+    capability = registry.get_capability(DATASET_ID)
+    assert (capability["capability"], capability["record_kind"]) == (
+        "observations",
+        "observation",
+    )
+    assert "values are numeric" in capability["notes"]
+    registry.close()

@@ -20,6 +20,7 @@ import re
 from dataclasses import dataclass, field
 from typing import Any
 
+from public_data_agent.entity_records import is_empty, is_number
 from public_data_agent.fetch import can_fetch_access_path, fetch_observations
 from public_data_agent.registry import Registry, utc_now
 
@@ -205,10 +206,10 @@ _KIND_CAPABILITY = {
     "document": ("documents", "document"),
 }
 
-# A publisher's way of writing "no value here". A cell that carries one is still
-# an observation, so an empty sample must not be read as a resource that
-# publishes labels.
-_EMPTY_VALUES = frozenset({"", ":", "..", ".", "-", "none", "null", "na"})
+# A publisher's way of writing "no value here" lives in `entity_records`, with
+# the predicates that read it: the question "is this a measurement" has to be
+# answered identically for a batch about to be stored and for a row already
+# stored, or the storage and the label drift apart again.
 
 # A code list addresses a code and returns its label, and that is the whole of
 # its shape. `Bydelsinndeling 2020` stores `Gamle Oslo` against
@@ -234,33 +235,6 @@ _GEOMETRY_DIMENSIONS = frozenset({
 # thing the resource returns, which the first rows answer as well as all of
 # them, and reading all of them is a full scan per probed dataset.
 _EVIDENCE_SAMPLE = 200
-
-
-def _is_number(value: Any) -> bool:
-    """Whether a stored value is a measurement rather than a label.
-
-    Numbers arrive as JSON strings often enough that type alone misreads them:
-    Norges Bank publishes the key policy rate as `"4.25"`, and reading that as a
-    label would file an interest-rate series as a list of things.
-    """
-
-    if isinstance(value, bool):
-        return False
-    if isinstance(value, (int, float)):
-        return True
-    if isinstance(value, str):
-        try:
-            float(value.strip().replace(",", ".").replace("\u00a0", "").replace(" ", ""))
-        except ValueError:
-            return False
-        return True
-    return False
-
-
-def _is_empty(value: Any) -> bool:
-    if value is None:
-        return True
-    return isinstance(value, str) and value.strip().casefold() in _EMPTY_VALUES
 
 
 def _is_code_list(registry: Registry, dataset_id: str) -> bool:
@@ -367,9 +341,9 @@ def demonstrated_capability(
         if isinstance(parsed, dict):
             dimensions.update(str(key).strip().casefold() for key in parsed)
 
-    if any(_is_number(value) for value in values):
+    if any(is_number(value) for value in values):
         return "observations", "observation"
-    if all(_is_empty(value) for value in values):
+    if all(is_empty(value) for value in values):
         return "observations", "observation"
     if measures and measures <= _CODE_MEASURES:
         return "lookup", None

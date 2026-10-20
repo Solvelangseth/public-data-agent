@@ -22,6 +22,8 @@ from pathlib import Path
 
 from public_data_agent.entity_records import (
     BRREG_ID_FIELDS,
+    NORGESBANK_ID_FIELDS,
+    cells_are_labels,
     BRREG_LABEL_FIELDS,
     CRISTIN_ID_FIELDS,
     ENTUR_ID_FIELDS,
@@ -50,7 +52,14 @@ SHAPES = {
     "brreg": (BRREG_ID_FIELDS, BRREG_LABEL_FIELDS, "brreg", "entity"),
     "broppdater": (BRREG_ID_FIELDS, BRREG_LABEL_FIELDS, "broppdater", "entity"),
     "envreportreg": (ENVREPORT_ID_FIELDS, (), "envreportreg", "entity"),
+    "norgesbank": (NORGESBANK_ID_FIELDS, (), "norgesbank", "entity"),
 }
+
+# Sources where only some datasets are label-valued. Moving a dataset whose
+# rows are partly numeric would split a series across two tables, so those are
+# left alone and the connector has to learn to tell an attribute from an
+# observation.
+PARTIAL_SOURCES = {"norgesbank"}
 SOURCES = tuple(SHAPES)
 
 
@@ -65,13 +74,35 @@ def main() -> int:
     sources = [s.strip() for s in args.sources.split(",") if s.strip()]
     registry = Registry(Path(args.db))
     rows: list[dict] = []
+    skipped: list[str] = []
     for source in sources:
-        rows.extend(
+        found = [
             dict(r)
             for r in registry.conn.execute(
                 "SELECT * FROM observations WHERE dataset_id LIKE ?", (f"{source}:%",)
             )
-        )
+        ]
+        if source in PARTIAL_SOURCES:
+            by_dataset: dict[str, list[dict]] = {}
+            for row in found:
+                by_dataset.setdefault(row["dataset_id"], []).append(row)
+            found = []
+            for dataset_id, group in by_dataset.items():
+                cells = [
+                    (
+                        row["measure"],
+                        json.loads(row["value_json"]) if row["value_json"] is not None else None,
+                        {},
+                    )
+                    for row in group
+                ]
+                if cells_are_labels(cells):
+                    found.extend(group)
+                else:
+                    skipped.append(f"{dataset_id} ({len(group)} rows, some numeric)")
+        rows.extend(found)
+    for note in skipped:
+        print(f"left alone: {note}")
     if not rows:
         print("no name-card observation rows left to move")
         return 0
@@ -121,6 +152,14 @@ def main() -> int:
                 f"{dataset_id}: {len(group)} cells became {len(records)} records; "
                 "the provenance of each row could not be carried across"
             )
+        # Two rows that convert to one id would silently become one row, and
+        # the counts would still read as a clean move.
+        ids = {record["id"] for record in records}
+        if len(ids) != len(records):
+            raise SystemExit(
+                f"{dataset_id}: {len(records)} rows share {len(ids)} record ids; "
+                "the identifier chosen for this source does not separate them"
+            )
         for record, row in zip(records, group):
             registry.upsert_record(
                 {
@@ -139,10 +178,14 @@ def main() -> int:
     registry.conn.commit()
     print(f"wrote {written} entity records")
 
+    # Deleted by the ids that were actually converted, not by source prefix:
+    # a partially moved source still holds the rows that stayed behind.
     deleted = 0
-    for source in sources:
+    moved_ids = [row["id"] for row in rows]
+    for start in range(0, len(moved_ids), 500):
+        chunk = moved_ids[start : start + 500]
         deleted += registry.conn.execute(
-            "DELETE FROM observations WHERE dataset_id LIKE ?", (f"{source}:%",)
+            f"DELETE FROM observations WHERE id IN ({','.join('?' * len(chunk))})", chunk
         ).rowcount
     registry.conn.commit()
     print(f"removed {deleted} observation cells")

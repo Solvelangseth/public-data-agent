@@ -16,6 +16,10 @@ from __future__ import annotations
 
 from typing import Any
 
+# A publisher's way of writing "no value here". A cell that carries one is
+# still an observation, so an empty sample must not be read as labels.
+EMPTY_VALUES = frozenset({"", ":", "..", ".", "-", "none", "null", "na"})
+
 # The identifier a Cristin member is addressed by, most specific first. `code`
 # is last because a member that has both prints the Cristin id as its handle
 # and `code` as a classification value.
@@ -37,6 +41,9 @@ ENTUR_ID_FIELDS = ("vehicle_type_id", "station_id", "bike_id", "region_id")
 
 # Udir's curriculum vocabularies print `kode` as the member's whole identity.
 GREP_ID_FIELDS = ("kode", "id", "uri")
+
+# Norges Bank's SDMX flows print the security the row is about under `ISIN`.
+NORGESBANK_ID_FIELDS = ("ISIN",)
 
 # Enhetsregisteret addresses a code list by its code and prints the name under
 # a separate key, so the cell value is the code over again. The change feeds
@@ -111,9 +118,16 @@ def records_from_cells(
         # whatever else the response happens to carry: Udir prints both `kode`
         # and a `id` UUID, and the curriculum is addressed by the code.
         label_field = next((field for field in label_fields if dims.get(field)), None)
-        if measure in id_fields and value is not None:
+        # A cell whose measure and value are the same string is naming
+        # something, not measuring it: Norges Bank's auction calendar prints
+        # the ISIN as both, and the ISIN is what the row is about.
+        if value is not None and measure == str(value):
             id_field: str | None = None
             subject_code: str | None = str(value)
+            subject_label = None
+        elif measure in id_fields and value is not None:
+            id_field = None
+            subject_code = str(value)
             subject_label = None
         else:
             id_field = next((field for field in id_fields if dims.get(field)), None)
@@ -146,3 +160,51 @@ def records_from_cells(
             }
         )
     return records
+
+
+def is_number(value: Any) -> bool:
+    """Whether a stored value is a measurement rather than a label.
+
+    Numbers arrive as JSON strings often enough that type alone misreads them:
+    Norges Bank publishes the key policy rate as `"4.25"`, and reading that as
+    a label would file an interest-rate series as a list of things.
+    """
+
+    if isinstance(value, bool):
+        return False
+    if isinstance(value, (int, float)):
+        return True
+    if isinstance(value, str):
+        try:
+            float(value.strip().replace(",", ".").replace("\u00a0", "").replace(" ", ""))
+        except ValueError:
+            return False
+        return True
+    return False
+
+
+def is_empty(value: Any) -> bool:
+    if value is None:
+        return True
+    return isinstance(value, str) and value.strip().casefold() in EMPTY_VALUES
+
+
+def cells_are_labels(cells: list[tuple[str, Any, dict[str, str]]]) -> bool:
+    """Whether a response measured nothing at all.
+
+    The same question `demonstrated_capability` asks of stored rows, asked of a
+    batch about to be stored, so a connector that can return either shape --
+    Norges Bank returns both rate series and auction calendars -- routes each
+    response to the table that fits it instead of being configured per dataset.
+
+    One number anywhere makes the batch a measurement batch. An all-empty batch
+    is one too, because a suppressed cell is still an observation. Only a batch
+    that is entirely labels is not.
+    """
+
+    if not cells:
+        return False
+    values = [value for _measure, value, _dims in cells]
+    if any(is_number(value) for value in values):
+        return False
+    return not all(is_empty(value) for value in values)
