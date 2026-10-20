@@ -16942,6 +16942,13 @@ CAPABILITY_FEATURES = "features"
 CAPABILITY_DOCUMENTS = "documents"
 CAPABILITY_LOOKUP = "lookup"
 CAPABILITY_UNVERIFIED = "unverified"
+# The publisher has taken the resource down. Separate from `unverified`, which
+# means nobody has checked: 30 SSB tables answer the v0 API with HTTP 400
+# "Parameter error", which reads as a bad query and is what made this look like
+# a bug in the request for weeks. The v2 API says what is actually true --
+# `{"title": "Non-existent table", "status": 404}` -- and a resource that is
+# gone should not be retried, nor ranked as though a fetch might reach it.
+CAPABILITY_WITHDRAWN = "withdrawn"
 CAPABILITY_NONE = "none"
 
 # Capabilities that can return data a question is answered from. Statistics were
