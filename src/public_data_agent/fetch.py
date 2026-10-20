@@ -10,6 +10,7 @@ from typing import Any, Protocol
 from urllib.parse import urljoin, urlparse
 
 from public_data_agent.brreg_hal import brreg_table_id, cells_from_brreg, is_brreg_url
+from public_data_agent.cristin_records import records_from_cells
 from public_data_agent.geonorge_rest import (
     cells_from_geonorge,
     collection_request_url,
@@ -9542,18 +9543,21 @@ def _fetch_crperson(
         got = client.get_json_response(access_path)
         http_status = got.status
         registry.set_fetch_request(run_id, request_url=access_path, request_body={"method": "GET"})
-        cells = cells_from_crperson(got.body)
-        counts.listed = len(cells)
-        sample = _store_cells(
+        # A Cristin member is a thing with a name, not a measurement of one.
+        records = records_from_cells(
+            cells_from_crperson(got.body), dataset_id=dataset["id"], table_id=table_id
+        )
+        counts.listed = len(records)
+        sample = _store_records(
             registry,
             dataset,
             run_id,
-            table_id=table_id,
-            cells=cells,
+            records=records,
             retrieved_at=utc_now(),
             request_url=access_path,
             http_status=http_status,
             counts=counts,
+            series=f"fetch:{table_id}",
         )
         status = "completed"
     except Exception as exc:
@@ -9599,18 +9603,21 @@ def _fetch_crproj(
         got = client.get_json_response(access_path)
         http_status = got.status
         registry.set_fetch_request(run_id, request_url=access_path, request_body={"method": "GET"})
-        cells = cells_from_crproj(got.body)
-        counts.listed = len(cells)
-        sample = _store_cells(
+        # A Cristin member is a thing with a name, not a measurement of one.
+        records = records_from_cells(
+            cells_from_crproj(got.body), dataset_id=dataset["id"], table_id=table_id
+        )
+        counts.listed = len(records)
+        sample = _store_records(
             registry,
             dataset,
             run_id,
-            table_id=table_id,
-            cells=cells,
+            records=records,
             retrieved_at=utc_now(),
             request_url=access_path,
             http_status=http_status,
             counts=counts,
+            series=f"fetch:{table_id}",
         )
         status = "completed"
     except Exception as exc:
@@ -9656,18 +9663,21 @@ def _fetch_crbio(
         got = client.get_json_response(access_path)
         http_status = got.status
         registry.set_fetch_request(run_id, request_url=access_path, request_body={"method": "GET"})
-        cells = cells_from_crbio(got.body)
-        counts.listed = len(cells)
-        sample = _store_cells(
+        # A Cristin member is a thing with a name, not a measurement of one.
+        records = records_from_cells(
+            cells_from_crbio(got.body), dataset_id=dataset["id"], table_id=table_id
+        )
+        counts.listed = len(records)
+        sample = _store_records(
             registry,
             dataset,
             run_id,
-            table_id=table_id,
-            cells=cells,
+            records=records,
             retrieved_at=utc_now(),
             request_url=access_path,
             http_status=http_status,
             counts=counts,
+            series=f"fetch:{table_id}",
         )
         status = "completed"
     except Exception as exc:
@@ -9713,18 +9723,21 @@ def _fetch_crresult(
         got = client.get_json_response(access_path)
         http_status = got.status
         registry.set_fetch_request(run_id, request_url=access_path, request_body={"method": "GET"})
-        cells = cells_from_crresult(got.body)
-        counts.listed = len(cells)
-        sample = _store_cells(
+        # A Cristin member is a thing with a name, not a measurement of one.
+        records = records_from_cells(
+            cells_from_crresult(got.body), dataset_id=dataset["id"], table_id=table_id
+        )
+        counts.listed = len(records)
+        sample = _store_records(
             registry,
             dataset,
             run_id,
-            table_id=table_id,
-            cells=cells,
+            records=records,
             retrieved_at=utc_now(),
             request_url=access_path,
             http_status=http_status,
             counts=counts,
+            series=f"fetch:{table_id}",
         )
         status = "completed"
     except Exception as exc:
@@ -9770,18 +9783,21 @@ def _fetch_crunit(
         got = client.get_json_response(access_path)
         http_status = got.status
         registry.set_fetch_request(run_id, request_url=access_path, request_body={"method": "GET"})
-        cells = cells_from_crunit(got.body)
-        counts.listed = len(cells)
-        sample = _store_cells(
+        # A Cristin member is a thing with a name, not a measurement of one.
+        records = records_from_cells(
+            cells_from_crunit(got.body), dataset_id=dataset["id"], table_id=table_id
+        )
+        counts.listed = len(records)
+        sample = _store_records(
             registry,
             dataset,
             run_id,
-            table_id=table_id,
-            cells=cells,
+            records=records,
             retrieved_at=utc_now(),
             request_url=access_path,
             http_status=http_status,
             counts=counts,
+            series=f"fetch:{table_id}",
         )
         status = "completed"
     except Exception as exc:
@@ -9827,18 +9843,21 @@ def _fetch_crinst(
         got = client.get_json_response(access_path)
         http_status = got.status
         registry.set_fetch_request(run_id, request_url=access_path, request_body={"method": "GET"})
-        cells = cells_from_crinst(got.body)
-        counts.listed = len(cells)
-        sample = _store_cells(
+        # A Cristin member is a thing with a name, not a measurement of one.
+        records = records_from_cells(
+            cells_from_crinst(got.body), dataset_id=dataset["id"], table_id=table_id
+        )
+        counts.listed = len(records)
+        sample = _store_records(
             registry,
             dataset,
             run_id,
-            table_id=table_id,
-            cells=cells,
+            records=records,
             retrieved_at=utc_now(),
             request_url=access_path,
             http_status=http_status,
             counts=counts,
+            series=f"fetch:{table_id}",
         )
         status = "completed"
     except Exception as exc:
@@ -9882,18 +9901,21 @@ def _fetch_cristin(
         got = client.get_json_response(access_path)
         http_status = got.status
         registry.set_fetch_request(run_id, request_url=access_path, request_body={"method": "GET"})
-        cells = cells_from_cristin(got.body)
-        counts.listed = len(cells)
-        sample = _store_cells(
+        # A Cristin member is a thing with a name, not a measurement of one.
+        records = records_from_cells(
+            cells_from_cristin(got.body), dataset_id=dataset["id"], table_id=table_id
+        )
+        counts.listed = len(records)
+        sample = _store_records(
             registry,
             dataset,
             run_id,
-            table_id=table_id,
-            cells=cells,
+            records=records,
             retrieved_at=utc_now(),
             request_url=access_path,
             http_status=http_status,
             counts=counts,
+            series=f"fetch:{table_id}",
         )
         status = "completed"
     except Exception as exc:

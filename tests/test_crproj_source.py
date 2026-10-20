@@ -172,17 +172,19 @@ def test_fetch_gets_printed_title(tmp_path: Path) -> None:
     assert result.table_id == "1234981"
     assert result.http_status == 200
     assert result.counts.listed == 1
-    rows = registry.list_observations(DATASET_ID)
-    values = [json.loads(row["value_json"]) for row in rows]
-    assert values == ["Life and Death at Vinjefjorden"]
-    assert all(row["measure"] == "title" for row in rows)
-    dims = json.loads(rows[0]["dimensions_json"])
-    assert dims["cristin_project_id"] == "1234981"
-    assert dims["main_language"] == "nb"
-    assert "url" not in dims
+    assert registry.observation_count() == 0
+    rows = registry.list_records(DATASET_ID, kind="entity")
+    assert [row["subject_label"] for row in rows] == ["Life and Death at Vinjefjorden"]
+    assert all(row["subject_scheme"] == "cristin:project" for row in rows)
+    assert all(row["measure"] is None and row["value_json"] is None for row in rows)
+    assert rows[0]["subject_code"] == "1234981"
+    attributes = json.loads(rows[0]["attributes_json"])
+    assert attributes["main_language"] == "nb"
+    assert "url" not in attributes
+    assert "cristin_project_id" not in attributes
     assert all(row["publisher_name"] is None for row in rows)
     assert all(row["license"] is None for row in rows)
-    assert all(row["access_path"] == VINJE_URL for row in rows)
+    assert all(row["request_url"] == VINJE_URL for row in rows)
     registry.close()
 
 

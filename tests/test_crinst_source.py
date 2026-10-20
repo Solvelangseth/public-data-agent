@@ -180,17 +180,19 @@ def test_fetch_gets_printed_institution_name(tmp_path: Path) -> None:
     assert result.table_id == "1000"
     assert result.http_status == 200
     assert result.counts.listed == 1
-    rows = registry.list_observations(DATASET_ID)
-    values = [json.loads(row["value_json"]) for row in rows]
-    assert values == ["AOF Haugaland"]
-    assert all(row["measure"] == "institution_name" for row in rows)
-    dims = json.loads(rows[0]["dimensions_json"])
-    assert dims["cristin_institution_id"] == "1000"
-    assert dims["acronym"] == "AOFHAUGALA"
-    assert "url" not in dims
+    assert registry.observation_count() == 0
+    rows = registry.list_records(DATASET_ID, kind="entity")
+    assert [row["subject_label"] for row in rows] == ["AOF Haugaland"]
+    assert all(row["subject_scheme"] == "cristin:institution" for row in rows)
+    assert all(row["measure"] is None and row["value_json"] is None for row in rows)
+    assert rows[0]["subject_code"] == "1000"
+    attributes = json.loads(rows[0]["attributes_json"])
+    assert attributes["acronym"] == "AOFHAUGALA"
+    assert "url" not in attributes
+    assert "cristin_institution_id" not in attributes
     assert all(row["publisher_name"] is None for row in rows)
     assert all(row["license"] is None for row in rows)
-    assert all(row["access_path"] == HAUG_URL for row in rows)
+    assert all(row["request_url"] == HAUG_URL for row in rows)
     registry.close()
 
 

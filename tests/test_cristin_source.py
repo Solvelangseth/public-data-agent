@@ -192,17 +192,19 @@ def test_fetch_gets_printed_country_names(tmp_path: Path) -> None:
     assert result.table_id == "countries"
     assert result.http_status == 200
     assert result.counts.listed == 2
-    rows = registry.list_observations(DATASET_ID)
-    by_value = {json.loads(row["value_json"]): row for row in rows}
-    assert set(by_value) == {"Andorra", "Norway"}
-    assert by_value["Andorra"]["measure"] == "name"
-    dims = json.loads(by_value["Andorra"]["dimensions_json"])
-    assert dims["code"] == "AD"
-    assert dims["code_alpha3"] == "AND"
-    assert "nb" not in dims
+    assert registry.observation_count() == 0
+    rows = registry.list_records(DATASET_ID, kind="entity")
+    by_label = {row["subject_label"]: row for row in rows}
+    assert set(by_label) == {"Andorra", "Norway"}
+    assert all(row["measure"] is None and row["value_json"] is None for row in rows)
+    assert by_label["Andorra"]["subject_code"] == "AD"
+    attributes = json.loads(by_label["Andorra"]["attributes_json"])
+    assert attributes["code_alpha3"] == "AND"
+    assert "nb" not in attributes
+    assert "code" not in attributes
     assert all(row["publisher_name"] is None for row in rows)
     assert all(row["license"] is None for row in rows)
-    assert all(row["access_path"] == COUNTRIES_URL for row in rows)
+    assert all(row["request_url"] == COUNTRIES_URL for row in rows)
     registry.close()
 
 

@@ -172,18 +172,22 @@ def test_fetch_gets_printed_result_title(tmp_path: Path) -> None:
     assert result.table_id == "1903021"
     assert result.http_status == 200
     assert result.counts.listed == 1
-    rows = registry.list_observations(DATASET_ID)
-    values = [json.loads(row["value_json"]) for row in rows]
-    assert values == ["Considerations about the Theological Meaning of Migration in the Book of Acts"]
-    assert all(row["measure"] == "title" for row in rows)
-    dims = json.loads(rows[0]["dimensions_json"])
-    assert dims["cristin_result_id"] == "1903021"
-    assert dims["year_published"] == "2021"
-    assert "url" not in dims
-    assert "contributors" not in dims
+    assert registry.observation_count() == 0
+    rows = registry.list_records(DATASET_ID, kind="entity")
+    assert [row["subject_label"] for row in rows] == [
+        "Considerations about the Theological Meaning of Migration in the Book of Acts"
+    ]
+    assert all(row["subject_scheme"] == "cristin:result" for row in rows)
+    assert all(row["measure"] is None and row["value_json"] is None for row in rows)
+    assert rows[0]["subject_code"] == "1903021"
+    attributes = json.loads(rows[0]["attributes_json"])
+    assert attributes["year_published"] == "2021"
+    assert "url" not in attributes
+    assert "contributors" not in attributes
+    assert "cristin_result_id" not in attributes
     assert all(row["publisher_name"] is None for row in rows)
     assert all(row["license"] is None for row in rows)
-    assert all(row["access_path"] == ACTS_URL for row in rows)
+    assert all(row["request_url"] == ACTS_URL for row in rows)
     registry.close()
 
 

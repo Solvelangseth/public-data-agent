@@ -365,7 +365,15 @@ def test_a_records_row_states_its_own_kind(tmp_path: Path) -> None:
                 "subject_scheme": "brreg:orgnr",
                 "subject_code": "974760673",
                 "subject_label": "Universitetet i Oslo",
-                "attributes_json": "{}",
+                # What Enhetsregisteret actually prints about a company. A
+                # register says what the thing is; a code list says only what
+                # the code stands for, and that is the whole difference.
+                "attributes": {
+                    "organisasjonsform": "ORGL",
+                    "naeringskode1": "85.421",
+                    "antallAnsatte": 7325,
+                    "forretningsadresse": "Problemveien 7, 0313 Oslo",
+                },
                 "retrieved_at": "2026-10-16T00:00:00Z",
                 "request_url": FETCHABLE,
                 "http_status": 200,
@@ -420,5 +428,43 @@ def test_klass_items_stay_a_lookup_once_they_are_records(tmp_path: Path) -> None
             )
         registry.conn.commit()
         assert demonstrated_capability(registry, "fixture:klass") == ("lookup", "entity")
+    finally:
+        registry.close()
+
+
+def test_a_code_and_a_label_and_nothing_else_is_a_lookup(tmp_path: Path) -> None:
+    """The plainest vocabulary there is.
+
+    `brreg:kommunenummer` stores 365 of these -- 0301 is Oslo and the row says
+    no more than that -- and `brkommuner` declares itself a lookup for exactly
+    this reason. Read as an entity source it would compete for questions about
+    municipalities instead of being the key that answers them.
+    """
+
+    registry = Registry(tmp_path / "r.sqlite")
+    try:
+        _dataset(registry, "fixture:kommuner", FETCHABLE)
+        run_id = registry.start_fetch_run(
+            dataset_id="fixture:kommuner", table_id="kommuner",
+            request_url=FETCHABLE, request_method="TEST",
+        )
+        for code, name in (("0301", "Oslo"), ("1103", "Stavanger")):
+            registry.upsert_record(
+                {
+                    "id": f"entity:fixture:kommuner:{code}",
+                    "dataset_id": "fixture:kommuner",
+                    "kind": "entity",
+                    "subject_scheme": "brreg:kommunenummer",
+                    "subject_code": code,
+                    "subject_label": name,
+                    "attributes": {},
+                    "retrieved_at": "2026-10-20T00:00:00Z",
+                    "request_url": FETCHABLE,
+                    "http_status": 200,
+                },
+                run_id,
+            )
+        registry.conn.commit()
+        assert demonstrated_capability(registry, "fixture:kommuner") == ("lookup", "entity")
     finally:
         registry.close()

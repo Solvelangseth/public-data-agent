@@ -293,10 +293,7 @@ def _is_code_list(registry: Registry, dataset_id: str) -> bool:
         if not isinstance(attributes, dict):
             return False
         keys = {str(key).strip().casefold() for key in attributes}
-        # A record that says nothing about the thing it names is not evidence
-        # of a vocabulary: `Universitetet i Oslo` under an organisation number
-        # with no attributes is an entity, and the safer read is the plainer one.
-        if not keys or not keys <= _CODE_LIST_DIMENSIONS:
+        if not keys <= _CODE_LIST_DIMENSIONS:
             return False
     return True
 

@@ -170,17 +170,22 @@ def test_fetch_gets_printed_first_name(tmp_path: Path) -> None:
     assert result.table_id == "1805404"
     assert result.http_status == 200
     assert result.counts.listed == 1
-    rows = registry.list_observations(DATASET_ID)
-    values = [json.loads(row["value_json"]) for row in rows]
-    assert values == ["Yassine"]
-    assert all(row["measure"] == "first_name" for row in rows)
-    dims = json.loads(rows[0]["dimensions_json"])
-    assert dims["cristin_person_id"] == "1805404"
-    assert dims["surname"] == "Ababri"
-    assert "url" not in dims
+    assert registry.observation_count() == 0
+    rows = registry.list_records(DATASET_ID, kind="entity")
+    # The label is the name field Cristin printed, not a full name composed
+    # from two of them: the surname stays an attribute because that is how it
+    # was published.
+    assert [row["subject_label"] for row in rows] == ["Yassine"]
+    assert all(row["subject_scheme"] == "cristin:person" for row in rows)
+    assert all(row["measure"] is None and row["value_json"] is None for row in rows)
+    assert rows[0]["subject_code"] == "1805404"
+    attributes = json.loads(rows[0]["attributes_json"])
+    assert attributes["surname"] == "Ababri"
+    assert "url" not in attributes
+    assert "cristin_person_id" not in attributes
     assert all(row["publisher_name"] is None for row in rows)
     assert all(row["license"] is None for row in rows)
-    assert all(row["access_path"] == ABABRI_URL for row in rows)
+    assert all(row["request_url"] == ABABRI_URL for row in rows)
     registry.close()
 
 

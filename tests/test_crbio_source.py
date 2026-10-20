@@ -167,17 +167,21 @@ def test_fetch_gets_printed_biobank_name(tmp_path: Path) -> None:
     assert result.table_id == "2052825"
     assert result.http_status == 200
     assert result.counts.listed == 1
-    rows = registry.list_observations(DATASET_ID)
-    values = [json.loads(row["value_json"]) for row in rows]
-    assert values == ["Daratumumab for behandling av immunologisk trombocytopeni (ITP) -DART-studien"]
-    assert all(row["measure"] == "name" for row in rows)
-    dims = json.loads(rows[0]["dimensions_json"])
-    assert dims["cristin_biobank_id"] == "2052825"
-    assert dims["biobank_id"] == "BBR-3429"
-    assert "url" not in dims
+    assert registry.observation_count() == 0
+    rows = registry.list_records(DATASET_ID, kind="entity")
+    assert [row["subject_label"] for row in rows] == [
+        "Daratumumab for behandling av immunologisk trombocytopeni (ITP) -DART-studien"
+    ]
+    assert all(row["subject_scheme"] == "cristin:biobank" for row in rows)
+    assert all(row["measure"] is None and row["value_json"] is None for row in rows)
+    assert rows[0]["subject_code"] == "2052825"
+    attributes = json.loads(rows[0]["attributes_json"])
+    assert attributes["biobank_id"] == "BBR-3429"
+    assert "url" not in attributes
+    assert "cristin_biobank_id" not in attributes
     assert all(row["publisher_name"] is None for row in rows)
     assert all(row["license"] is None for row in rows)
-    assert all(row["access_path"] == DART_URL for row in rows)
+    assert all(row["request_url"] == DART_URL for row in rows)
     registry.close()
 
 
