@@ -121,19 +121,52 @@ def _names_agree(label: str, published: set[str] | str) -> bool:
     return False
 
 
+# Labels a publisher gives a field that is about where, not when. A code is
+# allowed to look like a year; a field the publisher calls `region` is not a
+# year whatever its codes look like.
+PLACE_FIELD_WORDS = frozenset({
+    "region", "fylke", "kommune", "bydel", "grunnkrets", "delområde", "delomrade",
+    "område", "omrade", "sted", "stad", "landsdel", "geo", "geografi", "sone",
+})
+
+
+def _names_a_place(code: str, label: str | None) -> bool:
+    text = f"{code} {label or ''}".casefold()
+    return any(word in text for word in PLACE_FIELD_WORDS)
+
+
 def field_role(code: str, values: list[tuple[str, str]],
-               catalogues: dict[str, dict[str, set[str]]] | None = None) -> str:
-    """Say how a field may be used: key, period, measure, attribute."""
+               catalogues: dict[str, dict[str, set[str]]] | None = None,
+               label: str | None = None) -> str:
+    """Say how a field may be used: key, period, measure, attribute.
+
+    The period guess from value shape is the last resort, not the first, and
+    this is why. `PERIOD_VALUE` matches 1600-2099, and Norwegian municipality
+    numbers run 1601 Trondheim, 1805 Narvik, 1902 Tromsø, 2030 Sør-Varanger --
+    every municipality north of Trøndelag is a four-digit number in that range.
+    Guessing from shape before checking the published code lists made SSB's
+    `RegionSamisk` a period field, and the capability for table 06832 then
+    reported that it covers "1805 to 2030" when its years are 2006 to 2016.
+
+    The file already says this about keys: a scheme is claimed only when the
+    values are in the published code list, never from the shape of the codes.
+    The period rule was committing the same error in the other direction.
+    """
 
     lowered = code.casefold()
     if lowered in PERIOD_FIELD_CODES:
         return "period"
-    if values and all(PERIOD_VALUE.match(value) for value, _ in values[:12]):
-        return "period"
     if lowered in {"contentscode", "measure_type", "statistikkvariabel"}:
         return "measure"
+    # A published classification is evidence; four digits are a coincidence.
     if _schemes_for(values, catalogues):
         return "key"
+    if (
+        values
+        and not _names_a_place(code, label)
+        and all(PERIOD_VALUE.match(value) for value, _ in values[:12])
+    ):
+        return "period"
     return "attribute"
 
 
@@ -189,7 +222,7 @@ def shape_from_pxweb(
                 [str(t) for t in variable.get("valueTexts") or []],
             )
         )
-        role = field_role(code, values, catalogues)
+        role = field_role(code, values, catalogues, label=variable.get("text"))
         kept = values if len(values) <= MAX_VALUES_PER_FIELD else values[:MAX_VALUES_PER_FIELD]
         fields.append(
             {
@@ -221,7 +254,7 @@ def shape_from_fhi(
         if not code:
             continue
         values = flatten_categories(dim.get("categories"))
-        role = field_role(code, values, catalogues)
+        role = field_role(code, values, catalogues, label=dim.get("label"))
         kept = values[:MAX_VALUES_PER_FIELD]
         fields.append(
             {
@@ -275,7 +308,7 @@ def shape_from_jsonstat2(
         elif code in metric_ids:
             role = "measure"
         else:
-            role = field_role(code, values, catalogues)
+            role = field_role(code, values, catalogues, label=dim.get("label"))
         kept = values[:MAX_VALUES_PER_FIELD]
         fields.append(
             {
@@ -327,7 +360,7 @@ def shape_from_sdmx_serieskeys(payload: Any) -> list[dict[str, Any]]:
             {
                 "field_code": code,
                 "field_label": dim.get("name") or code,
-                "field_role": field_role(code, values),
+                "field_role": field_role(code, values, label=dim.get("name")),
                 "value_count": len(values),
                 "values": [
                     {"value_code": c, "value_label": t} for c, t in values[:MAX_VALUES_PER_FIELD]

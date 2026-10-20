@@ -716,3 +716,38 @@ def test_select_maps_klass_kommune_to_region_field(tmp_path: Path) -> None:
     )
     assert leftover == {"kommune": ["0301"]}
     registry.close()
+
+
+def test_a_municipality_number_is_not_a_year() -> None:
+    """PERIOD_VALUE matches 1600-2099, and so do most municipality numbers.
+
+    1601 Trondheim, 1805 Narvik, 1902 Tromsø, 2030 Sør-Varanger: every
+    municipality north of Trøndelag is four digits in that range. Guessing a
+    period from value shape before checking the published code lists made
+    SSB's `RegionSamisk` a period field, and the capability for table 06832
+    then said it covers "1805 to 2030" when its years are 2006 to 2016.
+    """
+
+    northern = [("1601", "Trondheim"), ("1805", "Narvik"), ("2030", "Sør-Varanger")]
+    assert field_role("RegionSamisk", northern, label="region") == "attribute"
+    assert field_role("Tid", [("2015", "2015"), ("2016", "2016")]) == "period"
+    # The publisher's own label is what rules it out, so a field with no
+    # telling name still reads as a period from its values.
+    assert field_role("unnamed", [("2015", "2015"), ("2016", "2016")]) == "period"
+
+
+def test_period_span_reads_the_period_field_only() -> None:
+    fields = [
+        {
+            "field_role": "attribute",
+            "values": [{"value_code": "1805", "value_label": "Narvik"}],
+        },
+        {
+            "field_role": "period",
+            "values": [
+                {"value_code": "2016", "value_label": "2016"},
+                {"value_code": "2006", "value_label": "2006"},
+            ],
+        },
+    ]
+    assert period_span(fields) == ("2006", "2016")
