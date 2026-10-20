@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from public_data_agent.fetch import fetch_observations
+from public_data_agent.fetch import ServiceCatalogue, fetch_observations
 from public_data_agent.harvest import harvest
 from public_data_agent.http_util import JsonResponse
 from public_data_agent.registry import Registry
@@ -167,30 +167,16 @@ def test_harvest_writes_printed_id_null_license_and_publisher(tmp_path: Path) ->
     registry.close()
 
 
-def test_fetch_gets_printed_layer_names(tmp_path: Path) -> None:
+def test_a_mapserver_layer_list_is_refused_not_stored(tmp_path: Path) -> None:
+    """Norsk Polarinstitutt's services, same shape, same refusal."""
+
     source = ArcticsdiSource(http=CatalogHttp())
     registry = Registry(tmp_path / "registry.sqlite")
     harvest(registry, source)
-    result = fetch_observations(
-        registry,
-        DATASET_ID,
-        table_id="ignored",
-        http=FetchHttp(),
-    )
-    assert result.request_url == JAN_URL
-    assert result.table_id == "ArcticSDI_NO_JAN"
-    assert result.http_status == 200
-    assert result.counts.listed == 3
-    rows = registry.list_observations(DATASET_ID)
-    by_value = {json.loads(row["value_json"]): row for row in rows}
-    assert set(by_value) == {"ArcticSDI_NO_JAN", "GeographicalNames", "Airports"}
-    assert by_value["GeographicalNames"]["measure"] == "name"
-    dims = json.loads(by_value["GeographicalNames"]["dimensions_json"])
-    assert dims["id"] == "1"
-    assert "nested" not in dims
-    assert all(row["publisher_name"] is None for row in rows)
-    assert all(row["license"] is None for row in rows)
-    assert all(row["access_path"] == JAN_URL for row in rows)
+    with pytest.raises(ServiceCatalogue, match="table of contents"):
+        fetch_observations(registry, DATASET_ID, table_id="ignored", http=FetchHttp())
+    assert registry.observation_count() == 0
+    assert registry.list_records(DATASET_ID) == []
     registry.close()
 
 

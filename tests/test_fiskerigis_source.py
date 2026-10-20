@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from public_data_agent.fetch import fetch_observations
+from public_data_agent.fetch import ServiceCatalogue, fetch_observations
 from public_data_agent.harvest import harvest
 from public_data_agent.http_util import JsonResponse
 from public_data_agent.registry import Registry
@@ -163,35 +163,27 @@ def test_harvest_writes_printed_id_null_license_and_publisher(tmp_path: Path) ->
     registry.close()
 
 
-def test_fetch_gets_printed_layer_names(tmp_path: Path) -> None:
+def test_a_mapserver_layer_list_is_refused_not_stored(tmp_path: Path) -> None:
+    """The service's table of contents is not data about the sea.
+
+    `MapServer?f=json` prints the layers the service draws, with their
+    visibility, scale range and parent. Stored as observations that made
+    `defaultVisibility` and `parentLayerId` published figures, and marked 15
+    Fiskeridirektoratet map services verified on the strength of them.
+    """
+
     source = FiskerigisSource(http=CatalogHttp())
     registry = Registry(tmp_path / "registry.sqlite")
     harvest(registry, source)
-    result = fetch_observations(
-        registry,
-        DATASET_ID,
-        table_id="ignored",
-        http=FetchHttp(),
-    )
-    assert result.request_url == AIS_URL
-    assert result.table_id == "AIS_density_Norge_2016"
-    assert result.http_status == 200
-    assert result.counts.listed == 2
-    rows = registry.list_observations(DATASET_ID)
-    assert len(rows) == 2
-    values = {json.loads(row["value_json"]) for row in rows}
-    assert values == {"AIS density Norge 2016", "AIS density overlay"}
-    assert all(row["measure"] == "name" for row in rows)
-    dims_by_value = {
-        json.loads(row["value_json"]): json.loads(row["dimensions_json"]) for row in rows
-    }
-    assert dims_by_value["AIS density Norge 2016"]["id"] == "0"
-    assert dims_by_value["AIS density Norge 2016"]["type"] == "Raster Layer"
-    assert "nested" not in dims_by_value["AIS density Norge 2016"]
-    assert "extent" not in dims_by_value["AIS density Norge 2016"]
-    assert all(row["publisher_name"] is None for row in rows)
-    assert all(row["license"] is None for row in rows)
-    assert all(row["access_path"] == AIS_URL for row in rows)
+    with pytest.raises(ServiceCatalogue, match="table of contents"):
+        fetch_observations(registry, DATASET_ID, table_id="ignored", http=FetchHttp())
+    assert registry.observation_count() == 0
+    assert registry.list_records(DATASET_ID) == []
+    run = registry.conn.execute(
+        "SELECT status FROM fetch_runs WHERE dataset_id = ? ORDER BY id DESC LIMIT 1",
+        (DATASET_ID,),
+    ).fetchone()
+    assert run["status"] == "failed"
     registry.close()
 
 

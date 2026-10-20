@@ -10702,6 +10702,7 @@ def _fetch_fiskerigis(
         got = client.get_json_response(access_path)
         http_status = got.status
         registry.set_fetch_request(run_id, request_url=access_path, request_body={"method": "GET"})
+        _refuse_service_catalogue(got.body, dataset_id=dataset["id"], url=access_path)
         cells = cells_from_fiskerigis(got.body)
         counts.listed = len(cells)
         sample = _store_cells(
@@ -11087,6 +11088,7 @@ def _fetch_arcticsdi(
         got = client.get_json_response(access_path)
         http_status = got.status
         registry.set_fetch_request(run_id, request_url=access_path, request_body={"method": "GET"})
+        _refuse_service_catalogue(got.body, dataset_id=dataset["id"], url=access_path)
         cells = cells_from_arcticsdi(got.body)
         counts.listed = len(cells)
         sample = _store_cells(
@@ -16709,6 +16711,37 @@ def _store_records(
                     }
                 )
     return sample
+
+
+class ServiceCatalogue(ValueError):
+    """The response described the service instead of returning data.
+
+    An ArcGIS MapServer root prints its `layers` array: id, parent, visibility,
+    scale range, geometry type. That is the service's table of contents, and
+    storing it as observations made `defaultVisibility` and `parentLayerId`
+    into published figures and marked the dataset verified on the strength of
+    them. 99 such rows were stored across Fiskeridirektoratet's and
+    Norsk Polarinstitutt's map services.
+
+    Raised rather than stored, because a fetch that came back with a menu has
+    not reached the data, and anything else leaves a dataset looking fetchable
+    when the data needs a per-layer query it has never made.
+    """
+
+
+def _refuse_service_catalogue(payload: Any, *, dataset_id: str, url: str) -> None:
+    """Stop an ArcGIS service description from being stored as data."""
+
+    if not isinstance(payload, dict):
+        return
+    for key in ("layers", "services"):
+        listed = payload.get(key)
+        if isinstance(listed, list) and listed:
+            raise ServiceCatalogue(
+                f"{dataset_id}: {url} printed {len(listed)} {key} -- the service's own "
+                f"table of contents, not data. Each layer has to be queried at "
+                f"<service>/<layer id>/query; nothing was stored."
+            )
 
 
 class SelectionTooLarge(ValueError):
