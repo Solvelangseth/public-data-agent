@@ -214,6 +214,7 @@ _EMPTY_VALUES = frozenset({"", ":", "..", ".", "-", "none", "null", "na"})
 # its shape. `Bydelsinndeling 2020` stores `Gamle Oslo` against
 # `{"code": "030101", "level": "1"}`: join keys, not facts.
 _CODE_LIST_DIMENSIONS = frozenset({
+    "classification", "klassifikasjon",
     "code", "kode", "level", "nivaa", "nivå", "parent", "parentcode", "parent_code",
     "shortname", "kortnavn", "name", "navn", "notes", "validfrom", "validto",
     "valid_from", "valid_to", "gyldigfra", "gyldigtil",
@@ -262,6 +263,44 @@ def _is_empty(value: Any) -> bool:
     return isinstance(value, str) and value.strip().casefold() in _EMPTY_VALUES
 
 
+def _is_code_list(registry: Registry, dataset_id: str) -> bool:
+    """Whether a dataset's entity records are a vocabulary rather than things.
+
+    Both shapes are entities -- a Klass item and a company are each a named
+    thing with an identifier -- and what separates them is what else the
+    publisher says about them. A code list says only where the code sits in its
+    hierarchy and when it was valid; a register says what the thing is. So a
+    record addressed by a code and carrying nothing but hierarchy and validity
+    is a join key, and `lookup` is the capability that names that role.
+    """
+
+    rows = registry.conn.execute(
+        "SELECT subject_code, measure, value_json, attributes_json FROM records "
+        "WHERE dataset_id = ? AND kind = 'entity' LIMIT ?",
+        (dataset_id, _EVIDENCE_SAMPLE),
+    ).fetchall()
+    if not rows:
+        return False
+    import json as _json
+
+    for row in rows:
+        if not row["subject_code"] or row["measure"] or row["value_json"] is not None:
+            return False
+        try:
+            attributes = _json.loads(row["attributes_json"] or "{}")
+        except ValueError:
+            return False
+        if not isinstance(attributes, dict):
+            return False
+        keys = {str(key).strip().casefold() for key in attributes}
+        # A record that says nothing about the thing it names is not evidence
+        # of a vocabulary: `Universitetet i Oslo` under an organisation number
+        # with no attributes is an entity, and the safer read is the plainer one.
+        if not keys or not keys <= _CODE_LIST_DIMENSIONS:
+            return False
+    return True
+
+
 def demonstrated_capability(
     registry: Registry, dataset_id: str
 ) -> tuple[str, str | None] | None:
@@ -288,7 +327,10 @@ def demonstrated_capability(
         (dataset_id,),
     ).fetchall()
     if kinds:
-        mapped = _KIND_CAPABILITY.get(kinds[0]["kind"])
+        kind = kinds[0]["kind"]
+        if kind == "entity" and _is_code_list(registry, dataset_id):
+            return "lookup", "entity"
+        mapped = _KIND_CAPABILITY.get(kind)
         if mapped is not None:
             return mapped
 

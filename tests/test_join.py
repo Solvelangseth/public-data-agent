@@ -9,7 +9,7 @@ from public_data_agent.http_util import JsonResponse
 from public_data_agent.join import join_bydel_population
 from public_data_agent.registry import Registry
 from public_data_agent.sources.fixture import FixtureSource
-from public_data_agent.ssb_klass import cells_from_klass
+from public_data_agent.ssb_klass import records_from_klass
 from public_data_agent.ssb_pxweb import (
     bydel_codes_from_meta,
     cells_from_jsonstat_coded,
@@ -134,10 +134,12 @@ def test_jsonstat_keeps_region_codes() -> None:
     assert cells[0].measure == "Personer (antall)"
 
 
-def test_klass_cells_are_not_a_metric() -> None:
-    cells = cells_from_klass(KLASS_PAYLOAD)
-    assert cells[0][2]["code"] == "030101"
-    assert cells[0][1] == "Gamle Oslo"
+def test_klass_items_are_not_a_metric() -> None:
+    records = records_from_klass(KLASS_PAYLOAD, STRANDSONE_ID)
+    assert records[0]["kind"] == "entity"
+    assert records[0]["subject_code"] == "030101"
+    assert records[0]["subject_label"] == "Gamle Oslo"
+    assert "value" not in records[0]
 
 
 def test_join_on_exact_bydel_code_and_leaves_harvest_untouched(tmp_path: Path) -> None:
@@ -159,7 +161,13 @@ def test_join_on_exact_bydel_code_and_leaves_harvest_untouched(tmp_path: Path) -
     assert registry.joined_row_count() == 2
     stored_11763 = registry.list_observations("ssb:11763")
     assert len(stored_11763) == 2
-    assert registry.observation_count() == 5
+    # Only the right side measures anything: the classification is three named
+    # bydeler, and counting them as observations made this join look like five
+    # published figures where there are two.
+    assert registry.observation_count() == 2
+    klass_records = registry.list_records(STRANDSONE_ID, kind="entity")
+    assert len(klass_records) == 3
+    assert {row["subject_code"] for row in klass_records} == {"030101", "030102", "999999"}
     grunnerlokka = next(
         row
         for row in stored_11763

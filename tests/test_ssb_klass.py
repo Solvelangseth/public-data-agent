@@ -8,7 +8,7 @@ from public_data_agent.harvest import harvest
 from public_data_agent.http_util import JsonResponse
 from public_data_agent.registry import Registry
 from public_data_agent.sources.fixture import FixtureSource
-from public_data_agent.ssb_klass import cells_from_klass, is_klass_url, klass_table_id
+from public_data_agent.ssb_klass import is_klass_url, klass_table_id, records_from_klass
 
 FIXTURES = Path(__file__).parent / "fixtures"
 STRANDSONE_ID = "fixture:b2864e84-b474-31ae-97b1-8b94a71f5b0f"
@@ -53,16 +53,49 @@ def test_is_klass_url_accepts_only_ssb_klass() -> None:
     assert not is_klass_url("https://data.ssb.no/api/v0/no/table/07459")
 
 
-def test_cells_from_klass_copy_source_names() -> None:
-    cells = cells_from_klass(KLASS_PAYLOAD)
-    assert cells == [
-        ("Bydelsinndeling 2020", "Gamle Oslo", {"code": "030101", "level": "1"}),
-        ("Bydelsinndeling 2020", "Grünerløkka", {"code": "030102", "level": "1"}),
+def test_records_from_klass_make_the_code_the_subject() -> None:
+    records = records_from_klass(KLASS_PAYLOAD, STRANDSONE_ID)
+    assert records == [
+        {
+            "id": f"entity:{STRANDSONE_ID}:klass:1168:030101",
+            "kind": "entity",
+            "subject_scheme": "klass:1168",
+            "subject_code": "030101",
+            "subject_label": "Gamle Oslo",
+            "attributes": {"classification": "Bydelsinndeling 2020", "level": "1"},
+        },
+        {
+            "id": f"entity:{STRANDSONE_ID}:klass:1168:030102",
+            "kind": "entity",
+            "subject_scheme": "klass:1168",
+            "subject_code": "030102",
+            "subject_label": "Grünerløkka",
+            "attributes": {"classification": "Bydelsinndeling 2020", "level": "1"},
+        },
     ]
     assert klass_table_id(KLASS_PAYLOAD, KLASS_URL) == "klass:1168"
 
 
-def test_fetch_klass_stores_rows_and_second_run_is_unchanged(tmp_path: Path) -> None:
+def test_records_from_klass_keep_the_parent_code_as_an_attribute() -> None:
+    payload = {
+        "name": "Kommuneinndeling 2026",
+        "id": 3262,
+        "classificationItems": [
+            {"code": "0301", "name": "Oslo", "level": "2", "parentCode": "03"},
+        ],
+    }
+    (record,) = records_from_klass(payload, STRANDSONE_ID)
+    assert record["attributes"]["parentCode"] == "03"
+    assert record["subject_code"] == "0301"
+
+
+def test_fetch_klass_stores_entity_records_not_observations(tmp_path: Path) -> None:
+    """A code list is a list of named things, and the count must say so.
+
+    Stored as observation cells, 42 Oslo bydel names counted as 42 published
+    measurements and the dataset verified as an observation source.
+    """
+
     registry = _registry(tmp_path)
     harvest_before = registry.conn.execute("SELECT COUNT(*) FROM harvested_payloads").fetchone()[0]
     first = fetch_observations(registry, STRANDSONE_ID, table_id="ignored", http=KlassHttp())
@@ -71,14 +104,17 @@ def test_fetch_klass_stores_rows_and_second_run_is_unchanged(tmp_path: Path) -> 
     assert first.table_id == "klass:1168"
     assert first.counts.listed == 2
     assert first.counts.inserted == 2
-    assert registry.observation_count() == 2
+    assert registry.observation_count() == 0
     assert registry.conn.execute("SELECT COUNT(*) FROM harvested_payloads").fetchone()[0] == harvest_before
-    row = registry.list_observations(STRANDSONE_ID)[0]
-    assert row["publisher_name"]
-    assert row["request_url"] == KLASS_URL
-    assert json.loads(row["value_json"]) in {"Gamle Oslo", "Grünerløkka"}
+    records = registry.list_records(STRANDSONE_ID)
+    assert {row["kind"] for row in records} == {"entity"}
+    assert {row["subject_code"] for row in records} == {"030101", "030102"}
+    assert {row["subject_label"] for row in records} == {"Gamle Oslo", "Grünerløkka"}
+    assert all(row["value_json"] is None for row in records)
+    assert all(row["publisher_name"] for row in records)
+    assert all(row["request_url"] == KLASS_URL for row in records)
     second = fetch_observations(registry, STRANDSONE_ID, table_id="ignored", http=KlassHttp())
     assert second.counts.unchanged == 2
     assert second.counts.inserted == 0
-    assert registry.observation_count() == 2
+    assert len(registry.list_records(STRANDSONE_ID)) == 2
     registry.close()

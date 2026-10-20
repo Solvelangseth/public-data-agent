@@ -133,7 +133,7 @@ def join_classification_to_table(
         klass_fetch = fetch_observations(registry, klass_dataset_id, table_id="klass", http=http)
         left_http = klass_fetch.http_status
         left_url = klass_fetch.request_url
-        klass_by_code = _klass_by_code(registry.list_observations(klass_dataset_id))
+        klass_by_code = _klass_by_code(registry, klass_dataset_id)
         if not klass_by_code:
             raise ValueError(f"{klass_dataset_id} stored no classification codes to join on")
         if fhi_ref:
@@ -195,7 +195,7 @@ def join_classification_to_table(
                     or cell.labels.get("Region")
                     or cell.labels.get("GEO")
                 ),
-                "klass_name": json.loads(klass_row["value_json"]),
+                "klass_name": klass_row["label"],
             }
             record = {
                 "id": _joined_id(
@@ -540,13 +540,34 @@ def _persist_ssb_observations(
         )
 
 
-def _klass_by_code(rows: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
+def _klass_by_code(registry: Registry, dataset_id: str) -> dict[str, dict[str, Any]]:
+    """The classification read as {code: {label, retrieved_at}}.
+
+    Klass items are entity records, where the code the join matches on is the
+    indexed `subject_code` rather than a key inside a dimension blob. A
+    registry written before the move still holds them as observation cells, so
+    that shape is read too -- the join's job is to find the code, not to insist
+    on which table it was written to.
+    """
+
     out: dict[str, dict[str, Any]] = {}
-    for row in rows:
+    for row in registry.list_records(dataset_id, kind="entity"):
+        code = row["subject_code"]
+        if code:
+            out[str(code)] = {
+                "label": row["subject_label"],
+                "retrieved_at": row["retrieved_at"],
+            }
+    if out:
+        return out
+    for row in registry.list_observations(dataset_id):
         dims = json.loads(row["dimensions_json"])
         code = dims.get("code")
         if code:
-            out[str(code)] = row
+            out[str(code)] = {
+                "label": json.loads(row["value_json"]) if row["value_json"] else None,
+                "retrieved_at": row["retrieved_at"],
+            }
     return out
 
 

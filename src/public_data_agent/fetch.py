@@ -1144,7 +1144,7 @@ from public_data_agent.sources.valg import (
     is_valg_url,
     valg_table_id,
 )
-from public_data_agent.ssb_klass import cells_from_klass, is_klass_url, klass_table_id
+from public_data_agent.ssb_klass import is_klass_url, klass_table_id, records_from_klass
 
 PXWEB_UI_MARK = "/statbank/pxweb/"
 PXWEB_API_MARK = "/statbank/api/v1/"
@@ -2958,18 +2958,20 @@ def _fetch_klass(
             raise ValueError("klass response is not a JSON object")
         table_id = klass_table_id(got.body, access_path)
         registry.set_fetch_request(run_id, request_url=access_path, request_body={"method": "GET"})
-        cells = cells_from_klass(got.body)
-        counts.listed = len(cells)
-        sample = _store_cells(
+        # A classification item is a code and the thing it names, not a
+        # measurement of anything, so it is stored as a record.
+        records = records_from_klass(got.body, dataset["id"])
+        counts.listed = len(records)
+        sample = _store_records(
             registry,
             dataset,
             run_id,
-            table_id=table_id,
-            cells=cells,
+            records=records,
             retrieved_at=utc_now(),
             request_url=access_path,
             http_status=http_status,
             counts=counts,
+            series=f"fetch:{table_id}",
         )
         status = "completed"
     except Exception as exc:
@@ -16451,6 +16453,66 @@ def _store_each(
             sample.append({"measure": measure, "value": value, "dimensions": dims})
         if touched is not None:
             touched.append(observation.identity_key())
+    return sample
+
+
+def _store_records(
+    registry: Registry,
+    dataset: dict[str, Any],
+    run_id: int,
+    *,
+    records: list[dict[str, Any]],
+    retrieved_at: str,
+    request_url: str,
+    http_status: int,
+    counts: HarvestCounts,
+    series: str | None = None,
+) -> list[dict[str, Any]]:
+    """Store rows that are things rather than measurements.
+
+    The counterpart of `_store_cells`, for a connector whose response is a list
+    of named things -- a code list, a register entry, a stop place. Routing them
+    here rather than into `observations` is what keeps a count over
+    `observations` a count of measurements. Each record carries its own `id`,
+    `kind` and subject; the provenance is filled in from the dataset, which is
+    identical across kinds and is the trust boundary.
+    """
+
+    _check_cell_budget(dataset["id"], series or "records", len(records))
+    sample: list[dict[str, Any]] = []
+    with registry.deferred_commit():
+        for record in records:
+            action = registry.upsert_record(
+                {
+                    "series": series,
+                    "period": None,
+                    "measure": None,
+                    "value": None,
+                    **record,
+                    "dataset_id": dataset["id"],
+                    "retrieved_at": retrieved_at,
+                    "request_url": request_url,
+                    "http_status": http_status,
+                    "publisher_name": dataset.get("publisher_name"),
+                    "license": dataset.get("license"),
+                },
+                run_id,
+            )
+            if action == "inserted":
+                counts.inserted += 1
+            elif action == "updated":
+                counts.updated += 1
+            else:
+                counts.unchanged += 1
+            if len(sample) < 5:
+                sample.append(
+                    {
+                        "kind": record.get("kind"),
+                        "subject_code": record.get("subject_code"),
+                        "subject_label": record.get("subject_label"),
+                        "attributes": record.get("attributes") or {},
+                    }
+                )
     return sample
 
 

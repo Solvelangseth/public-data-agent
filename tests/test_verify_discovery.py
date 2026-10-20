@@ -385,3 +385,40 @@ def test_a_resource_with_nothing_stored_demonstrates_nothing(tmp_path: Path) -> 
         assert demonstrated_capability(registry, "fixture:none") is None
     finally:
         registry.close()
+
+
+def test_klass_items_stay_a_lookup_once_they_are_records(tmp_path: Path) -> None:
+    """A code list does not stop being a join key by moving table.
+
+    Klass items are entity records now, and read by kind alone every
+    classification would have turned into an entity source -- the same
+    overclaim as before, one table along.
+    """
+
+    registry = Registry(tmp_path / "r.sqlite")
+    try:
+        _dataset(registry, "fixture:klass", FETCHABLE)
+        run_id = registry.start_fetch_run(
+            dataset_id="fixture:klass", table_id="klass:1168",
+            request_url=FETCHABLE, request_method="TEST",
+        )
+        for code, name in (("030101", "Gamle Oslo"), ("030102", "Grünerløkka")):
+            registry.upsert_record(
+                {
+                    "id": f"entity:fixture:klass:klass:1168:{code}",
+                    "dataset_id": "fixture:klass",
+                    "kind": "entity",
+                    "subject_scheme": "klass:1168",
+                    "subject_code": code,
+                    "subject_label": name,
+                    "attributes": {"classification": "Bydelsinndeling 2020", "level": "1"},
+                    "retrieved_at": "2026-10-20T00:00:00Z",
+                    "request_url": FETCHABLE,
+                    "http_status": 200,
+                },
+                run_id,
+            )
+        registry.conn.commit()
+        assert demonstrated_capability(registry, "fixture:klass") == ("lookup", "entity")
+    finally:
+        registry.close()

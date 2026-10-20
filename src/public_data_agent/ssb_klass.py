@@ -14,17 +14,34 @@ def is_klass_url(access_path: str | None) -> bool:
     return parsed.netloc == KLASS_HOST and parsed.path.startswith(KLASS_PATH)
 
 
-def cells_from_klass(payload: dict[str, Any]) -> list[tuple[str, Any, dict[str, str]]]:
-    """Map SSB Klass classificationItems to observation cells.
+def klass_table_id(payload: dict[str, Any], access_path: str) -> str:
+    version = payload.get("id")
+    if version is not None:
+        return f"klass:{version}"
+    path = urlparse(access_path).path.rstrip("/").split("/")[-1]
+    return path or "klass"
 
-    Values are copied from the JSON. Nothing is invented.
+
+def records_from_klass(payload: dict[str, Any], dataset_id: str) -> list[dict[str, Any]]:
+    """Map SSB Klass classificationItems to entity records.
+
+    A classification item is a code and the name that code stands for --
+    `030101` is `Gamle Oslo`. Stored as an observation cell that reads as a
+    measurement of `Bydelsinndeling 2020` whose value happens to be a word, and
+    7,127 occupation titles then count as published statistics. Stored as a
+    record the code becomes `subject_code`, which is what every join actually
+    looks it up by, and `kind` says plainly that this is a named thing.
+
+    The level and the parent code stay in `attributes`: they describe where the
+    item sits in the hierarchy, not what it is.
     """
 
-    measure = str(payload.get("name") or "classification")
+    classification = str(payload.get("name") or "classification")
     items = payload.get("classificationItems")
     if not isinstance(items, list):
         raise ValueError("klass payload has no classificationItems list")
-    cells: list[tuple[str, Any, dict[str, str]]] = []
+    scheme = klass_table_id(payload, "")
+    records: list[dict[str, Any]] = []
     for item in items:
         if not isinstance(item, dict):
             continue
@@ -32,17 +49,22 @@ def cells_from_klass(payload: dict[str, Any]) -> list[tuple[str, Any, dict[str, 
         name = item.get("name")
         if code is None or name is None:
             continue
-        dims = {"code": str(code), "level": str(item.get("level") or "")}
+        attributes = {"classification": classification, "level": str(item.get("level") or "")}
         parent = item.get("parentCode")
         if parent:
-            dims["parentCode"] = str(parent)
-        cells.append((measure, name, dims))
-    return cells
-
-
-def klass_table_id(payload: dict[str, Any], access_path: str) -> str:
-    version = payload.get("id")
-    if version is not None:
-        return f"klass:{version}"
-    path = urlparse(access_path).path.rstrip("/").split("/")[-1]
-    return path or "klass"
+            attributes["parentCode"] = str(parent)
+        for field in ("shortName", "notes", "validFrom", "validTo"):
+            value = item.get(field)
+            if value:
+                attributes[field] = str(value)
+        records.append(
+            {
+                "id": f"entity:{dataset_id}:{scheme}:{code}",
+                "kind": "entity",
+                "subject_scheme": scheme,
+                "subject_code": str(code),
+                "subject_label": str(name),
+                "attributes": attributes,
+            }
+        )
+    return records
