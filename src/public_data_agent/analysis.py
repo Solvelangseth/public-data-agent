@@ -90,6 +90,99 @@ MAX_LISTED_VALUES = 40
 TOTAL_LABELS = frozenset({"i alt", "alle", "total", "totalt", "begge kjønn", "alle bydeler i oslo"})
 
 
+# How many records one call will return before it says so. A Klass
+# classification holds 7,127 items, and handing all of them back is not an
+# answer, it is a file.
+RECORD_PAGE = 200
+
+
+def run_record_analysis(
+    registry: Registry,
+    dataset_id: str,
+    *,
+    kind: str | None = None,
+    filters: dict[str, Any] | None = None,
+    columns: list[str] | None = None,
+    sort_by: str | None = None,
+    descending: bool = False,
+    limit: int = RECORD_PAGE,
+) -> ToolResult:
+    """Filter/select stored records; never fetches or invents missing values.
+
+    The counterpart of `run_analysis` for the store that holds things rather
+    than measurements. It exists because 17,900 rows moved into `records` this
+    week and nothing could read one: the tools said, correctly, that they only
+    read observations, and then there was nowhere else to go.
+
+    Records are not blended with observations. A dataset holds one shape or the
+    other, and a caller that gets rows back is told which store they came from.
+    """
+
+    dataset = registry.get_dataset(dataset_id)
+    if dataset is None:
+        return ToolResult(status="failed", error=f"dataset not found in registry: {dataset_id}")
+    filters = filters or {}
+    rows: list[dict[str, Any]] = []
+    total = 0
+    for row in registry.list_records(dataset_id, kind=kind):
+        attributes = _decode(row.get("attributes_json")) or {}
+        item = {
+            "record_id": row["id"],
+            "dataset_id": dataset_id,
+            "kind": row["kind"],
+            "series": row.get("series"),
+            "subject_scheme": row.get("subject_scheme"),
+            "subject_code": row.get("subject_code"),
+            "subject_label": row.get("subject_label"),
+            "period": row.get("period"),
+            "measure": row.get("measure"),
+            "value": _decode(row.get("value_json")),
+            "attributes": attributes,
+        }
+        if any(
+            not _matches(item.get(key, attributes.get(key)), value)
+            for key, value in filters.items()
+        ):
+            continue
+        total += 1
+        if len(rows) < limit:
+            rows.append(item)
+    if sort_by:
+        present = [item for item in rows if item.get(sort_by) is not None]
+        missing = [item for item in rows if item.get(sort_by) is None]
+        present.sort(key=lambda item: str(item.get(sort_by)), reverse=descending)
+        rows = present + missing
+    if columns:
+        rows = [{key: item[key] for key in columns if key in item} for item in rows]
+    result = ToolResult(
+        status="completed",
+        values=rows,
+        provenance=[
+            Provenance(
+                dataset_id=dataset_id,
+                title=dataset.get("title"),
+                publisher=dataset.get("publisher_name"),
+                license=dataset.get("license"),
+                access_path=dataset.get("access_path"),
+            )
+        ],
+    )
+    if total > len(rows):
+        # Said plainly, because a truncated list that looks complete is how a
+        # caller comes to report "Norway has 200 municipalities".
+        result.warnings = [
+            f"{total} records matched and {len(rows)} are returned; narrow with "
+            f"filters or raise the limit before counting these."
+        ]
+    return result
+
+
+def _matches(stored: Any, wanted: Any) -> bool:
+    if isinstance(wanted, (list, tuple, set)):
+        return str(stored) in {str(item) for item in wanted}
+    return str(stored) == str(wanted)
+
+
 def stored_records(registry: Registry, dataset_id: str) -> dict[str, int]:
     """How many records of each kind a dataset holds.
 

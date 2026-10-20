@@ -599,15 +599,43 @@ def test_provenance_counts_records_not_only_observations(tmp_path: Path) -> None
     assert any("brreg" in url for url in payload["request_urls"])
 
 
-def test_run_analysis_says_it_cannot_read_what_is_stored(tmp_path: Path) -> None:
-    """Empty because nothing matched and empty because the data is a shape this
-    tool does not handle are different answers. It reported the first while the
-    second was true, with no explanation at all."""
+def test_run_analysis_reads_the_record_store_and_names_it(tmp_path: Path) -> None:
+    """It used to report "completed" with no rows for a dataset full of things.
+
+    First it explained that it could not read them, which was honest and
+    useless -- there was no other tool that could. It returns them now, and
+    says which store they came from, because a measurement and a thing are not
+    interchangeable even when both arrive as `values`.
+    """
 
     payload = call_tool("run_analysis", {"dataset": "b:1", "db": _with_entity_record(tmp_path)})
+    assert payload["values_from"] == "stored_records"
     assert payload["stored_records"] == {"entity": 1}
     assert "1 entity" in payload["explanation"]
-    assert "observation store only" in payload["explanation"]
+    (row,) = payload["values"]
+    assert row["kind"] == "entity"
+    assert row["subject_code"]
+    assert row["value"] is None
+
+
+def test_run_analysis_does_not_silently_drop_an_aggregation(tmp_path: Path) -> None:
+    """Answering a different question than the one asked is worse than refusing.
+
+    The record store has no measured value, so `aggregate` cannot be applied;
+    returning the rows as though it had been would read as a computed answer.
+    """
+
+    payload = call_tool(
+        "run_analysis",
+        {
+            "dataset": "b:1",
+            "db": _with_entity_record(tmp_path),
+            "group_by": ["kind"],
+            "aggregate": "sum",
+        },
+    )
+    assert payload["values_from"] == "stored_records"
+    assert any("was not applied" in warning for warning in payload["warnings"])
 
 
 def test_inspect_reports_what_kinds_are_stored(tmp_path: Path) -> None:

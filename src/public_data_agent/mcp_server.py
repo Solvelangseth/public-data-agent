@@ -5,7 +5,12 @@ from pathlib import Path
 from typing import Any, Callable
 
 from public_data_agent.ask import DEMO_QUESTION, ask, ask_proof_payload
-from public_data_agent.analysis import describe_observations, stored_records, run_analysis
+from public_data_agent.analysis import (
+    describe_observations,
+    run_analysis,
+    run_record_analysis,
+    stored_records,
+)
 from public_data_agent.artifacts import export_csv, export_json, plot_values
 from public_data_agent.fetch import fetch_observations
 from public_data_agent.fetch import (
@@ -536,21 +541,49 @@ def tool_run_analysis(
     try:
         result = run_analysis(registry, dataset, filters=filters, measure=measure, series=series, columns=columns, group_by=group_by, aggregate=aggregate, sort_by=sort_by, descending=descending)
         payload = {"tool": "run_analysis", "values_from": "stored_observations", **result.to_dict()}
-        # This reads observations only. A dataset holding companies or buildings
-        # returned "completed" with no rows and no explanation, which a caller
-        # reads as "this dataset is empty" rather than "I cannot analyse what is
-        # stored here". Empty because nothing matched and empty because the data
-        # is a shape this tool does not handle are different answers.
+        # A dataset holding companies or buildings returned "completed" with no
+        # rows, which a caller reads as "this dataset is empty". It said so for
+        # 17,900 rows that are simply in the other store. It reads them now, and
+        # names which store they came from, because a measurement and a thing
+        # are not interchangeable even when both arrive as `values`.
         if not (payload.get("values") or payload.get("rows")):
             records = stored_records(registry, dataset)
             if records:
                 kinds = ", ".join(f"{n} {kind}" for kind, n in sorted(records.items()))
+                record_result = run_record_analysis(
+                    registry,
+                    dataset,
+                    filters=filters,
+                    columns=columns,
+                    sort_by=sort_by,
+                    descending=descending,
+                )
+                payload = {
+                    "tool": "run_analysis",
+                    "values_from": "stored_records",
+                    **record_result.to_dict(),
+                }
                 payload["stored_records"] = records
                 payload["explanation"] = (
-                    f"No observations matched, but this dataset stores {kinds}. "
-                    "run_analysis reads the observation store only, so those are not "
-                    "analysable here; read them with the record store instead."
+                    f"No observations matched. This dataset stores {kinds}, and these "
+                    "rows are read from the record store: each is a thing with a "
+                    "subject code and a label, not a measurement."
                 )
+                if measure or group_by or aggregate:
+                    # Reporting rows while silently dropping the aggregation
+                    # the caller asked for would answer a different question.
+                    asked = ", ".join(
+                        name
+                        for name, given in (
+                            ("measure", measure), ("group_by", group_by), ("aggregate", aggregate)
+                        )
+                        if given
+                    )
+                    payload.setdefault("warnings", [])
+                    payload["warnings"] = list(payload["warnings"]) + [
+                        f"{asked} was not applied: the record store holds no measured "
+                        f"value to select or aggregate over."
+                    ]
         return payload
     finally:
         registry.close()
