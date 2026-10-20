@@ -143,15 +143,21 @@ def test_fetch_gets_printed_organisasjonsformer_url(tmp_path: Path) -> None:
     assert result.table_id == "organisasjonsformer"
     assert result.http_status == 200
     assert result.counts.listed == 1
-    rows = registry.list_observations(DATASET_ID)
-    assert [json.loads(row["value_json"]) for row in rows] == ["AAFY"]
-    dims = json.loads(rows[0]["dimensions_json"])
-    assert dims["kode"] == "AAFY"
-    assert dims["beskrivelse"] == "Underenhet til ikke-næringsdrivende"
-    assert "_links" not in dims
+    # Enhetsregisteret prints the code twice -- once as the cell value, once
+    # under `kode` -- and the name under `beskrivelse`. Left alone the record
+    # would be labelled with its own code.
+    assert registry.observation_count() == 0
+    rows = registry.list_records(DATASET_ID, kind="entity")
+    assert [row["subject_code"] for row in rows] == ["AAFY"]
+    assert [row["subject_label"] for row in rows] == ["Underenhet til ikke-næringsdrivende"]
+    assert all(row["measure"] is None and row["value_json"] is None for row in rows)
+    attributes = json.loads(rows[0]["attributes_json"])
+    assert "kode" not in attributes
+    assert "beskrivelse" not in attributes
+    assert "_links" not in attributes
     assert all(row["publisher_name"] is None for row in rows)
     assert all(row["license"] is None for row in rows)
-    assert all(row["access_path"] == ORGFORMER_URL for row in rows)
+    assert all(row["request_url"] == ORGFORMER_URL for row in rows)
     registry.close()
 
 

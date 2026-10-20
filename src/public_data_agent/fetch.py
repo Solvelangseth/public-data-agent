@@ -11,8 +11,11 @@ from urllib.parse import urljoin, urlparse
 
 from public_data_agent.brreg_hal import brreg_table_id, cells_from_brreg, is_brreg_url
 from public_data_agent.entity_records import (
+    BRREG_ID_FIELDS,
+    BRREG_LABEL_FIELDS,
     CRISTIN_ID_FIELDS,
     ENTUR_ID_FIELDS,
+    ENVREPORT_ID_FIELDS,
     FEATURE_ID_FIELDS,
     GREP_ID_FIELDS,
     records_from_cells,
@@ -4026,18 +4029,27 @@ def _fetch_brreg(
         http_status = got.status
         registry.set_fetch_request(run_id, request_url=access_path, request_body={"method": "GET"})
         measure = str(dataset.get("title") or table_id)
-        cells = cells_from_brreg(got.body, measure=measure)
-        counts.listed = len(cells)
-        sample = _store_cells(
+        # An Enhetsregisteret HAL list is a register or a code list -- municipalities,
+        # legal forms, role types, update notices. None of them measure anything.
+        records = records_from_cells(
+            cells_from_brreg(got.body, measure=measure),
+            dataset_id=dataset["id"],
+            table_id=table_id,
+            id_fields=BRREG_ID_FIELDS,
+            label_fields=BRREG_LABEL_FIELDS,
+            prefix="brreg",
+        )
+        counts.listed = len(records)
+        sample = _store_records(
             registry,
             dataset,
             run_id,
-            table_id=table_id,
-            cells=cells,
+            records=records,
             retrieved_at=utc_now(),
             request_url=access_path,
             http_status=http_status,
             counts=counts,
+            series=f"fetch:{table_id}",
         )
         status = "completed"
     except Exception as exc:
@@ -13250,18 +13262,26 @@ def _fetch_broppdater(
         got = client.get_json_response(access_path)
         http_status = got.status
         registry.set_fetch_request(run_id, request_url=access_path, request_body={"method": "GET"})
-        cells = cells_from_broppdater(got.body)
-        counts.listed = len(cells)
-        sample = _store_cells(
+        # A change feed hands out an update id per notice; the notice is the thing.
+        records = records_from_cells(
+            cells_from_broppdater(got.body),
+            dataset_id=dataset["id"],
+            table_id=table_id,
+            id_fields=BRREG_ID_FIELDS,
+            label_fields=BRREG_LABEL_FIELDS,
+            prefix="broppdater",
+        )
+        counts.listed = len(records)
+        sample = _store_records(
             registry,
             dataset,
             run_id,
-            table_id=table_id,
-            cells=cells,
+            records=records,
             retrieved_at=utc_now(),
             request_url=access_path,
             http_status=http_status,
             counts=counts,
+            series=f"fetch:{table_id}",
         )
         status = "completed"
     except Exception as exc:
@@ -14161,18 +14181,27 @@ def _fetch_envreportreg(
         got = client.get_json_response(access_path)
         http_status = got.status
         registry.set_fetch_request(run_id, request_url=access_path, request_body={"method": "GET"})
-        cells = cells_from_envreportreg(got.body)
-        counts.listed = len(cells)
-        sample = _store_cells(
+        # An environmental survey report is a document about a site, addressed by
+        # its report id.
+        records = records_from_cells(
+            cells_from_envreportreg(got.body),
+            dataset_id=dataset["id"],
+            table_id=table_id,
+            id_fields=ENVREPORT_ID_FIELDS,
+            label_fields=(),
+            prefix="envreportreg",
+        )
+        counts.listed = len(records)
+        sample = _store_records(
             registry,
             dataset,
             run_id,
-            table_id=table_id,
-            cells=cells,
+            records=records,
             retrieved_at=utc_now(),
             request_url=access_path,
             http_status=http_status,
             counts=counts,
+            series=f"fetch:{table_id}",
         )
         status = "completed"
     except Exception as exc:

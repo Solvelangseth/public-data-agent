@@ -272,20 +272,23 @@ def test_fetch_gets_printed_endringstype(tmp_path: Path) -> None:
     assert result.table_id == "enheter"
     assert result.http_status == 200
     assert result.counts.listed == 2
-    rows = registry.list_observations(DATASET_ID)
+    # A change notice is a thing the feed hands an id to, not a measurement.
+    assert registry.observation_count() == 0
+    rows = registry.list_records(DATASET_ID, kind="entity")
     by_org = {
-        json.loads(row["dimensions_json"])["organisasjonsnummer"]: row for row in rows
+        json.loads(row["attributes_json"])["organisasjonsnummer"]: row for row in rows
     }
     assert set(by_org) == {"913189892", "913189900"}
-    assert json.loads(by_org["913189892"]["value_json"]) == "Ukjent"
-    assert by_org["913189892"]["measure"] == "endringstype"
-    dims = json.loads(by_org["913189892"]["dimensions_json"])
-    assert dims["oppdateringsid"] == "1"
-    assert "_links" not in dims
-    assert "nested" not in dims
+    assert by_org["913189892"]["subject_label"] == "Ukjent"
+    assert by_org["913189892"]["subject_code"] == "1"
+    assert all(row["measure"] is None and row["value_json"] is None for row in rows)
+    attributes = json.loads(by_org["913189892"]["attributes_json"])
+    assert "oppdateringsid" not in attributes
+    assert "_links" not in attributes
+    assert "nested" not in attributes
     assert all(row["publisher_name"] is None for row in rows)
     assert all(row["license"] == LICENSE_URL for row in rows)
-    assert all(row["access_path"] == ENHETER_URL for row in rows)
+    assert all(row["request_url"] == ENHETER_URL for row in rows)
     registry.close()
 
 

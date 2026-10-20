@@ -21,8 +21,11 @@ from collections import Counter
 from pathlib import Path
 
 from public_data_agent.entity_records import (
+    BRREG_ID_FIELDS,
+    BRREG_LABEL_FIELDS,
     CRISTIN_ID_FIELDS,
     ENTUR_ID_FIELDS,
+    ENVREPORT_ID_FIELDS,
     FEATURE_ID_FIELDS,
     GREP_ID_FIELDS,
     records_from_cells,
@@ -34,16 +37,19 @@ from public_data_agent.verify import demonstrated_capability
 # A source converted with the wrong one would key its records differently from
 # what a re-fetch writes, which is the one thing this script must not do.
 SHAPES = {
-    "cristin": (CRISTIN_ID_FIELDS, "cristin", "entity"),
-    "crinst": (CRISTIN_ID_FIELDS, "cristin", "entity"),
-    "crunit": (CRISTIN_ID_FIELDS, "cristin", "entity"),
-    "crperson": (CRISTIN_ID_FIELDS, "cristin", "entity"),
-    "crproj": (CRISTIN_ID_FIELDS, "cristin", "entity"),
-    "crresult": (CRISTIN_ID_FIELDS, "cristin", "entity"),
-    "crbio": (CRISTIN_ID_FIELDS, "cristin", "entity"),
-    "entur": (ENTUR_ID_FIELDS, "entur", "entity"),
-    "grep": (GREP_ID_FIELDS, "grep", "entity"),
-    "hi": (FEATURE_ID_FIELDS, "hi", "feature"),
+    "cristin": (CRISTIN_ID_FIELDS, (), "cristin", "entity"),
+    "crinst": (CRISTIN_ID_FIELDS, (), "cristin", "entity"),
+    "crunit": (CRISTIN_ID_FIELDS, (), "cristin", "entity"),
+    "crperson": (CRISTIN_ID_FIELDS, (), "cristin", "entity"),
+    "crproj": (CRISTIN_ID_FIELDS, (), "cristin", "entity"),
+    "crresult": (CRISTIN_ID_FIELDS, (), "cristin", "entity"),
+    "crbio": (CRISTIN_ID_FIELDS, (), "cristin", "entity"),
+    "entur": (ENTUR_ID_FIELDS, (), "entur", "entity"),
+    "grep": (GREP_ID_FIELDS, (), "grep", "entity"),
+    "hi": (FEATURE_ID_FIELDS, (), "hi", "feature"),
+    "brreg": (BRREG_ID_FIELDS, BRREG_LABEL_FIELDS, "brreg", "entity"),
+    "broppdater": (BRREG_ID_FIELDS, BRREG_LABEL_FIELDS, "broppdater", "entity"),
+    "envreportreg": (ENVREPORT_ID_FIELDS, (), "envreportreg", "entity"),
 }
 SOURCES = tuple(SHAPES)
 
@@ -100,12 +106,13 @@ def main() -> int:
             )
             for row in group
         ]
-        id_fields, prefix, kind = SHAPES[dataset_id.split(":")[0]]
+        id_fields, label_fields, prefix, kind = SHAPES[dataset_id.split(":")[0]]
         records = records_from_cells(
             cells,
             dataset_id=dataset_id,
             table_id=table_id,
             id_fields=id_fields,
+            label_fields=label_fields,
             prefix=prefix,
             kind=kind,
         )

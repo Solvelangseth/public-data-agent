@@ -38,6 +38,16 @@ ENTUR_ID_FIELDS = ("vehicle_type_id", "station_id", "bike_id", "region_id")
 # Udir's curriculum vocabularies print `kode` as the member's whole identity.
 GREP_ID_FIELDS = ("kode", "id", "uri")
 
+# Enhetsregisteret addresses a code list by its code and prints the name under
+# a separate key, so the cell value is the code over again. The change feeds
+# address an update by the id the feed hands out.
+BRREG_ID_FIELDS = ("kode", "nummer", "oppdateringsid", "id")
+BRREG_LABEL_FIELDS = ("beskrivelse", "navn")
+
+# A fish-farm environmental survey is addressed by its report id, and the site
+# it surveyed is the name the connector already prints as the cell value.
+ENVREPORT_ID_FIELDS = ("reportId", "reportid")
+
 # What an OGC API Features item is addressed by. Havforskningsinstituttet's
 # collections print `fid` on the 2025 advisory layers and `id` on the 2024 ones.
 FEATURE_ID_FIELDS = ("fid", "id", "objectid", "gid")
@@ -67,6 +77,7 @@ def records_from_cells(
     dataset_id: str,
     table_id: str,
     id_fields: tuple[str, ...] = CRISTIN_ID_FIELDS,
+    label_fields: tuple[str, ...] = (),
     prefix: str = "cristin",
     kind: str = "entity",
 ) -> list[dict[str, Any]]:
@@ -78,6 +89,13 @@ def records_from_cells(
     list does, and every Udir curriculum code does -- the record carries the
     code and no label, because inventing a name for it is the failure this
     whole change is about.
+
+    `label_fields` is for the sources that print the code twice. Enhetsregisteret
+    returns `{"kode": "AAFY", "beskrivelse": "Underenhet til ikke-naeringsdrivende"}`
+    and the connector picks the code as the cell value, so left alone the record
+    would be labelled with its own code and the name would sit in the
+    attributes. Naming which key carries the name is a mapping, not an
+    invention: the string is the publisher's either way.
 
     `kind` is the caller's to state, because the shape of a cell cannot see it:
     a spawning ground and a scooter model are written identically and one is a
@@ -92,6 +110,7 @@ def records_from_cells(
         # identity when it picked the measure, and that choice outranks
         # whatever else the response happens to carry: Udir prints both `kode`
         # and a `id` UUID, and the curriculum is addressed by the code.
+        label_field = next((field for field in label_fields if dims.get(field)), None)
         if measure in id_fields and value is not None:
             id_field: str | None = None
             subject_code: str | None = str(value)
@@ -100,12 +119,18 @@ def records_from_cells(
             id_field = next((field for field in id_fields if dims.get(field)), None)
             subject_code = str(dims[id_field]) if id_field is not None else None
             subject_label = None if value is None else str(value)
+        if label_field is not None:
+            subject_label = str(dims[label_field])
         scheme = _scheme_for(
             id_field if id_field is not None else (measure if measure in id_fields else None),
             prefix=prefix,
             table_id=table_id,
         )
-        attributes = {key: val for key, val in dims.items() if key != id_field}
+        attributes = {
+            key: val
+            for key, val in dims.items()
+            if key != id_field and key != label_field
+        }
         # Two members of one listing must not share an id. A member that printed
         # no identifier at all is keyed by its position in the response, which
         # is what the connector read it from.

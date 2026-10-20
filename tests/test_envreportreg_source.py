@@ -205,17 +205,21 @@ def test_fetch_gets_printed_reports(tmp_path: Path) -> None:
     assert result.table_id == "api/v2/report/search"
     assert result.http_status == 200
     assert result.counts.listed == 2
-    rows = registry.list_observations(DATASET_ID)
-    by_value = {json.loads(row["value_json"]): row for row in rows}
+    # A survey report is addressed by its report id and names the site it
+    # surveyed; neither is a measurement of anything.
+    assert registry.observation_count() == 0
+    rows = registry.list_records(DATASET_ID, kind="entity")
+    by_value = {row["subject_label"]: row for row in rows}
     assert set(by_value) == {"TORANGSKJERET", "BERGADALEN"}
-    assert by_value["TORANGSKJERET"]["measure"] == "siteName"
-    dims = json.loads(by_value["TORANGSKJERET"]["dimensions_json"])
-    assert dims["reportId"] == "22816"
-    assert dims["organisationNumber"] == "956876354"
-    assert "nested" not in dims
+    assert by_value["TORANGSKJERET"]["subject_code"] == "22816"
+    assert all(row["measure"] is None and row["value_json"] is None for row in rows)
+    attributes = json.loads(by_value["TORANGSKJERET"]["attributes_json"])
+    assert attributes["organisationNumber"] == "956876354"
+    assert "reportId" not in attributes
+    assert "nested" not in attributes
     assert all(row["publisher_name"] is None for row in rows)
     assert all(row["license"] == LICENSE_URL for row in rows)
-    assert all(row["access_path"] == V2_SEARCH_URL for row in rows)
+    assert all(row["request_url"] == V2_SEARCH_URL for row in rows)
     registry.close()
 
 
