@@ -16959,6 +16959,18 @@ CAPABILITY_UNVERIFIED = "unverified"
 # `{"title": "Non-existent table", "status": 404}` -- and a resource that is
 # gone should not be retried, nor ranked as though a fetch might reach it.
 CAPABILITY_WITHDRAWN = "withdrawn"
+# The endpoint answers and holds nothing. Ten NVDB road object types are in
+# this state -- `Vinterberedskap`, `Vegreferanse`, several marked "(test)" --
+# and it is not the same as withdrawn: the type exists, the request is
+# correct, and it may hold objects next month. Nothing can be answered from it
+# today, so it is not retrievable, and the date it was probed is recorded so
+# the claim stays attached to when it was true.
+CAPABILITY_EMPTY = "empty"
+# The publisher serves it, but not to us. Eight NVDB types -- the `uoffisiell`
+# load-class ones and `Historisk_Bruksklasse` -- answer HTTP 401. The data is
+# real and the connector is right; what is missing is authorisation, which is
+# a different thing from the resource being broken or gone.
+CAPABILITY_RESTRICTED = "restricted"
 CAPABILITY_NONE = "none"
 
 # Capabilities that can return data a question is answered from. Statistics were

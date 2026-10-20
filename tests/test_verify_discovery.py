@@ -578,3 +578,25 @@ def test_a_fetch_records_its_own_evidence(tmp_path: Path) -> None:
         assert capability["verified_sample_count"] == 1
     finally:
         registry.close()
+
+
+def test_the_probe_reads_a_verdict_off_the_error_it_got() -> None:
+    """Six situations were hiding under the one word "unverified".
+
+    Each needs a different answer from the registry, and the error the source
+    raised is the evidence for which. The two that stay undecided are the
+    point: a probe that did not get a clear answer must not leave one behind.
+    """
+
+    import sys
+
+    sys.path.insert(0, "scripts")
+    from probe_unverified import _verdict
+
+    assert _verdict(ValueError("HTTP 401 for https://nvdbapiles.../871")) == "restricted"
+    assert _verdict(ValueError("NVDB returned no objects for ...")) == "empty"
+    assert _verdict(ValueError('HTTP 404 ... "Vegobjekttype 562 ikke funnet"')) == "withdrawn"
+    assert _verdict(ValueError("table 759 returned 46464 cells, over the 3000-cell budget")) == (
+        "too large"
+    )
+    assert _verdict(ValueError("connection reset by peer")) == "unchanged"
