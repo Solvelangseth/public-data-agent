@@ -172,3 +172,77 @@ def test_a_verified_capability_beats_a_guess_from_the_url(tmp_path: Path) -> Non
     assert "brreg:enhetsregisteret" in found.observations
     assert "brreg:enhetsregisteret" not in found.catalogue
     registry.close()
+
+
+class _Rewriter:
+    """A rewriter whose term finds the answer, but not in its first few hits.
+
+    This is the shape of `regnskapstall aksjeselskap`: the rewrite lane ranked
+    07371 sixth of its twenty alternatives, and the interleave was taking
+    three.
+    """
+
+    name = "stub"
+
+    def terms(self, query: str) -> list[str]:
+        return ["avfall"]
+
+
+def _many(tmp_path: Path) -> Registry:
+    registry = _registry(tmp_path)
+    # Three tables the rewritten term finds and the original query does not,
+    # plus the one that answers. Lexical relevance orders them by how much of
+    # the title the term accounts for, so the bare titles come first and the
+    # answer is reachable only by taking enough of the lane's hits.
+    for index in range(3):
+        registry.conn.execute(
+            """
+            INSERT INTO datasets (id, source_id, ingest_reason, source_name,
+                source_endpoints_json, missing_fields_json, payload_hash,
+                first_ingested_at, last_ingested_at, last_seen_at, last_changed_at,
+                title, access_path)
+            VALUES (?, 's', 'test', 'S', '[]', '{}', 'h', 't', 't', 't', 't', ?, ?)
+            """,
+            (f"ssbtable:1{index:04d}", f"1{index:04d}: Avfall", FETCHABLE),
+        )
+    registry.conn.execute(
+        """
+        INSERT INTO datasets (id, source_id, ingest_reason, source_name,
+            source_endpoints_json, missing_fields_json, payload_hash,
+            first_ingested_at, last_ingested_at, last_seen_at, last_changed_at,
+            title, access_path)
+        VALUES (?, 's', 'test', 'S', '[]', '{}', 'h', 't', 't', 't', 't', ?, ?)
+        """,
+        ("ssbtable:answer", "Avfall og gjenvinning etter behandling i Noreg", FETCHABLE),
+    )
+    registry.conn.commit()
+    return registry
+
+
+def test_the_interleave_can_keep_more_of_the_rewrite_than_it_leads_with(tmp_path: Path) -> None:
+    """How much head to keep and how many hits to insert are separate questions.
+
+    One number answered both, and the second is where a retrieved answer was
+    being discarded: the rewrite lane had it and three were taken. The lead
+    and the take are independent now, and the take defaults to the lead so
+    wiring them apart changed nothing by itself.
+    """
+
+    registry = _many(tmp_path)
+    try:
+        lane = find(registry, "avfall", depth=50).observations
+        assert lane.index("ssbtable:answer") == 3, (
+            "the fixture only tests the take if the answer is fourth in the "
+            f"rewrite lane; it is at {lane.index('ssbtable:answer')}"
+        )
+
+        narrow = find(registry, "byggekostnader", rewriter=_Rewriter(), depth=50,
+                      rewrite_take=1).observations
+        wide = find(registry, "byggekostnader", rewriter=_Rewriter(), depth=50,
+                    rewrite_take=4).observations
+        # The original query never reaches it, so the take alone decides
+        # whether the answer is in the result at all.
+        assert "ssbtable:answer" not in narrow
+        assert "ssbtable:answer" in wide
+    finally:
+        registry.close()
