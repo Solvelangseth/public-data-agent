@@ -54,17 +54,23 @@ It fetches one URL at a polite rate, classifies what came back, follows the
 doors the payload **declares**, and appends a JSON line per finding. It stores
 nothing else and decides nothing.
 
+It is pure standard library, so it runs under plain `python3`. **This worktree
+has no `.venv` on purpose**: without it `pda` is not importable, so no command
+here can write to the registry even by accident. Do not create one. If you
+genuinely need a dependency, that is a sign the task belongs to the other
+lane — write it in the handover instead.
+
     # everything the registry cannot read, one dataset per source+verdict
-    .venv/bin/python scripts/discover.py --unreadable --limit 200
+    python3 scripts/discover.py --unreadable --limit 200
 
     # one source, in depth
-    .venv/bin/python scripts/discover.py --source riksantikvaren --limit 30
+    python3 scripts/discover.py --source riksantikvaren --limit 30
 
     # one url, for a hunch
-    .venv/bin/python scripts/discover.py --url https://api.elhub.no/energy-data/v0
+    python3 scripts/discover.py --url https://api.elhub.no/energy-data/v0
 
     # the seed list of sources not in the registry at all
-    .venv/bin/python scripts/discover.py --catalogues --probe
+    python3 scripts/discover.py --catalogues --probe
 
 Useful flags: `--pause` (seconds between requests, default 1.0 — raise it,
 never lower it below 0.5), `--probe` (also try well-known paths nobody linked
@@ -199,3 +205,20 @@ Taken from `GAPS.md`, and they are not negotiable here either:
   blocked" in a document someone would have acted on.
 - **Say when you were wrong, in the commit message.** This repo's history does
   that and it is why the history is useful.
+
+---
+
+## Appendix: the machine is nearly out of disk
+
+As of 2026-10-21 the data volume is at 100% capacity — about 1 GiB free of
+228 GiB. Two consequences for this lane:
+
+- `tests/test_brreg_sync.py` has a deliberate guard requiring 1.5 GiB free and
+  9 of its 15 tests fail on that guard alone. That is the guard working, not a
+  regression. The rest of the suite is green: **2,274 passed, 1 skipped**.
+- **Do not download anything.** No bulk files, no snapshots, no caches. This
+  lane probes and writes JSON lines; keep it that way. If a candidate can only
+  be assessed by downloading it, say so in the handover and stop.
+
+`discovery/*.jsonl` is gitignored but it still occupies disk. A full
+`--unreadable` sweep is a few MB, which is fine; delete old batches when done.
