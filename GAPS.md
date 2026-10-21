@@ -2618,3 +2618,43 @@ unused.
 It also surfaced the collision this project already knows: `value_code 1820`
 matches both Alstahaug the kommune and 1820 the year, in a `Tid` field. The
 same ambiguity that made `PERIOD_VALUE` read municipality numbers as periods.
+
+### N2 confirmed, and the format names are six vocabularies not one
+
+All six hosts running the Geonorge download software answer
+`api/capabilities/{uuid}`:
+
+| host | datasets | resolved | 404 | lists kommuner | CSV |
+|---|---|---|---|---|---|
+| `nedlasting.geonorge.no` | 609 | 567 | 42 | 220 | 13 |
+| `kart8.nibio.no` | 49 | 48 | 1 | 15 | 0 |
+| `nedlasting.ngu.no` | 21 | 20 | 1 | 1 | 0 |
+| `kartkatalog.nibio.no` | 8 | 7 | 1 | 2 | 0 |
+| `kartiskolen.no` | 1 | 1 | 0 | 1 | 0 |
+| `exledfor.atlas.vegvesen.no` | 1 | 1 | 0 | 0 | 0 |
+
+644 resolved, 46 of the 404s from N7 still unexplained.
+
+**36 distinct format names across those six hosts**, and the variation is not
+the whitespace-and-case problem fixed earlier. It is five different kinds of
+difference:
+
+    geojson    GEOJSON / GeoJSON              case only
+    shape      ESRI Shape / SHAPE / Shape     vendor prefix
+    gml        GML / GML 3.2.1                version suffix
+    postgis    PostGIS / PostGIS.sql          file extension
+    tiff       GeoTIFF / TIFF                 **not the same format**
+
+The last line is why this is not getting an equivalence table. GeoTIFF carries
+georeferencing and TIFF need not, so merging them would destroy a real
+distinction in the name of tidiness -- and `GEODATABASE_FILE` against `FGDB`
+is probably the same Esri format but "probably" is not a basis for collapsing
+two publishers' vocabularies.
+
+Case and whitespace are safe to normalise because the string is the same
+string. Everything above is a **mapping**, which is a claim about equivalence
+and belongs to whoever is willing to defend it per pair. What would be safe
+and useful is prefix matching -- a query for `GML` matching `GML 3.2.1` --
+because that follows from the names rather than from a judgement about them.
+
+Recorded, not acted on.
