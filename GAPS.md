@@ -2490,3 +2490,35 @@ Two things worth keeping about how this went:
   until `unreachable` was registered in its `decided` set. That is the
   invariant working: a new way of saying "nothing came back" has to be
   declared as a decided answer rather than slipped in beside the others.
+
+### N4: reading the 151 climate grids without moving them
+
+`src/public_data_agent/opendap.py` reads a THREDDS dataset's variable list
+from `.dds` and its units and names from `.das`. Two requests per dataset, no
+data transferred.
+
+THREDDS serves nothing easier: `.ncml`, `.iso` and `.dods.json` all answer
+HTTP 400 on this server, so the two custom formats are the only way in. Both
+parsers are shallow on purpose -- they read the declarations they understand
+and ignore the rest -- because a `.das` carries free-form attribute blocks no
+fixed grammar covers, and a variable list is worth having when one attribute
+is unparseable. What they will not do is return an empty list: a `.dds` that
+parses to nothing raises, because "no variables" and "the parser failed" are
+different answers and only one is ever true here.
+
+On the live `change-evap` dataset: **11 declared variables, 5 measured.**
+Units `%`, long name "change in mean evapotranspiration", shape
+`time=2, Yc=1550, Xc=1195`.
+
+The six excluded are excluded for four different reasons, all live in that one
+dataset: `time` and `lon` declare themselves coordinates in their own
+attributes; `Xc` and `Yc` are indexed only by themselves; `projection_utm`
+holds the CRS and has no dimensions at all; and `lat` has a `standard_name` of
+`latitude`. A grid's axes say where a value sits, not what was measured, and
+promoting one would be the same error as naming a borehole after its soil
+temperature.
+
+Next: run it over the 151 and store the variables in `resource_fields`, which
+is the field index search already reads -- so "fordampning" starts finding
+them. No `observations` row for any of it: a 1.85M-cell projection is not a
+measurement.
