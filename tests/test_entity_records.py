@@ -148,3 +148,30 @@ def test_members_that_differ_only_in_place_keep_different_ids() -> None:
         id_fields=("fid",), prefix="hi", kind="feature",
     )
     assert len({record["id"] for record in collapsed}) == 1
+
+
+def test_a_number_under_an_identifier_is_not_a_measurement() -> None:
+    """`cristin:fundings` was a verified observation source for this reason.
+
+    Its cells held `cristin_funding_id = "1"`, and the rule that correctly
+    reads Norges Bank's `"4.25"` as a number read that one too. A quoted
+    identifier and a quoted rate are the same string; what tells them apart is
+    what the measure is called.
+    """
+
+    from public_data_agent.entity_records import identifies_rather_than_measures
+
+    assert identifies_rather_than_measures("cristin_funding_id")
+    assert identifies_rather_than_measures("ISIN")
+    assert identifies_rather_than_measures("kode")
+    assert not identifies_rather_than_measures("Månedslønn (kr)")
+    assert not identifies_rather_than_measures("Antall brukere")
+    # The word has to end the label: a count of codes still measures.
+    assert not identifies_rather_than_measures("Antall koder i bruk")
+
+    assert cells_are_labels([("cristin_funding_id", "1", {})])
+    assert not cells_are_labels([("Styringsrente", "4.25", {})])
+    # One real measurement is enough, whatever else the batch carries.
+    assert not cells_are_labels(
+        [("cristin_funding_id", "1", {}), ("Styringsrente", "4.25", {})]
+    )

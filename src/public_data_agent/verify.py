@@ -20,7 +20,11 @@ import re
 from dataclasses import dataclass, field
 from typing import Any
 
-from public_data_agent.entity_records import is_empty, is_number
+from public_data_agent.entity_records import (
+    identifies_rather_than_measures,
+    is_empty,
+    is_number,
+)
 from public_data_agent.fetch import can_fetch_access_path, fetch_observations
 from public_data_agent.registry import Registry, utc_now
 
@@ -324,6 +328,7 @@ def demonstrated_capability(
     import json as _json
 
     values: list[Any] = []
+    measured: list[Any] = []
     measures: set[str] = set()
     dimensions: set[str] = set()
     for row in rows:
@@ -332,6 +337,8 @@ def demonstrated_capability(
             values.append(_json.loads(raw) if raw is not None else None)
         except ValueError:
             values.append(raw)
+        if not identifies_rather_than_measures(row["measure"]):
+            measured.append(values[-1])
         if row["measure"]:
             measures.add(str(row["measure"]).strip().casefold())
         try:
@@ -341,7 +348,8 @@ def demonstrated_capability(
         if isinstance(parsed, dict):
             dimensions.update(str(key).strip().casefold() for key in parsed)
 
-    if any(is_number(value) for value in values):
+    # A number stored under an identifier identifies; it does not measure.
+    if any(is_number(value) for value in measured):
         return "observations", "observation"
     if all(is_empty(value) for value in values):
         return "observations", "observation"

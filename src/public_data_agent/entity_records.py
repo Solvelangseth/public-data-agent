@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 from typing import Any
 
 # A publisher's way of writing "no value here". A cell that carries one is
@@ -250,6 +251,23 @@ def is_number(value: Any) -> bool:
     return False
 
 
+# A measure whose value names the row rather than measuring it. `is_number`
+# reads `"1"` as a number, correctly -- Norges Bank's key policy rate arrives
+# as `"4.25"` -- and that is why a quoted identifier needs the measure's name
+# to tell it apart. `cristin:fundings` was a verified observation source
+# because its cells held `cristin_funding_id = "1"`.
+IDENTIFIER_MEASURE = re.compile(
+    r"(^|[_\s])(id|ids|kode|code|codevalue|kodeverdi|nummer|nr|isin|orgnr|objectid|fid)$",
+    re.IGNORECASE,
+)
+
+
+def identifies_rather_than_measures(measure: str | None) -> bool:
+    """Whether a cell's measure names the row instead of measuring it."""
+
+    return bool(measure) and bool(IDENTIFIER_MEASURE.search(measure.strip()))
+
+
 def is_empty(value: Any) -> bool:
     if value is None:
         return True
@@ -272,6 +290,12 @@ def cells_are_labels(cells: list[tuple[str, Any, dict[str, str]]]) -> bool:
     if not cells:
         return False
     values = [value for _measure, value, _dims in cells]
-    if any(is_number(value) for value in values):
+    # A number stored under an identifier is not a measurement, so it does not
+    # make the batch one.
+    if any(
+        is_number(value)
+        for measure, value, _dims in cells
+        if not identifies_rather_than_measures(measure)
+    ):
         return False
     return not all(is_empty(value) for value in values)
