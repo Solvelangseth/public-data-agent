@@ -2522,3 +2522,48 @@ Next: run it over the 151 and store the variables in `resource_fields`, which
 is the field index search already reads -- so "fordampning" starts finding
 them. No `observations` row for any of it: a 1.85M-cell projection is not a
 measurement.
+
+### The field index is 20,451 rows that neither search lane reads
+
+Found by checking a claim I had just put in a commit message. I wrote that
+indexing the THREDDS variables means "'fordampning' and 'snømengde' start
+reaching 151 datasets". Then I ran the searches.
+
+    fordampning          4 results -- matched on **title**, which already said it
+    evapotranspiration   3 results -- matched on **keyword**, already in the payload
+    swemax               **0 results**, and `diff-swemax_annual` is now a
+                         `measure` field on three datasets
+
+So the indexing changed nothing about what is findable. `embedding_text` is
+built from title, description, keywords and themes; the lexical ranker scores
+the same four, at title=10, keyword=5, theme=5, description=2. Neither reads
+`resource_fields`.
+
+That is not a THREDDS problem. It is the whole index:
+
+| | |
+|---|---|
+| `resource_fields` rows | **20,451** |
+| datasets with at least one field | **4,872** |
+| distinct field codes | 1,633 |
+| rows carrying a label | 20,300 |
+| `resource_field_values` rows | **587,333** |
+
+4,872 datasets have had their shape read and 587,333 field values stored, and
+a query cannot reach a single one of them through search. The 151 THREDDS
+datasets join that set rather than escaping it.
+
+**One obvious fix has already been measured and refused.** Appending measures
+to `embedding_text` earlier in this session moved tuned recall@5 from 0.939 to
+0.888 and coverage from 1.000 to 0.909. Concatenating field names into the
+embedded text dilutes it.
+
+What has *not* been tried is a lane: score field-code and field-label matches
+separately and fuse them, the way lexical and semantic are already fused,
+rather than concatenating. That is P4-shaped work with a measurable outcome
+and it has to be measured on tuned **and** coverage before adoption, like
+every other ranking change here.
+
+Until then, the field index is worth having for `tool_inspect` and for SQL --
+"which datasets hold a measure called X" is answerable, just not from the
+search box. The commit message that claimed otherwise is corrected here.
