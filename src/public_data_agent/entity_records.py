@@ -109,6 +109,7 @@ def records_from_cells(
     label_fields: tuple[str, ...] = (),
     prefix: str = "cristin",
     kind: str = "entity",
+    distinguish: list[Any] | None = None,
 ) -> list[dict[str, Any]]:
     """Map cells to entity records, one per member.
 
@@ -193,7 +194,11 @@ def records_from_cells(
         # keyed positionally `Europe_Asia` was row0 in one fetch and row6 in
         # the next, so a re-fetch silently created a second record for the
         # same continent and relabelled the first.
-        handle = subject_code if subject_code is not None else _digest(measure, value, dims)
+        handle = (
+            subject_code
+            if subject_code is not None
+            else _digest(measure, value, dims, distinguish[index] if distinguish else None)
+        )
         records.append(
             {
                 "id": f"{kind}:{dataset_id}:{scheme}:{handle}",
@@ -207,14 +212,20 @@ def records_from_cells(
     return records
 
 
-def _digest(measure: str, value: Any, dims: dict[str, str]) -> str:
+def _digest(measure: str, value: Any, dims: dict[str, str], extra: Any = None) -> str:
     """A short, stable handle for a member that published no identifier.
 
     Derived from what the publisher printed and nothing else, so the same
     member keeps the same id across fetches however the response is ordered.
+
+    `extra` is whatever else distinguishes one member from another where the
+    properties do not. A bathymetry collection publishes 157 contours that all
+    say `depth = 1000` and differ only in where they are, so without the
+    geometry every one of them digests to the same handle and 157 features
+    collapse into one record.
     """
 
-    printed = json.dumps([measure, value, dims], ensure_ascii=False, sort_keys=True)
+    printed = json.dumps([measure, value, dims, extra], ensure_ascii=False, sort_keys=True)
     return "d" + hashlib.sha256(printed.encode("utf-8")).hexdigest()[:12]
 
 

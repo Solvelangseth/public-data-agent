@@ -119,3 +119,32 @@ def test_one_number_makes_a_batch_a_measurement_batch() -> None:
     # a batch of labels.
     assert not cells_are_labels([("rate", ":", {}), ("rate", None, {})])
     assert not cells_are_labels([])
+
+
+def test_members_that_differ_only_in_place_keep_different_ids() -> None:
+    """A bathymetry collection publishes 157 contours that all say the same thing.
+
+    `depth = 1000`, no identifier, and where they are is the only difference.
+    Digested from the properties alone, every one of them got the same handle
+    and 157 features collapsed into a single record that reported as a clean
+    store.
+    """
+
+    cells = [("depth", 1000, {}), ("depth", 1000, {})]
+    geometries = [
+        {"type": "LineString", "coordinates": [[5.0, 60.0], [5.1, 60.1]]},
+        {"type": "LineString", "coordinates": [[10.0, 70.0], [10.1, 70.1]]},
+    ]
+    records = records_from_cells(
+        cells, dataset_id="hi:bathymetry", table_id="bathymetry",
+        id_fields=("fid",), prefix="hi", kind="feature", distinguish=geometries,
+    )
+    assert len({record["id"] for record in records}) == 2
+
+    # Without the geometry there is nothing to tell them apart, and the store
+    # refuses rather than letting one overwrite the other.
+    collapsed = records_from_cells(
+        cells, dataset_id="hi:bathymetry", table_id="bathymetry",
+        id_fields=("fid",), prefix="hi", kind="feature",
+    )
+    assert len({record["id"] for record in collapsed}) == 1

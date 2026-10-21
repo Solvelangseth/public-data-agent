@@ -287,3 +287,84 @@ def test_a_member_with_no_geometry_carries_none(tmp_path: Path) -> None:
     ]
     # And the cells are exactly what the properties-only reader produces.
     assert [cell for cell, _geometry in paired] == cells_from_hi(body)
+
+
+def test_a_batch_whose_members_share_an_id_is_refused(tmp_path: Path) -> None:
+    """One row overwriting another still reports as a clean store.
+
+    That is how 157 bathymetry contours became a single record: the count said
+    157 listed, the table held one, and nothing anywhere said so. Refused only
+    when the members differ -- a publisher repeating itself is handled below.
+    """
+
+    from public_data_agent.fetch import _store_records
+    from public_data_agent.models import HarvestCounts
+
+    registry = Registry(tmp_path / "registry.sqlite")
+    try:
+        registry.ensure_observation_dataset(
+            dataset_id="hi:x", title="hi:x", publisher_name=None,
+            access_path="https://example.test/x", license=None,
+        )
+        registry.conn.commit()
+        dataset = {"id": "hi:x", "publisher_name": None, "license": None}
+        run_id = registry.start_fetch_run(
+            dataset_id="hi:x", table_id="x",
+            request_url="https://example.test/x", request_method="TEST",
+        )
+        same = [
+            {"id": "feature:hi:x:same", "kind": "feature", "subject_code": None,
+             "subject_label": "Kontur", "attributes": {}},
+            {"id": "feature:hi:x:same", "kind": "feature", "subject_code": None,
+             "subject_label": "En annen kontur", "attributes": {}},
+        ]
+        with pytest.raises(ValueError, match="does not tell them apart"):
+            _store_records(
+                registry, dataset, run_id, records=same,
+                retrieved_at="2026-10-21T00:00:00Z",
+                request_url="https://example.test/x", http_status=200,
+                counts=HarvestCounts(),
+            )
+        assert registry.list_records("hi:x") == []
+    finally:
+        registry.close()
+
+
+def test_a_member_the_publisher_repeated_is_stored_once(tmp_path: Path) -> None:
+    """671 features, 650 distinct: the 3000m contour collection repeats 21.
+
+    Two members that agree on everything published -- properties and geometry
+    both -- are one member as far as anything here can tell, and refusing the
+    whole collection over them would lose 650 real contours.
+    """
+
+    from public_data_agent.fetch import _store_records
+    from public_data_agent.models import HarvestCounts
+
+    registry = Registry(tmp_path / "registry.sqlite")
+    try:
+        registry.ensure_observation_dataset(
+            dataset_id="hi:y", title="hi:y", publisher_name=None,
+            access_path="https://example.test/y", license=None,
+        )
+        registry.conn.commit()
+        run_id = registry.start_fetch_run(
+            dataset_id="hi:y", table_id="y",
+            request_url="https://example.test/y", request_method="TEST",
+        )
+        repeated = {
+            "id": "feature:hi:y:same", "kind": "feature", "subject_code": None,
+            "subject_label": "Kontur", "attributes": {},
+            "geometry": {"type": "Point", "coordinates": [5.0, 60.0]},
+        }
+        counts = HarvestCounts()
+        _store_records(
+            registry, {"id": "hi:y", "publisher_name": None, "license": None}, run_id,
+            records=[dict(repeated), dict(repeated)],
+            retrieved_at="2026-10-21T00:00:00Z",
+            request_url="https://example.test/y", http_status=200, counts=counts,
+        )
+        assert len(registry.list_records("hi:y")) == 1
+        assert counts.inserted == 1
+    finally:
+        registry.close()

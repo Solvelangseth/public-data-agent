@@ -8123,6 +8123,10 @@ def _fetch_hi(
             id_fields=FEATURE_ID_FIELDS,
             prefix="hi",
             kind="feature",
+            # Where a feature publishes no identifier, its place is what tells
+            # it from the next one: a bathymetry collection's contours all say
+            # `depth = 1000` and differ only in geometry.
+            distinguish=[geometry for _cell, geometry in paired],
         )
         for record, (_cell, geometry) in zip(records, paired):
             if geometry is not None:
@@ -16731,6 +16735,27 @@ def _store_records(
     """
 
     _check_cell_budget(dataset["id"], series or "records", len(records))
+    # Two members that converge on one id do not become one row by agreement;
+    # one silently overwrites the other and the count still reads as a clean
+    # store. 157 bathymetry contours became 1 record this way.
+    #
+    # A publisher repeating itself is a different matter. The 3000m contour
+    # collection prints 671 features of which 650 are distinct: 21 are
+    # byte-identical in properties and geometry both, and two members that
+    # agree on everything published are one member as far as anything here can
+    # tell. Those are collapsed. An id shared by members that differ is the
+    # dangerous case -- the identifier is not discriminating -- and is refused.
+    seen: dict[str, dict[str, Any]] = {}
+    for record in records:
+        first = seen.get(record["id"])
+        if first is None:
+            seen[record["id"]] = record
+        elif first != record:
+            raise ValueError(
+                f"{dataset['id']}: two different members share the id {record['id']!r}; "
+                f"the identifier chosen for this source does not tell them apart"
+            )
+    records = list(seen.values())
     sample: list[dict[str, Any]] = []
     with registry.deferred_commit():
         for record in records:
