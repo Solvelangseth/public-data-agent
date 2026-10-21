@@ -53,6 +53,7 @@ from public_data_agent.sources.fixture import FixtureSource
 from public_data_agent.sources.nvdb import NvdbSource
 from public_data_agent.sources.ssbtable import SsbTableSource
 from public_data_agent.sources.frivillig import FrivilligSource
+from public_data_agent.sources.frost import FrostSource
 from public_data_agent.sources.geonorge import GeonorgeKartkatalogSource
 from public_data_agent.sources.grep import GrepSource
 from public_data_agent.sources.georegister import GeoregisterSource
@@ -209,6 +210,7 @@ SOURCE_IDS = (
     "brreg",
     "valg",
     "bwfish",
+    "frost",
     "fhi",
     "mattilsynet",
     "udir",
@@ -417,6 +419,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return BrregEnhetsregisterSource()
     if source_id == "valg":
         return ValgresultatSource()
+    if source_id == "frost":
+        return FrostSource()
     if source_id == "bwfish":
         return BwFishSource()
     if source_id == "fhi":
@@ -848,6 +852,7 @@ __all__ = [
     "GribfilesSource",
     "HavnedataSource",
     "BwFishSource",
+    "FrostSource",
     "HiFeaturesSource",
     "HicoveragesSource",
     "HimapsSource",

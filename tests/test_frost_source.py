@@ -13,6 +13,7 @@ from pathlib import Path
 
 import pytest
 
+from public_data_agent.models import SourceError
 from public_data_agent.sources.frost import (
     CLIENT_ID_VAR,
     COVERAGE_DIMENSIONS,
@@ -269,3 +270,304 @@ def test_dotenv_fills_what_the_environment_lacks(tmp_path: Path) -> None:
     headers = basic_auth_headers(environ={CLIENT_ID_VAR: "from-env"}, dotenv=path)
     decoded = base64.b64decode(headers["Authorization"].split()[1]).decode()
     assert decoded == "from-env:"
+
+
+# --- the registers ----------------------------------------------------------
+
+
+def _sources_payload():
+    return {
+        "license": LICENCE,
+        "data": [
+            {
+                "@type": "SensorSystem",
+                "id": "SN18700",
+                "name": "OSLO - BLINDERN",
+                "shortName": "Blindern",
+                "country": "Norge",
+                "countryCode": "NO",
+                "county": "OSLO",
+                "countyId": 3,
+                "municipality": "OSLO",
+                "municipalityId": 301,
+                "masl": 94,
+                "validFrom": "1931-01-01T00:00:00.000Z",
+                "wigosId": "0-578-0-18700",
+                "geometry": {"@type": "Point", "coordinates": [10.7201, 59.9423]},
+                "stationHolders": ["MET.NO"],
+                "externalIds": ["01492"],
+            }
+        ],
+    }
+
+
+def test_the_station_register_keeps_the_published_kommune_key() -> None:
+    """countyId and municipalityId are MET's own keys into the kommune spine.
+
+    They are the reason this register is worth storing at all, so losing one
+    would be worse than losing the station.
+    """
+
+    from public_data_agent.entity_records import records_from_cells
+    from public_data_agent.sources.frost import (
+        STATION_ID_FIELDS, STATION_LABEL_FIELDS, cells_from_frost_sources,
+    )
+
+    (record,) = records_from_cells(
+        cells_from_frost_sources(_sources_payload()),
+        dataset_id="frost:sources", table_id="sources",
+        id_fields=STATION_ID_FIELDS, label_fields=STATION_LABEL_FIELDS,
+        prefix="frost", kind="entity",
+    )
+    assert record["subject_code"] == "SN18700"
+    assert record["subject_label"] == "OSLO - BLINDERN"
+    assert record["attributes"]["countyId"] == "3"
+    assert record["attributes"]["municipalityId"] == "301"
+
+
+def test_the_station_place_is_flattened_from_the_nested_geometry() -> None:
+    """A station without its coordinates says a measurement exists, not where."""
+
+    from public_data_agent.sources.frost import cells_from_frost_sources
+
+    (_measure, _value, dims) = cells_from_frost_sources(_sources_payload())[0]
+    assert dims["longitude"] == "10.7201"
+    assert dims["latitude"] == "59.9423"
+    assert "geometry" not in dims
+
+
+def test_a_list_valued_field_is_not_flattened_into_a_dimension() -> None:
+    """stationHolders is a list. Choosing a delimiter for it would be inventing."""
+
+    from public_data_agent.sources.frost import cells_from_frost_sources
+
+    payload = _sources_payload()
+    assert payload["data"][0]["stationHolders"] == ["MET.NO"], "premise: it is a list"
+    (_measure, _value, dims) = cells_from_frost_sources(payload)[0]
+    assert "stationHolders" not in dims
+    assert "externalIds" not in dims
+
+
+def test_a_station_with_no_name_keeps_its_id_rather_than_inventing_one() -> None:
+    from public_data_agent.sources.frost import cells_from_frost_sources
+
+    payload = _sources_payload()
+    payload["data"][0]["name"] = ""
+    (_measure, value, _dims) = cells_from_frost_sources(payload)[0]
+    assert value == "SN18700"
+
+
+def test_the_element_vocabulary_carries_the_publishers_unit() -> None:
+    from public_data_agent.entity_records import records_from_cells
+    from public_data_agent.sources.frost import (
+        ELEMENT_ID_FIELDS, ELEMENT_LABEL_FIELDS, cells_from_frost_elements,
+    )
+
+    payload = {
+        "license": LICENCE,
+        "data": [{"id": "air_temperature", "name": "Air temperature", "unit": "degC",
+                  "category": "Temperature", "status": "CF-name"}],
+    }
+    (record,) = records_from_cells(
+        cells_from_frost_elements(payload),
+        dataset_id="frost:elements", table_id="elements",
+        id_fields=ELEMENT_ID_FIELDS, label_fields=ELEMENT_LABEL_FIELDS,
+        prefix="frost", kind="entity",
+    )
+    assert record["subject_code"] == "air_temperature"
+    assert record["subject_label"] == "Air temperature"
+    assert record["attributes"]["unit"] == "degC"
+
+
+def test_the_registers_refuse_a_payload_with_no_members() -> None:
+    from public_data_agent.sources.frost import (
+        cells_from_frost_elements, cells_from_frost_sources,
+    )
+
+    with pytest.raises(ValueError, match="no station"):
+        cells_from_frost_sources({"license": LICENCE, "data": []})
+    with pytest.raises(ValueError, match="no element"):
+        cells_from_frost_elements({"license": LICENCE, "data": []})
+    with pytest.raises(ValueError, match="no data array"):
+        cells_from_frost_sources({"license": LICENCE})
+
+
+def test_the_series_catalogue_is_read_for_requests_and_never_stored() -> None:
+    """505 series at one station is a fact about Frost's catalogue, not Oslo.
+
+    It is read for the `uri` the publisher generates per series, which is a
+    declared request rather than a composed one.
+    """
+
+    from public_data_agent.sources import frost
+    from public_data_agent.sources.frost import series_declared_by
+
+    payload = {
+        "license": LICENCE,
+        "data": [{
+            "sourceId": "SN18700:0",
+            "elementId": "best_estimate_mean(air_temperature P1M)",
+            "timeResolution": "P1M", "timeOffset": "PT0H", "unit": "degC",
+            "validFrom": "1837-04-01T00:00:00.000Z",
+            "level": {"levelType": "height_above_ground", "unit": "m", "value": 2},
+            "uri": "https://frost.met.no/observations/v0.jsonld?sources=SN18700:0&referencetime=1837-04-01",
+        }],
+    }
+    (series,) = series_declared_by(payload)
+    assert series["sourceId"] == "SN18700:0"
+    assert series["validFrom"] == "1837-04-01T00:00:00.000Z"
+    assert series["level_value"] == "2"
+    assert series["uri"].startswith("https://frost.met.no/observations/")
+    # the refusal is structural: there is no reader that turns these into rows
+    assert not hasattr(frost, "cells_from_frost_timeseries")
+    assert not hasattr(frost, "records_from_frost_timeseries")
+
+
+def test_an_observation_request_must_pin_all_three_parameters() -> None:
+    """Each of the three returns HTTP 400 on its own, so two thirds is not a resource."""
+
+    from public_data_agent.sources.frost import observation_request_is_complete
+
+    complete = (
+        "https://frost.met.no/observations/v0.jsonld?sources=SN18700"
+        "&elements=air_temperature&referencetime=2026-10-01/2026-10-02"
+    )
+    assert observation_request_is_complete(complete)
+    for missing in (
+        "https://frost.met.no/observations/v0.jsonld?sources=SN18700&elements=air_temperature",
+        "https://frost.met.no/observations/v0.jsonld?sources=SN18700&referencetime=2026-10-01",
+        "https://frost.met.no/observations/v0.jsonld?elements=air_temperature&referencetime=2026-10-01",
+        "https://frost.met.no/observations/v0.jsonld",
+    ):
+        assert not observation_request_is_complete(missing), missing
+
+
+# --- ingest and fetch -------------------------------------------------------
+
+
+class _Served:
+    def __init__(self, body) -> None:
+        self.body = body
+        self.seen: list[dict[str, str] | None] = []
+
+    def get_json_response(self, url: str, *, headers=None):
+        from public_data_agent.http_util import JsonResponse
+
+        self.seen.append(headers)
+        return JsonResponse(status=200, url=url, body=self.body)
+
+
+def _registry(tmp_path: Path, dataset_id: str, access_path: str):
+    from public_data_agent.registry import Registry
+
+    registry = Registry(tmp_path / "registry.sqlite")
+    registry.ensure_dataset_identity(
+        dataset_id=dataset_id, title=None, publisher_name=None,
+        access_path=access_path, license=None,
+    )
+    return registry
+
+
+def test_frost_lists_two_datasets_and_makes_no_request() -> None:
+    """A station is not a resource here, so there are not 2,235 of them."""
+
+    from public_data_agent.sources.frost import FrostSource
+
+    class Explodes:
+        def get_json_response(self, url, *, headers=None):
+            raise AssertionError(f"listing must not request {url}")
+
+    source = FrostSource(http=Explodes())
+    refs = source.list_dataset_refs()
+    assert [ref.source_native_id for ref in refs] == ["sources", "elements"]
+    for ref in refs:
+        payload = source.fetch_dataset(ref).payload
+        assert payload["license"] == LICENCE, "Frost declares it, so it is copied"
+        assert payload["frost_requires_credential"] == "FROST_CLIENT_ID"
+
+
+def test_the_station_register_fetch_stores_records(tmp_path: Path) -> None:
+    from public_data_agent.fetch import _fetch_frost
+
+    registry = _registry(tmp_path, "frost:sources",
+                         "https://frost.met.no/sources/v0.jsonld?types=SensorSystem")
+    http = _Served(_sources_payload())
+    result = _fetch_frost(
+        registry, registry.get_dataset("frost:sources"), http=http,
+        headers={"Authorization": "Basic xyz"},
+    )
+    assert http.seen == [{"Authorization": "Basic xyz"}]
+    assert result.table_id == "sources"
+    assert registry.observation_count() == 0, "a station list is not a measurement"
+    rows = registry.list_records("frost:sources", kind="entity")
+    assert [row["subject_code"] for row in rows] == ["SN18700"]
+    registry.close()
+
+
+def test_the_series_catalogue_url_is_refused_by_the_fetcher(tmp_path: Path) -> None:
+    from public_data_agent.fetch import _fetch_frost
+
+    registry = _registry(tmp_path, "frost:ts", TS_URL)
+    with pytest.raises(SourceError, match="metadata"):
+        _fetch_frost(registry, registry.get_dataset("frost:ts"), http=_Served({}),
+                     headers={"Authorization": "Basic xyz"})
+    assert registry.record_count("frost:ts") == 0
+    registry.close()
+
+
+def test_an_incomplete_observation_url_is_refused_before_the_request(tmp_path: Path) -> None:
+    """Frost would answer 400, and the run would be recorded as a failed fetch."""
+
+    from public_data_agent.fetch import _fetch_frost
+
+    registry = _registry(tmp_path, "frost:obs", OBS_URL)
+    http = _Served({"license": LICENCE, "data": []})
+    with pytest.raises(SourceError, match="referencetime"):
+        _fetch_frost(registry, registry.get_dataset("frost:obs"), http=http,
+                     headers={"Authorization": "Basic xyz"})
+    assert http.seen == [], "nothing should have been requested"
+    registry.close()
+
+
+def test_a_complete_observation_url_stores_observations(tmp_path: Path) -> None:
+    from public_data_agent.fetch import _fetch_frost
+
+    url = (
+        "https://frost.met.no/observations/v0.jsonld?sources=SN18700"
+        "&elements=air_temperature&referencetime=2026-10-01/2026-10-02"
+    )
+    registry = _registry(tmp_path, "frost:obs", url)
+    result = _fetch_frost(
+        registry, registry.get_dataset("frost:obs"), http=_Served(_payload(SIX)),
+        headers={"Authorization": "Basic xyz"},
+    )
+    assert result.counts.listed == 6
+    assert registry.observation_count() == 6, "all six survive the store, not just one"
+    capability = registry.get_capability("frost:obs")
+    assert capability["capability"] == "observations"
+    assert "timeResolution" in capability["notes"]
+    registry.close()
+
+
+def test_a_changed_licence_stops_the_store(tmp_path: Path) -> None:
+    """The licence is copied from Frost, so a change must not pass unnoticed."""
+
+    from public_data_agent.fetch import _fetch_frost
+
+    registry = _registry(tmp_path, "frost:sources",
+                         "https://frost.met.no/sources/v0.jsonld?types=SensorSystem")
+    moved = _sources_payload()
+    moved["license"] = "https://creativecommons.org/licenses/by/4.0/"
+    with pytest.raises(SourceError, match="needs updating"):
+        _fetch_frost(registry, registry.get_dataset("frost:sources"), http=_Served(moved),
+                     headers={"Authorization": "Basic xyz"})
+    assert registry.record_count("frost:sources") == 0
+    registry.close()
+
+
+def test_frost_is_a_registered_source() -> None:
+    from public_data_agent.sources import SOURCE_IDS, build_source
+    from public_data_agent.sources.frost import FrostSource
+
+    assert "frost" in SOURCE_IDS
+    assert isinstance(build_source("frost"), FrostSource)

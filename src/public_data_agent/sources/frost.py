@@ -36,12 +36,14 @@ from __future__ import annotations
 
 import base64
 import os
+import urllib.parse
 from pathlib import Path
 from typing import Any
 from urllib.parse import urlsplit
 
 from public_data_agent.http_util import HttpClient, RateLimiter
-from public_data_agent.models import SourceError
+from public_data_agent.models import DatasetRef, HarvestedRecord, SourceError
+from public_data_agent.sources.base import SourceBase
 
 SOURCE_ID = "frost"
 SOURCE_NAME = "MET Frost observasjoner"
@@ -55,6 +57,10 @@ FROST_BURST = 4
 
 CLIENT_ID_VAR = "FROST_CLIENT_ID"
 CLIENT_SECRET_VAR = "FROST_CLIENT_SECRET"
+
+# Printed in every Frost response envelope. Recorded here so the ingest can
+# state it, and checked against the payload on fetch rather than assumed.
+FROST_LICENSE = "https://creativecommons.org/licenses/by/3.0/no/"
 
 # Every field that can differ between two observations of one element at one
 # instant. Omitting any one of them merges measurements that are not the same
@@ -293,3 +299,243 @@ def distinct_coverage(cells: list[tuple[str, Any, dict[str, str]]]) -> int:
         for measure, _value, dims in cells
     }
     return len(seen)
+
+
+# --- the registers, which are complete resources on their own ---------------
+#
+# `/observations` refuses a request that does not pin all three of `sources`,
+# `elements` and `referencetime` -- each returns HTTP 400 on its own. So an
+# observation request is a *query*, not a resource with a stable URL, and it
+# belongs behind the select mechanism rather than in a dataset row.
+#
+# Three things on this API are complete resources, and all three are worth
+# having for their own sake:
+#
+#   /sources                         2,235 stations, with countyId and
+#                                    municipalityId -- published join keys
+#   /elements                        700 measures, each with its unit
+#
+# Those two are entities, not measurements, so they go to `records`.
+# `/observations/availableTimeSeries` is deliberately not a third: see
+# `series_declared_by` for why a catalogue of what the service offers is not
+# stored, and what it is read for instead.
+
+STATION_ID_FIELDS = ("id",)
+STATION_LABEL_FIELDS = ("name",)
+ELEMENT_ID_FIELDS = ("id",)
+ELEMENT_LABEL_FIELDS = ("name",)
+
+
+def _members(payload: Any, *, what: str) -> list[dict[str, Any]]:
+    if not isinstance(payload, dict):
+        raise ValueError(f"Frost {what} payload is not a JSON object")
+    members = payload.get("data")
+    if not isinstance(members, list):
+        raise ValueError(f"Frost {what} payload printed no data array")
+    return [member for member in members if isinstance(member, dict)]
+
+
+def _scalar_dims(member: dict[str, Any], *, skip: tuple[str, ...]) -> dict[str, str]:
+    dims: dict[str, str] = {}
+    for key, value in member.items():
+        if key in skip or value is None:
+            continue
+        if isinstance(value, (dict, list)):
+            continue
+        dims[key] = str(value)
+    return dims
+
+
+def cells_from_frost_sources(payload: Any) -> list[tuple[str, Any, dict[str, str]]]:
+    """The station register, as cells a record converter can read.
+
+    `geometry` is nested and is the station's place, so its coordinates are
+    flattened rather than dropped. `stationHolders` is a list of the bodies
+    that own the station and is skipped here: a list is not a dimension, and
+    inventing a delimiter to flatten one would be inventing.
+    """
+
+    cells: list[tuple[str, Any, dict[str, str]]] = []
+    for member in _members(payload, what="sources"):
+        station = member.get("id")
+        name = member.get("name")
+        if not isinstance(station, str) or not station.strip():
+            continue
+        label = name if isinstance(name, str) and name.strip() else station
+        dims = _scalar_dims(member, skip=("name",))
+        geometry = member.get("geometry")
+        if isinstance(geometry, dict):
+            coordinates = geometry.get("coordinates")
+            if isinstance(coordinates, list) and len(coordinates) >= 2:
+                dims["longitude"] = str(coordinates[0])
+                dims["latitude"] = str(coordinates[1])
+        cells.append(("name", label.strip(), dims))
+    if not cells:
+        raise ValueError("Frost sources payload printed no station")
+    return cells
+
+
+def cells_from_frost_elements(payload: Any) -> list[tuple[str, Any, dict[str, str]]]:
+    """The measure vocabulary, with the publisher's own unit on each."""
+
+    cells: list[tuple[str, Any, dict[str, str]]] = []
+    for member in _members(payload, what="elements"):
+        element = member.get("id")
+        name = member.get("name")
+        if not isinstance(element, str) or not element.strip():
+            continue
+        label = name if isinstance(name, str) and name.strip() else element
+        cells.append(("name", label.strip(), _scalar_dims(member, skip=("name",))))
+    if not cells:
+        raise ValueError("Frost elements payload printed no element")
+    return cells
+
+
+def series_declared_by(payload: Any) -> list[dict[str, str]]:
+    """What requests the publisher says are valid. **Never stored.**
+
+    `availableTimeSeries` is the service describing what it offers, and by
+    this project's own rule a listing of what a service offers is metadata
+    while a listing of things the world contains is data. Blindern holding 505
+    series is a fact about Frost's catalogue, not about Oslo. Storing it as
+    entities is the mistake that put 11,374 name cards in the observations
+    table, and the same refusal already deleted ArcGIS layer lists,
+    Sokkeldirektoratet field definitions and Klass version lists.
+
+    It is still worth reading, for one reason: each member prints a `uri`
+    that is Frost's own observation request for that series, with the valid
+    range already in it. A connector that wants the series should use the URL
+    the publisher generated rather than compose one -- that is the difference
+    between following a declaration and guessing a pattern.
+
+    So this returns request descriptions for a caller to act on, and nothing
+    here goes near `records` or `observations`.
+    """
+
+    declared: list[dict[str, str]] = []
+    for member in _members(payload, what="availableTimeSeries"):
+        source_id = member.get("sourceId")
+        element = member.get("elementId")
+        uri = member.get("uri")
+        if not isinstance(source_id, str) or not source_id.strip():
+            continue
+        if not isinstance(element, str) or not element.strip():
+            continue
+        entry = {
+            "sourceId": source_id.strip(),
+            "elementId": element.strip(),
+            "timeResolution": str(member.get("timeResolution") or ""),
+            "timeOffset": str(member.get("timeOffset") or ""),
+            "validFrom": str(member.get("validFrom") or ""),
+            "validTo": str(member.get("validTo") or ""),
+            "unit": str(member.get("unit") or ""),
+        }
+        entry.update(_flatten_level(member.get("level")))
+        if isinstance(uri, str) and uri.startswith("http"):
+            entry["uri"] = uri
+        declared.append(entry)
+    if not declared:
+        raise ValueError("Frost availableTimeSeries payload printed no series")
+    return declared
+
+
+def observation_request_is_complete(access_path: str) -> bool:
+    """`/observations` refuses any request missing one of three parameters.
+
+    sources, elements and referencetime each return HTTP 400 on their own, so
+    an incomplete URL is not a resource and must not be stored as one.
+    """
+
+    query = urllib.parse.parse_qs(urllib.parse.urlsplit(access_path).query)
+    return all(query.get(name) for name in ("sources", "elements", "referencetime"))
+
+
+# --- ingest -----------------------------------------------------------------
+
+SOURCES_URL = f"https://{HOST}{SOURCES_PATH}?types=SensorSystem"
+ELEMENTS_URL = f"https://{HOST}{ELEMENTS_PATH}"
+DEFAULT_MAX_ITEMS = 10
+INGEST_REASON = (
+    "the two Frost resources that are complete without a query: the "
+    "SensorSystem station register and the element vocabulary. Observation "
+    "requests pin sources, elements and referencetime and are not datasets"
+)
+
+LISTED = (
+    (
+        "sources",
+        SOURCES_URL,
+        "MET Frost — målestasjoner",
+        "Alle SensorSystem-stasjoner med fylkesnummer, kommunenummer, posisjon og høyde.",
+    ),
+    (
+        "elements",
+        ELEMENTS_URL,
+        "MET Frost — måleelementer",
+        "Vokabularet av målestørrelser Frost publiserer, med publisert enhet på hver.",
+    ),
+)
+
+
+class FrostSource(SourceBase):
+    """Ingest adapter for MET Frost.
+
+    Two datasets, not 2,235. A station is not a resource on this API: every
+    observation request pins `sources`, `elements` and `referencetime`
+    together, and leaving out any one of them is an HTTP 400. So the station
+    list and the element list are the resources, and reading measurements is a
+    query against them.
+
+    Listing makes no request. Both URLs are fixed and documented, and whether
+    either answers is the fetch's job to find out and record.
+    """
+
+    source_id = SOURCE_ID
+    source_name = SOURCE_NAME
+    endpoints = (SOURCES_URL, ELEMENTS_URL)
+    ingest_reason = INGEST_REASON
+
+    def __init__(
+        self,
+        *,
+        max_items: int = DEFAULT_MAX_ITEMS,
+        http: HttpClient | None = None,
+    ) -> None:
+        self.max_items = max_items
+        self.http = http
+
+    def list_dataset_refs(self, *, limit: int | None = None, offset: int = 0):
+        cap = self.max_items if limit is None else limit
+        return [
+            DatasetRef(source_native_uri=url, source_native_id=native_id)
+            for native_id, url, _title, _description in LISTED[offset : offset + cap]
+        ]
+
+    def fetch_dataset(self, ref):
+        match = next((item for item in LISTED if item[1] == ref.source_native_uri), None)
+        if match is None:
+            raise SourceError(f"MET Frost lists no resource at {ref.source_native_uri}")
+        native_id, url, title, description = match
+        return HarvestedRecord(
+            source_id=self.source_id,
+            source_name=self.source_name,
+            source_endpoints=self.endpoints,
+            ingest_reason=self.ingest_reason,
+            source_native_id=native_id,
+            source_native_uri=url,
+            fetched_from=url,
+            payload={
+                "id": native_id,
+                "uri": url,
+                "title": {"no": title},
+                "description": {"no": description},
+                "publisher": {"name": "Meteorologisk institutt"},
+                # Frost states this in every response envelope, so unlike
+                # most sources here it is copied rather than left null. It is
+                # re-read from the payload on fetch and must agree.
+                "license": FROST_LICENSE,
+                "distribution": [{"accessURL": [url], "downloadURL": [url]}],
+                "landingPage": ["https://frost.met.no/index.html"],
+                "frost_requires_credential": CLIENT_ID_VAR,
+            },
+        )

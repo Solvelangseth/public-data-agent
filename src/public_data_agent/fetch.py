@@ -1057,6 +1057,23 @@ from public_data_agent.sources.utdanning import (
     tidsserie_total_items,
     utdanning_table_id,
 )
+from public_data_agent.sources.frost import (
+    ELEMENT_ID_FIELDS as FROST_ELEMENT_ID_FIELDS,
+    ELEMENT_LABEL_FIELDS as FROST_ELEMENT_LABEL_FIELDS,
+    FROST_LICENSE,
+    STATION_ID_FIELDS as FROST_STATION_ID_FIELDS,
+    STATION_LABEL_FIELDS as FROST_STATION_LABEL_FIELDS,
+    basic_auth_headers,
+    cells_from_frost,
+    cells_from_frost_elements,
+    cells_from_frost_sources,
+    frost_table_id,
+    is_frost_observations_url,
+    is_frost_timeseries_url,
+    is_frost_url,
+    observation_request_is_complete,
+    printed_license as frost_printed_license,
+)
 from public_data_agent.sources.hi import (
     cells_and_geometry_from_hi,
     cells_and_geometry_from_hi,
@@ -1857,6 +1874,8 @@ def _fetch_observations(
         return _fetch_met(registry, dataset, http=http)
     if is_bwfish_url(access_path):
         return _fetch_bwfish(registry, dataset, http=http)
+    if is_frost_url(access_path):
+        return _fetch_frost(registry, dataset, http=http)
     if is_hi_url(access_path):
         return _fetch_hi(registry, dataset, http=http)
     if is_kystverket_url(access_path):
@@ -7968,6 +7987,144 @@ def _bwfish_headers(token: BarentsWatchToken | None) -> dict[str, str]:
 
     token = token or BarentsWatchToken.from_env(dotenv=_Path(".env"))
     return token.headers()
+
+
+def _fetch_frost(
+    registry: Registry,
+    dataset: dict[str, Any],
+    *,
+    http: JsonHttp | None = None,
+    headers: dict[str, str] | None = None,
+) -> FetchResult:
+    """Fetch a Frost register, or a complete observation request.
+
+    Three paths and two outcomes. `/sources` and `/elements` are registers and
+    land in `records`. A `/observations` URL lands in `observations`, but only
+    if it pins all three of sources, elements and referencetime -- Frost
+    answers HTTP 400 to any request missing one, so an incomplete URL is not a
+    resource and is refused here rather than fetched and recorded as broken.
+
+    `/observations/availableTimeSeries` is refused outright. It is the service
+    listing what it offers, which this project does not store; see
+    `series_declared_by` for what it is read for instead.
+    """
+
+    access_path = dataset.get("access_path") or ""
+    table_id = frost_table_id(access_path)
+    client = http or HttpClient(timeout=60.0, max_retries=4)
+    if is_frost_timeseries_url(access_path):
+        raise SourceError(
+            "Frost availableTimeSeries lists what the service offers, which is "
+            "metadata; it is read to build requests, never stored"
+        )
+    if is_frost_observations_url(access_path) and not observation_request_is_complete(access_path):
+        raise SourceError(
+            "a Frost observation request must pin sources, elements and "
+            f"referencetime; {access_path} would answer HTTP 400"
+        )
+    if table_id not in ("sources", "elements", "observations"):
+        raise SourceError(f"MET Frost has no reader for {access_path}")
+    request_headers = dict(headers or basic_auth_headers(dotenv=_Path(".env")))
+    started = utc_now()
+    run_id = registry.start_fetch_run(
+        dataset_id=dataset["id"],
+        table_id=table_id,
+        request_url=access_path,
+        request_method="GET",
+        started_at=started,
+    )
+    counts = HarvestCounts()
+    status = "failed"
+    http_status = 0
+    sample: list[dict[str, Any]] = []
+    try:
+        got = client.get_json_response(access_path, headers=request_headers)
+        http_status = got.status
+        registry.set_fetch_request(run_id, request_url=access_path, request_body={"method": "GET"})
+        retrieved_at = utc_now()
+        declared = frost_printed_license(got.body)
+        if declared is not None and declared != FROST_LICENSE:
+            # The licence is copied from Frost rather than left null, so a
+            # change in what Frost says must not pass unnoticed.
+            raise SourceError(
+                f"Frost now declares {declared!r}, not {FROST_LICENSE!r}; "
+                "the recorded licence needs updating before this is stored"
+            )
+        if table_id == "observations":
+            cells = cells_from_frost(got.body)
+            counts.listed = len(cells)
+            sample = _store_cells(
+                registry,
+                dataset,
+                run_id,
+                table_id=table_id,
+                cells=cells,
+                retrieved_at=retrieved_at,
+                request_url=access_path,
+                http_status=http_status,
+                counts=counts,
+            )
+            registry.set_capability(
+                dataset["id"],
+                {
+                    "capability": CAPABILITY_OBSERVATIONS,
+                    "record_kind": "observation",
+                    "endpoint": access_path,
+                    "request_method": "GET",
+                    "verified_at": retrieved_at,
+                    "verified_sample_count": counts.listed,
+                    "notes": (
+                        f"{counts.listed} observation(s); one element at one instant can "
+                        "appear several times at different level, timeResolution and "
+                        "timeOffset, and all of them are kept"
+                    ),
+                },
+            )
+        else:
+            if table_id == "sources":
+                cells = cells_from_frost_sources(got.body)
+                id_fields = FROST_STATION_ID_FIELDS
+                label_fields = FROST_STATION_LABEL_FIELDS
+            else:
+                cells = cells_from_frost_elements(got.body)
+                id_fields = FROST_ELEMENT_ID_FIELDS
+                label_fields = FROST_ELEMENT_LABEL_FIELDS
+            records = records_from_cells(
+                cells,
+                dataset_id=dataset["id"],
+                table_id=table_id,
+                id_fields=id_fields,
+                label_fields=label_fields,
+                prefix="frost",
+                kind="entity",
+            )
+            counts.listed = len(records)
+            sample = _store_records(
+                registry,
+                dataset,
+                run_id,
+                records=records,
+                retrieved_at=retrieved_at,
+                request_url=access_path,
+                http_status=http_status,
+                counts=counts,
+                series=f"fetch:{table_id}",
+            )
+        status = "completed"
+    except Exception as exc:
+        counts.failed += 1
+        counts.errors.append({"error": str(exc), "url": access_path})
+        raise
+    finally:
+        registry.finish_fetch_run(run_id, counts, status=status, http_status=http_status)
+    return FetchResult(
+        dataset_id=dataset["id"],
+        table_id=table_id,
+        request_url=access_path,
+        http_status=http_status,
+        counts=counts,
+        sample=sample,
+    )
 
 
 def _fetch_bwfish(
