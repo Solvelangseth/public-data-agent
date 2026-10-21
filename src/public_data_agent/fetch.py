@@ -1388,6 +1388,7 @@ def fetch_observations(
     fylke: str | None = None,
     bydel: str | None = None,
     measure: str | None = None,
+    subject: str | dict[str, str] | None = None,
     max_cells: int | None = None,
 ) -> FetchResult:
     """Retrieve observation rows, optionally under a cell budget.
@@ -1410,6 +1411,7 @@ def fetch_observations(
             fylke=fylke,
             bydel=bydel,
             measure=measure,
+            subject=subject,
         )
     # A fetch that stored rows is the evidence, whichever branch ran it. Only
     # the branches that happened to remember were writing a capability, so a
@@ -1436,6 +1438,7 @@ def _fetch_observations(
     fylke: str | None = None,
     bydel: str | None = None,
     measure: str | None = None,
+    subject: str | dict[str, str] | None = None,
 ) -> FetchResult:
     dataset = registry.get_dataset(dataset_id)
     if dataset is None:
@@ -1452,6 +1455,24 @@ def _fetch_observations(
         measure=measure,
     )
     access_path = dataset.get("access_path") or ""
+    # A resource whose capability carries a request template is not addressed
+    # by its access_path: that path is the collection, which for
+    # Enhetsregisteret is 1.1M subjects and for MET Frost is an HTTP 400.
+    # `subject_url` has existed since the register work and nothing called it,
+    # so every one of those resources was unreachable through this function.
+    # Filling the template here rather than in each connector means the
+    # dispatch below -- which routes on URL shape -- picks the right reader
+    # with no change, for all 190 of them.
+    if subject is not None:
+        from public_data_agent.resource_index import request_url
+
+        access_path = request_url(registry, dataset_id, subject)
+        # Every connector below reads `dataset["access_path"]` for itself, so
+        # rebinding the local alone would route on the filled URL and then
+        # fetch the collection. The row is replaced, not mutated: it is handed
+        # to `_store_cells` and `_store_records` as the dataset's identity and
+        # must not come back changed for the caller.
+        dataset = {**dict(dataset), "access_path": access_path}
     # GetCapabilities / WMS / WFS catalogs are not data. Fetching them stored
     # layer names as observations. Classify already reports `none`; refuse
     # before a leftover WMS dispatcher can write those cells.

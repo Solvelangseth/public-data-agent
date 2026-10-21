@@ -12,6 +12,7 @@ about its own tables, and writes the resource_* tables through `Registry`.
 from __future__ import annotations
 
 import re
+from urllib.parse import quote
 from typing import Any
 
 from public_data_agent.fetch import JsonHttp
@@ -1253,6 +1254,83 @@ def resource_shape(registry: Registry, dataset_id: str) -> dict[str, Any]:
 
 
 
+# Characters that are separators inside these publishers' own query values and
+# must survive encoding: Frost writes `referencetime=2026-10-01/2026-10-02` and
+# `sources=SN18700,SN50540`, HydAPI writes `ReferenceTime=.../...`. Everything
+# else is escaped, which matters because a Frost element is
+# `sum(precipitation_amount P1D)` -- parentheses and a space.
+TEMPLATE_SAFE = "/:,"
+
+_PLACEHOLDER = re.compile(r"\{([A-Za-z_][A-Za-z0-9_]*)\}")
+
+
+def template_placeholders(template: str) -> list[str]:
+    """The names a template asks to be filled, in the order it asks."""
+
+    seen: list[str] = []
+    for name in _PLACEHOLDER.findall(template or ""):
+        if name not in seen:
+            seen.append(name)
+    return seen
+
+
+def request_url(
+    registry: Registry,
+    dataset_id: str,
+    subject: str | dict[str, str],
+) -> str:
+    """Fill a resource's request template from what the caller named.
+
+    `subject_url` addresses one record of a register: a template with a single
+    `{subject}`, and a string to put in it. That covers Enhetsregisteret and
+    the NVDB object endpoints, and it does not cover an API whose unit of
+    retrieval needs several parameters at once. MET Frost refuses any
+    observation request that does not pin `sources`, `elements` and
+    `referencetime` together -- each returns HTTP 400 alone -- and NVE HydAPI
+    wants StationId, Parameter, ResolutionTime and ReferenceTime. For those,
+    one id is not a subject; the combination is.
+
+    So a template may carry any named placeholders, and a dict fills them by
+    name. A string still fills `{subject}`, which is what every existing
+    register uses.
+
+    Every placeholder must be given a value. Leaving one unfilled would send a
+    literal `{elements}` to the publisher and record whatever came back, and
+    Frost answers 400 rather than ignoring it -- which is the better case. The
+    error names what is missing rather than guessing a default.
+    """
+
+    capability = registry.get_capability(dataset_id) or {}
+    template = capability.get("subject_template")
+    if not template:
+        raise ValueError(
+            f"{dataset_id} has no subject_template, so there is nothing to address. "
+            "Fetch it the way its capability describes."
+        )
+    wanted = template_placeholders(template)
+    if isinstance(subject, str):
+        given = {"subject": subject} if subject.strip() else {}
+    else:
+        given = {str(k): str(v) for k, v in subject.items() if str(v).strip()}
+    missing = [name for name in wanted if name not in given]
+    if missing:
+        raise ValueError(
+            f"{dataset_id} needs {', '.join(missing)} to address a request; its "
+            f"template asks for {', '.join(wanted)}. Its collection endpoint holds "
+            f"{capability.get('subject_count') or 'many'} records and is not a fetch."
+        )
+    unused = sorted(set(given) - set(wanted))
+    if unused:
+        raise ValueError(
+            f"{dataset_id} does not take {', '.join(unused)}; its template asks for "
+            f"{', '.join(wanted)}. A value the template ignores would silently do nothing."
+        )
+    filled = template
+    for name in wanted:
+        filled = filled.replace("{" + name + "}", quote(given[name].strip(), safe=TEMPLATE_SAFE))
+    return filled
+
+
 def subject_url(registry: Registry, dataset_id: str, subject: str) -> str:
     """The URL for one subject of a register.
 
@@ -1273,7 +1351,7 @@ def subject_url(registry: Registry, dataset_id: str, subject: str) -> str:
             f"{dataset_id} needs a subject to address. Its collection endpoint holds "
             f"{capability.get('subject_count') or 'many'} records and is not a fetch."
         )
-    return template.replace("{subject}", str(subject).strip())
+    return request_url(registry, dataset_id, str(subject))
 
 
 # A caller names a published scheme, not the table's field code. Region vs GEO

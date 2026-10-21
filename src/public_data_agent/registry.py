@@ -596,16 +596,27 @@ class Registry:
         """
 
         template = capability.get("subject_template")
-        if template and "{subject}" not in template:
-            raise ValueError(
-                f"subject_template {template!r} has no {{subject}} placeholder; without one "
-                "there is no way to address a single record in the register"
-            )
-        if template and not capability.get("subject_scheme"):
-            raise ValueError(
-                "a subject_template needs a subject_scheme saying what a subject is; "
-                "an unnamed identifier cannot be validated or joined"
-            )
+        if template:
+            import re as _re
+
+            placeholders = set(_re.findall(r"\{([A-Za-z_][A-Za-z0-9_]*)\}", template))
+            if not placeholders:
+                raise ValueError(
+                    f"subject_template {template!r} has no placeholder; without one "
+                    "there is no way to address a single record in the register"
+                )
+            # A register addresses one record by one id, and `{subject}` is that
+            # id -- so it needs a scheme saying what the id means, or it cannot
+            # be validated or joined. A template with named parameters instead
+            # is not naming a subject at all: MET Frost pins sources, elements
+            # and referencetime together because none of them alone identifies
+            # anything, and demanding a subject_scheme for that combination
+            # would mean inventing a vocabulary for "a query".
+            if "subject" in placeholders and not capability.get("subject_scheme"):
+                raise ValueError(
+                    "a subject_template needs a subject_scheme saying what a subject is; "
+                    "an unnamed identifier cannot be validated or joined"
+                )
         if capability.get("verified_at") and not capability.get("verified_sample_count"):
             raise ValueError(
                 "verified_at requires verified_sample_count; a capability is "
