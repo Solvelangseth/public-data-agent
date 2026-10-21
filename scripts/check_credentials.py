@@ -50,11 +50,11 @@ def _get(url: str, headers: dict[str, str]) -> tuple[int, object | None, str]:
     request = urllib.request.Request(url, headers={"User-Agent": USER_AGENT, **headers})
     try:
         with urllib.request.urlopen(request, timeout=40) as response:
-            raw = response.read(2_000_000)
+            raw = response.read(40_000_000)
             try:
                 return response.status, json.loads(raw), ""
             except ValueError:
-                return response.status, None, f"{len(raw)} bytes, not JSON at this read size"
+                return response.status, None, f"{len(raw)} bytes, not JSON"
     except urllib.error.HTTPError as error:
         body = error.read(300).decode("utf-8", "replace")
         try:

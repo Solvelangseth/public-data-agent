@@ -16,9 +16,8 @@ sections 6 and 7 are what to do about them: Kartverket's restricted geodata
 (6,350 datasets, none ever fetched) and the Matrikkel/Grunnbok APIs (a
 registered business only). Section 8 is the rule they both taught.
 
-**Open actions, shortest first.** Generate a new NVE HydAPI key — the stored
-one is refused (section 3). Then everything else here is either working or
-waiting on someone else. BarentsWatch is done: both clients work and
+**Open actions:** none that you can act on. Everything on this page is
+either working or waiting on someone else's reply. BarentsWatch is done: both clients work and
 the fish-health API is open, so section 2 is now a connector job, not an
 access problem. Datafangst never — it is a submission API and has nothing for
 a read-only registry.
@@ -196,10 +195,11 @@ history. Worth having, not what this registry is good at answering.
 
 ---
 
-## 3. MET Frost — works · NVE HydAPI — the key is rejected
+## 3. MET Frost and NVE HydAPI — both working
 
-Both credentials were added to `.env` on 2026-10-21 and both were tested the
-same day. One is ready to build against; the other needs a new key.
+Both credentials were added to `.env` on 2026-10-21, both were tested the
+same day, and both work. HydAPI needed one fix, recorded below because the
+symptom pointed everywhere except the cause.
 
 ### MET Frost · working
 
@@ -232,39 +232,51 @@ and element and period, and that is exactly the shape the retrieval stack is
 tuned for. Docs: <https://frost.met.no/howto.html> ·
 <https://frost.met.no/api.html>
 
-### NVE HydAPI · key rejected
+### NVE HydAPI · working · the key was missing its base64 padding
 
-`NVE_HYDAPI_API_KEY` is present, 22 characters, beginning with `/`. Every
-endpoint answers **HTTP 401** with it, and an identical 401 with no key at
-all, so the server is simply not accepting the value.
+`NVE_HYDAPI_API_KEY` returned HTTP 401 on every endpoint when it arrived. The
+cause was not the header, the account or the key being wrong — it was two
+characters short.
 
-The header is not the problem. NVE's own documentation gives `X-API-Key`, and
-`X-API-Key`, lowercase `x-api-key`, `Ocp-Apim-Subscription-Key`, `ApiKey`,
-`Authorization: Bearer`, and `?apiKey` / `?api_key` / `?key` as a query
-parameter all return 401 against `/api/v1/Parameters`. The key itself is being
-refused.
+The stored value was 22 characters, base64 alphabet throughout, no quotes and
+no surrounding whitespace, and `len % 4 == 2`. Base64 encodes 16 bytes as 24
+characters ending in `==`, so the padding had been dropped somewhere between
+NVE's page and the file. Appending `==` returns HTTP 200 immediately:
 
-**Most likely a truncated copy.** 22 characters starting with `/` looks like
-base64 cut short — a 16-byte key encodes to 24 characters ending in `==`. That
-is an inference from the shape, not something the server said, so treat it as
-the first thing to rule out rather than the answer.
+| candidate | result |
+|---|---|
+| as stored, 22 chars | 401 |
+| **plus `==`, 24 chars** | **200, 47 parameters** |
+| plus one `=`, 23 | 401 |
+| without the leading `/`, 21 | 401 |
+| URL-decoded | 401 |
 
-**What to do:** generate a fresh key at <https://hydapi.nve.no/Users> and copy
-it whole. It is free and tied to an email address, several keys may exist for
-one address, and older keys keep working — so a new one costs nothing and does
-not invalidate anything. NVE state that **a key cannot be retrieved after it
-is generated**, so there is no page to go back and re-read the current one
-from; if it was mis-copied, a new key is the only route.
+The leading `/` is part of the key and belongs there — base64 uses `/` as a
+digit. Worth remembering for the next key that looks malformed: `len % 4` is
+the first thing to check, and a value ending in a letter where base64 expects
+padding is the tell.
 
-Then re-test with:
+What it opens, all under `X-API-Key`, licence **declared** as
+`https://data.norge.no/nlod/en` (NLOD) so it gets copied rather than left null:
 
-    .venv/bin/python scripts/check_credentials.py --only nve
+| endpoint | result |
+|---|---|
+| `/api/v1/Parameters` | 47 measures: Vannføring m³/s, Vannstand m, Vanntemperatur °C, Magasinvolum, Ledningsevne, pH … |
+| `/api/v1/Stations?Active=1` | **4,911** active stations with `councilNumber`, `countyName`, lat/lon, masl and catchment statistics |
+| `/api/v1/Series?StationId=…` | the series a station holds, with `serieFrom` — Solbergfoss has discharge from **1964** |
+| `/api/v1/Observations?StationId=…&Parameter=…&ResolutionTime=…&ReferenceTime=…` | `{time, value, quality, correction}` under a series carrying `unit`, `method` and `parameterName` |
 
-When it works, HydAPI is worth a connector: `/Stations`, `/Series`,
-`/Parameters`, `/Observations?StationId=…&Parameter=…&ResolutionTime=…`,
-plus rating curves and percentiles. Water flow, level and temperature per
-gauging station per period — observations, not a catalogue.
-Docs: <https://hydapi.nve.no/UserDocumentation/>
+A station/parameter pair that does not exist answers **404**, not an empty
+array, so an absent series is distinguishable from an empty one without
+guessing.
+
+`councilNumber` is published on the station register — another publisher's own
+kommune key, the third after BarentsWatch and Frost. It is not on the
+observation response, so the register belongs in `records` as its own dataset,
+the same split the BarentsWatch connector already uses.
+
+Docs: <https://hydapi.nve.no/UserDocumentation/> · keys at
+<https://hydapi.nve.no/Users>
 
 ---
 
