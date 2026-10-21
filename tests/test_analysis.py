@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import json
+
 from public_data_agent.analysis import run_analysis
-from public_data_agent.analysis import RECORD_PAGE, run_record_analysis
+from public_data_agent.analysis import GEOMETRY_BUDGET, RECORD_PAGE, run_record_analysis
 
 
 
@@ -89,3 +91,44 @@ def test_record_analysis_filters_on_the_subject_and_on_attributes() -> None:
     assert any("250 records matched" in warning for warning in by_attribute.warnings)
 
     assert run_record_analysis(registry, "klass:1", filters={"level": "9"}).values == []
+
+
+class GeometryRegistryStub(RecordRegistryStub):
+    """Features whose shapes are large, which is the normal case.
+
+    One Havforskningsinstituttet advisory polygon carries 24 MB of
+    coordinates, so a page of them is a download that happens to be shaped
+    like an answer.
+    """
+
+    def __init__(self, count: int, *, coordinate_pairs: int) -> None:
+        super().__init__(count)
+        shape = {"type": "MultiPolygon", "coordinates": [[[5.0, 60.0]] * coordinate_pairs]}
+        for row in self.rows:
+            row["kind"] = "feature"
+            row["geometry_json"] = json.dumps(shape)
+
+
+def test_a_geometry_is_named_before_it_is_spent() -> None:
+    registry = GeometryRegistryStub(3, coordinate_pairs=10)
+    result = run_record_analysis(registry, "hi:x", kind="feature")
+    assert [row["geometry_type"] for row in result.values] == ["MultiPolygon"] * 3
+    assert all("geometry" not in row for row in result.values)
+    assert any("include_geometry=true" in warning for warning in result.warnings)
+
+
+def test_whole_shapes_are_returned_until_the_budget_is_spent() -> None:
+    """A geometry is complete or absent, never truncated.
+
+    Half a polygon is a different place, so the budget drops whole shapes and
+    says how many it dropped rather than cutting any of them short.
+    """
+
+    registry = GeometryRegistryStub(40, coordinate_pairs=2000)
+    result = run_record_analysis(registry, "hi:x", kind="feature", include_geometry=True)
+    included = [row for row in result.values if "geometry" in row]
+    assert 0 < len(included) < 40
+    assert all(len(row["geometry"]["coordinates"][0]) == 2000 for row in included)
+    spent = sum(len(json.dumps(row["geometry"])) for row in included)
+    assert spent <= GEOMETRY_BUDGET
+    assert any("left out to stay under" in warning for warning in result.warnings)

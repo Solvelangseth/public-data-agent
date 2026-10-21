@@ -95,6 +95,14 @@ TOTAL_LABELS = frozenset({"i alt", "alle", "total", "totalt", "begge kjønn", "a
 # answer, it is a file.
 RECORD_PAGE = 200
 
+# How much geometry one call may hand back. A single Havforskningsinstituttet
+# advisory polygon carries 24 MB of coordinates, so `include_geometry` without
+# a bound is a download that happens to be shaped like an answer. Whole shapes
+# are included until the budget is spent and the rest are left out and
+# counted: a geometry is complete or absent, never truncated, because half a
+# polygon is a different place.
+GEOMETRY_BUDGET = 200_000
+
 
 def run_record_analysis(
     registry: Registry,
@@ -106,6 +114,7 @@ def run_record_analysis(
     sort_by: str | None = None,
     descending: bool = False,
     limit: int = RECORD_PAGE,
+    include_geometry: bool = False,
 ) -> ToolResult:
     """Filter/select stored records; never fetches or invents missing values.
 
@@ -116,6 +125,13 @@ def run_record_analysis(
 
     Records are not blended with observations. A dataset holds one shape or the
     other, and a caller that gets rows back is told which store they came from.
+
+    A feature's geometry is named but not spent by default. One Havforsknings-
+    instituttet contour carries four thousand characters of coordinates, and a
+    page of them is a download rather than an answer; `geometry_type` is the
+    publisher's own word for what is stored and `include_geometry` hands over
+    the shape itself. Nothing is derived from it -- no centroid, no bounding
+    box -- because a point computed from a polygon is a value no one published.
     """
 
     dataset = registry.get_dataset(dataset_id)
@@ -124,8 +140,11 @@ def run_record_analysis(
     filters = filters or {}
     rows: list[dict[str, Any]] = []
     total = 0
+    spent = 0
+    oversized = 0
     for row in registry.list_records(dataset_id, kind=kind):
         attributes = _decode(row.get("attributes_json")) or {}
+        geometry = _decode(row.get("geometry_json"))
         item = {
             "record_id": row["id"],
             "dataset_id": dataset_id,
@@ -138,7 +157,15 @@ def run_record_analysis(
             "measure": row.get("measure"),
             "value": _decode(row.get("value_json")),
             "attributes": attributes,
+            "geometry_type": (geometry or {}).get("type") if isinstance(geometry, dict) else None,
         }
+        if include_geometry and geometry is not None:
+            size = len(json.dumps(geometry, ensure_ascii=False))
+            if spent + size <= GEOMETRY_BUDGET:
+                item["geometry"] = geometry
+                spent += size
+            else:
+                oversized += 1
         if any(
             not _matches(item.get(key, attributes.get(key)), value)
             for key, value in filters.items()
@@ -167,6 +194,20 @@ def run_record_analysis(
             )
         ],
     )
+    if include_geometry and oversized:
+        result_warning = (
+            f"{oversized} of these rows carry a geometry left out to stay under the "
+            f"{GEOMETRY_BUDGET:,}-character budget; narrow with filters to see them. "
+            f"The shapes included are whole, never cut short."
+        )
+    elif not include_geometry:
+        withheld = sum(1 for row in rows if row.get("geometry_type"))
+        result_warning = (
+            f"{withheld} of these rows carry a geometry that is not included; "
+            f"ask with include_geometry=true for the shapes themselves."
+        ) if withheld else None
+    else:
+        result_warning = None
     if total > len(rows):
         # Said plainly, because a truncated list that looks complete is how a
         # caller comes to report "Norway has 200 municipalities".
@@ -174,6 +215,8 @@ def run_record_analysis(
             f"{total} records matched and {len(rows)} are returned; narrow with "
             f"filters or raise the limit before counting these."
         ]
+    if result_warning:
+        result.warnings = list(result.warnings or []) + [result_warning]
     return result
 
 

@@ -535,6 +535,7 @@ def tool_run_analysis(
     aggregate: str | None = None,
     sort_by: str | None = None,
     descending: bool = False,
+    include_geometry: bool = False,
 ) -> dict[str, Any]:
     """Filter/select stored observations without fetching or deriving values."""
     registry = _open_registry(db)
@@ -557,6 +558,7 @@ def tool_run_analysis(
                     columns=columns,
                     sort_by=sort_by,
                     descending=descending,
+                    include_geometry=include_geometry,
                 )
                 payload = {
                     "tool": "run_analysis",
