@@ -44,6 +44,8 @@ ENTUR_ID_FIELDS = ("vehicle_type_id", "station_id", "bike_id", "region_id")
 
 # Udir's curriculum vocabularies print `kode` as the member's whole identity.
 GREP_ID_FIELDS = ("kode", "id", "uri")
+# Udir prints the human title under `tittel`, in language variants.
+GREP_LABEL_FIELDS = ("tittel",)
 
 # The registers and vocabularies in the tail, each addressed by what its
 # publisher prints as the handle. Named rather than guessed per response,

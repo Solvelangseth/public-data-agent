@@ -193,19 +193,20 @@ def test_fetch_gets_printed_aarstrinn(tmp_path: Path) -> None:
     assert result.table_id == "aarstrinn"
     assert result.http_status == 200
     assert result.counts.listed == 2
-    # A curriculum code is a code. Udir prints its title in a nested object
-    # the connector does not copy, so the record claims no label rather than
-    # inventing one.
+    # A curriculum code is a code, and Udir does print what it stands for --
+    # under `tittel`, as a list of language variants, which `_is_scalar`
+    # dropped. The record carries the publisher's own title now.
     assert registry.observation_count() == 0
     rows = registry.list_records(DATASET_ID, kind="entity")
     by_code = {row["subject_code"]: row for row in rows}
     assert set(by_code) == {"aarstrinn1", "aarstrinn2"}
-    assert all(row["subject_label"] is None for row in rows)
+    assert by_code["aarstrinn1"]["subject_label"] == "Første årstrinn"
     assert all(row["subject_scheme"] == "grep:aarstrinn" for row in rows)
     assert all(row["measure"] is None and row["value_json"] is None for row in rows)
     attributes = json.loads(by_code["aarstrinn1"]["attributes_json"])
     assert attributes["id"] == "uuid:1"
     assert attributes["status"] == "publisert"
+    # The title became the label, so it is not repeated as an attribute.
     assert "tittel" not in attributes
     assert "nested" not in attributes
     assert all(row["publisher_name"] is None for row in rows)
@@ -219,7 +220,7 @@ def test_cells_copy_printed_kode_or_id() -> None:
     assert cells[0][0] == "kode"
     assert cells[0][1] == "aarstrinn1"
     assert cells[0][2]["id"] == "uuid:1"
-    assert "tittel" not in cells[0][2]
+    assert cells[0][2]["tittel"] == "Første årstrinn"
     assert cells_from_grep({"id": "uuid:9", "uri": "http://psi.udir.no/kl06/x"}) == [
         ("id", "uuid:9", {"uri": "http://psi.udir.no/kl06/x"})
     ]
@@ -249,3 +250,26 @@ def test_limit_and_offset_slice_printed_paths() -> None:
     nxt = source.list_dataset_refs(limit=1, offset=1)
     assert [ref.source_native_id for ref in nxt] == ["dokumenttype"]
     assert source.list_dataset_refs(limit=1, offset=2) == []
+
+
+def test_the_default_language_variant_is_the_one_copied() -> None:
+    """Udir marks one variant `default`; the others are alternatives.
+
+    Nothing is composed or translated, and a variant that is not a non-empty
+    string is not a title.
+    """
+
+    from public_data_agent.sources.grep import _printed_title
+
+    assert _printed_title([
+        {"spraak": "nno", "verdi": "Fyrste årssteget"},
+        {"spraak": "default", "verdi": "Første årstrinn"},
+    ]) == "Første årstrinn"
+    # No default: bokmål, then nynorsk.
+    assert _printed_title([
+        {"spraak": "nno", "verdi": "Fyrste årssteget"},
+        {"spraak": "nob", "verdi": "Første årstrinn"},
+    ]) == "Første årstrinn"
+    assert _printed_title([{"spraak": "default", "verdi": "   "}]) is None
+    assert _printed_title("Første årstrinn") is None
+    assert _printed_title(None) is None

@@ -31,6 +31,7 @@ from public_data_agent.entity_records import (
     ENVREPORT_ID_FIELDS,
     FEATURE_ID_FIELDS,
     GREP_ID_FIELDS,
+    GREP_LABEL_FIELDS,
     records_from_cells,
 )
 from public_data_agent.geonorge_rest import (
@@ -13052,6 +13053,7 @@ def _fetch_grep(
             dataset_id=dataset["id"],
             table_id=table_id,
             id_fields=GREP_ID_FIELDS,
+            label_fields=GREP_LABEL_FIELDS,
             prefix="grep",
         )
         counts.listed = len(records)

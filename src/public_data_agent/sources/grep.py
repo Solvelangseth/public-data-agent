@@ -308,7 +308,36 @@ def _cells_from_record(item: dict[str, Any]) -> list[tuple[str, Any, dict[str, s
     if measure is None:
         measure, value = next(iter(scalars.items()))
     dims = {key: _as_dim(other) for key, other in scalars.items() if key != measure}
+    # Udir prints the human title as a list of language variants, so
+    # `_is_scalar` drops it and every curriculum record carried a code and no
+    # name. The publisher's own `default` variant is copied where there is one.
+    title = _printed_title(item.get("tittel"))
+    if title is not None:
+        dims["tittel"] = title
     return [(measure, value, dims)]
+
+
+def _printed_title(printed: Any) -> str | None:
+    """The title Udir publishes, in the variant it marks as its default.
+
+    `[{"spraak": "default", "verdi": "Første årstrinn"}, ...]`. Bokmål and
+    nynorsk are taken only if there is no default; nothing is composed or
+    translated, and a title that is not a non-empty string is not a title.
+    """
+
+    if not isinstance(printed, list):
+        return None
+    variants: dict[str, str] = {}
+    for entry in printed:
+        if not isinstance(entry, dict):
+            continue
+        language, text = entry.get("spraak"), entry.get("verdi")
+        if isinstance(language, str) and isinstance(text, str) and text.strip():
+            variants.setdefault(language, text)
+    for language in ("default", "nob", "nno", "no"):
+        if language in variants:
+            return variants[language]
+    return next(iter(variants.values()), None)
 
 
 def _is_scalar(value: Any) -> bool:
