@@ -16,6 +16,10 @@ word, and they need different answers from the registry:
               limit; this needs a narrower selection, not a label
   unchanged   anything else, left alone rather than guessed at
 
+A resource with no capability row is included: that is 11,564 of 17,505
+datasets, and selecting only rows already in `resource_capability` hid every
+one of them from the tool meant to probe them.
+
 Nothing is written for the last two. A probe that did not get a clear answer
 must not leave one behind.
 """
@@ -89,13 +93,19 @@ def main() -> int:
     args = parser.parse_args()
 
     registry = Registry(Path(args.db))
+    # A dataset with no capability row at all is the common case, not the edge
+    # one: 11,564 of 17,505 have never been probed, and selecting only rows
+    # already in `resource_capability` made every one of them invisible to the
+    # tool built to probe them.
     rows = registry.conn.execute(
-        "SELECT dataset_id FROM resource_capability WHERE verified_at IS NULL "
-        "AND dataset_id LIKE ? ORDER BY dataset_id",
+        "SELECT d.id AS dataset_id FROM datasets d "
+        "LEFT JOIN resource_capability rc ON rc.dataset_id = d.id "
+        "WHERE d.id LIKE ? AND (rc.dataset_id IS NULL OR rc.verified_at IS NULL) "
+        "ORDER BY d.id",
         (f"{args.source}:%",),
     ).fetchall()
     if not rows:
-        print(f"no unverified {args.source} capability rows")
+        print(f"nothing left to probe for {args.source}")
         return 0
 
     verdicts: dict[str, str] = {}
@@ -130,16 +140,19 @@ def main() -> int:
         if capability is None:
             continue
         existing = registry.get_capability(dataset_id)
-        if existing is None or existing["verified_at"]:
+        if existing is not None and existing["verified_at"]:
             continue
-        merged = {key: existing[key] for key in existing.keys() if key != "dataset_id"}
         note = f"{verdict} {utc_now()[:10]}: {REASON[verdict]}"
-        merged.update(
-            {
-                "capability": capability,
-                "notes": f"{existing['notes']}; {note}" if existing["notes"] else note,
-            }
-        )
+        if existing is None:
+            # First verdict this resource has ever had. The endpoint is the
+            # access path the probe actually used, so the row records what was
+            # asked rather than what might be asked.
+            dataset = registry.get_dataset(dataset_id) or {}
+            merged = {"endpoint": dataset.get("access_path"), "notes": note}
+        else:
+            merged = {key: existing[key] for key in existing.keys() if key != "dataset_id"}
+            merged["notes"] = f"{existing['notes']}; {note}" if existing["notes"] else note
+        merged["capability"] = capability
         registry.set_capability(dataset_id, merged)
         written += 1
     registry.conn.commit()

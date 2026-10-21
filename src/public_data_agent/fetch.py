@@ -4895,6 +4895,9 @@ def _fetch_sodir(
         got = client.get_json_response(access_path)
         http_status = got.status
         registry.set_fetch_request(run_id, request_url=access_path, request_body={"method": "GET"})
+        _refuse_service_catalogue(
+            got.body, dataset_id=dataset["id"], url=access_path, what="layer"
+        )
         cells = cells_from_sodir(got.body)
         counts.listed = len(cells)
         sample = _store_cells(
@@ -16860,6 +16863,23 @@ def _refuse_service_catalogue(
                 f"table of contents, not data. Each {what} has to be requested in its "
                 f"own right; nothing was stored."
             )
+    # One level below a MapServer root: a single layer's descriptor. `fields`
+    # with no `features` is the service listing its own columns -- OBJECTID,
+    # alias, domain, editable, nullable -- which a probe stored as 840 rows
+    # across 39 Sokkeldirektoratet layers and recorded as verified entities.
+    # A query response carries `fields` and `features` together, so requiring
+    # the absence of `features` leaves real data alone.
+    if (
+        isinstance(payload.get("fields"), list)
+        and payload["fields"]
+        and "features" not in payload
+        and {"capabilities", "drawingInfo", "geometryType", "type"} & set(payload)
+    ):
+        raise ServiceCatalogue(
+            f"{dataset_id}: {url} printed one layer's field definitions -- its own "
+            f"columns, not rows. The data is at <layer>/query?where=1=1&outFields=*; "
+            f"nothing was stored."
+        )
     if "features" not in payload and _COLLECTION_DESCRIPTION_KEYS & set(payload):
         raise ServiceCatalogue(
             f"{dataset_id}: {url} printed what the collection holds -- its item type, "

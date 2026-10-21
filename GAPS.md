@@ -2043,3 +2043,48 @@ Two readers were examined and deliberately left alone:
 
 So the sweep is complete rather than exhausted, and the two it did not change
 are recorded with the reason.
+
+## The probe could not see the datasets it was built for (2026-10-21)
+
+`probe_unverified.py` selected from `resource_capability WHERE verified_at IS
+NULL`. A dataset with **no capability row at all** was therefore invisible to
+it — and that is 11,564 of 17,505 datasets, including every one of the twelve
+sources that have never been probed. The tool meant to find out what a
+resource does could not reach the resources nothing was known about.
+
+Fixed with a left join, and the write path now creates a row where there was
+none, recording the access path the probe actually used.
+
+### And the first source it reached produced the bug this session removed
+
+Sokkeldirektoratet, 39 datasets, all previously invisible. The probe fetched
+every one successfully and `record_evidence` — correctly, by its own rules —
+recorded 39 verified `entities` capabilities over **840 stored rows**. The
+rows were these:
+
+    name = "OBJECTID"          {"alias": "OBJECTID", "domain": "", "editable": "False", …}
+    name = "afxNpdidAfexArea"  {"alias": "NPDID Afex Area", "nullable": "True", …}
+
+Column definitions. `factmaps.sodir.no/.../FeatureServer/3200?f=json` answers
+with one layer's descriptor — `type: "Feature Layer"`, `fields`,
+`capabilities`, `drawingInfo`, no `features` — which is the service listing
+its own columns, one level below the MapServer root that was already refused
+this morning.
+
+So a visibility fix, applied to a source nobody had looked at, immediately
+recreated metadata-as-observations: 840 rows and 39 verifications in one
+command. Reverted, backed up, and the refusal extended to layer descriptors. A
+query response carries `fields` and `features` together, so requiring the
+absence of `features` leaves real data alone — pinned by a test that passes a
+descriptor and the same descriptor with one row beside it.
+
+sodir now reads `catalogue` on all 39, which is true: the URL is reachable and
+it is the wrong door. The data is at `<layer>/query?where=1=1&outFields=*`,
+which no connector asks for yet.
+
+**The lesson for the remaining eleven sources**: nvemap 63, ssbver 39,
+nbcodelist 37, hoydegis 35, mdirwms 30, riksantikvaren 29, ngu 28, npitema 27,
+npiintern 24, nbprov 24, nbdsd 24. Several are WMS or ArcGIS by name. Probing
+them without reading what the first few actually return would manufacture
+thousands of rows of service metadata and verify every one of them. Probe one
+source, read the rows, then decide — not the other way round.

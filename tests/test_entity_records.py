@@ -175,3 +175,32 @@ def test_a_number_under_an_identifier_is_not_a_measurement() -> None:
     assert not cells_are_labels(
         [("cristin_funding_id", "1", {}), ("Styringsrente", "4.25", {})]
     )
+
+
+def test_a_layer_descriptor_is_refused_like_the_root_above_it() -> None:
+    """One level below a MapServer root, and the same thing in substance.
+
+    A probe reached 39 Sokkeldirektoratet layers, each answering with its own
+    column definitions -- OBJECTID, alias, domain, editable, nullable -- and
+    stored 840 of them as observations, verified as entities. A query response
+    carries `fields` and `features` together, so requiring the absence of
+    `features` leaves real data alone.
+    """
+
+    import pytest
+
+    from public_data_agent.fetch import ServiceCatalogue, _refuse_service_catalogue
+
+    descriptor = {
+        "name": "afex_area",
+        "type": "Feature Layer",
+        "geometryType": "esriGeometryPolygon",
+        "capabilities": "Query",
+        "fields": [{"name": "OBJECTID", "type": "esriFieldTypeOID", "alias": "OBJECTID"}],
+    }
+    with pytest.raises(ServiceCatalogue, match="field definitions"):
+        _refuse_service_catalogue(descriptor, dataset_id="sodir:afex_area", url="https://x")
+
+    # The same fields, with rows beside them, is data.
+    answered = dict(descriptor, features=[{"attributes": {"OBJECTID": 1}}])
+    _refuse_service_catalogue(answered, dataset_id="sodir:afex_area", url="https://x")
