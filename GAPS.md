@@ -1698,3 +1698,41 @@ next is the one that does not trade anything -- fuse into a list longer than
 the output depth and trim once, after the reranker has seen it -- because the
 answers here were ranked 41 and 42 by a lane whose last fifteen places are
 being discarded before anything downstream can read them.
+
+## Showing the reranker more candidates, and what actually moved (2026-10-21)
+
+The investigation started from `regnskapstall aksjeselskap`, whose answers sit
+at semantic rank 41 and 42 and are lost by the fusion arithmetic above. It
+ended in a change that helps three other questions and not that one. Both
+halves of that are worth recording.
+
+The grid, tuned and coverage, with the reranker and rewriting on:
+
+| working list | reranker sees | tuned recall@5 / MRR | coverage |
+|---|---|---|---|
+| 50 | 20 | 0.898 / 0.761 | 1.000 / 0.652 |
+| 100 | 20 | 0.898 / 0.761 | 1.000 / 0.652 |
+| 100 | 50 | 0.918 / 0.762 | 1.000 / 0.652 |
+| **50** | **50** | **0.929 / 0.764** | **1.000 / 0.652** |
+
+Three questions gained, none lost: `avfall og gjenvinning` from rank 7,
+`hvilken bydel i Oslo har flest innbyggere` from 12, and `hva er
+arbeidsledigheten i Norge nå` from 6, all into the top five. Coverage does not
+move at all, which is what the rewrite-take experiment failed.
+
+And the mechanism is not the one the investigation predicted. **Positions 6, 7
+and 12 were already inside the old depth of 20.** The reranker could always
+see those candidates; what changed is that with fifty titles in front of it,
+it chooses differently among the ones it could already see. More context, not
+more reach.
+
+`regnskapstall aksjeselskap` is still not in depth in the winning
+configuration, because without the longer working list its answers are still
+cut by the fusion before the reranker is called. The one configuration that
+retrieves them -- 100/50 -- places them at 41 and costs a question elsewhere,
+8 misses against 7. So the question that motivated all of this remains open,
+and the fusion arithmetic remains the thing that would fix it.
+
+The honest summary: a correct diagnosis of one question produced a measurable
+improvement on three others, and the parameter it predicted would matter is
+the one that measured worse.
