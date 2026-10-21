@@ -107,3 +107,54 @@ def test_no_capability_row_is_unverified_without_saying_why() -> None:
         )
     finally:
         registry.close()
+
+
+def test_no_observations_dataset_stores_only_labels() -> None:
+    """The whole of P1, in one assertion.
+
+    11,374 stored cells held a label rather than a measurement, and every one
+    of them sat in a dataset the registry called an observation source: a
+    Cristin institution's name, an Entur scooter model, 7,127 occupation
+    titles. They are records now. This is what stops the next connector
+    quietly refilling the table, because nothing else would notice -- a count
+    over `observations` reads the same either way.
+
+    Two datasets hold a minority of label cells and are expected to: Norges
+    Bank publishes a settlement date as an observation value, which is an SDMX
+    attribute in the wrong place. That is written up in GAPS.md and is a
+    different repair from this one, so the test is about datasets that measure
+    nothing at all.
+    """
+
+    if not REGISTRY.exists():
+        pytest.skip("no local registry.sqlite; the storage rules are unit-tested elsewhere")
+    from public_data_agent.entity_records import is_empty, is_number
+
+    registry = Registry(REGISTRY)
+    try:
+        import json as _json
+
+        rows = registry.conn.execute(
+            "SELECT o.dataset_id, o.value_json FROM observations o "
+            "JOIN resource_capability rc ON rc.dataset_id = o.dataset_id "
+            "WHERE rc.capability = 'observations'"
+        ).fetchall()
+        stored: dict[str, int] = {}
+        labelled: dict[str, int] = {}
+        for row in rows:
+            raw = row["value_json"]
+            try:
+                value = _json.loads(raw) if raw is not None else None
+            except ValueError:
+                value = raw
+            stored[row["dataset_id"]] = stored.get(row["dataset_id"], 0) + 1
+            if not is_number(value) and not is_empty(value):
+                labelled[row["dataset_id"]] = labelled.get(row["dataset_id"], 0) + 1
+        assert stored, "no observation cells at all; the query or the registry changed"
+        all_labels = sorted(d for d, n in stored.items() if labelled.get(d, 0) == n)
+        assert all_labels == [], (
+            f"{len(all_labels)} dataset(s) are called observation sources and store "
+            "no measurement: " + ", ".join(all_labels[:10])
+        )
+    finally:
+        registry.close()
