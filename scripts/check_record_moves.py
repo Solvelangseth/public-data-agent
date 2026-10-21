@@ -10,6 +10,13 @@ So the check: read each backup, convert it with today's rules, and compare
 against the records in the registry. A mismatch names the dataset and what
 differs, and is not repaired here -- re-running the move for that source is
 the repair, and it should be a decision rather than a side effect.
+
+A dataset that has been fetched again since its backup was taken is reported
+separately and not counted as a mismatch. The backup stops being the authority
+at that point: the source may have added, dropped or reordered members, and
+`basemap_land_2` did exactly that, going from one continent to seven. Calling
+that stale would invite someone to "repair" the registry back to an older
+reading of the world.
 """
 
 from __future__ import annotations
@@ -55,6 +62,7 @@ def main() -> int:
     checked = 0
     stale: dict[str, int] = {}
     missing: dict[str, int] = {}
+    refetched: dict[str, int] = {}
     for path in args.backups:
         if not Path(path).exists():
             print(f"missing backup {path}")
@@ -90,6 +98,15 @@ def main() -> int:
                 row["id"]: row
                 for row in registry.list_records(dataset_id)
             }
+            # When was this dataset last read from its source, against when the
+            # backup was taken?
+            backed_up_at = max(row["retrieved_at"] or "" for row in group)
+            stored_at = max(
+                (row["retrieved_at"] or "" for row in stored.values()), default=""
+            )
+            if stored_at > backed_up_at:
+                refetched[dataset_id] = len(expected)
+                continue
             for record in expected:
                 checked += 1
                 found = stored.get(record["id"])
@@ -104,6 +121,12 @@ def main() -> int:
     registry.close()
 
     print(f"checked {checked} moved rows")
+    if refetched:
+        total = sum(refetched.values())
+        print(
+            f"  {total} rows in {len(refetched)} dataset(s) were fetched again after "
+            "the backup; the source is the authority there, not the backup"
+        )
     for dataset_id, count in sorted(missing.items(), key=lambda kv: -kv[1]):
         print(f"  no record with the id today's rules give: {dataset_id} ({count})")
     for dataset_id, count in sorted(stale.items(), key=lambda kv: -kv[1]):
