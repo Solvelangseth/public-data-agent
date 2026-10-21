@@ -2346,3 +2346,40 @@ Fixed in the resolver rather than in each consumer, because every consumer
 would otherwise repeat it, and the printed spelling is kept beside the normal
 form -- it is the publisher's, and normalising is a reading. The 689 already
 resolved were re-normalised in place rather than re-fetched.
+
+### N8: 1,538 kommune codes were 801, and the gap was one dataset
+
+The first count of `dataset_coverage` said 1,538 distinct kommune codes
+against Norway's 357, and I filed it as "current versus historical numbering".
+Checking it found something else.
+
+**737 of the 1,538 came from one dataset.** `N50 Raster - historiske data
+2022 (UTM32)` files 737 raster tiles under `type: "kommune"`, each named after
+its own number -- code `2005`, name `2005`. A kommune has a name; a tile has a
+number. The resolver now drops an area whose name is its own code, which is
+the grid-cell exclusion met one layer further in, and the already-resolved
+rows were re-filtered in place rather than re-fetched.
+
+With those gone the split explains itself, checked against Klass 131:
+
+| | codes |
+|---|---|
+| current kommuner (Klass `codesAt` today) | **357 of 358** |
+| historical (Klass `codes` 1838–2026, not current) | 426 |
+| in neither | 18 |
+
+The 18 are not errors. The publisher names them: Svalbard, Spitsbergen,
+Bjørnøya, Hopen, Jan Mayen, `Sokkelen sør for 62 grader Nord`, `Sokkelen nord
+for 62 grader Nord`, Antarktis, Europa. Klass 131 is a classification of
+*kommuner* and these are not kommuner, so both sources are right.
+
+Also corrected: I said the registry "holds klass:131 with validity dates". It
+does not. `brkommuner` holds 365 current codes with empty attributes, and the
+Klass API returns `validFrom`/`validTo` as **null on all 966 codes** -- the
+populated fields are `validFromInRequestedRange` and `validToInRequestedRange`,
+which are relative to the dates you asked for. Any join on validity has to
+request a range and read those, not the plain fields.
+
+**Still open:** nothing marks a coverage code current or retired, so a query
+for Oslo `0301` still misses whatever is filed under the numbering it
+replaced. That needs the Klass correspondence map, not just the code lists.

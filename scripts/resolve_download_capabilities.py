@@ -147,12 +147,21 @@ def resolve(dataset_id: str, uuid: str, service_root: str, pause: float) -> dict
                     continue
                 kind = str(area.get("type") or "")
                 types[kind] += 1
-                if kind in JOINABLE_AREA_TYPES and area.get("code"):
-                    joinable.append({
-                        "type": kind,
-                        "code": str(area["code"]),
-                        "name": str(area.get("name") or ""),
-                    })
+                code = str(area.get("code") or "")
+                name = str(area.get("name") or "")
+                if kind not in JOINABLE_AREA_TYPES or not code:
+                    continue
+                # An area whose name is its own code is not a place. One
+                # dataset -- N50 Raster historiske 2022 (UTM32) -- files 737
+                # raster tiles under type "kommune", each named after its
+                # number, and they were 737 of the 1,538 distinct kommune
+                # codes in the table. A kommune has a name; a tile has a
+                # number. Same reasoning as excluding `celle`, met one layer
+                # further in.
+                if name == code:
+                    types["kommune-shaped tile"] += 1
+                    continue
+                joinable.append({"type": kind, "code": code, "name": name})
             entry["area_types"] = dict(types)
             entry["areas"] = joinable
             entry["nationwide"] = "landsdekkende" in types
