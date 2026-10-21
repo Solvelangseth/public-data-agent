@@ -1949,3 +1949,33 @@ Three mechanisms were built, measured and rejected: a longer working list, a
 damped lexical weight, and measures in the embedded text. Each is documented
 beside the code it would have changed, with the numbers, so the next person
 does not pay for them again.
+
+## Four readers described a world the rows had left (2026-10-21)
+
+Moving 11,374 rows out of `observations` and into `records` was the easy half.
+Every reader that described the old arrangement kept describing it,
+confidently, and each one had to be found separately:
+
+1. `run_analysis` reported `completed` with no rows for 17,900 records, then
+   explained it could not read them, then read them.
+2. The geometry was stored and unreadable, then readable and unbounded -- one
+   advisory polygon is 24 MB -- before being named and bounded.
+3. `tool_search`'s lane note said catalogue records "describe data that no
+   registered connector can retrieve", while 571 `lookup` datasets held entity
+   records that `run_analysis` returns.
+4. `_analysis_warnings` told the caller "call fetch for this dataset first" for
+   a dataset whose rows were already in the registry -- sending it to the
+   network for data it had. Asked of the Oslo bydel classification, it now
+   says 42 entity records are stored and not to fetch.
+
+Three of the four were found by stumbling into them while doing something
+else. The fourth was found by looking on purpose, with
+`grep -rn "list_observations\|observation_count"` over `src`, which is the
+check that should have followed the migration rather than trailing it by a
+day.
+
+The general lesson, written here because it will apply to the next schema
+move: a migration is not finished when the writes are right. Every place that
+*reports* on the old shape is part of the migration, and the ones that give
+advice -- fetch this, this cannot be retrieved, nothing is stored -- are the
+ones that cost a caller something when they are stale.

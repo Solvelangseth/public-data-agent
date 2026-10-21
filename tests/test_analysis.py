@@ -132,3 +132,44 @@ def test_whole_shapes_are_returned_until_the_budget_is_spent() -> None:
     spent = sum(len(json.dumps(row["geometry"])) for row in included)
     assert spent <= GEOMETRY_BUDGET
     assert any("left out to stay under" in warning for warning in result.warnings)
+
+
+def test_a_dataset_with_records_is_not_told_to_fetch() -> None:
+    """The advice was written for a world where records did not exist.
+
+    17,900 rows moved into `records`, and a dataset holding only those was
+    still told "call fetch for this dataset first" -- sending the caller to
+    the network for data already in the registry.
+    """
+
+    class _Registry(RecordRegistryStub):
+        def list_observations(self, dataset_id, *, series=None):
+            return []
+
+        @property
+        def conn(self):
+            raise AssertionError("stored_records should be the only query here")
+
+    class _WithRecords(_Registry):
+        def __init__(self) -> None:
+            super().__init__(3)
+
+    registry = _WithRecords()
+    # `stored_records` goes through `conn`, so this pins the message by calling
+    # the warning builder with the counts it would have read.
+    from public_data_agent.analysis import _analysis_warnings
+
+    import public_data_agent.analysis as analysis_module
+
+    original = analysis_module.stored_records
+    analysis_module.stored_records = lambda reg, ds: {"entity": 3}
+    try:
+        warnings = _analysis_warnings(
+            registry, "klass:1", [], filters={}, measure=None,
+            series=None, group_by=None, aggregate=None,
+        )
+    finally:
+        analysis_module.stored_records = original
+    assert warnings
+    assert "3 entity records are already stored" in warnings[0]
+    assert "Do not fetch" in warnings[0]

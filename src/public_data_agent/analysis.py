@@ -336,6 +336,21 @@ def _analysis_warnings(
                     f"Stored series for this dataset are {sorted(available['series_counts'])}."
                 ]
         if schema["observation_count"] == 0:
+            # A dataset can hold rows and no observations. Telling the caller
+            # to fetch one of those sends it to the network for data already
+            # in the registry -- 17,900 rows moved into `records` and this
+            # advice stayed written for the world where they had not.
+            held = stored_records(registry, dataset_id)
+            if held:
+                kinds = ", ".join(
+                    f"{n} {name} record" + ("s" if n != 1 else "")
+                    for name, n in sorted(held.items())
+                )
+                return [
+                    f"this dataset stores no observations, but {kinds} are already "
+                    "stored. Do not fetch: read them from the record store, which is "
+                    "what run_analysis returns when no observation matches."
+                ]
             # "Nothing stored" is not "no such data exists".  Saying so stopped
             # the agent after one step and reported absence it had not checked.
             return [
