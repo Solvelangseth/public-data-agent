@@ -1979,3 +1979,43 @@ move: a migration is not finished when the writes are right. Every place that
 *reports* on the old shape is part of the migration, and the ones that give
 advice -- fetch this, this cannot be retrieved, nothing is stored -- are the
 ones that cost a caller something when they are stale.
+
+## The Geonorge backlog resolves to links, not data (2026-10-21)
+
+7,425 `datanorge` datasets with no capability row point at
+`kartkatalog.geonorge.no/metadata/uuid/…`, which is 82% of the whole
+unclaimed backlog. A resolver from the UUID to the real distribution URL
+looked like the single highest-value connector left, and that was asserted
+from the count alone.
+
+The resolver exists and works: `kartkatalog.geonorge.no/api/getdata/{uuid}`
+returns `DistributionUrl`, `DistributionProtocol` and the licence under
+`Constraints`. So the question is only what the protocols are. Two
+independent samples, 55 datasets:
+
+| DistributionProtocol | n |
+|---|---|
+| `WWW:LINK-1.0-http--link` | 49 |
+| `GEONORGE:DOWNLOAD` | 3 |
+| `WWW:LINK`, `GEONORGE:OFFLINE`, `(none)` | 1 each |
+
+Nothing queryable. No `OGC:WFS`, no REST, no API in 55 draws. One of them is
+`GEONORGE:OFFLINE`, which is a distribution you request by email.
+
+So resolving the backlog would turn 7,425 metadata pages into 7,425 web links
+and about 400 bulk downloads. The right capability for a web link is
+`documents` or nothing, and a bulk zip is what this project already declines
+-- the naturvern note records choosing an ArcGIS layer over a 61 MB national
+zip for exactly that reason.
+
+**P6.1 is struck, not handed on.** What the resolver is worth is smaller and
+real: it carries the publisher's licence, and licences stay null in this
+registry when unknown. Reading 7,425 licence statements from the catalogue is
+a day of polite requests and would fill in a field that is currently empty by
+rule, which is the opposite kind of value from "7,429 new fetchable
+datasets".
+
+Worth being plain that the first claim came from a count and one example whose
+protocol was `OGC:WMS` -- the one protocol in the sample space that looks like
+a service. 55 draws cost three minutes and moved the item from the top of the
+roadmap to struck.
