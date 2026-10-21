@@ -9,9 +9,11 @@ The registry's rule is that a resource is `restricted` when a probe got HTTP
 authorisation. That is deliberately distinct from `withdrawn` (gone), `empty`
 (answers and holds nothing) and `catalogue` (the service describing itself).
 
-**Priority, if you only do one:** BarentsWatch, because you already have the
-access and the endpoint is confirmed live. NVDB second. Datafangst last — it
-is a submission API and probably worth nothing to this project.
+**Priority, if you only do one thing:** register a BarentsWatch **API-client**
+at <https://www.barentswatch.no/minside/>. The credential you already have is
+an AIS-client and its scope is refused by the fish-health API; see section 2,
+where that is tested rather than assumed. NVDB second. Datafangst never — it
+is a submission API and has nothing for a read-only registry.
 
 ---
 
@@ -81,59 +83,68 @@ network complete.
 
 ---
 
-## 2. BarentsWatch — you already have the access, and it is usable
+## 2. BarentsWatch — the credential works, and it opens AIS, not fish health
 
-I had this wrong in the previous version of this file, on two counts.
+**Tested 2026-10-21** against the credentials in
+`aqua_intelligence_plattform/.env`, now copied into this project's `.env` as
+`BARENTSWATCH_CLIENT_ID` / `BARENTSWATCH_CLIENT_SECRET`.
 
-The registry holds **one** BarentsWatch dataset and it is the wrong kind:
-`bwgis:bw_ows` → `geo.barentswatch.no/geoserver/bw/ows?…GetCapabilities`,
-which answers 200 **without any credential** and is a WMS capabilities
-document. This project refuses those (a map service returns imagery, not
-numbers) and it correctly has no capability row. So nothing in the registry
-uses a BarentsWatch credential today.
+| request | result |
+|---|---|
+| token, `scope=ais` | **HTTP 200**, expires_in 3600, scope granted `ais` |
+| token, `scope=api` | **HTTP 400 `{"error":"invalid_scope"}`** |
+| `/bwapi/v1/geodata/fishhealth/locality/2024/1` with the ais token | HTTP 401 |
+| `live.ais.barentswatch.no/v1/latest/combined` | **HTTP 200**, a JSON array of positions |
+| `historic.ais.barentswatch.no/v1/historic/trackslast24hours/257111020` | **HTTP 200**, a JSON array of track points |
 
-But the authenticated API is real and I confirmed it this session. I had
-previously tested `www.barentswatch.no/api/v1/…` and got 404 and concluded
-nothing. The base path is `/bwapi/`, and with it:
+So the client registered on MyPage is an **AIS-client**. BarentsWatch issues
+one scope per client, `ais` or `api`, and the two are not interchangeable:
 
-    GET https://www.barentswatch.no/bwapi/v1/geodata/fishhealth/locality/2024/1
-    → HTTP 401, WWW-Authenticate: Bearer
+- **Open to us today:** live AIS and historic AIS. Position rows carrying
+  `latitude`, `longitude`, `courseOverGround` and a timestamp — real
+  observations, per vessel, and the historic side keeps 14 days.
+- **Still closed:** everything under `/bwapi/`, which is where fish health,
+  wave forecasts and the rest of the geodata sit. That needs a **second**
+  client, registered as **API-client** at <https://www.barentswatch.no/minside/>.
+  Nothing carries over; it gets its own id and secret, which belong in `.env`
+  as `BARENTSWATCH_API_CLIENT_ID` / `BARENTSWATCH_API_CLIENT_SECRET` (the
+  naming `aqua_intelligence_plattform/.env.example` already anticipates).
 
-A 401 with a Bearer challenge is the endpoint saying *you have the right door,
-show a token*. Same for the wave forecast. That is a per-locality weekly time
-series of fish health — exactly the shape this registry answers questions
-from, and the single best thing on this page.
+The token flow is the same for both, and is worth writing down once:
 
-**The whole flow, verified against the publisher's docs:**
+    curl -X POST https://id.barentswatch.no/connect/token \
+      -H "Content-Type: application/x-www-form-urlencoded" \
+      -d "grant_type=client_credentials&client_id=YOUR_ID&client_secret=YOUR_SECRET&scope=api"
 
-1. Register a client at <https://www.barentswatch.no/minside/> — create a
-   user, log in, self-register a client. Choose **API-client** (not
-   AIS-client) for fish health; the choice decides your scope. If your
-   existing access is an AIS-client you will need a second client for `api`.
-2. Exchange it for a token:
+The client id looks like `you@example.com:myclient` — it contains `@` and `:`
+and must be URL-encoded if the client library does not do it. Tokens last
+3600 seconds, so a connector has to cache and refresh. Call with
+`Authorization: Bearer <access_token>`.
 
-       curl -X POST https://id.barentswatch.no/connect/token \
-         -H "Content-Type: application/x-www-form-urlencoded" \
-         -d "grant_type=client_credentials&client_id=YOUR_ID&client_secret=YOUR_SECRET&scope=api"
-
-   Note the client id looks like `you@example.com:myclient` — it contains `@`
-   and `:` and must be URL-encoded if your client does not do it for you.
-   Tokens last 3600 seconds, so a connector has to refresh.
-3. Call with `Authorization: Bearer <access_token>`.
+**What the registry holds today** is one BarentsWatch dataset and it is the
+wrong kind: `bwgis:bw_ows` → `geo.barentswatch.no/geoserver/bw/ows?…
+GetCapabilities`, which answers 200 **without any credential** and is a WMS
+capabilities document. This project refuses those — a map service returns
+imagery, not numbers — and it correctly has no capability row. An earlier
+version of this file concluded from a 404 on `www.barentswatch.no/api/v1/…`
+that the authenticated path could not be verified. The base path is
+`/bwapi/`, not `/api/`; that was my error, not a missing endpoint.
 
 Docs: <https://developer.barentswatch.no/docs/appreg/> ·
-OpenAPI browser: <https://www.barentswatch.no/bwapi/openapi/index.html>
-(authorise there with the public `bwopenapi` client to explore without a
-secret) · Python examples including `fiskehelse_weeksummary.py`:
-<https://github.com/barentswatch/barentswatch-api-examples>
-Contact: post@barentswatch.no
+live AIS <https://developer.barentswatch.no/docs/AIS/live-ais-api/> ·
+historic AIS <https://developer.barentswatch.no/docs/AIS/historic-ais-api/> ·
+OpenAPI browser <https://www.barentswatch.no/bwapi/openapi/index.html>
+(authorise with the public `bwopenapi` client to explore without a secret) ·
+Python examples including `fiskehelse_weeksummary.py`
+<https://github.com/barentswatch/barentswatch-api-examples> ·
+post@barentswatch.no
 
-**What I need from you:** the client id and secret in `.env` as
-`BARENTSWATCH_CLIENT_ID` and `BARENTSWATCH_CLIENT_SECRET`, and whether the
-client you already made is an API-client or an AIS-client. Nothing goes into
-the registry; it is handled the way the OpenAI key is. Then the connector is a
-small job: token cache, one path template, locality rows keyed by locality
-number and week.
+**Which to build first.** AIS is open to us now, but it is a position stream
+addressed by vessel id, and this registry answers questions about places and
+periods, not about a vessel someone has already named. Fish health is weekly
+rows per locality, which is the shape the retrieval stack is tuned for. So:
+register the API-client, and build fish health first. The AIS connector is
+worth having and is not blocked on anything.
 
 ---
 
