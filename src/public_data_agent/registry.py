@@ -98,6 +98,22 @@ class Registry:
                     f"ALTER TABLE resource_capability ADD COLUMN {column} {kind}"
                 )
 
+        # What the download service says can be ordered, added after
+        # `distributions` already held rows from the catalogue resolution.
+        distribution_columns = {
+            row["name"]
+            for row in self.conn.execute("PRAGMA table_info(distributions)").fetchall()
+        }
+        for column, kind in (
+            ("download_formats_json", "TEXT"),
+            ("download_projections_json", "TEXT"),
+            ("nationwide", "INTEGER"),
+            ("required_role", "TEXT"),
+            ("grid_cell_count", "INTEGER"),
+        ):
+            if distribution_columns and column not in distribution_columns:
+                self.conn.execute(f"ALTER TABLE distributions ADD COLUMN {column} {kind}")
+
         # Positional addressing, added after resource_fields already held rows.
         # Existing rows keep position NULL: their fields are named, not ordered.
         field_columns = {
@@ -639,6 +655,87 @@ class Registry:
             ),
         )
         self.conn.commit()
+
+    def set_download_options(self, dataset_id: str, options: dict[str, Any]) -> None:
+        """What the publisher's download service says can be ordered.
+
+        Only for a dataset that already has a `distributions` row: these are
+        details of a distribution, not a distribution on their own, and
+        creating one here would record an access tier nobody resolved.
+        """
+
+        if self.conn.execute(
+            "SELECT 1 FROM distributions WHERE dataset_id = ?", (dataset_id,)
+        ).fetchone() is None:
+            raise ValueError(
+                f"{dataset_id} has no distributions row; resolve what is behind its "
+                "catalogue page before recording what can be ordered from it"
+            )
+        self.conn.execute(
+            "UPDATE distributions SET download_formats_json = ?, "
+            "download_projections_json = ?, nationwide = ?, required_role = ?, "
+            "grid_cell_count = ? WHERE dataset_id = ?",
+            (
+                json.dumps(options.get("formats") or [], ensure_ascii=False),
+                json.dumps(options.get("projections") or [], ensure_ascii=False),
+                1 if options.get("nationwide") else 0,
+                options.get("required_role"),
+                options.get("grid_cell_count"),
+                dataset_id,
+            ),
+        )
+        self.conn.commit()
+
+    def set_coverage(
+        self,
+        dataset_id: str,
+        areas: list[dict[str, str]],
+        *,
+        declared_by: str,
+        resolved_at: str,
+    ) -> int:
+        """Record the places a dataset covers. Replaces what was there.
+
+        A re-resolution that found fewer areas means the dataset now covers
+        fewer, so the old rows must go rather than accumulate -- the same
+        reason a re-fetch replaces records instead of adding to them.
+        """
+
+        self.conn.execute("DELETE FROM dataset_coverage WHERE dataset_id = ?", (dataset_id,))
+        written = 0
+        for area in areas:
+            kind = str(area.get("type") or "")
+            code = str(area.get("code") or "")
+            if kind not in ("kommune", "fylke") or not code:
+                continue
+            self.conn.execute(
+                "INSERT OR REPLACE INTO dataset_coverage "
+                "(dataset_id, area_type, area_code, area_name, declared_by, resolved_at) "
+                "VALUES (?, ?, ?, ?, ?, ?)",
+                (dataset_id, kind, code, area.get("name") or None, declared_by, resolved_at),
+            )
+            written += 1
+        self.conn.commit()
+        return written
+
+    def datasets_covering(
+        self, area_code: str, *, area_type: str = "kommune", limit: int = 50
+    ) -> list[dict[str, Any]]:
+        """Which datasets the publishers say cover one place."""
+
+        return [
+            dict(row)
+            for row in self.conn.execute(
+                "SELECT c.dataset_id, c.area_name, d.title, dist.tier, "
+                "       dist.download_formats_json, dist.access_constraint "
+                "FROM dataset_coverage c "
+                "JOIN datasets d ON d.id = c.dataset_id "
+                "LEFT JOIN distributions dist ON dist.dataset_id = c.dataset_id "
+                "WHERE c.area_type = ? AND c.area_code = ? "
+                "ORDER BY d.title LIMIT ?",
+                (area_type, area_code, limit),
+            )
+        ]
 
     def get_distribution(self, dataset_id: str) -> dict[str, Any] | None:
         row = self.conn.execute(

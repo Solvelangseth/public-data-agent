@@ -569,3 +569,34 @@ CREATE TABLE IF NOT EXISTS distributions (
 
 CREATE INDEX IF NOT EXISTS idx_distributions_tier ON distributions(tier);
 CREATE INDEX IF NOT EXISTS idx_distributions_access ON distributions(access_constraint);
+
+
+-- Which places a dataset covers, as the publisher states it.
+--
+-- The Geonorge download service publishes, per dataset, the kommuner and
+-- fylker it can be delivered for, with their codes: `FKB-Lufthavn` lists 101
+-- kommuner, `Matrikkelen Adresse` lists 423 kommuner and 19 fylker. Nothing
+-- in this registry could answer "which datasets cover Alstahaug" before, and
+-- the catalogue these rows were harvested from cannot answer it either.
+--
+-- This is the fourth publisher-declared kommune key here, after BarentsWatch
+-- `municipalityNo`, Frost `municipalityId` and HydAPI `councilNumber` -- and
+-- the first that is *coverage* rather than a single location.
+--
+-- Grid cells are deliberately absent. A raster dataset offers up to 1,335
+-- areas of type `celle`, named `0001`..`1335`, which join to nothing and
+-- would be most of the rows in here. Their count is kept on `distributions`
+-- instead. `landsdekkende` is likewise not a row: it is a flag, because "the
+-- whole country" is not a place to join on.
+CREATE TABLE IF NOT EXISTS dataset_coverage (
+    dataset_id TEXT NOT NULL,
+    area_type TEXT NOT NULL,                   -- kommune | fylke
+    area_code TEXT NOT NULL,                   -- the publisher's own code
+    area_name TEXT,
+    declared_by TEXT NOT NULL,                 -- the API that said so
+    resolved_at TEXT NOT NULL,
+    PRIMARY KEY (dataset_id, area_type, area_code),
+    FOREIGN KEY (dataset_id) REFERENCES datasets(id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_coverage_area ON dataset_coverage(area_type, area_code);

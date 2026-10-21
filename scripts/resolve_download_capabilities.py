@@ -1,0 +1,212 @@
+"""Ask the Geonorge download service what each dataset offers, download nothing.
+
+608 of the 704 bulk-download rows share one `best_url`: the download service's
+own root. The per-dataset address is `api/capabilities/{metadataUuid}`, and the
+uuid is already in the registry -- so 608 rows that looked like one service are
+608 individually addressable resources.
+
+What that endpoint and its codelists publish, without transferring a single
+data file:
+
+    format        GML, SOSI, FGDB, PostGIS, **CSV**
+    projection    EPSG codes the dataset can be delivered in
+    area          the kommuner and fylker it covers, with their codes
+
+The third is the find. `FKB-Lufthavn` lists 101 kommuner by number;
+`Matrikkelen Adresse` lists 423 kommuner and 19 fylker and offers CSV.
+Nothing in this registry could previously answer "which datasets cover
+Alstahaug", and the catalogue these rows were harvested from cannot either.
+It is also a fourth publisher-declared kommune key, and the first that is
+*coverage* rather than a single location.
+
+Grid-cell areas are counted, not listed. A raster dataset can offer 1,335
+cells named `0001`..`1335`, which join to nothing and would be most of the
+rows written.
+
+Writes JSON lines; `apply_download_capabilities.py` is what touches the
+registry. Nothing here downloads a data file, which also matters because the
+machine this runs on has under a gigabyte free.
+
+    scripts/resolve_download_capabilities.py --limit 30
+    scripts/resolve_download_capabilities.py
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import sqlite3
+import time
+import urllib.error
+import urllib.request
+from collections import Counter
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any
+
+USER_AGENT = "public-data-agent (https://github.com/Solvelangseth/public-data-agent)"
+DEFAULT_OUT = Path("discovery/download_capabilities.jsonl")
+
+# Area types that join to something. A `celle` is a tile in a raster grid and
+# joins to nothing; `landsdekkende` means the whole country, which is a fact
+# worth keeping but not a list of places.
+JOINABLE_AREA_TYPES = frozenset({"kommune", "fylke"})
+
+REL_PREFIX = "http://rel.geonorge.no/download/"
+
+
+def _get(url: str, cap: int = 4_000_000) -> tuple[int, Any]:
+    request = urllib.request.Request(
+        url, headers={"User-Agent": USER_AGENT, "Accept": "application/json"}
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=40) as response:
+            raw = response.read(cap)
+            try:
+                return response.status, json.loads(raw)
+            except ValueError:
+                return response.status, None
+    except urllib.error.HTTPError as error:
+        return error.code, None
+    except Exception:
+        return 0, None
+
+
+def _codelist(links: list[dict[str, Any]], name: str) -> str | None:
+    for link in links:
+        if isinstance(link, dict) and link.get("rel") == REL_PREFIX + name:
+            href = link.get("href")
+            if isinstance(href, str) and href.startswith("http"):
+                return href
+    return None
+
+
+def resolve(dataset_id: str, uuid: str, service_root: str, pause: float) -> dict[str, Any]:
+    status, capabilities = _get(f"{service_root.rstrip('/')}/{uuid}")
+    if not isinstance(capabilities, dict):
+        return {"dataset_id": dataset_id, "uuid": uuid, "error": f"capabilities HTTP {status}"}
+
+    links = capabilities.get("_links")
+    links = links if isinstance(links, list) else []
+    entry: dict[str, Any] = {
+        "dataset_id": dataset_id,
+        "uuid": uuid,
+        "service_root": service_root,
+        "supports_area_selection": bool(capabilities.get("supportsAreaSelection")),
+        "supports_format_selection": bool(capabilities.get("supportsFormatSelection")),
+        "supports_projection_selection": bool(capabilities.get("supportsProjectionSelection")),
+        # The publisher's own statement that a role is required. It is how the
+        # Norge digitalt gate shows up in the download API, and it agrees with
+        # what ACCESS.md recorded from the licence side.
+        "access_constraint_required_role": capabilities.get("accessConstraintRequiredRole"),
+        "distributed_by": capabilities.get("distributedBy"),
+    }
+
+    formats_url = _codelist(links, "format")
+    if formats_url:
+        time.sleep(pause)
+        _status, formats = _get(formats_url)
+        if isinstance(formats, list):
+            entry["formats"] = sorted({
+                str(f.get("name")) for f in formats
+                if isinstance(f, dict) and f.get("name")
+            })
+
+    projection_url = _codelist(links, "projection")
+    if projection_url:
+        time.sleep(pause)
+        _status, projections = _get(projection_url)
+        if isinstance(projections, list):
+            entry["projections"] = sorted({
+                str(p.get("code")) for p in projections
+                if isinstance(p, dict) and p.get("code")
+            })
+
+    area_url = _codelist(links, "area")
+    if area_url:
+        time.sleep(pause)
+        _status, areas = _get(area_url)
+        if isinstance(areas, list):
+            types: Counter[str] = Counter()
+            joinable: list[dict[str, str]] = []
+            for area in areas:
+                if not isinstance(area, dict):
+                    continue
+                kind = str(area.get("type") or "")
+                types[kind] += 1
+                if kind in JOINABLE_AREA_TYPES and area.get("code"):
+                    joinable.append({
+                        "type": kind,
+                        "code": str(area["code"]),
+                        "name": str(area.get("name") or ""),
+                    })
+            entry["area_types"] = dict(types)
+            entry["areas"] = joinable
+            entry["nationwide"] = "landsdekkende" in types
+    return entry
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--db", default="data/registry.sqlite")
+    parser.add_argument("--out", default=str(DEFAULT_OUT))
+    parser.add_argument("--limit", type=int)
+    parser.add_argument("--pause", type=float, default=0.3)
+    args = parser.parse_args()
+
+    out_path = Path(args.out)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    done: set[str] = set()
+    if out_path.exists():
+        for line in out_path.read_text(encoding="utf-8").splitlines():
+            try:
+                done.add(json.loads(line)["dataset_id"])
+            except Exception:
+                continue
+
+    conn = sqlite3.connect(f"file:{Path(args.db)}?mode=ro", uri=True)
+    conn.row_factory = sqlite3.Row
+    pending = [
+        (row["dataset_id"], row["access_path"].rstrip("/").split("/")[-1], row["best_url"])
+        for row in conn.execute(
+            "SELECT dist.dataset_id, dist.best_url, d.access_path "
+            "FROM distributions dist JOIN datasets d ON d.id = dist.dataset_id "
+            "WHERE dist.best_url LIKE '%/api/capabilities/' "
+            "  AND d.access_path LIKE '%/metadata/uuid/%' "
+            "ORDER BY dist.dataset_id"
+        )
+        if row["dataset_id"] not in done
+    ]
+    conn.close()
+    if args.limit:
+        pending = pending[: args.limit]
+    print(f"{len(done):,} done, {len(pending):,} to go")
+
+    stats: Counter[str] = Counter()
+    with out_path.open("a", encoding="utf-8") as sink:
+        for index, (dataset_id, uuid, service_root) in enumerate(pending, start=1):
+            entry = resolve(dataset_id, uuid, service_root, args.pause)
+            sink.write(json.dumps(entry, ensure_ascii=False) + "\n")
+            sink.flush()
+            if entry.get("error"):
+                stats["error"] += 1
+            else:
+                stats["resolved"] += 1
+                stats["with_kommune"] += 1 if any(
+                    a["type"] == "kommune" for a in entry.get("areas") or []
+                ) else 0
+                stats["with_csv"] += 1 if "CSV" in (entry.get("formats") or []) else 0
+                stats["role_required"] += 1 if entry.get("access_constraint_required_role") else 0
+            if index % 50 == 0 or index == len(pending):
+                print(f"  {index:,}/{len(pending):,}  " +
+                      ", ".join(f"{k}={v}" for k, v in sorted(stats.items())), flush=True)
+            time.sleep(args.pause)
+
+    print(f"\nwrote {out_path} at {datetime.now(timezone.utc).isoformat(timespec='seconds')}")
+    for key, value in sorted(stats.items()):
+        print(f"  {key:18} {value:>6,}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
