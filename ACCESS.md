@@ -68,7 +68,16 @@ OpenAI key is handled.
 
 ---
 
-## 3. Geonorge — distributions you request by email
+## 3. Statens vegvesen `vegvesen` · 23 datasets · blocked today
+
+Found by `scripts/preflight.py --unprobed`, which samples one dataset per
+source and stores nothing. `vegvesen:datafangst-api` answers **HTTP 401**, and
+all 23 datasets in this source are on the same API.
+
+That is the same publisher as the eight NVDB types above and probably the same
+credential. Worth asking for once and applying to both.
+
+## 4. Geonorge — distributions you request by email
 
 Of 55 sampled datasets behind `kartkatalog.geonorge.no/metadata/uuid/…`, one
 came back with `DistributionProtocol: GEONORGE:OFFLINE` — a distribution
@@ -85,7 +94,7 @@ be fetched by any agent, so each one is a document to request by hand.
 
 ---
 
-## 4. Not credential problems, recorded here so they are not mistaken for one
+## 5. Not credential problems, recorded here so they are not mistaken for one
 
 - **10 NVDB types are `empty`** — they answer correctly and hold no objects.
   No credential would change that; they may hold objects next month.
@@ -110,6 +119,7 @@ be fetched by any agent, so each one is a document to request by hand.
       [print(r) for r in c.execute(\"select dataset_id, endpoint from resource_capability \
       where capability='restricted'\")]"
 
-`scripts/probe_unverified.py --source <name>` re-probes a source and records
-`restricted` from a 401 or 403 on its own, so this list keeps itself current
-as new sources are probed.
+`scripts/preflight.py --unprobed` samples one dataset per source and stores
+nothing, so it is safe to run against sources nobody has looked at. It reports
+`restricted` for a 401 or 403, which is how `vegvesen` was found. Run it before
+`probe_unverified.py`, which fetches and stores for real.

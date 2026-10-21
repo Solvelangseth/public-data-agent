@@ -204,3 +204,43 @@ def test_a_layer_descriptor_is_refused_like_the_root_above_it() -> None:
     # The same fields, with rows beside them, is data.
     answered = dict(descriptor, features=[{"attributes": {"OBJECTID": 1}}])
     _refuse_service_catalogue(answered, dataset_id="sodir:afex_area", url="https://x")
+
+
+def test_preflight_classifies_without_fetching_or_storing() -> None:
+    """The verdicts this session learned one source at a time, as shape tests.
+
+    Each of these was found by fetching a payload, printing it and reading it.
+    They are code now, which is the difference between a person per source and
+    a command for all of them.
+    """
+
+    import sys
+
+    sys.path.insert(0, "scripts")
+    from preflight import classify
+
+    def verdict(payload, url="https://example.test/x", status=200):
+        return classify(status, payload, url)[0]
+
+    assert verdict({"layers": [{"id": 0}]}) == "catalogue"
+    assert verdict({"collections": [{"id": "a"}]}) == "catalogue"
+    assert verdict({"fields": [{"name": "OBJECTID"}], "type": "Feature Layer"}) == "catalogue"
+    assert verdict({"itemType": "feature", "extent": {}}) == "catalogue"
+    assert verdict({"capabilities": "Query", "currentVersion": 11.1}) == "catalogue"
+    assert verdict({}, url="https://x?service=WMS&request=GetCapabilities") == "catalogue"
+    assert verdict({"data": {"codelists": []}, "meta": {}}) == "structure"
+    assert verdict({}, url="https://x/$metadata") == "structure"
+
+    # A change log: every published key is bookkeeping.
+    assert verdict({"features": [{"properties": {"id": "1", "lastModified": "2021"}}]}) == (
+        "bookkeeping"
+    )
+    # Real features, and a plain JSON array of members.
+    assert verdict({"features": [{"properties": {"navn": "Moldfalla", "dybde": 40}}]}) == "rows"
+    assert verdict([{"navn": "Oslo"}]) == "rows"
+
+    # What the registry cannot learn from, reported as such rather than guessed.
+    assert verdict(None, status=401) == "restricted"
+    assert verdict(None, status=404) == "withdrawn"
+    assert verdict("TimeoutError", status=0) == "unreachable"
+    assert verdict("<?xml version='1.0'?><available/>") == "unclear"
