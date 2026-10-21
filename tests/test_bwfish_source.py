@@ -440,3 +440,169 @@ def test_a_failed_fetch_stores_nothing_and_records_the_run(tmp_path: Path) -> No
     ).fetchall()
     assert [row["status"] for row in runs] == ["failed"]
     registry.close()
+
+
+# --- ingest ------------------------------------------------------------------
+
+
+def test_the_series_starts_where_the_api_said_it_starts() -> None:
+    """2011 w20 answers 200 with an empty array; 2012 w20 returns 1,936 rows.
+
+    The start is a probed fact, so a listing that began earlier would create
+    hundreds of datasets the publisher holds nothing for.
+    """
+
+    import datetime
+
+    from public_data_agent.sources.bwfish import FIRST_YEAR, listed_weeks
+
+    assert FIRST_YEAR == 2012
+    weeks = listed_weeks(datetime.date(2026, 10, 21))
+    assert weeks[0] == (2012, 1)
+    assert min(year for year, _week in weeks) == 2012
+
+
+def test_a_fifty_three_week_year_is_listed_in_full() -> None:
+    """Week 53 of 2024 is HTTP 400 and week 53 of 2020 returns 1,696 rows.
+
+    The publisher validates the week against the ISO calendar, so assuming 52
+    weeks loses real data and assuming 53 requests weeks that do not exist.
+    """
+
+    import datetime
+
+    from public_data_agent.sources.bwfish import iso_weeks_in, listed_weeks
+
+    assert iso_weeks_in(2020) == 53
+    assert iso_weeks_in(2024) == 52
+    weeks = set(listed_weeks(datetime.date(2026, 10, 21)))
+    assert (2020, 53) in weeks
+    assert (2024, 53) not in weeks
+    assert (2024, 52) in weeks
+
+
+def test_the_current_week_is_left_out_because_it_is_still_being_reported() -> None:
+    """The API answers it, which is why the listing has to decide.
+
+    A fetch of the running week stores a partial count that a re-fetch would
+    change, and nothing downstream would know the number had moved.
+    """
+
+    import datetime
+
+    from public_data_agent.sources.bwfish import last_complete_week, listed_weeks
+
+    monday = datetime.date(2026, 10, 21)  # ISO week 43
+    assert monday.isocalendar()[1] == 43, "premise: this date is in week 43"
+    assert last_complete_week(monday) == (2026, 42)
+    weeks = set(listed_weeks(monday))
+    assert (2026, 42) in weeks
+    assert (2026, 43) not in weeks
+
+
+def test_listing_makes_no_request(tmp_path: Path) -> None:
+    """772 weeks must not cost 772 requests before anything is stored.
+
+    Passing an http client that raises on use is the only way to assert this:
+    a listing that quietly fetched would otherwise pass every other test here.
+    """
+
+    import datetime
+
+    from public_data_agent.sources.bwfish import BwFishSource
+
+    class Explodes:
+        def get_json_response(self, url, *, headers=None):
+            raise AssertionError(f"listing must not request {url}")
+
+        def get_json(self, url, *, headers=None):
+            raise AssertionError(f"listing must not request {url}")
+
+    source = BwFishSource(max_items=5, today=datetime.date(2026, 10, 21), http=Explodes())
+    refs = source.list_dataset_refs()
+    assert len(refs) == 5
+    record = source.fetch_dataset(refs[0])
+    assert record.source_native_id == "localities"
+
+
+def test_the_register_is_listed_before_the_weeks() -> None:
+    import datetime
+
+    from public_data_agent.sources.bwfish import BwFishSource
+
+    source = BwFishSource(max_items=3, today=datetime.date(2026, 10, 21))
+    refs = source.list_dataset_refs()
+    assert [ref.source_native_id for ref in refs] == [
+        "localities", "locality-2012-01", "locality-2012-02",
+    ]
+    assert refs[1].source_native_uri.endswith("/locality/2012/1"), (
+        "the url carries the publisher's week number, unpadded"
+    )
+    assert refs[1].source_native_id == "locality-2012-01", (
+        "the table id pads so it sorts"
+    )
+
+
+def test_the_listing_declares_no_licence_it_was_not_given() -> None:
+    """BarentsWatch prints none on these endpoints and has no OpenAPI document."""
+
+    import datetime
+
+    from public_data_agent.sources.bwfish import BwFishSource
+
+    source = BwFishSource(max_items=2, today=datetime.date(2026, 10, 21))
+    for ref in source.list_dataset_refs():
+        payload = source.fetch_dataset(ref).payload
+        assert payload["license"] is None
+        assert payload["publisher"] == {"name": "BarentsWatch"}
+        assert payload["bwfish_requires_credential"] == "BARENTSWATCH_API_CLIENT_ID"
+
+
+def test_an_unlisted_uri_is_refused() -> None:
+    import datetime
+
+    from public_data_agent.models import DatasetRef
+    from public_data_agent.sources.bwfish import BwFishSource
+
+    source = BwFishSource(max_items=2, today=datetime.date(2026, 10, 21))
+    with pytest.raises(SourceError, match="lists no resource"):
+        source.fetch_dataset(
+            DatasetRef(source_native_uri="https://www.barentswatch.no/bwapi/v1/x", source_native_id="x")
+        )
+
+
+def test_harvest_writes_the_rows_the_fetcher_will_read(tmp_path: Path) -> None:
+    """The ingest id and the fetch table id have to agree, or a fetch re-keys.
+
+    `bwfish_table_id` derives the table from the URL and the source derives
+    the native id from the same week; this pins them together rather than
+    trusting that two places spell it the same way.
+    """
+
+    import datetime
+
+    from public_data_agent.harvest import harvest
+    from public_data_agent.registry import Registry
+    from public_data_agent.sources.bwfish import BwFishSource
+
+    registry = Registry(tmp_path / "registry.sqlite")
+    harvest(registry, BwFishSource(max_items=4, today=datetime.date(2026, 10, 21)))
+    for dataset_id, expected_table in (
+        ("bwfish:localities", "localities"),
+        ("bwfish:locality-2012-01", "locality-2012-01"),
+    ):
+        row = registry.get_dataset(dataset_id)
+        assert row is not None, f"{dataset_id} was not harvested"
+        assert row["license"] is None
+        assert bwfish_table_id(row["access_path"]) == expected_table
+    registry.close()
+
+
+def test_bwfish_is_a_registered_source() -> None:
+    from public_data_agent.sources import SOURCE_IDS, build_source
+    from public_data_agent.sources.bwfish import BwFishSource
+
+    assert "bwfish" in SOURCE_IDS
+    source = build_source("bwfish")
+    assert isinstance(source, BwFishSource)
+    assert source.source_id == "bwfish"

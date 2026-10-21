@@ -12,9 +12,13 @@ authorisation. That is deliberately distinct from `withdrawn` (gone), `empty`
 **Status, 2026-10-21.** BarentsWatch is done and built — see section 2.
 Statens vegvesen access **has been requested and is awaiting a reply**; do not
 request it again. Two larger ones are gated on registering a company, and
-sections 5 and 6 are what to do about them: Kartverket's restricted geodata
+sections 6 and 7 are what to do about them: Kartverket's restricted geodata
 (6,350 datasets, none ever fetched) and the Matrikkel/Grunnbok APIs (a
-registered business only). Section 7 is the rule they both taught. BarentsWatch is done: both clients work and
+registered business only). Section 8 is the rule they both taught.
+
+**Open actions, shortest first.** Generate a new NVE HydAPI key — the stored
+one is refused (section 3). Then everything else here is either working or
+waiting on someone else. BarentsWatch is done: both clients work and
 the fish-health API is open, so section 2 is now a connector job, not an
 access problem. Datafangst never — it is a submission API and has nothing for
 a read-only registry.
@@ -95,7 +99,7 @@ network complete.
 ## 2. BarentsWatch — both credentials work · nothing left to request
 
 **Settled 2026-10-21.** Two clients are registered on one account and both are
-live. Re-check either with `scripts/check_barentswatch.py`, which stores
+live. Re-check either with `scripts/check_credentials.py`, which stores
 nothing and prints no secret.
 
 | client | scope | in `.env` as | opens |
@@ -192,7 +196,79 @@ history. Worth having, not what this registry is good at answering.
 
 ---
 
-## 3. Statens vegvesen `vegvesen` · 2 of 23 restricted, not 23 — correction
+## 3. MET Frost — works · NVE HydAPI — the key is rejected
+
+Both credentials were added to `.env` on 2026-10-21 and both were tested the
+same day. One is ready to build against; the other needs a new key.
+
+### MET Frost · working
+
+`FROST_CLIENT_ID` and `FROST_CLIENT_SECRET` are UUIDs and both documented auth
+styles work:
+
+| request | result |
+|---|---|
+| `Basic base64("<client_id>:")` on `/sources/v0.jsonld?county=Oslo` | **200**, 36 stations |
+| `/observations/v0.jsonld?sources=SN18700&referencetime=…&elements=air_temperature` | **200** |
+| `POST /auth/accessToken` with id + secret + `client_credentials` | **200**, `expires_in` 86400 |
+| that bearer on `/sources/v0.jsonld` | **200**, same 36 stations |
+| no credential at all | **401** |
+
+So Frost takes either the client id as a basic-auth username with an empty
+password, or a 24-hour bearer token. The basic form needs no token endpoint
+and no refresh, so a connector should use it and keep the secret for the day a
+longer-lived token is wanted.
+
+A station member prints `id`, `name`, `geometry`, `masl`, `country`,
+`countryCode`, `county`, **`countyId`**, `municipality`, **`municipalityId`**
+and `ontologyId`. Those two id fields are published join keys into the
+kommune- and fylke-level datasets the registry already holds — the same thing
+that makes BarentsWatch's `municipalityNo` worth having, from a different
+publisher.
+
+This is the highest-value credential on the page. MET's observation archive is
+the deepest time series in Norwegian public data, it is addressed by station
+and element and period, and that is exactly the shape the retrieval stack is
+tuned for. Docs: <https://frost.met.no/howto.html> ·
+<https://frost.met.no/api.html>
+
+### NVE HydAPI · key rejected
+
+`NVE_HYDAPI_API_KEY` is present, 22 characters, beginning with `/`. Every
+endpoint answers **HTTP 401** with it, and an identical 401 with no key at
+all, so the server is simply not accepting the value.
+
+The header is not the problem. NVE's own documentation gives `X-API-Key`, and
+`X-API-Key`, lowercase `x-api-key`, `Ocp-Apim-Subscription-Key`, `ApiKey`,
+`Authorization: Bearer`, and `?apiKey` / `?api_key` / `?key` as a query
+parameter all return 401 against `/api/v1/Parameters`. The key itself is being
+refused.
+
+**Most likely a truncated copy.** 22 characters starting with `/` looks like
+base64 cut short — a 16-byte key encodes to 24 characters ending in `==`. That
+is an inference from the shape, not something the server said, so treat it as
+the first thing to rule out rather than the answer.
+
+**What to do:** generate a fresh key at <https://hydapi.nve.no/Users> and copy
+it whole. It is free and tied to an email address, several keys may exist for
+one address, and older keys keep working — so a new one costs nothing and does
+not invalidate anything. NVE state that **a key cannot be retrieved after it
+is generated**, so there is no page to go back and re-read the current one
+from; if it was mis-copied, a new key is the only route.
+
+Then re-test with:
+
+    .venv/bin/python scripts/check_credentials.py --only nve
+
+When it works, HydAPI is worth a connector: `/Stations`, `/Series`,
+`/Parameters`, `/Observations?StationId=…&Parameter=…&ResolutionTime=…`,
+plus rating curves and percentiles. Water flow, level and temperature per
+gauging station per period — observations, not a catalogue.
+Docs: <https://hydapi.nve.no/UserDocumentation/>
+
+---
+
+## 4. Statens vegvesen `vegvesen` · 2 of 23 restricted, not 23 — correction
 
 The previous version of this file said all 23 datasets in this source sit on
 the datafangst API. That was wrong, and it was wrong in a way worth recording:
@@ -230,7 +306,7 @@ General Statens vegvesen API access guide:
 
 ---
 
-## 4. Geonorge — distributions you request by email
+## 5. Geonorge — distributions you request by email
 
 Of 55 sampled datasets behind `kartkatalog.geonorge.no/metadata/uuid/…`, one
 came back with `DistributionProtocol: GEONORGE:OFFLINE` — a distribution
@@ -248,7 +324,7 @@ be fetched by any agent, so each one is a document to request by hand.
 
 ---
 
-## 5. Kartverket's restricted geodata — FKB and the Norge digitalt wall
+## 6. Kartverket's restricted geodata — FKB and the Norge digitalt wall
 
 This is the largest access problem in the registry and it has been sitting in
 plain sight, declared in a column nobody read as an access signal.
@@ -313,7 +389,7 @@ not last.
 
 ---
 
-## 6. Matrikkelen and Grunnboken — only a registered company may apply
+## 7. Matrikkelen and Grunnboken — only a registered company may apply
 
 Keep two things apart that the name does not.
 
@@ -357,7 +433,7 @@ Altinn role *Daglig leder* or a delegated mandate.
 or Grunnboken on to others requires a **framework agreement** with Kartverket,
 separate from access itself. A commercial API serving property data to third
 parties is exactly that case. Worth asking about in the same breath as
-section 5's redistribution question.
+section 6's redistribution question.
 
 - What requires an application:
   <https://kartverket.no/api-og-data/eiendomsdata/data-som-krever-soknad>
@@ -370,13 +446,13 @@ section 5's redistribution question.
 - API documentation: <https://kartverket.github.io/api-dokumentasjon/docs/eiendom/>
 - Enquiries: post@kartverket.no · 32 11 80 00
 
-**Priority:** after registering the company, and after section 5. Section 5
-buys breadth across 2,100 datasets the registry already lists; section 6 buys
+**Priority:** after registering the company, and after section 6. Section 6
+buys breadth across 2,100 datasets the registry already lists; section 7 buys
 one register, carrying personal data, with a redistribution restriction on it.
 
 ---
 
-## 7. A licence is not an access level — the rule this file now carries
+## 8. A licence is not an access level — the rule this file now carries
 
 Three findings above say the same thing from different directions and it is
 worth stating once, because the registry is built to trust declarations.
@@ -396,7 +472,7 @@ column with a verdict in it. That is a schema question, filed in `GAPS.md`.
 
 ---
 
-## 8. Not credential problems, recorded here so they are not mistaken for one
+## 9. Not credential problems, recorded here so they are not mistaken for one
 
 - **10 NVDB types are `empty`** — they answer correctly and hold no objects.
   No credential would change that; they may hold objects next month.
@@ -407,7 +483,7 @@ column with a verdict in it. That is a schema question, filed in `GAPS.md`.
 - **32 are `withdrawn`** — 30 SSB tables and one FHI table the publisher has
   removed, plus one NVDB type. Nothing to register for.
 - **Landing pages instead of endpoints** — most of the `vegvesen` source, see
-  section 3. The same shape as `catalogue`: reachable, wrong door, no login
+  section 4. The same shape as `catalogue`: reachable, wrong door, no login
   involved.
 - **12 sources have no capability row at all on any dataset** — nvemap 63,
   ssbver 39, sodir 39, nbcodelist 37, hoydegis 35, mdirwms 30, riksantikvaren

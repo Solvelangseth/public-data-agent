@@ -37,8 +37,11 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import urlsplit
 
+import datetime
+
 from public_data_agent.http_util import HttpClient, RateLimiter
-from public_data_agent.models import SourceError
+from public_data_agent.models import DatasetRef, HarvestedRecord, SourceError
+from public_data_agent.sources.base import SourceBase
 
 SOURCE_ID = "bwfish"
 SOURCE_NAME = "BarentsWatch Fiskehelse"
@@ -356,3 +359,157 @@ def _as_dim(value: Any) -> str:
     if value is None:
         return ""
     return str(value)
+
+
+# --- ingest -----------------------------------------------------------------
+#
+# There is no catalogue to list from: BarentsWatch publishes no OpenAPI
+# document under /bwapi/ (openapi/v1/openapi.json, swagger/v1/swagger.json and
+# openapi/index.json all 404). So the resources are enumerated, and the two
+# things that could have been assumed were asked instead:
+#
+#   where the series starts   2011 w20 and earlier answer 200 with an empty
+#                             localities array; 2012 w20 returns 1,936. So the
+#                             weekly series begins in 2012.
+#   how many weeks a year has week 0, 53 and 54 of 2024 are HTTP 400, while
+#                             2020 w53 returns 1,696 rows. The publisher
+#                             validates the week against the ISO calendar, so
+#                             the year's real ISO week count is used -- not 52.
+#
+# A future week answers 200 with an empty array rather than 404, which is why
+# the listing stops at the last completed ISO week rather than trusting the
+# API to refuse one.
+
+FIRST_YEAR = 2012
+DEFAULT_MAX_ITEMS = 10
+INGEST_REASON = (
+    "the fish health register, plus one resource per ISO week from "
+    f"{FIRST_YEAR} to the last completed week; week counts from the ISO "
+    "calendar, which the publisher validates against"
+)
+
+
+def iso_weeks_in(year: int) -> int:
+    """How many ISO weeks a year has. 28 December is always in the last one."""
+
+    return datetime.date(year, 12, 28).isocalendar()[1]
+
+
+def last_complete_week(today=None) -> tuple[int, int]:
+    """The most recent ISO year and week that has finished.
+
+    The current week is excluded: it is still being reported, so a fetch of it
+    would store a partial count and a re-fetch would change it. BarentsWatch
+    answers it, which is exactly why this has to be decided here.
+    """
+
+    today = today or datetime.date.today()
+    year, week, _weekday = (today - datetime.timedelta(days=7)).isocalendar()
+    return year, week
+
+
+def listed_weeks(today=None) -> list[tuple[int, int]]:
+    year, week = last_complete_week(today)
+    weeks: list[tuple[int, int]] = []
+    for candidate in range(FIRST_YEAR, year + 1):
+        last = week if candidate == year else iso_weeks_in(candidate)
+        weeks.extend((candidate, number) for number in range(1, last + 1))
+    return weeks
+
+
+def week_url(year: int, week: int) -> str:
+    return f"https://{HOST}{WEEK_MARK}{year}/{week}"
+
+
+def localities_url() -> str:
+    return f"https://{HOST}{LOCALITIES_PATH}"
+
+
+class BwFishSource(SourceBase):
+    """Ingest adapter for BarentsWatch Fiskehelse.
+
+    Lists the site register and one resource per completed ISO week. It makes
+    no request of its own: every listed resource is addressed by the
+    publisher's own documented path shape, and whether a given week holds
+    anything is the fetch's job to find out and record. That keeps a listing of
+    780-odd weeks from costing 780 requests before a single one is stored.
+    """
+
+    source_id = SOURCE_ID
+    source_name = SOURCE_NAME
+    endpoints = (f"https://{HOST}{PATH_MARK}",)
+    ingest_reason = INGEST_REASON
+
+    def __init__(
+        self,
+        *,
+        max_items: int = DEFAULT_MAX_ITEMS,
+        today=None,
+        http: HttpClient | None = None,
+    ) -> None:
+        self.max_items = max_items
+        self.today = today
+        self.http = http
+
+    def _listed(self) -> list[tuple[str, str, str]]:
+        """(native id, url, title) for the register and every listed week."""
+
+        listed = [("localities", localities_url(), "Fiskehelse — akvakulturlokaliteter")]
+        for year, week in listed_weeks(self.today):
+            listed.append(
+                (
+                    f"locality-{year}-{week:02d}",
+                    week_url(year, week),
+                    f"Fiskehelse — lakselus per lokalitet, {year} uke {week}",
+                )
+            )
+        return listed
+
+    def list_dataset_refs(self, *, limit: int | None = None, offset: int = 0):
+        cap = self.max_items if limit is None else limit
+        return [
+            DatasetRef(source_native_uri=url, source_native_id=native_id)
+            for native_id, url, _title in self._listed()[offset : offset + cap]
+        ]
+
+    def fetch_dataset(self, ref):
+        match = next(
+            (item for item in self._listed() if item[1] == ref.source_native_uri),
+            None,
+        )
+        if match is None:
+            raise SourceError(
+                f"BarentsWatch fish health lists no resource at {ref.source_native_uri}"
+            )
+        native_id, url, title = match
+        payload = {
+            "id": native_id,
+            "uri": url,
+            "title": {"no": title},
+            "description": {
+                "no": (
+                    "Gjennomsnittlig antall voksne hunnlus per fisk per "
+                    "lokalitet per uke, med sykdomsstatus for ILA og PD."
+                    if native_id != "localities"
+                    else "Akvakulturlokaliteter med kommunenummer og posisjon."
+                )
+            },
+            "publisher": {"name": "BarentsWatch"},
+            # BarentsWatch prints no licence on these endpoints and there is no
+            # OpenAPI document to carry one, so it stays null by the rule.
+            "license": None,
+            "distribution": [{"accessURL": [url], "downloadURL": [url]}],
+            "landingPage": [f"https://{HOST}/bwapi/openapi/index.html"],
+            "bwfish_requires_credential": "BARENTSWATCH_API_CLIENT_ID",
+            "bwfish_scope": SCOPE,
+        }
+        return HarvestedRecord(
+            source_id=self.source_id,
+            source_name=self.source_name,
+            source_endpoints=self.endpoints,
+            ingest_reason=self.ingest_reason,
+            source_native_id=native_id,
+            source_native_uri=url,
+            fetched_from=url,
+            payload=payload,
+        )

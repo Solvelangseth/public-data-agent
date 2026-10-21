@@ -20,6 +20,7 @@ from public_data_agent.sources.broppdater import BroppdaterSource
 from public_data_agent.sources.brreg import BrregEnhetsregisterSource
 from public_data_agent.sources.brrepresent import BrrepresentSource
 from public_data_agent.sources.brunder import BrunderSource
+from public_data_agent.sources.bwfish import BwFishSource
 from public_data_agent.sources.crbio import CrbioSource
 from public_data_agent.sources.crresult import CrresultSource
 from public_data_agent.sources.crinst import CrinstSource
@@ -207,6 +208,7 @@ SOURCE_IDS = (
     "nve",
     "brreg",
     "valg",
+    "bwfish",
     "fhi",
     "mattilsynet",
     "udir",
@@ -415,6 +417,8 @@ def build_source(source_id: str, *, fixtures: Path | None = None) -> CatalogSour
         return BrregEnhetsregisterSource()
     if source_id == "valg":
         return ValgresultatSource()
+    if source_id == "bwfish":
+        return BwFishSource()
     if source_id == "fhi":
         return FhiStatistikkSource()
     if source_id == "mattilsynet":
@@ -843,6 +847,7 @@ __all__ = [
     "GeosatelliteSource",
     "GribfilesSource",
     "HavnedataSource",
+    "BwFishSource",
     "HiFeaturesSource",
     "HicoveragesSource",
     "HimapsSource",
