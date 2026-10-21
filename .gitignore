@@ -35,3 +35,4 @@ data/heldout_eval.log
 # The vocabulary derived from them lives in the registry, which is also not
 # committed; the harvester and the extraction rules are the durable parts.
 data/klass/versions/
+discovery/*.jsonl
