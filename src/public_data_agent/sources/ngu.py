@@ -306,10 +306,25 @@ def cells_from_ngu_items(payload: Any) -> list[tuple[str, Any, dict[str, str]]]:
                 if scalars.get(field) is not None:
                     measure = field
                     break
-        if measure is None:
-            measure = next(iter(scalars))
-        value = scalars[measure]
-        dims = {k: _as_dim(v) for k, v in scalars.items() if k != measure}
+        if measure is not None:
+            value = scalars[measure]
+            dims = {k: _as_dim(v) for k, v in scalars.items() if k != measure}
+        else:
+            # Neither a `*Navn` name nor a known identifier. The first draft
+            # fell back to `next(iter(scalars))`, which promoted whatever came
+            # first into the record's label: `ngu:grunnundersokelser_utvidet`
+            # got 1,067 labels beginning with a digit, and `ngu:frostonline`
+            # got Frost time-series ids. A soil temperature is not the name of
+            # a borehole.
+            #
+            # So nothing is named. Every scalar stays an attribute, the cell
+            # carries no value, and `records_from_cells` keys the record by a
+            # digest of what it printed -- which is what it already does for
+            # a member whose publisher gave it no handle. Inventing a name for
+            # it is the failure this project has spent itself undoing.
+            measure = sorted(scalars)[0]
+            value = None
+            dims = {k: _as_dim(v) for k, v in scalars.items()}
         fid = feature.get("id")
         if fid is not None and "id" not in dims:
             dims["id"] = _as_dim(fid)

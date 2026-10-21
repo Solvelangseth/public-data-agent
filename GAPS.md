@@ -2422,3 +2422,39 @@ and explain what they used to say.
 Still to do: dispatch `_fetch_ngu` through collections and items, and store
 the features as `feature` records rather than observations -- a seabed polygon
 is a thing in a place.
+
+### N3 finished: 28 NGU APIs, 7,765 features, and a label rule relearned
+
+All 28 fetched, zero failures, **26 datasets carry a `features` verdict** and
+`ngu` holds 7,765 feature records with zero observations.
+
+The first run of all 28 produced labels that were not names:
+
+    2.731                                            a soil temperature
+    2016-11-17                                       a date
+    SN15270:0:2500:mean(soil_temperature P1D):P1D    a Frost series id
+
+Cause: `cells_from_ngu_items` fell back to `next(iter(scalars))` when a
+feature had neither a `*Navn` field nor a known identifier, which promoted
+whatever came first into the record's label. 1,067 in
+`grunnundersokelser_utvidet`, 400 in `frostonline`, 60 in
+`grunnvannborehull`.
+
+A soil temperature is not the name of a borehole. The reader now names
+nothing in that case: every scalar stays an attribute, the cell carries no
+value, and `records_from_cells` keys the record by a digest of what it
+printed -- which is exactly what it already does for a member whose publisher
+gave it no handle. That rule was written for Cristin's funding list and Udir's
+curriculum codes and it applies here unchanged.
+
+**And then the check I used to find it gave a false positive.** After
+re-fetching, 267 records in `grunnundersokelser_utvidet` still had labels
+starting with a digit, and they are `2.pdf`, `365.pdf`, `175.pdf` -- document
+filenames from its `geotekniskdokument` collections, which is genuinely what
+the publisher calls them. "Starts with a digit" is not a test for
+value-as-label; it was a way of noticing, and it needed reading afterwards.
+
+Open: those `geotekniskdokument` collections are documents rather than
+features, and the registry has a `documents` capability for that. Filed, not
+guessed at -- they arrive through an OGC feature collection, so `feature` is
+defensible until someone decides otherwise.

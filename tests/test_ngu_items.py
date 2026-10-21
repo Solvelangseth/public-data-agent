@@ -124,3 +124,37 @@ def test_an_empty_or_wrong_payload_is_refused() -> None:
         cells_from_ngu_items({"features": [{"id": "x", "properties": {}}]})
     with pytest.raises(ValueError, match="not a JSON object"):
         cells_from_ngu_items([ITEMS])
+
+
+def test_no_label_is_invented_when_the_publisher_gives_no_name() -> None:
+    """The first draft promoted the first scalar, whatever it was.
+
+    `ngu:grunnundersokelser_utvidet` got 1,067 labels beginning with a digit
+    and `ngu:frostonline` got Frost time-series identifiers. A soil
+    temperature is not the name of a borehole.
+    """
+
+    payload = {"features": [{
+        "id": "b.1",
+        "properties": {
+            "soiltemperature": 2.731,
+            "maalt_dato": "2016-11-17",
+            "dybde": 12.0,
+        },
+    }]}
+    (measure, value, dims) = cells_from_ngu_items(payload)[0]
+    assert value is None, "an unnamed feature must not borrow a measurement as its name"
+    # every published scalar survives as an attribute
+    assert dims["soiltemperature"] == "2.731"
+    assert dims["maalt_dato"] == "2016-11-17"
+    assert dims["dybde"] == "12.0"
+
+
+def test_a_known_identifier_is_still_preferred_over_nothing() -> None:
+    payload = {"features": [{
+        "properties": {"identifikasjon.lokalId": "abc-123", "soiltemperature": 2.731},
+    }]}
+    (measure, value, dims) = cells_from_ngu_items(payload)[0]
+    assert measure == "identifikasjon.lokalId"
+    assert value == "abc-123"
+    assert dims["soiltemperature"] == "2.731"
