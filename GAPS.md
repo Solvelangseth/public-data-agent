@@ -1436,3 +1436,40 @@ The remaining four are breadth-of-label questions, where the labelled table
 and the retrieved one publish the same measure and both answer. Those want the
 careful audit the file's convention describes, judged from titles and measures
 alone, and are not corrected here.
+
+## a063 is a coverage gap, and the label is left wrong on purpose (2026-10-21)
+
+`hvor mange ansatte har Norges største selskaper` is labelled with 07091,
+10308 and 10309, which publish the measure `Bedrifter` — counts of
+establishments, banded by employee count. They answer "how many
+establishments have 250 or more employees", not "how many employees does this
+company have". The question asks for a per-company figure.
+
+Nothing in the registry answers it. 230 verified tables publish an employment
+measure and none is per company. Enhetsregisteret holds `antallAnsatte` on an
+enhet, but naming the largest companies means ranking 1.1 million of them, and
+the resource is reachable one subject at a time: the collection endpoint
+refuses as too large by design. The two stored brreg entity records both say
+`harRegistrertAntallAnsatte: false`.
+
+By the gold file's convention that would make it `expected: []` — a coverage
+finding, excluded from recall. **It has not been changed.** Excluding a scored
+miss raises recall@5, and "this question turned out to be hard, so it stopped
+counting" is the failure mode the whole set exists to prevent. The label stays
+wrong in the direction that costs us, and the finding is recorded here
+instead. Changing it would need a separate decision, made deliberately and
+not while the number is in view.
+
+## Seven Havforskningsinstituttet collections do not answer (2026-10-21)
+
+The Norkyst current-field collections, `Raadgivning_2022` and
+`Mareano_observerte_vme` answer HTTP 0 — the request never completes. Three
+attempts over forty minutes, spaced four seconds apart, and with `limit=100`
+and `limit=1000` on the OGC request: every one times out at 90 seconds. It is
+not our request rate and it is not paging; the server does not deliver these
+collections.
+
+Nothing was recorded against them. They hold no capability row, so they are
+not claimed as fetchable, and a server that is timing out today may serve
+tomorrow — writing `withdrawn` or `empty` for it would bake a transient into
+the registry as a finding. The note is the record.
