@@ -271,27 +271,43 @@ def test_the_working_list_can_outlive_the_output_depth(tmp_path: Path) -> None:
         registry.close()
 
 
-def test_damping_the_lexical_lane_has_a_narrow_usable_band() -> None:
-    """The knob does nothing until it does everything, which is worth pinning.
+def test_damping_the_lexical_lane_moves_the_head_before_the_tail() -> None:
+    """Two axes, and the metric reads the one that moves first.
 
-    With a disjoint lexical list of 15 and a semantic list of 50 fused into
-    50, every weight from 0.8 to 1.0 keeps all fifteen lexical hits and cuts
-    the semantic list at 34. By 0.5 the lexical lane is gone entirely. The
-    band in between trades the lexical head for the semantic tail very
-    steeply, so a reader does not mistake this for a gentle dial.
+    Measuring only which ids survive a 50-item fusion says the weight does
+    nothing from 0.8 to 1.0. That is true and it is the wrong axis: recall@5
+    reads the head, and the head changes at 0.9, because damping one side also
+    reorders the ids both rankers found. Measured on the tuned set, 0.8 costs
+    a question -- 0.929 to 0.918 -- which a survival test calls a no-op.
     """
 
     from public_data_agent.embeddings import fuse
 
-    lexical = [f"L{index}" for index in range(15)]
-    semantic = [f"S{index}" for index in range(50)]
+    # The real case: the two rankers agree on some ids and not others.
+    lexical = ["A", "B", "C"] + [f"L{index}" for index in range(12)]
+    semantic = ["C", "A"] + [f"S{index}" for index in range(48)]
+
+    # At equal weight a lexical-only id sits inside the top five.
+    assert fuse(lexical, semantic, limit=6, lexical_weight=1.0)[:5] == [
+        "A", "C", "B", "S0", "L0",
+    ]
+    # One notch of damping evicts every lexical-only id from the head, which
+    # is the whole of the knob's effect on recall@5.
+    for weight in (0.9, 0.8, 0.7):
+        head = fuse(lexical, semantic, limit=6, lexical_weight=weight)[:5]
+        assert head == ["A", "C", "S0", "S1", "S2"], weight
+
+    # The survival axis, for completeness: disjoint lists, 50 out.
+    disjoint_lexical = [f"L{index}" for index in range(15)]
+    disjoint_semantic = [f"S{index}" for index in range(50)]
 
     def kept(weight: float) -> tuple[int, int]:
-        out = fuse(lexical, semantic, limit=50, lexical_weight=weight)
-        deepest = max(int(x[1:]) for x in out if x.startswith("S"))
-        return sum(1 for x in out if x.startswith("L")), deepest
+        out = fuse(disjoint_lexical, disjoint_semantic, limit=50, lexical_weight=weight)
+        return (
+            sum(1 for x in out if x.startswith("L")),
+            max(int(x[1:]) for x in out if x.startswith("S")),
+        )
 
     assert kept(1.0) == (15, 34)
-    assert kept(0.8) == (15, 34)
     assert kept(0.6) == (4, 45)
     assert kept(0.5) == (0, 49)
