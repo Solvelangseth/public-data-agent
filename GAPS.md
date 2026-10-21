@@ -1893,3 +1893,59 @@ keywords were invisible. The count that followed -- "only 12 datasets would
 gain" -- was answering a different question, thin text rather than missing
 measures. Both were corrected before the change was made, which is the only
 reason the experiment measured the thing it claimed to.
+
+## P4 closed: the last two misses are explained, not fixable here (2026-10-21)
+
+### a080 `hvor stor er Norge i kvadratkilometer`
+
+Every lane was checked, and each one fails for the same reason.
+
+- The query reads as a question, so `rank_for_query` routes it to the
+  **semantic ranking alone**. No synonym, no measure lane and no value index
+  touches it, because the lexical half is not consulted.
+- Semantically 11342 sits at **2827**. SSB's themes for it are `Befolkning`,
+  `Folketall`, `Barn, familier og husholdninger`, `Innvandring og
+  innvandrere`. There is no area vocabulary in its description at all.
+- The rewrite lane proposes `areal` and `landareal`, which is exactly right,
+  and 11342 is **not in the lexical top 50 for either**. Its title does carry
+  the token: `Areal og befolkning i kommuner, fylker og hele landet`. It loses
+  on relevance weighting to `Areal av land og ferskvatn, etter kommune`,
+  where the term accounts for more of a shorter title.
+- Putting its measures -- `Areal (km²)`, `Landareal (km²)` -- into the
+  embedding raised it to 435 and broke coverage, recorded above.
+
+So this is not a ranking defect. **SSB describes 11342 as a population table
+that happens to include area**, and every retrieval signal faithfully
+reflects the publisher's description. The tables SSB files under Areal rank
+first and second and answer the question only by summing municipalities,
+which this system must not do.
+
+Fixing it would mean writing area keywords onto the dataset that the publisher
+did not provide. That is inventing metadata, so it is not done. The question
+stays a miss with the reason recorded.
+
+### a010 `bruttonasjonalprodukt`
+
+The label is right: 09189, 09190 and 11721 all publish
+`Bruttonasjonalprodukt, markedsverdi` as a value of the `Makrost` dimension.
+The two unlabelled tables that publish it as a *measure* are worse answers --
+09842 is per capita, and 12880 mixes `Regnskap og prognoser`, so labelling it
+would make a forecast the answer to a factual question.
+
+Reaching a dimension value needs the value index, and that has now measured
+worse than the title lane four times: the coverage lift, two interleaving
+attempts recorded in `retrieval.py`, and the measure-only lane this session at
+30 of 98. The signal is real and every way of blending it in costs more than
+it returns.
+
+### What P4 produced
+
+One adopted change -- the reranker reads fifty titles, tuned 0.898 to 0.929 --
+and four label corrections found by auditing what each table publishes rather
+than how it ranks. Tuned went 0.878/0.747 to 0.939/0.769 across the session,
+and of that, 0.031 is retrieval and the rest is the instrument being wrong.
+
+Three mechanisms were built, measured and rejected: a longer working list, a
+damped lexical weight, and measures in the embedded text. Each is documented
+beside the code it would have changed, with the numbers, so the next person
+does not pay for them again.
