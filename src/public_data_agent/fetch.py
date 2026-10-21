@@ -13045,9 +13045,8 @@ def _fetch_grep(
         got = client.get_json_response(access_path)
         http_status = got.status
         registry.set_fetch_request(run_id, request_url=access_path, request_body={"method": "GET"})
-        # A Udir curriculum code is a code, and the title it stands for is nested
-        # where the connector does not copy it; the record says the code and
-        # claims no name.
+        # A Udir curriculum code is a code, and the title it stands for is in
+        # `tittel`, as language variants.
         records = records_from_cells(
             cells_from_grep(got.body),
             dataset_id=dataset["id"],
@@ -13068,6 +13067,29 @@ def _fetch_grep(
             counts=counts,
             series=f"fetch:{table_id}",
         )
+        if records:
+            # Udir publishes curriculum vocabularies: a code, the name it
+            # stands for, when it was valid and where it sits in the order.
+            # The connector says so itself rather than leaving it to be read
+            # off the rows, because the row shape is a proxy that a connector
+            # improvement can move -- copying the titles flipped 22 of these
+            # from `lookup` to `entities` without the resources changing at
+            # all. `brkommuner` declares its own role for the same reason.
+            registry.set_capability(
+                dataset["id"],
+                {
+                    "capability": CAPABILITY_LOOKUP,
+                    "record_kind": "entity",
+                    "endpoint": access_path,
+                    "request_method": "GET",
+                    "verified_at": utc_now(),
+                    "verified_sample_count": len(records),
+                    "notes": (
+                        f"{len(records)} curriculum code(s) with the title Udir prints "
+                        f"for them; a vocabulary, declared by the connector"
+                    ),
+                },
+            )
         status = "completed"
     except Exception as exc:
         counts.failed += 1
