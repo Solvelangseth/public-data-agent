@@ -1754,3 +1754,45 @@ lost.
 
 Held-out was run once, after the choice was made on the other two sets. A
 number that picks a parameter is not a held-out number any more.
+
+## A declaration outranks an inference, and 68 rows say so (2026-10-21)
+
+The registry has two ways of knowing what a resource returns. A connector can
+declare it, and `demonstrated_capability` can read it off the rows that were
+stored. They disagree on 68 verified rows, and that is deliberate.
+
+| source | rows | source | rows |
+|---|---|---|---|
+| grep | 22 | nor, udir | 4 each |
+| stortinget | 7 | miljodir | 3 |
+| nbr, nfr | 6 each | nxr, aqua, kystverket | 2 each |
+| npr | 5 | stpartier, stkomiteer, hoydedata, nve, baf | 1 each |
+
+Every one carries a reason. 57 say in the notes that the connector declared
+it, 35 of those with the connector's own wording -- `names are labels, not
+observation values` for the Storting's party list -- and the remaining 11
+carry a note from some earlier pass. None is silent.
+
+Why the inference loses: it reads a proxy. The attribute test asks whether a
+record is "all code and no label", or whether its attributes are only
+hierarchy and validity, and both of those can move without the resource
+changing at all. Copying Udir's titles this session flipped 22 grep rows from
+`lookup` to `entities` -- the vocabularies were identical before and after,
+and only the quality of our reading of them had improved.
+
+The temptation at that moment was to widen the code-list vocabulary until the
+inference agreed again: `uri`, then `grep-type`, then `id`, then `status`,
+then the validity dates. That is fitting a rule to a wanted answer, and it was
+reverted in favour of the connector declaring its role the way `brkommuner`
+always has.
+
+So the rule, stated once: **the inference is for resources nobody has
+declared.** It exists because `record_evidence` used to hardcode
+`observations` for everything discovered, and reading the rows is better than
+hoping. It is not better than a connector that knows, and a growing count of
+disagreements is not drift as long as each one is a declaration with its
+reason written down.
+
+Retrieval after the grep rows left the fetchable lane -- `lookup` is not
+retrievable -- is unchanged on all three sets: tuned 0.929/0.764, coverage
+1.000/0.652, held-out 0.905/0.748. They were never answering a gold question.
