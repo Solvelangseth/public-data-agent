@@ -2249,3 +2249,57 @@ hand-written connector, unless that connector unblocks a mechanism several
 sources need. By that rule: P8.5 (the select mechanism, three callers) stays
 first, then bucket A's resolver output, then a host-ordered bucket C sweep,
 then HydAPI.
+
+## B2b: where the 1,028 machine-readable Geonorge rows actually live
+
+Grouped by the host of their resolved URL, 2026-10-21. 41 hosts, and four of
+them hold 87%:
+
+| host | rows | what it speaks | verdict |
+|---|---|---|---|
+| `nedlasting.geonorge.no` | 608 | Geonorge download service | **solved** — `api/capabilities/{uuid}` addresses each one and publishes formats, projections and kommune coverage. See `dataset_coverage`. |
+| `thredds.met.no` | 151 | OPeNDAP | **gridded projections, not observations** — see below |
+| `pycsw.nina.no` | 82 | OGC:OAPIF | **the hostname does not resolve** |
+| `kart8.nibio.no` | 49 | Geonorge download service | same software as row 1; `api/capabilities/{uuid}` applies |
+
+Only **30 of 1,021** land on a host this registry already reads from
+(`kart.hi.no` 15, `kart.miljodirektoratet.no` 14, one Kartverket). So these are
+new readers, not more rows for existing ones.
+
+### thredds.met.no: 151 rows, and they are grids
+
+The resolved URL already ends `.nc.html`, which is OPeNDAP's own HTML form.
+Strip that and `.dds` answers 200. One of them,
+`change-evap` from Klima i Norge 2025:
+
+    Int32   time[time = 2]
+    Float32 change-evap_annual[time = 2][Yc = 1550][Xc = 1195]
+    Float32 change-evap_winter[time = 2][Yc = 1550][Xc = 1195]
+    ... units "days since 2056-01-01"
+
+That is a 1 km grid, 1.85M cells per variable per time step, and it is a
+**climate projection** rather than a measurement. Pulling it into
+`observations` would be wrong twice over: wrong shape, and wrong kind of claim.
+
+Two things are worth having and one is not:
+
+- **worth it:** the variable list and units, which `.das` publishes, so a
+  search for "fordampning" finds them. One request per dataset, no download.
+- **worth it later:** OPeNDAP subsets server-side, so
+  `?change-evap_annual[0:1:0][775:1:775][597:1:597]` returns a single cell.
+  A point query against a grid is a capability nothing in this registry has,
+  and it needs no storage at all. Real, and depth work rather than breadth.
+- **not worth it:** ingesting the grids. There is no disk for it and no
+  question they answer better than a point query would.
+
+### pycsw.nina.no does not exist
+
+`socket.gethostbyname("pycsw.nina.no")` fails with `gaierror`, so 82 datasets
+that Geonorge advertises as `OGC:OAPIF` point at a hostname with no DNS
+record. Not a firewall and not a 404 -- there is nothing to connect to. Those
+82 should be recorded `unreachable` rather than left looking like the
+second-largest queryable group, and it is worth telling Geonorge.
+
+`geo.ngu.no` by contrast answers: `api/features` returns a listing of **28
+OGC API Features APIs**, each with a description. That is a catalogue to
+follow, and the registry holds 10 rows pointing into it.
