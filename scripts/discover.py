@@ -155,6 +155,16 @@ def classify(status: int, payload: Any, url: str, note: str) -> tuple[str, str]:
         )
     if not isinstance(payload, dict):
         return "unclear", f"a bare {type(payload).__name__}"
+    # ArcGIS answers HTTP 200 and puts the failure in the body. Reporting that
+    # as "unclear" hides the reason, which is usually actionable: a layer that
+    # does not support query says so in words.
+    error = payload.get("error")
+    if isinstance(error, dict):
+        message = error.get("message") or error.get("description") or ""
+        details = error.get("details")
+        if isinstance(details, list) and details:
+            message = f"{message} {details[0]}".strip()
+        return "service-error", f"HTTP 200 with an error body: {str(message)[:90]!r}"
     if "paths" in payload and isinstance(payload.get("paths"), dict):
         return "openapi", f"{len(payload['paths'])} documented path(s)"
     for key in CATALOGUE_KEYS:
@@ -170,8 +180,19 @@ def classify(status: int, payload: Any, url: str, note: str) -> tuple[str, str]:
         if not features:
             return "empty", "a feature collection with no feature in it"
         first = features[0] if isinstance(features[0], dict) else {}
-        props = first.get("properties") if isinstance(first.get("properties"), dict) else {}
-        return "rows", f"{len(features)} feature(s), {len(props)} propert(y/ies)"
+        # GeoJSON puts the fields under `properties`; ArcGIS `f=json` puts them
+        # under `attributes`. Reading only the first reported every ArcticSDI
+        # layer as "0 properties", which reads like an empty service and would
+        # have had a reader skip eight queryable layers.
+        fields = first.get("properties")
+        if not isinstance(fields, dict) or not fields:
+            fields = first.get("attributes")
+        fields = fields if isinstance(fields, dict) else {}
+        named = ", ".join(sorted(fields)[:6])
+        return "rows", (
+            f"{len(features)} feature(s), {len(fields)} published field(s)"
+            + (f": {named}" if named else " -- geometry only, no attributes")
+        )
     for key, value in payload.items():
         if isinstance(value, list) and value and isinstance(value[0], dict):
             return "rows", f"{key}[{len(value)}], keys {sorted(value[0])[:8]}"
@@ -250,8 +271,18 @@ def declared_doors(payload: Any, url: str) -> list[tuple[str, str]]:
             layer_id = layer.get("id")
             if layer_id is None:
                 continue
+            # A group layer holds other layers and cannot be queried. It
+            # declares that by printing subLayerIds, so skipping it is reading
+            # the descriptor rather than learning from an error.
+            if layer.get("subLayerIds"):
+                continue
+            # No resultRecordCount. Older ArcGIS servers answer
+            # "Pagination is not supported" to it and the whole layer then
+            # looks broken -- npolar's ArcticSDI did, for every layer, until
+            # the parameter came off. Size is handled by the read cap and the
+            # rows-truncated verdict instead.
             doors.append((
-                f"{base}/{layer_id}/query?where=1%3D1&outFields=*&resultRecordCount=5&f=json",
+                f"{base}/{layer_id}/query?where=1%3D1&outFields=*&returnGeometry=false&f=json",
                 "declared:arcgis-layer",
             ))
 
