@@ -183,7 +183,13 @@ def ngu_table_id(access_path: str) -> str:
 
 # The link a landing page prints to say where its data is. Following it is
 # reading the publisher's own declaration, not guessing a path.
+# OGC API Features defines both a compact relation name and a full URI for
+# the same link, and publishers use either. geo.ngu.no prints the URI; the
+# spec's own examples use the compact form. Accepting one would work against
+# this publisher today and break against the next.
 DATA_REL = "http://www.opengis.net/def/rel/ogc/1.0/data"
+DATA_RELS = (DATA_REL, "data")
+ITEMS_RELS = ("items", "http://www.opengis.net/def/rel/ogc/1.0/items")
 ITEMS_REL = "items"
 
 # What NGU calls a feature's name. `NAME_FIELDS` above is for the landing
@@ -231,14 +237,14 @@ def collections_url(payload: Any, access_path: str) -> str:
     for link in payload.get("links") or []:
         if not isinstance(link, dict):
             continue
-        if link.get("rel") != DATA_REL:
+        if link.get("rel") not in DATA_RELS:
             continue
         href = link.get("href")
         if isinstance(href, str) and href.startswith("http"):
             return href
     raise ValueError(
-        f"ngu landing page {access_path} prints no {DATA_REL!r} link, so it does "
-        "not say where its data is"
+        f"ngu landing page {access_path} prints no {' or '.join(repr(r) for r in DATA_RELS)} "
+        "link, so it does not say where its data is"
     )
 
 
@@ -255,7 +261,7 @@ def items_url(collection: dict[str, Any]) -> str | None:
     """The JSON items link a collection prints, or None if it prints none."""
 
     for link in collection.get("links") or []:
-        if not isinstance(link, dict) or link.get("rel") != ITEMS_REL:
+        if not isinstance(link, dict) or link.get("rel") not in ITEMS_RELS:
             continue
         kind = str(link.get("type") or "").casefold()
         if "json" not in kind:

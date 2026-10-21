@@ -248,6 +248,11 @@ from public_data_agent.sources.nin import (
     nin_table_id,
 )
 from public_data_agent.sources.ngu import (
+    FEATURE_ID_FIELDS as NGU_FEATURE_ID_FIELDS,
+    cells_from_ngu_items,
+    collections_url as ngu_collections_url,
+    items_url as ngu_items_url,
+    printed_collections as ngu_printed_collections,
     cells_from_ngu,
     is_ngu_url,
     ngu_table_id,
@@ -4876,6 +4881,22 @@ def _fetch_ngu(
     *,
     http: JsonHttp | None = None,
 ) -> FetchResult:
+    """Fetch one NGU API's features, through the doors it declares.
+
+    Three hops, each one reading a link the previous response printed: the
+    landing page names where its data is, the collections list names each
+    collection's items, and the items are features. The old version stopped
+    at the first hop and stored its links -- seventeen rows whose measure was
+    `title`, values like "This document as HTML", and a verification to go
+    with them.
+
+    Seabed and bedrock polygons are things in places, so these land in
+    `records` as `feature`, not in `observations`. A collection that returns
+    no feature is skipped rather than failing the whole API: NGU publishes
+    `Dataavgrensning` and `GeolAvgrLinje` alongside the substantive layer and
+    one being empty says nothing about the others.
+    """
+
     access_path = dataset.get("access_path") or ""
     client = http or HttpClient(timeout=60.0, max_retries=4)
     table_id = ngu_table_id(access_path)
@@ -4895,18 +4916,66 @@ def _fetch_ngu(
         got = client.get_json_response(access_path)
         http_status = got.status
         registry.set_fetch_request(run_id, request_url=access_path, request_body={"method": "GET"})
-        cells = cells_from_ngu(got.body)
-        counts.listed = len(cells)
-        sample = _store_cells(
+        collections_endpoint = ngu_collections_url(got.body, access_path)
+        listed = ngu_printed_collections(client.get_json_response(collections_endpoint).body)
+        retrieved_at = utc_now()
+        records: list[dict[str, Any]] = []
+        read: list[str] = []
+        skipped: list[str] = []
+        for collection in listed:
+            items = ngu_items_url(collection)
+            name = str(collection.get("id") or "")
+            if not items:
+                skipped.append(f"{name} (no JSON items link)")
+                continue
+            try:
+                cells = cells_from_ngu_items(client.get_json_response(items).body)
+            except ValueError as exc:
+                skipped.append(f"{name} ({exc})")
+                continue
+            records.extend(
+                records_from_cells(
+                    cells,
+                    dataset_id=dataset["id"],
+                    table_id=f"{table_id}:{name}" if name else table_id,
+                    id_fields=NGU_FEATURE_ID_FIELDS,
+                    prefix="ngu",
+                    kind="feature",
+                )
+            )
+            read.append(name)
+        if not records:
+            raise SourceError(
+                f"no collection of {access_path} returned a feature; "
+                f"skipped: {'; '.join(skipped) or 'none'}"
+            )
+        counts.listed = len(records)
+        sample = _store_records(
             registry,
             dataset,
             run_id,
-            table_id=table_id,
-            cells=cells,
-            retrieved_at=utc_now(),
-            request_url=access_path,
+            records=records,
+            retrieved_at=retrieved_at,
+            request_url=collections_endpoint,
             http_status=http_status,
             counts=counts,
+            series=f"fetch:{table_id}",
+        )
+        registry.set_capability(
+            dataset["id"],
+            {
+                "capability": CAPABILITY_FEATURES,
+                "record_kind": "feature",
+                "endpoint": collections_endpoint,
+                "request_method": "GET",
+                "verified_at": retrieved_at,
+                "verified_sample_count": counts.listed,
+                "notes": (
+                    f"{counts.listed} feature(s) from {len(read)} of {len(listed)} "
+                    f"collection(s): {', '.join(read)}"
+                    + (f"; skipped {len(skipped)}" if skipped else "")
+                ),
+            },
         )
         status = "completed"
     except Exception as exc:

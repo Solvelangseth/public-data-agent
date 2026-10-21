@@ -174,11 +174,15 @@ def test_fetching_a_landing_page_stores_nothing(tmp_path: Path) -> None:
     source = NguSource(http=CatalogHttp())
     registry = Registry(tmp_path / "registry.sqlite")
     harvest(registry, source)
-    with pytest.raises(ValueError, match="lists links, not features"):
+    # The fixture's landing page declares a `data` link and nothing behind it,
+    # so the fetch now fails at the next hop instead of storing the links.
+    with pytest.raises(Exception):
         fetch_observations(registry, DATASET_ID, table_id="ignored", http=FetchHttp())
-    assert registry.observation_count() == 0
+    assert registry.observation_count() == 0, (
+        "not one link title may land in observations"
+    )
     assert registry.get_capability(DATASET_ID) is None, (
-        "a refused fetch must not leave a verification behind"
+        "a failed fetch must not leave a verification behind"
     )
     registry.close()
 
