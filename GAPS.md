@@ -2019,3 +2019,27 @@ Worth being plain that the first claim came from a count and one example whose
 protocol was `OGC:WMS` -- the one protocol in the sample space that looks like
 a service. 55 draws cost three minutes and moved the item from the top of the
 roadmap to struck.
+
+### The sweep, finished (2026-10-21)
+
+`grep -rn "list_observations\|observation_count\|FROM observations"` over
+`src`, `methods` and `scripts`, then every phrase that asserts absence or
+unfetchability. Five readers described the arrangement the rows had left; the
+fifth was `tool_search`'s `connector_candidates_note`, which told a caller
+catalogue hits "are not fetchable" and stopped there. It now names the ones
+holding rows: asked for `yrkeskatalogen` it points at the Klass occupation
+catalogue, and for `organisasjonsformer i Enhetsregisteret` at four
+`brorgformen` and `brreg` datasets.
+
+Two readers were examined and deliberately left alone:
+
+- `ask.py` reads observations after its fetch and reports no numbers when
+  there are none. That is correct: `ask` answers numeric questions and a
+  register holds no numbers.
+- `executor.py` reads the observation ids a fetch returned, so a records-only
+  step yields nothing. Changing it means deciding what a plan step targeting a
+  register should produce, which is the planner's question and not one to
+  answer in passing.
+
+So the sweep is complete rather than exhausted, and the two it did not change
+are recorded with the reason.

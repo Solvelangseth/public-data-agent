@@ -287,10 +287,22 @@ def tool_search(query: str, db: str = DEFAULT_DB, limit: int = 10) -> dict[str, 
         )
         payload["connector_candidates"] = candidates
         if not candidates:
+            readable = [
+                hit["id"]
+                for hit in payload["catalogue_records"]
+                if hit.get("connector", {}).get("stored_records")
+            ]
             payload["connector_candidates_note"] = (
                 "No registered observation connector declares coverage of this question. "
-                "Catalogue hits above may describe relevant data but are not fetchable; "
-                "report that numbers were not retrieved rather than guessing an API path."
+                "Catalogue hits above are not fetchable; report that numbers were not "
+                "retrieved rather than guessing an API path."
+                + (
+                    " Some of them do hold rows already: "
+                    f"{', '.join(readable[:5])} carry stored_records that run_analysis "
+                    "returns, which answers a question about things rather than numbers."
+                    if readable
+                    else ""
+                )
             )
         return payload
     finally:
