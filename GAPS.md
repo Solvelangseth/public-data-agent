@@ -2127,3 +2127,57 @@ unprobed sources costs nothing and predicts most of the outcome:
 So of 384 datasets, about 37 look like real content and the rest are services
 describing themselves. That ratio is the argument for reading before probing,
 and against handing the sweep to anything that will not look at the rows.
+
+## A licence is not an access level, and the registry has one column for both
+
+Found 2026-10-21 while writing up the two access routes that need a company
+behind them. Three counts from the registry, each verified before it was
+written down:
+
+- **6,350 datasets carry a Norge digitalt licence URL and zero have a
+  capability row.** Not one has ever been fetched. The licence field was
+  already naming the restriction; every fetch attempt rediscovered it one row
+  at a time. 4,218 of them are Norge i bilder, which is aerial imagery this
+  project refuses anyway, so the part worth an agreement is nearer 2,100.
+- **3 FKB rows declare `noConditionsApply` and are restricted anyway**, and 11
+  more FKB rows carry no licence. 244 rows across the registry make that
+  `noConditionsApply` claim. The field is not a reliable access signal in
+  either direction.
+- **51 datasets declare CC-BY-NC**, 38 from Kartverket and 8 from
+  Havforskningsinstituttet.
+
+The first count was nearly reported as 1,643. The query used
+`license LIKE '%NC%'`, and SQLite's LIKE is case-insensitive for ASCII, so it
+matched every URL containing the word "lice**nc**e". Checking which strings
+the pattern actually matched is what caught it, and that check is now the
+habit for any count that becomes a claim.
+
+### What this means for P6.4
+
+The Geonorge licence backfill was filed as "fill 7,425 null licences from
+`api/getdata/{uuid}`, honest provenance, no new fetchability". It still is,
+but it must not be read as an access answer. A dataset can declare
+`noConditionsApply` and be closed; a dataset can be open and declare nothing.
+Filling the column tells us what the publisher *says*, which is worth having
+and is not the same question as whether an agent can read it.
+
+### The schema question
+
+Three different things are currently blurred into one column plus one table:
+
+    can it be fetched    `resource_capability` -- has a verdict and a date
+    may it be used       `datasets.license` -- a URL, no verdict
+    may it be passed on  nowhere at all
+
+Only the first carries a verdict. The third does not exist, and for a service
+intended to become a commercial API it is the one that decides what can ship:
+Kartverket requires a separate framework agreement to redistribute Matrikkel
+or Grunnbok data, and 51 datasets forbid commercial use outright.
+
+Not acted on yet, and deliberately so. Adding a redistribution column means
+deciding a verdict per licence family, which is a legal reading and not a
+shape test — the kind of judgement this project has been careful to keep out
+of inference. The honest first step is smaller: record the licence family as
+a derived, named value (NLOD, CC-BY, CC-BY-NC, Norge digitalt, INSPIRE
+codelist, null) so the question can at least be *asked* of the registry
+without a LIKE pattern. That is a migration, not a guess.

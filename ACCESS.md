@@ -11,7 +11,10 @@ authorisation. That is deliberately distinct from `withdrawn` (gone), `empty`
 
 **Status, 2026-10-21.** BarentsWatch is done and built — see section 2.
 Statens vegvesen access **has been requested and is awaiting a reply**; do not
-request it again. Nothing else here is waiting on a registration. BarentsWatch is done: both clients work and
+request it again. Two larger ones are gated on registering a company, and
+sections 5 and 6 are what to do about them: Kartverket's restricted geodata
+(6,350 datasets, none ever fetched) and the Matrikkel/Grunnbok APIs (a
+registered business only). Section 7 is the rule they both taught. BarentsWatch is done: both clients work and
 the fish-health API is open, so section 2 is now a connector job, not an
 access problem. Datafangst never — it is a submission API and has nothing for
 a read-only registry.
@@ -245,7 +248,155 @@ be fetched by any agent, so each one is a document to request by hand.
 
 ---
 
-## 5. Not credential problems, recorded here so they are not mistaken for one
+## 5. Kartverket's restricted geodata — FKB and the Norge digitalt wall
+
+This is the largest access problem in the registry and it has been sitting in
+plain sight, declared in a column nobody read as an access signal.
+
+Kartverket publishes at three levels: open data, **tilgangsbegrensede data**
+needing an agreement and sometimes payment, and **skjermede data** needing a
+specific justification and approval. FKB — Felles kartdatabase, the detailed
+base map — is the second kind. Part of the municipalities' cost of maintaining
+it is recovered through user payment, which is why it is not free.
+
+What the registry already knows, counted today:
+
+| | datasets |
+|---|---|
+| carry a **Norge digitalt licence URL** | **6,350** of 17,505 |
+| …of which have a capability row | **0** |
+| published by "Norge i bilder" (aerial imagery) | 4,218 |
+| published by Kartverket | 2,066 |
+| named FKB | 75, of which 61 under that licence |
+
+**Zero of 6,350 has ever been fetched.** The licence column was already
+telling us these are closed, and the fetch attempts confirmed it one row at a
+time without anyone adding up the licence. Four of every five is Norge i
+bilder — aerial photography, which this project refuses anyway because imagery
+is not numbers — so the part worth an agreement is nearer 2,100 than 6,350.
+
+**A licence that contradicts its own access.** Three FKB rows declare
+`ConditionsApplyingToAccessAndUse/noConditionsApply` while the download stays
+restricted to Norge digitalt parties, and 11 more carry no licence at all.
+244 datasets across the registry make that `noConditionsApply` claim. So the
+licence field is **not** a reliable access signal in either direction, and the
+P6.4 licence backfill must not be allowed to conclude "open" from it. That is
+a new constraint on P6.4, not a detail.
+
+**How a private company gets in.** Norge digitalt is a cooperation between
+public bodies; GeoID logins are issued only to its parties, or to someone with
+a loan agreement (`utlånsavtale`) from a party. A private company buys access
+through a reseller (`forhandler`) or makes its own agreements with the data
+owners — the municipalities and Geovekst, not Kartverket alone.
+
+- Open vs restricted, Geonorge's own page:
+  <https://www.geonorge.no/aktuelt/om-geonorge/slik-bruker-du-geonorge/apne-og-tilgangsbegrensede-data/>
+- Who may have a login: <https://www.geonorge.no/kartdata/tilgang-og-passord/>
+- Norge digitalt general terms 2025 (PDF):
+  <https://www.geonorge.no/globalassets/geonorge2/avtaler-og-bilag-norge-digitalt/generelle-vilkar.pdf>
+- Kartverket enquiries: post@kartverket.no, or the contact form at
+  <https://www.kartverket.no/om-kartverket/kontakt-oss/kontaktskjema>
+
+**On the suggested address `post@norgedigitalt.no`:** I could not verify that
+it exists. Geonorge's own pages route enquiries to Kartverket, so send it to
+`post@kartverket.no` unless you find the other address printed somewhere
+official. Everything else in that draft enquiry is sound, and the three
+questions in it are the right three: can an external developer get access at
+all, which resellers serve this, and what the terms are for **passing the data
+on** through a commercial API.
+
+**The redistribution question is the one that decides the product.** A reading
+licence would let NorAtlas answer questions from FKB. Redistribution is a
+separate permission, and for a service whose whole shape is handing data to
+other people's agents, it is the permission that matters. Ask about it first,
+not last.
+
+---
+
+## 6. Matrikkelen and Grunnboken — only a registered company may apply
+
+Keep two things apart that the name does not.
+
+**What the registry already holds is the open part.** 37 datasets mention
+Matrikkelen and they carry CC-BY-4.0: addresses, building points, Eiendomskart
+Teig, and historical versions of each. Those are open distributions and need
+no application. Nothing in section 6 is about them.
+
+**What needs an application is the API** — the live register with owner
+information and the change logs that let an approved business keep its own
+copy current. Three of them, plus one add-on:
+
+| API | what it adds |
+|---|---|
+| Matrikkel-APIet | properties, addresses, buildings, **owner contact details** |
+| Grunnbok-APIet | registered rights, ownership, encumbrances (no owner postal addresses) |
+| APIet for egenregistrerte data | add-on to the Matrikkel API |
+| APIet for dokumentbestilling | document ordering |
+
+**Who may apply.** Only a business registered in Enhetsregisteret. Kartverket
+states this explicitly; a private individual cannot apply, so this waits on
+you registering. An organisation number alone is not enough either: access
+requires a legal basis (`hjemmel`) under *utleveringsforskriften*, and
+Kartverket's lawyers assess that and set the scope. Applying is free and
+lookups are unlimited; your cost is building the interface and the security
+around personal data.
+
+**The timing is actually in your favour, and it is now.** From **autumn 2026**
+Kartverket replaced individually negotiated agreements with a one-sided
+standard-terms model: you apply through **Altinn**, accept the standard terms,
+and receive a *vedtak* rather than signing an agreement. Existing holders are
+being terminated and must re-apply, with access ending three months after
+notice and no later than spring 2027. As a new applicant you go straight into
+the new model with nothing to migrate.
+
+**What you need before applying:** the organisation registered in
+Enhetsregisteret, an electronic ID (BankID, Buypass or Commfides), and the
+Altinn role *Daglig leder* or a delegated mandate.
+
+**And the catch that matters most here:** passing information from Matrikkelen
+or Grunnboken on to others requires a **framework agreement** with Kartverket,
+separate from access itself. A commercial API serving property data to third
+parties is exactly that case. Worth asking about in the same breath as
+section 5's redistribution question.
+
+- What requires an application:
+  <https://kartverket.no/api-og-data/eiendomsdata/data-som-krever-soknad>
+- The new agreement model and its dates:
+  <https://kartverket.no/api-og-data/eiendomsdata/ny-avtalemodell>
+- Standard terms:
+  <https://kartverket.no/api-og-data/eiendomsdata/vilkar-for-elektronisk-tilgang-til-eiendomsdata>
+- The open property data, which needs none of this:
+  <https://kartverket.no/api-og-data/eiendomsdata/tilgang-til-apne-eiendomsdata>
+- API documentation: <https://kartverket.github.io/api-dokumentasjon/docs/eiendom/>
+- Enquiries: post@kartverket.no · 32 11 80 00
+
+**Priority:** after registering the company, and after section 5. Section 5
+buys breadth across 2,100 datasets the registry already lists; section 6 buys
+one register, carrying personal data, with a redistribution restriction on it.
+
+---
+
+## 7. A licence is not an access level — the rule this file now carries
+
+Three findings above say the same thing from different directions and it is
+worth stating once, because the registry is built to trust declarations.
+
+- 6,350 datasets declare a Norge digitalt licence and **none** has ever been
+  fetched. The licence named the restriction; nothing read it that way.
+- 3 FKB rows declare `noConditionsApply` and are restricted anyway.
+- **51 datasets declare a non-commercial licence** (CC-BY-NC), 38 of them from
+  Kartverket, 8 from Havforskningsinstituttet. For a service meant to become
+  commercial, those 51 are a different kind of closed from a 401 — no
+  credential opens them, and no probe will ever report the problem.
+
+So the registry needs to tell three things apart that it currently blurs:
+**can it be fetched** (a capability), **may it be used** (a licence), and
+**may it be passed on** (a redistribution term). Today only the first has a
+column with a verdict in it. That is a schema question, filed in `GAPS.md`.
+
+---
+
+## 8. Not credential problems, recorded here so they are not mistaken for one
 
 - **10 NVDB types are `empty`** — they answer correctly and hold no objects.
   No credential would change that; they may hold objects next month.
