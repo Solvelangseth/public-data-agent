@@ -81,7 +81,23 @@ def _codelist(links: list[dict[str, Any]], name: str) -> str | None:
     return None
 
 
-def resolve(dataset_id: str, uuid: str, service_root: str, pause: float) -> dict[str, Any]:
+def resolve(
+    dataset_id: str,
+    uuid: str,
+    service_root: str,
+    pause: float,
+    hierarchy_level: str | None = None,
+) -> dict[str, Any]:
+    # A `series` is a parent record grouping versions. It has no download of
+    # its own, so the download service has no entry and answers 404 -- which
+    # is 34 of the 45 failures in the first run. Recording that as a failure
+    # invites someone to debug a service that is behaving correctly.
+    if hierarchy_level == "series":
+        return {
+            "dataset_id": dataset_id,
+            "uuid": uuid,
+            "skipped": "series: a parent record grouping versions, with no download of its own",
+        }
     status, capabilities = _get(f"{service_root.rstrip('/')}/{uuid}")
     if not isinstance(capabilities, dict):
         return {"dataset_id": dataset_id, "uuid": uuid, "error": f"capabilities HTTP {status}"}

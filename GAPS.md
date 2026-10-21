@@ -2689,3 +2689,42 @@ answered 151 `.dds` requests minutes earlier. That is 302 requests from this
 machine at 0.4s spacing, and the slowness is far more likely mine than theirs.
 `thredds.met.no` is done with for today; the indexing it was needed for is
 finished.
+
+### N7 answered: 34 of 45 are series parents, 11 are still unexplained
+
+The 404s from the download service. My first hypothesis was "the historical
+versions", checked and rejected. The second was "a different uuid", checked
+and rejected -- the uuid we send matches the catalogue's own `Uuid` exactly.
+
+The catalogue says it outright, in a field I had not read:
+
+    a failure   HierarchyLevel "series"   Type "series"   "Datasettserie"
+    a success   HierarchyLevel "dataset"  ParentIdentifier 86a4c445-…
+
+A **Datasettserie** is a parent record grouping versions. It has no
+distribution of its own, so the download service has no entry for it and the
+404 is correct behaviour by both parties.
+
+Checked across all 45 rather than claimed from one:
+
+| | series | dataset |
+|---|---|---|
+| all 45 failures | **34** | 11 |
+| 30 successes, for contrast | 0 | 30 |
+
+So **34 of 45 are explained and 11 are not.** Those 11 are `HierarchyLevel:
+dataset` and still 404, and I have no hypothesis for them. Saying "N7 is
+solved" would be wrong by eleven rows.
+
+Fixed: `resolve_geonorge.py` now captures `HierarchyLevel` and
+`ParentIdentifier`, and `resolve_download_capabilities.py` skips a series
+instead of recording a failure -- a failure invites someone to debug a service
+that is behaving correctly. Backfilling `hierarchy_level` onto the 7,425
+already resolved means another full run, about 45 minutes, and is worth doing
+before anyone counts failures again.
+
+Incidentally the title test that failed as a hypothesis works as a
+discriminator for part of it: "versjoner" appears in 25 of 45 failures and
+**0 of 644** successes, while "historiske data" appears in 284 successes and 1
+failure. Which is a reminder that a signal can separate two groups without
+being the reason they differ.

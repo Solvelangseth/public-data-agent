@@ -133,6 +133,12 @@ def resolve(uuid: str, dataset_id: str) -> dict[str, Any]:
         "best_url": best_url,
         # The publisher's own words for whether it is open, and the licence
         # link it points at. Neither is inferred.
+        # `series` means a parent record grouping versions, and it is why 34 of
+        # the 45 capabilities 404s are 404s: a Datasettserie has no download of
+        # its own, so the download service is right to have no entry. Captured
+        # here so the next run can skip them rather than record a failure.
+        "hierarchy_level": payload.get("HierarchyLevel"),
+        "parent_identifier": payload.get("ParentIdentifier"),
         "access_constraint": constraints.get("AccessConstraints"),
         "license_url": constraints.get("OtherConstraintsLink"),
         "use_constraint": constraints.get("UseConstraints"),
