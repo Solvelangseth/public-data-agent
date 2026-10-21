@@ -40,6 +40,10 @@ def main() -> int:
     parser.add_argument("--embedding-model", dest="embedding_model", default=None,
                         help="Rank with this embedding index instead of the default")
     parser.add_argument("--dimensions", type=int, default=None)
+    parser.add_argument("--rerank-keep", type=int, default=None,
+                        help="positions of the original ranking held in front of the model's choices")
+    parser.add_argument("--rerank-lift", type=int, default=None,
+                        help="how many of the model's choices are promoted")
     parser.add_argument("--rerank", action="store_true",
                         help="Let a model reorder the shortlist it retrieved")
     parser.add_argument("--rewrite", choices=("openai", "klass", "both"), default=None,
@@ -92,9 +96,14 @@ def main() -> int:
     try:
         for i, qid in enumerate(scored, 1):
             query, style, want = meta[qid]["query"], meta[qid]["style"], gold[qid]
+            merge = {}
+            if args.rerank_keep is not None:
+                merge["rerank_keep"] = args.rerank_keep
+            if args.rerank_lift is not None:
+                merge["rerank_lift"] = args.rerank_lift
             ranked = find(
                 registry, query, provider=provider, limit=args.depth,
-                rewriter=rewriter, reranker=reranker,
+                rewriter=rewriter, reranker=reranker, **merge,
             ).observations
             got = bool(want & set(ranked[:5]))
             hits += got

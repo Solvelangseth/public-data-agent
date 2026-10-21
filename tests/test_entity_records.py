@@ -87,17 +87,29 @@ def test_a_measure_that_repeats_its_value_is_naming_something() -> None:
     assert record["subject_label"] is None
 
 
-def test_a_row_with_no_identifier_is_keyed_by_its_position() -> None:
+def test_a_row_with_no_identifier_is_keyed_by_what_it_printed() -> None:
+    """Position is not an identity, and a re-fetch proved it.
+
+    `basemap_land_2` returns seven continents and none of them carries a code.
+    Keyed positionally, `Europe_Asia` was row0 in one fetch and row6 in the
+    next, so the re-fetch created a second record for the same continent and
+    relabelled the first.
+    """
+
+    cells = [("continent", "Europe_Asia", {}), ("continent", "Africa", {})]
     records = records_from_cells(
-        [("continent", "Europe_Asia", {}), ("continent", "Africa", {})],
-        dataset_id="hi:basemap",
-        table_id="basemap",
-        id_fields=("fid",),
-        prefix="hi",
-        kind="feature",
+        cells, dataset_id="hi:basemap", table_id="basemap",
+        id_fields=("fid",), prefix="hi", kind="feature",
     )
     assert [record["subject_code"] for record in records] == [None, None]
     assert len({record["id"] for record in records}) == 2
+
+    # The same member keeps its id however the response is ordered.
+    reordered = records_from_cells(
+        list(reversed(cells)), dataset_id="hi:basemap", table_id="basemap",
+        id_fields=("fid",), prefix="hi", kind="feature",
+    )
+    assert {record["id"] for record in records} == {record["id"] for record in reordered}
 
 
 def test_one_number_makes_a_batch_a_measurement_batch() -> None:

@@ -1346,3 +1346,43 @@ they answer numeric questions, but the rows are still in the wrong table:
 This is connector work, not a ranking change, and it is not done. Until it
 is, `observations` is two things at once, and any count over that table is a
 count of cells plus name cards.
+
+## The reranker merge is sensitive but not exploitable (2026-10-21)
+
+`rerank` merges the model's judgement with the ranking it was given as
+`ranked[:keep] + lifted[:lift] + ranked`, deduped. With `keep=1` the original
+rank-1 is pinned in front of the model's choices whatever it is, and this
+session watched the tuned MRR move three separate times — 0.747, 0.752, 0.746
+— with nothing in the ranking itself changing, only which datasets were in
+the lane the reranker reads.
+
+So the merge was measured. Six variants, on the tuned set only, all reading
+the same cached model answers: `keep` and `lift` change how a judgement is
+merged, not the head the model is shown, so every variant scores the same
+judgements and the comparison carries no sampling noise from the model.
+
+| keep | lift | recall@5 | MRR |
+|---|---|---|---|
+| 0 | 3 | 0.878 | 0.753 |
+| 0 | 5 | 0.867 | 0.751 |
+| **1** | **3** | **0.878** | **0.752** |
+| 1 | 5 | 0.878 | 0.750 |
+| 2 | 3 | 0.878 | 0.734 |
+| 2 | 5 | 0.888 | 0.732 |
+
+Nothing dominates. `keep=0, lift=3` is +0.001 MRR, which across 98 questions
+is one answer moving one position — noise, not a result. The one real trade
+is `keep=2, lift=5`: +0.010 recall@5, one more answer inside the top five,
+against −0.020 MRR, the best answer pushed down. Holding more of the original
+head is monotonically worse for MRR at a fixed lift.
+
+The default stays at `keep=1, lift=3`. The held-out set was not run for this:
+choosing a merge by its numbers would retire it, and there is nothing here
+worth choosing. What the grid does settle is that the sensitivity seen all
+session is real but bounded at roughly ±0.02 MRR, so a change of that size
+after a registry edit is the shortlist moving, not the ranking improving or
+degrading.
+
+The knob is now named (`RERANK_KEEP`, `RERANK_LIFT`), threaded through `find`,
+and exposed as `--rerank-keep` / `--rerank-lift`, so the next person to
+suspect it can re-run the grid in two minutes instead of arguing about it.

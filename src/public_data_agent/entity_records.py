@@ -14,6 +14,8 @@ decided; only the shape it lands in changes.
 
 from __future__ import annotations
 
+import hashlib
+import json
 from typing import Any
 
 # A publisher's way of writing "no value here". A cell that carries one is
@@ -185,10 +187,13 @@ def records_from_cells(
             for key, val in dims.items()
             if key != id_field and key != label_field
         }
-        # Two members of one listing must not share an id. A member that printed
-        # no identifier at all is keyed by its position in the response, which
-        # is what the connector read it from.
-        handle = subject_code if subject_code is not None else f"row{index}"
+        # Two members of one listing must not share an id. A member that
+        # printed no identifier is keyed by a digest of what it did print,
+        # not by its position: `basemap_land_2` returns seven continents, and
+        # keyed positionally `Europe_Asia` was row0 in one fetch and row6 in
+        # the next, so a re-fetch silently created a second record for the
+        # same continent and relabelled the first.
+        handle = subject_code if subject_code is not None else _digest(measure, value, dims)
         records.append(
             {
                 "id": f"{kind}:{dataset_id}:{scheme}:{handle}",
@@ -200,6 +205,17 @@ def records_from_cells(
             }
         )
     return records
+
+
+def _digest(measure: str, value: Any, dims: dict[str, str]) -> str:
+    """A short, stable handle for a member that published no identifier.
+
+    Derived from what the publisher printed and nothing else, so the same
+    member keeps the same id across fetches however the response is ordered.
+    """
+
+    printed = json.dumps([measure, value, dims], ensure_ascii=False, sort_keys=True)
+    return "d" + hashlib.sha256(printed.encode("utf-8")).hexdigest()[:12]
 
 
 def is_number(value: Any) -> bool:

@@ -12,6 +12,7 @@ from public_data_agent.registry import Registry
 from public_data_agent.sources import SOURCE_IDS, build_source
 from public_data_agent.sources.hi import (
     HiFeaturesSource,
+    cells_and_geometry_from_hi,
     cells_from_hi,
     hi_table_id,
     is_hi_url,
@@ -190,15 +191,18 @@ def test_fetch_gets_printed_strandnot_items(tmp_path: Path) -> None:
     assert result.table_id == "hi_basemap:Strandnot"
     assert result.http_status == 200
     assert result.counts.listed == 2
-    # A beach-seine station is a thing in a place. The geometry that says
-    # where is nested, and `cells_from_hi` does not copy it, so the record
-    # carries no geometry rather than a guessed one.
+    # A beach-seine station is a thing in a place, and the record now carries
+    # the place. The geometry comes from the feature it was published on,
+    # copied as GeoJSON, never derived from the Lat/Long properties beside it.
     assert registry.observation_count() == 0
     rows = registry.list_records(DATASET_ID, kind="feature")
     by_name = {row["subject_label"]: row for row in rows}
     assert set(by_name) == {"Bergen", "Oslo"}
     assert all(row["measure"] is None and row["value_json"] is None for row in rows)
-    assert all(row["geometry_json"] is None for row in rows)
+    assert json.loads(by_name["Bergen"]["geometry_json"]) == {
+        "type": "Point",
+        "coordinates": [5.3, 60.4],
+    }
     assert by_name["Bergen"]["subject_code"] == "Strandnot.1"
     assert all(row["subject_scheme"] == "hi:hi_basemap:Strandnot" for row in rows)
     attributes = json.loads(by_name["Bergen"]["attributes_json"])
@@ -255,3 +259,31 @@ def test_limit_and_offset_slice_printed_collections() -> None:
     ]
     nxt = source.list_dataset_refs(limit=1, offset=2)
     assert [ref.source_native_id for ref in nxt] == ["hi_basemap:Strandnot"]
+
+
+def test_a_member_with_no_geometry_carries_none(tmp_path: Path) -> None:
+    """A collections catalog and a bare feature have no place to carry.
+
+    `None` rather than an empty shape: an empty geometry would read as "known
+    to be nowhere", which is a different claim from "the publisher did not say".
+    """
+
+    body = {
+        "type": "FeatureCollection",
+        "features": [
+            {"type": "Feature", "id": "a", "properties": {"fid": "a", "navn": "Uten geometri"}},
+            {
+                "type": "Feature",
+                "id": "b",
+                "geometry": {"type": "Point", "coordinates": [10.7, 59.9]},
+                "properties": {"fid": "b", "navn": "Med geometri"},
+            },
+        ],
+    }
+    paired = cells_and_geometry_from_hi(body)
+    assert [geometry for _cell, geometry in paired] == [
+        None,
+        {"type": "Point", "coordinates": [10.7, 59.9]},
+    ]
+    # And the cells are exactly what the properties-only reader produces.
+    assert [cell for cell, _geometry in paired] == cells_from_hi(body)

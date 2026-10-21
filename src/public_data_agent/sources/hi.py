@@ -204,24 +204,57 @@ def cells_from_hi(payload: Any) -> list[tuple[str, Any, dict[str, str]]]:
 
 
 def _records(payload: Any) -> list[dict[str, Any]]:
+    return [props for props, _geometry in _records_with_geometry(payload)]
+
+
+def _records_with_geometry(payload: Any) -> list[tuple[dict[str, Any], Any]]:
+    """Each member's properties, and the geometry published beside them.
+
+    One traversal for both, because the alternative is two that have to agree
+    about which members were skipped. A collections catalog and a feature with
+    no properties object have no geometry to carry, and that is `None` rather
+    than an empty shape.
+    """
+
     if not isinstance(payload, dict):
         raise ValueError("hi payload is not a JSON object")
     features = payload.get("features")
     if isinstance(features, list):
-        records: list[dict[str, Any]] = []
+        records: list[tuple[dict[str, Any], Any]] = []
         for feature in features:
             if not isinstance(feature, dict):
                 continue
+            geometry = feature.get("geometry")
             props = feature.get("properties")
             if isinstance(props, dict):
-                records.append(props)
+                records.append((props, geometry))
             elif _feature_scalars(feature):
-                records.append(_feature_scalars(feature))
+                records.append((_feature_scalars(feature), geometry))
         return records
     collections = payload.get("collections")
     if isinstance(collections, list):
-        return [item for item in collections if isinstance(item, dict)]
+        return [(item, None) for item in collections if isinstance(item, dict)]
     raise ValueError("hi payload is not a GeoJSON FeatureCollection or collections catalog")
+
+
+def cells_and_geometry_from_hi(
+    payload: Any,
+) -> list[tuple[tuple[str, Any, dict[str, str]], Any]]:
+    """Cells as `cells_from_hi` builds them, each paired with its geometry.
+
+    A feature without its geometry is half a feature: `omraader_inkludert_i_
+    raadgivningskart_2025` says a spawning ground is a high-concentration
+    area and never says where. The cell carries the properties, as it always
+    has, and the geometry rides alongside so a record can keep it.
+    """
+
+    paired: list[tuple[tuple[str, Any, dict[str, str]], Any]] = []
+    for props, geometry in _records_with_geometry(payload):
+        for cell in _cells_from_record(props):
+            paired.append((cell, geometry))
+    if not paired:
+        raise ValueError("hi payload printed no records")
+    return paired
 
 
 def _feature_scalars(feature: dict[str, Any]) -> dict[str, Any]:

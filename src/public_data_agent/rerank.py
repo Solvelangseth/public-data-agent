@@ -28,6 +28,12 @@ from typing import Protocol
 
 RERANK_DEPTH = 20
 MAX_RANKED = 8
+# How the model's judgement is merged with the ranking it was given. Named
+# rather than inlined so the choice can be measured instead of argued about:
+# it has moved the tuned MRR three times this session without anything in the
+# ranking itself changing.
+RERANK_KEEP = 1
+RERANK_LIFT = 3
 
 RERANK_INSTRUCTIONS = """Du får et spørsmål og en nummerert liste over datasett fra en katalog over norsk offentlig statistikk.
 
@@ -80,8 +86,8 @@ def rerank(
     ranked: list[str],
     *,
     depth: int = RERANK_DEPTH,
-    keep: int = 1,
-    lift: int = 3,
+    keep: int = RERANK_KEEP,
+    lift: int = RERANK_LIFT,
 ) -> list[str]:
     """Reorder the head of a ranking, keeping everything it does not mention.
 

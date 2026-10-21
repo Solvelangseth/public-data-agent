@@ -26,7 +26,7 @@ from public_data_agent.embeddings import rank_for_query, semantic_ranking
 from public_data_agent.fetch import classify_access_path, is_retrievable
 from public_data_agent.registry import Registry
 from public_data_agent.resource_index import demote_breakdown_only
-from public_data_agent.rerank import Reranker, rerank
+from public_data_agent.rerank import RERANK_KEEP, RERANK_LIFT, Reranker, rerank
 from public_data_agent.rewrite import QueryRewriter, terms_for
 from public_data_agent.search import search_report
 
@@ -104,6 +104,8 @@ def find(
     rewriter: QueryRewriter | None = None,
     rewrite_model: str | None = None,
     reranker: Reranker | None = None,
+    rerank_keep: int = RERANK_KEEP,
+    rerank_lift: int = RERANK_LIFT,
 ) -> Retrieved:
     """Rank what could answer a question, fetchable results kept apart.
 
@@ -202,7 +204,10 @@ def find(
         # is what a caller reads and reordering it is the only thing that shows
         # up in an answer. The model sees titles, not data, and answers with
         # positions, so the worst it can do is order the same results badly.
-        reordered = rerank(registry, reranker, query, observations)
+        reordered = rerank(
+            registry, reranker, query, observations,
+            keep=rerank_keep, lift=rerank_lift,
+        )
         if reordered != observations:
             steps.append("a model reordered the shortlist by what answers the question")
         observations = reordered

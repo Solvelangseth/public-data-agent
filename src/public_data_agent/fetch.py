@@ -1044,6 +1044,8 @@ from public_data_agent.sources.utdanning import (
     utdanning_table_id,
 )
 from public_data_agent.sources.hi import (
+    cells_and_geometry_from_hi,
+    cells_and_geometry_from_hi,
     cells_from_hi,
     hi_table_id,
     is_hi_url,
@@ -8109,15 +8111,22 @@ def _fetch_hi(
         registry.set_fetch_request(run_id, request_url=access_path, request_body={"method": "GET"})
         # A spawning ground, a sampling station and a seismic advisory zone
         # are things in places, and the collection they come from is an OGC
-        # features endpoint, not a table of measurements.
+        # features endpoint, not a table of measurements. The geometry rides
+        # along with each cell so the record can keep it: a feature without
+        # its geometry says a ground is a high-concentration spawning area and
+        # never says where.
+        paired = cells_and_geometry_from_hi(got.body)
         records = records_from_cells(
-            cells_from_hi(got.body),
+            [cell for cell, _geometry in paired],
             dataset_id=dataset["id"],
             table_id=table_id,
             id_fields=FEATURE_ID_FIELDS,
             prefix="hi",
             kind="feature",
         )
+        for record, (_cell, geometry) in zip(records, paired):
+            if geometry is not None:
+                record["geometry"] = geometry
         counts.listed = len(records)
         sample = _store_records(
             registry,
