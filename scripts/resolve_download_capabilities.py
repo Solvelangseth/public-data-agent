@@ -107,7 +107,20 @@ def resolve(dataset_id: str, uuid: str, service_root: str, pause: float) -> dict
         time.sleep(pause)
         _status, formats = _get(formats_url)
         if isinstance(formats, list):
-            entry["formats"] = sorted({
+            # The publisher's own list carries 52 spellings of 34 formats:
+            # trailing spaces on most of them, plus GeoJSON/GEOJSON and
+            # Shape/SHAPE. A consumer matching "CSV" exactly misses the three
+            # datasets that say "CSV " -- which my first count of this did.
+            # The publisher's spelling is kept beside the normal form, because
+            # it is theirs and a normalisation is a reading.
+            seen: dict[str, str] = {}
+            for item in formats:
+                if not isinstance(item, dict) or not item.get("name"):
+                    continue
+                printed = str(item["name"])
+                seen.setdefault(printed.strip().upper(), printed.strip())
+            entry["formats"] = sorted(seen.values())
+            entry["formats_as_printed"] = sorted({
                 str(f.get("name")) for f in formats
                 if isinstance(f, dict) and f.get("name")
             })

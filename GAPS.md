@@ -2319,3 +2319,30 @@ datasets resolve perfectly well.** The lean is far too weak to be the cause.
 Recorded as 34 unresolved with their 404, cause unknown. The tidy version
 would have been read as settled by whoever picked this up next, and a wrong
 settled explanation is worse than an open question.
+
+### The download capabilities, applied — and two things the counting got wrong
+
+644 of 689 datasets applied. 239 list kommuner, 62 need a Norge digitalt role,
+13 offer CSV. `dataset_coverage` holds **71,749 rows over 1,538 kommune
+codes**, and `datasets_covering("0301")` returns **197 datasets for Oslo**,
+202 for Trondheim, 191 for Alstahaug — with the format and the licence on each.
+
+**1,538 codes, and Norway has 357 kommuner.** 361 of the registry's 365 current
+kommune codes are covered, which is near-complete. The other 1,177 are
+historical numbers — `0101`, `0104`, `0121` and the rest of the pre-2020
+numbering — which is correct, because a historical dataset covers historical
+kommuner. It is also a trap: a query for Oslo as `0301` misses anything filed
+under the old `0301`→`03` reorganisation and vice versa, and nothing currently
+tells the two apart. The registry holds `klass:131` with validity dates and
+this table does not join to it yet.
+
+**The format names are not one vocabulary.** The publisher's own lists carry
+**52 spellings of 34 formats**: trailing spaces on sixteen of them, plus
+`GeoJSON`/`GEOJSON` and `Shape`/`SHAPE`. My own count of "how many offer CSV"
+said 10 because it matched `"CSV"` exactly, and three datasets say `"CSV "`.
+The real answer is 13.
+
+Fixed in the resolver rather than in each consumer, because every consumer
+would otherwise repeat it, and the printed spelling is kept beside the normal
+form -- it is the publisher's, and normalising is a reading. The 689 already
+resolved were re-normalised in place rather than re-fetched.
