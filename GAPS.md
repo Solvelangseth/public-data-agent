@@ -1473,3 +1473,51 @@ Nothing was recorded against them. They hold no capability row, so they are
 not claimed as fetchable, and a server that is timing out today may serve
 tomorrow — writing `withdrawn` or `empty` for it would bake a transient into
 the registry as a finding. The note is the record.
+
+## The rest of the label audit, and what it leaves (2026-10-21)
+
+The four remaining tuned misses were audited the same way as a047: enumerate
+candidates from the registry's own index of published measures and dimensions,
+then judge each on what it publishes.
+
+**a025 was corrected.** `foretak etter organisasjonsform` was labelled with
+13702, 08076 and 09028, which publish `Nye foretak` and `Nyetablerte føretak`
+— newly established enterprises, a narrower subject than the question. The
+candidate query (a measure counting foretak, with an `organisasjonsform`
+dimension) returns 14001, `Føretak, etter organisasjonsform og sektor`,
+publishing `Talet på føretak`. That is the question itself. 14002 and 14003
+publish the same measure with næring added and were left out as breakdowns.
+
+This is the error pattern the file already records fixing once, for the
+agriculture, fisheries and foreign-trade labels: the original named a niche
+cut and the plain subject table was omitted.
+
+**a035, a049 and a058 were left alone.** Their labels publish the measure the
+question asks for — `Mengd (tonn)` and `Avfallsmengde`, `Avtalt månedslønn
+(kr)`, `Studenter` — and are not wrong. The retrieval's top hits also answer,
+but "both answer" is not a label error, and widening on that basis would move
+the number without correcting anything.
+
+    tuned, full stack
+      before the audit   0.878 / 0.752
+      after a047         0.888 / 0.757
+      after a025         0.898 / 0.761
+
+Both steps raise the number and both are recorded as what they are: the
+ranking did not change once. What changed is that two questions were being
+scored against tables that do not answer them.
+
+What is left of the original "ten misses needing column- and unit-level
+matching":
+
+- a010 `bruttonasjonalprodukt`, a027 `regnskapstall aksjeselskap`,
+  a080 `kvadratkilometer` — not in depth 50 at all. These are retrieval
+  failures and the only ones that clearly are.
+- a024 `frafall videregående`, a035, a048, a049 — found at rank 6 or 7, so
+  retrieved and placed below five. This is the reranker's business, and the
+  grid above says the merge is not the lever.
+- a045 `bydel i Oslo` at 12, a058 `studenter` at 11.
+- a063 is a coverage gap, deliberately left mislabelled.
+
+So three genuine depth failures, not ten. The framing was carrying four label
+errors and a coverage gap as if they were ranking problems.
