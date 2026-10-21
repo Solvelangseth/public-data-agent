@@ -1568,3 +1568,51 @@ searching all 587,333 values; the measure labels alone are 15,210 rows, and
 for a080 the match is a unit (`Areal (km²)` against a question that says
 kvadratkilometer) rather than a subject. Those are two different lanes and
 worth measuring separately rather than as one "value index" again.
+
+## The three depth failures, measured one lane at a time (2026-10-21)
+
+The measure-label lane was the hypothesis: the earlier value-index attempts
+searched all 587,333 `resource_field_values` rows, and measure labels alone
+are 15,210 — smaller and more informative. Measured on the tuned set, that
+lane finds a gold answer in its top ten for **30 of 98** questions and for
+**none of the three** depth failures. Refuted.
+
+It is refuted for a reason recorded an hour earlier in this same file: a010's
+answer is `Bruttonasjonalprodukt, markedsverdi`, a value of the `Makrost`
+*dimension*, and a measure-only lane excludes dimensions by construction. The
+finding was already written down and did not get connected to the hypothesis
+it disproved.
+
+Then each table's true semantic rank, over all 17,505 embeddings:
+
+| query | gold table | semantic rank |
+|---|---|---|
+| `hvor stor er Norge i kvadratkilometer` | 11342 | 2827 |
+| `areal` | 11342 | 212 |
+| `landareal` | 11342 | 6690 |
+| `bruttonasjonalprodukt` | 09189 | 548 |
+| `bruttonasjonalprodukt` | 09842 *(unlabelled)* | 53 |
+| `regnskapstall aksjeselskap` | 07371 | 42 |
+| `regnskapstall aksjeselskap` | 08142 | 41 |
+
+These are three different problems wearing one label.
+
+**a080 is not an indexing problem.** 11342 sits at 2827 for the question and
+at 6690 for `landareal`, the rewriter's own term. Nothing that reorders a
+depth-50 shortlist reaches rank 2827. Its embedding text does not say that
+this is the table with the whole country's area in it, and that is where the
+work is.
+
+**a010 is a label-and-embedding problem.** The three labelled tables are at
+548 and below because their titles say `Makroøkonomiske hovedstørrelser` and
+GDP is a dimension value. 09842, whose title says BNP, is at 53 — just outside
+the depth — and is not in the gold list. The question deserves the deliberate
+pass that owes a063 and 11722 an answer.
+
+**a027 is the real lead.** 07371 and 08142 are at semantic rank 42 and 41,
+inside depth 50, and the full stack returns neither. The query routes as
+"names a subject", so lexical and semantic are fused; lexical returns 15 hits,
+the rewrite lane interleaves `regnskap, aksjeselskap`, and the two tables that
+the semantic lane already ranked in its top fifty are not in the 40 that come
+out. Something in the fuse-then-interleave is dropping them, and that is a
+mechanism to read rather than a signal to add.
