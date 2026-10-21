@@ -2181,3 +2181,71 @@ of inference. The honest first step is smaller: record the licence family as
 a derived, named value (NLOD, CC-BY, CC-BY-NC, Norge digitalt, INSPIRE
 codelist, null) so the question can at least be *asked* of the registry
 without a LIKE pattern. That is a migration, not a guess.
+
+## What is unverified, counted rather than estimated (2026-10-21)
+
+The goal is all Norwegian open data, searchable, better than data.norge. That
+makes "how much have we never asked" the governing number, so here it is in
+full. 12,294 of 18,280 datasets carry no verdict. They are not one problem.
+
+| bucket | datasets | what it is | what it needs |
+|---|---|---|---|
+| **A** | **7,233** | `kartkatalog.geonorge.no/metadata/uuid/…` | `scripts/resolve_geonorge.py`, running |
+| **B** | 60 | no `access_path` at all | nothing to probe; a harvest gap |
+| **C** | **5,001** | a real URL, never probed, across **299 hosts** | a host-ordered sweep |
+
+Only **117 datasets in the whole registry are known-blocked** — 32 withdrawn,
+28 catalogue, 10 empty, 8 restricted and the rest since added. Everything else
+unreadable is unasked, not refused. That is a very different problem from the
+one "69 of 190 sources hold rows" implies, and the per-source framing was
+misleading: those 121 row-less sources are 1,412 datasets, 8% of the registry.
+
+### Bucket C is concentrated, which makes it tractable
+
+The top 22 of 299 hosts hold about 3,500 of the 5,001:
+
+    769  www.barentswatch.no        (our own bwfish weeks, awaiting backfill)
+    479  opencom.no
+    444  data.ssb.no
+    273  data.stortinget.no
+    196  kartkatalog.geonorge.no    (not /metadata/uuid/, a different path)
+    174  nedlasting.geonorge.no
+    168  ess.sikt.no
+    161  api.met.no
+    141  raw.githubusercontent.com
+    136  kart.hi.no
+
+A sweep ordered by host rather than by dataset learns a host's shape once and
+applies it to every row on it. `scripts/discover.py --unreadable` already
+groups this way; what it does not yet do is order by host volume.
+
+### Bucket A, measured properly
+
+Struck earlier in the session as "nothing queryable" from a 55-row draw. A
+399-row sample classified per dataset -- by the **best** access each one has,
+not per distribution entry, which was the counting error -- gives:
+
+| tier | share | of 7,233 |
+|---|---|---|
+| queryable API | 4% | ~290 |
+| bulk download | 8% | ~580 |
+| map service | 0% | ~20 |
+| web page only | 86% | ~6,220 |
+| offline / none | 1% | ~70 |
+
+81% are declared `Åpne data`. Of the web-page tier, 71% is aerial imagery and
+most of the remainder is LiDAR elevation; **zero of 344 carried a tabular
+format**. So there is nothing to scrape into a table there, and the earlier
+call was right about that and wrong about what follows from it. The resolved
+download URL, the formats, the owner and the licence are worth holding whether
+or not the raster is ever ingested, because the catalogue page does not show
+them and a search that does is better than the catalogue. That is the product
+difference, stated as a measurable thing rather than a slogan.
+
+### The order this implies
+
+Breadth work that touches hundreds of rows at once outranks the next
+hand-written connector, unless that connector unblocks a mechanism several
+sources need. By that rule: P8.5 (the select mechanism, three callers) stays
+first, then bucket A's resolver output, then a host-ordered bucket C sweep,
+then HydAPI.
