@@ -22,6 +22,11 @@ Usage:
 
     scripts/check_barentswatch.py                 # every pair it finds
     scripts/check_barentswatch.py --prefix BARENTSWATCH_API_
+    scripts/check_barentswatch.py --ask --prefix BARENTSWATCH_API_
+
+`--ask` prompts for the secret instead of reading it, so a candidate can be
+tried without editing `.env` and without landing in shell history. Nothing is
+written either way.
 """
 
 from __future__ import annotations
@@ -117,9 +122,14 @@ def describe(url: str, token: str) -> str:
     return f"HTTP 200, {type(payload).__name__}"
 
 
-def check(prefix: str, env: dict[str, str]) -> bool:
+def check(prefix: str, env: dict[str, str], *, ask: bool = False) -> bool:
     client_id = env.get(f"{prefix}CLIENT_ID", "")
     secret = env.get(f"{prefix}CLIENT_SECRET", "")
+    if ask:
+        from getpass import getpass
+        typed = getpass(f"secret for {client_id or prefix + 'CLIENT_ID'} (not echoed): ").strip()
+        if typed:
+            secret = typed
     print(f"=== {prefix}CLIENT_ID / {prefix}CLIENT_SECRET")
     if not client_id or not secret:
         print("    not set\n")
@@ -130,8 +140,9 @@ def check(prefix: str, env: dict[str, str]) -> bool:
     name = client_id.split(":", 1)[1]
     if secret == name:
         print("    the secret is a copy of the client NAME, the text after the ':' in")
-        print("    the id. MyPage shows them side by side. Open the client and copy the")
-        print("    secret itself, or create a new one if it was only shown at creation.\n")
+        print("    the id. A secret is a value BarentsWatch generates when you add one;")
+        print("    the box you type into is the secret's own label. Open the client, add")
+        print("    a secret, and copy the value it shows -- it is shown once.\n")
         return False
 
     held = None
@@ -155,10 +166,12 @@ def main() -> int:
     parser.add_argument("--env", default=".env")
     parser.add_argument("--prefix", action="append", default=[],
                         help="default: BARENTSWATCH_ and BARENTSWATCH_API_")
+    parser.add_argument("--ask", action="store_true",
+                        help="prompt for the secret instead of reading it from the file")
     args = parser.parse_args()
     env = read_dotenv(Path(args.env))
     prefixes = args.prefix or ["BARENTSWATCH_", "BARENTSWATCH_API_"]
-    ok = [check(prefix, env) for prefix in prefixes]
+    ok = [check(prefix, env, ask=args.ask) for prefix in prefixes]
     return 0 if any(ok) else 1
 
 
