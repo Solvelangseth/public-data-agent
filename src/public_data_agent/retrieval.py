@@ -143,6 +143,15 @@ def find(
     # whenever L + S exceeds D, and the loss is silent: `regnskapstall
     # aksjeselskap` is ranked 41 and 42 semantically and appears in no fused
     # list at all. Defaults to `depth`, which is the behaviour this had.
+    #
+    # Measured 2026-10-21, tuned set, and it does not pay. Recovering the tail
+    # alone changes nothing, because the only stage that promotes from it is
+    # the reranker: at 100 with the reranker at 20 the numbers are identical
+    # to baseline, 0.898/0.761. Widening it and showing the reranker more is
+    # worse than showing the reranker more on its own -- 100/50 reads
+    # 0.918/0.762 against 50/50 at 0.929/0.764, because the longer list fills
+    # the shortlist with fused tail and dilutes it. Kept as a measured knob,
+    # not as a suggestion.
     work = work_depth or depth
     if provider is None:
         ranked = lexical
