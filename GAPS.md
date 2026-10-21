@@ -2088,3 +2088,42 @@ npiintern 24, nbprov 24, nbdsd 24. Several are WMS or ArcGIS by name. Probing
 them without reading what the first few actually return would manufacture
 thousands of rows of service metadata and verify every one of them. Probe one
 source, read the rows, then decide — not the other way round.
+
+## ssbver: a Klass classification's version list is not its contents (2026-10-21)
+
+Probing `ssbver` stored 168 rows across 39 datasets and recorded every one as
+a verified `entities` source. The rows:
+
+    name = "Bydelsinndeling 2004 - Delområde- …"
+      {"changeTable": "False", "id": "734", "lastModified": "2021-04-23T…",
+       "owningSection": "320"}
+
+`data.ssb.no/api/klass/v1/versions/1` returns the **versions of
+classification 1**, each with an id, a last-modified date and which SSB
+section owns it. That is a change log, not a vocabulary. The classification's
+actual items come from `/versions/{version_id}.json`, which is what
+`_fetch_klass` reads and what the datanorge Klass datasets use.
+
+Predicted wrongly, too: the URL matches `is_klass_url`, so the expectation was
+that these would go through the corrected Klass path and land as entity
+records with titles. They did not -- they stored as observation cells, which
+means the dispatcher routed them somewhere else, and that is the thing to find
+before probing this source again.
+
+Reverted and backed up. Nothing was learned about these 39 resources except
+that the endpoint the registry has for them is the wrong one.
+
+**Where the probe sweep stands.** Reading the URL shapes of the eleven
+unprobed sources costs nothing and predicts most of the outcome:
+
+| expected verdict | sources |
+|---|---|
+| catalogue, ArcGIS or WMS root | nvemap 63, hoydegis 35, mdirwms 30, riksantikvaren 29, npitema 27, npiintern 24 |
+| catalogue, OGC collection description | ngu 28 — confirmed by hand: `itemCount`, `extent`, `links`, no `features` |
+| catalogue, SDMX structure metadata | nbprov 24, nbdsd 24 |
+| genuine vocabulary | nbcodelist 37 — `/api/codelist/NB/CALC_METHOD`, confirmed `data`/`meta` by hand |
+| wrong endpoint, needs connector work | ssbver 39 |
+
+So of 384 datasets, about 37 look like real content and the rest are services
+describing themselves. That ratio is the argument for reading before probing,
+and against handing the sweep to anything that will not look at the rows.
