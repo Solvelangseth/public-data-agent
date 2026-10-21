@@ -1386,3 +1386,53 @@ degrading.
 The knob is now named (`RERANK_KEEP`, `RERANK_LIFT`), threaded through `find`,
 and exposed as `--rerank-keep` / `--rerank-lift`, so the next person to
 suspect it can re-run the grid in two minutes instead of arguing about it.
+
+## Some tuned "misses" are label errors, and the measure says which (2026-10-21)
+
+The ten tuned misses were carried as a ranking problem needing column- and
+unit-level matching. Looking at what each one actually returned, several are
+not ranking failures at all: the retrieval found a table that answers the
+question and the label names a different one.
+
+The gold file warns about exactly the wrong way to fix that — "adopting
+whatever was returned would make the benchmark circular" — so the labels were
+audited by a test that does not involve any retriever. The registry already
+records, per dataset, which measures a table publishes
+(`resource_fields.field_role = 'measure'` and its values). A question asking
+for a published statistic can be checked against that directly: does the
+labelled table publish the measure the question asks for?
+
+| question | labelled tables publish | verdict |
+|---|---|---|
+| a047 `gjennomsnittsalderen i Tromsø` | `Personer`; `Areal (km²)` | neither publishes an average age |
+| a063 `hvor mange ansatte har Norges største selskaper` | `Bedrifter` | counts of establishments, not employees |
+| a025 `foretak etter organisasjonsform` | `Nye foretak` | narrower than the question: new enterprises, not enterprises |
+| a035 `avfall og gjenvinning` | `Mengd (tonn)`, `Avfallsmengde` | defensible, but misses the waste accounts by treatment method |
+| a058 `hvor mange studenter er det i Norge` | `Studenter` | right measure; the retrieved tables publish it too |
+| a049 `hvor mye tjener en sykepleier` | `Avtalt månedslønn (kr)` | right measure; so does the table at rank 2 |
+
+a047 is decisive and was corrected. 13536 publishes `Gjennomsnittsalder` and
+`Medianalder` for kommuner, fylker og hele landet. The two labelled tables
+publish a count by age and sex, and an area with a population — an answer
+would have to be computed from a distribution, which this system is built not
+to do. So the label named tables the agent is not allowed to answer from and
+omitted the one that publishes the figure. Added, with the reasoning written
+into the gold file's own log.
+
+    tuned, full stack   before  0.878 / 0.752    after  0.888 / 0.757
+
+The correction can only raise the number, which is why both are recorded. It
+is not a retrieval improvement: the ranking did not change, the question's
+answer did.
+
+a063 is the next clear one and needs a different kind of answer. The question
+asks for a per-company employee count; 230 verified tables publish an
+employment measure and none of them is per company, because that figure lives
+in Enhetsregisteret as `antallAnsatte` on an enhet. The label is wrong and the
+right resource is in the entities lane rather than the statistics lane, which
+is worth settling deliberately rather than in passing.
+
+The remaining four are breadth-of-label questions, where the labelled table
+and the retrieved one publish the same measure and both answer. Those want the
+careful audit the file's convention describes, judged from titles and measures
+alone, and are not corrected here.
