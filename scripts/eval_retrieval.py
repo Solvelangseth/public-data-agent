@@ -40,6 +40,8 @@ def main() -> int:
     parser.add_argument("--embedding-model", dest="embedding_model", default=None,
                         help="Rank with this embedding index instead of the default")
     parser.add_argument("--dimensions", type=int, default=None)
+    parser.add_argument("--lexical-weight", type=float, default=None,
+                        help="how much the lexical ranking counts in the fusion")
     parser.add_argument("--work-depth", type=int, default=None,
                         help="how long a list the ranking stages work on before the lanes are cut")
     parser.add_argument("--rerank-depth", type=int, default=None,
@@ -113,6 +115,8 @@ def main() -> int:
                 merge["rewrite_lead"] = args.rewrite_lead
             if args.rewrite_take is not None:
                 merge["rewrite_take"] = args.rewrite_take
+            if args.lexical_weight is not None:
+                merge["lexical_weight"] = args.lexical_weight
             if args.work_depth is not None:
                 merge["work_depth"] = args.work_depth
             if args.rerank_depth is not None:

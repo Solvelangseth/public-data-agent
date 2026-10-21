@@ -116,6 +116,7 @@ def find(
     rewrite_take: int | None = None,
     work_depth: int | None = None,
     rerank_depth: int = RERANK_DEPTH,
+    lexical_weight: float | None = None,
 ) -> Retrieved:
     """Rank what could answer a question, fetchable results kept apart.
 
@@ -158,7 +159,16 @@ def find(
         steps.append("no embedding provider; semantic ranking skipped")
     else:
         semantic = [d for d, _ in semantic_ranking(registry, provider, query, limit=depth)]
-        ranked = rank_for_query(lexical, semantic, query, limit=work)
+        # A lexical list that filled little of its budget matched few terms.
+        # `None` keeps the weight at 1.0, which is what this had.
+        weight = (
+            lexical_weight
+            if lexical_weight is not None
+            else 1.0
+        )
+        ranked = rank_for_query(
+            lexical, semantic, query, limit=work, lexical_weight=weight
+        )
         steps.append(
             "ranked semantically alone (query reads as a question)"
             if ranked == semantic[:depth]

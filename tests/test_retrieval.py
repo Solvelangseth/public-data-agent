@@ -269,3 +269,29 @@ def test_the_working_list_can_outlive_the_output_depth(tmp_path: Path) -> None:
         assert "ssbtable:answer" in find(registry, "avfall", depth=10).observations
     finally:
         registry.close()
+
+
+def test_damping_the_lexical_lane_has_a_narrow_usable_band() -> None:
+    """The knob does nothing until it does everything, which is worth pinning.
+
+    With a disjoint lexical list of 15 and a semantic list of 50 fused into
+    50, every weight from 0.8 to 1.0 keeps all fifteen lexical hits and cuts
+    the semantic list at 34. By 0.5 the lexical lane is gone entirely. The
+    band in between trades the lexical head for the semantic tail very
+    steeply, so a reader does not mistake this for a gentle dial.
+    """
+
+    from public_data_agent.embeddings import fuse
+
+    lexical = [f"L{index}" for index in range(15)]
+    semantic = [f"S{index}" for index in range(50)]
+
+    def kept(weight: float) -> tuple[int, int]:
+        out = fuse(lexical, semantic, limit=50, lexical_weight=weight)
+        deepest = max(int(x[1:]) for x in out if x.startswith("S"))
+        return sum(1 for x in out if x.startswith("L")), deepest
+
+    assert kept(1.0) == (15, 34)
+    assert kept(0.8) == (15, 34)
+    assert kept(0.6) == (4, 45)
+    assert kept(0.5) == (0, 49)

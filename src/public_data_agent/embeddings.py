@@ -241,18 +241,26 @@ def fuse(
     *,
     limit: int = 10,
     k: int = RRF_K,
+    lexical_weight: float = 1.0,
 ) -> list[str]:
     """Reciprocal rank fusion of two ranked id lists.
 
     Neither ranker's scores are comparable to the other's, so rank position is
     fused rather than score. An id both rankers like outranks one that only
     appears near the top of a single list.
+
+    `lexical_weight` damps one side. At 1.0 every lexical hit outscores every
+    semantic hit past roughly its own length, so a lexical list of 15 pushes
+    the semantic list's last 15 places out of a 50-item output: `regnskapstall
+    aksjeselskap` is ranked 41 and 42 semantically and survives in no fused
+    list. A short lexical list means few terms matched, which is weak evidence,
+    and weighting it by how much of its budget it filled is one way to say so.
     """
 
     scores: dict[str, float] = {}
-    for ranked in (lexical, semantic):
+    for weight, ranked in ((lexical_weight, lexical), (1.0, semantic)):
         for position, dataset_id in enumerate(ranked):
-            scores[dataset_id] = scores.get(dataset_id, 0.0) + 1.0 / (k + position + 1)
+            scores[dataset_id] = scores.get(dataset_id, 0.0) + weight / (k + position + 1)
     order = {dataset_id: position for position, dataset_id in enumerate(lexical)}
     return sorted(
         scores,
@@ -292,7 +300,12 @@ def looks_like_a_question(query: str) -> bool:
 
 
 def rank_for_query(
-    lexical: list[str], semantic: list[str], query: str, *, limit: int = 10
+    lexical: list[str],
+    semantic: list[str],
+    query: str,
+    *,
+    limit: int = 10,
+    lexical_weight: float = 1.0,
 ) -> list[str]:
     """Rank by whichever combination suits how the query is phrased.
 
@@ -303,7 +316,7 @@ def rank_for_query(
 
     if looks_like_a_question(query):
         return semantic[:limit]
-    return fuse(lexical, semantic, limit=limit)
+    return fuse(lexical, semantic, limit=limit, lexical_weight=lexical_weight)
 
 
 def export_texts(registry: Any, path: Any, *, limit: int | None = None) -> dict[str, int]:
