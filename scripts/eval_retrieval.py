@@ -40,6 +40,10 @@ def main() -> int:
     parser.add_argument("--embedding-model", dest="embedding_model", default=None,
                         help="Rank with this embedding index instead of the default")
     parser.add_argument("--dimensions", type=int, default=None)
+    parser.add_argument("--rewrite-lead", type=int, default=None,
+                        help="positions of the original ranking kept in front of the rewrite's hits")
+    parser.add_argument("--rewrite-take", type=int, default=None,
+                        help="how many of the rewrite's hits are inserted")
     parser.add_argument("--rerank-keep", type=int, default=None,
                         help="positions of the original ranking held in front of the model's choices")
     parser.add_argument("--rerank-lift", type=int, default=None,
@@ -101,6 +105,10 @@ def main() -> int:
                 merge["rerank_keep"] = args.rerank_keep
             if args.rerank_lift is not None:
                 merge["rerank_lift"] = args.rerank_lift
+            if args.rewrite_lead is not None:
+                merge["rewrite_lead"] = args.rewrite_lead
+            if args.rewrite_take is not None:
+                merge["rewrite_take"] = args.rewrite_take
             ranked = find(
                 registry, query, provider=provider, limit=args.depth,
                 rewriter=rewriter, reranker=reranker, **merge,

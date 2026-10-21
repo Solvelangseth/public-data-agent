@@ -106,6 +106,8 @@ def find(
     reranker: Reranker | None = None,
     rerank_keep: int = RERANK_KEEP,
     rerank_lift: int = RERANK_LIFT,
+    rewrite_lead: int = REWRITE_LEAD,
+    rewrite_take: int | None = None,
 ) -> Retrieved:
     """Rank what could answer a question, fetchable results kept apart.
 
@@ -152,9 +154,16 @@ def find(
             # is kept, the rewrite's best few go directly behind it, and the
             # rest of the original follows. Deduplication keeps the earlier
             # position, so a result both agree on is not pushed down.
+            #
+            # How much of the head to keep and how many rewrite hits to insert
+            # were one number doing two jobs. They are separate because they
+            # answer different questions, and because the second one is where
+            # `regnskapstall aksjeselskap` is lost: the rewrite lane ranks
+            # 07371 sixth and three were being taken.
+            take = rewrite_take if rewrite_take is not None else rewrite_lead
             ranked = list(
                 dict.fromkeys(
-                    ranked[:REWRITE_LEAD] + alternative[:REWRITE_LEAD] + ranked
+                    ranked[:rewrite_lead] + alternative[:take] + ranked
                 )
             )[:depth]
         steps.append(
