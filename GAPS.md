@@ -1616,3 +1616,38 @@ the rewrite lane interleaves `regnskap, aksjeselskap`, and the two tables that
 the semantic lane already ranked in its top fifty are not in the 40 that come
 out. Something in the fuse-then-interleave is dropping them, and that is a
 mechanism to read rather than a signal to add.
+
+## Fusing two depth-50 lists and keeping 50 loses the tail by arithmetic (2026-10-21)
+
+`regnskapstall aksjeselskap` turned out not to be a missing signal. 07371 and
+08142 are at semantic rank 42 and 41, inside depth 50, and the fused list does
+not contain them at all. The reason is arithmetic, not a bug:
+
+    RRF_K = 60
+    a lexical hit at position 0   scores 1/61  = 0.0164
+    a lexical hit at position 14  scores 1/75  = 0.0133
+    a semantic hit at position 40 scores 1/101 = 0.0099
+
+Every one of the 15 lexical hits outscores every semantic hit past position
+about 15, so the fused order is the 15 lexical hits, then the semantic list in
+its own order. That is 65 distinct ids, and `fuse` keeps `limit`, which `find`
+sets to `depth` -- 50. The bottom 15 of the semantic list are cut, and 41 and
+42 are in that 15.
+
+The general form: fusing a list of L with a list of S and keeping D loses the
+tail whenever L + S exceeds D, and the loss falls entirely on the ranker that
+ranked deeper. With both lists at depth and the output at depth, which is what
+`find` does, a disjoint lexical list of 15 costs the semantic lane its last 15
+places every time.
+
+Two routes, and the cheap one is being measured first. The rewrite lane finds
+07371 again at position 6 of its 20 alternatives, and `alternative[:3]` throws
+it away; `rewrite_take` is now a parameter of its own and the grid on the tuned
+set will say whether widening it pays. The other route is to stop letting the
+output depth decide how much of each input survives -- fuse into a longer list
+and trim once, at the end, after the reranker has seen it. That is a bigger
+change to the shape of `find` and should be measured on its own, not folded in.
+
+Worth keeping in view: three mechanisms were added over previous sessions to
+find a stronger signal for these questions, and for this one the signal was
+twice in hand and twice discarded.
