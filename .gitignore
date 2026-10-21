@@ -36,3 +36,4 @@ data/heldout_eval.log
 # committed; the harvester and the extraction rules are the durable parts.
 data/klass/versions/
 discovery/*.jsonl
+discovery/geonorge_resolved.jsonl
