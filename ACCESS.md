@@ -9,8 +9,9 @@ The registry's rule is that a resource is `restricted` when a probe got HTTP
 authorisation. That is deliberately distinct from `withdrawn` (gone), `empty`
 (answers and holds nothing) and `catalogue` (the service describing itself).
 
-**Nothing on this page is waiting on a registration any more**, except the
-NVDB object types in section 1. BarentsWatch is done: both clients work and
+**Status, 2026-10-21.** BarentsWatch is done and built — see section 2.
+Statens vegvesen access **has been requested and is awaiting a reply**; do not
+request it again. Nothing else here is waiting on a registration. BarentsWatch is done: both clients work and
 the fish-health API is open, so section 2 is now a connector job, not an
 access problem. Datafangst never — it is a submission API and has nothing for
 a read-only registry.
@@ -62,6 +63,11 @@ examples of sensitive types, so the registry's list and theirs agree.
   `refresh_token`; renew at `/auth/api/v1/auth/refresh`. Statens vegvesen say
   this endpoint will eventually be service-users-only and then replaced by
   Maskinporten, so treat it as the current route, not a permanent one.
+
+**Requested 2026-10-21, no reply yet.** Nothing to do but wait. When it
+arrives, what changes in the code is an env var and one header, and the eight
+capability rows flip from `restricted` back to unverified so the next probe
+earns a real verification.
 
 **The part I could not find a link for.** Logging in is not the same as being
 granted these eight types. The docs say access is granted "gjennom systemet

@@ -6,6 +6,7 @@ import re
 from contextlib import contextmanager
 from contextvars import ContextVar
 from dataclasses import dataclass, field
+from pathlib import Path as _Path
 from typing import Any, Protocol
 from urllib.parse import urljoin, urlparse
 
@@ -42,7 +43,7 @@ from public_data_agent.geonorge_rest import (
     openapi_url,
 )
 from public_data_agent.http_util import HttpClient, JsonResponse, RateLimiter
-from public_data_agent.models import HarvestCounts
+from public_data_agent.models import HarvestCounts, SourceError
 from public_data_agent.registry import Registry, utc_now
 from public_data_agent.sources.nve import (
     MAGASIN_MAX_CELLS,
@@ -95,6 +96,18 @@ from public_data_agent.sources.aqua import (
     lookups_from_aqua_fish_codes,
     lookups_from_aqua_intentions,
     selected_license_nr,
+)
+from public_data_agent.sources.bwfish import (
+    LOCALITY_ID_FIELDS as BWFISH_ID_FIELDS,
+    LOCALITY_LABEL_FIELDS as BWFISH_LABEL_FIELDS,
+    MEASURE as BWFISH_MEASURE,
+    BarentsWatchToken,
+    bwfish_table_id,
+    cells_from_bwfish_localities,
+    cells_from_bwfish_week,
+    is_bwfish_localities_url,
+    is_bwfish_url,
+    is_bwfish_week_url,
 )
 from public_data_agent.sources.buyer import (
     buyer_table_id,
@@ -1842,6 +1855,8 @@ def _fetch_observations(
         return _fetch_utdanning(registry, dataset, http=http, select=select)
     if is_met_metalerts_url(access_path):
         return _fetch_met(registry, dataset, http=http)
+    if is_bwfish_url(access_path):
+        return _fetch_bwfish(registry, dataset, http=http)
     if is_hi_url(access_path):
         return _fetch_hi(registry, dataset, http=http)
     if is_kystverket_url(access_path):
@@ -7924,6 +7939,134 @@ def _fetch_fiskeridir(
             counts=counts,
             series=f"fetch:{table_id}",
         )
+        status = "completed"
+    except Exception as exc:
+        counts.failed += 1
+        counts.errors.append({"error": str(exc), "url": access_path})
+        raise
+    finally:
+        registry.finish_fetch_run(run_id, counts, status=status, http_status=http_status)
+    return FetchResult(
+        dataset_id=dataset["id"],
+        table_id=table_id,
+        request_url=access_path,
+        http_status=http_status,
+        counts=counts,
+        sample=sample,
+    )
+
+
+def _bwfish_headers(token: BarentsWatchToken | None) -> dict[str, str]:
+    """A bearer header for the api scope, from the environment or `.env`.
+
+    The token is built per fetch rather than held module-wide: a long-running
+    process that fetched a year of weeks would otherwise keep one object alive
+    across hours, and the cache inside it is already per-object. Building it
+    here also means a missing credential is reported by the fetch that needed
+    it, named, rather than at import time for every connector.
+    """
+
+    token = token or BarentsWatchToken.from_env(dotenv=_Path(".env"))
+    return token.headers()
+
+
+def _fetch_bwfish(
+    registry: Registry,
+    dataset: dict[str, Any],
+    *,
+    http: JsonHttp | None = None,
+    token: BarentsWatchToken | None = None,
+) -> FetchResult:
+    """Fetch BarentsWatch fish health: a week of lice counts, or the register.
+
+    The two endpoints publish different kinds of thing and land in different
+    tables. `/locality/{year}/{week}` is a measurement per farm and goes to
+    `observations`; `/localities` is a list of places and goes to `records`.
+    A path this connector claims but does not read is refused rather than
+    guessed at, because the per-locality detail endpoint shares the first five
+    segments with the weekly one and holds no lice count at all.
+    """
+
+    access_path = dataset.get("access_path") or ""
+    table_id = bwfish_table_id(access_path)
+    client = http or HttpClient(timeout=60.0, max_retries=4)
+    week = is_bwfish_week_url(access_path)
+    register = is_bwfish_localities_url(access_path)
+    if not (week or register):
+        raise SourceError(
+            f"BarentsWatch fish health has no reader for {access_path}; this "
+            "connector reads /locality/{year}/{week} and /localities"
+        )
+    headers = _bwfish_headers(token)
+    started = utc_now()
+    run_id = registry.start_fetch_run(
+        dataset_id=dataset["id"],
+        table_id=table_id,
+        request_url=access_path,
+        request_method="GET",
+        started_at=started,
+    )
+    counts = HarvestCounts()
+    status = "failed"
+    http_status = 0
+    sample: list[dict[str, Any]] = []
+    try:
+        got = client.get_json_response(access_path, headers=headers)
+        http_status = got.status
+        registry.set_fetch_request(run_id, request_url=access_path, request_body={"method": "GET"})
+        retrieved_at = utc_now()
+        if week:
+            cells = cells_from_bwfish_week(got.body)
+            counts.listed = len(cells)
+            sample = _store_cells(
+                registry,
+                dataset,
+                run_id,
+                table_id=table_id,
+                cells=cells,
+                retrieved_at=retrieved_at,
+                request_url=access_path,
+                http_status=http_status,
+                counts=counts,
+            )
+            registry.set_capability(
+                dataset["id"],
+                {
+                    "capability": CAPABILITY_OBSERVATIONS,
+                    "record_kind": "observation",
+                    "endpoint": access_path,
+                    "request_method": "GET",
+                    "verified_at": retrieved_at,
+                    "verified_sample_count": counts.listed,
+                    "notes": (
+                        f"{counts.listed} locality/week {BWFISH_MEASURE} value(s); "
+                        "localities reporting no count are absent, not zero; "
+                        "municipalityNo is the publisher's own kommune key"
+                    ),
+                },
+            )
+        else:
+            records = records_from_cells(
+                cells_from_bwfish_localities(got.body),
+                dataset_id=dataset["id"],
+                table_id=table_id,
+                id_fields=BWFISH_ID_FIELDS,
+                label_fields=BWFISH_LABEL_FIELDS,
+                prefix="bwfish",
+                kind="entity",
+            )
+            counts.listed = len(records)
+            sample = _store_records(
+                registry,
+                dataset,
+                run_id,
+                records=records,
+                retrieved_at=retrieved_at,
+                request_url=access_path,
+                http_status=http_status,
+                counts=counts,
+                series=f"fetch:{table_id}",
+            )
         status = "completed"
     except Exception as exc:
         counts.failed += 1
