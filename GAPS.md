@@ -1796,3 +1796,52 @@ reason written down.
 Retrieval after the grep rows left the fetchable lane -- `lookup` is not
 retrievable -- is unchanged on all three sets: tuned 0.929/0.764, coverage
 1.000/0.652, held-out 0.905/0.748. They were never answering a gold question.
+
+## The fusion is balanced right, and a027 was never a ranking failure (2026-10-21)
+
+Two results, and the second one undercuts four ticks of work on the first.
+
+**The lexical weight does not pay at any setting.** Damping the lexical lane
+was the one remaining route to bringing `regnskapstall aksjeselskap`'s answers
+at semantic 41 and 42 into a 50-item output. Measured on the tuned set, with
+coverage flat at 1.000/0.652 throughout:
+
+| lexical weight | tuned recall@5 / MRR |
+|---|---|
+| **1.0** | **0.929 / 0.764** |
+| 0.8 | 0.918 / 0.761 |
+| 0.7 | 0.918 / 0.760 |
+| 0.6 | 0.918 / 0.755 |
+
+Monotonic and always worse. The prediction written before the grid said 0.8 to
+1.0 would be inert and 0.7 roughly neutral; both were wrong, and for a reason
+the synthetic test could not show -- damping also reorders the ids both
+rankers found, which evicts every lexical-only id from the head at the first
+notch. The lexical lane earns its weight. The displacement of the semantic
+tail is real and removing it costs more.
+
+**And the question did not need fixing.** `regnskapstall aksjeselskap` was
+labelled with 07371 and 08142, whose measures are `Driftsmargin`,
+`Egenkapitalrentabilitet`, `Likviditetsgrad` -- ratios, which are nøkkeltall,
+not regnskapstall. The tables the ranking returns instead are 09350,
+`Utvalgte regnskapsposter i ikke-finansielle aksjeselskaper`, measure
+`Beløp`, and 08121, `Balanseposter`, publishing `Aksjekapital`,
+`Anleggsmidler` and `Egenkapital` in mill. kr. Those are accounting figures.
+The ranking was returning better answers than the label named.
+
+Same test as a047 and a025, same error pattern as a025: the label named a
+derived cut and left out the plain subject tables.
+
+    tuned, full stack   0.929 / 0.764  ->  0.939 / 0.769
+    coverage            1.000 / 0.652  unchanged
+    held-out            0.905 / 0.748  unchanged
+
+So the fusion arithmetic is still true -- fusing L with S and keeping D does
+discard the deeper ranker's tail -- and it was not costing this question
+anything that mattered. Of the three "real depth failures", one was a label
+error. Two remain: a010, whose answer is a dimension value in a table titled
+`Makroøkonomiske hovedstørrelser`, and a080, at semantic rank 2827.
+
+The lesson is about where to look first. Four ticks went into the ranking
+because the miss list said "not in depth", and the measure audit that settles
+these questions in one query had already corrected two labels that same day.
