@@ -9,11 +9,11 @@ The registry's rule is that a resource is `restricted` when a probe got HTTP
 authorisation. That is deliberately distinct from `withdrawn` (gone), `empty`
 (answers and holds nothing) and `catalogue` (the service describing itself).
 
-**Priority, if you only do one thing:** register a BarentsWatch **API-client**
-at <https://www.barentswatch.no/minside/>. The credential you already have is
-an AIS-client and its scope is refused by the fish-health API; see section 2,
-where that is tested rather than assumed. NVDB second. Datafangst never — it
-is a submission API and has nothing for a read-only registry.
+**Nothing on this page is waiting on a registration any more**, except the
+NVDB object types in section 1. BarentsWatch is done: both clients work and
+the fish-health API is open, so section 2 is now a connector job, not an
+access problem. Datafangst never — it is a submission API and has nothing for
+a read-only registry.
 
 ---
 
@@ -83,81 +83,103 @@ network complete.
 
 ---
 
-## 2. BarentsWatch — the credential works, and it opens AIS, not fish health
+## 2. BarentsWatch — both credentials work · nothing left to request
 
-**Tested 2026-10-21** against the credentials in
-`aqua_intelligence_plattform/.env`, now copied into this project's `.env` as
-`BARENTSWATCH_CLIENT_ID` / `BARENTSWATCH_CLIENT_SECRET`.
+**Settled 2026-10-21.** Two clients are registered on one account and both are
+live. Re-check either with `scripts/check_barentswatch.py`, which stores
+nothing and prints no secret.
 
-| request | result |
+| client | scope | in `.env` as | opens |
+|---|---|---|---|
+| `…:Platform` | `ais` | `BARENTSWATCH_CLIENT_ID` / `_SECRET` | live and historic AIS |
+| `…:fiske_helse_klient` | `api` | `BARENTSWATCH_API_CLIENT_ID` / `_SECRET` | everything under `/bwapi/` |
+
+BarentsWatch issues **one scope per client** and the two are not
+interchangeable — each pair is refused by the other's scope with
+`invalid_scope`. That is why two clients, not one.
+
+### What the `api` scope returns
+
+| endpoint | result |
 |---|---|
-| token, `scope=ais` | **HTTP 200**, expires_in 3600, scope granted `ais` |
-| token, `scope=api` | **HTTP 400 `{"error":"invalid_scope"}`** |
-| `/bwapi/v1/geodata/fishhealth/locality/2024/1` with the ais token | HTTP 401 |
-| `live.ais.barentswatch.no/v1/latest/combined` | **HTTP 200**, a JSON array of positions |
-| `historic.ais.barentswatch.no/v1/historic/trackslast24hours/257111020` | **HTTP 200**, a JSON array of track points |
+| `/bwapi/v1/geodata/fishhealth/locality/{year}/{week}` | 1,745 localities in 2024 w1, 1,749 in w20, of which 579 report a lice count |
+| `/bwapi/v1/geodata/fishhealth/locality/{localityNo}/{year}/{week}` | one locality's detail: `aquaCultureRegister`, `escapes`, `ilaPdCase`, ILA/PD protection and surveillance zones, export restriction areas |
+| `/bwapi/v1/geodata/fishhealth/localities` | 2,712 register rows: `localityNo`, `name`, `municipality`, `municipalityNo`, `aquaCultureRegistryVersion` |
+| `/bwapi/v1/geodata/waveforecast/available?modelname=…&fairwayid=…` | `forecasts`, `maxwave`, `modelrundatetime` |
 
-So the client registered on MyPage is an **AIS-client**. BarentsWatch issues
-one scope per client, `ais` or `api`, and the two are not interchangeable:
+A weekly member looks like this, and it is worth reading closely because it
+decides how the connector stores it:
 
-- **Open to us today:** live AIS and historic AIS. Position rows carrying
-  `latitude`, `longitude`, `courseOverGround` and a timestamp — real
-  observations, per vessel, and the historic side keeps 14 days.
-- **Still closed:** everything under `/bwapi/`, which is where fish health,
-  wave forecasts and the rest of the geodata sit. That needs a **second**
-  client, registered as **API-client** at <https://www.barentswatch.no/minside/>.
-  Nothing carries over; it gets its own id and secret, which belong in `.env`
-  as `BARENTSWATCH_API_CLIENT_ID` / `BARENTSWATCH_API_CLIENT_SECRET` (the
-  naming `aqua_intelligence_plattform/.env.example` already anticipates).
+    localityNo 14746   name Aarsand   municipality Bindal   municipalityNo 1811
+    lat 65.045867   lon 12.156933   localityWeekId 1682665
+    avgAdultFemaleLice None
+    hasReportedLice / hasSalmonoids / isFallow / isOnLand / hasIla / hasPd
+    hasMechanicalRemoval / hasSubstanceTreatments / hasCleanerfishDeployed
 
-**Checking a pair:** `scripts/check_barentswatch.py` reads `.env`, asks for a
-token under each scope and probes an endpoint the scope should open. It stores
-nothing and prints no secret. Three outcomes that look alike mean different
-things: `invalid_client` is an unrecognised id/secret pair, `invalid_scope` is
-a real pair registered for the other scope, and an HTTP 401 from an endpoint
-is a valid token outside its scope.
+So each row carries one real measure, `avgAdultFemaleLice` — adult female
+lice per fish, the number the whole regulatory regime turns on — plus a set
+of booleans that are facts about the locality that week, a coordinate, and
+`municipalityNo`, which is a **published** join key to every kommune-level
+dataset already in the registry. `avgAdultFemaleLice` is null wherever
+`hasReportedLice` is false, which is most of them; a fallow site reports
+nothing, and that is not a gap to fill.
 
-One trap, met on the first attempt at the API-client: a client id is
-`you@example.com:clientname`, and MyPage shows the name beside the secret.
-Pasting the **name** into the secret field gives `invalid_client` with nothing
-to say the two fields disagree. The script now checks for that before it asks
-the server anything.
+There is no OpenAPI document under `/bwapi/` at any of the obvious paths
+(`openapi/v1/openapi.json`, `swagger/v1/swagger.json`, `openapi/index.json`
+all 404), so the endpoint list above was found by probing and is not
+exhaustive. The browser at <https://www.barentswatch.no/bwapi/openapi/index.html>
+is the publisher's own list.
 
-The token flow is the same for both, and is worth writing down once:
+### The token flow, for both clients
 
     curl -X POST https://id.barentswatch.no/connect/token \
       -H "Content-Type: application/x-www-form-urlencoded" \
       -d "grant_type=client_credentials&client_id=YOUR_ID&client_secret=YOUR_SECRET&scope=api"
 
-The client id looks like `you@example.com:myclient` — it contains `@` and `:`
-and must be URL-encoded if the client library does not do it. Tokens last
-3600 seconds, so a connector has to cache and refresh. Call with
-`Authorization: Bearer <access_token>`.
+Client ids look like `you@example.com:clientname` and must be URL-encoded if
+the library does not do it. Tokens last 3600 seconds, so a connector caches
+and refreshes. Call with `Authorization: Bearer <access_token>`.
 
-**What the registry holds today** is one BarentsWatch dataset and it is the
-wrong kind: `bwgis:bw_ows` → `geo.barentswatch.no/geoserver/bw/ows?…
-GetCapabilities`, which answers 200 **without any credential** and is a WMS
-capabilities document. This project refuses those — a map service returns
-imagery, not numbers — and it correctly has no capability row. An earlier
-version of this file concluded from a 404 on `www.barentswatch.no/api/v1/…`
-that the authenticated path could not be verified. The base path is
-`/bwapi/`, not `/api/`; that was my error, not a missing endpoint.
+### Two traps, both met today
+
+- **The secret is chosen by whoever registers the client, and the field is
+  masked.** Not generated, not shown once — a password box. I had this
+  backwards for two rounds and said so; the correction is recorded here
+  rather than quietly fixed.
+- **`invalid_client` and `invalid_scope` are different answers.**
+  `invalid_client` means the id and secret are not a recognised pair;
+  `invalid_scope` means the pair is real and registered for the other scope;
+  an HTTP 401 from an endpoint means a valid token reaching outside its
+  scope. The first one took three attempts here because the client *name*
+  had been pasted into the secret field, and the server says nothing about
+  which half is wrong.
+
+### What the registry holds today, which is the wrong thing
+
+`bwgis:bw_ows` → `geo.barentswatch.no/geoserver/bw/ows?…GetCapabilities`,
+which answers 200 **without any credential** and is a WMS capabilities
+document. This project refuses those — a map service returns imagery, not
+numbers — and it correctly has no capability row. An earlier version of this
+file concluded from a 404 on `www.barentswatch.no/api/v1/…` that the
+authenticated path could not be verified. The base path is `/bwapi/`, not
+`/api/`.
 
 Docs: <https://developer.barentswatch.no/docs/appreg/> ·
 live AIS <https://developer.barentswatch.no/docs/AIS/live-ais-api/> ·
 historic AIS <https://developer.barentswatch.no/docs/AIS/historic-ais-api/> ·
-OpenAPI browser <https://www.barentswatch.no/bwapi/openapi/index.html>
-(authorise with the public `bwopenapi` client to explore without a secret) ·
-Python examples including `fiskehelse_weeksummary.py`
-<https://github.com/barentswatch/barentswatch-api-examples> ·
+Python examples <https://github.com/barentswatch/barentswatch-api-examples> ·
 post@barentswatch.no
 
-**Which to build first.** AIS is open to us now, but it is a position stream
-addressed by vessel id, and this registry answers questions about places and
-periods, not about a vessel someone has already named. Fish health is weekly
-rows per locality, which is the shape the retrieval stack is tuned for. So:
-register the API-client, and build fish health first. The AIS connector is
-worth having and is not blocked on anything.
+### Build order
+
+Fish health first: weekly rows per locality, one measure, a published join
+key, and years of history addressed by `{year}/{week}`. That is the shape the
+retrieval stack is tuned for.
+
+AIS second, and it is a different kind of thing — 4,337 live positions and
+475 track points over 24 hours, each with `mmsi`, `msgtime` and a coordinate,
+addressed by a vessel id the asker has to already know, with 14 days of
+history. Worth having, not what this registry is good at answering.
 
 ---
 

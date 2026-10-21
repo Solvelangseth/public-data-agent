@@ -139,11 +139,12 @@ def check(prefix: str, env: dict[str, str], *, ask: bool = False) -> bool:
         return False
     name = client_id.split(":", 1)[1]
     if secret == name:
-        print("    the secret is a copy of the client NAME, the text after the ':' in")
-        print("    the id. A secret is a value BarentsWatch generates when you add one;")
-        print("    the box you type into is the secret's own label. Open the client, add")
-        print("    a secret, and copy the value it shows -- it is shown once.\n")
-        return False
+        # A warning, not a refusal. The secret is chosen by whoever registers
+        # the client, so setting it equal to the client name is legal, merely
+        # a bad idea -- and a check that refuses to ask the server cannot tell
+        # that case apart from the mistake it was written for.
+        print("    WARNING: the secret is identical to the client name, the text after")
+        print("    the ':' in the id. That is a common copy-paste slip. Asking anyway.")
 
     held = None
     for scope in ("api", "ais"):
