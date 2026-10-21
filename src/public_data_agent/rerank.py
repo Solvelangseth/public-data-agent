@@ -11,6 +11,8 @@ Measured through `find`, on top of query rewriting:
     tuned     recall@5 0.872 -> see GAPS.md   held-out 0.865 -> 0.892
     held-out  MRR      0.733 -> 0.778
 
+How many titles it reads is itself measured; see `RERANK_DEPTH` below.
+
 The trust boundary holds by construction, and that is the point of ranking by
 position rather than by name. The model is shown only titles the index returned
 and answers with positions in that list, so it cannot introduce a dataset that
@@ -26,7 +28,21 @@ from __future__ import annotations
 import json
 from typing import Protocol
 
-RERANK_DEPTH = 20
+# How many titles the model is shown. Measured 2026-10-21 on the tuned set,
+# with coverage as the veto:
+#
+#     20  tuned 0.898/0.761   coverage 1.000/0.652
+#     35  tuned 0.918/0.759   coverage 1.000/0.639
+#     50  tuned 0.929/0.764   coverage 1.000/0.652
+#
+# 50 dominates: three questions gained and none lost, coverage untouched. The
+# cheaper middle is not cheaper in quality -- 35 gains less and costs coverage
+# MRR, which is why this is 50 and not "as small as works".
+#
+# What it is not: reach. The three questions gained sat at ranks 6, 7 and 12,
+# already inside 20, so the model could always see them. With fifty titles in
+# front of it, it chooses differently among candidates it could already read.
+RERANK_DEPTH = 50
 MAX_RANKED = 8
 # How the model's judgement is merged with the ranking it was given. Named
 # rather than inlined so the choice can be measured instead of argued about:

@@ -1736,3 +1736,21 @@ and the fusion arithmetic remains the thing that would fix it.
 The honest summary: a correct diagnosis of one question produced a measurable
 improvement on three others, and the parameter it predicted would matter is
 the one that measured worse.
+
+### Adopted: the reranker reads fifty titles
+
+`RERANK_DEPTH` 20 -> 50, chosen on tuned with coverage as the veto, then
+confirmed once on held-out:
+
+    tuned      recall@5 0.898 -> 0.929   MRR 0.761 -> 0.764
+    coverage   recall@5 1.000 -> 1.000   MRR 0.652 -> 0.652
+    held-out   recall@5 0.905 -> 0.905   MRR 0.746 -> 0.748
+
+The middle of the range is worse than either end: 35 reads 0.918/0.759 on
+tuned and drops coverage MRR to 0.639, so this is 50 because 50 measured
+best, not because bigger is better. The cost is fifty titles per rerank call
+against twenty, and three questions moved into the top five for it with none
+lost.
+
+Held-out was run once, after the choice was made on the other two sets. A
+number that picks a parameter is not a held-out number any more.
