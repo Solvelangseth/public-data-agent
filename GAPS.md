@@ -1651,3 +1651,50 @@ change to the shape of `find` and should be measured on its own, not folded in.
 Worth keeping in view: three mechanisms were added over previous sessions to
 find a stronger signal for these questions, and for this one the signal was
 twice in hand and twice discarded.
+
+## Widening the rewrite take: a tuned peak that coverage refuses (2026-10-21)
+
+The mechanism is real. `regnskapstall aksjeselskap` goes from absent to rank 8
+when the interleave takes six of the rewrite lane's hits instead of three,
+which is exactly what tracing predicted: the lane ranked 07371 sixth and three
+were being taken.
+
+The grid, tuned set, all variants reading the same cached rewrite terms:
+
+| take | recall@5 | MRR |
+|---|---|---|
+| **3** | **0.898** | **0.761** |
+| 6 | 0.908 | 0.765 |
+| 8 | 0.908 | 0.762 |
+| 10 | 0.908 | 0.760 |
+
+A peak at 6 on both. Then the miss lists, which say what the averages hide:
+
+- gained: `hvilken bydel i Oslo har flest innbyggere` (was 12),
+  `hva er arbeidsledigheten i Norge nå` (was 6)
+- lost: `hvor mange bor i bydelene i Oslo` — inside five, now **22**
+- `regnskapstall aksjeselskap`: absent, now 8 (MRR only, no recall)
+- `hvor mange studenter er det i Norge`: 11, now 12
+
+Two in, one out. The +0.010 is one net question and the movement under it is
+churn, including a question that fell from the top five to 22.
+
+And the coverage set settles it:
+
+    coverage, take=3   recall@5 1.000   MRR 0.652
+    coverage, take=6   recall@5 1.000   MRR 0.598
+
+A 0.054 drop in coverage MRR against a 0.004 gain in tuned MRR. **The default
+stays at 3.** The tuned set alone would have taken this change: a clean peak
+on both its measures, a mechanism traced to the line, and a test pinning it.
+The second set is what says no, which is the entire argument for having one
+that was not used to choose anything.
+
+What survives: `rewrite_lead` and `rewrite_take` are separate parameters and
+measurable from the command line, the interleave's behaviour is pinned by a
+test that fails the old way, and the fusion arithmetic above explains why the
+semantic lane's tail is lost in the first place. The route worth measuring
+next is the one that does not trade anything -- fuse into a list longer than
+the output depth and trim once, after the reranker has seen it -- because the
+answers here were ranked 41 and 42 by a lane whose last fifteen places are
+being discarded before anything downstream can read them.
