@@ -227,6 +227,24 @@ def tool_search(query: str, db: str = DEFAULT_DB, limit: int = 10) -> dict[str, 
                 "capability": kind,
                 "reason": reason,
             }
+            # "Cannot be retrieved" stopped being true for most of the
+            # catalogue lane. 571 datasets read `lookup` -- Oslo's 42 bydeler,
+            # 365 municipalities, 7,127 occupation titles -- and every one of
+            # them holds entity records that `run_analysis` reads. Saying
+            # nothing here told the caller its data was out of reach while it
+            # sat in the record store.
+            if not is_retrievable(kind):
+                held = stored_records(registry, hit["id"])
+                if held:
+                    hit["connector"]["stored_records"] = held
+                    kinds = ", ".join(
+                        f"{n} {name} record" + ("s" if n != 1 else "")
+                        for name, n in sorted(held.items())
+                    )
+                    hit["connector"]["readable"] = (
+                        f"no fetch, but {kinds} already stored; read them with "
+                        f"run_analysis, which returns them from the record store"
+                    )
         # A candidate is only a candidate for a question it actually covers.
         # Offering the Oslo population connectors for "fiskeoppdrett" invites
         # the model to answer from the wrong source, so each registered
@@ -261,9 +279,11 @@ def tool_search(query: str, db: str = DEFAULT_DB, limit: int = 10) -> dict[str, 
             hit for hit in ranked if not is_retrievable(hit["connector"]["capability"])
         ][:limit]
         payload["lanes_note"] = (
-            "observation_sources can return numbers; catalogue_records describe data that "
-            "no registered connector can retrieve. Both are ranked by the same score. "
-            "Answer numeric questions from observation_sources."
+            "observation_sources can return numbers; catalogue_records cannot be fetched "
+            "by any registered connector. Both are ranked by the same score. Answer "
+            "numeric questions from observation_sources. A catalogue record carrying "
+            "`stored_records` is not out of reach: its rows are already stored and "
+            "run_analysis returns them, which is how a code list or a register answers."
         )
         payload["connector_candidates"] = candidates
         if not candidates:

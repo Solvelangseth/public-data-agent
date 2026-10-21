@@ -642,3 +642,23 @@ def test_inspect_reports_what_kinds_are_stored(tmp_path: Path) -> None:
     payload = call_tool("inspect", {"dataset": "b:1", "db": _with_entity_record(tmp_path)})
     assert payload["stored_records"] == {"entity": 1}
     assert payload["observation_schema"]["observation_count"] == 0
+
+
+def test_a_catalogue_record_says_when_its_rows_are_already_readable(tmp_path: Path) -> None:
+    """"Cannot be retrieved" stopped being true for most of this lane.
+
+    571 datasets read `lookup` -- Oslo's 42 bydeler, 365 municipalities, 7,127
+    occupation titles -- and every one holds entity records that run_analysis
+    reads. Saying nothing told the caller its data was out of reach while it
+    sat in the record store.
+    """
+
+    payload = call_tool("search", {"query": "Equinor", "db": _with_entity_record(tmp_path)})
+    lane = payload["catalogue_records"] + payload["observation_sources"]
+    hit = next((h for h in lane if h["id"] == "b:1"), None)
+    assert hit is not None, "the fixture dataset should be ranked for its own name"
+    if not hit["connector"]["fetch_supported"]:
+        assert hit["connector"]["stored_records"] == {"entity": 1}
+        assert "1 entity record" in hit["connector"]["readable"]
+        assert "run_analysis" in hit["connector"]["readable"]
+    assert "stored_records" in payload["lanes_note"]
