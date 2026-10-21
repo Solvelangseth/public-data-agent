@@ -1521,3 +1521,50 @@ matching":
 
 So three genuine depth failures, not ten. The framing was carrying four label
 errors and a coverage gap as if they were ranking problems.
+
+## The measure test nearly produced a false correction (2026-10-21)
+
+Audited by published measures, a010 `bruttonasjonalprodukt` looks like the
+clearest label error of the lot. None of its four labelled tables publishes a
+measure matching BNP or bruttonasjonalprodukt, while 09842 publishes one
+called exactly `Bruttonasjonalprodukt` and is not labelled. Two corrections
+had already gone in on that reasoning, so the third looked routine.
+
+It is wrong. 09189's measure is the price basis — `Faste 2023-priser (mill.
+kr)`, `Løpende priser (mill. kr)` — and the aggregate itself is a dimension:
+`Makrost`, 51 values, among them `Bruttonasjonalprodukt, markedsverdi` and
+`Bruttonasjonalprodukt Fastlands-Norge`. The table publishes GDP. So does
+09190 and so does 11721. The label is right and the measure test read it
+backwards, because in a PxWeb table the thing being measured can sit in either
+place: as a `ContentsCode` value, or as a dimension value with `ContentsCode`
+carrying the unit.
+
+The corrected rule, for anyone running this audit again: **a question's
+subject can live in the measure labels or in the dimension values, and a test
+that reads only one of them returns a confident wrong answer.** a047 and a025
+survive it — 07459's `Personer` has no age dimension either, and 08076's `Nye
+foretak` is the measure and the subject both — but they were checked again
+rather than assumed.
+
+One real label error did fall out: 11722, `Alderspensjonister, etter
+bosettingsstatus`, is in a010's expected list and has 14 indexed values, none
+of them macroeconomic. It cannot answer a question about GDP; it is almost
+certainly 11721 mistyped. Removing it changes no score — a010 misses either
+way — so it is recorded here and left for the same deliberate pass that owes
+a063 an answer.
+
+### What this says about the three depth failures
+
+a010 is the case the original framing described exactly: the answer is a
+dimension value inside a table whose title says `Makroøkonomiske
+hovedstørrelser`, and nothing in the title, the keywords or the description
+says GDP. The registry already indexes it — 587,333 `resource_field_values`
+rows, with `Bruttonasjonalprodukt, markedsverdi` among them — and retrieval
+does not search that index.
+
+So the lever for the remaining misses is real and already in the registry. The
+three value-index mechanisms that measured worse than the title lane were
+searching all 587,333 values; the measure labels alone are 15,210 rows, and
+for a080 the match is a unit (`Areal (km²)` against a question that says
+kvadratkilometer) rather than a subject. Those are two different lanes and
+worth measuring separately rather than as one "value index" again.
