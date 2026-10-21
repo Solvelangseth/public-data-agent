@@ -2567,3 +2567,54 @@ every other ranking change here.
 Until then, the field index is worth having for `tool_inspect` and for SQL --
 "which datasets hold a measure called X" is answerable, just not from the
 search box. The commit message that claimed otherwise is corrected here.
+
+### The field-match lane, refused before it was built
+
+Last tick's note proposed scoring field-code and field-label matches as a
+third lane and fusing them. Measuring the headroom first killed it, for about
+a tenth of the cost of building it.
+
+**Which gold questions could a field match help?** A question term that the
+gold dataset's fields carry and its title and description do not:
+
+| set | questions | helpable |
+|---|---|---|
+| tuned | 98 | **5** (5%) |
+| held-out | 42 | 3 (7%) |
+
+    a002  sysselsetting etter næring      ssbtable:11654   ['næring']
+    a004  lønn etter yrke                 ssbtable:11418   ['yrke']
+    a011  utenrikshandel eksport import   ssbtable:10191   ['eksport','import']
+    a017  dødsårsaker                     fhi:nokkel:343   ['dødsårsaker']
+    a052  … vaksinert mot meslinger       fhi:nokkel:395   ['mot']
+
+**And the decisive part.** The tuned questions that currently miss are a010,
+a025, a027, a035, a047, a049, a058, a063, a080. The overlap with the five
+above is **empty**. All five are already found; none of the nine missed would
+be helped. So the lane's measurable gain on the tuned set is zero, against the
+regression risk that the measures-in-embedding experiment already demonstrated
+(0.939 → 0.888).
+
+Not built. Recorded so the next person who notices 20,451 unread field rows
+does not spend a day on it either.
+
+(a052's hit is `mot`, a Norwegian preposition. That is a false positive in my
+own headroom measure, and it means the real figure is 4 of 98, not 5.)
+
+### Correction: the *values* index is read, the field *names* are not
+
+I wrote that "none of it is reachable". That was too broad.
+`resource_field_values` is read by `resource_index.py:883` through
+`datasets_containing_value`, which is how the kommune/fylke/bydel select path
+finds a table whose title never mentions a place:
+
+    value_code "5001"  ->  ssbtable:06505  field=Region  label="Trondheim - Tråante"
+
+It matches on `value_code`, not on `value_label`, so a query for "Alstahaug"
+finds nothing and one for `1820` finds it. That is deliberate -- codes are
+the join keys -- but it is worth knowing before concluding the index is
+unused.
+
+It also surfaced the collision this project already knows: `value_code 1820`
+matches both Alstahaug the kommune and 1820 the year, in a `Tid` field. The
+same ambiguity that made `PERIOD_VALUE` read municipality numbers as periods.
