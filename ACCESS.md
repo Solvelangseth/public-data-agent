@@ -110,6 +110,19 @@ one scope per client, `ais` or `api`, and the two are not interchangeable:
   as `BARENTSWATCH_API_CLIENT_ID` / `BARENTSWATCH_API_CLIENT_SECRET` (the
   naming `aqua_intelligence_plattform/.env.example` already anticipates).
 
+**Checking a pair:** `scripts/check_barentswatch.py` reads `.env`, asks for a
+token under each scope and probes an endpoint the scope should open. It stores
+nothing and prints no secret. Three outcomes that look alike mean different
+things: `invalid_client` is an unrecognised id/secret pair, `invalid_scope` is
+a real pair registered for the other scope, and an HTTP 401 from an endpoint
+is a valid token outside its scope.
+
+One trap, met on the first attempt at the API-client: a client id is
+`you@example.com:clientname`, and MyPage shows the name beside the secret.
+Pasting the **name** into the secret field gives `invalid_client` with nothing
+to say the two fields disagree. The script now checks for that before it asks
+the server anything.
+
 The token flow is the same for both, and is worth writing down once:
 
     curl -X POST https://id.barentswatch.no/connect/token \
