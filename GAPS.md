@@ -1845,3 +1845,51 @@ error. Two remain: a010, whose answer is a dimension value in a table titled
 The lesson is about where to look first. Four ticks went into the ranking
 because the miss list said "not in depth", and the measure audit that settles
 these questions in one query had already corrected two labels that same day.
+
+## Measures in the embedded text: the ranks improved and the answers got worse (2026-10-21)
+
+a080 and a010 both pointed at the same thing. SSB files 11342, `Areal og
+befolkning i kommuner, fylker og hele landet`, under Befolkning and Folketall,
+so the one table holding the country's area embedded with no area vocabulary
+past the title word, while the tables SSB files under Areal ranked first and
+second. 11342's measures are `Areal (km²)` and `Landareal (km²)`, and 3,277
+datasets had at least one measure label their embedded text did not contain.
+
+So the measures went in, 4,171 embeddings were rebuilt, and the targeted
+semantic ranks improved sharply:
+
+    hvor stor er Norge i kvadratkilometer   11342   2827 -> 435
+    bruttonasjonalprodukt                   09189    548 -> 315
+
+And the retrieval got much worse:
+
+    tuned      recall@5 0.939 -> 0.888   MRR 0.769 -> 0.685
+    coverage   recall@5 1.000 -> 0.909   MRR 0.652 -> 0.644
+
+Coverage had been at 1.000 through every change this session and this is what
+broke it. Reverted: the 4,171 vectors were restored from a targeted backup and
+both sets read exactly their previous numbers again.
+
+Why it fails is visible in the data. Measure labels are mostly boilerplate
+shared across unrelated tables -- `Antall personer som svarte` appears in 98
+datasets, `Personer` in 80, `Andel (%)` in 55 -- so embedding them makes
+tables about different subjects look alike. The title and the publisher's
+subject tree were carrying the discrimination, and 13,673 added labels diluted
+it. A vocabulary that identifies a resource and a vocabulary shared by
+hundreds are different things, and only the first belongs in a vector meant to
+tell resources apart.
+
+What the improved ranks say is still worth keeping: the signal for a080 and
+a010 genuinely is in the measures, and nothing that reads only titles,
+descriptions and subject trees will find it. A per-measure lane that is
+weighted by how few resources carry a label -- which `search_resources`
+already does for values -- is the shape that could work. Blending it into one
+vector cannot, because a vector has no way to down-weight its own boilerplate.
+
+Note on method: the first evidence for all this was wrong. 11342's embedded
+text was read through `get_dataset`, which does not join
+`harvested_payloads`, so it looked like title-and-publisher only and the
+keywords were invisible. The count that followed -- "only 12 datasets would
+gain" -- was answering a different question, thin text rather than missing
+measures. Both were corrected before the change was made, which is the only
+reason the experiment measured the thing it claimed to.
