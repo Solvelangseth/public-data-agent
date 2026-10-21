@@ -181,26 +181,135 @@ def ngu_table_id(access_path: str) -> str:
     return segment or "ngu"
 
 
-def cells_from_ngu(payload: Any) -> list[tuple[str, Any, dict[str, str]]]:
-    """Copy printed NGU landing-page links into observation cells.
+# The link a landing page prints to say where its data is. Following it is
+# reading the publisher's own declaration, not guessing a path.
+DATA_REL = "http://www.opengis.net/def/rel/ogc/1.0/data"
+ITEMS_REL = "items"
 
-    A live dataset landing page keeps a printed `links` array. Each link
-    copies printed `title` when it is a non-empty string, otherwise `rel`,
-    otherwise `href`. Other scalars stay as dimensions. Nested objects are
-    not copied. Nothing is invented.
+# What NGU calls a feature's name. `NAME_FIELDS` above is for the landing
+# page's links -- title, rel, href -- and means nothing on a seabed polygon.
+# NGU's own convention is a `*Navn` field beside the code it names:
+# `ankringsforhold` / `ankringsforholdNavn`, `geolPavisningstype` /
+# `geolPavisningstypeNavn`. The suffix is the publisher's, not a guess.
+FEATURE_NAME_SUFFIX = "Navn"
+FEATURE_ID_FIELDS = ("identifikasjon.lokalId", "lokalId", "id", "objectid")
+
+
+def cells_from_ngu(payload: Any) -> list[tuple[str, Any, dict[str, str]]]:
+    """Refuse a landing page. It is a door, not a room.
+
+    This function used to copy the landing page's `links` array into
+    observation cells, and its own docstring said so. Fetching
+    `ngu:ankringsforhold` stored seventeen rows whose measure was `title` and
+    whose values were "This document as HTML" and "OGC API conformance
+    classes implemented by this server", and marked the dataset verified with
+    a sample count of 17.
+
+    That is the mistake this project spent the session removing from eleven
+    thousand rows elsewhere: a listing of what a service offers is metadata,
+    and a listing of things the world contains is data. An OGC landing page
+    is the first kind. It prints a `data` link saying where the second kind
+    is, and `collections_url` reads it.
+    """
+
+    raise ValueError(
+        "an NGU landing page lists links, not features; follow its "
+        f"{DATA_REL!r} link to /collections and read a collection's items"
+    )
+
+
+def collections_url(payload: Any, access_path: str) -> str:
+    """Where the landing page says its data is.
+
+    Taken from the printed `data` link. Composing `access_path + /collections`
+    would usually give the same string and would be a guess; when a publisher
+    moves it, a guess breaks silently and a declaration does not.
     """
 
     if not isinstance(payload, dict):
-        raise ValueError("ngu payload is not a JSON object")
-    links = payload.get("links")
-    if not isinstance(links, list):
-        raise ValueError("ngu payload has no printed links array")
+        raise ValueError("ngu landing page is not a JSON object")
+    for link in payload.get("links") or []:
+        if not isinstance(link, dict):
+            continue
+        if link.get("rel") != DATA_REL:
+            continue
+        href = link.get("href")
+        if isinstance(href, str) and href.startswith("http"):
+            return href
+    raise ValueError(
+        f"ngu landing page {access_path} prints no {DATA_REL!r} link, so it does "
+        "not say where its data is"
+    )
+
+
+def printed_collections(payload: Any) -> list[dict[str, Any]]:
+    if not isinstance(payload, dict):
+        raise ValueError("ngu collections payload is not a JSON object")
+    listed = payload.get("collections")
+    if not isinstance(listed, list) or not listed:
+        raise ValueError("ngu collections payload printed no collections array")
+    return [item for item in listed if isinstance(item, dict)]
+
+
+def items_url(collection: dict[str, Any]) -> str | None:
+    """The JSON items link a collection prints, or None if it prints none."""
+
+    for link in collection.get("links") or []:
+        if not isinstance(link, dict) or link.get("rel") != ITEMS_REL:
+            continue
+        kind = str(link.get("type") or "").casefold()
+        if "json" not in kind:
+            continue
+        href = link.get("href")
+        if isinstance(href, str) and href.startswith("http"):
+            return href
+    return None
+
+
+def cells_from_ngu_items(payload: Any) -> list[tuple[str, Any, dict[str, str]]]:
+    """Copy printed features into cells, one per feature.
+
+    NGU publishes seabed and bedrock polygons -- things in places -- so these
+    become `feature` records, not observations. Property names arrive dotted
+    (`identifikasjon.lokalId`) and are kept exactly as printed.
+    """
+
+    if not isinstance(payload, dict):
+        raise ValueError("ngu items payload is not a JSON object")
+    features = payload.get("features")
+    if not isinstance(features, list):
+        raise ValueError("ngu items payload printed no features array")
     cells: list[tuple[str, Any, dict[str, str]]] = []
-    for item in links:
-        if isinstance(item, dict):
-            cells.extend(_cells_from_record(item))
+    for feature in features:
+        if not isinstance(feature, dict):
+            continue
+        properties = feature.get("properties")
+        if not isinstance(properties, dict) or not properties:
+            continue
+        scalars = {k: v for k, v in properties.items() if _is_scalar(v) and v is not None}
+        if not scalars:
+            continue
+        measure = None
+        for field in sorted(scalars):
+            if field.endswith(FEATURE_NAME_SUFFIX) and isinstance(scalars[field], str) \
+                    and str(scalars[field]).strip():
+                measure = field
+                break
+        if measure is None:
+            for field in FEATURE_ID_FIELDS:
+                if scalars.get(field) is not None:
+                    measure = field
+                    break
+        if measure is None:
+            measure = next(iter(scalars))
+        value = scalars[measure]
+        dims = {k: _as_dim(v) for k, v in scalars.items() if k != measure}
+        fid = feature.get("id")
+        if fid is not None and "id" not in dims:
+            dims["id"] = _as_dim(fid)
+        cells.append((measure, value, dims))
     if not cells:
-        raise ValueError("ngu payload printed no links")
+        raise ValueError("ngu items payload printed no feature with properties")
     return cells
 
 

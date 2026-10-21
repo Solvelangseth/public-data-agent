@@ -152,59 +152,45 @@ def test_harvest_writes_printed_id_null_license_and_publisher(tmp_path: Path) ->
     registry.close()
 
 
-def test_fetch_gets_printed_landing_page_links(tmp_path: Path) -> None:
+def test_fetching_a_landing_page_stores_nothing(tmp_path: Path) -> None:
+    """This test used to assert the opposite, and that is why it is here.
+
+    It read:
+
+        assert set(by_value) == {"Access the data (ankringOmr)",
+                                 "This document", "conformance"}
+        assert by_value["This document"]["measure"] == "title"
+
+    -- three OGC link titles, stored as observations and asserted to be
+    there. Run against the live API it stored seventeen such rows and marked
+    `ngu:ankringsforhold` verified with a sample count of 17.
+
+    The test was not wrong about what the code did. It was wrong about what
+    the code should do, which is the harder kind to notice: the suite was
+    green the whole time this connector was storing a service's table of
+    contents as measurements of the world.
+    """
+
     source = NguSource(http=CatalogHttp())
     registry = Registry(tmp_path / "registry.sqlite")
     harvest(registry, source)
-    result = fetch_observations(
-        registry,
-        DATASET_ID,
-        table_id="ignored",
-        http=FetchHttp(),
+    with pytest.raises(ValueError, match="lists links, not features"):
+        fetch_observations(registry, DATASET_ID, table_id="ignored", http=FetchHttp())
+    assert registry.observation_count() == 0
+    assert registry.get_capability(DATASET_ID) is None, (
+        "a refused fetch must not leave a verification behind"
     )
-    assert result.request_url == ANKRING_URL
-    assert result.table_id == "ankringsforhold"
-    assert result.http_status == 200
-    assert result.counts.listed == 3
-    rows = registry.list_observations(DATASET_ID)
-    by_value = {json.loads(row["value_json"]): row for row in rows}
-    assert set(by_value) == {
-        "Access the data (ankringOmr)",
-        "This document",
-        "conformance",
-    }
-    assert by_value["Access the data (ankringOmr)"]["measure"] == "title"
-    assert by_value["This document"]["measure"] == "title"
-    assert by_value["conformance"]["measure"] == "rel"
-    dims = json.loads(by_value["Access the data (ankringOmr)"]["dimensions_json"])
-    assert dims["rel"] == "data"
-    assert dims["href"] == "https://geo.ngu.no/api/features/ankringsforhold/collections"
-    assert "nested" not in dims
-    assert all(row["publisher_name"] is None for row in rows)
-    assert all(row["license"] is None for row in rows)
-    assert all(row["access_path"] == ANKRING_URL for row in rows)
     registry.close()
 
 
-def test_cells_copy_printed_link_titles() -> None:
-    cells = cells_from_ngu(ANKRING_BODY)
-    assert len(cells) == 3
-    measure, value, dims = cells[0]
-    assert measure == "title"
-    assert value == "Access the data (ankringOmr)"
-    assert dims["rel"] == "data"
-    assert "nested" not in dims
-    assert cells[2] == (
-        "rel",
-        "conformance",
-        {"href": "https://geo.ngu.no/api/features/ankringsforhold/conformance"},
-    )
-    with pytest.raises(ValueError, match="JSON object"):
+def test_the_landing_page_reader_refuses_and_says_where_to_go() -> None:
+    from public_data_agent.sources.ngu import DATA_REL
+
+    with pytest.raises(ValueError) as caught:
+        cells_from_ngu(ANKRING_BODY)
+    assert DATA_REL in str(caught.value)
+    with pytest.raises(ValueError):
         cells_from_ngu([{"title": "Ankringsforhold"}])
-    with pytest.raises(ValueError, match="links array"):
-        cells_from_ngu({"title": "Ankringsforhold"})
-    with pytest.raises(ValueError, match="printed no links"):
-        cells_from_ngu({"links": []})
 
 
 def test_is_ngu_url_accepts_only_dataset_landing_page() -> None:

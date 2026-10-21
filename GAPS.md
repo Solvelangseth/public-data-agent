@@ -2383,3 +2383,42 @@ request a range and read those, not the plain fields.
 **Still open:** nothing marks a coverage code current or retired, so a query
 for Oslo `0301` still misses whatever is filed under the numbering it
 replaced. That needs the Klass correspondence map, not just the code lists.
+
+### N3: the NGU connector was storing a table of contents as measurements
+
+`geo.ngu.no/api/features` lists 28 OGC API Features APIs and the registry
+holds all 28 as `ngu:` datasets with the right landing pages. Six probed, six
+returned features -- 3 to 6 collections each, 7 to 15 published fields per
+feature. So this is ~100 readable collections behind one protocol `hi.py`
+already speaks.
+
+They were all unprobed, and finding out why cost a real mistake. I fetched
+`ngu:ankringsforhold` to see what would happen, and it stored **17
+observations whose measure was `title`**, with values like "This document as
+HTML" and "OGC API conformance classes implemented by this server", then
+marked the dataset verified with a sample count of 17. I reverted it scoped to
+that one dataset.
+
+`cells_from_ngu` was built to do that, and said so:
+
+    """Copy printed NGU landing-page links into observation cells."""
+
+An OGC landing page is a door. It prints a `data` link saying where the rooms
+are. The reader now refuses the landing page and names that link in the error;
+`collections_url` reads the link rather than composing `access_path +
+"/collections"`, which gives the same string today and is a guess tomorrow.
+
+**Two tests asserted the old behaviour**, by value:
+
+    assert set(by_value) == {"Access the data (ankringOmr)",
+                             "This document", "conformance"}
+
+They were not wrong about what the code did. They were wrong about what it
+should do, which is the harder kind to catch: the suite was green for the
+entire time this connector was storing a service's table of contents as
+measurements of the world. Both are replaced by tests that assert the refusal
+and explain what they used to say.
+
+Still to do: dispatch `_fetch_ngu` through collections and items, and store
+the features as `feature` records rather than observations -- a seabed polygon
+is a thing in a place.
