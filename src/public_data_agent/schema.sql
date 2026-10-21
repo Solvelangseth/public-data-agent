@@ -531,3 +531,41 @@ CREATE TABLE IF NOT EXISTS query_reranks (
     created_at TEXT NOT NULL,
     PRIMARY KEY (query, candidates_hash, model)
 );
+
+
+-- What is actually behind a dataset whose access_path is a catalogue page.
+--
+-- 7,429 rows point at `kartkatalog.geonorge.no/metadata/uuid/...`, which
+-- describes someone else's dataset and serves none of it. One call to
+-- `api/getdata/{uuid}` returns the real distribution URL, the protocols, the
+-- formats, the owner and -- the part with no home until now -- the
+-- publisher's own word for whether it is open.
+--
+-- `license` on `datasets` already carried most of this: 6,464 of 7,425
+-- resolved licences matched what was there. What did not exist anywhere is
+-- `access_constraint` and `tier`, and those are the two a search needs:
+-- "open data I can actually query" is a filter over this table, and it is the
+-- thing data.norge does not offer over the same catalogue.
+--
+-- Separate from `resource_capability` on purpose. A capability is a verdict
+-- earned by fetching rows; a tier is what the publisher says it offers, which
+-- is weaker evidence and must not be mistaken for a verification.
+CREATE TABLE IF NOT EXISTS distributions (
+    dataset_id TEXT PRIMARY KEY,
+    -- queryable-api | bulk-download | map-service | web-page | offline
+    -- | unrecognised | unresolved. Best access first; the tier is our
+    -- ordering of the publisher's own protocol names.
+    tier TEXT NOT NULL,
+    best_url TEXT,                             -- what serves the data, not the page
+    protocols_json TEXT,                       -- the publisher's protocol names
+    formats_json TEXT,                         -- the publisher's format names
+    owner TEXT,
+    access_constraint TEXT,                    -- "Åpne data", "Andre restriksjoner", ...
+    license_url TEXT,                          -- the licence the publisher points at
+    resolved_from TEXT NOT NULL,               -- the API that was asked
+    resolved_at TEXT NOT NULL,
+    FOREIGN KEY (dataset_id) REFERENCES datasets(id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_distributions_tier ON distributions(tier);
+CREATE INDEX IF NOT EXISTS idx_distributions_access ON distributions(access_constraint);

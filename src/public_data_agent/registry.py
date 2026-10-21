@@ -587,6 +587,81 @@ class Registry:
     # What a dataset can return and what is inside it. A question reaches a
     # resource through these, not through its title alone.
 
+    # Tiers in the order a search should prefer them: what can be queried
+    # before what must be downloaded before what is only a web page.
+    DISTRIBUTION_TIERS = (
+        "queryable-api", "bulk-download", "map-service",
+        "web-page", "offline", "unrecognised", "unresolved",
+    )
+
+    def set_distribution(self, dataset_id: str, distribution: dict[str, Any]) -> None:
+        """Record what a catalogue page turned out to be pointing at.
+
+        This is weaker evidence than a capability and is kept apart from it on
+        purpose: a capability is earned by fetching rows, while a tier is the
+        publisher's own account of what it offers. A `queryable-api` tier is a
+        reason to try, not a claim that it worked.
+        """
+
+        tier = distribution.get("tier")
+        if tier not in self.DISTRIBUTION_TIERS:
+            raise ValueError(
+                f"tier {tier!r} is not one of {self.DISTRIBUTION_TIERS}; the tier "
+                "orders the publisher's protocol names and is not free text"
+            )
+        if not distribution.get("resolved_from") or not distribution.get("resolved_at"):
+            raise ValueError(
+                "a distribution needs resolved_from and resolved_at: a claim about "
+                "what is behind a page is only as good as when it was asked and of whom"
+            )
+        self.conn.execute(
+            "INSERT INTO distributions "
+            "(dataset_id, tier, best_url, protocols_json, formats_json, owner, "
+            " access_constraint, license_url, resolved_from, resolved_at) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) "
+            "ON CONFLICT(dataset_id) DO UPDATE SET "
+            "tier=excluded.tier, best_url=excluded.best_url, "
+            "protocols_json=excluded.protocols_json, formats_json=excluded.formats_json, "
+            "owner=excluded.owner, access_constraint=excluded.access_constraint, "
+            "license_url=excluded.license_url, resolved_from=excluded.resolved_from, "
+            "resolved_at=excluded.resolved_at",
+            (
+                dataset_id,
+                tier,
+                distribution.get("best_url"),
+                json.dumps(distribution.get("protocols") or [], ensure_ascii=False),
+                json.dumps(distribution.get("formats") or [], ensure_ascii=False),
+                distribution.get("owner"),
+                distribution.get("access_constraint"),
+                distribution.get("license_url"),
+                distribution["resolved_from"],
+                distribution["resolved_at"],
+            ),
+        )
+        self.conn.commit()
+
+    def get_distribution(self, dataset_id: str) -> dict[str, Any] | None:
+        row = self.conn.execute(
+            "SELECT * FROM distributions WHERE dataset_id = ?", (dataset_id,)
+        ).fetchone()
+        if row is None:
+            return None
+        out = dict(row)
+        for key in ("protocols_json", "formats_json"):
+            try:
+                out[key.removesuffix("_json")] = json.loads(out.get(key) or "[]")
+            except ValueError:
+                out[key.removesuffix("_json")] = []
+        return out
+
+    def distribution_counts(self) -> dict[str, int]:
+        return {
+            row["tier"]: row["k"]
+            for row in self.conn.execute(
+                "SELECT tier, COUNT(*) AS k FROM distributions GROUP BY tier"
+            )
+        }
+
     def set_capability(self, dataset_id: str, capability: dict[str, Any]) -> str:
         """Record what a dataset has been verified to return.
 
