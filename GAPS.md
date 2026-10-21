@@ -2303,3 +2303,19 @@ second-largest queryable group, and it is worth telling Geonorge.
 `geo.ngu.no` by contrast answers: `api/features` returns a listing of **28
 OGC API Features APIs**, each with a description. That is a catalogue to
 follow, and the registry holds 10 rows pointing into it.
+
+### 34 rows declare a download service that 404s, and I do not know why
+
+Of 535 datasets resolved against `nedlasting.geonorge.no/api/capabilities/{uuid}`,
+**34 answer HTTP 404**. Every failure is a 404; none is a timeout or a refusal.
+So the catalogue advertises `Geonorge nedlastning` for them and the download
+service has no entry.
+
+Five of those titles said "historiske versjoner", which is a tidy explanation,
+so it got counted before it got written down: **65% of the failures carry
+"histor" in the title against 46% of the successes, and 228 historical
+datasets resolve perfectly well.** The lean is far too weak to be the cause.
+
+Recorded as 34 unresolved with their 404, cause unknown. The tidy version
+would have been read as settled by whoever picked this up next, and a wrong
+settled explanation is worse than an open question.
