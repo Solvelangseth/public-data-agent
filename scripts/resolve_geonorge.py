@@ -194,6 +194,32 @@ def main() -> int:
     print(f"\nwrote {out_path}")
     for name, count in sorted(tiers.items(), key=lambda kv: -kv[1]):
         print(f"  {name:16} {count:>6,}")
+
+    # One url standing for hundreds of datasets is the single most misleading
+    # thing this file can contain. 608 bulk-download rows resolved to
+    # `nedlasting.geonorge.no/api/capabilities/`, which is the download
+    # service's root, and reading that as one resource nearly cost the
+    # per-dataset endpoint behind it. The url is still the publisher's own
+    # declaration and is kept; what was missing was saying so.
+    shared: dict[str, int] = {}
+    for line in out_path.read_text(encoding="utf-8").splitlines():
+        if not line.strip():
+            continue
+        try:
+            url = json.loads(line).get("best_url")
+        except ValueError:
+            continue
+        if url:
+            shared[url] = shared.get(url, 0) + 1
+    repeated = sorted(
+        ((url, n) for url, n in shared.items() if n > 1), key=lambda kv: -kv[1]
+    )
+    if repeated:
+        print(f"\n{sum(n for _u, n in repeated):,} row(s) share a best_url with another "
+              f"row, over {len(repeated)} url(s). A url standing for many datasets is a "
+              "service root, not a resource -- the per-dataset address is elsewhere:")
+        for url, count in repeated[:6]:
+            print(f"  {count:>5}  {url[:88]}")
     return 0
 
 

@@ -2658,3 +2658,34 @@ and useful is prefix matching -- a query for `GML` matching `GML 3.2.1` --
 because that follows from the names rather than from a judgement about them.
 
 Recorded, not acted on.
+
+### N5 and N6 fixed, and a third found while testing the fix
+
+**N6** — 151 THREDDS rows resolve to `<dataset>.nc.html`, which is the HTML
+request form OPeNDAP generates *from* the dataset it names. The classifier
+called them `unclear: not JSON`, which is true of the form and says nothing
+about the `.dds` one character away. `discover.py` now follows both `.dds` and
+`.das`, and recognises an OPeNDAP document as `rows` rather than a parse
+failure. Marked `convention:` and not `declared:`, because no link in any
+response says to do it.
+
+**N5** — `resolve_geonorge.py` now reports, at the end of a run, how many rows
+share a `best_url` and names the worst offenders. 608 rows resolved to
+`nedlasting.geonorge.no/api/capabilities/`, which is the download service's
+root, and reading that as one resource nearly cost the per-dataset endpoint
+behind it. The url is the publisher's own declaration and is kept; what was
+missing was the tool saying so.
+
+**And a third, found by running the N6 fix live.** The form timed out at 45
+seconds, so `investigate` returned early on `unreachable` and never tried the
+doors -- the fix could not fire in exactly the case it was written for.
+Generating the HTML page for a 1.85M-cell grid is slow while `.dds` answers in
+a moment, so a form's failure says nothing about its dataset. The early return
+now makes an exception for OPeNDAP, with a test that drives it through a
+client where every request fails.
+
+**Worth owning:** both the form and the `.dds` timed out on a server that had
+answered 151 `.dds` requests minutes earlier. That is 302 requests from this
+machine at 0.4s spacing, and the slowness is far more likely mine than theirs.
+`thredds.met.no` is done with for today; the indexing it was needed for is
+finished.
