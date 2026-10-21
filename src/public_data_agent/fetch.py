@@ -17446,6 +17446,19 @@ CAPABILITY_RESTRICTED = "restricted"
 # to an empty room, and it doubles as the work queue for making these
 # resources genuinely fetchable.
 CAPABILITY_CATALOGUE = "catalogue"
+# There is nothing at the address. Geonorge advertises 82 datasets as
+# `OGC:OAPIF` on `pycsw.nina.no`, and that hostname returns NXDOMAIN from the
+# local resolver, from 1.1.1.1 and from 8.8.8.8 alike, while `nina.no` and
+# `www.nina.no` both resolve -- so it is that subdomain and not the
+# institution.
+#
+# Distinct from every verdict above, and the distinction is the point. A
+# `withdrawn` resource answered 404, which means a server considered the
+# request and declined it. A `restricted` one is served to someone. This one
+# has no server: the catalogue's own entry is wrong, nothing a connector does
+# will change it, and until it was recorded those 82 counted as the
+# second-largest group of queryable APIs in the registry.
+CAPABILITY_UNREACHABLE = "unreachable"
 CAPABILITY_NONE = "none"
 
 # Capabilities that can return data a question is answered from. Statistics were

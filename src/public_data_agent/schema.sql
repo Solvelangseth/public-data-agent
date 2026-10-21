@@ -262,6 +262,7 @@ CREATE INDEX IF NOT EXISTS idx_printed_table_urls_dataset ON printed_table_urls(
 CREATE TABLE IF NOT EXISTS resource_capability (
     dataset_id TEXT PRIMARY KEY,
     -- observations | entities | features | documents | lookup | unverified | none
+    -- | withdrawn | empty | restricted | catalogue | unreachable
     capability TEXT NOT NULL,
     record_kind TEXT,                          -- what `records.kind` it produces
     endpoint TEXT,                             -- URL that returns data, not a landing page

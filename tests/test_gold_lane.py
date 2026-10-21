@@ -79,18 +79,23 @@ def test_no_gold_answer_sits_outside_the_retrievable_lane() -> None:
 def test_no_capability_row_is_unverified_without_saying_why() -> None:
     """"Unverified" on its own is not a finding, it is an absence of one.
 
-    78 rows carry no verification and never will: the resource is withdrawn,
-    it is a service catalogue, it is empty, or it is behind authorisation.
-    Each of those is a decided answer with the probe date recorded. A row that
-    is merely unverified means nobody has looked, and this is what keeps that
-    distinction from quietly refilling.
+    Rows carry no verification and never will: the resource is withdrawn, it
+    is a service catalogue, it is empty, it is behind authorisation, or its
+    host does not exist. Each of those is a decided answer with the reason
+    recorded. A row that is merely unverified means nobody has looked, and
+    this is what keeps that distinction from quietly refilling.
+
+    It works. Adding `unreachable` for the 82 datasets on a host that returns
+    NXDOMAIN failed this test until the verdict was registered here, which is
+    the point: a new way of saying "nothing came back" has to be declared as
+    a decided answer, not slipped in beside them.
     """
 
     if not REGISTRY.exists():
         pytest.skip("no local registry.sqlite; the vocabulary is unit-tested elsewhere")
     registry = Registry(REGISTRY)
     try:
-        decided = {"withdrawn", "catalogue", "empty", "restricted"}
+        decided = {"withdrawn", "catalogue", "empty", "restricted", "unreachable"}
         rows = registry.conn.execute(
             "SELECT dataset_id, capability, notes FROM resource_capability "
             "WHERE verified_at IS NULL"

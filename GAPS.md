@@ -2458,3 +2458,35 @@ Open: those `geotekniskdokument` collections are documents rather than
 features, and the registry has a `documents` capability for that. Filed, not
 guessed at -- they arrive through an OGC feature collection, so `feature` is
 defensible until someone decides otherwise.
+
+### N1: 82 datasets advertise a host that does not exist
+
+Geonorge advertises 82 datasets as `OGC:OAPIF` on `pycsw.nina.no`. Checked
+before anything was written: **NXDOMAIN from the local resolver, from 1.1.1.1
+and from 8.8.8.8**, while `nina.no` and `www.nina.no` both resolve. So the
+subdomain is gone and the institution is not.
+
+They now carry a new verdict, `unreachable`, with the resolvers and the date
+in the notes. It is deliberately not `withdrawn`: a withdrawn resource
+answered 404, which means a server considered the request and declined it.
+This one has no server. The catalogue's entry is wrong, no connector will fix
+it, and the difference matters to whoever reads the row next.
+
+**The correction this makes to a number I had been reporting:** the
+`queryable-api` tier was 324. 82 of those are this host. Honestly queryable:
+**242**. A 25% overstatement, carried in three updates before it was checked.
+
+`scripts/mark_unreachable.py` re-resolves each host itself and refuses to mark
+anything if the host answers. A DNS failure can be local and temporary, and
+82 verdicts written from a claim in a docstring would be worse than none.
+
+Two things worth keeping about how this went:
+
+- The declared tier is left untouched. What the publisher says it offers and
+  what we found are two facts, and overwriting the first with the second
+  loses the catalogue's own claim -- the same reason `datasets.license` is not
+  overwritten by the resolver.
+- `test_no_capability_row_is_unverified_without_saying_why` failed on all 82
+  until `unreachable` was registered in its `decided` set. That is the
+  invariant working: a new way of saying "nothing came back" has to be
+  declared as a decided answer rather than slipped in beside the others.
