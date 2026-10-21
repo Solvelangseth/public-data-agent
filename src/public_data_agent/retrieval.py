@@ -26,7 +26,13 @@ from public_data_agent.embeddings import rank_for_query, semantic_ranking
 from public_data_agent.fetch import classify_access_path, is_retrievable
 from public_data_agent.registry import Registry
 from public_data_agent.resource_index import demote_breakdown_only
-from public_data_agent.rerank import RERANK_KEEP, RERANK_LIFT, Reranker, rerank
+from public_data_agent.rerank import (
+    RERANK_DEPTH,
+    RERANK_KEEP,
+    RERANK_LIFT,
+    Reranker,
+    rerank,
+)
 from public_data_agent.rewrite import QueryRewriter, terms_for
 from public_data_agent.search import search_report
 
@@ -108,6 +114,8 @@ def find(
     rerank_lift: int = RERANK_LIFT,
     rewrite_lead: int = REWRITE_LEAD,
     rewrite_take: int | None = None,
+    work_depth: int | None = None,
+    rerank_depth: int = RERANK_DEPTH,
 ) -> Retrieved:
     """Rank what could answer a question, fetchable results kept apart.
 
@@ -129,12 +137,19 @@ def find(
         semantic = [d for d, _ in semantic_ranking(registry, provider, text, limit=depth)]
         return rank_for_query(hits, semantic, text, limit=depth)
 
+    # How long a list the ranking stages work on, which is not the same
+    # question as how deep each lane reads. Fusing a lexical list of L with a
+    # semantic list of S and keeping D discards the deeper ranker's tail
+    # whenever L + S exceeds D, and the loss is silent: `regnskapstall
+    # aksjeselskap` is ranked 41 and 42 semantically and appears in no fused
+    # list at all. Defaults to `depth`, which is the behaviour this had.
+    work = work_depth or depth
     if provider is None:
         ranked = lexical
         steps.append("no embedding provider; semantic ranking skipped")
     else:
         semantic = [d for d, _ in semantic_ranking(registry, provider, query, limit=depth)]
-        ranked = rank_for_query(lexical, semantic, query, limit=depth)
+        ranked = rank_for_query(lexical, semantic, query, limit=work)
         steps.append(
             "ranked semantically alone (query reads as a question)"
             if ranked == semantic[:depth]
@@ -165,7 +180,7 @@ def find(
                 dict.fromkeys(
                     ranked[:rewrite_lead] + alternative[:take] + ranked
                 )
-            )[:depth]
+            )[:work]
         steps.append(
             f"searched the catalogue's words for this question: {', '.join(terms)}"
             if terms
@@ -215,7 +230,7 @@ def find(
         # positions, so the worst it can do is order the same results badly.
         reordered = rerank(
             registry, reranker, query, observations,
-            keep=rerank_keep, lift=rerank_lift,
+            depth=rerank_depth, keep=rerank_keep, lift=rerank_lift,
         )
         if reordered != observations:
             steps.append("a model reordered the shortlist by what answers the question")

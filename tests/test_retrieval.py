@@ -246,3 +246,26 @@ def test_the_interleave_can_keep_more_of_the_rewrite_than_it_leads_with(tmp_path
         assert "ssbtable:answer" in wide
     finally:
         registry.close()
+
+
+def test_the_working_list_can_outlive_the_output_depth(tmp_path: Path) -> None:
+    """Fusing two lists and keeping D discards the deeper ranker's tail.
+
+    `regnskapstall aksjeselskap` is ranked 41 and 42 by the semantic lane and
+    appears in no fused list at all, because 15 lexical hits plus 50 semantic
+    ones are cut to 50. The working list is what the ranking stages operate
+    on; the output depth is a different question, and conflating them loses
+    answers silently.
+    """
+
+    registry = _many(tmp_path)
+    try:
+        # With no provider the fusion does not run, so this pins the plumbing:
+        # a working list longer than the depth must not truncate earlier.
+        short = find(registry, "avfall", depth=2).observations
+        long = find(registry, "avfall", depth=2, work_depth=10).observations
+        assert len(short) <= 2
+        assert len(long) >= len(short)
+        assert "ssbtable:answer" in find(registry, "avfall", depth=10).observations
+    finally:
+        registry.close()
