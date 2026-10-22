@@ -2892,3 +2892,54 @@ GeoJSON from the same publisher's other service writes the same kind of point
 as `[16.1687, 69.1226]`, longitude first. Reading one convention as the other
 puts every Norwegian feature in the Indian Ocean, and nothing in the payload
 complains. `srsName` has to be read per geometry, not assumed per source.
+
+### The answer path stops after "fetch", measured on one question (2026-10-22)
+
+A reviewer proposed a test question and it turned out to be the sharpest thing
+anyone has run at this system:
+
+> Hvor mye husholdningsavfall per innbygger hadde Bærum i 2024 sammenlignet
+> med Asker?
+
+Run through `ask()` with the real provider, the stages separate cleanly:
+
+| stage | result |
+|---|---|
+| search | finds `ssbtable:12241` and `ssbtable:13035` in the top four. `(K)` is kommune-level. **Correct.** |
+| plan | `catalog_search_and_optional_fetch`, no refusal. Correct. |
+| fetch | **264,033 observations** from `13035`. It worked. |
+| select | nothing. No kommune filter, no year, no measure. |
+| compute | nothing. |
+| report | `numbers_retrieved: true`, "Values are copied from stored observations; no join or derived number was emitted." |
+
+So the system answers a question about two kommuner in one year with a quarter
+of a million rows covering every kommune, every year and every waste fraction,
+and calls it a success. **`numbers_retrieved: true` is not an answer**, and it
+is currently the only thing measured.
+
+The table does carry what the question needs -- `Årsinnbyggere (antall)` is the
+denominator, and the dimensions are `KOKkommuneregion0000` and `Tid`. Nothing
+is missing from the data. What is missing is the three stages after the fetch.
+
+`ask()` has exactly one special-cased intent, `bydel_population_size_and_growth`,
+which does join two years and derive a rate. Everything else falls through to
+`_execute_catalog_plan`, which fetches and copies. So the general answer path
+is the fall-through, and it has never been scored.
+
+**Two consequences, and the second was not expected.**
+
+The first is P0.1: the harness has to score the *value*, not the retrieval,
+and it will fail most questions on day one. That is the point of building it.
+
+The second is a storage problem. One question grew `observations` from 25,921
+to 290,000. The standing rule here is "save pointers, not payloads" because
+the machine is storage-constrained, and the fetch path ignores it when a
+question arrives -- it pulls the whole table. A hundred-question harness run
+would be tens of millions of rows. So the harness has to pass `max_cells`, and
+the real repair is for the plan to narrow the request before it is sent:
+`13035` with `KOKkommuneregion0000` and `Tid` pinned is two cells, not 264,033.
+
+Incidentally the stored dimension values name the kommune as
+`"Agdenes (-2017)"` -- SSB marks a retired kommune inline, in the label, with
+no separate validity field. That is a third spelling of the N8 problem and it
+is in the data we now hold.
