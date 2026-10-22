@@ -3132,3 +3132,49 @@ never at risk -- they are attributes either way.
 datasets to its layer, which needs the capabilities read per address, and
 applying the WFS address to the registry so the dispatch can see it. The
 reader and the door are done; the 116 have not been walked through yet.
+
+### P1.2b: 83 datasets read, and the 41 "failures" were the publisher being correct (2026-10-22)
+
+The sweep ran. 85 datasets own their WFS address, 237 layers answered, and
+**93,916 feature records** landed — species, depth, bottom type, noise limits,
+bathymetry, ground surveys. The largest single layers:
+
+    2,602  grunnundersokelser_utvidet
+    1,138  app:Støygrense
+    1,124  app:Støy
+    1,001  hi_basemap:basemap_ne_10m_bathymetry_5000m
+
+`features` capabilities went from 456 to **539**, and the 116 datasets that
+had never been asked are now 83 answered, 27 deferred and 4 to retry.
+
+**41 layers stored nothing, and I nearly recorded that as 41 failures.**
+Re-running them with the exception text printed says what they actually are:
+
+    29 of 30 re-checked   "a FeatureCollection with no members"
+     1 of 30              a kart.hi.no timeout
+
+And their names say why:
+
+    SpatialDataSet · AccessRestriction · ConditionOfFacility
+    MaintenanceAuthority · MarkerPost · OwnerAuthority · RestrictionForVehicles
+
+These are **INSPIRE schema stubs**. The directive requires the service to
+publish them; the publisher has nothing to put in them. An empty layer is a
+fact about the data, not a fault in the fetch, and `gml.py` raising on it was
+right — "an empty layer and a response this reader misread are different
+answers" — but the sweep was collapsing that distinction back into "failed".
+
+So the sweep now counts `layer empty` separately, does not retry it, and
+prints which layers a dataset serves nothing from. Reporting these as broken
+would send someone to debug a service doing exactly what the schema demands,
+which is the same mistake as calling a Datasettserie's 404 a failure.
+
+Retries went from two to three with a widening gap, because `kart.hi.no` has
+now timed out on first contact and answered afterwards four separate times
+today.
+
+**Still not recorded: how big each layer really is.** A stored sample of 500
+and a layer holding exactly 500 are indistinguishable in
+`verified_sample_count`, and `wfs.geonorge.no` answers every GetFeature
+`numberMatched="unknown"`. `hits_url` exists and nothing calls it. That is
+P1.2d and it is one request per layer.

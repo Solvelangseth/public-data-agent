@@ -118,23 +118,48 @@ def main() -> int:
                 stats["dataset vanished"] += 1
                 continue
             got = 0
+            empty: list[str] = []
             for layer in item["layers"]:
                 url = getfeature_url(item["address"], layer, count=args.count)
                 filled = {**dict(dataset), "access_path": url}
-                for attempt in (1, 2):
+                for attempt in (1, 2, 3):
                     try:
                         result = _fetch_wfs(registry, filled)
                         got += result.counts.listed
                         stats["layer read"] += 1
                         break
+                    except ValueError as error:
+                        # An empty layer is a fact about the publisher, not a
+                        # failure of ours, and counting it as one hides what
+                        # it is. 40 of the first run's 41 "failures" were
+                        # INSPIRE stub layers -- SpatialDataSet,
+                        # AccessRestriction, MaintenanceAuthority, MarkerPost
+                        # -- which these services publish empty by the
+                        # schema's requirement. Retrying them is pointless and
+                        # reporting them as broken sends someone to debug a
+                        # service behaving exactly as specified.
+                        if "no members" in str(error):
+                            stats["layer empty"] += 1
+                            empty.append(layer)
+                        else:
+                            stats[f"layer refused: {str(error)[:40]}"] += 1
+                        break
                     except Exception as error:
-                        if attempt == 2:
+                        if attempt == 3:
                             stats[f"layer failed: {type(error).__name__}"] += 1
                         else:
-                            time.sleep(args.pause * 6)
+                            # kart.hi.no times out on first contact and
+                            # answers afterwards, observed three times today.
+                            time.sleep(args.pause * 6 * attempt)
                 time.sleep(args.pause)
             stored += got
             stats["dataset read" if got else "dataset empty"] += 1
+            if empty and got:
+                # Said on the dataset, not only in the totals: a reader of
+                # this registry should be able to see that a service offers
+                # layers it serves nothing from.
+                print(f"     {item['dataset_id']}: {len(empty)} empty layer(s): "
+                      + ", ".join(name.split(":")[-1] for name in empty[:4]), flush=True)
             if index % 10 == 0 or index == len(work):
                 print(f"  {index:,}/{len(work):,}  {stored:,} features  "
                       + ", ".join(f"{k}={v}" for k, v in sorted(stats.items())), flush=True)
