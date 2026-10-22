@@ -570,3 +570,42 @@ Two things to settle before a connector:
   travel-time ones are the observation sources. Storage-constrained means the
   pointer is stored and the payload is not, so a reader has to subset on
   parse rather than after it.
+
+## 10. Kartverket answered: no Norge digitalt for a commercial startup (2026-10-22)
+
+The question section 6 was built around has an answer. **NorAtlas cannot join
+Norge digitalt as a commercial startup.** Kartverket also said that most open
+Geonorge datasets are freely available through the download APIs and Atom
+feeds, which is the part that matters for the product.
+
+What this decides:
+
+- The **1,939 datasets** carrying the Norge digitalt constraint, and the 74
+  `bulk-download` rows marked `Norge digitalt begrenset`, are closed to a
+  commercial tier. Not blocked by a missing credential -- declined. They stay
+  in the catalogue as findable, and must be marked so a paying caller is never
+  offered them as retrievable.
+- Matrikkel and Grunnbok remain gated behind a registered company and a
+  framework agreement, so sections 6 and 7 stand.
+- The open Geonorge material is open, and the Atom feeds are the way in.
+
+**What the service feed holds**, read once rather than assumed:
+
+    https://nedlasting.geonorge.no/geonorge/Tjenestefeed_daglig.xml
+    4.5 MB, refreshed twice a day at 06:00 and 18:00 (it says so itself)
+    1,753 entries, each linking to its own per-dataset Atom feed
+    639 distinct dataset uuids
+
+    549 of those 639 are datasets in this registry
+    0 of the 549 have ever been asked
+
+Formats, from the entry titles: SOSI 418, FGDB 409, GML 343, PostGIS 268,
+TIFF 95, GeoJSON 36, PPTX 27, GPKG 18.
+
+Two things to carry into the work rather than discover during it. The entry's
+`rights` field says `Kartverket` -- that is an **owner and an attribution
+string, not a licence**, and must not be stored as one; the licence stays with
+what the catalogue record declares. And these are **file downloads, not
+queryable endpoints**, which runs straight into the standing "pointers, not
+payloads" rule: a feed entry is a pointer worth storing whether or not the
+file is ever pulled.
