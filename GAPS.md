@@ -2943,3 +2943,36 @@ Incidentally the stored dimension values name the kommune as
 `"Agdenes (-2017)"` -- SSB marks a retired kommune inline, in the label, with
 no separate validity field. That is a third spelling of the N8 problem and it
 is in the data we now hold.
+
+### A 167 MB write-ahead log read as a publisher throttling us (2026-10-22)
+
+The bwfish backfill stopped advancing at 65 of 766 weeks. No error, no output,
+the process asleep in an SSL socket read. Every reading said "the publisher is
+throttling us", which is a conclusion this project has reached correctly
+before -- thredds.met.no really did start timing out after 302 requests from
+this machine.
+
+It was wrong here, and one probe settled it:
+
+    token           ok in 0.1s
+    one week        HTTP 200 in 0.4s, 1,749 entries
+
+BarentsWatch was answering throughout. What had happened is that the
+un-narrowed `ask()` fetch described above wrote 264,033 rows into the same
+database, leaving a **167 MB** write-ahead log. Every commit in the backfill
+then had more WAL to work through, and the run slowed to a stop without ever
+raising anything.
+
+    PRAGMA wal_checkpoint(TRUNCATE)     0.5s, WAL gone
+    the same ten weeks, after it        11.8s, 1.18s each
+
+So the backfill now checkpoints every 25 weeks, and the comment in the code
+carries the measurement rather than calling it hygiene.
+
+**The lesson is about the diagnosis, not the pragma.** A stalled process, a
+socket read and a publisher who asks for single-threaded access compose into
+a story that explains everything and is false. The thing that broke it was
+asking the publisher directly instead of reasoning about them -- the same move
+that settled the `codelists` 200s and the NGU title bug. Two independent
+symptoms traced to one cause, and that cause was a bug of ours from twenty
+minutes earlier.

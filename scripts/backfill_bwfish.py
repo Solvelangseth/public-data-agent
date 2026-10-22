@@ -48,6 +48,8 @@ def main() -> int:
     parser.add_argument("--pause", type=float, default=0.6)
     parser.add_argument("--refetch", action="store_true",
                         help="ask again for weeks that already hold rows")
+    parser.add_argument("--checkpoint-every", type=int, default=25,
+                        help="weeks between WAL checkpoints; 0 turns it off")
     args = parser.parse_args()
 
     registry = Registry(Path(args.db))
@@ -78,6 +80,15 @@ def main() -> int:
                 stats["empty"] += 1
             else:
                 stats["unchanged"] += 1
+            if args.checkpoint_every and index % args.checkpoint_every == 0:
+                # Measured, not precautionary. An unrelated 264,033-row write
+                # left a 167 MB write-ahead log, and with it every commit here
+                # slowed until the run stopped advancing entirely -- 65 weeks
+                # in, no error, no output, the process asleep in a socket read
+                # so it read as the publisher throttling us. BarentsWatch was
+                # answering in 0.4s throughout. After one checkpoint the same
+                # ten weeks took 11.8s.
+                registry.conn.execute("PRAGMA wal_checkpoint(TRUNCATE)")
             if index % 25 == 0 or index == len(weeks):
                 print(f"  {index:,}/{len(weeks):,}  {stored:,} rows  "
                       + ", ".join(f"{k}={v}" for k, v in sorted(stats.items())), flush=True)
