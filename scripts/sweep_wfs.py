@@ -97,11 +97,31 @@ def main() -> int:
     parser.add_argument("--limit", type=int)
     parser.add_argument("--count", type=int, default=500, help="features per layer")
     parser.add_argument("--pause", type=float, default=0.5)
+    parser.add_argument("--only-missing", action="store_true",
+                        help="only datasets that stored no feature yet")
+    parser.add_argument("--patience", type=int, default=2,
+                        help="attempts per layer; raise it for a retry pass")
     args = parser.parse_args()
 
     registry = Registry(Path(args.db))
     try:
         work, why = plan(registry, Path(args.caps))
+        if args.only_missing:
+            # The first pass is fast and loses the slow publishers; this pass
+            # is patient and only has to cover what they lost. Raising the
+            # inline retries instead is what produced a twenty-minute stall,
+            # because a slow layer multiplies by every attempt while a short
+            # retry list does not.
+            before = len(work)
+            work = [
+                item for item in work
+                if not registry.conn.execute(
+                    "SELECT 1 FROM records WHERE dataset_id = ? AND kind = 'feature' LIMIT 1",
+                    (item["dataset_id"],),
+                ).fetchone()
+            ]
+            print(f"  --only-missing: {before - len(work)} already hold features, "
+                  f"{len(work)} to try")
         if args.limit:
             work = work[: args.limit]
         layers = sum(len(item["layers"]) for item in work)
@@ -132,7 +152,7 @@ def main() -> int:
                 # while printing nothing. `wfs.befolkningpagrunnkretsniva`
                 # takes 13.7s merely to count its features; it is slow, not
                 # broken, and the retries were turning that into a stall.
-                for attempt in (1, 2):
+                for attempt in range(1, args.patience + 1):
                     try:
                         result = _fetch_wfs(registry, filled)
                         got += result.counts.listed
@@ -162,7 +182,7 @@ def main() -> int:
                             stats[f"layer refused: {str(error)[:40]}"] += 1
                         break
                     except Exception as error:
-                        if attempt == 2:
+                        if attempt == args.patience:
                             stats[f"layer failed: {type(error).__name__}"] += 1
                         else:
                             # kart.hi.no times out on first contact and

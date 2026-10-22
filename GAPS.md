@@ -3351,3 +3351,43 @@ This is the same family as the `codelists` `200 []`, the `%NC%` licence match
 and the ignored `hierarchy_level` argument: a call that answers successfully
 while doing nothing, where the only tell is a number that should have changed
 and did not.
+
+### P1.2c1 applied: the five species, each holding only its own (2026-10-22)
+
+    Isidella lofotensis      316 records, 316/316 sampled of its total
+    Paragorgia arborea       853 records, 853/853
+    Paramuricea placomus     252 records, 252/252
+    Primnoa resedaeformis    453 records, 453/453
+    Radicipes                119 records, 119/119
+                           -----
+                            1,993, and the layer holds 1,993
+
+Every dataset holds **only** its own species -- checked by reading back the
+`art` value of every stored record, not by trusting the filter -- and the five
+partitions sum to the whole layer with nothing duplicated and nothing lost.
+
+`apply_species_filters.py` refuses before it stores. A filtered count must be
+smaller than the unfiltered 1,993 and must equal the tally counted from the
+features. Either check failing means the request is not addressing that
+dataset, and the obvious failure it guards -- `CQL_FILTER` being accepted and
+ignored -- would have passed every other signal: HTTP 200, features returned,
+a capability verified, a sample count recorded.
+
+The script also refuses to run at all if the number of datasets titled
+`Hornkoraller - …` stops matching the number of known species, because the
+whole thing rests on that bijection and a sixth dataset would silently break
+it.
+
+### Where the WFS work actually stands
+
+    84 of 86 sole-address datasets hold features
+    113,152 feature records in the registry
+    56 of 84 carry a publisher-stated total
+    2 remain: one whose four layers are genuinely empty, one kart.hi.no flake
+
+The two retry regimes are now separated rather than compromised between. The
+first pass is fast and loses slow publishers; `--only-missing --patience 4` is
+a second pass that is patient and only has to cover what the first lost. The
+earlier attempt -- raising the inline retries -- is what produced the
+twenty-minute stall, because a slow layer multiplies by every attempt while a
+short retry list does not.
