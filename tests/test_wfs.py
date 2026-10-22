@@ -227,3 +227,49 @@ def test_an_unknown_total_is_none_and_never_zero() -> None:
     counted = ('<wfs:FeatureCollection xmlns:wfs="http://www.opengis.net/wfs/2.0" '
                'numberMatched="1993" numberReturned="0"/>')
     assert total_from_hits(counted) == 1993
+
+
+def test_a_property_filter_uses_the_ogc_form_not_cql() -> None:
+    """Measured on wfs.hornkoraller, whose unfiltered total is 1,993:
+
+        CQL_FILTER=art='Radicipes'   HTTP 200, numberMatched 1993
+        FILTER=<PropertyIsEqualTo…>  HTTP 200, numberMatched  119
+
+    The CQL form is accepted and ignored. A reader using it would store all
+    1,993 corals under each of five species datasets, with a 200 every time.
+    """
+
+    from public_data_agent.sources.wfs import property_filter_url
+
+    url = property_filter_url(CAPABILITIES_URL, "app:Hornkoraller", "art", "Radicipes")
+    assert "CQL_FILTER" not in url
+    assert "FILTER=" in url
+    assert "PropertyIsEqualTo" in url.replace("%3C", "<").replace("%3E", ">")
+    assert "ValueReference" in url.replace("%3C", "<").replace("%3E", ">")
+
+
+def test_a_filter_value_with_xml_characters_is_escaped() -> None:
+    """A species name is tame; a place name with `&` is not, and an
+    unescaped one produces a filter the server parses as something else."""
+
+    from public_data_agent.sources.wfs import property_filter_url
+
+    from urllib.parse import unquote
+
+    url = property_filter_url(CAPABILITIES_URL, "a:b", "navn", "Fisk & Co <test>")
+    decoded = unquote(url)
+    assert "&amp;" in decoded and "&lt;test&gt;" in decoded
+    # And the filter's own tags survive as tags, not as escaped text.
+    assert "<PropertyIsEqualTo>" in decoded
+
+
+def test_a_filter_that_returns_everything_is_not_credible() -> None:
+    """The signature of a server that accepted the parameter and ignored it."""
+
+    from public_data_agent.sources.wfs import filtered_count_is_credible
+
+    assert filtered_count_is_credible(119, 1993)
+    assert not filtered_count_is_credible(1993, 1993)
+    # Unknown on either side is not evidence of anything.
+    assert filtered_count_is_credible(None, 1993)
+    assert filtered_count_is_credible(119, None)

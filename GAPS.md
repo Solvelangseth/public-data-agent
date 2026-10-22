@@ -3310,3 +3310,44 @@ The lesson is narrower than "retries are bad". Nested retry budgets multiply,
 and neither layer of this one knew the other existed -- the connector was
 written for a single fetch and the sweep for a crawl, and each was reasonable
 alone.
+
+### P1.2c, first half: five datasets on one layer, and a filter that lies (2026-10-22)
+
+Five Hornkoraller datasets point at one layer. The catalogue declares no
+layer, no filter and no species for any of them, so the earlier note said
+attributing one would be a guess. It is not a guess -- it is a **verifiable
+bijection**, and the verification is the point:
+
+    the layer holds              1,993 features (numberMatched, and we read 1,993)
+    distinct `art` values            5
+    datasets on the layer            5
+    title suffixes matching a value  5 of 5, exactly
+    species with no dataset          0
+    datasets with no species         0
+
+And the per-species counts cross-check against a **second, independent
+service** — the HI GeoServer read this morning gave Paragorgia 853, Primnoa
+453, Isidella 316, Paramuricea 252, Radicipes 119. `wfs.geonorge.no` gives the
+same five numbers. Two publishers' endpoints agreeing is evidence; a title
+that looks like a field value is not.
+
+So each dataset can address its own subset. Which is where the real find is:
+
+    CQL_FILTER=art='Radicipes'    HTTP 200, numberMatched 1993
+    FILTER=<PropertyIsEqualTo…>   HTTP 200, numberMatched  119
+
+**The CQL form is accepted and ignored.** A reader that used it would store
+all 1,993 corals under each of the five species datasets, return 200 on every
+request, and leave nothing anywhere saying the filter had not applied. Five
+datasets each claiming the whole layer, verified, with a sample count to match.
+
+`property_filter_url` therefore builds the OGC form, and
+`filtered_count_is_credible` refuses a filtered count equal to the unfiltered
+one — the signature of exactly that failure. Verified against the live
+service: Radicipes 119, Paragorgia 853, Isidella 316, each matching the tally
+from the features themselves.
+
+This is the same family as the `codelists` `200 []`, the `%NC%` licence match
+and the ignored `hierarchy_level` argument: a call that answers successfully
+while doing nothing, where the only tell is a number that should have changed
+and did not.

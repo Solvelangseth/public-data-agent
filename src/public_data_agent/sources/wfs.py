@@ -25,7 +25,7 @@ of the 165 declarations are on `wfs.geonorge.no`. `gml.py` does the parsing.
 from __future__ import annotations
 
 from typing import Any
-from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
+from urllib.parse import parse_qsl, quote, urlencode, urlsplit, urlunsplit
 
 from public_data_agent.gml import features_from_gml, number_matched
 
@@ -280,3 +280,54 @@ def hits_url_for(feature_url: str) -> str:
     return urlunsplit(
         (parts.scheme, parts.netloc, parts.path, urlencode(query), "")
     )
+
+
+def property_filter_url(
+    address: str,
+    layer: str,
+    field: str,
+    value: str,
+    *,
+    count: int = DEFAULT_COUNT,
+    version: str = "2.0.0",
+) -> str:
+    """A GetFeature for the features whose `field` equals `value`.
+
+    **OGC `FILTER`, not `CQL_FILTER`**, and the difference is not stylistic.
+    Measured on `wfs.hornkoraller`, whose unfiltered total is 1,993:
+
+        CQL_FILTER=art='Radicipes'   HTTP 200, numberMatched 1993
+        FILTER=<PropertyIsEqualTo…>  HTTP 200, numberMatched  119
+
+    The CQL form is **accepted and ignored**. A reader that used it would
+    store all 1,993 corals under each of the five species datasets, with a
+    200 on every request and nothing anywhere saying the filter had not
+    applied. Which is why `filtered_count_is_credible` exists below: a filter
+    that returns the unfiltered total did not filter.
+    """
+
+    escaped = (
+        str(value).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+    )
+    ogc = (
+        "<Filter><PropertyIsEqualTo>"
+        f"<ValueReference>{field}</ValueReference>"
+        f"<Literal>{escaped}</Literal>"
+        "</PropertyIsEqualTo></Filter>"
+    )
+    return getfeature_url(address, layer, count=count, version=version) + "&FILTER=" + quote(ogc)
+
+
+def filtered_count_is_credible(filtered: int | None, unfiltered: int | None) -> bool:
+    """False when a filter plainly did not apply.
+
+    A filtered count equal to the unfiltered one is the signature of a server
+    that accepted the parameter and ignored it. It is not proof of a bug --
+    a filter can legitimately match everything -- but on a layer partitioned
+    into several subsets it never should, and the caller is better off
+    refusing than storing a whole layer under one of its parts.
+    """
+
+    if filtered is None or unfiltered is None:
+        return True
+    return filtered < unfiltered
