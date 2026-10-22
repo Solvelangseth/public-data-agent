@@ -190,3 +190,40 @@ def test_the_fetch_dispatch_still_refuses_a_capabilities_url() -> None:
     feature_url = getfeature_url(CAPABILITIES_URL, "app:Hornkoraller").casefold()
     assert any(mark in feature_url for mark in _MAP_SERVICE_MARKS)
     assert is_wfs_feature_url(feature_url)
+
+
+def test_the_hits_url_drops_the_page_size() -> None:
+    """A hits request carrying `count=500` returns 500 on some servers, which
+    makes the denominator equal to the sample and the coverage always 100%."""
+
+    from public_data_agent.sources.wfs import hits_url_for
+
+    feature = getfeature_url(CAPABILITIES_URL, "app:Hornkoraller", count=500, start=1000)
+    hits = hits_url_for(feature)
+    assert "count=" not in hits and "startIndex" not in hits
+    assert hits.count("resultType=hits") == 1
+    assert "typeNames=app%3AHornkoraller" in hits, "the encoded colon is the reliable one"
+
+
+def test_asking_for_hits_twice_does_not_stack_the_parameter() -> None:
+    from public_data_agent.sources.wfs import hits_url_for
+
+    once = hits_url_for(getfeature_url(CAPABILITIES_URL, "a:b"))
+    assert hits_url_for(once).count("resultType") == 1
+
+
+def test_an_unknown_total_is_none_and_never_zero() -> None:
+    """A layer whose size the service declines to state and a layer that is
+    empty are different facts, and only one means there is nothing to fetch."""
+
+    from public_data_agent.sources.wfs import total_from_hits
+
+    unknown = ('<wfs:FeatureCollection xmlns:wfs="http://www.opengis.net/wfs/2.0" '
+               'numberMatched="unknown" numberReturned="0"/>')
+    assert total_from_hits(unknown) is None
+    empty = ('<wfs:FeatureCollection xmlns:wfs="http://www.opengis.net/wfs/2.0" '
+             'numberMatched="0" numberReturned="0"/>')
+    assert total_from_hits(empty) == 0
+    counted = ('<wfs:FeatureCollection xmlns:wfs="http://www.opengis.net/wfs/2.0" '
+               'numberMatched="1993" numberReturned="0"/>')
+    assert total_from_hits(counted) == 1993

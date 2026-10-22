@@ -27,7 +27,7 @@ from __future__ import annotations
 from typing import Any
 from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
-from public_data_agent.gml import features_from_gml
+from public_data_agent.gml import features_from_gml, number_matched
 
 # A layer name is `app:Hornkoraller` in a capabilities document and
 # `mareano_biologi/bomtraal_arter` in some catalogue records. Same layer, two
@@ -225,3 +225,58 @@ def wfs_table_id(url: str) -> str:
     query = {key.casefold(): str(value) for key, value in parse_qsl(urlsplit(url).query)}
     layer = query.get("typenames") or query.get("typename") or ""
     return layer or urlsplit(url).path.strip("/").replace("/", ":")
+
+
+def total_from_hits(xml: str | bytes) -> int | None:
+    """How many features the layer holds, from a `resultType=hits` response.
+
+    None when the service declines to say. That is not a failure and must not
+    become a zero: a layer whose size is unknown and a layer that is empty are
+    different facts, and only one of them means there is nothing to fetch.
+    """
+
+    return number_matched(xml)
+
+
+def hits_url_for(feature_url: str) -> str:
+    """Turn a GetFeature URL into the request that only counts.
+
+    `hits_url` builds one from an address and a layer; this takes the URL the
+    connector already holds, so the count is asked of exactly the layer that
+    was read rather than of one rebuilt from parts that might differ.
+
+    `count` and `startIndex` are dropped: a hits request with a page size
+    attached returns the page size on some servers, which would make the
+    denominator equal to the sample and the sample rate always 100%.
+
+    The colon is percent-encoded, as everywhere else. That took two attempts
+    to establish, and the first one was wrong in a way worth recording.
+
+    One request per spelling suggested the server cared which encoding it got
+    and flipped depending on whether `count` or `resultType` was present --
+    four cells, four clean answers, a tidy story. Six requests per spelling
+    say otherwise:
+
+        typeNames=app%3AHornkoraller &resultType=hits   200 x6
+        typeNames=app:Hornkoraller   &resultType=hits   200 x3, 404 x3
+        typeNames=app%3AHornkoraller &count=2           200 x6
+        typeNames=app:Hornkoraller   &count=2           200 x6
+
+    `wfs.geonorge.no` is simply **flaky on the unencoded colon** -- one
+    backend behind it decodes differently from the others -- and the single
+    sample had caught three of the four cells on the wrong side of a coin
+    flip. The encoded form is the reliable one.
+
+    A failure here is still treated as "no total", never as an empty layer.
+    """
+
+    parts = urlsplit(feature_url)
+    query = [
+        (key, value)
+        for key, value in parse_qsl(parts.query)
+        if key.casefold() not in {"count", "startindex", "resulttype", "outputformat"}
+    ]
+    query.append(("resultType", "hits"))
+    return urlunsplit(
+        (parts.scheme, parts.netloc, parts.path, urlencode(query), "")
+    )

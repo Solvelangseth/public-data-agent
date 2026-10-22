@@ -273,6 +273,17 @@ CREATE TABLE IF NOT EXISTS resource_capability (
     verified_at TEXT,                          -- when it was last seen to return real data
     verified_sample_count INTEGER,             -- how many records that check actually saw
 
+    -- How many records the resource holds in total, as the PUBLISHER reports
+    -- it -- not as we counted. Without this a sample is a number with no
+    -- denominator: a WFS layer read at `count=500` and a layer holding exactly
+    -- 500 are written identically in `verified_sample_count`, and a commercial
+    -- answer built on the first while reading it as the second overstates what
+    -- the registry holds. NULL means the publisher did not say, which is a
+    -- real and common answer: `wfs.geonorge.no` returns
+    -- `numberMatched="unknown"` on every GetFeature and only answers the
+    -- count to a separate `resultType=hits` request.
+    total_count INTEGER,
+
     -- A register is one resource holding millions of subjects, not millions of
     -- resources. Enhetsregisteret has ~1.1M companies: filing each as its own
     -- dataset makes the catalogue the thing being searched rather than the

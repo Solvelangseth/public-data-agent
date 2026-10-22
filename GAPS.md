@@ -3178,3 +3178,47 @@ and a layer holding exactly 500 are indistinguishable in
 `verified_sample_count`, and `wfs.geonorge.no` answers every GetFeature
 `numberMatched="unknown"`. `hits_url` exists and nothing calls it. That is
 P1.2d and it is one request per layer.
+
+### P1.2d: the denominator, and a four-cell finding that was three-quarters noise (2026-10-22)
+
+A stored sample of 500 and a layer holding exactly 500 were written
+identically in `verified_sample_count`. `total_count` is the fix -- how many
+records the resource holds **as the publisher reports it**, NULL when the
+publisher declines to say, which is a real and common answer. `set_capability`
+refuses a sample larger than its total: both numbers must describe the same
+resource or the registry publishes a coverage above 100%.
+
+The connector now asks. For Hornkoraller it stores `25 of 1,993`, so the
+registry can state that it holds 1.3% of that layer rather than implying it
+holds the layer.
+
+**And the route there is the lesson.** `wfs.geonorge.no` 404'd the generated
+hits URL while answering a hand-built one that looked identical. One request
+per spelling produced a clean four-cell table:
+
+    typeNames=app:Hornkoraller   &resultType=hits   200
+    typeNames=app%3AHornkoraller &resultType=hits   404
+    typeNames=app%3AHornkoraller &count=2           200
+    typeNames=app:Hornkoraller   &count=2           404
+
+which reads as a server whose URL decoding depends on which other parameter
+is present -- two backends, a tidy story, and I wrote it into a docstring.
+
+Six requests per spelling say it is false:
+
+    typeNames=app%3AHornkoraller &resultType=hits   200 x6
+    typeNames=app:Hornkoraller   &resultType=hits   200 x3, 404 x3
+    typeNames=app%3AHornkoraller &count=2           200 x6
+    typeNames=app:Hornkoraller   &count=2           200 x6
+
+The service is **flaky on the unencoded colon** and fine on the encoded one.
+The single sample had caught **three of its four cells on the wrong side of a
+coin flip**, and every one of those wrong readings fitted the story.
+
+This is the same shape as the `codelists` 200s, the truncated Norge digitalt
+URL, and the WAL stall that read as throttling: a measurement that explains
+everything, taken once. Against a flaky server one request is not a
+measurement, and the tell is that the result is *too* tidy -- four cells, four
+clean answers, a mechanism that accounts for all of them.
+
+The generated URL now answers 1,993 five times out of five.

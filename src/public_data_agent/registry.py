@@ -92,7 +92,7 @@ class Registry:
             for row in self.conn.execute("PRAGMA table_info(resource_capability)").fetchall()
         }
         for column, kind in (("subject_scheme", "TEXT"), ("subject_template", "TEXT"),
-                             ("subject_count", "INTEGER")):
+                             ("subject_count", "INTEGER"), ("total_count", "INTEGER")):
             if capability_columns and column not in capability_columns:
                 self.conn.execute(
                     f"ALTER TABLE resource_capability ADD COLUMN {column} {kind}"
@@ -871,11 +871,22 @@ class Registry:
                 "verified_at requires verified_sample_count; a capability is "
                 "claimed from records actually seen, not from a URL pattern"
             )
+        total = capability.get("total_count")
+        seen = capability.get("verified_sample_count")
+        if total is not None and seen is not None and int(seen) > int(total):
+            # The publisher's own total is the denominator. Seeing more
+            # records than it claims to hold means one of the two numbers is
+            # about something else -- a different layer, a different filter --
+            # and storing both would publish a sample rate above 100%.
+            raise ValueError(
+                f"verified_sample_count {seen} exceeds total_count {total}; "
+                "the sample and the total are not describing the same resource"
+            )
         columns = (
             "dataset_id", "capability", "record_kind", "endpoint", "request_method",
             "period_start", "period_end", "source_modified_at", "verified_at",
             "verified_sample_count", "subject_scheme", "subject_template",
-            "subject_count", "notes",
+            "subject_count", "total_count", "notes",
         )
         values = {"dataset_id": dataset_id, **{c: capability.get(c) for c in columns[1:]}}
         if values["capability"] is None:

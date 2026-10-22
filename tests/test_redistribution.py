@@ -224,3 +224,28 @@ def test_an_unknown_dataset_raises(tmp_path: Path) -> None:
             redistribution_verdict(registry, "nothing:here")
     finally:
         registry.close()
+
+
+def test_a_sample_cannot_exceed_the_total_it_is_measured_against(tmp_path: Path) -> None:
+    """Both numbers must describe the same resource, or the registry publishes
+    a coverage above 100% and nothing notices."""
+
+    registry = Registry(tmp_path / "registry.sqlite")
+    try:
+        registry.ensure_dataset_identity(
+            dataset_id="x:y", title="t", publisher_name=None,
+            access_path="https://example.no/x", license=None,
+        )
+        with pytest.raises(ValueError, match="exceeds total_count"):
+            registry.set_capability("x:y", {
+                "capability": "features", "verified_at": WHEN,
+                "verified_sample_count": 600, "total_count": 500,
+            })
+        # Equal is fine: a layer read to its end.
+        registry.set_capability("x:y", {
+            "capability": "features", "verified_at": WHEN,
+            "verified_sample_count": 500, "total_count": 500,
+        })
+        assert registry.get_capability("x:y")["total_count"] == 500
+    finally:
+        registry.close()

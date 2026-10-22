@@ -260,7 +260,9 @@ from public_data_agent.sources.ngu import (
 from public_data_agent.sources.wfs import (
     ID_FIELDS as WFS_ID_FIELDS,
     cells_from_wfs,
+    hits_url_for,
     is_wfs_feature_url,
+    total_from_hits,
     wfs_table_id,
 )
 from public_data_agent.sources.nguminer import (
@@ -4954,6 +4956,26 @@ def _fetch_wfs(
             counts=counts,
             series=f"fetch:{table_id}",
         )
+        # How big is the layer really? The data response cannot say: this
+        # service answers every GetFeature `numberMatched="unknown"` while
+        # returning features, with a comment in the payload explaining that
+        # the WFS 2.0 schema will not let it write "unknown" in
+        # `numberReturned` either. So the denominator costs one more request,
+        # and without it a sample of 500 and a layer holding exactly 500 are
+        # written identically.
+        total: int | None = None
+        try:
+            total = total_from_hits(
+                client.get_text(hits_url_for(access_path),
+                                headers={"Accept": "application/xml, text/xml"})
+            )
+        except Exception:
+            # A total we could not get is not a total of zero. The capability
+            # is already earned by the rows above; this only adds context.
+            total = None
+        note = f"{counts.listed} GML feature(s) from WFS layer {table_id}"
+        if total is not None:
+            note += f"; the layer holds {total:,}"
         registry.set_capability(
             dataset["id"],
             {
@@ -4963,7 +4985,8 @@ def _fetch_wfs(
                 "request_method": "GET",
                 "verified_at": retrieved_at,
                 "verified_sample_count": counts.listed,
-                "notes": f"{counts.listed} GML feature(s) from WFS layer {table_id}",
+                "total_count": total,
+                "notes": note,
             },
         )
         status = "succeeded"
