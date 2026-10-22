@@ -32,6 +32,24 @@ from pathlib import Path
 
 USER_AGENT = "public-data-agent (https://github.com/Solvelangseth/public-data-agent)"
 
+DATEX_BASE = "https://datex-server-get-v3-1.atlas.vegvesen.no/datexapi/"
+# The service index at DATEX_BASE lists exactly these, each with a ?wsdl.
+DATEX_SERVICES = (
+    "GetSituation",
+    "GetMeasuredWeatherData",
+    "GetMeasurementWeatherSiteTable",
+    "GetForecastPointData",
+    "GetForecastPointLocations",
+    "GetTravelTimeData",
+    "GetPredefinedTravelTimeLocations",
+    "GetCCTVSiteTable",
+    "GetCCTVStatus",
+    "GetVmsDataOst",
+    "GetVmsTableOst",
+    "GetVmsDataMidt",
+    "GetVmsTableMidt",
+)
+
 
 def read_dotenv(path: Path) -> dict[str, str]:
     values: dict[str, str] = {}
@@ -46,15 +64,26 @@ def read_dotenv(path: Path) -> dict[str, str]:
     return values
 
 
-def _get(url: str, headers: dict[str, str]) -> tuple[int, object | None, str]:
+def _get(
+    url: str, headers: dict[str, str], *, cap: int = 40_000_000, timeout: float = 40
+) -> tuple[int, object | None, str]:
+    """A status, a parsed body if it is JSON, and a note if it is not.
+
+    `cap` exists for DATEX, whose smallest snapshot is 244 KB and whose largest
+    is over 12 MB. The check only needs to know the request was allowed, so it
+    reads a few bytes and says so rather than pulling 40 MB of XML from the
+    publisher thirteen times to parse none of it.
+    """
+
     request = urllib.request.Request(url, headers={"User-Agent": USER_AGENT, **headers})
     try:
-        with urllib.request.urlopen(request, timeout=40) as response:
-            raw = response.read(40_000_000)
+        with urllib.request.urlopen(request, timeout=timeout) as response:
+            raw = response.read(cap)
             try:
                 return response.status, json.loads(raw), ""
             except ValueError:
-                return response.status, None, f"{len(raw)} bytes, not JSON"
+                more = "+" if len(raw) == cap else ""
+                return response.status, None, f"{len(raw)}{more} bytes, not JSON"
     except urllib.error.HTTPError as error:
         body = error.read(300).decode("utf-8", "replace")
         try:
@@ -217,8 +246,60 @@ def check_nve(env: dict[str, str], ask: str | None) -> bool:
     return code == 200
 
 
+def check_datex(env: dict[str, str], ask: str | None) -> bool:
+    """Statens vegvesen DATEX II: one host, thirteen services, two grants.
+
+    Basic auth, and the username/password pair is the whole credential -- no
+    token step. What the pair is allowed to read is not uniform: nine services
+    answer 200 and the four VMS ones answer **403**, which is the publisher
+    saying the credential is real and this resource is not in its grant. That
+    distinction is the reason this check lists the services rather than
+    reporting one status: a single probe of GetSituation would say "works" and
+    hide that four doors are shut.
+
+    Responses are XML and large -- GetSituation and GetForecastPointData both
+    exceed 12 MB -- so only the first bytes are read here. Nothing is stored.
+    """
+
+    user = env.get("DATEX_USERNAME", "")
+    secret = ask if ask else env.get("DATEX_PASSWORD", "")
+    print("  DATEX_USERNAME / DATEX_PASSWORD")
+    if not user or not secret:
+        missing = " and ".join(
+            name for name, value in (("DATEX_USERNAME", user), ("DATEX_PASSWORD", secret))
+            if not value
+        )
+        print(f"      {missing} not set")
+        print("      register at https://www.vegvesen.no/trafikkdata/api/ -- the pair is")
+        print("      issued by Statens vegvesen, not generated locally\n")
+        return False
+    print(f"      username {_shape(user)}")
+    print(f"      password {_shape(secret)}")
+    pair = base64.b64encode(f"{user}:{secret}".encode()).decode()
+    headers = {"Authorization": f"Basic {pair}"}
+    granted = 0
+    for service in DATEX_SERVICES:
+        url = f"{DATEX_BASE}{service}/pullsnapshotdata"
+        code, _body, note = _get(url, headers, cap=600, timeout=90)
+        verdict = {
+            200: "granted",
+            403: "recognised, outside this grant",
+            401: "pair refused",
+        }.get(code, "")
+        print(f"      {service:34} HTTP {code:<4} {verdict}  {note}")
+        granted += 1 if code == 200 else 0
+    if granted:
+        bare, _b, _n = _get(f"{DATEX_BASE}GetSituation/pullsnapshotdata", {})
+        print(f"      without the pair: HTTP {bare} -- so the 200s are the credential,")
+        print("      not an open endpoint.")
+    print(f"      {granted} of {len(DATEX_SERVICES)} services granted")
+    print()
+    return granted > 0
+
+
 CHECKS = {
     "barentswatch": check_barentswatch,
+    "datex": check_datex,
     "frost": check_frost,
     "nve": check_nve,
 }

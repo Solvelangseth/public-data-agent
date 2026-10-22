@@ -519,3 +519,54 @@ nothing, so it is safe to point at a source nobody has looked at. It reports
 **Read its output as one dataset's verdict, not the source's.** Section 3 is
 what happens otherwise. Use `--source X` and widen by host before believing a
 count. Run it before `probe_unverified.py`, which fetches and stores for real.
+
+## Statens vegvesen DATEX II — the pair arrived 2026-10-22
+
+Variables, and the names are the ones in `.env`:
+
+    DATEX_USERNAME
+    DATEX_PASSWORD
+
+HTTP Basic, and the pair is the whole credential: no token step, no scope
+string, nothing cached. Quoting the values in `.env` is correct here and so is
+leaving them bare -- `read_dotenv` strips one layer of either quote. A value
+whose *own* first or last character is a quote would lose it, which these do
+not.
+
+One host carries thirteen services, listed by its own index at
+`https://datex-server-get-v3-1.atlas.vegvesen.no/datexapi/`, each with a
+`?wsdl` and each pulled at `{service}/pullsnapshotdata`. The grant is not
+uniform, and this is the part a single probe would have missed:
+
+| service | status | snapshot |
+|---|---|---|
+| GetSituation | 200 | > 12 MB |
+| GetForecastPointData | 200 | > 12 MB |
+| GetCCTVStatus | 200 | 2.5 MB |
+| GetCCTVSiteTable | 200 | 2.1 MB |
+| GetMeasurementWeatherSiteTable | 200 | 1.9 MB |
+| GetMeasuredWeatherData | 200 | 1.5 MB |
+| GetPredefinedTravelTimeLocations | 200 | 580 KB |
+| GetForecastPointLocations | 200 | 344 KB |
+| GetTravelTimeData | 200 | 244 KB |
+| GetVmsDataOst / GetVmsTableOst | **403** | — |
+| GetVmsDataMidt / GetVmsTableMidt | **403** | — |
+
+**9 of 13 granted.** A 403 here is the publisher saying the credential is
+real and this resource is not in its grant -- the variable-message-sign feeds
+need a separate one. Without the pair, `GetSituation` answers 401, so the
+200s are the credential and not an open endpoint.
+
+`scripts/check_credentials.py --only datex` reports all thirteen with that
+distinction spelled out, and reads 600 bytes per service rather than pulling
+40 MB of XML to parse none of it.
+
+Two things to settle before a connector:
+
+- **It is XML, and SOAP-flavoured** (`ns2:messageContainer`). Every reader
+  here parses JSON. DATEX II is a published schema, so this is a shape
+  question, not a guess -- but it is a new parser, not a new endpoint.
+- **The snapshots are whole-country and large**, and the measured-weather and
+  travel-time ones are the observation sources. Storage-constrained means the
+  pointer is stored and the payload is not, so a reader has to subset on
+  parse rather than after it.
