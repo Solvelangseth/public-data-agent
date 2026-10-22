@@ -50,6 +50,17 @@ def main() -> int:
         if entry.get("error"):
             stats["errored"] += 1
             continue
+        # A decided non-answer is not an answer of zero. 34 series parents, one
+        # offline distribution and 10 datasets the download service has no
+        # entry for carry no formats, no projections and no areas -- and
+        # writing those through would publish "offers nothing, covers nowhere"
+        # as the publisher's statement, when the publisher never made one.
+        if entry.get("skipped"):
+            stats[entry["skipped"].split(":", 1)[0]] += 1
+            continue
+        if entry.get("unregistered_download"):
+            stats["declared but unregistered"] += 1
+            continue
         if registry.get_distribution(dataset_id) is None:
             stats["no distributions row"] += 1
             continue

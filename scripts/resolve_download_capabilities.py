@@ -81,25 +81,82 @@ def _codelist(links: list[dict[str, Any]], name: str) -> str | None:
     return None
 
 
+CATALOGUE = "https://kartkatalog.geonorge.no/api/getdata/"
+
+
+def _ask_the_catalogue(dataset_id: str, uuid: str, status: int) -> dict[str, Any]:
+    """Why a download service has no entry for a uuid its catalogue advertises.
+
+    One request, only on a 404, to the catalogue the uuid came from. Three
+    answers come back, and all three are decided rather than failures:
+
+        series    a parent record grouping versions, with no download of its
+                  own. 34 of the 45 first-run failures, and the reason the
+                  download service is right to 404.
+        offline   `GEONORGE:OFFLINE`: the publisher says the distribution is
+                  not online at all, so there is nothing to ask for.
+        declared  `GEONORGE:DOWNLOAD` with formats listed in the catalogue
+                  record but no entry in the download service. The formats
+                  are real -- the catalogue states them -- and they are kept
+                  here; what is missing is the service's selection flags and
+                  its area list, which cannot be recovered.
+
+    What does *not* work, measured: `codelists/format/{uuid}` and
+    `codelists/area/{uuid}` answer `200 []` for these uuids, and answer
+    `200 []` for `00000000-0000-0000-0000-000000000000` as well. The status
+    code says the route exists, not that the dataset does, so a fallback to
+    the codelists would have recorded "no formats, no coverage" as a finding
+    for every one of them.
+    """
+
+    _status, meta = _get(CATALOGUE + uuid)
+    entry: dict[str, Any] = {"dataset_id": dataset_id, "uuid": uuid}
+    if not isinstance(meta, dict):
+        entry["error"] = f"capabilities HTTP {status}"
+        return entry
+    level = meta.get("HierarchyLevel")
+    protocol = meta.get("DistributionProtocol")
+    if level == "series":
+        entry["skipped"] = "series: a parent record grouping versions, with no download of its own"
+        return entry
+    if protocol == "GEONORGE:OFFLINE":
+        entry["skipped"] = "offline: the publisher declares the distribution is not online"
+        return entry
+    # The catalogue's own format list, which is a different statement from the
+    # download service's: Name plus Version, so `GML 3.2.1` rather than `GML`.
+    formats = [
+        " ".join(part for part in (f.get("Name"), f.get("Version")) if part).strip()
+        for f in meta.get("DistributionFormats") or []
+        if isinstance(f, dict) and f.get("Name")
+    ]
+    entry["unregistered_download"] = (
+        f"declares {protocol} but the download service has no entry (HTTP {status})"
+    )
+    if formats:
+        entry["catalogue_formats"] = sorted(set(formats))
+    # A view service on the same record is a live endpoint, and a GeoServer
+    # WMS layer usually answers WFS at the same address. Recorded, not probed.
+    view_url = meta.get("ServiceDistributionUrlForDataset")
+    if isinstance(view_url, str) and view_url.startswith("http"):
+        entry["view_service"] = {
+            "protocol": meta.get("ServiceDistributionProtocolForDataset"),
+            "layer": meta.get("ServiceDistributionNameForDataset"),
+            "url": view_url,
+        }
+    return entry
+
+
 def resolve(
     dataset_id: str,
     uuid: str,
     service_root: str,
     pause: float,
-    hierarchy_level: str | None = None,
 ) -> dict[str, Any]:
-    # A `series` is a parent record grouping versions. It has no download of
-    # its own, so the download service has no entry and answers 404 -- which
-    # is 34 of the 45 failures in the first run. Recording that as a failure
-    # invites someone to debug a service that is behaving correctly.
-    if hierarchy_level == "series":
-        return {
-            "dataset_id": dataset_id,
-            "uuid": uuid,
-            "skipped": "series: a parent record grouping versions, with no download of its own",
-        }
     status, capabilities = _get(f"{service_root.rstrip('/')}/{uuid}")
     if not isinstance(capabilities, dict):
+        if status == 404:
+            time.sleep(pause)
+            return _ask_the_catalogue(dataset_id, uuid, status)
         return {"dataset_id": dataset_id, "uuid": uuid, "error": f"capabilities HTTP {status}"}
 
     links = capabilities.get("_links")
@@ -228,6 +285,12 @@ def main() -> int:
             sink.flush()
             if entry.get("error"):
                 stats["error"] += 1
+            elif entry.get("skipped"):
+                stats[entry["skipped"].split(":", 1)[0]] += 1
+            elif entry.get("unregistered_download"):
+                stats["unregistered_download"] += 1
+                stats["with_catalogue_formats"] += 1 if entry.get("catalogue_formats") else 0
+                stats["with_view_service"] += 1 if entry.get("view_service") else 0
             else:
                 stats["resolved"] += 1
                 stats["with_kommune"] += 1 if any(

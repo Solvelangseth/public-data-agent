@@ -2728,3 +2728,86 @@ discriminator for part of it: "versjoner" appears in 25 of 45 failures and
 **0 of 644** successes, while "historiske data" appears in 284 successes and 1
 failure. Which is a reminder that a signal can separate two groups without
 being the reason they differ.
+
+### N7 finished: the last 11, and a 200 that meant nothing (2026-10-22)
+
+Two things in the section above were wrong, and the second nearly got written
+into the registry as a finding.
+
+**The series skip was dead code.** `resolve_download_capabilities.py` grew a
+`hierarchy_level == "series"` branch, and `main()` never passed the argument --
+the column it would have read is part of the 45-minute backfill that has not
+run. The `series-skipped` counter sat at 0 across all 689 rows while the commit
+message said 34 were answered. It was answered on paper only.
+
+**And the fallback I was about to build would have been a false negative.**
+The 11 remaining 404s each return `200` from `codelists/format/{uuid}` and
+`codelists/area/{uuid}`, which looked like the download service knowing the
+uuid after all, and like formats and kommune coverage recoverable without the
+capabilities call. The bodies are `[]`. So is the body for
+`00000000-0000-0000-0000-000000000000`:
+
+    codelists/format/<a 404 uuid>   200 []
+    codelists/area/<a 404 uuid>     200 []
+    codelists/format/<garbage>      200 []
+    codelists/area/<garbage>        200 []
+    codelists/format/<a working>    200, 3 entries
+    codelists/area/<a working>      200, 102 entries
+
+The status code says the route exists, not that the dataset does. Reading `200`
+as presence would have recorded "offers no formats, covers no kommune" for all
+11 -- a positive claim, published, sourced from an empty list that means
+nothing. The same shape as the `%NC%` licence count and the kommune-shaped
+tiles: a query that answers, with an answer about the wrong thing.
+
+**What does answer is the catalogue the uuid came from**, one request per 404
+rather than a re-run of 7,425:
+
+| verdict | rows | what it means |
+|---|---|---|
+| `series` | 34 | a Datasettserie, no distribution of its own |
+| `offline` | 1 | `GEONORGE:OFFLINE` -- the publisher says not online |
+| `unregistered_download` | 10 | `GEONORGE:DOWNLOAD` declared, no entry in the service |
+
+45 of 45 decided, 0 errors. The 10 are a real disagreement between publisher
+and platform. The catalogue record carries the format list itself, with
+versions the download service does not state -- `GML 3.2.1`, `FGDB 10.0`,
+`PostGIS 9.4`, `SOSI 4.5`, and `GPKG 1.3.1` for NIBIO's Jordsmonn -- but
+checked against the registry, **0 of the 10 carry a format name that is not
+already in `formats_json`**: `resolve_geonorge.py` harvested the same list from
+the same record, minus the versions. So the format recovery is worth a version
+string and nothing else, and is not written: putting versioned names into
+`download_formats_json` would attribute to the download service a statement the
+catalogue made. The selection flags and the area list stay unrecoverable, so
+these 10 contribute no coverage.
+
+**The find is on the same record.** 9 of the 10 declare a view service, and
+8 of those are GeoServer layers that answer WFS at the address their WMS is
+published at:
+
+    mareano_biologi:bomtraal_arter                      411 features, 12 fields
+    mareano_biologi:slede_individer                     337
+    mareano_biologi:grabb_biomasse                      412
+    mareano_biologi:hornkorall_paragorgia_arborea       853
+    mareano_biologi:hornkorall_primnoa_resedaeformis    453
+    mareano_biologi:hornkorall_isidella_lofotensis      316
+    mareano_biologi:hornkorall_paramuricea_placomus     252
+    mareano_biologi:hornkorall_radicipes                119
+
+3,153 point features with species, depth, date, bottom type and cruise number.
+Three of the eight failed on first contact with a timeout and answered on
+retry, which is latency on a cold layer, not a gap -- worth remembering before
+calling a Mareano layer dead. The ninth is NIBIO's `jordsmonn_harmonisert` on a
+MapServer `cgi-bin` with no layer name in the record, and MapServer does not
+answer WFS by default.
+
+So the datasets with *nothing* to download are the ones with data to read, and
+the path to it was in the field beside the one that 404s.
+
+**New issue, and it is a sweep not a fix.** `ServiceDistributionProtocolForDataset`
+is `OGC:WMS` on far more than these 11 records. Every GeoServer one is a
+candidate `features` source, and the registry currently stores none of it --
+`resolve_geonorge.py` does not capture `ServiceDistributionUrlForDataset`. Two
+caveats before counting it as breadth: a WMS on MapServer or ArcGIS is not a
+WFS, and the layer name arrives in two spellings, `a:b` and `a/b`, which has to
+be normalised to a `typeNames` value.
