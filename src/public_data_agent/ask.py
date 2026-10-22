@@ -19,6 +19,7 @@ from public_data_agent.registry import Registry, utc_now
 from public_data_agent.retrieval import find
 from public_data_agent.search import search_report
 from public_data_agent.ssb_pxweb import DEFAULT_SSB_TABLE
+from public_data_agent.constraints import constraints_in
 from public_data_agent.planner import QuestionPlan, build_plan
 
 DEMO_QUESTION = "Hvilke Oslo-bydeler er størst og hvilke vokser mest?"
@@ -201,13 +202,41 @@ def ask_proof_payload(
     }
 
 
+# What one question may store. The unbounded path stored 264,033 cells for
+# a question about two kommuner in one year; the same request narrowed
+# returns 27. This is the ceiling for when narrowing fails, not a target --
+# over it `fetch_observations` stores nothing and says what the response
+# held, because a partial table reported as success is worse than no answer.
+ASK_MAX_CELLS = 20_000
+
+
 def _execute_catalog_plan(
     registry: Registry,
     plan: QuestionPlan,
     *,
     http: JsonHttp | None,
+    max_cells: int | None = ASK_MAX_CELLS,
 ) -> dict[str, Any]:
-    """Execute only the first explicitly planned fetch, with no calculations."""
+    """Execute the planned fetch, narrowed to what the question pinned down.
+
+    It used to send the request with no filter at all and then return
+    `list_observations(dataset_id)` -- every row ever stored for that dataset.
+    Asked for household waste per inhabitant in Bærum against Asker in 2024,
+    that fetched **264,033 cells** covering every kommune, every year and every
+    waste fraction, returned all of them, and reported `numbers_retrieved:
+    true`. Nothing was wrong with the search, the plan or the connector; the
+    words "Bærum" and "2024" were simply never read.
+
+    `fetch_observations` has taken `kommune`, `from_year`, `to_year` and
+    `max_cells` since long before this. The same request with the kommune and
+    the year filled in returns **27 cells**, and they include
+    `Årsinnbyggere (antall)` -- the denominator the question needs.
+
+    One request per place the question names, because a comparison asks about
+    two and a single filter can only hold one. The rows handed back are the
+    ones these fetches touched, by `observation_ids`, not everything the
+    dataset has accumulated.
+    """
 
     fetch_step = next((step for step in plan.steps if step.kind == "fetch"), None)
     if fetch_step is None or fetch_step.dataset_id is None:
@@ -217,13 +246,27 @@ def _execute_catalog_plan(
             "observations": [],
             "explanation": plan.refusal_reason or "The planner found no executable fetch step; no numbers were retrieved.",
         }
+    found = constraints_in(plan.question, registry)
+    years = found.years
+    narrowing: dict[str, Any] = {
+        "years": list(years),
+        "places": [place.to_dict() for place in found.places],
+        "unresolved": list(found.unresolved),
+    }
+    # A place the register maps to several codes is not narrowed to one of
+    # them. Picking would answer confidently about a kommune nobody asked for.
+    codes: list[str | None] = [place.code for place in found.resolved_places] or [None]
     try:
-        fetched = fetch_observations(
+        fetched, observation_ids, dropped = _fetch_each(
             registry,
-            fetch_step.dataset_id,
-            table_id=fetch_step.table_id or "",
+            fetch_step,
+            codes=codes,
+            years=years,
             http=http,
+            max_cells=max_cells,
         )
+        if dropped:
+            narrowing["filter_not_supported"] = dropped
     except Exception as exc:
         return {
             "status": "fetch_failed",
@@ -236,7 +279,10 @@ def _execute_catalog_plan(
             "reason": str(exc),
             "explanation": f"The ranked hit was not fetched successfully ({exc}); no numbers were retrieved.",
         }
-    rows = registry.list_observations(fetch_step.dataset_id)
+    # Only what these requests touched. `list_observations(dataset_id)` is
+    # every row the dataset has ever accumulated, which is how one question
+    # came back with 264,033.
+    rows = registry.list_observations(ids=observation_ids)
     dataset = registry.get_dataset(fetch_step.dataset_id) or {}
     observations = []
     numeric = False
@@ -258,11 +304,32 @@ def _execute_catalog_plan(
                 "http_status": row.get("http_status"),
             }
         )
-    explanation = (
-        "Values are copied from stored observations; no join or derived number was emitted."
-        if numeric
-        else "The connector returned no numeric observation values; no numbers were emitted."
-    )
+    if not numeric:
+        explanation = "The connector returned no numeric observation values; no numbers were emitted."
+    else:
+        pinned = []
+        if narrowing["places"]:
+            pinned.append("place " + ", ".join(
+                p["name"] for p in narrowing["places"] if p.get("code")))
+        if years:
+            pinned.append("year " + ", ".join(str(year) for year in years))
+        explanation = (
+            "Values are copied from stored observations; no join or derived "
+            "number was emitted."
+        )
+        if pinned:
+            explanation = (
+                f"The request was narrowed to {'; '.join(pinned)}. " + explanation
+            )
+        if narrowing["unresolved"]:
+            # Said out loud rather than silently dropped: the register holds
+            # more than one code for that name, so the rows below are not
+            # filtered to it.
+            explanation += (
+                " Not narrowed to "
+                + ", ".join(narrowing["unresolved"])
+                + ": the register holds more than one code for that name."
+            )
     return {
         "status": "completed",
         "numbers_retrieved": numeric,
@@ -270,9 +337,68 @@ def _execute_catalog_plan(
         "request_url": fetched.request_url,
         "http_status": fetched.http_status,
         "listed": fetched.counts.listed,
+        "narrowing": narrowing,
         "observations": observations,
         "explanation": explanation,
     }
+
+
+def _fetch_each(
+    registry: Registry,
+    fetch_step: Any,
+    *,
+    codes: list[str | None],
+    years: tuple[int, ...],
+    http: JsonHttp | None,
+    max_cells: int | None,
+) -> tuple[Any, list[str], list[str]]:
+    """One request per named place, and the ids they touched.
+
+    A connector that cannot filter on kommune raises rather than ignoring the
+    argument, which is the right behaviour and would otherwise turn a
+    comparison question into an error. So a refused filter falls back to one
+    unfiltered request -- still under the cell budget -- and the caller is
+    told which filter was dropped, because an answer narrowed to nothing and
+    an answer narrowed to Bærum must not read the same.
+    """
+
+    from_year = min(years) if years else None
+    to_year = max(years) if years else None
+    observation_ids: list[str] = []
+    dropped: list[str] = []
+    last = None
+    for code in codes:
+        try:
+            last = fetch_observations(
+                registry,
+                fetch_step.dataset_id,
+                table_id=fetch_step.table_id or "",
+                kommune=code,
+                from_year=from_year,
+                to_year=to_year,
+                http=http,
+                max_cells=max_cells,
+            )
+        except Exception:
+            if code is None:
+                raise
+            dropped.append(code)
+            continue
+        observation_ids.extend(last.observation_ids or [])
+    if last is None:
+        # Every place-filtered request was refused; ask once without it.
+        last = fetch_observations(
+            registry,
+            fetch_step.dataset_id,
+            table_id=fetch_step.table_id or "",
+            kommune=None,  # explicit: the place filter was refused, not forgotten
+            from_year=from_year,
+            to_year=to_year,
+            http=http,
+            max_cells=max_cells,
+        )
+        observation_ids.extend(last.observation_ids or [])
+    return last, observation_ids, dropped
 
 
 def _json_value(value: Any) -> Any:

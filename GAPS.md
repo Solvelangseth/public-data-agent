@@ -2976,3 +2976,52 @@ asking the publisher directly instead of reasoning about them -- the same move
 that settled the `codelists` 200s and the NGU title bug. Two independent
 symptoms traced to one cause, and that cause was a bug of ours from twenty
 minutes earlier.
+
+### P0.0 closed: 264,033 becomes 54, and nothing new was needed (2026-10-22)
+
+The repair for the section above. `fetch_observations` has accepted `kommune`,
+`from_year`, `to_year` and `max_cells` since long before today; the caller
+passed none of them and then returned `list_observations(dataset_id)`, which
+is every row the dataset has ever accumulated. So the whole defect was that
+nothing read the words.
+
+Same question, same tables, same connector:
+
+| | before | after |
+|---|---|---|
+| observations returned | 264,033 | **54** |
+| covering | every kommune, every year | Bærum and Asker, 2024 |
+| population denominator | somewhere in the 264,033 | `Årsinnbyggere (antall)` 132,411 and 101,641 |
+| explanation | "Values are copied from stored observations" | "The request was narrowed to place Bærum, Asker; year 2024. …" |
+
+The narrowing is `constraints.py`, grounded in `brkommuner`, and the rule it
+enforces is that **a name becomes a code only where a publisher said so**.
+Three behaviours matter more than the count:
+
+**One request per place.** A comparison asks about two kommuner and a single
+filter holds one. Two requests, and the rows come back by `observation_ids`
+rather than by dataset.
+
+**An ambiguous name is not narrowed, and the answer says so.** The register
+holding `0301` and `301` for Oslo is not a tie to break. The explanation ends
+"Not narrowed to Oslo: the register holds more than one code for that name",
+because an answer that quietly picked one would be indistinguishable from an
+answer that got it right.
+
+**A refused filter is reported, not absorbed.** A connector that cannot filter
+on kommune raises rather than ignoring the argument, which is correct. The
+fallback asks once without the place, keeps the year and the budget, and
+records `filter_not_supported`. A nationwide answer that reads as if it were
+Bærum's is the failure this prevents.
+
+`ASK_MAX_CELLS = 20_000` is a ceiling for when narrowing fails, not a target.
+
+8 tests, mutation-checked: dropping the `kommune=code` pass-through fails
+three of them, and the fake registry raises outright if anything asks for
+observations by dataset id again.
+
+**What is still not done, and it is the remaining half of the question.** The
+54 rows contain everything needed to answer and nothing divides them. A
+customer asking "per innbygger" gets the waste tonnage and the population as
+separate rows. `numbers_retrieved: true` is now honest about *which* numbers,
+which it was not before, but it is still not an answer. That is P0.1.
