@@ -3438,3 +3438,58 @@ do about them is ask Geonorge to populate
 **Where N10b ends: 95 of 116 datasets that declared a WFS now hold features,
 116,997 feature records, 551 `features` capabilities.** This morning the
 number was zero.
+
+### P1.2c3: the audit found the bug in this morning's own work (2026-10-22)
+
+The pattern to hunt was "a parameter the server accepts and ignores", which
+had bitten four times. The first place to look was the narrowing built this
+morning, because that is where a dropped filter becomes a **false statement
+to a customer** rather than merely a wasted request.
+
+It is there.
+
+    fetch_observations(bwfish:locality-2026-42)                listed 580
+    fetch_observations(bwfish:locality-2026-42, kommune=5060)  listed 580
+
+The week holds 580 localities across **125 kommuner**, and the filter changes
+nothing. So `ask("lakselus i Austevoll")` would have returned every farm in
+Norway under the sentence *"The request was narrowed to place Austevoll"*.
+That is worse than no narrowing: it is a wrong answer wearing a provenance
+claim, on the source backfilled with 412,188 observations today.
+
+**The mechanism is general, not a bwfish quirk.** `select_from_subjects`
+computes a select, and then:
+
+    221 connector dispatch calls in fetch.py
+     37 pass `select` to the connector
+    164 do not, and none of those connectors accepts one
+
+The filter is computed and discarded, with nothing raised and nothing logged.
+`select_from_subjects` does raise when a dataset has a recorded shape without
+a kommune field -- which is why SSB is safe and why this went unnoticed -- but
+bwfish has no recorded shape at all, so the value takes the raw passthrough
+branch and falls off the end.
+
+**Fixed where the claim is made, not in 164 connectors.** `_narrowing_held`
+checks the returned rows against what was asked for, and the explanation now
+says one of three things rather than always the same one:
+
+    narrowed        every row that names the dimension agrees
+    sent narrowed   the rows cannot say either way (the common case)
+    came back unfiltered -- this connector does not apply the filter,
+                    so the values below cover more than was asked for
+
+The check is deliberately asymmetric: a dropped filter is only detectable as
+a row that should not be there, so it looks for that and makes no claim
+otherwise. "Cannot tell" has to stay distinct from "did not work", or every
+source without a comparable dimension reads as broken.
+
+One subtlety it has to get right: a kommune number and a year are both four
+digits, so a year compared against a place would read as a contradiction and
+report a working filter as broken. There is a test for exactly that.
+
+**Still open**: 772 bwfish datasets cannot be narrowed at all, because the
+BarentsWatch weekly endpoint takes no kommune parameter. The data carries
+`municipalityNo`, so filtering after the fetch is possible and is a real
+option -- but it changes what a stored row means, so it is a decision, not a
+patch.

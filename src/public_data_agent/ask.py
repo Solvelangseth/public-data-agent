@@ -304,6 +304,20 @@ def _execute_catalog_plan(
                 "http_status": row.get("http_status"),
             }
         )
+    # Did the narrowing actually happen? 164 of the 221 connector dispatches
+    # never receive the `select` that `fetch_observations` computes, so a
+    # filter can be requested, accepted and silently dropped. Measured on
+    # bwfish: `kommune=5060` returns the same 580 localities as no filter at
+    # all, across all 125 kommuner. Without this check the answer would read
+    # "narrowed to place Austevoll" while carrying the whole country.
+    #
+    # Conservative on purpose: it only reports a failure it can SEE, by
+    # finding a stored row that contradicts what was asked for. A source
+    # whose dimensions do not name the place at all stays "unverified"
+    # rather than being accused.
+    narrowing["narrowed_in_the_rows"] = _narrowing_held(
+        observations, found.resolved_places, years
+    )
     if not numeric:
         explanation = "The connector returned no numeric observation values; no numbers were emitted."
     else:
@@ -317,9 +331,17 @@ def _execute_catalog_plan(
             "Values are copied from stored observations; no join or derived "
             "number was emitted."
         )
-        if pinned:
+        held = narrowing["narrowed_in_the_rows"]
+        if pinned and held is False:
             explanation = (
-                f"The request was narrowed to {'; '.join(pinned)}. " + explanation
+                f"The request asked for {'; '.join(pinned)} and the rows came back "
+                "unfiltered -- this connector does not apply the filter, so the "
+                "values below cover more than was asked for. " + explanation
+            )
+        elif pinned:
+            was = "narrowed" if held else "sent narrowed"
+            explanation = (
+                f"The request was {was} to {'; '.join(pinned)}. " + explanation
             )
         if narrowing["unresolved"]:
             # Said out loud rather than silently dropped: the register holds
@@ -533,3 +555,56 @@ def _attach_names(growing: list[dict[str, Any]], largest: list[dict[str, Any]]) 
     for item in growing:
         item["name"] = names.get(item["bydel_code"])
     return growing
+
+
+def _narrowing_held(
+    observations: list[dict[str, Any]],
+    places: tuple[Any, ...],
+    years: tuple[int, ...],
+) -> bool | None:
+    """Whether the returned rows actually match what was asked for.
+
+    `True` when every row that names the dimension agrees with the request,
+    `False` when a row plainly contradicts it, and `None` when the rows say
+    nothing either way -- which is the common case and is not a failure.
+
+    The asymmetry is deliberate. A silently dropped filter is only detectable
+    as a row that should not be there, so the check looks for that and makes
+    no claim otherwise. Treating "cannot tell" as "did not work" would make
+    every source without a named kommune dimension look broken.
+    """
+
+    if not observations or (not places and not years):
+        return None
+    wanted_places = {str(place.code) for place in places if place.code}
+    wanted_places |= {str(place.name).casefold() for place in places if place.name}
+    wanted_years = {str(year) for year in years}
+    saw_place = saw_year = False
+    for row in observations:
+        dimensions = row.get("dimensions")
+        if not isinstance(dimensions, dict):
+            continue
+        for value in dimensions.values():
+            text = str(value)
+            if wanted_places and _looks_like_a_place_key(text):
+                saw_place = True
+                if text not in wanted_places and text.casefold() not in wanted_places:
+                    return False
+            if wanted_years and len(text) == 4 and text.isdigit():
+                saw_year = True
+                if text not in wanted_years:
+                    return False
+    return True if (saw_place or saw_year) else None
+
+
+def _looks_like_a_place_key(text: str) -> bool:
+    """A four-digit kommune number, which is the only form worth comparing.
+
+    Deliberately narrow. This registry's standing rule is never to claim a
+    join key from the shape of a code, and this does not: it decides only
+    which values are worth COMPARING against a request, and a wrong guess
+    here produces an unverified verdict, never a wrong number.
+    """
+
+    return len(text) == 4 and text.isdigit() and not text.startswith("19") \
+        and not text.startswith("20")

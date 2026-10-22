@@ -221,3 +221,57 @@ def test_a_fetch_that_fails_outright_is_still_a_failure(registry: _Registry, mon
     assert out["status"] == "fetch_failed"
     assert out["numbers_retrieved"] is False
     assert out["observations"] == []
+
+
+# --- did the narrowing actually happen? -------------------------------------
+#
+# 164 of the 221 connector dispatches never receive the `select` that
+# `fetch_observations` computes, so a filter can be requested, accepted and
+# silently dropped. Measured on bwfish: `kommune=5060` returns the same 580
+# localities as no filter at all, across all 125 kommuner.
+
+from public_data_agent.ask import _narrowing_held  # noqa: E402
+from public_data_agent.constraints import Place  # noqa: E402
+
+AUSTEVOLL = (Place(name="Austevoll", code="5060", label="AUSTEVOLL"),)
+BAERUM = (Place(name="Bærum", code="3201", label="BÆRUM"),)
+
+
+def test_a_dropped_filter_is_visible_in_the_rows() -> None:
+    """The bwfish case. A week holds every kommune, so a filter that did not
+    apply leaves rows from kommuner nobody asked about."""
+
+    rows = [{"dimensions": {"municipalityNo": "5060"}},
+            {"dimensions": {"municipalityNo": "4617"}}]
+    assert _narrowing_held(rows, AUSTEVOLL, ()) is False
+
+
+def test_an_applied_filter_reads_as_held() -> None:
+    rows = [{"dimensions": {"municipalityNo": "5060"}}] * 3
+    assert _narrowing_held(rows, AUSTEVOLL, ()) is True
+
+
+def test_a_wrong_year_in_the_rows_is_caught() -> None:
+    rows = [{"dimensions": {"KOKkommuneregion0000": "Bærum", "Tid": "2019"}}]
+    assert _narrowing_held(rows, BAERUM, (2024,)) is False
+
+
+def test_rows_that_say_nothing_either_way_are_unverified_not_failed() -> None:
+    """The common case, and the reason the check is asymmetric.
+
+    A dropped filter is only detectable as a row that should not be there.
+    Treating "cannot tell" as "did not work" would make every source without
+    a comparable dimension look broken.
+    """
+
+    assert _narrowing_held([{"dimensions": {"produkt": "laks"}}], AUSTEVOLL, ()) is None
+    assert _narrowing_held([], AUSTEVOLL, ()) is None
+    assert _narrowing_held([{"dimensions": {"Tid": "2024"}}], (), ()) is None
+
+
+def test_a_year_is_not_mistaken_for_a_kommune_code() -> None:
+    """Both are four digits. A year in a place comparison would read as a
+    contradiction and report a working filter as broken."""
+
+    rows = [{"dimensions": {"KOKkommuneregion0000": "Bærum", "Tid": "2024"}}]
+    assert _narrowing_held(rows, BAERUM, (2024,)) is True
