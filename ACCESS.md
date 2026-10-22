@@ -580,9 +580,12 @@ feeds, which is the part that matters for the product.
 
 What this decides:
 
-- The **1,939 datasets** carrying the Norge digitalt constraint, and the 74
+- The **6,350 datasets** carrying the Norge digitalt licence, and the 74
   `bulk-download` rows marked `Norge digitalt begrenset`, are closed to a
-  commercial tier. Not blocked by a missing credential -- declined. They stay
+  commercial tier. (Corrected 2026-10-22: this was first written as 1,939.
+  A second URL — the same licence under a longer `geografisk-infrastruktur/`
+  path, 4,344 rows — was printed truncated at 62 characters and read as a
+  different page. See GAPS.md.) Not blocked by a missing credential -- declined. They stay
   in the catalogue as findable, and must be marked so a paying caller is never
   offered them as retrievable.
 - Matrikkel and Grunnbok remain gated behind a registered company and a

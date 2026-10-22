@@ -601,3 +601,31 @@ CREATE TABLE IF NOT EXISTS dataset_coverage (
 );
 
 CREATE INDEX IF NOT EXISTS idx_coverage_area ON dataset_coverage(area_type, area_code);
+
+
+-- What a licence family permits, as the publisher of that licence writes it.
+--
+-- `datasets.license` answers "may it be used". It does not answer "may it be
+-- passed on", and for a service whose shape is handing data to other people's
+-- agents, that second permission is the one that decides what can ship. The
+-- registry had one column for both questions and this is the second.
+--
+-- Keyed by family rather than by dataset on purpose. A family is a lookup over
+-- published identifiers -- `licences.py` maps 668 apparent disagreements onto
+-- 4 real ones -- while a verdict is a reading of a licence text. Recording the
+-- reading once per family, with the URL it was read from, means 18,280
+-- datasets inherit 12 decisions instead of carrying 18,280 unsourced ones.
+--
+-- `source_url` is NOT NULL because a redistribution verdict with no source is
+-- an opinion. Nothing here may be filled in from memory.
+CREATE TABLE IF NOT EXISTS licence_terms (
+    family TEXT PRIMARY KEY,                   -- as licences.licence_family names it
+    -- allowed | allowed_with_attribution | denied | unknown. Never defaults to
+    -- allowed: a licence nobody has read is not thereby permissive.
+    redistribution TEXT NOT NULL,
+    commercial_use TEXT NOT NULL,              -- allowed | denied | unknown
+    attribution_required INTEGER,              -- 1, 0, or NULL when not stated
+    source_url TEXT NOT NULL,                  -- where the terms were read
+    recorded_at TEXT NOT NULL,
+    notes TEXT
+);

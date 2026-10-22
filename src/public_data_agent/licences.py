@@ -19,6 +19,8 @@ not know is not thereby permissive.
 
 from __future__ import annotations
 
+from typing import Any
+
 # family -> the marks that identify it in any vocabulary seen in the registry.
 # Order matters: the non-commercial and no-derivatives marks are checked before
 # the plain CC-BY ones, because `CC_BYNC_4_0` contains `CC_BY`.
@@ -73,3 +75,94 @@ def same_licence(left: str | None, right: str | None) -> bool:
     if not left or not right:
         return False
     return left.rstrip("/").casefold() == right.rstrip("/").casefold()
+
+
+# What a dataset's redistribution verdict can be. Deliberately the same four
+# words as the stored vocabulary, so a resolved verdict and a recorded one
+# cannot be told apart by their spelling and then treated differently.
+ALLOWED = "allowed"
+ALLOWED_WITH_ATTRIBUTION = "allowed_with_attribution"
+DENIED = "denied"
+UNKNOWN = "unknown"
+
+# Kartverket answered on 2026-10-22: NorAtlas cannot join Norge digitalt as a
+# commercial startup. So these are not "pending a credential" -- they are
+# declined, and a resolver that returned `unknown` for them would keep
+# inviting someone to go and ask again.
+DECLINED_AGREEMENTS = {
+    "Norge digitalt": (
+        "Kartverket declined Norge digitalt membership for a commercial "
+        "startup on 2026-10-22; see ACCESS.md section 10"
+    ),
+    "Geovekst": (
+        "Geovekst distribution runs through the same Norge digitalt "
+        "agreement that was declined; see ACCESS.md section 10"
+    ),
+}
+
+
+def redistribution_verdict(
+    registry: Any,
+    dataset_id: str,
+) -> dict[str, Any]:
+    """May this dataset be passed on? With the reason, always.
+
+    Resolution order, and each step is a fact rather than an inference:
+
+        1. the dataset's licence, as the publisher declared it
+        2. the family that licence belongs to (`licence_family`)
+        3. a declined agreement overrides everything -- a permissive licence
+           on data we may not obtain is still data we may not pass on
+        4. the terms recorded for that family, read from a licence text
+        5. otherwise `unknown`
+
+    It never returns `allowed` by default. An unrecognised licence, a family
+    nobody has recorded terms for, and a dataset with no licence at all are
+    all `unknown`, because the alternative is a commercial service shipping
+    data on the strength of a missing row.
+    """
+
+    dataset = registry.get_dataset(dataset_id)
+    if dataset is None:
+        raise ValueError(f"unknown dataset {dataset_id}")
+    licence = dataset.get("license")
+    family = licence_family(licence)
+    out: dict[str, Any] = {
+        "dataset_id": dataset_id,
+        "licence": licence,
+        "family": family,
+        "verdict": UNKNOWN,
+        "attribution_required": None,
+        "basis": None,
+        "source_url": None,
+    }
+    if family is None:
+        out["basis"] = (
+            "no licence recorded for this dataset"
+            if not licence
+            else f"licence {licence!r} belongs to no family this module names"
+        )
+        return out
+    if family in DECLINED_AGREEMENTS:
+        out["verdict"] = DENIED
+        out["basis"] = DECLINED_AGREEMENTS[family]
+        return out
+    terms = registry.get_licence_terms(family)
+    if terms is None:
+        out["basis"] = f"no terms recorded for licence family {family!r}"
+        return out
+    out["verdict"] = terms["redistribution"]
+    out["attribution_required"] = (
+        None if terms["attribution_required"] is None else bool(terms["attribution_required"])
+    )
+    out["basis"] = f"terms recorded for licence family {family!r}"
+    out["source_url"] = terms["source_url"]
+    if family in NON_COMMERCIAL and out["verdict"] != DENIED:
+        # A recorded row must not be able to contradict the licence's own
+        # name. CC-BY-NC forbids commercial use whatever a later edit says.
+        out["verdict"] = DENIED
+        out["basis"] = (
+            f"{family} forbids commercial use, which a commercial service "
+            "cannot satisfy by attribution"
+        )
+    return out

@@ -3025,3 +3025,64 @@ observations by dataset id again.
 customer asking "per innbygger" gets the waste tonnage and the population as
 separate rows. `numbers_retrieved: true` is now honest about *which* numbers,
 which it was not before, but it is still not an answer. That is P0.1.
+
+### P0.3: the third question has a column, and the first number it produced corrected me (2026-10-22)
+
+`datasets.license` answers "may it be used". Nothing answered "may it be
+passed on", which for a service that hands data to other people's agents is
+the permission that decides what can ship. `licence_terms` is that answer,
+keyed by **family** rather than by dataset: a family is a lookup over
+published identifiers, a verdict is a reading of a licence text, and recording
+the reading once per family means 18,280 datasets inherit a handful of
+decisions instead of carrying 18,280 unsourced ones.
+
+`source_url` is `NOT NULL` and rejected when blank. A redistribution verdict
+with no text behind it is an opinion.
+
+Three families recorded, each read from the licence itself today:
+
+| family | redistribution | commercial | read from |
+|---|---|---|---|
+| NLOD | allowed, attribution required | allowed | data.norge.no/nlod/no/2.0 |
+| CC-BY | allowed, attribution required | allowed | creativecommons.org/licenses/by/4.0/ |
+| CC-BY-NC | **denied** | denied | creativecommons.org/licenses/by-nc/4.0/ |
+
+NLOD is worth quoting because it settles the question in its own words: the
+licence "gir deg rett til å kopiere, bruke og tilgjengeliggjøre ... gitt at du
+navngir bidragsyterne", and **`tilgjengeliggjøre` is defined to include
+`distribuere ... selge`**. Redistribution and sale are named by the licence,
+not inferred from it.
+
+The resolver never returns `allowed` by default. A missing row, an
+unrecognised licence and an absent licence are all `unknown`. Two overrides
+sit above the lookup: a **declined agreement** beats a recorded permission,
+because a permissive licence on data we may not obtain is still data we may
+not pass on; and **CC-BY-NC cannot be recorded into permission**, because a
+stray row must not be able to contradict the licence's own name.
+
+#### And the first count it produced corrected a number I had given twice
+
+| | datasets |
+|---|---|
+| no recognised family | 9,301 |
+| **Norge digitalt** | **6,350** |
+| NLOD | 1,370 |
+| CC-BY | 865 |
+| INSPIRE no-conditions | 244 |
+| CC0 | 95 |
+| CC-BY-NC | 51 |
+
+I had been saying 1,939 for Norge digitalt, and repeated it in the launch
+plan. The real number is **6,350**. The gap is one URL:
+
+    4,344  …/Geodataarbeid/geografisk-infrastruktur/Norge-digitalt/Avtaler-og-maler/Norge-digitalt-lisens/
+    1,939  …/Geodataarbeid/Norge-digitalt/Avtaler-og-maler/Norge-digitalt-lisens/
+
+The first is the same licence at a longer path. Earlier in this session it was
+printed truncated at 62 characters, which cut it at `geografisk-infrastruktur`
+and made it look like a generic infrastructure page, and I counted it as one.
+So Kartverket's decline closes **three times** what I told the user it did.
+
+The lesson is the same one as the `%NC%` licence count and the kommune-shaped
+tiles: a display truncation is not a fact, and a number read off a truncated
+column is a guess wearing a count's clothes.

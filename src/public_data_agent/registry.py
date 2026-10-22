@@ -123,6 +123,17 @@ class Registry:
         if field_columns and "position" not in field_columns:
             self.conn.execute("ALTER TABLE resource_fields ADD COLUMN position INTEGER")
 
+        # The third question. `datasets.license` says what the publisher
+        # licensed; nothing said whether it may be passed on, which is the
+        # permission a commercial MCP actually needs. A table rather than a
+        # column because the answer belongs to the licence, not the dataset.
+        self.conn.execute(
+            "CREATE TABLE IF NOT EXISTS licence_terms ("
+            " family TEXT PRIMARY KEY, redistribution TEXT NOT NULL,"
+            " commercial_use TEXT NOT NULL, attribution_required INTEGER,"
+            " source_url TEXT NOT NULL, recorded_at TEXT NOT NULL, notes TEXT)"
+        )
+
     def start_run(
         self,
         *,
@@ -685,6 +696,72 @@ class Registry:
             ),
         )
         self.conn.commit()
+
+    REDISTRIBUTION = ("allowed", "allowed_with_attribution", "denied", "unknown")
+    COMMERCIAL_USE = ("allowed", "denied", "unknown")
+
+    def set_licence_terms(
+        self,
+        family: str,
+        *,
+        redistribution: str,
+        commercial_use: str,
+        source_url: str,
+        attribution_required: bool | None = None,
+        notes: str | None = None,
+    ) -> None:
+        """Record what a licence family permits, with where it was read.
+
+        `source_url` is required and may not be blank. A redistribution
+        verdict is a reading of a licence text, and a reading with no text
+        behind it is an opinion -- which is the one thing this registry has
+        never stored. The same rule as `licences stay null when unknown`, one
+        question further along.
+        """
+
+        if redistribution not in self.REDISTRIBUTION:
+            raise ValueError(
+                f"redistribution {redistribution!r} is not one of {self.REDISTRIBUTION}; "
+                "the vocabulary is fixed so that 'unknown' cannot be spelled as "
+                "something that reads like permission"
+            )
+        if commercial_use not in self.COMMERCIAL_USE:
+            raise ValueError(
+                f"commercial_use {commercial_use!r} is not one of {self.COMMERCIAL_USE}"
+            )
+        if not (source_url or "").strip():
+            raise ValueError(
+                f"licence terms for {family!r} need a source_url: a redistribution "
+                "verdict with no source is an opinion, not a record"
+            )
+        self.conn.execute(
+            "INSERT INTO licence_terms "
+            "(family, redistribution, commercial_use, attribution_required, "
+            " source_url, recorded_at, notes) VALUES (?, ?, ?, ?, ?, ?, ?) "
+            "ON CONFLICT(family) DO UPDATE SET "
+            " redistribution = excluded.redistribution,"
+            " commercial_use = excluded.commercial_use,"
+            " attribution_required = excluded.attribution_required,"
+            " source_url = excluded.source_url,"
+            " recorded_at = excluded.recorded_at,"
+            " notes = excluded.notes",
+            (
+                family,
+                redistribution,
+                commercial_use,
+                None if attribution_required is None else int(attribution_required),
+                source_url.strip(),
+                utc_now(),
+                notes,
+            ),
+        )
+        self.conn.commit()
+
+    def get_licence_terms(self, family: str) -> dict[str, Any] | None:
+        row = self.conn.execute(
+            "SELECT * FROM licence_terms WHERE family = ?", (family,)
+        ).fetchone()
+        return dict(row) if row else None
 
     def set_coverage(
         self,
