@@ -3222,3 +3222,40 @@ measurement, and the tell is that the result is *too* tidy -- four cells, four
 clean answers, a mechanism that accounts for all of them.
 
 The generated URL now answers 1,993 five times out of five.
+
+### P1.2e/f: a sample count that described one layer of five, and four addresses explained (2026-10-22)
+
+**The capability row was describing the wrong thing.** `_fetch_wfs` sets a
+capability per call and the sweep calls it per layer, so a dataset with five
+layers had its single row overwritten five times and kept the last. The
+registry read `verified_sample_count: 20` beside **1,500 stored records**.
+Neither number was wrong on its own; the row simply answered a question
+nobody asked -- how big the last layer's sample was.
+
+The sweep now writes one row per dataset, after all its layers, summing both
+the sample and the totals. What that produces is the honest version:
+
+    Administrative enheter          115 sampled across 3 layers of   27,752
+    Aktsomhetskart jord/flomskred    50 sampled across 1 layer  of  503,461
+
+Half a million features in one layer, and we hold five hundred. The registry
+can now say that, which it could not an hour ago.
+
+**And the four addresses that did not answer are all explained**, each with a
+cause already written down elsewhere:
+
+| address | after 3 retries | why |
+|---|---|---|
+| `kart.hi.no/data/svo_forslag2021/ows` | **5 layers on attempt 2** | the HI cold-layer pattern, now five times |
+| `kart.hi.no/.../Bunnstromretning…` | **1 layer** | same |
+| `dservices2.arcgis.com/…` | HTTP 404 x3 | the service is gone |
+| `www.matrikkel.no/geoservergeo/wfs` | HTTP 401 x3 | the Kartverket gate, ACCESS.md §7 |
+| `kart.hi.no/mareano/https://kart.hi.no/…` | error x3 | the catalogue url with its host pasted twice |
+
+So two recovered and three are decided answers rather than failures. Nothing
+here is unexplained, which is the state N7 had to be dragged to and this one
+reached on the first retry.
+
+One more worth noting: `wms.test.artsdatabanken.no` answers and publishes
+**zero layers**. A host with `test` in its name is in the production
+catalogue, which is a finding about Geonorge rather than about us.

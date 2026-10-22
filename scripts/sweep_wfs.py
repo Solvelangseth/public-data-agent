@@ -45,7 +45,7 @@ from pathlib import Path
 from typing import Any
 
 from public_data_agent.fetch import _fetch_wfs
-from public_data_agent.registry import Registry
+from public_data_agent.registry import Registry, utc_now
 from public_data_agent.sources.wfs import getfeature_url
 
 DECLARATIONS = Path("discovery/geonorge_wfs.jsonl")
@@ -119,6 +119,9 @@ def main() -> int:
                 continue
             got = 0
             empty: list[str] = []
+            read: list[str] = []
+            total = 0
+            total_known = False
             for layer in item["layers"]:
                 url = getfeature_url(item["address"], layer, count=args.count)
                 filled = {**dict(dataset), "access_path": url}
@@ -126,6 +129,12 @@ def main() -> int:
                     try:
                         result = _fetch_wfs(registry, filled)
                         got += result.counts.listed
+                        read.append(layer)
+                        layer_total = (registry.get_capability(item["dataset_id"]) or {}).get(
+                            "total_count")
+                        if layer_total is not None:
+                            total += int(layer_total)
+                            total_known = True
                         stats["layer read"] += 1
                         break
                     except ValueError as error:
@@ -152,6 +161,29 @@ def main() -> int:
                             # answers afterwards, observed three times today.
                             time.sleep(args.pause * 6 * attempt)
                 time.sleep(args.pause)
+            # One capability row per dataset, written once, after every layer.
+            # `_fetch_wfs` sets it per call, so a dataset with five layers had
+            # its row overwritten five times and kept only the last -- the
+            # registry said `verified_sample_count` 20 beside 1,500 stored
+            # records. The number has to describe the dataset, which only the
+            # loop that walked its layers can do.
+            if read:
+                note = (f"{got} GML feature(s) across {len(read)} layer(s) of "
+                        f"{item['address']}")
+                if empty:
+                    note += f"; {len(empty)} layer(s) served none"
+                if total_known:
+                    note += f"; those layers hold {total:,}"
+                registry.set_capability(item["dataset_id"], {
+                    "capability": "features",
+                    "record_kind": "feature",
+                    "endpoint": item["address"],
+                    "request_method": "GET",
+                    "verified_at": utc_now(),
+                    "verified_sample_count": got,
+                    "total_count": total if total_known else None,
+                    "notes": note,
+                })
             stored += got
             stats["dataset read" if got else "dataset empty"] += 1
             if empty and got:
