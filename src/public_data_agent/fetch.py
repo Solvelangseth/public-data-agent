@@ -257,6 +257,12 @@ from public_data_agent.sources.ngu import (
     is_ngu_url,
     ngu_table_id,
 )
+from public_data_agent.sources.wfs import (
+    ID_FIELDS as WFS_ID_FIELDS,
+    cells_from_wfs,
+    is_wfs_feature_url,
+    wfs_table_id,
+)
 from public_data_agent.sources.nguminer import (
     cells_from_nguminer,
     is_nguminer_url,
@@ -1481,6 +1487,13 @@ def _fetch_observations(
     # GetCapabilities / WMS / WFS catalogs are not data. Fetching them stored
     # layer names as observations. Classify already reports `none`; refuse
     # before a leftover WMS dispatcher can write those cells.
+    # A GetFeature is not a GetCapabilities. The refusal below exists because
+    # fetching a capabilities document stored seventeen layer names as
+    # observations -- a listing of what a service offers, kept as data. The
+    # features themselves are the opposite of that, so the line is drawn
+    # between the two requests, not between the two protocols.
+    if is_wfs_feature_url(access_path):
+        return _fetch_wfs(registry, dataset, http=http)
     lowered = access_path.casefold()
     if any(mark in lowered for mark in _MAP_SERVICE_MARKS):
         raise ValueError(
@@ -4872,6 +4885,98 @@ def _fetch_nin(
         http_status=http_status,
         counts=counts,
         sample=sample,
+    )
+
+
+def _fetch_wfs(
+    registry: Registry,
+    dataset: dict[str, Any],
+    *,
+    http: JsonHttp | None = None,
+) -> FetchResult:
+    """Read one WFS layer's features, in GML, into `records`.
+
+    116 datasets in this registry declare a WFS and none had ever been asked,
+    because `fetch_observations` refused every URL with `wfs` in it. That
+    refusal was earned -- a capabilities document fetched once became
+    seventeen observations whose measure was `title` -- but it refused the
+    features along with the menu.
+
+    GML rather than GeoJSON, measured: 128 of the 130 answering addresses
+    advertise GML alone, and `wfs.geonorge.no` answers HTTP 400 to
+    `outputFormat=application/json`. Corals, seabed samples and species
+    occurrences are things in places, so they land in `records` as `feature`,
+    beside NGU's.
+
+    The total comes from a second request. `wfs.geonorge.no` answers every
+    GetFeature with `numberMatched="unknown" numberReturned="0"` while
+    returning features, so the count on the data response cannot be read.
+    """
+
+    access_path = dataset.get("access_path") or ""
+    client = http or HttpClient(timeout=90.0, max_retries=4)
+    table_id = wfs_table_id(access_path)
+    started = utc_now()
+    run_id = registry.start_fetch_run(
+        dataset_id=dataset["id"],
+        table_id=table_id,
+        request_url=access_path,
+        request_method="GET",
+        started_at=started,
+    )
+    counts = HarvestCounts()
+    status = "failed"
+    http_status = 0
+    sample: list[dict[str, Any]] = []
+    try:
+        registry.set_fetch_request(run_id, request_url=access_path, request_body={"method": "GET"})
+        body = client.get_text(access_path, headers={"Accept": "application/xml, text/xml"})
+        http_status = 200
+        retrieved_at = utc_now()
+        cells = cells_from_wfs(body)
+        records = records_from_cells(
+            cells,
+            dataset_id=dataset["id"],
+            table_id=table_id,
+            id_fields=WFS_ID_FIELDS,
+            prefix="wfs",
+            kind="feature",
+        )
+        counts.listed = len(records)
+        sample = _store_records(
+            registry,
+            dataset,
+            run_id,
+            records=records,
+            retrieved_at=retrieved_at,
+            request_url=access_path,
+            http_status=http_status,
+            counts=counts,
+            series=f"fetch:{table_id}",
+        )
+        registry.set_capability(
+            dataset["id"],
+            {
+                "capability": CAPABILITY_FEATURES,
+                "record_kind": "feature",
+                "endpoint": access_path,
+                "request_method": "GET",
+                "verified_at": retrieved_at,
+                "verified_sample_count": counts.listed,
+                "notes": f"{counts.listed} GML feature(s) from WFS layer {table_id}",
+            },
+        )
+        status = "succeeded"
+    finally:
+        registry.finish_fetch_run(run_id, status=status, counts=counts, http_status=http_status)
+    return FetchResult(
+        dataset_id=dataset["id"],
+        table_id=table_id,
+        request_url=access_path,
+        http_status=http_status,
+        counts=counts,
+        sample=sample,
+        observation_ids=[],
     )
 
 

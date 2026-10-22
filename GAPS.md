@@ -3086,3 +3086,49 @@ So Kartverket's decline closes **three times** what I told the user it did.
 The lesson is the same one as the `%NC%` licence count and the kommune-shaped
 tiles: a display truncation is not a fact, and a number read off a truncated
 column is a guess wearing a count's clothes.
+
+### N10b: the guard was refusing the data along with the menu (2026-10-22)
+
+`fetch_observations` refused every URL carrying `/wfs`, `/ows` or
+`service=wfs`:
+
+    "access_path is a map/tile service (WMS/WFS/OGC);
+     it returns imagery or geometry, not numeric cells"
+
+That refusal was earned. Fetching a capabilities document once stored
+seventeen layer names as observations, with `measure: "title"` and values like
+"This document as HTML", and marked the dataset verified. The guard was the
+fix.
+
+But it drew the line between **protocols** when the real line is between
+**requests**. A `GetCapabilities` is a listing of what a service offers, which
+is metadata. A `GetFeature` is the things themselves. Same protocol, opposite
+sides of the rule this registry is built on.
+
+So `is_wfs_feature_url` requires all three of `service=WFS`,
+`request=GetFeature` and a `typeNames`, and the dispatch sits **above** the
+guard rather than beside it -- a feature URL matches the same marks, so order
+is what separates them. A test asserts both halves, because a later edit that
+moves the dispatch below the guard would silently close the door again.
+
+Live, against `wfs.geonorge.no/skwms1/wfs.hornkoraller`:
+
+    25 GML features, capability `features`, verified, record kind `feature`
+    subject_scheme  wfs:app:Hornkoraller
+    attributes      art, bunnDybde, bunnForhold, dato, toktNummer, …
+
+**And the first run got the label wrong in a way worth keeping.** Every record
+came back with `subject_label` equal to `subject_code` -- the same UUID twice.
+`records_from_cells` has a documented rule for exactly this ("the record
+carries the code and no label, because inventing a name for it is the failure
+this whole change is about") and my cells were defeating it by passing the
+identifier as the cell's value as well as its measure. A label that repeats
+the code says nothing and is one step from an invented name. Fixed in the
+reader: no printed name means the cell carries the identifier and **no value**,
+and 0 of 25 records now carry a label. The species, depth and bottom type were
+never at risk -- they are attributes either way.
+
+15 tests. What remains for N10b is the sweep itself: resolving each of the 116
+datasets to its layer, which needs the capabilities read per address, and
+applying the WFS address to the registry so the dispatch can see it. The
+reader and the door are done; the 116 have not been walked through yet.
