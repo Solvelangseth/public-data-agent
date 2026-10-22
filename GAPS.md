@@ -2811,3 +2811,84 @@ candidate `features` source, and the registry currently stores none of it --
 caveats before counting it as breadth: a WMS on MapServer or ArcGIS is not a
 WFS, and the layer name arrives in two spellings, `a:b` and `a/b`, which has to
 be normalised to a `typeNames` value.
+
+### N10 measured: 797 layers behind 165 declarations, and they are GML (2026-10-22)
+
+The sweep found by the N7 leftovers, run over the whole catalogue. The field is
+`ServiceWfsDistributionUrlForDataset` and the search API returns it per hit at
+500 hits a page, so this is 15 requests rather than 7,437.
+
+    165 of 7,437 dataset records declare a WFS
+    134 distinct addresses, 31 records sharing one with another dataset
+    116 of the 165 are in this registry
+    116 of the 116 have no capability row at all -- not one has been asked
+
+Then one `GetCapabilities` per address. **130 of 134 answer, with 797 layers.**
+The four that do not are a 404 on an ArcGIS Online service, a 401 on
+`matrikkel.no` (which is the Kartverket framework-agreement gate, already
+written up in ACCESS.md), one malformed url in the catalogue itself --
+`https://kart.hi.no/mareano/https://kart.hi.no/mareano/magik/…`, a host
+pasted twice -- and one `dservices2.arcgis.com` path that no longer exists.
+
+Two things the first pass got wrong, both my own:
+
+**The regex.** `<(?:\w+:)?Name>` reported **zero layers for every
+wfs.geonorge.no service**, 24 false negatives out of 40, because their `<Name>`
+carries an `xmlns:app` attribute and the pattern demanded `>` straight after
+the tag. Parsed with ElementTree the same services have 1 to 36 layers each.
+A pattern that answers for 14 addresses and silently fails for 24 looks like a
+finding about the publisher.
+
+**The retries.** 7 addresses failed the first pass; 4 of them are `kart.hi.no`
+and all 4 answered on retry, with 92 layers between them. That is now twice
+that HI has timed out on first contact and answered afterwards -- it is a cold
+layer warming up, and anything that probes HI once and records a verdict will
+be wrong about it.
+
+**797 layers behind 165 declaring datasets**, and the ratio is the interesting
+part. `factmaps.sodir.no` carries 97 layers for 1 declared dataset; SSB's
+`boliger_paa_rutenett` 57 and `bygninger_paa_rutenett` 56; `wfs.dybdedata` 36.
+The catalogue itemises a fraction of what the services hold, which is the same
+shape as the 28 NGU APIs behind 10 catalogue rows.
+
+#### The reader has to parse GML, and that is measured rather than assumed
+
+Of 130 answering addresses, **128 advertise GML and nothing else**:
+
+    515 layers   text/xml; subtype=gml/3.2.1
+    515          application/gml+xml; version=3.2
+    195          text/xml; subtype=gml/3.1.1
+    195          text/xml; subtype=gml/2.1.2
+     12          application/json
+      2          application/json; subtype=geojson
+      2          text/csv
+
+An advertised list can understate, so it was tested rather than trusted --
+`kart.hi.no` answers `outputFormat=application/json` with GeoJSON while
+advertising none, because GeoServer always carries it. The dominant host does
+not:
+
+    wfs.geonorge.no   outputFormat=application/json   HTTP 400 ExceptionReport
+    wfs.geonorge.no   no outputFormat                 200 gml/3.2.1
+    kart.ssb.no       outputFormat=application/json   HTTP 400
+    kart.hi.no        outputFormat=application/json   200 GeoJSON
+
+97 of the 165 declarations are on `wfs.geonorge.no`. So the format question is
+settled: **GML 3.2.1**. Nothing in `src/` mentions GML today.
+
+The shape is tractable -- flat property elements under a namespaced feature
+element, with geometry inlined:
+
+    <app:Hornkoraller gml:id="hornkoraller.177378">
+      <app:art>Paragorgia arborea</app:art>
+      <app:prøveNummer>35</app:prøveNummer>
+      <app:posisjon>
+        <gml:Point srsName="urn:ogc:def:crs:EPSG::4258">
+          <gml:pos>70.435100 21.948400</gml:pos>
+
+**And there is the trap.** `EPSG::4258` is latitude-first, so that `gml:pos` is
+70.43 N 21.94 E -- off Finnmark, which is where Paragorgia arborea is. The
+GeoJSON from the same publisher's other service writes the same kind of point
+as `[16.1687, 69.1226]`, longitude first. Reading one convention as the other
+puts every Norwegian feature in the Indian Ocean, and nothing in the payload
+complains. `srsName` has to be read per geometry, not assumed per source.
