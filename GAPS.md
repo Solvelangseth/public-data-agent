@@ -3391,3 +3391,50 @@ a second pass that is patient and only has to cover what the first lost. The
 earlier attempt -- raising the inline retries -- is what produced the
 twenty-minute stall, because a slow layer multiplies by every attempt while a
 short retry list does not.
+
+### P1.2c2: 6 of 22 had a publisher statement, and 16 did not (2026-10-22)
+
+The remaining shared-address datasets, worked the same way as Hornkoraller:
+look for a declaration first, and refuse where there is none.
+
+**Two kinds of statement resolved 6.**
+
+`ogc.dsb.no` names its layers `ms:layer_183` and *titles* them
+`Brannstasjoner`. The name is opaque and the title is the publisher's own
+word for the layer, equal to the dataset's title exactly. 3 datasets, 692
+features.
+
+The catalogue's `ServiceDistributionNameForDataset` is null on 19 of the 22 --
+checked individually, not sampled -- and on the 3 where it is set it names a
+layer on a **different service**: the Mareanoprøver datasets declare
+`mareano_biologi/bomtraal_arter` on `kart.hi.no`, not anything on the Geonorge
+WFS they share. A declaration about another service is still a declaration,
+so it was followed: 411, 412 and 337 features, which are exactly the counts
+the HI GeoServer gave when it was probed this morning for a different reason.
+
+**16 got nothing, and the near-misses are why.**
+
+| group | datasets | layers | why not |
+|---|---|---|---|
+| Sårbare marine bunndyr | 7 | 8 | titles nearly match |
+| gis.fiskeridir.no | 5 | 44 | no title correspondence |
+| Grunnskoler / Videregående | 2 | 2 | plural against singular |
+| kart.artsdatabanken.no | 2 | 12 | layers are symbolisation, not subsets |
+
+The Sårbare group is the one that hurts. Six of its seven dataset titles end
+in a word that *is* a layer title -- `Blomkålkorallskog`, `Glassvampsamfunn`,
+`Sjøfjærbunn` -- and the seventh is `Bløtbunnkorallskog` against a layer
+called `Bløtbunn**s**korallskog`. One letter. Almost certainly the same
+habitat, and nothing anywhere says so. `Grunnskoler` against a layer titled
+`Grunnskole` is the same shape, a plural apart.
+
+A rule loose enough to join those is loose enough to join things that are not
+the same, and this registry has already paid for that twice today -- a title
+resembling a field value is not a join, and `Asker` sits inside
+`Asker (gammel)`. Exact or nothing. The 16 stay unresolved, and the thing to
+do about them is ask Geonorge to populate
+`ServiceDistributionNameForDataset`, not to invent a matcher.
+
+**Where N10b ends: 95 of 116 datasets that declared a WFS now hold features,
+116,997 feature records, 551 `features` capabilities.** This morning the
+number was zero.
