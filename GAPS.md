@@ -3493,3 +3493,50 @@ BarentsWatch weekly endpoint takes no kommune parameter. The data carries
 `municipalityNo`, so filtering after the fetch is possible and is a real
 option -- but it changes what a stored row means, so it is a decision, not a
 patch.
+
+### P1.2c3c: receiving a select is not honouring a filter (2026-10-22)
+
+The previous audit proved the 164 connectors that never receive a `select`
+drop the filter. It proved nothing about the 37 that do, so: of those 37,
+only **6 hold observations at all** -- the rest are registers and lookups --
+which made the set small enough to test every one rather than sample it.
+
+| source | plain | with 2024 | verdict |
+|---|---|---|---|
+| norgesbank | 854 | 854 | **accepted and ignored** |
+| utdanning | raises | — | refuses an unfiltered fetch |
+| vindkraft | raises | — | refuses an unfiltered fetch |
+| aqua, omregning | raises | — | refuses |
+| elcert | HTTP error | — | unreachable today |
+
+**`utdanning` and `vindkraft` are the model.** They do not accept a request
+they cannot narrow:
+
+    unfiltered tidsserie is 4171 hydra rows; select a printed kommune code
+    unfiltered GetWindPowerPlants is the plant-name catalog; select a
+    printed VindkraftAnleggId
+
+A connector that refuses cannot produce a false narrowing claim. That is the
+behaviour the other 163 should have.
+
+**Norges Bank's case is narrower than "ignores filters", and the precision
+matters.** It validates `select` against the flow's dimensions and raises on
+an unknown one -- it honours what it is given. The years were never given to
+it: `_fetch_norgesbank` took a `select` and no `from_year`, and the dispatch
+passed none. Two halves of one gap, each reasonable alone.
+
+SDMX has `startPeriod`/`endPeriod` and Norges Bank honours them:
+
+    GOVT_KEYFIGURES unfiltered          74,612 bytes, 854 observations
+    GOVT_KEYFIGURES startPeriod=2024     6,249 bytes,  34 observations
+
+Now wired, with a test asserting **both** halves, since either one alone
+re-breaks it. The no-years path is asserted byte-for-byte unchanged, because
+every Norges Bank observation already stored was fetched with it.
+
+So the "accepted and ignored" pattern has now been found five times today:
+the `codelists` `200 []`, the `%NC%` licence match, the dead
+`hierarchy_level` argument, `CQL_FILTER`, and these two filter drops. The
+common tell is unchanged -- a number that should have moved and did not --
+and the common cause is that none of them failed loudly enough to be noticed
+by anything except a count.

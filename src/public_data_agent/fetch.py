@@ -1622,7 +1622,10 @@ def _fetch_observations(
     if is_nbconcept_url(access_path):
         return _fetch_nbconcept(registry, dataset, http=http)
     if is_norgesbank_url(access_path):
-        return _fetch_norgesbank(registry, dataset, http=http, select=select)
+        return _fetch_norgesbank(
+            registry, dataset, http=http, select=select,
+            from_year=from_year, to_year=to_year,
+        )
     if is_npolar_url(access_path):
         return _fetch_npolar(registry, dataset, http=http)
     if is_sikt_url(access_path):
@@ -7412,9 +7415,34 @@ def _norgesbank_series_key(
     return ".".join(positions)
 
 
-def _norgesbank_request_url(access_path: str, observations: int) -> str:
+def _norgesbank_request_url(
+    access_path: str,
+    observations: int,
+    *,
+    from_year: int | None = None,
+    to_year: int | None = None,
+) -> str:
+    """The SDMX request, narrowed to the years asked for when any were.
+
+    `startPeriod`/`endPeriod` are SDMX's own, and Norges Bank honours them:
+    `GOVT_KEYFIGURES` answers 74,612 bytes unfiltered and 6,249 for 2024
+    alone. Until this, `from_year` and `to_year` reached `fetch_observations`
+    and stopped there -- the connector took a `select` and no years, the
+    dispatch passed none, and a question about 2024 fetched every year on
+    record while `ask()` reported the request as narrowed.
+
+    `lastNObservations` and a period range do different things: the first
+    takes the newest N whatever their date, the second takes a window. Both
+    are sent when both are asked for, and the server intersects them.
+    """
+
     separator = "&" if "?" in access_path else "?"
-    return f"{access_path}{separator}lastNObservations={observations}"
+    query = [f"lastNObservations={observations}"]
+    if from_year is not None:
+        query.append(f"startPeriod={int(from_year)}")
+    if to_year is not None:
+        query.append(f"endPeriod={int(to_year)}")
+    return f"{access_path}{separator}" + "&".join(query)
 
 
 def _fetch_norgesbank(
@@ -7423,6 +7451,8 @@ def _fetch_norgesbank(
     *,
     http: JsonHttp | None = None,
     select: dict[str, list[str]] | None = None,
+    from_year: int | None = None,
+    to_year: int | None = None,
 ) -> FetchResult:
     access_path = dataset.get("access_path") or ""
     select = {str(key): value for key, value in (select or {}).items()}
@@ -7481,7 +7511,9 @@ def _fetch_norgesbank(
         parts = urlsplit(access_path)
         path = f"{parts.path.rstrip('/')}/{quote(series_key, safe='.+-_')}"
         access_path = urlunsplit((parts.scheme, parts.netloc, path, parts.query, ""))
-    access_path = _norgesbank_request_url(access_path, observations)
+    access_path = _norgesbank_request_url(
+        access_path, observations, from_year=from_year, to_year=to_year
+    )
     started = utc_now()
     run_id = registry.start_fetch_run(
         dataset_id=dataset["id"],
