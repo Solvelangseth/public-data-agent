@@ -3259,3 +3259,21 @@ reached on the first retry.
 One more worth noting: `wms.test.artsdatabanken.no` answers and publishes
 **zero layers**. A host with `test` in its name is in the production
 catalogue, which is a finding about Geonorge rather than about us.
+
+#### The guard earned its place within the hour
+
+The first full re-run stopped on the rule added an hour earlier:
+
+    ValueError: verified_sample_count 141 exceeds total_count 104;
+    the sample and the total are not describing the same resource
+
+My aggregation summed the sample across **every** layer and the total across
+only the layers that **stated** one, so a dataset whose first layer gave 100
+features and no size, and whose second gave 41 features and a size of 104,
+came out as "141 of 104". Without the guard that writes a coverage of 136%
+into the registry and nothing notices.
+
+A total is now reported only when every layer read gave one, and otherwise the
+note says how many did not. A partial sum is not the dataset's size, and
+publishing it would understate exactly the layer a reader most needs to know
+is large.

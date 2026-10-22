@@ -121,7 +121,7 @@ def main() -> int:
             empty: list[str] = []
             read: list[str] = []
             total = 0
-            total_known = False
+            totals_missing = 0
             for layer in item["layers"]:
                 url = getfeature_url(item["address"], layer, count=args.count)
                 filled = {**dict(dataset), "access_path": url}
@@ -132,9 +132,10 @@ def main() -> int:
                         read.append(layer)
                         layer_total = (registry.get_capability(item["dataset_id"]) or {}).get(
                             "total_count")
-                        if layer_total is not None:
+                        if layer_total is None:
+                            totals_missing += 1
+                        else:
                             total += int(layer_total)
-                            total_known = True
                         stats["layer read"] += 1
                         break
                     except ValueError as error:
@@ -172,8 +173,17 @@ def main() -> int:
                         f"{item['address']}")
                 if empty:
                     note += f"; {len(empty)} layer(s) served none"
+                # A total is reported only when EVERY layer read gave one.
+                # Summing the totals that answered while summing the samples
+                # from all of them produced `141 sampled of 104`, which the
+                # registry refused -- correctly, since a partial sum is not
+                # the dataset's size and publishing it would understate the
+                # layer a reader most needs to know is large.
+                total_known = bool(read) and totals_missing == 0
                 if total_known:
                     note += f"; those layers hold {total:,}"
+                elif totals_missing:
+                    note += f"; {totals_missing} layer(s) did not state a size"
                 registry.set_capability(item["dataset_id"], {
                     "capability": "features",
                     "record_kind": "feature",
