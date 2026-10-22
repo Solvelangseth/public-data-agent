@@ -3277,3 +3277,36 @@ A total is now reported only when every layer read gave one, and otherwise the
 note says how many did not. A partial sum is not the dataset's size, and
 publishing it would understate exactly the layer a reader most needs to know
 is large.
+
+### The stall was my retries multiplying, and the progress line hid it (2026-10-22)
+
+The backfill sweep stopped at 10 of 86 and stayed there. Same symptom as the
+bwfish stall this morning, so the first instinct was the write-ahead log --
+but it was 2.6 MB, and 2,420 of 2,445 stack samples sat in an SSL socket
+read. The process was waiting on a publisher, not on SQLite.
+
+The publisher was not at fault either. Dataset 11 is
+`wfs.befolkningpagrunnkretsniva`, and it is **slow**, not broken:
+
+    GetFeature count=5     HTTP 404 in  4.4s   (the same intermittent 404)
+    resultType=hits        HTTP 200 in 13.7s
+
+13.7 seconds to count itself. The fault was the arithmetic on top of it:
+`_fetch_wfs` builds an `HttpClient(max_retries=4)` and the sweep wrapped that
+in **three more attempts**, so one layer could cost twelve requests at a 90s
+timeout -- twenty minutes on a single slow layer, and the loop printed nothing
+because progress was reported every ten datasets.
+
+Both halves fixed. The outer loop is two attempts, the client is two at 60s,
+and progress prints **per dataset** with the layers read out of the layers
+offered. A stall and a slow publisher looked identical at ten-dataset
+granularity, which is exactly how twenty minutes went unnoticed.
+
+Two is still enough for the case the retries exist for: `kart.hi.no` has
+answered on the second attempt every one of the five times it has failed on
+the first.
+
+The lesson is narrower than "retries are bad". Nested retry budgets multiply,
+and neither layer of this one knew the other existed -- the connector was
+written for a single fetch and the sweep for a crawl, and each was reasonable
+alone.

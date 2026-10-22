@@ -125,7 +125,14 @@ def main() -> int:
             for layer in item["layers"]:
                 url = getfeature_url(item["address"], layer, count=args.count)
                 filled = {**dict(dataset), "access_path": url}
-                for attempt in (1, 2, 3):
+                # Two, not three. `_fetch_wfs` builds an `HttpClient` that
+                # already retries four times, so an outer loop of three means
+                # up to twelve requests for one layer at a 90s timeout -- and
+                # a slow publisher then holds the sweep for twenty minutes
+                # while printing nothing. `wfs.befolkningpagrunnkretsniva`
+                # takes 13.7s merely to count its features; it is slow, not
+                # broken, and the retries were turning that into a stall.
+                for attempt in (1, 2):
                     try:
                         result = _fetch_wfs(registry, filled)
                         got += result.counts.listed
@@ -155,7 +162,7 @@ def main() -> int:
                             stats[f"layer refused: {str(error)[:40]}"] += 1
                         break
                     except Exception as error:
-                        if attempt == 3:
+                        if attempt == 2:
                             stats[f"layer failed: {type(error).__name__}"] += 1
                         else:
                             # kart.hi.no times out on first contact and
@@ -202,9 +209,8 @@ def main() -> int:
                 # layers it serves nothing from.
                 print(f"     {item['dataset_id']}: {len(empty)} empty layer(s): "
                       + ", ".join(name.split(":")[-1] for name in empty[:4]), flush=True)
-            if index % 10 == 0 or index == len(work):
-                print(f"  {index:,}/{len(work):,}  {stored:,} features  "
-                      + ", ".join(f"{k}={v}" for k, v in sorted(stats.items())), flush=True)
+            print(f"  {index:,}/{len(work):,}  +{got:<6,} {stored:>8,} total  "
+                  f"{len(read)}/{len(item['layers'])} layers  {item['title'][:40]}", flush=True)
             if index % 20 == 0:
                 registry.conn.execute("PRAGMA wal_checkpoint(TRUNCATE)")
 

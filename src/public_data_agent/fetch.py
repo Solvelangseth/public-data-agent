@@ -4916,7 +4916,11 @@ def _fetch_wfs(
     """
 
     access_path = dataset.get("access_path") or ""
-    client = http or HttpClient(timeout=90.0, max_retries=4)
+    # Four retries at 90s is six minutes on a layer that is slow rather
+    # than broken, and `wfs.befolkningpagrunnkretsniva` takes 13.7s just
+    # to count itself. Two is enough to clear the kart.hi.no cold-layer
+    # case, which has always answered on the second attempt.
+    client = http or HttpClient(timeout=60.0, max_retries=2)
     table_id = wfs_table_id(access_path)
     started = utc_now()
     run_id = registry.start_fetch_run(
