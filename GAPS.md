@@ -3540,3 +3540,35 @@ the `codelists` `200 []`, the `%NC%` licence match, the dead
 common tell is unchanged -- a number that should have moved and did not --
 and the common cause is that none of them failed loudly enough to be noticed
 by anything except a count.
+
+### P1.2c3d: five matching rows do not prove the sixth (2026-10-23)
+
+The row-level check from P1.2c3 sees every observation id a request reports,
+but not every connector reports those ids. The unfinished follow-up tried the
+connector's `FetchResult.sample` as a second reading. That sample is capped at
+five rows, so it could disprove a filter when one of the five contradicted the
+request, but it could not safely prove a 580-row response had been narrowed.
+
+`FetchResult.filter_applied` now keeps that asymmetry explicit:
+
+- any comparable contradictory row is `False`, even in a partial sample;
+- `True` requires the sample to equal the publisher-reported response count;
+- every requested filter kind must be present and agree -- a matching year
+  cannot prove that a municipality filter also held;
+- otherwise the result is `None`, meaning sent but not verified.
+
+The comparison uses the publisher's dimension names as well as its values.
+Scanning every four-digit value was unsafe: industry and product dimensions
+also carry four-digit codes and could be mistaken for municipalities. Only a
+field that says `kommune`/`municipality`, `fylke`/`county`, or
+`bydel`/`borough` is compared as that kind of place. Time likewise needs an
+explicit time field, and `2024K1` or `2024U03` proves the year 2024 rather
+than being rejected for not equalling the bare string `2024`.
+
+The ask path combines connector evidence with all stored rows, with a negative
+from either winning. A refused place filter also wins over a matching year:
+if one place in a comparison is refused, the answer says it is incomplete; if
+all are refused, the fallback says plainly that it omitted the place filter
+and may cover more than requested.
+
+2,462 tests pass, 1 skipped.

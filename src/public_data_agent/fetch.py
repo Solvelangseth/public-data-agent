@@ -1266,6 +1266,122 @@ class FetchResult:
     # reported "unchanged" and keeps its original fetch_run_id, so neither the
     # run id nor the series identifies what a given fetch actually asked for.
     observation_ids: list[str] = field(default_factory=list)
+    # Did the filter this request asked for actually apply?
+    #
+    # True when the complete returned rows agree with every requested kind of
+    # filter, False when a row plainly contradicts one, None when no filter was
+    # asked for or the available rows cannot prove it. Needed because a dropped
+    # filter is invisible otherwise: of the 221
+    # connector dispatch calls, 164 never receive the `select` that
+    # `fetch_observations` computes, and `bwfish` answered `kommune=5060`
+    # with the same 580 localities across 125 kommuner as no filter at all.
+    #
+    # It is a flag rather than a raise on purpose. The stored rows are real
+    # and worth keeping; what is false is only a claim that they were
+    # narrowed, so the caller is told rather than the data discarded.
+    filter_applied: bool | None = None
+
+
+def filter_held(
+    sample: list[dict[str, Any]],
+    *,
+    kommune: str | None = None,
+    fylke: str | None = None,
+    bydel: str | None = None,
+    from_year: int | None = None,
+    to_year: int | None = None,
+    complete: bool = False,
+) -> bool | None:
+    """Whether returned rows prove the requested filter was applied.
+
+    Asymmetric, and that is the design rather than a shortcut. A dropped
+    filter is only ever detectable as a row that should not be there, so this
+    looks for exactly that and makes no claim otherwise:
+
+        True    complete rows prove every requested filter kind
+        False   a comparable value contradicted the request
+        None    nothing was asked, the rows are partial, or they cannot say
+
+    Treating "cannot tell" as "did not work" would mark every source whose
+    dimensions do not name a kommune as broken, which is most of them.
+
+    ``FetchResult.sample`` is capped at five rows. A contradiction in those
+    five disproves the filter, but five matching rows cannot prove that a
+    sixth did not come from somewhere else. ``complete`` is therefore required
+    for a positive result. It is true only when the result count says the
+    sample contains the whole response.
+
+    A kommune number and a year are both four digits, so each is compared
+    only against its own kind of request. Getting that wrong reports a
+    working filter as broken, which is the failure mode that would get this
+    check switched off.
+    """
+
+    places = {
+        kind: str(value)
+        for kind, value in (
+            ("kommune", kommune),
+            ("fylke", fylke),
+            ("bydel", bydel),
+        )
+        if value
+    }
+    years = set()
+    if from_year is not None or to_year is not None:
+        low = from_year if from_year is not None else to_year
+        high = to_year if to_year is not None else from_year
+        years = {str(y) for y in range(int(low), int(high) + 1)}
+    if not sample or (not places and not years):
+        return None
+    saw_places: set[str] = set()
+    saw_year = False
+    for row in sample:
+        dimensions = row.get("dimensions")
+        if not isinstance(dimensions, dict):
+            continue
+        for dimension, value in dimensions.items():
+            text = str(value)
+            if years and _is_time_dimension(str(dimension)):
+                year = _year_from_label(text)
+                if year is None:
+                    continue
+                saw_year = True
+                if str(year) not in years:
+                    return False
+                continue
+            place_kind = _place_dimension_kind(str(dimension))
+            if place_kind in places and len(text) == 4 and text.isdigit():
+                saw_places.add(place_kind)
+                if text != places[place_kind]:
+                    return False
+    proved_every_kind = set(places) <= saw_places and (not years or saw_year)
+    return True if complete and proved_every_kind else None
+
+
+def _place_dimension_kind(name: str) -> str | None:
+    """Return the place kind a publisher's field name explicitly identifies.
+
+    This is deliberately about the field name, not the shape of its values.
+    Industry, product and postcode dimensions also carry four-digit codes;
+    treating any of those as a kommune would turn a working request into a
+    false filter failure.
+    """
+
+    folded = name.casefold()
+    if "kommune" in folded or "municipality" in folded:
+        return "kommune"
+    if "fylke" in folded or "county" in folded:
+        return "fylke"
+    if "bydel" in folded or "borough" in folded:
+        return "bydel"
+    return None
+
+
+def _is_time_dimension(name: str) -> bool:
+    """Whether the publisher's dimension name explicitly denotes time."""
+
+    folded = "".join(character for character in name.casefold() if character.isalnum())
+    return folded in {"tid", "år", "aar", "year", "time", "period", "timeperiod"}
 
 
 def can_fetch_access_path(access_path: str | None) -> bool:
@@ -1435,6 +1551,20 @@ def fetch_observations(
     from public_data_agent.verify import record_evidence
 
     record_evidence(registry, dataset_id, result)
+    # `getattr`, because this is advisory: a caller that hands back something
+    # without a sample should lose the check, not the fetch.
+    if hasattr(result, "filter_applied"):
+        sample = getattr(result, "sample", None) or []
+        listed = getattr(getattr(result, "counts", None), "listed", None)
+        result.filter_applied = filter_held(
+            sample,
+            kommune=kommune,
+            fylke=fylke,
+            bydel=bydel,
+            from_year=from_year,
+            to_year=to_year,
+            complete=listed == len(sample),
+        )
     return result
 
 
@@ -17568,13 +17698,8 @@ def _is_ssb_table_url(access_path: str) -> bool:
 
 
 def _year_from_label(label: str) -> int | None:
-    digits = "".join(ch for ch in label if ch.isdigit())
-    if len(digits) < 4:
-        return None
-    try:
-        return int(digits[:4])
-    except ValueError:
-        return None
+    match = re.search(r"(?<!\d)((?:18|19|20)\d{2}|2100)(?!\d)", label)
+    return int(match.group(1)) if match else None
 
 
 # Capability kinds returned by ``classify_access_path``.

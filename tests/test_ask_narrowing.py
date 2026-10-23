@@ -36,7 +36,13 @@ class _Counts:
 
 
 class _Fetched:
-    def __init__(self, ids: list[str], listed: int) -> None:
+    def __init__(
+        self,
+        ids: list[str],
+        listed: int,
+        *,
+        filter_applied: bool | None = None,
+    ) -> None:
         self.dataset_id = "ssbtable:13035"
         self.table_id = "13035"
         self.request_url = "https://data.ssb.no/api/v0/no/table/13035"
@@ -44,6 +50,11 @@ class _Fetched:
         self.counts = _Counts(listed)
         self.sample = []
         self.observation_ids = ids
+        # `fetch_observations` now reports whether the filter it was given
+        # actually applied; the fake has to carry it or every caller reads
+        # `None` from a missing attribute and the combination silently
+        # degrades to the row-level check alone.
+        self.filter_applied = filter_applied
 
 
 class _Registry:
@@ -107,13 +118,22 @@ def registry() -> _Registry:
     reg.close()
 
 
-def _record_calls(monkeypatch, listed: int = 27) -> list[dict[str, Any]]:
+def _record_calls(
+    monkeypatch,
+    listed: int = 27,
+    *,
+    filter_applied: bool | None = None,
+) -> list[dict[str, Any]]:
     calls: list[dict[str, Any]] = []
 
     def fake(registry, dataset_id, **kwargs):
         calls.append({"dataset_id": dataset_id, **kwargs})
         n = len(calls)
-        return _Fetched([f"obs-{n}-{i}" for i in range(listed)], listed)
+        return _Fetched(
+            [f"obs-{n}-{i}" for i in range(listed)],
+            listed,
+            filter_applied=filter_applied,
+        )
 
     monkeypatch.setattr(ask_module, "fetch_observations", fake)
     return calls
@@ -130,7 +150,9 @@ def test_the_question_that_started_this(registry: _Registry, monkeypatch) -> Non
     assert [call["kommune"] for call in calls] == ["3201", "3203"], "one request per place"
     assert all(call["from_year"] == 2024 and call["to_year"] == 2024 for call in calls)
     assert out["narrowing"]["years"] == [2024]
-    assert "narrowed to place Bærum, Asker; year 2024" in out["explanation"]
+    # The stored rows print a kommune name, not its code. The year is proven,
+    # but one proven constraint cannot prove that the place filter also held.
+    assert "sent narrowed to place Bærum, Asker; year 2024" in out["explanation"]
 
 
 def test_only_the_fetched_rows_come_back(registry: _Registry, monkeypatch) -> None:
@@ -208,6 +230,32 @@ def test_a_refused_filter_falls_back_and_says_which(registry: _Registry, monkeyp
     assert out["narrowing"]["filter_not_supported"] == ["3201"]
     assert calls[-1]["kommune"] is None, "the fallback drops the place, keeps the year"
     assert calls[-1]["from_year"] == 2024
+    assert "fallback request omitted that filter" in out["explanation"]
+    assert "request was narrowed" not in out["explanation"]
+
+
+def test_one_refused_place_makes_a_comparison_explicitly_incomplete(
+    registry: _Registry,
+    monkeypatch,
+) -> None:
+    calls: list[dict[str, Any]] = []
+
+    def refuses_baerum(registry_arg, dataset_id, **kwargs):
+        calls.append(kwargs)
+        if kwargs.get("kommune") == "3201":
+            raise ValueError("Bærum is not addressable here")
+        return _Fetched(["obs-asker"], 1, filter_applied=True)
+
+    monkeypatch.setattr(ask_module, "fetch_observations", refuses_baerum)
+    out = _execute_catalog_plan(
+        registry,
+        _plan("avfall i Bærum og Asker 2024"),
+        http=None,
+    )
+    assert [call["kommune"] for call in calls] == ["3201", "3203"]
+    assert out["narrowing"]["filter_not_supported"] == ["3201"]
+    assert out["narrowing"]["narrowed_in_the_rows"] is False
+    assert "do not fully cover every requested place" in out["explanation"]
 
 
 def test_a_fetch_that_fails_outright_is_still_a_failure(registry: _Registry, monkeypatch) -> None:
@@ -275,3 +323,55 @@ def test_a_year_is_not_mistaken_for_a_kommune_code() -> None:
 
     rows = [{"dimensions": {"KOKkommuneregion0000": "Bærum", "Tid": "2024"}}]
     assert _narrowing_held(rows, BAERUM, (2024,)) is True
+
+
+def test_every_requested_filter_kind_must_be_proven() -> None:
+    """A matching year cannot prove that a kommune filter also applied."""
+
+    rows = [{"dimensions": {"produkt": "laks", "Tid": "2024"}}]
+    assert _narrowing_held(rows, AUSTEVOLL, (2024,)) is None
+
+
+def test_every_requested_place_must_appear() -> None:
+    rows = [{"dimensions": {"KOKkommuneregion0000": "Bærum", "Tid": "2024"}}]
+    assert _narrowing_held(rows, BAERUM + AUSTEVOLL, (2024,)) is None
+
+
+def test_an_unrelated_four_digit_code_is_not_a_kommune() -> None:
+    rows = [{
+        "dimensions": {
+            "KOKkommuneregion0000": "Bærum",
+            "produktkode": "4617",
+            "Tid": "2024",
+        }
+    }]
+    assert _narrowing_held(rows, BAERUM, (2024,)) is True
+
+
+def test_a_subannual_period_proves_its_year() -> None:
+    rows = [{"dimensions": {"KOKkommuneregion0000": "Bærum", "Tid": "2024K1"}}]
+    assert _narrowing_held(rows, BAERUM, (2024,)) is True
+
+
+def test_connector_contradiction_overrides_inconclusive_stored_rows(
+    registry: _Registry,
+    monkeypatch,
+) -> None:
+    """The response sample can expose a drop even when stored rows use labels."""
+
+    _record_calls(monkeypatch, filter_applied=False)
+    out = _execute_catalog_plan(registry, _plan("avfall i Bærum 2024"), http=None)
+    assert out["narrowing"]["narrowed_in_the_rows"] is False
+    assert "rows came back unfiltered" in out["explanation"]
+
+
+def test_stored_contradiction_overrides_connector_success(
+    registry: _Registry,
+    monkeypatch,
+) -> None:
+    """No positive flag may hide a contradictory row in the answer."""
+
+    _record_calls(monkeypatch, filter_applied=True)
+    out = _execute_catalog_plan(registry, _plan("avfall i Bærum 2019"), http=None)
+    assert out["narrowing"]["narrowed_in_the_rows"] is False
+    assert "rows came back unfiltered" in out["explanation"]

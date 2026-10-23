@@ -4,7 +4,12 @@ import json
 from pathlib import Path
 
 from public_data_agent.cli import main
-from public_data_agent.fetch import cells_from_jsonstat, fetch_observations, pxweb_api_url
+from public_data_agent.fetch import (
+    cells_from_jsonstat,
+    fetch_observations,
+    filter_held,
+    pxweb_api_url,
+)
 from public_data_agent.harvest import harvest
 from public_data_agent.http_util import JsonResponse
 from public_data_agent.registry import Registry
@@ -122,6 +127,69 @@ def test_cells_from_jsonstat_keep_source_values() -> None:
     ]
 
 
+def test_filter_evidence_can_disprove_from_a_partial_sample() -> None:
+    rows = [
+        {"dimensions": {"municipalityNo": "5060", "year": "2024"}},
+        {"dimensions": {"municipalityNo": "4617", "year": "2024"}},
+    ]
+    assert filter_held(
+        rows, kommune="5060", from_year=2024, to_year=2024, complete=False
+    ) is False
+
+
+def test_partial_matching_sample_cannot_prove_the_whole_response() -> None:
+    rows = [{"dimensions": {"municipalityNo": "5060", "year": "2024"}}]
+    assert filter_held(
+        rows, kommune="5060", from_year=2024, to_year=2024, complete=False
+    ) is None
+
+
+def test_complete_rows_must_prove_every_requested_filter_kind() -> None:
+    only_year = [{"dimensions": {"year": "2024", "product": "salmon"}}]
+    assert filter_held(
+        only_year, kommune="5060", from_year=2024, to_year=2024, complete=True
+    ) is None
+
+    place_and_year = [
+        {"dimensions": {"municipalityNo": "5060", "year": "2024"}}
+    ]
+    assert filter_held(
+        place_and_year,
+        kommune="5060",
+        from_year=2024,
+        to_year=2024,
+        complete=True,
+    ) is True
+
+
+def test_unrelated_four_digit_dimension_does_not_disprove_place_filter() -> None:
+    rows = [{
+        "dimensions": {
+            "municipalityNo": "5060",
+            "productCode": "4617",
+            "year": "2024",
+        }
+    }]
+    assert filter_held(
+        rows,
+        kommune="5060",
+        from_year=2024,
+        to_year=2024,
+        complete=True,
+    ) is True
+
+
+def test_subannual_period_proves_its_year() -> None:
+    rows = [{"dimensions": {"municipalityNo": "5060", "Tid": "2024K1"}}]
+    assert filter_held(
+        rows,
+        kommune="5060",
+        from_year=2024,
+        to_year=2024,
+        complete=True,
+    ) is True
+
+
 def test_fetch_stores_observations_and_leaves_harvest_untouched(tmp_path: Path) -> None:
     registry = _registry(tmp_path)
     before = _harvest_bytes(registry)
@@ -138,6 +206,7 @@ def test_fetch_stores_observations_and_leaves_harvest_untouched(tmp_path: Path) 
     assert result.http_status == 200
     assert result.counts.listed == 2
     assert result.counts.inserted == 2
+    assert result.filter_applied is True
     assert registry.observation_count() == 2
     assert _harvest_bytes(registry) == before
     assert registry.enrichment_count() == enrich_before

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -257,7 +258,7 @@ def _execute_catalog_plan(
     # them. Picking would answer confidently about a kommune nobody asked for.
     codes: list[str | None] = [place.code for place in found.resolved_places] or [None]
     try:
-        fetched, observation_ids, dropped = _fetch_each(
+        fetched, observation_ids, dropped, flags = _fetch_each(
             registry,
             fetch_step,
             codes=codes,
@@ -315,9 +316,30 @@ def _execute_catalog_plan(
     # finding a stored row that contradicts what was asked for. A source
     # whose dimensions do not name the place at all stays "unverified"
     # rather than being accused.
-    narrowing["narrowed_in_the_rows"] = _narrowing_held(
-        observations, found.resolved_places, years
+    # Two independent readings, and either one saying no is enough. The
+    # connector-level flag sees the sample the request itself returned; the
+    # row-level check sees every stored row this request touched. Neither
+    # subsumes the other: a sample is current but usually partial, while a
+    # stored row can prove only dimensions whose values are comparable.
+    in_rows = _narrowing_held(observations, found.resolved_places, years)
+    from_connector = None if not flags else (
+        False if False in flags else (True if all(f is True for f in flags) else None)
     )
+    held: bool | None
+    if in_rows is False or from_connector is False:
+        held = False
+    elif in_rows is True or from_connector is True:
+        held = True
+    else:
+        held = None
+    # A request that the connector refused was not fully narrowed, even if
+    # the remaining constraints happen to match every returned row. In the
+    # all-refused case `_fetch_each` deliberately makes one fallback request
+    # without the place; a matching year must not turn that into proof that
+    # the omitted place filter held.
+    if dropped:
+        held = False
+    narrowing["narrowed_in_the_rows"] = held
     if not numeric:
         explanation = "The connector returned no numeric observation values; no numbers were emitted."
     else:
@@ -332,7 +354,27 @@ def _execute_catalog_plan(
             "number was emitted."
         )
         held = narrowing["narrowed_in_the_rows"]
-        if pinned and held is False:
+        if dropped:
+            dropped_names = [
+                place.name
+                for place in found.resolved_places
+                if place.code in dropped
+            ]
+            requested_codes = [code for code in codes if code is not None]
+            if len(dropped) == len(requested_codes):
+                explanation = (
+                    "The connector could not apply the requested place filter for "
+                    f"{', '.join(dropped_names or dropped)}; the fallback request omitted "
+                    "that filter, so these values may cover more than was asked for. "
+                    + explanation
+                )
+            else:
+                explanation = (
+                    "The connector could not apply the requested place filter for "
+                    f"{', '.join(dropped_names or dropped)}; these values do not fully "
+                    "cover every requested place. " + explanation
+                )
+        elif pinned and held is False:
             explanation = (
                 f"The request asked for {'; '.join(pinned)} and the rows came back "
                 "unfiltered -- this connector does not apply the filter, so the "
@@ -373,7 +415,7 @@ def _fetch_each(
     years: tuple[int, ...],
     http: JsonHttp | None,
     max_cells: int | None,
-) -> tuple[Any, list[str], list[str]]:
+) -> tuple[Any, list[str], list[str], list[bool | None]]:
     """One request per named place, and the ids they touched.
 
     A connector that cannot filter on kommune raises rather than ignoring the
@@ -388,6 +430,7 @@ def _fetch_each(
     to_year = max(years) if years else None
     observation_ids: list[str] = []
     dropped: list[str] = []
+    flags: list[bool | None] = []
     last = None
     for code in codes:
         try:
@@ -406,6 +449,7 @@ def _fetch_each(
                 raise
             dropped.append(code)
             continue
+        flags.append(getattr(last, "filter_applied", None))
         observation_ids.extend(last.observation_ids or [])
     if last is None:
         # Every place-filtered request was refused; ask once without it.
@@ -419,8 +463,9 @@ def _fetch_each(
             http=http,
             max_cells=max_cells,
         )
+        flags.append(getattr(last, "filter_applied", None))
         observation_ids.extend(last.observation_ids or [])
-    return last, observation_ids, dropped
+    return last, observation_ids, dropped, flags
 
 
 def _json_value(value: Any) -> Any:
@@ -576,35 +621,64 @@ def _narrowing_held(
 
     if not observations or (not places and not years):
         return None
-    wanted_places = {str(place.code) for place in places if place.code}
-    wanted_places |= {str(place.name).casefold() for place in places if place.name}
+    wanted_places = [
+        {
+            str(value).casefold()
+            for value in (place.code, place.name, place.label)
+            if value
+        }
+        for place in places
+        if place.code
+    ]
     wanted_years = {str(year) for year in years}
-    saw_place = saw_year = False
+    saw_places: set[int] = set()
+    saw_year = False
     for row in observations:
         dimensions = row.get("dimensions")
         if not isinstance(dimensions, dict):
             continue
-        for value in dimensions.values():
+        for dimension, value in dimensions.items():
             text = str(value)
-            if wanted_places and _looks_like_a_place_key(text):
-                saw_place = True
-                if text not in wanted_places and text.casefold() not in wanted_places:
+            if wanted_places and _looks_like_a_place_dimension(str(dimension)):
+                matches = [
+                    index
+                    for index, options in enumerate(wanted_places)
+                    if text.casefold() in options
+                ]
+                if not matches:
                     return False
-            if wanted_years and len(text) == 4 and text.isdigit():
+                saw_places.update(matches)
+            if wanted_years and _looks_like_a_time_dimension(str(dimension)):
+                year = _year_in_dimension(text)
+                if year is None:
+                    continue
                 saw_year = True
-                if text not in wanted_years:
+                if year not in wanted_years:
                     return False
-    return True if (saw_place or saw_year) else None
+    proved_every_kind = (
+        len(saw_places) == len(wanted_places)
+        and (not wanted_years or saw_year)
+    )
+    return True if proved_every_kind else None
 
 
-def _looks_like_a_place_key(text: str) -> bool:
-    """A four-digit kommune number, which is the only form worth comparing.
+def _looks_like_a_place_dimension(name: str) -> bool:
+    """Whether a dimension's own name explicitly identifies a kommune.
 
-    Deliberately narrow. This registry's standing rule is never to claim a
-    join key from the shape of a code, and this does not: it decides only
-    which values are worth COMPARING against a request, and a wrong guess
-    here produces an unverified verdict, never a wrong number.
+    Constraints currently resolve only kommune names through the Brønnøysund
+    register. A generic ``Region`` may mean a country, county or aggregation,
+    so it cannot prove that kommune narrowing held.
     """
 
-    return len(text) == 4 and text.isdigit() and not text.startswith("19") \
-        and not text.startswith("20")
+    folded = name.casefold()
+    return "kommune" in folded or "municipality" in folded
+
+
+def _looks_like_a_time_dimension(name: str) -> bool:
+    folded = "".join(character for character in name.casefold() if character.isalnum())
+    return folded in {"tid", "år", "aar", "year", "time", "period", "timeperiod"}
+
+
+def _year_in_dimension(value: str) -> str | None:
+    match = re.search(r"(?<!\d)((?:18|19|20)\d{2}|2100)(?!\d)", value)
+    return match.group(1) if match else None
